@@ -1,382 +1,691 @@
 ---
-title: "Python Code Quality, Testing, and Type Hinting"
-description: "Learn about Python's code quality tools, unit testing, and type hinting from a JavaScript developer's perspective."
+title: "Exceptions and Debugging"
+description: "Learn to read tracebacks and locate failures before handling them. Understand specific exceptions, raise, try/except/else/finally and assertion boundaries, then build an independent task-import report without disguising every error as success."
 ---
 
-## 1. Introduction
+import { getExceptionExample } from '@/lib/js2py-examples'
 
-### Why are Code Quality, Testing, and Type Hinting Important?
+## 1. From seeing an error to knowing who should handle it
 
-As an experienced JavaScript developer, you are well aware of the importance of tools like `ESLint`, `Prettier`, `Jest`, and `TypeScript` in large-scale projects. They are the cornerstones of ensuring code consistency, readability, and maintainability.
+L04 deliberately exposed NameError, TypeError and UnboundLocalError so you could observe the mechanisms. Now task estimates arrive as strings resembling form values: `"20"` converts, `"twenty"` does not, and `"-5"` converts successfully but violates the business rule.
 
-The Python ecosystem also has a powerful set of tools to address these issues. This module will introduce you to the code quality, testing, and type hinting tools in Python, and compare them with the JavaScript tools you are familiar with.
+Stopping an entire batch at the first known malformed value can be unhelpful. Replacing every failure with zero is not a solution either: it misreports “no valid estimate obtained” as “a valid zero-minute task.” Worse, a programming defect may be disguised as a user mistake.
 
-**Core Concept Analogy**
+**The goal is not to remove red text. It is to establish explainable failure paths: where an operation failed, who can recover, and what must propagate.** Debugging finds causes; exception handling implements an explicit recovery policy. Neither replaces the other.
 
-| Python Tool/Concept | JavaScript Tool/Concept | Main Function |
+### Chapter contract
+
+| Item | Agreement |
+| --- | --- |
+| Prerequisites | L00–L04: independent scripts, values/types, containers/sharing, control flow, function calls and returns |
+| New capabilities | Tracebacks, reproduction and reduction, specific exceptions, raise, re-raising and cause chains, try/except/else/finally, assertion boundaries |
+| Independent acceptance | Record and skip known malformed text; keep missing fields, wrong types and unknown internal failures visible; explain each execution path |
+| Not required | Classes/custom exceptions, imports, file I/O, pytest, debugger commands, logging frameworks, HTTP exceptions or server architecture |
+
+“Task import” here means **processing a list already in memory**, not reading CSV, writing a database or serving an HTTP endpoint. The business name must not smuggle in additional prerequisites.
+
+### Files and commands
+
+Download [L05 independent examples and reference answers](/learning-assets/js2py/u05-exceptions.zip), extract it and open `u05-exceptions` in your editor and terminal. Each file runs independently, without names left over from another program.
+
+```bash
+uv run --no-project --python 3.13 python errors/traceback_chain.py
+```
+
+This command **is supposed to fail**. Replace only the final filename for later examples. Continue using CPython 3.13 without third-party packages or project configuration; see [L00](/en/docs/js2py/module-00-python-introduction) for environment setup.
+
+Of the 22 Python files, the eight in `errors/` and `pitfalls/assert_validation.py` intentionally exit with an exception in ordinary mode. Other counterexamples may exit successfully while behaving incorrectly. Directory names alone are not acceptance criteria: read each explanation. Leave `solutions/` until after attempting the exercises.
+
+## 2. Three kinds of problem: except is not the answer to all of them
+
+| Problem | When it occurs | Direction of repair |
 | --- | --- | --- |
-| **Black** | `Prettier` | Automated code formatting |
-| **Ruff** | `ESLint` | Code style checking, error detection |
-| **pytest** | `Jest` / `Mocha` | Unit testing, integration testing |
-| **Type Hints** | `TypeScript` | Static type checking |
-| **Mypy** | `tsc` (TypeScript Compiler) | Type checker |
+| Invalid syntax | Before the current file starts executing | Repair the colon, indentation or structure; do not swallow a runtime exception |
+| An operation fails | While evaluating an expression or call | Inspect the exception and call chain, then choose recovery or propagation |
+| Normal termination, wrong result | Every statement may be valid | Compare requirements and boundary inputs; trace state and control flow |
 
-> 💡 **Learning Strategy**: Think of these Python tools as the "Python version" of your existing JavaScript workflow. Their goals and philosophies are similar, only the specific implementations and syntax are different.
+This is an **intentional syntax error**. Save it separately as `syntax_error.py`:
 
-## 2. Code Quality and Formatting
+```python expected-error=SyntaxError case=syntax-error
+print("Before")
+if True
+    print("Inside")
+```
 
-### 2.1 Black: The Uncompromising Code Formatter
+Parsing detects the missing colon on line 2. Even though the first line looks valid, Before is not printed. Wrapping invalid syntax in a try in that same, unparseable file cannot make it executable. SyntaxError produced by later dynamic compilation or importing is a different scenario, not combined with this one.
 
-`Black` is a widely used code formatting tool in the Python community, known for being "uncompromising," which means it offers very few configuration options. This ensures that code style remains highly consistent across any project.
+Compare L04's runtime errors: earlier prints may already have happened, but statements after an unhandled exception do not execute. **No exception does not prove a correct business result.** Section 4 reproduces an early-return defect.
 
-<PythonEditor title="Code Formatting Comparison: Black vs. Prettier" compare={true}>
-```javascript !! js
-// JavaScript (before formatting with Prettier)
-function longFunctionName(arg1, arg2, arg3, arg4, arg5, arg6) {
-  console.log('This is a very long function definition that Prettier will automatically wrap');
-  if (arg1 && arg2 && arg3 && arg4 && arg5 && arg6) {
-    return { key1: 'value1', key2: 'value2', key3: 'value3' };
-  }
-}
+## 3. Reading a traceback: locate the failure, then trace its input
 
-// After formatting with Prettier
-function longFunctionName(
-  arg1,
-  arg2,
-  arg3,
-  arg4,
-  arg5,
-  arg6,
-) {
-  console.log(
-    'This is a very long function definition that Prettier will automatically wrap',
-  );
-  if (
-    arg1 &&
-    arg2 &&
-    arg3 &&
-    arg4 &&
-    arg5 &&
-    arg6
-  ) {
-    return {
-      key1: 'value1',
-      key2: 'value2',
-      key3: 'value3',
-    };
-  }
+File: `errors/traceback_chain.py`.
+
+<Code language="python">{getExceptionExample('errors/traceback_chain.py')}</Code>
+
+Standard output contains only:
+
+```text
+Starting report
+```
+
+The essential error-stream structure is shown below. Absolute paths are normalized, and repeated source lines and position markers are omitted; the full output on your machine is longer:
+
+```text
+Traceback (most recent call last):
+  File ".../errors/traceback_chain.py", line 17, in <module>
+  File ".../errors/traceback_chain.py", line 12, in build_total
+  File ".../errors/traceback_chain.py", line 6, in task_minutes
+  File ".../errors/traceback_chain.py", line 2, in parse_minutes
+ValueError: invalid literal for int() with base 10: '25m'
+```
+
+Read it in two passes rather than treating the whole traceback as an opaque string:
+
+1. **Start with the last line.** ValueError is the exception category; its message identifies `'25m'` as invalid input for this int conversion. Categories select handlers; messages help diagnosis. Do not implement recovery by matching English error wording.
+2. **Find the final relevant source location.** `int(raw)` on line 2 failed; print and for are not themselves the defective operations.
+3. **Work back through callers.** task_minutes supplies the minutes field; build_total is traversing tasks; the top-level call supplies a list containing `"25m"`. Each frame represents a function call that has not completed.
+4. **Separate a triggering location from its cause.** The input violates the conversion contract. Seeing line 2 does not justify replacing int with a function that always returns zero.
+
+“Most recent call last” places the most recent call near the bottom. The exception looks outward for a matching handler: parse_minutes → task_minutes → build_total → top level. There is none, so the process ends with an error. These calls do not successfully return their pending results, and Done is not printed.
+
+A terminal often displays standard output and the error stream together. Buffering can affect their visible interleaving, so they are presented separately here. Absolute paths, arrows and combined ordering are not required to match byte for byte across environments.
+
+## 4. Debugging is an experiment, not adding try everywhere
+
+### 4.1 Observe the actual input first
+
+File: `errors/debug_observation.py`.
+
+<Code language="python">{getExceptionExample('errors/debug_observation.py')}</Code>
+
+Output before the exception:
+
+```text
+raw: '25m'
+type: <class 'str'>
+```
+
+`repr(raw)` returns a diagnostic representation: here it reveals quotation marks and whitespace inside a string. `print(raw)` shows its content, making subtle details easier to overlook. repr neither modifies raw nor protects secrets. Do not use real passwords, tokens or sensitive user data as diagnostic samples.
+
+The evidence is “a string containing an m,” not the assumption that a frontend numeric field must have produced a number. `type(raw)` answers the type question; `repr(raw)` answers the value question.
+
+File: `debug_fixed.py`.
+
+<Code language="python">{getExceptionExample('debug_fixed.py')}</Code>
+
+Expected:
+
+```text
+raw: ' 25 '
+type: <class 'str'>
+minutes: 25
+```
+
+The test input now satisfies the current contract, verifying that int accepts surrounding whitespace. **This is not a claim that a developer can manually repair every real invalid input.** Later sections implement rejection. If the product should accept `25m`, define a unit grammar before implementing and testing it. Blindly removing the last character could corrupt a valid `25`.
+
+### 4.2 Without a traceback, still follow execution
+
+File: `debug_logic.py`, with a deliberately misplaced return.
+
+<Code language="python">{getExceptionExample('debug_logic.py')}</Code>
+
+Actual output:
+
+```text
+10
+0
+```
+
+Ten plus twenty should be thirty, but the result is ten. Use L04's execution model: the first iteration accumulates ten → return ends the whole call → the second value is never processed. The list has not lost data, and Python addition has not changed.
+
+Remove the return inside the loop and keep the return after it. Run `[]`, `[0]`, `[10, 20]` and `[5, 7, 9]` separately; expect 0, 0, 30 and 21. Producing thirty for the original input alone does not establish empty-input correctness.
+
+### 4.3 A reusable debugging record
+
+| Step | What to record here |
+| --- | --- |
+| Reproduce | Filename, complete command, input, and “expected 30, observed 10” |
+| Reduce | Remove irrelevant task fields; retain two numbers that reproduce it |
+| Hypothesize | return ends the call during the first iteration |
+| Test | Move only that statement; do not simultaneously rewrite the algorithm and all names |
+| Regress | Repeat the original, empty, single-zero and multiple-item cases |
+
+A breakpoint debugger can later pause and inspect the same state. Establish the reasoning process first; IDE plugins, pdb commands and framework logging are not prerequisites for this chapter.
+
+**Checkpoint A:** keep the before/after files and last successful command. Explain both the four traceback frames and the silent early return before continuing.
+
+## 5. try/except: recover only from failures you can explain
+
+File: `recover_value.py`.
+
+<Code language="python">{getExceptionExample('recover_value.py')}</Code>
+
+Expected:
+
+```text
+Input: '25'
+Converted: 25
+Next item
+Input: 'bad'
+Rejected: invalid literal for int() with base 10: 'bad'
+Next item
+Input: '0'
+Converted: 0
+Next item
+```
+
+`try:` does not inspect code in advance to see whether it is erroneous. It executes the statements normally and sets a handling boundary for **exceptions propagating during that execution**. There are two paths:
+
+- Success: int returns an integer → Converted prints → except is skipped → Next item prints.
+- Known failure: int raises ValueError → the remaining try statements are skipped → the matching except runs → Next item prints → for starts the next item.
+
+Handling the exception **does not automatically retry the failed int line**. This example also avoids using minutes left over from a previous iteration. An unconditional print after try would be unsafe: the current assignment may never have completed.
+
+`except ValueError as error:` temporarily binds the exception object to error. `print(error)` displays its explanation, and `str(error)` produces a message string. That binding is cleared when the handler ends; it is not long-term result storage. Explicitly save a message or structured rejection record when needed.
+
+### 5.1 ValueError does not match every exception
+
+File: `errors/unexpected_type.py`.
+
+<Code language="python">{getExceptionExample('errors/unexpected_type.py')}</Code>
+
+Line 3 raises TypeError. Neither Rejected text nor After conversion prints. `None` is not numeric text supported here. A handler matches its declared category and subclasses, not every failure merely because it is nearby.
+
+Our policy is “report malformed strings and continue.” Unexpected None exposes a contract error upstream. This is not a rule that every application must reject None; **this chapter has not defined it as blank input or zero**.
+
+## 6. raise: explicitly report that an operation cannot fulfill its contract
+
+`int("-5")` succeeds, but a task estimate must not be negative. The interpreter cannot infer that business rule for you.
+
+File: `validate_minutes.py`.
+
+<Code language="python">{getExceptionExample('validate_minutes.py')}</Code>
+
+Expected:
+
+```text
+Accepted: 25
+Accepted: 0
+Rejected: minutes must be non-negative
+```
+
+`raise ValueError("minutes must be non-negative")` creates an exception object with a message, then interrupts normal execution. It neither returns a ValueError nor merely prints an error and continues. An outer caller can recover from ValueError; without a matching handler, the exception propagates.
+
+`type(raw) is not str` checks for the ordinary built-in string required by this contract. Besides the conversion learned in L01, str names that built-in type; is not negates is. This deliberately narrow contract avoids accepting numeric objects and silently truncating floating-point values through int. It does not claim support for custom string subclasses or arbitrary objects.
+
+| Input or issue | This chapter's agreement |
+| --- | --- |
+| `"20"`, `" 20 "`, `"0"` | Return integers; zero is not missing |
+| `"bad"`, `""`, `"2.5"` | Text cannot convert to an integer: ValueError |
+| `"-5"` | Conversion succeeds but violates the nonnegative rule: ValueError |
+| None, 20, 2.5 | Violates the ordinary-string contract: TypeError, not known malformed text |
+
+The conversion grammar is int's grammar. **We have not implemented an “ASCII digits only” form validator.** Signs and some other integer spellings may also be valid. Stricter product rules must be defined separately rather than inferred from this example.
+
+File: `errors/negative_minutes.py`, with no outer recovery:
+
+<Code language="python">{getExceptionExample('errors/negative_minutes.py')}</Code>
+
+Line 6 raises ValueError with `minutes must be non-negative` and no standard output. Section 12 reruns this actual failure under optimization.
+
+### Where does the JavaScript analogy stop?
+
+Both languages can interrupt a path and let the caller decide how to respond. This independent comparison is display-only; Python behavior is verified locally rather than relying on a browser run button.
+
+<PythonEditor title="Explicitly reject an invalid estimate" compare={true} canRun={false} height={430}>
+```javascript !! js case=raise-comparison
+try {
+  throw new RangeError("minutes must be non-negative");
+} catch (error) {
+  console.log(error.message);
 }
 ```
 
-```python !! py
-# Python (before formatting with Black)
-def long_function_name(arg1, arg2, arg3, arg4, arg5, arg6):
-  print('This is a very long function definition that Black will automatically wrap')
-  if arg1 and arg2 and arg3 and arg4 and arg5 and arg6:
-    return {'key1': 'value1', 'key2': 'value2', 'key3': 'value3'}
-
-# After formatting with Black
-def long_function_name(
-    arg1,
-    arg2,
-    arg3,
-    arg4,
-    arg5,
-    arg6,
-):
-    print("This is a very long function definition that Black will automatically wrap")
-    if (
-        arg1
-        and arg2
-        and arg3
-        and arg4
-        and arg5
-        and arg6
-    ):
-        return {
-            "key1": "value1",
-            "key2": "value2",
-            "key3": "value3",
-        }
+```python !! python case=raise-comparison
+try:
+    raise ValueError("minutes must be non-negative")
+except ValueError as error:
+    print(error)
 ```
 </PythonEditor>
 
-### 2.2 Ruff: The High-Performance Code Checker
+Both produce:
 
-`Ruff` is a Python linter written in Rust, which is extremely fast and can replace multiple tools like `Flake8`, `isort`, etc. It helps you find potential problems in your code, improve code style, and automatically fix many common errors.
-
-<PythonEditor title="Code Checking Comparison: Ruff vs. ESLint" compare={true}>
-```javascript !! js
-// JavaScript (ESLint might report 'no-unused-vars')
-import React from 'react'; // 'React' is defined but never used.
-
-function MyComponent() {
-  const unusedVar = 42; // 'unusedVar' is assigned a value but never used.
-  return <div>Hello</div>;
-}
-
-// ESLint can also check rules, like enforcing the use of ===
-if (a == 1) { // '==' is not allowed, use '==='
-  // ...
-}
+```text
+minutes must be non-negative
 ```
 
-```python !! py
-# Python (Ruff might report 'F841' and 'F401')
-import os  # 'os' imported but unused (F401)
-import sys
+A JavaScript catch normally receives the thrown value before your code inspects it; Python can specify a category directly after except. JavaScript allows ordinary thrown values, while Python raise requires an exception class or instance. Do not translate `throw "bad"` into `raise "bad"`. We use built-in exceptions without requiring you to define class inheritance first.
 
-def my_function():
-    unused_var = 42  # local variable 'unused_var' is assigned to but never used (F841)
-    print("Hello from my_function")
+## 7. Matching order: specific first does not mean catch everything
 
-# Ruff can also check many other issues, such as unnecessary list comprehensions
-# Instead of list(my_generator), use [...my_generator]
-```
-</PythonEditor>
+File: `handler_order.py`. The first half intentionally demonstrates shadowing; the second reverses the order.
 
-## 3. Unit Testing with Pytest
+<Code language="python">{getExceptionExample('handler_order.py')}</Code>
 
-`pytest` is the most popular and powerful testing framework in Python. It is known for its concise syntax, powerful assertion capabilities, and rich plugin ecosystem.
+Expected:
 
-### 3.1 Basic Test Cases
-
-Similar to `Jest`, `pytest` allows you to write test cases using simple functions without the need for complex class structures.
-
-<PythonEditor title="Basic Test Comparison: pytest vs. Jest" compare={true}>
-```javascript !! js
-// JavaScript (Jest)
-// a_plus_b.js
-const a_plus_b = (a, b) => a + b;
-
-// a_plus_b.test.js
-const a_plus_b = require('./a_plus_b');
-
-describe('a_plus_b', () => {
-  it('should return the sum of two numbers', () => {
-    expect(a_plus_b(1, 2)).toBe(3);
-  });
-
-  it('should handle negative numbers', () => {
-    expect(a_plus_b(-1, -1)).toBe(-2);
-  });
-});
+```text
+Broad handler ran
+Specific handler ran
 ```
 
-```python !! py
-# Python (pytest)
-# a_plus_b.py
-def a_plus_b(a, b):
-    return a + b
+Handlers are inspected in order, and **the first matching one** runs. A single exception does not execute every matching handler. ValueError belongs to the larger Exception category, so a preceding `except Exception` receives it first.
 
-# test_a_plus_b.py
-from a_plus_b import a_plus_b
+Learn only the relationships currently needed, not how to define exception classes:
 
-def test_a_plus_b():
-    assert a_plus_b(1, 2) == 3
-
-def test_a_plus_b_negative():
-    assert a_plus_b(-1, -1) == -2
-```
-</PythonEditor>
-
-### 3.2 Parameterized Tests
-
-`pytest`'s parameterized testing feature is very powerful, allowing you to run the same test function multiple times with different input data. This is usually achieved in `Jest` with `test.each`.
-
-<PythonEditor title="Parameterized Test Comparison: pytest vs. Jest" compare={true}>
-```javascript !! js
-// JavaScript (Jest)
-// a_plus_b.test.js
-const a_plus_b = require('./a_plus_b');
-
-describe('a_plus_b', () => {
-  test.each([
-    [1, 2, 3],
-    [-1, 1, 0],
-    [0, 0, 0],
-    [100, 200, 300],
-  ])('a_plus_b(%i, %i) should return %i', (a, b, expected) => {
-    expect(a_plus_b(a, b)).toBe(expected);
-  });
-});
+```text
+BaseException
+├── Exception
+│   ├── ValueError
+│   ├── TypeError
+│   └── LookupError
+│       └── KeyError
+├── KeyboardInterrupt
+└── SystemExit
 ```
 
-```python !! py
-# Python (pytest)
-# test_a_plus_b.py
-import pytest
-from a_plus_b import a_plus_b
+This is an excerpt, not the whole hierarchy. KeyboardInterrupt often comes from Ctrl+C; SystemExit represents exiting. Neither belongs to Exception. Bare `except:` has a broader reach than `except Exception` and can catch those exit intentions too. We do not use it here.
 
-@pytest.mark.parametrize("a, b, expected", [
-    (1, 2, 3),
-    (-1, 1, 0),
-    (0, 0, 0),
-    (100, 200, 300),
-])
-def test_a_plus_b_parameterized(a, b, expected):
-    assert a_plus_b(a, b) == expected
-```
-</PythonEditor>
+Several known failures with the same recovery policy can be grouped as `except (ValueError, TypeError):`; the parentheses form the tuple learned in L02. **Syntactic grouping does not justify grouping their business meaning.** Our import report deliberately distinguishes wrong types from malformed strings.
 
-### 3.3 Fixtures: Managing Test Dependencies
+The second half is not a template requiring an Exception fallback in every function. Most functions can raise or naturally propagate. Only a boundary that owns a real recovery responsibility should handle the failure.
 
-`pytest`'s `fixtures` are a core feature for managing test dependencies and state. They are similar to `beforeEach` and `afterEach` in `Jest`, but more flexible and powerful.
+## 8. Narrow the try and separate successful follow-up work with else
 
-<PythonEditor title="Fixtures Comparison: pytest vs. Jest" compare={true}>
-```javascript !! js
-// JavaScript (Jest)
-// db.js
-class Database {
-  constructor() { this.users = []; }
-  connect() { /* ... */ }
-  disconnect() { /* ... */ }
-  addUser(user) { this.users.push(user); }
-}
+Replacing `except Exception` with `except ValueError` can still hide bugs: unrelated code may raise the very same category.
 
-// db.test.js
-const Database = require('./db');
+File: `pitfalls/wide_try.py`. The raise in display_minutes is **fault injection**: an explicit failure stands in for a potentially broken display rule so we can observe the boundary. It is not a complete display implementation.
 
-describe('Database', () => {
-  let db;
+<Code language="python">{getExceptionExample('pitfalls/wide_try.py')}</Code>
 
-  beforeEach(() => {
-    db = new Database();
-    db.connect();
-  });
+Actual output:
 
-  afterEach(() => {
-    db.disconnect();
-  });
-
-  it('should add a user', () => {
-    db.addUser({ name: 'Alice' });
-    expect(db.users).toHaveLength(1);
-  });
-});
+```text
+Bad input
 ```
 
-```python !! py
-# Python (pytest)
-# db.py
-class Database:
-    def __init__(self):
-        self.users = []
-    def connect(self): ...
-    def disconnect(self): ...
-    def add_user(self, user):
-        self.users.append(user)
+The input is valid `"25"`, yet Bad input is reported. The try covers conversion and display, so the handler cannot distinguish their ValueErrors. An exception category is not a label for its business origin.
 
-# test_db.py
-import pytest
+File: `errors/narrow_try.py`.
 
-@pytest.fixture
-def db():
-    database = Database()
-    database.connect()
-    yield database
-    database.disconnect()
+<Code language="python">{getExceptionExample('errors/narrow_try.py')}</Code>
 
-def test_add_user(db):
-    db.add_user({"name": "Alice"})
-    assert len(db.users) == 1
-```
-</PythonEditor>
+After int succeeds, else runs. ValueError from display_minutes **is not caught by the except attached to this same try**. The program fails on line 2, retaining `display rule is broken`, without Bad input or After display.
 
-## 4. Type Hinting and Static Analysis
+else requires try to complete normally. If try already transfers control through return, break or continue, this else does not run. It is neither an except fallback nor a block that always runs after all branches.
 
-Python introduced Type Hints in version 3.5, allowing developers to add type information to variables, function parameters, and return values. This is very similar to the goal of `TypeScript`: to provide static type checking without changing runtime behavior, in order to improve code robustness and readability.
+The responsibility is explicit: only conversion-format failures are treated as invalid input; display failures stay visible. Successful follow-up work can be organized in other clear ways, but unknown errors must not silently become apparently successful return values.
 
-### 4.1 Basic Type Hinting
+## 9. Preserve failures: propagate, re-raise, or attach a cause
 
-<PythonEditor title="Basic Type Hinting Comparison: Python vs. TypeScript" compare={true}>
-```typescript !! ts
-// TypeScript
-function greet(name: string, age: number): string {
-  return `Hello, ${name}. You are ${age} years old.`;
-}
+### 9.1 With no recovery responsibility, do not catch
 
-let user: { name: string; id: number } = { name: "Alice", id: 1 };
+parse_minutes cannot decide whether a batch should stop or skip an item. It returns legal minutes or raises a defined exception. The report builder owns the per-row policy. Printing and returning None arbitrarily in a lower-level function leaves every caller guessing what None means.
+
+### 9.2 If you need an observation before propagation, use bare raise
+
+File: `errors/reraise.py`.
+
+<Code language="python">{getExceptionExample('errors/reraise.py')}</Code>
+
+Standard output:
+
+```text
+Context: parsing Read
 ```
 
-```python !! py
-# Python
-def greet(name: str, age: int) -> str:
-    return f"Hello, {name}. You are {age} years old."
+The process still ends with ValueError, with the original int on line 3 present in the traceback. `raise` without an object in the handler re-raises the active exception. It is neither another conversion nor successful recovery. Bare raise cannot be placed arbitrarily outside an active exception-handling context.
 
-user: dict[str, int | str] = {"name": "Alice", "id": 1}
-```
-</PythonEditor>
+The printed context here is fixed teaching text. Later server chapters cover structured logs and sensitive information; this is not permission to send every input or traceback to end users. Catching merely to re-raise adds nothing by itself, so do not wrap every function layer this way.
 
-### 4.2 Complex Types and Generics
+### 9.3 When replacing a message, retain its original cause
 
-Like `TypeScript`, Python's type system also supports more complex types, such as lists, dictionaries, generics, and custom types.
+File: `errors/chained_error.py`.
 
-<PythonEditor title="Complex Type Comparison: Python vs. TypeScript" compare={true}>
-```typescript !! ts
-// TypeScript
-type User = {
-  name: string;
-  id: number;
-};
+<Code language="python">{getExceptionExample('errors/chained_error.py')}</Code>
 
-function processUsers(users: User[]): number[] {
-  return users.map(user => user.id);
-}
+`except ValueError as error` protects only int. `raise ... from error` then supplies a stable domain message and explicitly identifies the original exception as its cause. The traceback shows the failed conversion, followed by a connection and the new failure:
 
-function getFirst<T>(items: T[]): T | undefined {
-  return items[0];
-}
+```text
+The above exception was the direct cause of the following exception:
+...
+ValueError: minutes must be an integer
 ```
 
-```python !! py
-# Python
-from typing import List, TypeVar, Optional, TypedDict
+The `...` here is **an omission marker in a traceback excerpt**, not Python implementation for you to copy. These are two distinct ValueError objects linked by causation. That chain is also different from the multiple call frames for one exception in section 3.
 
-# Use TypedDict to define dictionary structures more precisely
-class User(TypedDict):
-    name: str
-    id: int
+We do not hide the cause with `from None` or translate every NameError, TypeError and other defect into ValueError. Unknown failures retain their original categories.
 
-def process_users(users: List[User]) -> List[int]:
-    return [user["id"] for user in users]
+**Checkpoint B:** run the wide/narrow try, re-raising and cause-chain files. Record where handling occurs, where failure continues, and whether the original location survives. A zero exit status is not the sole definition of correctness.
 
-T = TypeVar('T')
+## 10. finally: run before leaving the protected statement, not proof of recovery
 
-def get_first(items: List[T]) -> Optional[T]:
-    return items[0] if items else None
-```
-</PythonEditor>
+File: `finally_paths.py`.
 
-### 4.3 Mypy: Python's Static Type Checker
+<Code language="python">{getExceptionExample('finally_paths.py')}</Code>
 
-`Mypy` is Python's static type checker. It reads Python code with type hints, analyzes it, and reports type inconsistency errors. Its role is similar to `TypeScript`'s compiler, `tsc`.
+Expected:
 
-<PythonEditor title="Type Checking Comparison: Mypy vs. tsc" compare={true}>
-```typescript !! ts
-// TypeScript (tsc will report an error)
-function add(a: number, b: number): number {
-  return a + b;
-}
-
-add(1, "2"); // Error: Argument of type 'string' is not assignable to parameter of type 'number'.
+```text
+else
+finally
+Result: 0
+except
+finally
+Result: None
 ```
 
-```python !! py
-# Python (Mypy will report an error)
-def add(a: int, b: int) -> int:
-    return a + b
+Both paths execute finally before delivering the previously prepared return value. finally neither changes None into zero nor decides whether conversion succeeded.
 
-add(1, "2")  # Error: Argument 2 to "add" has incompatible type "str"; expected "int"
+| Way of leaving | except | else | Destination after finally |
+| --- | --- | --- | --- |
+| try completes normally | Skipped | Runs | Continue afterward, or complete a return in else |
+| Matching, recovered exception | Matching handler runs | Skipped | Continue afterward, or complete a return in except |
+| Unmatched exception | Skipped | Skipped | Continue propagating after cleanup |
+| return inside try | Skipped | Skipped | Complete the prepared return; finally runs first |
+
+File: `errors/finally_unhandled.py`.
+
+<Code language="python">{getExceptionExample('errors/finally_unhandled.py')}</Code>
+
+Standard output:
+
+```text
+finally before propagation
 ```
-</PythonEditor>
 
-## 5. Summary
+TypeError from line 2 still follows; After is not printed. “Cleanup executed” does not mean “the exception was handled.” except, else and finally can themselves fail. A new failure in finally can replace the currently propagating exception; cleanup is not an error-proof zone.
 
-Congratulations! You now understand the core tools for ensuring code quality, testing, and implementing static type checking in Python.
+### 10.1 Do not sneak a return into finally
 
-*   Use **Black** and **Ruff** to keep your code clean and consistent.
-*   Use **pytest** to write clear and maintainable test cases.
-*   Use **Type Hints** and **Mypy** to enhance the robustness and readability of your code.
+File: `pitfalls/finally_return.py`, explicitly a counterexample:
 
-Integrating these tools into your development workflow will greatly enhance your Python development experience and help you write higher-quality code.
+<Code language="python">{getExceptionExample('pitfalls/finally_return.py')}</Code>
+
+Actual output:
+
+```text
+Overridden: 0
+Hidden: 0
+```
+
+A valid 25 is overwritten, and the invalid input's ValueError is hidden. Returning in finally to “guarantee a result” breaks both success and failure contracts. This Python 3.13 experiment demonstrates behavior, not recommended practice; correct implementations in this chapter avoid it.
+
+L07 introduces with for actual file-resource use, and later chapters cover client lifecycles. The prints here make paths visible; **they do not implement resource management**. finally describes ordinary interpreter control flow, not a guarantee under forced process termination or power failure, nor a promise of a committed database transaction.
+
+## 11. Catching an exception does not undo earlier mutations
+
+File: `pitfalls/partial_mutation.py`.
+
+<Code language="python">{getExceptionExample('pitfalls/partial_mutation.py')}</Code>
+
+Actual output:
+
+```text
+Rejected
+{'title': 'Read', 'minutes': 20, 'changes': ['estimate changed']}
+```
+
+append has already changed changes when int fails. Assignment to minutes never happens because its right-hand side does not finish evaluating. except changes subsequent control flow; it does not replay the program backward to undo previous mutations.
+
+File: `apply_estimate.py`, which computes and validates before mutation:
+
+<Code language="python">{getExceptionExample('apply_estimate.py')}</Code>
+
+Expected:
+
+```text
+Rejected: minutes must be non-negative
+{'title': 'Read', 'minutes': 20, 'changes': []}
+{'title': 'Read', 'minutes': 0, 'changes': ['estimate changed']}
+```
+
+Invalid minutes fail before touching the task, preserving both minutes and changes. A valid zero really updates the value and records one change. replace_estimate has no explicit return; returning None is the ordinary behavior established in L04. Its contract is to mutate a task of the known shape.
+
+**The fix is bounded.** It guarantees no mutation before parsing/validation succeeds, not arbitrary rollback. A malformed dictionary missing changes can still fail partway through mutation. Do not call this ordering strategy a transaction: structural validation, shared state, file atomicity and database transactions require later knowledge.
+
+## 12. assert: development self-checks, not production input validation
+
+File: `assert_invariant.py`.
+
+<Code language="python">{getExceptionExample('assert_invariant.py')}</Code>
+
+Expected:
+
+```text
+30
+```
+
+`assert condition, message` expresses something the developer expects to hold. A false condition raises AssertionError. Here it checks a result for known test data; changing addition to subtraction would reveal a defect, not repair it. L09 introduces systematic automated testing.
+
+File: `pitfalls/assert_validation.py`, deliberately misusing assert for untrusted input validation:
+
+<Code language="python">{getExceptionExample('pitfalls/assert_validation.py')}</Code>
+
+Run ordinary mode, then optimized mode:
+
+```bash
+uv run --no-project --python 3.13 python pitfalls/assert_validation.py
+uv run --no-project --python 3.13 python -O pitfalls/assert_validation.py
+```
+
+Ordinary mode raises AssertionError on line 3 without standard output. The uppercase-letter `-O` option belongs to Python and removes asserts; the second command instead prints:
+
+```text
+-5
+```
+
+Repeat the experiment with section 6's explicit raise:
+
+```bash
+uv run --no-project --python 3.13 python -O errors/negative_minutes.py
+```
+
+It still rejects -5 with ValueError. **Enforce input contracts with explicit if/raise, not assertions that can be disabled.** Necessary side effects must not live in assertion expressions either: an operation such as saving data might never execute after optimization.
+
+-O is not prescribed as a daily development option here, nor claimed to improve this small program's performance. It is used to verify the assertion boundary.
+
+**Checkpoint C:** record four try paths, evidence that state was not rolled back, and ordinary/optimized behavior. On returning, rerun this final group before starting independent practice.
+
+## 13. Three exercise levels: explain, repair, build a rejection report
+
+### 13.1 Predict paths before running
+
+Independent file `predict_paths.py`:
+
+```python case=prediction
+print("start")
+try:
+    int("bad")
+    print("after conversion")
+except ValueError:
+    print("except")
+else:
+    print("else")
+finally:
+    print("finally")
+print("end")
+```
+
+Write the output, then change `"bad"` to `"0"`, and then to None. For each version, explain whether else runs, whether end is reachable and whether finally swallowed an exception.
+
+<details>
+<summary>Open after predicting the execution paths</summary>
+
+Original output:
+
+```text
+start
+except
+finally
+end
+```
+
+With `"0"`, output is start, after conversion, else, finally, end. With None, only start and finally print before TypeError; end does not run. “finally executed” and “subsequent code is reachable” are separate questions.
+
+</details>
+
+### 13.2 Guided repair: missing fields and bad text are not both zero
+
+This is a **complete, intentionally incorrect program**:
+
+```python case=bad-boundary
+def read_minutes(task):
+    try:
+        return int(task["minutes"])
+    except (KeyError, ValueError):
+        return 0
+
+
+print(read_minutes({}))
+print(read_minutes({"minutes": "bad"}))
+```
+
+Actual output:
+
+```text
+0
+0
+```
+
+For this exercise only, define a narrow contract: accept ordinary strings only; valid integer text returns integers; malformed text returns None; missing required minutes preserves KeyError; nonstrings explicitly raise TypeError. Zero is a legitimate value, not an error sentinel. This exercise adds no nonnegative rule and is not the complete final parser.
+
+Hint: retrieve the required dictionary field, reuse section 6’s type check to reject nonstrings, then protect only conversion. Do not match message wording or wrap the whole function in Exception.
+
+<details>
+<summary>Open after trying to narrow the handling boundary</summary>
+
+File: `solutions/fix_boundary.py`.
+
+<Code language="python">{getExceptionExample('solutions/fix_boundary.py')}</Code>
+
+Expected:
+
+```text
+20
+None
+0
+```
+
+Independently call `read_minutes({})` or `read_minutes({"minutes": None})`; expect KeyError and TypeError respectively. Integer 20, float 2.5 and False must also be rejected by the type check rather than silently converted by int. The reference does not hide them. None means only the malformed text explicitly recognized by this narrow contract.
+
+</details>
+
+### 13.3 Build a task-import report from an empty file
+
+Create `import_report.py` without copying the reference functions. Implement two functions with the mechanisms already explained:
+
+| Function | Required contract |
+| --- | --- |
+| `parse_minutes(raw)` | Accept ordinary str only; use int, require nonnegative values and allow zero; translate format failure into ValueError with `minutes must be an integer` while retaining its cause; use `minutes must be non-negative` for negatives and TypeError for wrong types |
+| `build_report(rows)` | Preserve input order for known-shape task dictionaries; record known ValueError in rejected and continue; do not swallow missing fields, TypeError or unknown failures; do not mutate the input |
+
+rows is a list of items with a string title and ordinary-string minutes. Only the specified minute checks are implemented here; this is not full validation of the list, titles or every possible shape. Missing required fields stay visible; get must not silently supply zero.
+
+The returned dictionary has accepted, rejected and total_minutes keys. accepted contains **newly created** title/minutes dictionaries; rejected records one-based row, title and reason. The total includes accepted records only; rejected records are not zero-minute tasks.
+
+First run the following input preparation on its own and confirm five rows. Then implement the functions in the same file and replace the final row-count print with your result display:
+
+```python case=exercise-input
+rows = [
+    {"title": "Read", "minutes": " 20 "},
+    {"title": "Typo", "minutes": "twenty"},
+    {"title": "Zero", "minutes": "0"},
+    {"title": "Negative", "minutes": "-5"},
+    {"title": "Practice", "minutes": "35"},
+]
+print("Rows:", len(rows))
+```
+
+Preparation output:
+
+```text
+Rows: 5
+```
+
+The completed result display should be:
+
+```text
+Accepted: [{'title': 'Read', 'minutes': 20}, {'title': 'Zero', 'minutes': 0}, {'title': 'Practice', 'minutes': 35}]
+Rejected: [{'row': 2, 'title': 'Typo', 'reason': 'minutes must be an integer'}, {'row': 4, 'title': 'Negative', 'reason': 'minutes must be non-negative'}]
+Total: 55
+Source first: {'title': 'Read', 'minutes': ' 20 '}
+```
+
+Run your own file locally:
+
+```bash
+uv run --no-project --python 3.13 python import_report.py
+```
+
+Do not stop at matching these four lines. Verify each behavior:
+
+| Change or observation | Requirement |
+| --- | --- |
+| Empty list | All three keys remain; both lists are empty and total is zero |
+| All malformed text/negative values | No accepted items; a reason for each row; total zero |
+| Only `"0"` | One accepted item, not an empty result or rejection |
+| Change Read to `"21"` | Total becomes 56 without changing calculation code |
+| Reorder inputs | Both results keep relative source order; rejection row numbers follow the new positions |
+| An item lacks minutes or title | KeyError propagates; no fabricated success report |
+| minutes is None or integer 20 | TypeError propagates; not a malformed-text rejection |
+| Call twice and mutate the first result list | The second remains unchanged; empty reports are independent too |
+| Change minutes on the first accepted item | The corresponding source dictionary remains unchanged |
+| Inject the same ValueError category into accepted-result processing | It propagates rather than being misclassified as input failure |
+
+For the final check, follow section 8's fault injection: temporarily put `raise ValueError("report bug")` in the accepted branch, observe failure, then remove it. Do not leave injected failures in the final implementation.
+
+On an unknown error, build_report does not return a partial-success report: the call fails. Results accumulated only in local lists have not been delivered to the caller. This is not a database transaction and cannot undo prints or external mutations you separately performed.
+
+<details>
+<summary>Open after independent implementation and failure acceptance</summary>
+
+File: `solutions/import_report.py`.
+
+<Code language="python">{getExceptionExample('solutions/import_report.py')}</Code>
+
+The reference reads required fields outside try, constructs accepted results and updates the total in else, and limits try to the parser call. `str(error)` stores a known rejection message without relying on the handler's temporary binding afterward.
+
+Explaining why ValueError is caught while TypeError/KeyError are not matters more than memorizing this indentation. Replacing the parser with one containing unrelated ValueErrors requires re-examining the boundary. A category never proves origin forever; this example relies on a known, tested parser contract.
+
+</details>
+
+## 14. Leave evidence you can resume from
+
+Without looking at the reference, be able to explain and demonstrate:
+
+- Read a four-frame traceback, identify the failed expression and its input origin, and explain which later statements did not run.
+- Locate a silent logic defect, record a hypothesis and minimal change, and regress empty/single/multiple inputs.
+- Explain where execution resumes after except and why neither retry nor rollback happens automatically.
+- Demonstrate valid input, recoverable bad text, explicit rejection of negatives and unexpected TypeError/KeyError.
+- Preserve the original location with bare raise and the causal connection with `raise ... from error`, rather than reducing everything to a context-free string.
+- Distinguish else and finally, and explain how return in finally can mask a failure.
+- Verify explicit input validation in ordinary mode and with `-O`.
+- Rebuild the report from an empty file and pass the variations, unknown-error propagation and result-isolation checks in section 13.
+
+For an irregular study schedule, save a short record:
+
+```text
+Current file:
+Last command and Python version:
+Last successful result:
+Verified success/rejection/unknown-error paths:
+Unexplained traceback or output:
+First command on resuming:
+```
+
+The new standard is implemented through L06, not throughout all later historical pages. Continue to [L06, Modules and the Standard Library](/en/docs/js2py/module-06-web-development), which introduces splitting functions across files, import, top-level execution, working directories and entry points. Do not add a framework now merely to make this script look like a project.
+
+## 15. References and boundaries
+
+These primary sources were checked on 2026-09-23; language experiments use the CPython 3.13 baseline:
+
+- [Python errors and exceptions tutorial](https://docs.python.org/3.13/tutorial/errors.html): syntax, handling, raising, chaining and cleanup.
+- [try statement reference](https://docs.python.org/3.13/reference/compound_stmts.html#the-try-statement): matching order and else/finally control flow.
+- [raise reference](https://docs.python.org/3.13/reference/simple_stmts.html#the-raise-statement): re-raising and explicit causes.
+- [Built-in exceptions](https://docs.python.org/3.13/library/exceptions.html): relationships and meanings rather than treating messages as categories.
+- [assert](https://docs.python.org/3.13/reference/simple_stmts.html#the-assert-statement) and [Python's -O option](https://docs.python.org/3.13/using/cmdline.html#cmdoption-O): assertions can be removed.
+- [MDN try...catch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch) and [throw](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/throw): boundaries of the JavaScript comparison.
+
+This chapter does not implement custom exception hierarchies, ExceptionGroup, async cancellation, HTTP error responses, automatic retries, transactions, persistence or actual resource cleanup. Frontend experience is not used as a reason to skip those backend topics. Each will receive its own prerequisites and full teaching later.

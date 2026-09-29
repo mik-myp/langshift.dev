@@ -1,0 +1,55 @@
+{
+  "kind": "human-review-only",
+  "total": 100,
+  "minimum_score": 80,
+  "all_hard_gates_require_reviewed_pass": true,
+  "prerequisite_gate": "O06 evidence must be reviewed independently; mainline controls chapter status",
+  "dimensions": [
+    {
+      "id": "design",
+      "points": 20,
+      "scope": "contract, data/permission model, alternatives and maintenance cost"
+    },
+    {
+      "id": "authorization",
+      "points": 25,
+      "scope": "negative cases, current membership, privacy and object boundaries"
+    },
+    {
+      "id": "concurrency_failure",
+      "points": 20,
+      "scope": "actual independent requests, revision/replay conflicts, partial and uncertain failures"
+    },
+    {
+      "id": "release",
+      "points": 15,
+      "scope": "populated upgrade, compatibility, safe rollback and reproducible artifacts"
+    },
+    {
+      "id": "recovery",
+      "points": 10,
+      "scope": "real isolated restore, measured objectives, invited feedback"
+    },
+    {
+      "id": "independence",
+      "points": 10,
+      "scope": "unseen change, diagnosis defense, honest assistance disclosure"
+    }
+  ],
+  "blocking_conditions": [
+    "unsupported or failed hard gate",
+    "missing O06 restoration evidence",
+    "fabricated execution/pilot data",
+    "secrets in shared evidence",
+    "no independent explanation/adaptation"
+  ],
+  "counterexamples": [
+    "100% coverage is not object authorization evidence",
+    "backup file existence is not restoration",
+    "passing evidence formatter is not backend verification",
+    "local HTTP success is not HTTPS public deployment"
+  ],
+  "decision_owner": "human reviewer; no script can award graduation",
+  "all_scenarios_require_reviewed_pass_for_graduation": true,
+  "non_hard_gate_note": "Every scenario covers a required contract; false hard_gate is not a waiver. Scores assess quality beyond the minimum behavior, not permission to leave required behavior broken."
+}

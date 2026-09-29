@@ -1,1534 +1,769 @@
 ---
-title: "Python Asynchronous Programming"
-description: "Learn Python's async programming, event loop, and async web development from a JavaScript developer's perspective."
+title: "Functions, Parameters, and Scope"
+description: "Understand definitions, calls, returns and argument binding before exploring defaults, local names, function values and simple closures. Turn familiar task rules into independently verifiable functions without prematurely introducing frameworks."
 ---
 
-## 1. Introduction
+import { getFunctionExample } from '@/lib/js2py-examples'
 
-### Why Asynchronous Programming?
+## 1. Why put code into functions only now?
 
-As a JavaScript developer, you are already familiar with concepts like Promise, async/await, and the event loop. Python also has its own async programming model, which is similar in syntax but different in underlying mechanisms.
+L03 processed changing numbers of tasks and explained how empty input, unknown estimates and a zero budget move through control flow. Now the same rules must serve both 20-minute and 40-minute study arrangements, then run again after inputs change.
 
-**Core Value of Async Programming**
-- Improve program performance: avoid blocking I/O operations
-- Better resource utilization: handle multiple concurrent tasks in a single thread
-- Responsiveness: keep the program responsive
-- Scalability: support a large number of concurrent connections
+Copying an entire script may produce a result temporarily, but it creates multiple versions of the rules. Updating one and forgetting another can make them disagree about whether zero minutes are valid. We want to name existing logic, specify its inputs, outputs and mutation behavior, and call it from different places.
 
-> 💡 **Learning Strategy**: Think of Python's async programming as the "Python version" of the JavaScript async model
+**A function is not a box that makes code look more engineered. It is a callable object with an input, output and side-effect contract.** We explain execution first, then apply it to task rules. Learning def does not require classes, decorators, module splitting or FastAPI.
 
-## 2. Synchronous vs Asynchronous
+### Chapter contract
 
-### 2.1 Basic Concept Comparison
+| Item | Agreement |
+| --- | --- |
+| Prerequisites | L00–L03: independent scripts; names and values; containers and sharing; branches, ordinary loops, unpacking and simple comprehensions |
+| New capabilities | Definitions and calls; return and None; positional/keyword arguments, defaults and keyword-only parameters; parameter binding, local names and enclosing lookup; function values and simple closures |
+| Independent acceptance | Implement task creation, eligibility checks, rule-based selection and a budget-rule factory; explain returns, repeated calls, defaults and sharing boundaries |
+| Not required yet | Annotations, imports, exception handlers, recursion, decorators, classes, async, databases, web frameworks or complex signatures |
 
-<PythonEditor title="Synchronous vs Asynchronous Comparison" compare={true}>
-```javascript !! js
-// JavaScript synchronous operation
-function syncOperation() {
-    console.log("Start sync operation");
-    // Simulate time-consuming operation
-    const start = Date.now();
-    while (Date.now() - start < 2000) {
-        // Block for 2 seconds
-    }
-    console.log("Sync operation done");
-    return "Sync result";
-}
+Advanced TypeScript types are not prerequisites. We express function contracts through ordinary language and observable input/output for now. Type annotations and runtime validation are separate later topics.
 
-// JavaScript async operation
-async function asyncOperation() {
-    console.log("Start async operation");
-    // Simulate async operation
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    console.log("Async operation done");
-    return "Async result";
-}
+### Files and commands
 
-// Synchronous call (will block)
-console.log("Call sync function");
-const syncResult = syncOperation();
-console.log("Sync result:", syncResult);
+Download [L04 standalone examples and reference answers](/learning-assets/js2py/u04-functions.zip), then open the extracted u04-functions folder in your editor and terminal. You can also type the examples yourself. Each file runs independently, without definitions left by another file.
 
-// Asynchronous call (won't block)
-console.log("Call async function");
-asyncOperation().then(result => {
-    console.log("Async result:", result);
-});
-console.log("Executes immediately after async call");
+```bash
+uv run --no-project --python 3.13 python definition_and_call.py
 ```
 
-```python !! py
-import asyncio
-import time
+Replace only the final filename for later examples. The baseline remains CPython 3.13, with no third-party Python packages or required project configuration. Return to [L00](/en/docs/js2py/module-00-python-introduction) for environment problems.
 
-# Python synchronous operation
-def sync_operation():
-    """Synchronous operation"""
-    print("Start sync operation")
-    # Simulate time-consuming operation
-    time.sleep(2)  # Block for 2 seconds
-    print("Sync operation done")
-    return "Sync result"
+Eight files in errors/ fail intentionally. One file in pitfalls/ runs successfully but unexpectedly shares state. Solutions are references to open after attempting the exercises; maintainer test tools are not learner prerequisites.
 
-# Python async operation
-async def async_operation():
-    """Async operation"""
-    print("Start async operation")
-    # Simulate async operation
-    await asyncio.sleep(2)  # Non-blocking wait
-    print("Async operation done")
-    return "Async result"
+## 2. Defining is not calling: establish execution order first
 
-# Synchronous call (will block)
-print("Call sync function")
-sync_result = sync_operation()
-print("Sync result:", sync_result)
+File: `definition_and_call.py`.
 
-# Asynchronous call (won't block)
-async def main():
-    print("Call async function")
-    result = await async_operation()
-    print("Async result:", result)
+<Code language="python">{getFunctionExample('definition_and_call.py')}</Code>
 
-# Run async function
-print("Executes immediately after async call")
-asyncio.run(main())
-```
-</PythonEditor>
+Expected:
 
-### 2.2 Event Loop Mechanism
-
-<PythonEditor title="Event Loop Mechanism Comparison" compare={true}>
-```javascript !! js
-// JavaScript event loop
-console.log("1. Start execution");
-
-setTimeout(() => {
-    console.log("4. Timer callback");
-}, 0);
-
-Promise.resolve().then(() => {
-    console.log("3. Promise microtask");
-});
-
-console.log("2. End of sync code");
-
-// Output order:
-// 1. Start execution
-// 2. End of sync code
-// 3. Promise microtask
-// 4. Timer callback
+```text
+Before definition
+After definition
+Inside call
+25
 ```
 
-```python !! py
-import asyncio
+There are two distinct actions here:
 
-# Python event loop
-async def main():
-    print("1. Start execution")
-    
-    # Create tasks
-    task1 = asyncio.create_task(asyncio.sleep(0))
-    task2 = asyncio.create_task(asyncio.sleep(0))
-    
-    print("2. Tasks created")
-    
-    # Wait for tasks to complete
-    await task1
-    print("3. First task done")
-    
-    await task2
-    print("4. Second task done")
+- Executing `def add_buffer(minutes):` creates a function object and binds add_buffer to it. **The body does not execute yet.** Minutes is a parameter: a name for a value this logic needs to receive.
+- `add_buffer(20)` calls it. Twenty is the argument; this call binds the local name minutes to that integer and starts executing the indented body.
 
-# Run event loop
-asyncio.run(main())
+`return minutes + 5` computes a result, ends **this particular function call**, and supplies the value to the call expression. Thus `result = add_buffer(20)` waits for the synchronous call to finish, binds the returned 25 to result, and continues to the next statement.
 
-# Output order:
-# 1. Start execution
-# 2. Tasks created
-# 3. First task done
-# 4. Second task done
+Trace it as: top-level statement → execute def → top-level statement → enter call → execute body → return to call site → subsequent top-level statements. Inside call is diagnostic output to reveal timing; calculation rules do not need to keep such prints permanently.
+
+Notice three details:
+
+1. A function uses a colon and indentation like if/for, but also establishes its own local namespace. We will explain that gradually.
+2. Blank lines separate code for readability; they do not start or end a function. Returning to the outer indentation level resumes top-level code.
+3. An ordinary function does not require self. Instance methods belong to the later class material, not a universal Python-function template.
+
+### 2.1 Do not assume a later function name is bound in advance
+
+File: `errors/before_definition.py`.
+
+<Code language="python">{getFunctionExample('errors/before_definition.py')}</Code>
+
+Line one raises NameError with no standard output because execution has not reached def. Python parses the whole file first, but **successful parsing does not mean every definition statement has executed**. Arrange for def to execute before the actual call, then verify the result is 25.
+
+JavaScript function declarations can be hoisted, but this is not Python's rule. A JavaScript function expression bound with const is also not interchangeable with a function declaration. We are establishing Python's execution model, not claiming every function behaves oppositely in the two languages.
+
+Add another call, `add_buffer(0)`, and predict how many times the body runs and what it returns. Renaming variables is not a substitute for tracing calls.
+
+## 3. return versus print: passing a result versus producing output
+
+### 3.1 A call expression has a result, even when it is None
+
+Print writes to standard output; return gives an object to the caller. Seeing a number in the terminal does not mean the caller received that number.
+
+File: `return_paths.py`.
+
+<Code language="python">{getFunctionExample('return_paths.py')}</Code>
+
+Expected:
+
+```text
+done
+unknown
+pending
+Ready: Read
+None
+None
 ```
-</PythonEditor> 
 
-## 3. Python Async Programming Basics
+Distinguish these three functions:
 
-### 3.1 async/await Syntax
+- `status_label` ends the current call at the first reached return. A completed task returns done without checking its estimate; a zero-minute pending task returns pending. Returning a string does not automatically print it.
+- `announce` executes print but has no return statement. Reaching the end implicitly returns None. Ready: Read is the function's output; the following None is the caller printing the returned value afterward.
+- `maybe_announce` uses a bare return for an empty title: it returns None immediately without printing a title. For a nonempty title it prints, reaches the end and also returns None. These paths have different side effects but the same return value.
 
-Python's async/await syntax is very similar to JavaScript, but there are some important differences.
+Return exits the current function, not merely an if or loop. It does not directly terminate the entire script. A function promising a business result needs every return path checked, rather than returning on only one branch and accidentally falling through to None elsewhere.
 
-<PythonEditor title="async/await Syntax Comparison" compare={true}>
-```javascript !! js
-// JavaScript async/await
-async function fetchUserData(userId) {
-    try {
-        console.log(`Start fetching user ${userId} data`);
-        // Simulate API call
-        const response = await new Promise((resolve, reject) => {
-            setTimeout(() => {
-                if (userId > 0) {
-                    resolve({
-                        id: userId,
-                        name: `User${userId}`,
-                        email: `user${userId}@example.com`
-                    });
-                } else {
-                    reject(new Error("User not found"));
-                }
-            }, 1000);
-        });
-        console.log("Data fetched successfully");
-        return response;
-    } catch (error) {
-        console.error("Failed to fetch data:", error.message);
-        throw error;
-    }
+### 3.2 Reproduce “I see a number but cannot continue calculating”
+
+File: `errors/printed_result.py`.
+
+<Code language="python">{getFunctionExample('errors/printed_result.py')}</Code>
+
+Standard output before failure:
+
+```text
+25
+```
+
+Line six raises TypeError because result is None and cannot be added to ten. The problem is not the addition syntax; an upstream function confused printing with returning. Replace the print inside the function with return. Running again should print only the final 35.
+
+Do not hide this with `result or 0`: that disguises a broken function contract as valid data. Nor should you hard-code a print of 35 inside the function just to make the terminal look right.
+
+### 3.3 Returning two pieces of information still returns one object
+
+L03's tuple unpacking can receive a returned tuple:
+
+```python case=tuple_result
+def split_minutes(total):
+    hours = total // 60
+    minutes = total % 60
+    return hours, minutes
+
+
+hours, minutes = split_minutes(135)
+print(hours)
+print(minutes)
+```
+
+Expected:
+
+```text
+2
+15
+```
+
+`return hours, minutes` packs a two-item tuple that the caller then unpacks. It is not two return operations or two independent asynchronous results. The input contract here is a nonnegative integer. When an interface has more fields, a named dictionary may be clearer than an ever-growing tuple of positions.
+
+**Checkpoint A:** predict definition/call output order, repair one print-without-return mistake, and explain an early return. Record the arguments, returned value and side effects separately, then check all three when resuming.
+
+## 4. Parameters and arguments: which name receives which value?
+
+Parameters are names in def; arguments are objects or expressions supplied by a particular call. They are different levels: one definition can serve many calls with different inputs.
+
+File: `arguments.py`.
+
+<Code language="python">{getFunctionExample('arguments.py')}</Code>
+
+Expected:
+
+```text
+25
+45
+20
+40
+```
+
+| Call | This call's minutes / repeats / extra | Explanation |
+| --- | --- | --- |
+| `estimate(20)` | 20 / 1 / 5 | Minutes is required; other parameters use defaults |
+| `estimate(20, 2)` | 20 / 2 / 5 | Positional arguments follow parameter order |
+| `estimate(20, extra=0)` | 20 / 1 / 0 | Name extra without supplying repeats first |
+| `estimate(repeats=2, minutes=20, extra=0)` | 20 / 2 / 0 | Keywords match by name, not their written order here |
+
+In this ordinary signature, required positional parameters come before those with defaults. At a call site, extra=0 is a keyword argument, not a new caller-side variable. It is the same mechanism as L03's `enumerate(..., start=1)`.
+
+Python binds arguments before entering this function's body. Unsuitable counts or names fail, but **successful binding does not validate business types or ranges**. This example expects appropriate numeric inputs; it does not automatically parse `"20"` or reject negatives.
+
+### 4.1 Experiment with three distinct binding mistakes
+
+File: `errors/missing_argument.py`, omitting required repeats:
+
+<Code language="python">{getFunctionExample('errors/missing_argument.py')}</Code>
+
+File: `errors/duplicate_argument.py`, supplying minutes by position and again by name:
+
+<Code language="python">{getFunctionExample('errors/duplicate_argument.py')}</Code>
+
+File: `errors/unknown_keyword.py`, spelling repeats as repeat:
+
+<Code language="python">{getFunctionExample('errors/unknown_keyword.py')}</Code>
+
+Run each file independently. All raise TypeError at the call on line six, and none prints Body ran. These are not arithmetic errors halfway through the body: entry has not succeeded. Identify what is missing, duplicated or misspelled, then verify that the repaired call actually enters the function.
+
+Ordinary positional arguments must also precede keyword arguments. This is an **expected syntax failure**, not a working solution:
+
+```python expected-error=SyntaxError case=positional_after_keyword
+def estimate(minutes, repeats):
+    return minutes * repeats
+
+
+print(estimate(minutes=20, 2))
+```
+
+SyntaxError occurs before execution, with no output. Both `estimate(20, 2)` and `estimate(minutes=20, repeats=2)` express the intended input. Distinguish this parsing failure from the three runtime binding failures above.
+
+### 4.2 One star can require an option's name
+
+Sometimes `make_label("Read", True)` is unclear: does True mean done, urgent or hidden? A standalone star in the signature makes subsequent parameters keyword-only.
+
+File: `keyword_only.py`.
+
+<Code language="python">{getFunctionExample('keyword_only.py')}</Code>
+
+Expected:
+
+```text
+[todo] Read
+[done] Read
+```
+
+This star is a parameter separator, not multiplication or a variable named star. Done still has a default. “Name required when supplied” does not mean “must be supplied every time.” A keyword-only parameter without a default would require an explicit argument.
+
+File: `errors/positional_option.py`.
+
+<Code language="python">{getFunctionExample('errors/positional_option.py')}</Code>
+
+Line eight raises TypeError without printing Body ran. Use done=True to satisfy the contract. We introduce only this form for explicit options now; positional-only slash syntax, `*args`, `**kwargs` and call unpacking are deferred until needed. Memorizing the entire signature grammar is not an entry requirement.
+
+## 5. Binding parameters does not copy objects: bring L02's model into functions
+
+A call binds a local parameter name to an argument object. **There is no automatic deep copy, and rebinding a parameter does not automatically redirect the caller's name.** Rather than relying on the overly short labels “by value” or “by reference,” inspect the actual objects and bindings.
+
+File: `argument_binding.py`.
+
+<Code language="python">{getFunctionExample('argument_binding.py')}</Code>
+
+Expected:
+
+```text
+Read
+Local
+False
+None
+['python', 'functions']
+```
+
+| Operation | What changes? | What does the caller observe? |
+| --- | --- | --- |
+| Enter replace_local | Local task and original refer to the same dictionary | No mutation yet |
+| `task = {...}` | Rebind only the local task to a new dictionary | Original still refers to the old object |
+| `return task` | Give the new dictionary to the caller as replacement | Replacement and original differ |
+| `task["tags"].append(topic)` | Retrieve and mutate the inner list through a shared dictionary | Original's tags change |
+
+`add_topic` is designed to mutate the supplied object, so returning None is intentional rather than an omission. Conversely, unexpected None is wrong when a function promises data for further calculation. Neither “all functions must be side-effect-free” nor “returning None is always bad” replaces a concrete contract.
+
+Using local parameters does not make a function fully isolated from its surroundings. Returning a new list does not guarantee new dictionaries inside it either. Analyze copied layers using L02's data shapes. Our task constructor will explicitly isolate a caller-supplied tag list.
+
+## 6. When are defaults established, and why can a second call affect the first?
+
+### 6.1 Default expressions are evaluated when def executes
+
+File: `default_values.py`.
+
+<Code language="python">{getFunctionExample('default_values.py')}</Code>
+
+Expected:
+
+```text
+20
+0
+None
+35
+```
+
+Each time **this def statement executes**, its default expressions are evaluated once and the resulting objects retained as that function's defaults. The expressions are not reread on every call. Here default_minutes was 20 when def executed. Rebinding it to 35 later does not replace the default object already stored by the function.
+
+Only omitting minutes uses its default. Explicit zero remains zero; explicit None remains None. Python does not automatically treat None as “argument omitted.” The final call explicitly reads the current default_minutes and therefore passes 35.
+
+This does not mean defaults are evaluated only once for an entire process. Executing a def repeatedly inside another function would create distinct function objects with their own defaults. For now, distinguish a particular definition from its subsequent calls.
+
+### 6.2 A default list is shared across calls
+
+File: `pitfalls/shared_default.py`. It runs successfully while deliberately exposing a risk.
+
+<Code language="python">{getFunctionExample('pitfalls/shared_default.py')}</Code>
+
+Actual output:
+
+```text
+['python']
+['python', 'functions']
+['python', 'functions']
+True
+```
+
+`tags=[]` creates one list at definition time. Both calls omit tags, so each local tags binds to that same default list. The second append mutates it; first still points to it and therefore observes the changed contents too.
+
+Trace the timeline: first call appends python → returns the list as first → second call appends functions → first and second both refer to the now-two-item list. Both default timing and returned-object sharing matter. Memorizing “avoid []” does not explain the mechanism. Dictionaries and other mutable defaults require the same analysis.
+
+This difference deserves a separate JavaScript comparison. The display is static and acceptance does not depend on the browser runner:
+
+<PythonEditor title="When default objects are created" compare={true} canRun={false}>
+```javascript case=default_comparison
+function remember(history = []) {
+  history.push("step");
+  return history.length;
 }
-
-async function processUsers() {
-    console.log("Start processing user data");
-    try {
-        const user1 = await fetchUserData(1);
-        const user2 = await fetchUserData(2);
-        console.log("User1:", user1);
-        console.log("User2:", user2);
-        return [user1, user2];
-    } catch (error) {
-        console.error("Failed to process user data:", error.message);
-    }
-}
-
-// Call async function
-processUsers().then(users => {
-    console.log("All users:", users);
-});
+console.log(remember());
+console.log(remember());
 ```
 
-```python !! py
-import asyncio
-import random
+```python case=default_comparison
+def remember(history=[]):
+    history.append("step")
+    return len(history)
 
-# Python async/await
-async def fetch_user_data(user_id):
-    """Fetch user data"""
-    try:
-        print(f"Start fetching user {user_id} data")
-        # Simulate API call
-        await asyncio.sleep(1)  # Simulate network delay
-        if user_id > 0:
-            data = {
-                "id": user_id,
-                "name": f"User{user_id}",
-                "email": f"user{user_id}@example.com"
-            }
-            print("Data fetched successfully")
-            return data
-        else:
-            raise ValueError("User not found")
-    except Exception as error:
-        print(f"Failed to fetch data: {error}")
-        raise error
 
-async def process_users():
-    """Process user data"""
-    print("Start processing user data")
-    try:
-        # Sequential execution
-        user1 = await fetch_user_data(1)
-        user2 = await fetch_user_data(2)
-        print("User1:", user1)
-        print("User2:", user2)
-        return [user1, user2]
-    except Exception as error:
-        print(f"Failed to process user data: {error}")
-
-# Run async function
-async def main():
-    users = await process_users()
-    print("All users:", users)
-
-asyncio.run(main())
-```
-</PythonEditor>
-
-### 3.2 Concurrent Execution
-
-Python provides several ways to achieve concurrent execution, similar to JavaScript's Promise.all().
-
-<PythonEditor title="Concurrent Execution Comparison" compare={true}>
-```javascript !! js
-// JavaScript concurrent execution
-async function fetchUserData(userId) {
-    console.log(`Start fetching user ${userId} data`);
-    // Simulate random delay
-    const delay = 500 + Math.random() * 1000;
-    await new Promise(resolve => setTimeout(resolve, delay));
-    console.log(`Finished fetching user ${userId} data`);
-    return {
-        id: userId,
-        name: `User${userId}`,
-        email: `user${userId}@example.com`
-    };
-}
-
-async function processUsersConcurrently() {
-    console.log("Start concurrent user data fetch (Promise.all)");
-    const promises = [
-        fetchUserData(1),
-        fetchUserData(2),
-        fetchUserData(3)
-    ];
-    const users = await Promise.all(promises);
-    console.log("All user data:", users);
-    return users;
-}
-
-// Use Promise.race() to get the fastest result
-async function getFastestUser() {
-    console.log("\nStart race to fetch user data (Promise.race)");
-    const promises = [
-        fetchUserData(1),
-        fetchUserData(2),
-        fetchUserData(3)
-    ];
-    const fastestUser = await Promise.race(promises);
-    console.log("Fastest user:", fastestUser);
-    return fastestUser;
-}
-
-// Call functions
-processUsersConcurrently();
-getFastestUser();
-```
-
-```python !! py
-import asyncio
-import random
-
-# Python concurrent execution
-async def fetch_user_data(user_id):
-    """Fetch user data"""
-    print(f"Start fetching user {user_id} data")
-    # Simulate random network delay
-    delay = 0.5 + random.random()
-    await asyncio.sleep(delay)
-    print(f"Finished fetching user {user_id} data")
-    return {
-        "id": user_id,
-        "name": f"User{user_id}",
-        "email": f"user{user_id}@example.com"
-    }
-
-async def process_users_concurrently():
-    """Concurrent user data processing (like Promise.all)"""
-    print("Start concurrent user data fetch (asyncio.gather)")
-    tasks = [
-        fetch_user_data(1),
-        fetch_user_data(2),
-        fetch_user_data(3)
-    ]
-    users = await asyncio.gather(*tasks)
-    print("All user data:", users)
-    return users
-
-async def get_fastest_user():
-    """Get the fastest user data (like Promise.race)"""
-    print("\nStart race to fetch user data (asyncio.wait)")
-    tasks = [
-        asyncio.create_task(fetch_user_data(1)),
-        asyncio.create_task(fetch_user_data(2)),
-        asyncio.create_task(fetch_user_data(3))
-    ]
-    # Wait for the first task to complete
-    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
-    # Get the result of the completed task
-    fastest_user = done.pop().result()
-    # Cancel other pending tasks
-    for task in pending:
-        task.cancel()
-    print(f"Fastest user: {fastest_user}")
-    return fastest_user
-
-# Run concurrent functions
-async def main():
-    await process_users_concurrently()
-    await get_fastest_user()
-
-asyncio.run(main())
+print(remember())
+print(remember())
 ```
 </PythonEditor>
 
-### 3.3 Asynchronous Context Manager
+Python output:
 
-Python's async context manager is similar to JavaScript's try-with-resources pattern.
-
-<PythonEditor title="Asynchronous Context Manager" compare={true}>
-```javascript !! js
-// JavaScript resource management
-class AsyncResource {
-    constructor(name) {
-        this.name = name;
-        this.isOpen = false;
-    }
-    async open() {
-        console.log(`Open resource: ${this.name}`);
-        this.isOpen = true;
-    }
-    async close() {
-        console.log(`Close resource: ${this.name}`);
-        this.isOpen = false;
-    }
-    async use() {
-        if (!this.isOpen) {
-            throw new Error("Resource not open");
-        }
-        console.log(`Use resource: ${this.name}`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-}
-// Manual resource management
-async function useResource() {
-    const resource = new AsyncResource("Database Connection");
-    try {
-        await resource.open();
-        await resource.use();
-    } finally {
-        await resource.close();
-    }
-}
-// Use resource
-useResource();
+```text
+1
+2
 ```
 
-```python !! py
-import asyncio
-from contextlib import asynccontextmanager
+JavaScript output:
 
-# Python async context manager
-class AsyncResource:
-    """Async resource class"""
-    def __init__(self, name):
-        self.name = name
-        self.is_open = False
-    async def __aenter__(self):
-        print(f"Open resource: {self.name}")
-        self.is_open = True
-        return self
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        print(f"Close resource: {self.name}")
-        self.is_open = False
-    async def use(self):
-        if not self.is_open:
-            raise RuntimeError("Resource not open")
-        print(f"Use resource: {self.name}")
-        await asyncio.sleep(1)
-
-# Use async context manager
-async def use_resource():
-    async with AsyncResource("Database Connection") as resource:
-        await resource.use()
-
-# Use decorator to create async context manager
-@asynccontextmanager
-async def managed_resource(name):
-    print(f"Open resource: {name}")
-    try:
-        yield name
-    finally:
-        print(f"Close resource: {name}")
-
-async def use_managed_resource():
-    async with managed_resource("File Connection") as resource:
-        print(f"Use resource: {resource}")
-        await asyncio.sleep(1)
-
-# Run example
-async def main():
-    await use_resource()
-    await use_managed_resource()
-
-asyncio.run(main())
-```
-</PythonEditor> 
-
-
-### 3.4 Common Pitfall: Blocking Code in Async Functions
-
-In async functions, you must never call blocking (synchronous) I/O operations. Doing so will block the entire event loop, causing all concurrent tasks to stall.
-
-**Incorrect Approach**
-```python
-import time
-import requests  # Synchronous HTTP library
-
-async def bad_async_function():
-    # ❌ WRONG: This blocks the entire event loop!
-    time.sleep(5)
-    # ❌ WRONG: This also blocks!
-    requests.get("https://example.com")
+```text
+1
+1
 ```
 
-**Correct Approach**
-```python
-import asyncio
-import httpx  # Asynchronous HTTP library
+JavaScript evaluates this default expression on calls that need the default; Python establishes it at definition time here. See [Python default arguments](https://docs.python.org/3.13/tutorial/controlflow.html#default-argument-values) and [MDN default parameters](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters). This does not mean JavaScript cannot share objects: explicitly passing the same object still shares it.
 
-async def good_async_function():
-    # ✅ CORRECT: Non-blocking wait
-    await asyncio.sleep(5)
-    
-    # ✅ CORRECT: Use an async library
-    async with httpx.AsyncClient() as client:
-        await client.get("https://example.com")
+### 6.3 Use None for omission, then decide whether to copy explicit input
+
+File: `fresh_defaults.py`.
+
+<Code language="python">{getFunctionExample('fresh_defaults.py')}</Code>
+
+Expected:
+
+```text
+['python']
+[]
+False
+['python']
+['python', 'copy']
+False
 ```
 
-### 3.5 Running Async Programs
+There are two separate design decisions:
 
-Depending on the environment, the way you run async code differs slightly.
+1. When tags is None, create an empty list inside the body. This executes on every call, giving two tasks with omitted tags separate lists.
+2. For an explicitly supplied list, make a shallow copy. The constructor promises independently editable task tags, so later editing should not contaminate the caller's list.
 
-**1. Standard Python Script**
-Use `asyncio.run()` as the entry point.
+The first decision only fixes default-object sharing. Without the second, an explicitly supplied list remains shared. Tags here are immutable strings, so one list copy is sufficient. Tags containing mutable dictionaries would require a different isolation analysis; this is not general deep copying.
 
-```python
-import asyncio
+This function deliberately gives explicit None and omission the same meaning: no tag input. If they need different meanings, None cannot represent both; custom sentinel objects are outside this chapter. We also avoid `if not tags`, which would merge None with an explicitly supplied empty list.
 
-async def main():
-    print("Hello")
-    await asyncio.sleep(1)
-    print("World")
+**Checkpoint B:** test omission, None, zero, an empty list and a shared list with the functions whose contracts permit them. State which calls are valid, when defaults apply, and which objects are shared or copied. Do not demand that every function support inputs outside its contract.
 
-if __name__ == "__main__":
-    # Automatically creates and manages the event loop
-    asyncio.run(main())
+## 7. Scope: where does a name come from, and why can an outer name still fail?
+
+### 7.1 Every call has its own local bindings
+
+File: `local_scope.py`.
+
+<Code language="python">{getFunctionExample('local_scope.py')}</Code>
+
+Expected:
+
+```text
+local: Read
+module
+20
+35
 ```
 
-**2. Jupyter Notebook / Pyodide (This Tutorial Environment)**
-These environments usually have a running event loop, so you cannot use `asyncio.run()`.
-- Just `await async_function()` (if top-level await is supported)
-- Or `asyncio.create_task(async_function())` (run in background)
+`format_label`'s parameter label is local to this call and shadows the top-level label. Prefix is local too. The top-level label remains module afterward. Separate calls have their own local bindings; using the same names does not automatically create global state.
 
-## 4. Async Web Development
+`current_limit` does not bind limit locally, so it reads the file's top-level limit. Between calls, top-level code rebinds it from 20 to 35, and the next call reads 35. This differs from a default object **already evaluated and stored**: here the body looks up the name while running.
+
+For the ordinary functions in this chapter, start with this lookup model:
+
+| Level | Where to look | Example |
+| --- | --- | --- |
+| Local | Current call's local bindings, including parameters | label, prefix |
+| Enclosing | Bindings in enclosing functions, if definitions are nested | The upcoming closure's budget |
+| Global | This file's top-level names, later called module-level names | limit |
+| Built-in | Names provided by Python | len, print |
+
+LEGB is a common abbreviation, but reciting it is not acceptance. It is not an unconditional rule that an unbound local always falls back to outer scopes. The next section demonstrates that boundary. This simplified diagram does not cover future class-body or annotation mechanisms.
+
+A local name does not become top-level merely because its call ended. This is a standalone expected-failure experiment:
+
+```python case=local_unavailable
+def make_label(title):
+    prefix = "Task"
+    return f"{prefix}: {title}"
 
 
-### 4.1 FastAPI Basics
-
-FastAPI is a modern async web framework for Python, similar to JavaScript's Express.js.
-
-<PythonEditor title="FastAPI vs Express.js Comparison" compare={true}>
-```javascript !! js
-// Express.js server
-const express = require('express');
-const app = express();
-const port = 3000;
-
-// Middleware
-app.use(express.json());
-
-// Routes
-app.get('/', (req, res) => {
-    res.json({ message: 'Hello World!' });
-});
-
-app.get('/users/:id', async (req, res) => {
-    try {
-        const userId = parseInt(req.params.id);
-        const user = await fetchUserData(userId);
-        res.json(user);
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
-
-app.post('/users', async (req, res) => {
-    try {
-        const userData = req.body;
-        const newUser = await createUser(userData);
-        res.status(201).json(newUser);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
-
-// Start server
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
-
-// Simulate async functions
-async function fetchUserData(userId) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return { id: userId, name: `User${userId}` };
-}
-
-async function createUser(userData) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return { id: Date.now(), ...userData };
-}
+print(make_label("Read"))
+print(prefix)
 ```
 
-```python !! py
-# FastAPI server
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import Optional
-import uvicorn
+Output before failure:
 
-app = FastAPI(title="User API", version="1.0.0")
-
-# Data models
-class User(BaseModel):
-    name: str
-    email: str
-    age: Optional[int] = None
-
-class UserResponse(BaseModel):
-    id: int
-    name: str
-    email: str
-    age: Optional[int] = None
-
-# Routes
-@app.get("/")
-async def root():
-    """Root path"""
-    return {"message": "Hello World!"}
-
-@app.get("/users/{user_id}", response_model=UserResponse)
-async def get_user(user_id: int):
-    """Get user"""
-    try:
-        user = await fetch_user_data(user_id)
-        return user
-    except ValueError as error:
-        raise HTTPException(status_code=404, detail=str(error))
-
-@app.post("/users", response_model=UserResponse, status_code=201)
-async def create_user(user: User):
-    """Create user"""
-    try:
-        new_user = await create_user_data(user)
-        return new_user
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error))
-
-# Simulate async functions
-async def fetch_user_data(user_id: int) -> UserResponse:
-    """Fetch user data"""
-    await asyncio.sleep(0.1)  # Simulate DB query
-    if user_id <= 0:
-        raise ValueError("User not found")
-    return UserResponse(
-        id=user_id,
-        name=f"User{user_id}",
-        email=f"user{user_id}@example.com",
-        age=25
-    )
-
-async def create_user_data(user: User) -> UserResponse:
-    """Create user data"""
-    await asyncio.sleep(0.1)  # Simulate DB insert
-    return UserResponse(
-        id=1,  # In real apps, this should be DB-generated ID
-        name=user.name,
-        email=user.email,
-        age=user.age
-    )
-
-# Start server
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-```
-</PythonEditor>
-
-### 4.2 Async Database Operations
-
-<PythonEditor title="Async Database Operations" compare={true}>
-```javascript !! js
-// JavaScript async database operations
-const { Pool } = require('pg');
-
-class DatabaseService {
-    constructor() {
-        this.pool = new Pool({
-            host: 'localhost',
-            database: 'testdb',
-            user: 'username',
-            password: 'password',
-            port: 5432,
-        });
-    }
-    async getUsers() {
-        const client = await this.pool.connect();
-        try {
-            const result = await client.query('SELECT * FROM users');
-            return result.rows;
-        } finally {
-            client.release();
-        }
-    }
-    async getUserById(id) {
-        const client = await this.pool.connect();
-        try {
-            const result = await client.query(
-                'SELECT * FROM users WHERE id = $1',
-                [id]
-            );
-            return result.rows[0];
-        } finally {
-            client.release();
-        }
-    }
-    async createUser(userData) {
-        const client = await this.pool.connect();
-        try {
-            const result = await client.query(
-                'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
-                [userData.name, userData.email]
-            );
-            return result.rows[0];
-        } finally {
-            client.release();
-        }
-    }
-}
-// Use database service
-const dbService = new DatabaseService();
-
-async function handleGetUsers(req, res) {
-    try {
-        const users = await dbService.getUsers();
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
+```text
+Task: Read
 ```
 
-```python !! py
-# Python async database operations
-import asyncpg
-from typing import List, Optional
-from pydantic import BaseModel
+Line seven raises NameError. The function returned a formatted string, not the name prefix itself. An object can remain useful through return without exposing every original local name to the caller.
 
-class User(BaseModel):
-    id: Optional[int] = None
-    name: str
-    email: str
+### 7.2 Local assignment affects a name throughout the function body
 
-class DatabaseService:
-    """Database service class"""
-    def __init__(self):
-        self.pool = None
-    async def connect(self):
-        """Connect to database"""
-        self.pool = await asyncpg.create_pool(
-            host='localhost',
-            database='testdb',
-            user='username',
-            password='password',
-            port=5432
-        )
-    async def close(self):
-        """Close database connection"""
-        if self.pool:
-            await self.pool.close()
-    async def get_users(self) -> List[User]:
-        """Get all users"""
-        async with self.pool.acquire() as conn:
-            rows = await conn.fetch('SELECT * FROM users')
-            return [User(**dict(row)) for row in rows]
-    async def get_user_by_id(self, user_id: int) -> Optional[User]:
-        """Get user by ID"""
-        async with self.pool.acquire() as conn:
-            row = await conn.fetchrow(
-                'SELECT * FROM users WHERE id = $1',
-                user_id
-            )
-            return User(**dict(row)) if row else None
-    async def create_user(self, user: User) -> User:
-        """Create user"""
-        async with self.pool.acquire() as conn:
-            row = await conn.fetchrow(
-                'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
-                user.name, user.email
-            )
-            return User(**dict(row))
+File: `errors/local_before_binding.py`.
 
-# Use database service
-db_service = DatabaseService()
+<Code language="python">{getFunctionExample('errors/local_before_binding.py')}</Code>
 
-async def handle_get_users():
-    """Handle get users request"""
-    try:
-        users = await db_service.get_users()
-        return users
-    except Exception as error:
-        raise HTTPException(status_code=500, detail=str(error))
+The call enters the function, then line five raises UnboundLocalError with no output. This is a more specific kind of NameError: Python has identified budget as local to this function, but it is read before being bound.
 
-# Use in FastAPI
-@app.get("/users", response_model=List[User])
-async def get_users():
-    """Get all users"""
-    return await handle_get_users()
+The reason is on the assignment's left side. Binding budget in the body makes it a local name. Evaluating the right-hand `budget + 5` cannot fall back to the top-level twenty. The outer variable has not vanished, and integers have not become impossible to add.
 
-@app.get("/users/{user_id}", response_model=User)
-async def get_user(user_id: int):
-    """Get specified user"""
-    user = await db_service.get_user_by_id(user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+For now, make the dependency an explicit parameter and return the result:
 
-@app.post("/users", response_model=User, status_code=201)
-async def create_user(user: User):
-    """Create user"""
-    return await db_service.create_user(user)
-```
-</PythonEditor> 
+```python case=scope_repair
+def increased_budget(budget, extra=5):
+    return budget + extra
 
-## 5. Async Iteration and Generators
 
-### 5.1 Async Iterators
-
-<PythonEditor title="Async Iterator Comparison" compare={true}>
-```javascript !! js
-// JavaScript async iterator
-class AsyncDataStream {
-    constructor(data) {
-        this.data = data;
-        this.index = 0;
-    }
-    async *[Symbol.asyncIterator]() {
-        for (const item of this.data) {
-            // Simulate async processing
-            await new Promise(resolve => setTimeout(resolve, 100));
-            yield item;
-        }
-    }
-}
-// Use async iterator
-async function processDataStream() {
-    const stream = new AsyncDataStream([1, 2, 3, 4, 5]);
-    for await (const item of stream) {
-        console.log(`Process data: ${item}`);
-    }
-}
-// Async generator function
-async function* asyncGenerator() {
-    for (let i = 0; i < 5; i++) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        yield i;
-    }
-}
-async function useAsyncGenerator() {
-    for await (const value of asyncGenerator()) {
-        console.log(`Generated value: ${value}`);
-    }
-}
-// Call functions
-processDataStream();
-useAsyncGenerator();
+budget = 20
+new_budget = increased_budget(budget)
+print(budget)
+print(new_budget)
 ```
 
-```python !! py
-import asyncio
+Expected:
 
-# Python async iterator
-class AsyncDataStream:
-    """Async data stream"""
-    def __init__(self, data):
-        self.data = data
-        self.index = 0
-    def __aiter__(self):
-        return self
-    async def __anext__(self):
-        if self.index >= len(self.data):
-            raise StopAsyncIteration
-        # Simulate async processing
-        await asyncio.sleep(0.1)
-        item = self.data[self.index]
-        self.index += 1
-        return item
-
-# Use async iterator
-async def process_data_stream():
-    """Process async data stream"""
-    stream = AsyncDataStream([1, 2, 3, 4, 5])
-    async for item in stream:
-        print(f"Process data: {item}")
-
-# Async generator function
-async def async_generator():
-    """Async generator"""
-    for i in range(5):
-        await asyncio.sleep(0.1)
-        yield i
-
-async def use_async_generator():
-    """Use async generator"""
-    async for value in async_generator():
-        print(f"Generated value: {value}")
-
-# Run example
-async def main():
-    await process_data_stream()
-    await use_async_generator()
-
-asyncio.run(main())
-```
-</PythonEditor>
-
-### 5.2 Async Context Manager with Iterators
-
-<PythonEditor title="Async Context Manager with Iterators" compare={true}>
-```javascript !! js
-// JavaScript async resource iterator
-class AsyncFileReader {
-    constructor(filename) {
-        this.filename = filename;
-        this.fileHandle = null;
-    }
-    async open() {
-        this.fileHandle = await open(this.filename, 'r');
-    }
-    async close() {
-        if (this.fileHandle) {
-            await this.fileHandle.close();
-        }
-    }
-    async *readLines() {
-        if (!this.fileHandle) {
-            throw new Error('File not open');
-        }
-        for await (const line of this.fileHandle.readLines()) {
-            yield line.trim();
-        }
-    }
-}
-// Use async file reader
-async function processFile(filename) {
-    const reader = new AsyncFileReader(filename);
-    try {
-        await reader.open();
-        for await (const line of reader.readLines()) {
-            if (line) {
-                console.log(`Process line: ${line}`);
-            }
-        }
-    } finally {
-        await reader.close();
-    }
-}
+```text
+20
+25
 ```
 
-```python !! py
-import asyncio
-import aiofiles
+The caller explicitly decides whether to rebind budget to new_budget. Python also offers global/nonlocal declarations for operations on bindings at other levels, but changing shared outer state is not our default repair, and stateful closures are not required here. Explain the data flow through parameters and returns first.
 
-# Python async file reader
-class AsyncFileReader:
-    """Async file reader"""
-    def __init__(self, filename):
-        self.filename = filename
-        self.file = None
-    async def __aenter__(self):
-        """Enter context"""
-        self.file = await aiofiles.open(self.filename, mode='r')
-        return self
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Exit context"""
-        if self.file:
-            await self.file.close()
-    async def read_lines(self):
-        """Read file lines"""
-        async for line in self.file:
-            yield line.strip()
+Remember L03: if/for does not create a JavaScript let-style block scope, whereas def establishes function-local scope. “Every indentation creates a new scope” would conflate different rules.
 
-# Use async file reader
-async def process_file(filename):
-    """Process file"""
-    async with AsyncFileReader(filename) as reader:
-        async for line in reader.read_lines():
-            if line:
-                print(f"Process line: {line}")
+## 8. Functions are values: passing a rule need not execute it immediately
 
-# Create sample file
-async def create_sample_file():
-    """Create sample file"""
-    async with aiofiles.open('sample.txt', mode='w') as f:
-        await f.write("First line\n")
-        await f.write("Second line\n")
-        await f.write("Third line\n")
+Passing callbacks should feel familiar from frontend work. Python can likewise bind names to functions and pass functions as arguments. Parentheses remain decisive: is_pending is a function object, while `is_pending(task)` is the result of a particular call.
 
-# Run example
-async def main():
-    await create_sample_file()
-    await process_file('sample.txt')
+File: `function_values.py`.
 
-asyncio.run(main())
-```
-</PythonEditor> 
+<Code language="python">{getFunctionExample('function_values.py')}</Code>
 
-## 6. Real Project Examples
+Expected:
 
-### 6.1 Async Web Crawler
-
-<PythonEditor title="Async Web Crawler Example" compare={true}>
-```javascript !! js
-// JavaScript async crawler
-const axios = require('axios');
-const cheerio = require('cheerio');
-
-class AsyncWebCrawler {
-    constructor() {
-        this.visited = new Set();
-        this.results = [];
-    }
-    async crawlPage(url) {
-        if (this.visited.has(url)) {
-            return;
-        }
-        this.visited.add(url);
-        console.log(`Crawling page: ${url}`);
-        try {
-            const response = await axios.get(url);
-            const $ = cheerio.load(response.data);
-            // Extract title
-            const title = $('title').text();
-            const links = $('a').map((i, el) => $(el).attr('href')).get();
-            this.results.push({
-                url,
-                title,
-                links: links.slice(0, 5) // Limit link count
-            });
-            console.log(`Page title: ${title}`);
-        } catch (error) {
-            console.error(`Crawl failed: ${url}`, error.message);
-        }
-    }
-    async crawlMultiplePages(urls) {
-        const promises = urls.map(url => this.crawlPage(url));
-        await Promise.all(promises);
-        return this.results;
-    }
-}
-// Use crawler
-async function main() {
-    const crawler = new AsyncWebCrawler();
-    const urls = [
-        'https://example.com',
-        'https://httpbin.org/get',
-        'https://jsonplaceholder.typicode.com/posts/1'
-    ];
-    const results = await crawler.crawlMultiplePages(urls);
-    console.log('Crawl results:', results);
-}
-// main();
+```text
+True
+True
+['Practice']
+False
 ```
 
-```python !! py
-import asyncio
-import aiohttp
-from bs4 import BeautifulSoup
-from typing import List, Dict, Set
-import time
+Separate the responsibilities:
 
-class AsyncWebCrawler:
-    """Async web crawler"""
-    def __init__(self):
-        self.visited: Set[str] = set()
-        self.results: List[Dict] = []
-    async def crawl_page(self, session: aiohttp.ClientSession, url: str):
-        """Crawl single page"""
-        if url in self.visited:
-            return
-        self.visited.add(url)
-        print(f"Crawling page: {url}")
-        try:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    html = await response.text()
-                    soup = BeautifulSoup(html, 'html.parser')
-                    # Extract title
-                    title = soup.title.string if soup.title else "No title"
-                    links = [a.get('href') for a in soup.find_all('a', href=True)]
-                    self.results.append({
-                        'url': url,
-                        'title': title,
-                        'links': links[:5]  # Limit link count
-                    })
-                    print(f"Page title: {title}")
-                else:
-                    print(f"HTTP error: {response.status}")
-        except Exception as error:
-            print(f"Crawl failed: {url} - {error}")
-    async def crawl_multiple_pages(self, urls: List[str]):
-        """Concurrent crawl multiple pages"""
-        async with aiohttp.ClientSession() as session:
-            tasks = [
-                self.crawl_page(session, url) 
-                for url in urls
-            ]
-            await asyncio.gather(*tasks)
-        return self.results
+- `is_pending` answers whether one task is unfinished, returning a bool.
+- `select_tasks` manages traversal, calls `rule(task)` each round and collects matching tasks into a new list.
+- `rule = is_pending` gives the same function another name without executing it, so the identity comparison is True.
+- `select_tasks(tasks, rule)` passes the rule itself. The loop inside select_tasks is where it actually runs.
 
-# Use crawler
-async def main():
-    crawler = AsyncWebCrawler()
-    urls = [
-        'https://httpbin.org/get',
-        'https://jsonplaceholder.typicode.com/posts/1',
-        'https://api.github.com/users/octocat'
-    ]
-    start_time = time.time()
-    results = await crawler.crawl_multiple_pages(urls)
-    end_time = time.time()
-    print(f"Crawl completed, time: {end_time - start_time:.2f} seconds")
-    print("Crawl results:", results)
+The contract requires rule to accept one task and return bool. Although if can test other objects for truth, an accidental None or string does not satisfy this predicate contract and can silently change selection. The outer result list differs from tasks while the task dictionaries remain shared; selection does not copy them.
 
-# Run crawler
-asyncio.run(main())
-```
-</PythonEditor>
+File: `errors/not_callable.py`.
 
-### 6.2 Async Task Queue
+<Code language="python">{getFunctionExample('errors/not_callable.py')}</Code>
 
-<PythonEditor title="Async Task Queue Example" compare={true}>
-```javascript !! js
-// JavaScript async task queue
-class AsyncTaskQueue {
-    constructor(concurrency = 3) {
-        this.concurrency = concurrency;
-        this.running = 0;
-        this.queue = [];
-    }
-    async add(task) {
-        return new Promise((resolve, reject) => {
-            this.queue.push({
-                task,
-                resolve,
-                reject
-            });
-            this.process();
-        });
-    }
-    async process() {
-        if (this.running >= this.concurrency || this.queue.length === 0) {
-            return;
-        }
-        this.running++;
-        const { task, resolve, reject } = this.queue.shift();
-        try {
-            const result = await task();
-            resolve(result);
-        } catch (error) {
-            reject(error);
-        } finally {
-            this.running--;
-            this.process();
-        }
-    }
-    async waitForAll() {
-        while (this.queue.length > 0 || this.running > 0) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-    }
-}
-// Use task queue
-async function processTask(id) {
-    console.log(`Start processing task ${id}`);
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-    console.log(`Complete processing task ${id}`);
-    return `Task ${id} result`;
-}
-async function main() {
-    const queue = new AsyncTaskQueue(2);
-    // Add tasks
-    const promises = [];
-    for (let i = 1; i <= 5; i++) {
-        promises.push(queue.add(() => processTask(i)));
-    }
-    // Wait for all tasks to complete
-    await queue.waitForAll();
-    const results = await Promise.all(promises);
-    console.log('All tasks completed:', results);
-}
-// main();
+Line seven raises TypeError: rule was rebound to the True returned by a judgment, and bool is not callable. A name spelled rule does not prove it holds a rule. Repair it to `rule = is_pending`, then let `rule(task)` perform the judgment; it should print True.
+
+Selecting from an empty list should return an empty list and never call the rule. Input-dependent call counts are more precise than “callbacks always execute.” Lambda, map/filter and elaborate composition are unnecessary; ordinary def expresses this mechanism.
+
+## 9. Simple closures: a returned rule retains one configuration
+
+### 9.1 Separate what the two calls accomplish
+
+We want a 20-minute rule and a 40-minute rule without passing the budget again for every judgment. A function can receive configuration and return another function.
+
+File: `closure_factory.py`.
+
+<Code language="python">{getFunctionExample('closure_factory.py')}</Code>
+
+Expected:
+
+```text
+False
+True
+True
+False
 ```
 
-```python !! py
-import asyncio
-import random
-from typing import List, Callable, Any
-from dataclasses import dataclass
+Break the lifetime into steps:
 
-@dataclass
-class Task:
-    """Task class"""
-    func: Callable
-    args: tuple = ()
-    kwargs: dict = None
-    future: asyncio.Future = None
-    def __post_init__(self):
-        if self.kwargs is None:
-            self.kwargs = {}
-        if self.future is None:
-            self.future = asyncio.Future()
+1. Calling `make_budget_rule(20)` establishes limit for that outer call.
+2. Executing the inner def creates fits. It will use the enclosing limit, but its body does not run yet.
+3. `return fits` gives the function object to the caller. It is not `return fits(...)`, so no duration is judged at this point.
+4. The outer call has ended. Later, `small_rule(25)` runs the returned function and reads its associated enclosing limit.
+5. A second factory call creates a separate binding and another function object. The 20 and 40 rules therefore coexist without overwriting each other.
 
-class AsyncTaskQueue:
-    """Async task queue"""
-    def __init__(self, concurrency: int = 3):
-        self.concurrency = concurrency
-        self.running = 0
-        self.queue: List[Task] = []
-        self.semaphore = asyncio.Semaphore(concurrency)
-    async def add(self, func: Callable, *args, **kwargs) -> asyncio.Future:
-        """Add task to queue"""
-        task = Task(func, args, kwargs)
-        self.queue.append(task)
-        asyncio.create_task(self._process_queue())
-        return task.future
-    async def _process_queue(self):
-        """Process tasks in queue"""
-        if not self.queue or self.running >= self.concurrency:
-            return
-        self.running += 1
-        task = self.queue.pop(0)
-        try:
-            async with self.semaphore:
-                result = await task.func(*task.args, **task.kwargs)
-                task.future.set_result(result)
-        except Exception as error:
-            task.future.set_exception(error)
-        finally:
-            self.running -= 1
-            if self.queue:
-                asyncio.create_task(self._process_queue())
-    async def wait_for_all(self):
-        """Wait for all tasks to complete"""
-        while self.queue or self.running > 0:
-            await asyncio.sleep(0.1)
+The function together with the enclosing function bindings it uses forms the **closure** discussed here. The entire outer execution is not running continuously in the background, nor are all locals exported globally. The returned function can still access the bindings it needs.
 
-# Use task queue
-async def process_task(task_id: int) -> str:
-    """Process task"""
-    print(f"Start processing task {task_id}")
-    await asyncio.sleep(1 + random.random() * 2)
-    print(f"Complete processing task {task_id}")
-    return f"Task {task_id} result"
+Factory, inner function and closure are not three additional framework APIs. They are combinations of def, calls, return and name lookup that the earlier sections established.
 
-async def main():
-    queue = AsyncTaskQueue(2)
-    # Add tasks
-    futures = []
-    for i in range(1, 6):
-        future = await queue.add(process_task, i)
-        futures.append(future)
-    # Wait for all tasks to complete
-    await queue.wait_for_all()
-    results = await asyncio.gather(*futures)
-    print("All tasks completed:", results)
+### 9.2 A closure is not a snapshot of values at definition time
 
-# Run task queue
-asyncio.run(main())
-```
-</PythonEditor> 
+File: `closure_binding.py`.
 
-## 7. Exercises
+<Code language="python">{getFunctionExample('closure_binding.py')}</Code>
 
-### Exercise 1: Async Data Processing
+Expected:
 
-<PythonEditor title="Exercise 1: Async Data Processing" compare={true}>
-```javascript !! js
-// Async data processing exercise
-async function processData(data) {
-    // Simulate data processing
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return data.map(item => item * 2);
-}
-
-async function filterData(data) {
-    // Simulate data filtering
-    await new Promise(resolve => setTimeout(resolve, 50));
-    return data.filter(item => item > 10);
-}
-
-async function aggregateData(data) {
-    // Simulate data aggregation
-    await new Promise(resolve => setTimeout(resolve, 75));
-    return data.reduce((sum, item) => sum + item, 0);
-}
-
-async function processDataPipeline() {
-    const rawData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    console.log("Raw data:", rawData);
-    // Sequential processing
-    const processed = await processData(rawData);
-    console.log("Processed data:", processed);
-    const filtered = await filterData(processed);
-    console.log("Filtered data:", filtered);
-    const result = await aggregateData(filtered);
-    console.log("Final result:", result);
-    return result;
-}
-
-// Concurrent processing version
-async function processDataConcurrently() {
-    const rawData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    console.log("Raw data:", rawData);
-    // Concurrent processing
-    const [processed, filtered, aggregated] = await Promise.all([
-        processData(rawData),
-        filterData(rawData),
-        aggregateData(rawData)
-    ]);
-    console.log("Concurrent processing results:", { processed, filtered, aggregated });
-    return { processed, filtered, aggregated };
-}
-
-// Run exercise
-processDataPipeline();
-processDataConcurrently();
+```text
+True
 ```
 
-```python !! py
-import asyncio
-from typing import List
+Limit was ten when fits was created, but the same outer call rebound it to thirty before returning. Rule reads that enclosing binding when called, so twenty qualifies. Do not confuse closure lookup with evaluation of a default expression at definition time.
 
-# Async data processing exercise
-async def process_data(data: List[int]) -> List[int]:
-    """Process data"""
-    await asyncio.sleep(0.1)  # Simulate processing time
-    return [item * 2 for item in data]
+The previous factory never rebinds its own limit, so each rule retains its budget. Rebinding a caller-side budget variable to another integer does not automatically rewrite the parameter binding established by an earlier factory call. Captured mutable objects still require a sharing analysis; closures do not deep-copy them.
 
-async def filter_data(data: List[int]) -> List[int]:
-    """Filter data"""
-    await asyncio.sleep(0.05)  # Simulate filtering time
-    return [item for item in data if item > 10]
+We do not require bulk nested definitions inside loops or nonlocal-based counters now. Do not import JavaScript let's per-iteration binding assumptions. First independently write a factory returning a predicate and explain the separate moments of creating a rule and applying it.
 
-async def aggregate_data(data: List[int]) -> int:
-    """Aggregate data"""
-    await asyncio.sleep(0.075)  # Simulate aggregation time
-    return sum(data)
+**Checkpoint C:** give each rule inputs below, on and above its boundary, and explain why the rules do not overwrite each other. Then run the rebinding experiment to distinguish local bindings, default objects and closure lookup.
 
-async def process_data_pipeline():
-    """Data processing pipeline (sequential processing)"""
-    raw_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    print("Raw data:", raw_data)
-    # Sequential processing
-    processed = await process_data(raw_data)
-    print("Processed data:", processed)
-    filtered = await filter_data(processed)
-    print("Filtered data:", filtered)
-    result = await aggregate_data(filtered)
-    print("Final result:", result)
-    return result
+## 10. Write a contract before extracting a function
 
-async def process_data_concurrently():
-    """Concurrent data processing"""
-    raw_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    print("Raw data:", raw_data)
-    # Concurrent processing
-    processed, filtered, aggregated = await asyncio.gather(
-        process_data(raw_data),
-        filter_data(raw_data),
-        aggregate_data(raw_data)
-    )
-    print("Concurrent processing results:", {
-        "processed": processed,
-        "filtered": filtered,
-        "aggregated": aggregated
-    })
-    return {
-        "processed": processed,
-        "filtered": filtered,
-        "aggregated": aggregated
-    }
+Not every few lines deserve a function, and not every function needs the entire system's data. Answer four questions before choosing a boundary:
 
-# Run exercise
-async def main():
-    print("=== Sequential Processing ===")
-    await process_data_pipeline()
-    print("\n=== Concurrent Processing ===")
-    await process_data_concurrently()
+| Question | Example classification-rule answer |
+| --- | --- |
+| What is the input? | None or an integer estimate; bool and strings are excluded |
+| What is returned? | One of unknown, invalid or known |
+| What changes or prints? | No mutation of caller objects and no output |
+| What is not handled? | Parsing external text, catching exceptions or saving data |
 
-asyncio.run(main())
-```
-</PythonEditor>
+Separate a classifier from a summary because the former determines one value's meaning while the latter traverses and accumulates. Leave display to the caller. Other code can then reuse returned data without first parsing printed text.
 
-### Exercise 2: Async API Client
+The next file uses **docstrings**: a triple-quoted string as the body's first statement briefly documents purpose and contract. It is not runtime validation or return; execution continues with the following statements. Triple quotes can hold multiple lines, though our descriptions are short. Documentation generators and annotations are not prerequisites.
 
-<PythonEditor title="Exercise 2: Async API Client" compare={true}>
-```javascript !! js
-// Async API client exercise
-class AsyncAPIClient {
-    constructor(baseURL) {
-        this.baseURL = baseURL;
-    }
-    async get(endpoint) {
-        const response = await fetch(`${this.baseURL}${endpoint}`);
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-    }
-    async post(endpoint, data) {
-        const response = await fetch(`${this.baseURL}${endpoint}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-    }
-    async batchGet(endpoints) {
-        const promises = endpoints.map(endpoint => this.get(endpoint));
-        return Promise.all(promises);
-    }
-}
-// Use API client
-async function testAPIClient() {
-    const client = new AsyncAPIClient('https://jsonplaceholder.typicode.com');
-    try {
-        // Single request
-        const user = await client.get('/users/1');
-        console.log('User info:', user);
-        // Batch requests
-        const [posts, comments, albums] = await client.batchGet([
-            '/posts/1',
-            '/comments/1',
-            '/albums/1'
-        ]);
-        console.log('Batch request results:', { posts, comments, albums });
-        // POST request
-        const newPost = await client.post('/posts', {
-            title: 'Test article',
-            body: 'This is test content',
-            userId: 1
-        });
-        console.log('New article:', newPost);
-    } catch (error) {
-        console.error('API request failed:', error.message);
-    }
-}
-// testAPIClient();
+This separation improves verifiability but is not a rule that every function must be pure. `add_topic` deliberately mutates input. What matters is a visible contract and predictable side effects rather than surprises from hidden state.
+
+## 11. Refactor L03's task summary into two functions
+
+The input boundary remains familiar: tasks is a list of dictionaries with string title and bool done; absent or None minutes means unknown, otherwise estimates are integers; budget is a nonnegative integer. Exclude completed tasks first and compare each task's estimate to budget individually.
+
+File: `task_rules.py`.
+
+<Code language="python">{getFunctionExample('task_rules.py')}</Code>
+
+Expected:
+
+```text
+Pending: 4
+Known: 20 minutes
+Unknown: 1; invalid: 1
+['Read', 'Zero']
+0
+[]
+['Read', 'Zero']
 ```
 
-```python !! py
-import aiohttp
-import asyncio
-from typing import List, Dict, Any
+This refactor does not silently add frameworks or new input formats. Responsibilities and calls change:
 
-class AsyncAPIClient:
-    """Async API client"""
-    def __init__(self, base_url: str):
-        self.base_url = base_url
-    async def get(self, endpoint: str) -> Dict[str, Any]:
-        """GET request"""
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f"{self.base_url}{endpoint}") as response:
-                if response.status != 200:
-                    raise aiohttp.ClientError(
-                        f"HTTP {response.status}: {response.reason}"
-                    )
-                return await response.json()
-    async def post(self, endpoint: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """POST request"""
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{self.base_url}{endpoint}",
-                json=data
-            ) as response:
-                if response.status != 201:
-                    raise aiohttp.ClientError(
-                        f"HTTP {response.status}: {response.reason}"
-                    )
-                return await response.json()
-    async def batch_get(self, endpoints: List[str]) -> List[Dict[str, Any]]:
-        """Batch GET requests"""
-        async with aiohttp.ClientSession() as session:
-            tasks = [
-                self._get_with_session(session, endpoint)
-                for endpoint in endpoints
-            ]
-            return await asyncio.gather(*tasks)
-    async def _get_with_session(self, session: aiohttp.ClientSession, endpoint: str):
-        """GET request with existing session"""
-        async with session.get(f"{self.base_url}{endpoint}") as response:
-            if response.status != 200:
-                raise aiohttp.ClientError(
-                    f"HTTP {response.status}: {response.reason}"
-                )
-            return await response.json()
+- Each entry into build_report creates a new report and ready_titles list. They are not default arguments or shared outer state.
+- Each pending estimate goes through classify_minutes, whose returned category determines the relevant counter. Zero is known and is not excluded through truthiness.
+- Return report follows the loop. Inside the loop, it would stop after the first entry, possibly leaving empty input to return None instead.
+- Neither function prints; display happens after receiving the result. No output does not mean no execution or no result.
+- A second call on empty input creates its own report, while the first report retains its titles. This demonstrates repeated-call isolation, not merely lack of exceptions.
 
-# Use API client
-async def test_api_client():
-    """Test API client"""
-    client = AsyncAPIClient('https://jsonplaceholder.typicode.com')
-    try:
-        # Single request
-        user = await client.get('/users/1')
-        print('User info:', user)
-        # Batch requests
-        posts, comments, albums = await client.batch_get([
-            '/posts/1',
-            '/comments/1',
-            '/albums/1'
-        ])
-        print('Batch request results:', {
-            'posts': posts,
-            'comments': comments,
-            'albums': albums
-        })
-        # POST request
-        new_post = await client.post('/posts', {
-            'title': 'Test article',
-            'body': 'This is test content',
-            'userId': 1
-        })
-        print('New article:', new_post)
-    except Exception as error:
-        print('API request failed:', error)
+First call `classify_minutes(None)`, `classify_minutes(-1)` and `classify_minutes(0)` separately and check the categories. Then vary build_report's input and budget. Do not always start guessing from the last line of the entire file.
 
-# Run test
-asyncio.run(test_api_client())
+Verify three variations: all-completed input has pending zero; budget zero keeps only Zero but known pending time remains twenty; adding a pending 60-minute task makes known time eighty without changing candidates. Also explain why mutating one returned ready_titles list must not contaminate another report.
+
+This is organization of local calculations, not handling of network requests, database transactions or concurrency. General validation and error policies come separately.
+
+## 12. Three exercise levels: explain, repair, combine independently
+
+### Exercise A: predict mutation and rebinding first
+
+```python case=exercise_alias
+def change_titles(titles):
+    titles.append("Review")
+    titles = ["Local"]
+    return titles
+
+
+source = ["Read"]
+result = change_titles(source)
+print(source)
+print(result)
+print(source is result)
 ```
-</PythonEditor> 
 
-## 8. Summary and Extended Learning Path
+Predict all three outputs, identifying object mutation versus local rebinding. Then use an empty source list. Finally remove the rebinding inside the function and explain how object relationships change.
 
-Python's async programming capabilities, while starting later, are now very mature and suitable for I/O-intensive scenarios, web backends, crawlers, real-time data processing, and other fields. Through this tutorial, you have completed a comprehensive mastery from basic syntax to real projects.
+<details>
+<summary>Open after predicting and testing both variations</summary>
 
-### Learning Review
-- Understood the usage of async/await in Python and its similarities and differences with JavaScript
-- Familiarized with advanced features like event loops, concurrent execution, async generators, and context managers
-- Combined FastAPI with asyncpg to implement complete async web services and database interactions
-- Wrote practical async project examples like crawlers, task queues, and API clients
-- Practiced real-world data processing workflows
+Original output:
 
-### Recommended Extensions
-Here are suggestions for further in-depth async programming learning:
+```text
+['Read', 'Review']
+['Local']
+False
+```
 
-#### 📚 Frameworks and Libraries
-- **FastAPI**: Deep dive into dependency injection, background tasks, middleware, and other features
-- **aiohttp**: Build async HTTP clients and servers
-- **Starlette**: FastAPI's underlying async framework for lower-level async web services
-- **Trio / Curio**: Alternative async libraries providing structured concurrency programming paradigms
+Append mutates the original through a shared reference. The later assignment points only local titles to a new list, which is returned. With empty input, source becomes `['Review']` and the other two outputs are unchanged. Without the rebinding, the returned object is the mutated original: both lists display `['Read', 'Review']` and identity is True.
 
-#### 🛠️ Tools and Debugging
-- **asyncio.TaskGroup (Python 3.11+)**: Safer concurrent execution models
-- **aiomonitor / aiodebug**: Debug async event loops
-- **pytest-asyncio**: Write async test cases
+</details>
 
-#### 💡 Practical Project Suggestions
-- Implement an **async microservice architecture** connecting multiple async services through message queues
-- Build a **WebSocket-based real-time chat room**
-- Write an **async data aggregator** integrating async responses from multiple APIs
+### Exercise B: satisfy the contract without faking a return through extra prints
 
-🧠 **Food for Thought**: Compared to traditional multi-threading and multi-processing programming, what are the advantages and limitations of async programming? In which real projects would you prioritize async solutions?
+This is a complete faulty starting point:
 
-🎉 **Congratulations!** You have now completed a comprehensive introduction to Python async programming. If you come from a JavaScript background, you should no longer feel unfamiliar with Python's async world. Continue exploring deeper - async will become an important weapon for your development efficiency! 
+```python case=exercise_missing_return
+def with_buffer(minutes, extra=5):
+    result = minutes + extra
+
+
+first = with_buffer(20)
+second = with_buffer(0, extra=0)
+print(first)
+print(second)
+```
+
+Actual output:
+
+```text
+None
+None
+```
+
+The contract is “accept nonnegative integer minutes and extra minutes, return their integer sum, do not change external state, and do not print.” Repair the function independently while leaving the caller unchanged. Correct output is twenty-five followed by zero.
+
+Also verify `with_buffer(20, extra=10)` returns thirty, `with_buffer(0)` returns five, and repeated identical calls accumulate no state. Hint: calculating a local result does not automatically give it to the caller.
+
+<details>
+<summary>Open after repairing the return value and testing variations</summary>
+
+File: `solutions/fix_return.py`.
+
+<Code language="python">{getFunctionExample('solutions/fix_return.py')}</Code>
+
+Expected:
+
+```text
+25
+0
+```
+
+The reference returns result rather than adding print inside the function. Returning the expression directly is also fine. Acceptance concerns the return type, value and side effects, not character-for-character agreement with the reference.
+
+</details>
+
+### Exercise C: implement four task-rule functions from an empty file
+
+Create study_rules.py. Write the following contracts in your own words before implementing them. Do not copy the entire preceding summary: this artifact creates tasks and selects by rules rather than producing the same statistical report.
+
+| Function | Requirement |
+| --- | --- |
+| `create_task(title, minutes=None, tags=None)` | Return a new dictionary containing title, minutes, tags and done; done initially False; omission/None creates a fresh tag list; supplied lists are copied at this layer, with string tags |
+| `is_ready(task, budget=20)` | Return bool; only unfinished tasks with known, nonnegative estimates at most budget qualify; zero can qualify; missing or None estimates cannot |
+| `select_tasks(tasks, rule)` | Call rule for each entry and return matching tasks in a new list, preserving relative order without input mutation; dictionaries remain the original objects |
+| `make_budget_rule(budget)` | Return a function accepting task, reusing is_ready with this call's budget; do not judge a task during creation or change global variables |
+
+This exercise uses bounded data: titles/tags are strings, done is bool, minutes is None or an integer or missing when judged, excluding bool and strings; budget is a nonnegative integer. The constructor may store negatives so the rule can exclude them. That does not make it a safe arbitrary-public-input creation interface.
+
+Set `source_tags = ["python"]`. Use create_task for the following six entries rather than manually writing the six output dictionaries:
+
+| Name | Title | Minutes | Tag input and subsequent change |
+| --- | --- | --- | --- |
+| first | Read | 20 | Supply source_tags; after creation append review to first's tags |
+| second | Practice | 35 | Also supply source_tags; append nothing else |
+| zero | Zero | 0 | Omit tags |
+| unknown | Unknown | Omit minutes | Omit tags |
+| finished | Finished | 10 | Omit tags; set done to True after creation |
+| invalid | Invalid | -5 | Omit tags |
+
+Place them in tasks in table order. Create 20-minute and 40-minute rules through the factory, then use select_tasks with each on the same tasks. Display results only in caller code, never inside these four functions.
+
+Print, in order: source tags, first's tags, second's tags, identity of zero's and unknown's tags; both lists of candidate titles; identity of the 20-minute result list and tasks; source task count. Original output:
+
+```text
+['python']
+['python', 'review']
+['python']
+False
+Within 20: ['Read', 'Zero']
+Within 40: ['Read', 'Practice', 'Zero']
+False
+Source tasks: 6
+```
+
+Run your own file:
+
+```bash
+uv run --no-project --python 3.13 python study_rules.py
+```
+
+Displayed results alone are insufficient. Perform these behavior checks, restoring original data before each change:
+
+| Variation or check | Required behavior |
+| --- | --- |
+| Select from empty tasks | Return [], not None; never call rule |
+| All completed | Neither rule selects any task |
+| Small budget becomes zero | Select Zero only, rather than an empty result |
+| First takes 21 minutes | Excluded at twenty but still included at forty |
+| Construct again with omitted tags | Get a fresh empty list without any previous mutation |
+| Explicitly supply an empty tag list | Returned tags do not share that supplied list |
+| Alternate both rules repeatedly | Each result stays stable; using the other rule does not change its budget |
+| Modify the title of a selected task | The corresponding source dictionary also changes; only the outer result list is independent |
+
+Predict the final sharing check before running it, then restore the input. This is intentional sharing, not hidden mutation by selection. Editing an independent copy requires a different explicit copying contract.
+
+<details>
+<summary>Open after independent implementation and behavior acceptance</summary>
+
+File: `solutions/study_rules.py`.
+
+<Code language="python">{getFunctionExample('solutions/study_rules.py')}</Code>
+
+The reference separates data creation, one-task judgment, traversal by rule and rule configuration. Each responsibility uses mechanisms already explained, without hiding work in decorators, classes, annotations or exception handling.
+
+Local variable names need not match, but explain return placement, default-object creation, explicit-tag copying boundaries, functions passed as values and separate closure budgets. Reproducing output without explaining these relationships is not independent acceptance.
+
+</details>
+
+## 13. What evidence should you have before leaving?
+
+- Explain execution of def versus a call and trace return to its call site.
+- Record returned values, standard output and input mutation separately; a visible number alone does not prove correctness.
+- Bind positional/keyword arguments and diagnose omissions, duplicates, misspellings and keyword-only restrictions while distinguishing syntax and call failures.
+- Explain definition-time defaults versus call-local creation, testing both omitted and explicit-object sharing boundaries.
+- Explain local names, enclosing lookup and UnboundLocalError without masking unclear input/output design through global mutation.
+- Pass a function instead of accidentally passing one call's result; independently write a budget-rule factory.
+- Complete the four-function exercise with empty input, zero, unknown estimates, boundaries, repeated calls and two rules, not just the six default tasks.
+
+**Pause/resume record:** save the file, last arguments, return value, visible output, whether input changed, unexplained bindings and your next first step. With an irregular schedule, separate the three checkpoints, integrated refactor and independent exercise. You need not memorize every signature form at once.
+
+Next is [L05: Exceptions and Debugging](/en/docs/js2py/module-05-quality-testing-typing). Understanding call chains comes before systematically learning traceback, raise, specific exceptions and recovery boundaries. L00–L05 now implement the new contracts; later historical material still needs rewriting. Original module 04’s async material is archived for its later prerequisite-appropriate place, not deleted.
+
+## 14. Official references and chapter boundaries
+
+CPython 3.13 is the teaching baseline, not a claim about the latest release. The following primary sources were checked on 2026-09-23. Read the relevant sections rather than treating entire pages of advanced signatures, classes or decorators as prerequisites.
+
+- [Defining functions and more definition forms](https://docs.python.org/3.13/tutorial/controlflow.html#defining-functions): calls, returns, defaults, keyword arguments and keyword-only parameters.
+- [Function definition reference](https://docs.python.org/3.13/reference/compound_stmts.html#function-definitions): def is executable; default evaluation and body execution occur at different times.
+- [Return statements](https://docs.python.org/3.13/reference/simple_stmts.html#the-return-statement): returned objects and ending the current call.
+- [Naming and binding](https://docs.python.org/3.13/reference/executionmodel.html#naming-and-binding): local bindings, enclosing lookup and UnboundLocalError.
+- [Python FAQ](https://docs.python.org/3.13/faq/programming.html#why-are-default-values-shared-between-objects): mutable defaults, with related local-name and closure explanations elsewhere on the page.
+- [MDN function declarations](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function#hoisting): bound the hoisting analogy instead of extending it to every JS function form.
+
+Arbitrary external input, imports, persistence, transactions, concurrency and error recovery remain outside this chapter. Current False/None business rules are not universal error-handling strategies. Establish inputs, calls, returns, state and bindings before the next chapter asks where to reject, raise or recover.

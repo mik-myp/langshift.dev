@@ -1,0 +1,949 @@
+{
+  "audit_version": "1.0",
+  "date": "2026-09-28",
+  "language": "zh-CN",
+  "workspace": "/Users/mikmyp/Documents/code-projects/langshift.dev",
+  "contract": "/tmp/langshift-s01-s03-contract.json",
+  "status": "complete_with_one_finding_and_source_drift_notice",
+  "summary": {
+    "finding_count": 1,
+    "severity_counts": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 1,
+      "P3": 0
+    },
+    "conclusion": "发现 1 项 P2/中等、已隔离复现的客户端凭证边界问题：自动代理使 loopback-only 承诺不成立。未在本次静态覆盖及两个 PG 定向探针中发现服务端身份绕过、跨项目授权绕过、撤权后回执泄露或提前提交漏洞；不是无漏洞证明或生产放行。",
+    "integration_recommendation": "主线在以真实受邀用户凭证验收客户端前，修复三份 client.py 的默认代理继承并补一项假代理回归。其余核心安全边界未发现新增阻断项。所有修复交由主线/作者，本审查不修改共享文件。",
+    "classification_counts": {
+      "code_vulnerability": 1,
+      "teaching_promise_mismatch_linked_to_same_finding": 1,
+      "explicit_release_todos_not_counted_as_defects": true
+    },
+    "source_change_warning": "交付前作者更新三套 labdb.py/.gitignore；详见 source_stability.delivery_changed_file_hashes。核心服务和有问题的 client.py 未变。本报告不认证改动后的沙箱。"
+  },
+  "constraints_observed": {
+    "repository_files_modified_by_auditor": false,
+    "shared_files_modified_by_auditor": false,
+    "full_author_test_suite_run": false,
+    "TypeSafe_called": false,
+    "additional_agents_delegated": false,
+    "real_credentials_sent": false,
+    "user_existing_database_or_process_touched": false,
+    "runtime": "直接只读使用 S03 已有 .venv/bin/python，Python 3.13.15；未 uv sync、未安装/升级依赖。设置 PYTHONDONTWRITEBYTECODE=1/-B 防止写 canonical 缓存。",
+    "environment": {
+      "PATH_prefix": "/opt/homebrew/bin:$HOME/.local/bin",
+      "UV_PYTHON_INSTALL_DIR": "/tmp/langshift-js2py-python-20260928",
+      "UV_CACHE_DIR": "/tmp/langshift-js2py-uv-cache-20260928"
+    },
+    "isolation": "调用 canonical labdb.OwnedCluster() 新建自有 mkdtemp 数据库；不调用 attach，不读取/更新 .lab-state.json，不复用外部 DATABASE_URL。HTTP API、假代理和假服务仅绑定自行分配的 127.0.0.1 端口；未绑定 canonical 8061/8062/8063。仅停止本探针直接创建的子进程/监听器，OwnedCluster 校验归属后清理。"
+  },
+  "findings": [
+    {
+      "id": "SEC-S01-S03-001",
+      "title": "默认 urllib 代理继承可把 loopback 登录密码和 Bearer 发给环境代理",
+      "severity": "medium",
+      "priority": "P2",
+      "confidence": "high",
+      "status": "confirmed_unfixed",
+      "category": "code_vulnerability",
+      "related_category": "teaching_promise_mismatch",
+      "primary_locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/client.py",
+          "line_start": 36,
+          "line_end": 38,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/client.py",
+          "line_start": 36,
+          "line_end": 38,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/client.py",
+          "line_start": 36,
+          "line_end": 38,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        }
+      ],
+      "related_locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/client.py",
+          "line_start": 9,
+          "line_end": 9,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/client.py",
+          "line_start": 9,
+          "line_end": 9,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/client.py",
+          "line_start": 9,
+          "line_end": 9,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/client.py",
+          "line_start": 27,
+          "line_end": 35,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/client.py",
+          "line_start": 27,
+          "line_end": 35,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/client.py",
+          "line_start": 27,
+          "line_end": 35,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/client.py",
+          "line_start": 79,
+          "line_end": 84,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/client.py",
+          "line_start": 79,
+          "line_end": 84,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/client.py",
+          "line_start": 79,
+          "line_end": 84,
+          "sha256_at_read": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 135,
+          "line_end": 137,
+          "sha256_at_read": "ece4e3c04f704756a1daa0d5e1016a11bc70b43eaf52b0c9047a92e6c655006f"
+        }
+      ],
+      "shared_implementation": "三份 client.py 初始/结束 SHA-256 相同；隔离执行的是 S03 版本，结论依据字节一致性适用于 S01/S02。",
+      "preconditions": [
+        "运行环境存在适用于 HTTP 的代理设置（实测为 http_proxy）。",
+        "127.0.0.1 不在有效代理绕过规则中（实测 no_proxy 为空）。",
+        "用户执行教学客户端的 login / change-password 或带会话的 request。"
+      ],
+      "mechanism": "Request 的 URL 虽固定为 http://127.0.0.1，但 build_opener(NoRedirect()) 未覆盖默认 ProxyHandler。默认代理处理先将请求送到环境/系统代理；拒绝 3xx 不会阻止第一次请求带上密码正文或 Authorization。远程代理可在访问目标失败之前收到明文秘密。",
+      "impact": "破坏教学 loopback-only 的凭证信任边界；有条件地向非本地目标泄露登录密码/当前密码/新密码和会话 Bearer。不是无前置条件的远程攻击，也不是服务端逐对象授权漏洞。",
+      "reproduction": {
+        "script": "/tmp/langshift-s01-s03-security-probes.py",
+        "result_file": "/tmp/langshift-s01-s03-security-probe-results.json",
+        "probe": "loopback_client_environment_proxy",
+        "steps": [
+          "启动两个自行拥有的 127.0.0.1 临时 HTTP server，分别充当目标和代理；两者均不转发。",
+          "仅在探针进程内设置 http_proxy 指向假代理、no_proxy 为空，调用 canonical client.request。",
+          "发送一次 GET /users/me（不可用假 Bearer）和一次 POST /auth/token（不可用假密码）。",
+          "统计接收端而不保存凭证正文；恢复环境并停止两个 server。"
+        ],
+        "observed": {
+          "name": "loopback_client_environment_proxy",
+          "proxy_receipts": [
+            {
+              "absolute_target": true,
+              "dummy_bearer_seen": true,
+              "dummy_password_seen": false
+            },
+            {
+              "absolute_target": true,
+              "dummy_bearer_seen": false,
+              "dummy_password_seen": true
+            }
+          ],
+          "intended_service_receipts": 0,
+          "confirmed": true
+        },
+        "credentials": "该探针只使用 audit-not-a-real-token / audit-not-a-real-password，不使用 PG 探针生成的有效临时凭证，更没有真实用户凭证。"
+      },
+      "minimal_recommendation": "三份 client.py 导入 ProxyHandler，将 build_opener(NoRedirect()) 改为 build_opener(ProxyHandler({}), NoRedirect())。不要只依赖用户自行设置 no_proxy；保留固定 loopback URL 和 NoRedirect。以同一假代理回归断言代理收到 0 次、目标收到两次，覆盖密码与 Bearer。",
+      "fix_applied": false,
+      "official_primary_source": "https://docs.python.org/3.13/library/urllib.request.html#urllib.request.ProxyHandler"
+    }
+  ],
+  "coverage_without_additional_blocker": [
+    {
+      "area": "成熟 Argon2 库及密码处理",
+      "method": "static inspection + official API cross-check",
+      "locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py",
+          "line_start": 7,
+          "line_end": 18,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/security.py",
+          "line_start": 7,
+          "line_end": 18,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/security.py",
+          "line_start": 7,
+          "line_end": 18,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py",
+          "line_start": 37,
+          "line_end": 59,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/security.py",
+          "line_start": 37,
+          "line_end": 59,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/security.py",
+          "line_start": 37,
+          "line_end": 59,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py",
+          "line_start": 84,
+          "line_end": 109,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/security.py",
+          "line_start": 84,
+          "line_end": 109,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/security.py",
+          "line_start": 84,
+          "line_end": 109,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/schemas.py",
+          "line_start": 8,
+          "line_end": 26,
+          "sha256_at_read": "88cb4e0576565fcf774027518a78b0861058d9c883ab635d9f48935e5f7c5ce9"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/schemas.py",
+          "line_start": 8,
+          "line_end": 26,
+          "sha256_at_read": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/schemas.py",
+          "line_start": 8,
+          "line_end": 26,
+          "sha256_at_read": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b"
+        }
+      ],
+      "observed": "固定 argon2-cffi 25.1.0 的高层 PasswordHasher，显式 Argon2id/m=65536/t=3/p=4，由库生成盐；verify 异常失败关闭，成功登录后 check_needs_rehash。新密码 15..128 字符，不 trim；未见自制密码哈希。dummy hash 注释明确不承诺端到端恒时。",
+      "limits": "未做容量、侧信道统计或依赖漏洞全量扫描；没有重跑作者 Argon2 测试。"
+    },
+    {
+      "area": "错误输入及日志秘密",
+      "method": "static inspection + deferred database failure probe/log marker check",
+      "locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/app.py",
+          "line_start": 13,
+          "line_end": 37,
+          "sha256_at_read": "ff7e1d7185ea82c1c6b124ae1dbad7a99321cf54b25680500dcf64703216c985"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/app.py",
+          "line_start": 13,
+          "line_end": 37,
+          "sha256_at_read": "056a5d8a15eabca89f07c659c82ec805cfbd1198ea92171f9ed7c9af65b983c0"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/app.py",
+          "line_start": 13,
+          "line_end": 37,
+          "sha256_at_read": "164cabdb5c06daf50a2e86c7b5fd3959be6537f54b2e10344efe2722c5322a9e"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/db.py",
+          "line_start": 24,
+          "line_end": 27,
+          "sha256_at_read": "f748f16c6d71c59f47e289a42948941f4fbe5efc765c02a823561b40c14d6678"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/db.py",
+          "line_start": 24,
+          "line_end": 27,
+          "sha256_at_read": "f830ac26fd21b81efb9d572cad4627d1666a4b639248ad147dc6f634665f15e2"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/db.py",
+          "line_start": 24,
+          "line_end": 27,
+          "sha256_at_read": "08692c1b112c8c2035bfefcdefcc24427735f9636ce4a3cb7da9f8e63ae65fa2"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/admin.py",
+          "line_start": 15,
+          "line_end": 34,
+          "sha256_at_read": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/admin.py",
+          "line_start": 15,
+          "line_end": 34,
+          "sha256_at_read": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/admin.py",
+          "line_start": 15,
+          "line_end": 34,
+          "sha256_at_read": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/serve.py",
+          "line_start": 13,
+          "line_end": 16,
+          "sha256_at_read": "7ca140c92d08b609915fb5900e1850aadfbb6c10fd2278fae2d0f810906f8f8d"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/serve.py",
+          "line_start": 13,
+          "line_end": 16,
+          "sha256_at_read": "7ca140c92d08b609915fb5900e1850aadfbb6c10fd2278fae2d0f810906f8f8d"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/serve.py",
+          "line_start": 13,
+          "line_end": 16,
+          "sha256_at_read": "7ca140c92d08b609915fb5900e1850aadfbb6c10fd2278fae2d0f810906f8f8d"
+        }
+      ],
+      "observed": "SecretStr 输入、extra=forbid；422 handler 只输出安全 loc/type，不输出 input/msg/ctx/raw body 或未受信 extra key。数据库失败统一 409/503，不记录驱动 repr；SQL 参数隐藏，访问日志关闭。PG 提交失败探针未在应用/PG 日志中发现本次生成的密码和两个令牌。",
+      "limits": "未穷举所有 malformed JSON/Unicode/未来第三方异常，也未验证生产反向代理/APM。日志标记缺席只证明本次路径，不能证明所有日志永不泄露；客户端代理风险见唯一发现。"
+    },
+    {
+      "area": "会话 digest/expiry/auth_version/撤销禁用",
+      "method": "static inspection; real login in owned PG setup",
+      "locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py",
+          "line_start": 31,
+          "line_end": 34,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/security.py",
+          "line_start": 31,
+          "line_end": 34,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/security.py",
+          "line_start": 31,
+          "line_end": 34,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py",
+          "line_start": 44,
+          "line_end": 81,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/security.py",
+          "line_start": 44,
+          "line_end": 81,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/security.py",
+          "line_start": 44,
+          "line_end": 81,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py",
+          "line_start": 84,
+          "line_end": 120,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/security.py",
+          "line_start": 84,
+          "line_end": 120,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/security.py",
+          "line_start": 84,
+          "line_end": 120,
+          "sha256_at_read": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/app.py",
+          "line_start": 58,
+          "line_end": 97,
+          "sha256_at_read": "ff7e1d7185ea82c1c6b124ae1dbad7a99321cf54b25680500dcf64703216c985"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/app.py",
+          "line_start": 58,
+          "line_end": 97,
+          "sha256_at_read": "056a5d8a15eabca89f07c659c82ec805cfbd1198ea92171f9ed7c9af65b983c0"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/app.py",
+          "line_start": 58,
+          "line_end": 97,
+          "sha256_at_read": "164cabdb5c06daf50a2e86c7b5fd3959be6537f54b2e10344efe2722c5322a9e"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/versions/004_identity.py",
+          "line_start": 12,
+          "line_end": 31,
+          "sha256_at_read": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/004_identity.py",
+          "line_start": 12,
+          "line_end": 31,
+          "sha256_at_read": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/004_identity.py",
+          "line_start": 12,
+          "line_end": 31,
+          "sha256_at_read": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef"
+        }
+      ],
+      "observed": "token_urlsafe(32)，仅存 SHA-256 digest；Bearer 格式在 ASCII 编码前校验。每次请求锁定并查询用户，再重新读取 credential（populate_existing），检查 active/revoked_at/expiry/auth_version。logout 锁会话并撤销；改密/logout-all/disable/enable 变更 auth_version；改密检查旧密码。登录接口离开 begin 才返回令牌。",
+      "limits": "本次未单独重跑过期、全部撤销、禁用恢复、API/PG 重启矩阵；已读实现及作者相关测试，但不冒称独立执行。"
+    },
+    {
+      "area": "项目/任务逐对象授权与成员撤权",
+      "method": "route/helper static inspection + real queued replay/revocation probe",
+      "locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/authorization.py",
+          "line_start": 10,
+          "line_end": 25,
+          "sha256_at_read": "f902b9cb6ae1cad3ab25f42bd0e3b07c5e47a964d9dc52184dcb6f4f6189ca92"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/authorization.py",
+          "line_start": 10,
+          "line_end": 25,
+          "sha256_at_read": "5d17aef50eb16babf0ac431be15efbe3cf7184f40f95da29e2c6f892db10af90"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/authorization.py",
+          "line_start": 28,
+          "line_end": 76,
+          "sha256_at_read": "f902b9cb6ae1cad3ab25f42bd0e3b07c5e47a964d9dc52184dcb6f4f6189ca92"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/authorization.py",
+          "line_start": 28,
+          "line_end": 76,
+          "sha256_at_read": "5d17aef50eb16babf0ac431be15efbe3cf7184f40f95da29e2c6f892db10af90"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/app.py",
+          "line_start": 108,
+          "line_end": 197,
+          "sha256_at_read": "056a5d8a15eabca89f07c659c82ec805cfbd1198ea92171f9ed7c9af65b983c0"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/app.py",
+          "line_start": 108,
+          "line_end": 197,
+          "sha256_at_read": "164cabdb5c06daf50a2e86c7b5fd3959be6537f54b2e10344efe2722c5322a9e"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/app.py",
+          "line_start": 217,
+          "line_end": 258,
+          "sha256_at_read": "056a5d8a15eabca89f07c659c82ec805cfbd1198ea92171f9ed7c9af65b983c0"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/app.py",
+          "line_start": 217,
+          "line_end": 263,
+          "sha256_at_read": "164cabdb5c06daf50a2e86c7b5fd3959be6537f54b2e10344efe2722c5322a9e"
+        }
+      ],
+      "observed": "actor 来自 authenticate；DTO 不允许自选 created_by/role。项目先取锁再查当前成员；owner 才能管理项目/成员，不能移除 owner。task 查询同时约束 task_id 与 project_id，更新/删除限 owner 或创建者。S03 已存回执重放仍经 guard_project；实测撤权事务独占项目锁时重放阻塞，撤权提交后 404。",
+      "limits": "全局项目列表使用成员过滤语句快照，不逐项目锁且 items/total 可不一致，正文明确披露，不作为撤权绕过。已开始并持锁的请求可先完成，不承诺追回已发响应。未穷举所有业务死锁。"
+    },
+    {
+      "area": "幂等并发、事务失败与 commit 时机",
+      "method": "static inspection + real deferred COMMIT failure probe",
+      "locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/reliable.py",
+          "line_start": 18,
+          "line_end": 68,
+          "sha256_at_read": "4e30f86753dccb0135ffaebe5af9e57775af3ab5f27be175f7898cfc45402984"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/app.py",
+          "line_start": 202,
+          "line_end": 212,
+          "sha256_at_read": "164cabdb5c06daf50a2e86c7b5fd3959be6537f54b2e10344efe2722c5322a9e"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/db.py",
+          "line_start": 24,
+          "line_end": 26,
+          "sha256_at_read": "08692c1b112c8c2035bfefcdefcc24427735f9636ce4a3cb7da9f8e63ae65fa2"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/006_task_operations.py",
+          "line_start": 12,
+          "line_end": 26,
+          "sha256_at_read": "13d910a8fe03c3af75f4d06a471caa745f8f05cb71497e0c74dc5bdfc8088491"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/purge_expired.py",
+          "line_start": 14,
+          "line_end": 20,
+          "sha256_at_read": "288de2287aeb72b88c83b0527f508d99164465431dd8181cbbe29202f146b3b7"
+        }
+      ],
+      "observed": "canonical UUIDv4；规范化验证后 payload 摘要；复合主键按 actor/project/operation/key 隔离。ON CONFLICT DO NOTHING 后以新的 READ COMMITTED 语句读取赢家；授权在回执读取前。claim/task/public response 在同一 begin 内，helper 只 flush。延迟约束在 COMMIT 抛错后，HTTP 409、task=0、receipt=0；去掉故障后同 key 返回 201 且各 1 行。",
+      "limits": "没有重跑作者完整两连接同/异 payload 唯一键竞争矩阵；并发保证本次主要基于代码与官方 PG 语义，独立真实锁等待验证是成员撤权场景，不混称幂等唯一键竞争执行通过。断连后提交结果可能不确定，不宣称 exactly-once。"
+    },
+    {
+      "area": "扩展示例与迁移",
+      "method": "static inspection",
+      "locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/solutions/session_count.py",
+          "line_start": 9,
+          "line_end": 16,
+          "sha256_at_read": "3014447f03a1b71414e158c4356cac07effe59cb5c2cfe6faa4724fcfe225268"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/solutions/project_summary.py",
+          "line_start": 10,
+          "line_end": 18,
+          "sha256_at_read": "c27f8489cfdb0fc1365b88538ea61e67c4ac0f484475e6ca2932e602d845e040"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/solutions/project_summary.py",
+          "line_start": 10,
+          "line_end": 18,
+          "sha256_at_read": "c27f8489cfdb0fc1365b88538ea61e67c4ac0f484475e6ca2932e602d845e040"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/005_owner_guard.py",
+          "line_start": 11,
+          "line_end": 17,
+          "sha256_at_read": "dfae20f1777b520ca547804dff471f40c660d01ae506d72ebfa59186ced0c4ba"
+        }
+      ],
+      "observed": "session count 限当前用户/版本/未撤销/未过期；summary 复用 authenticate + guard_project 并按 project_id 过滤。身份迁移不为旧用户伪造密码；partial owner index 只保证至多一个 owner，与 service 原子创建和不可删除 owner 的分工一致。"
+    }
+  ],
+  "explicit_boundaries_not_defects": [
+    {
+      "category": "scope_exclusion",
+      "items": [
+        "受控 operator CLI provisioning，没有公开注册、密码找回、MFA、JWT/refresh、owner transfer。缺少这些功能不是本审查缺陷。",
+        "不透明令牌逐请求查库；不是离线验证方案。"
+      ]
+    },
+    {
+      "category": "explicit_release_todo",
+      "reference": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+        "line_start": 208,
+        "line_end": 223,
+        "sha256_at_read": "ece4e3c04f704756a1daa0d5e1016a11bc70b43eaf52b0c9047a92e6c655006f"
+      },
+      "items": [
+        "TLS/HTTPS、请求体大小边界、实测登录限流与 hash 容量/并发预算。",
+        "生产日志/APM/代理秘密管线、数据库/备份访问控制、时间同步。",
+        "若以后使用 Cookie，应另设计 CSRF/SameSite/Secure/HttpOnly。"
+      ],
+      "assessment": "正文已明确声明，未将缺少上线设施反复列成新增代码漏洞；真实部署仍不能跳过。客户端默认代理是违反已有 loopback-only 承诺，不能借这类上线待办豁免。"
+    },
+    {
+      "category": "explicit_semantic_limit",
+      "items": [
+        "成员移除/禁用等待已取得相关锁的请求；不追溯取消已发响应。",
+        "过期回执仍存在时 409；operator purge 后去重历史消失，不保证旧 key 永远不重复。",
+        "回执是原始公开响应，不是当前 task 视图；单数据库事务不覆盖外部副作用。",
+        "全局项目列表不是跨语句一致快照，也未承诺每项撤权锁。"
+      ]
+    }
+  ],
+  "reproductions": {
+    "count": 3,
+    "script": "/tmp/langshift-s01-s03-security-probes.py",
+    "results": {
+      "python": "3.13.15",
+      "probes": [
+        {
+          "name": "loopback_client_environment_proxy",
+          "proxy_receipts": [
+            {
+              "absolute_target": true,
+              "dummy_bearer_seen": true,
+              "dummy_password_seen": false
+            },
+            {
+              "absolute_target": true,
+              "dummy_bearer_seen": false,
+              "dummy_password_seen": true
+            }
+          ],
+          "intended_service_receipts": 0,
+          "confirmed": true
+        },
+        {
+          "name": "deferred_commit_failure_rolls_back_claim_and_task",
+          "failure_http": 409,
+          "failure_body": {
+            "detail": "Operation conflicts with stored data"
+          },
+          "after_failure": {
+            "tasks": 0,
+            "receipts": 0
+          },
+          "same_key_retry_http": 201,
+          "after_retry": {
+            "tasks": 1,
+            "receipts": 1
+          },
+          "passed": true
+        },
+        {
+          "name": "queued_receipt_replay_after_membership_removal",
+          "observed_distinct_waiter": true,
+          "queued_http": 404,
+          "subsequent_http": 404,
+          "receipt_disclosed": false,
+          "passed": true
+        }
+      ],
+      "owned_root": "/private/tmp/ls-sec-bf87mfb0",
+      "postgresql": "18.6 (Homebrew)",
+      "listen_addresses": "",
+      "credential_markers_absent_from_logs": true,
+      "owned_cluster_stopped_and_removed": true
+    },
+    "run_command": "PATH=/opt/homebrew/bin:$HOME/.local/bin:$PATH UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928 UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928 PYTHONDONTWRITEBYTECODE=1 /Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/.venv/bin/python -B /tmp/langshift-s01-s03-security-probes.py",
+    "not_a_full_suite": "独立审查脚本，不导入作者 pytest fixtures，不重跑作者测试，不修改 canonical 文件。PG 故障注入 CREATE/DROP trigger 只存在于本次新建 OwnedCluster。",
+    "script_sha256": "53c9f530f6ce017c33806b69b9f20d5a7ad325b323c961064649c42b1e3afc58"
+  },
+  "source_stability": {
+    "hash_algorithm": "SHA-256",
+    "started_at": "2026-09-28T05:26:20.264160+00:00",
+    "finished_at": "2026-09-28T05:30:43.980172+00:00",
+    "baseline_file_count": 91,
+    "finish_file_count": 97,
+    "baseline_changes": [],
+    "new_files_during_review": [
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-tw.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-tw.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-tw.mdx"
+    ],
+    "canonical_source_stable": false,
+    "assessment": "初始读取至探针结束，原有 91 个文件 hash 不变；该时段新增六份英/繁正文。交付前再检查发现三套 labdb.py 与 .gitignore 已变化，已告知主线，未覆盖作者改动或重跑。PG 复现仅代表记录的旧 labdb.py hash，新沙箱/忽略规则需增量复核。client.py 与身份/授权/幂等核心文件保持原 hash，唯一已确认发现仍适用于交付版本。英/繁正文只浏览相关承诺/限制，不代表全篇翻译等价性验收。",
+    "hash_scope_note": "清单覆盖契约、三套 canonical 的非缓存文件及当时存在的正文；列入 hash 清单不等于逐字审阅每份测试/锁文件。忽略 .venv/__pycache__/.pytest_cache。",
+    "start_manifest": {
+      "read_started_at": "2026-09-28T05:26:20.264160+00:00",
+      "files": {
+        "/tmp/langshift-s01-s03-contract.json": "520fb4c74bcd84dce7bde0bb8b1490f2cbde6c8a684705e05e45196e80caa74b",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/db.py": "f748f16c6d71c59f47e289a42948941f4fbe5efc765c02a823561b40c14d6678",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/models.py": "5e3f311ca2d4d62c536e793b59f26e52d27ee9476be159309ed32a913ca9a92b",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/uv.lock": "d1e1dbd747a40a1f40ae8a490dd9a5a1e877d5c6fa9dabf203cf75af0de60708",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/alembic.ini": "e7955a0ffb9c32a9c5067d7885ee9197328f17a4a12fb4a5bb556c2b85763aa2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/client.py": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/pyproject.toml": "0db62b0413dd536ec1ef23ac26c30b5f25b429b9d73c1c9b5daa22b491c8e064",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/serve.py": "7ca140c92d08b609915fb5900e1850aadfbb6c10fd2278fae2d0f810906f8f8d",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/schemas.py": "88cb4e0576565fcf774027518a78b0861058d9c883ab635d9f48935e5f7c5ce9",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/admin.py": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/.gitignore": "08ef93e9d069dd81cf1203228e088adc11a5c887d11b0552688541e0bf0f795a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/app.py": "ff7e1d7185ea82c1c6b124ae1dbad7a99321cf54b25680500dcf64703216c985",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/labdb.py": "f4f33ad63fb3111f6f5fcbc1c993aac3d77475403489739a8b8a73ddca29bf30",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/env.py": "ff463ec2ea5f55cca9dfbc0b28b7c639bd7932ef847fb9883e00791dc9d7b0ea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/test_solution.py": "c854e2879eac9bf9b647a57cc83bb20ae0b6482e67177afd4ba404c5d2474276",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/conftest.py": "e7be15cbde0d0f174718ce7b55cbf967bcb9d4d9e86e63849bd94d0d37d5a57e",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/test_migrations.py": "f01abda6363e137de5b8d132d5a2c59bd077e5d8935943c94a69ae07ca9b39f1",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/test_identity.py": "d06441e61a2218804b490bdede3ea90a53c561188dfff0383964f6bbd57a4694",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/solutions/session_count.py": "3014447f03a1b71414e158c4356cac07effe59cb5c2cfe6faa4724fcfe225268",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/solutions/__init__.py": "ba156278a5e29a4bde6424c3c225ffc00178aad3bd6f7f1a8dcf7a3feb5cdf9a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/versions/002_expand.py": "da198f9a50872aeaa17c09aaba080a883f697cd2372d434c9f2c39b5ff1311ce",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/versions/001_base.py": "05143b89aa86070f8248699beea1f42e53457ac8dfc92d97870e415edd85f6fe",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/versions/003_contract.py": "ffa82310957d11510cbfac1d08a025fb24b6a1a6b747832681a81ba4fdce4f41",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/versions/004_identity.py": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/db.py": "f830ac26fd21b81efb9d572cad4627d1666a4b639248ad147dc6f634665f15e2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/models.py": "b7bfe80b8ba5cffa6df30959263e4b22226489619d41c628ecc0ef1e001725b5",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/uv.lock": "0fb1e65b363fae435749463bca5730d77d0629918ace3e1091e528004f64f12f",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/alembic.ini": "e7955a0ffb9c32a9c5067d7885ee9197328f17a4a12fb4a5bb556c2b85763aa2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/client.py": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/security.py": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/pyproject.toml": "7309a9578c4136f9ecb6a327ea4a749f2215944489c9879bd7fbbdf81b7772b1",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/serve.py": "7ca140c92d08b609915fb5900e1850aadfbb6c10fd2278fae2d0f810906f8f8d",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/authorization.py": "f902b9cb6ae1cad3ab25f42bd0e3b07c5e47a964d9dc52184dcb6f4f6189ca92",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/schemas.py": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/admin.py": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/.gitignore": "08ef93e9d069dd81cf1203228e088adc11a5c887d11b0552688541e0bf0f795a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/app.py": "056a5d8a15eabca89f07c659c82ec805cfbd1198ea92171f9ed7c9af65b983c0",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/labdb.py": "f4f33ad63fb3111f6f5fcbc1c993aac3d77475403489739a8b8a73ddca29bf30",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/env.py": "ff463ec2ea5f55cca9dfbc0b28b7c639bd7932ef847fb9883e00791dc9d7b0ea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_solution.py": "94d03f58013767b98d8cff115f76a9e8da2e85f538a2ceca9b90001f8bce89e3",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/conftest.py": "fd92ee517163da74f4163bc4e0468f3527489e55b26da7c8e89cdc2ccfb40603",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_migrations.py": "0279fd56674325872c36febdd0db64a3368a5af7394d163c020819a1f563f74a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_authorization.py": "044c6d654e4de4c3a4899a7d17a69928d6731f990139e43070e4858e636d2dda",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_identity.py": "d06441e61a2218804b490bdede3ea90a53c561188dfff0383964f6bbd57a4694",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/solutions/__init__.py": "ba156278a5e29a4bde6424c3c225ffc00178aad3bd6f7f1a8dcf7a3feb5cdf9a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/solutions/project_summary.py": "c27f8489cfdb0fc1365b88538ea61e67c4ac0f484475e6ca2932e602d845e040",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/005_owner_guard.py": "dfae20f1777b520ca547804dff471f40c660d01ae506d72ebfa59186ced0c4ba",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/002_expand.py": "da198f9a50872aeaa17c09aaba080a883f697cd2372d434c9f2c39b5ff1311ce",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/001_base.py": "05143b89aa86070f8248699beea1f42e53457ac8dfc92d97870e415edd85f6fe",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/003_contract.py": "ffa82310957d11510cbfac1d08a025fb24b6a1a6b747832681a81ba4fdce4f41",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/004_identity.py": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/db.py": "08692c1b112c8c2035bfefcdefcc24427735f9636ce4a3cb7da9f8e63ae65fa2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/models.py": "d023e0c4e85a619a4b0b1875ee19927157d83526bb8596cbdd7480f03507bb37",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/uv.lock": "b54d510e866440a6f092db1252cae82839bcab7cb61fb3b9b2a795106f7acbb1",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/alembic.ini": "e7955a0ffb9c32a9c5067d7885ee9197328f17a4a12fb4a5bb556c2b85763aa2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/client.py": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/security.py": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/purge_expired.py": "288de2287aeb72b88c83b0527f508d99164465431dd8181cbbe29202f146b3b7",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/pyproject.toml": "63cba4503a9323b053e96476ddbf341cb8832c7c09410795ed6d5fc2caf857a2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/serve.py": "7ca140c92d08b609915fb5900e1850aadfbb6c10fd2278fae2d0f810906f8f8d",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/reliable.py": "4e30f86753dccb0135ffaebe5af9e57775af3ab5f27be175f7898cfc45402984",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/authorization.py": "5d17aef50eb16babf0ac431be15efbe3cf7184f40f95da29e2c6f892db10af90",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/schemas.py": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/admin.py": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/.gitignore": "08ef93e9d069dd81cf1203228e088adc11a5c887d11b0552688541e0bf0f795a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/app.py": "164cabdb5c06daf50a2e86c7b5fd3959be6537f54b2e10344efe2722c5322a9e",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/representations.py": "9a7d2a94b3f6dd0732d0913f1567babeae16e0e334769eb4a1b8224b2feaefb5",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/labdb.py": "f4f33ad63fb3111f6f5fcbc1c993aac3d77475403489739a8b8a73ddca29bf30",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/env.py": "ff463ec2ea5f55cca9dfbc0b28b7c639bd7932ef847fb9883e00791dc9d7b0ea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_solution.py": "94d03f58013767b98d8cff115f76a9e8da2e85f538a2ceca9b90001f8bce89e3",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/conftest.py": "fd92ee517163da74f4163bc4e0468f3527489e55b26da7c8e89cdc2ccfb40603",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_migrations.py": "0279fd56674325872c36febdd0db64a3368a5af7394d163c020819a1f563f74a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_representations.py": "bf418c4ec131aa7950ff629bea73036f0b9c86f26f6f17eb9062335a1588c6bf",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_authorization.py": "044c6d654e4de4c3a4899a7d17a69928d6731f990139e43070e4858e636d2dda",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_identity.py": "d06441e61a2218804b490bdede3ea90a53c561188dfff0383964f6bbd57a4694",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_reliable.py": "84ccc48f0c9432819e860699763fa8e5e29b6815ef4e014644cf6d9868077794",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/solutions/__init__.py": "ba156278a5e29a4bde6424c3c225ffc00178aad3bd6f7f1a8dcf7a3feb5cdf9a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/solutions/project_summary.py": "c27f8489cfdb0fc1365b88538ea61e67c4ac0f484475e6ca2932e602d845e040",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/005_owner_guard.py": "dfae20f1777b520ca547804dff471f40c660d01ae506d72ebfa59186ced0c4ba",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/002_expand.py": "da198f9a50872aeaa17c09aaba080a883f697cd2372d434c9f2c39b5ff1311ce",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/001_base.py": "05143b89aa86070f8248699beea1f42e53457ac8dfc92d97870e415edd85f6fe",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/003_contract.py": "ffa82310957d11510cbfac1d08a025fb24b6a1a6b747832681a81ba4fdce4f41",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/004_identity.py": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/006_task_operations.py": "13d910a8fe03c3af75f4d06a471caa745f8f05cb71497e0c74dc5bdfc8088491",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx": "ece4e3c04f704756a1daa0d5e1016a11bc70b43eaf52b0c9047a92e6c655006f",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx": "5ca9fc853779c03e754c9011f52fb7669051b2d5a5a24a524a75629948ace79f",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx": "968a5dd8f9f5ed55479d862ccac98e90ab3e68befdb594316a0ea47b03e9b4d0"
+      }
+    },
+    "end_manifest": {
+      "read_finished_at": "2026-09-28T05:30:43.980172+00:00",
+      "files": {
+        "/tmp/langshift-s01-s03-contract.json": "520fb4c74bcd84dce7bde0bb8b1490f2cbde6c8a684705e05e45196e80caa74b",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/db.py": "f748f16c6d71c59f47e289a42948941f4fbe5efc765c02a823561b40c14d6678",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/models.py": "5e3f311ca2d4d62c536e793b59f26e52d27ee9476be159309ed32a913ca9a92b",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/uv.lock": "d1e1dbd747a40a1f40ae8a490dd9a5a1e877d5c6fa9dabf203cf75af0de60708",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/alembic.ini": "e7955a0ffb9c32a9c5067d7885ee9197328f17a4a12fb4a5bb556c2b85763aa2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/client.py": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/pyproject.toml": "0db62b0413dd536ec1ef23ac26c30b5f25b429b9d73c1c9b5daa22b491c8e064",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/serve.py": "7ca140c92d08b609915fb5900e1850aadfbb6c10fd2278fae2d0f810906f8f8d",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/schemas.py": "88cb4e0576565fcf774027518a78b0861058d9c883ab635d9f48935e5f7c5ce9",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/admin.py": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/.gitignore": "08ef93e9d069dd81cf1203228e088adc11a5c887d11b0552688541e0bf0f795a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/app.py": "ff7e1d7185ea82c1c6b124ae1dbad7a99321cf54b25680500dcf64703216c985",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/labdb.py": "f4f33ad63fb3111f6f5fcbc1c993aac3d77475403489739a8b8a73ddca29bf30",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/env.py": "ff463ec2ea5f55cca9dfbc0b28b7c639bd7932ef847fb9883e00791dc9d7b0ea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/test_solution.py": "c854e2879eac9bf9b647a57cc83bb20ae0b6482e67177afd4ba404c5d2474276",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/conftest.py": "e7be15cbde0d0f174718ce7b55cbf967bcb9d4d9e86e63849bd94d0d37d5a57e",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/test_migrations.py": "f01abda6363e137de5b8d132d5a2c59bd077e5d8935943c94a69ae07ca9b39f1",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/test_identity.py": "d06441e61a2218804b490bdede3ea90a53c561188dfff0383964f6bbd57a4694",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/solutions/session_count.py": "3014447f03a1b71414e158c4356cac07effe59cb5c2cfe6faa4724fcfe225268",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/solutions/__init__.py": "ba156278a5e29a4bde6424c3c225ffc00178aad3bd6f7f1a8dcf7a3feb5cdf9a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/versions/002_expand.py": "da198f9a50872aeaa17c09aaba080a883f697cd2372d434c9f2c39b5ff1311ce",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/versions/001_base.py": "05143b89aa86070f8248699beea1f42e53457ac8dfc92d97870e415edd85f6fe",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/versions/003_contract.py": "ffa82310957d11510cbfac1d08a025fb24b6a1a6b747832681a81ba4fdce4f41",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/versions/004_identity.py": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/db.py": "f830ac26fd21b81efb9d572cad4627d1666a4b639248ad147dc6f634665f15e2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/models.py": "b7bfe80b8ba5cffa6df30959263e4b22226489619d41c628ecc0ef1e001725b5",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/uv.lock": "0fb1e65b363fae435749463bca5730d77d0629918ace3e1091e528004f64f12f",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/alembic.ini": "e7955a0ffb9c32a9c5067d7885ee9197328f17a4a12fb4a5bb556c2b85763aa2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/client.py": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/security.py": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/pyproject.toml": "7309a9578c4136f9ecb6a327ea4a749f2215944489c9879bd7fbbdf81b7772b1",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/serve.py": "7ca140c92d08b609915fb5900e1850aadfbb6c10fd2278fae2d0f810906f8f8d",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/authorization.py": "f902b9cb6ae1cad3ab25f42bd0e3b07c5e47a964d9dc52184dcb6f4f6189ca92",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/schemas.py": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/admin.py": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/.gitignore": "08ef93e9d069dd81cf1203228e088adc11a5c887d11b0552688541e0bf0f795a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/app.py": "056a5d8a15eabca89f07c659c82ec805cfbd1198ea92171f9ed7c9af65b983c0",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/labdb.py": "f4f33ad63fb3111f6f5fcbc1c993aac3d77475403489739a8b8a73ddca29bf30",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/env.py": "ff463ec2ea5f55cca9dfbc0b28b7c639bd7932ef847fb9883e00791dc9d7b0ea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_solution.py": "94d03f58013767b98d8cff115f76a9e8da2e85f538a2ceca9b90001f8bce89e3",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/conftest.py": "fd92ee517163da74f4163bc4e0468f3527489e55b26da7c8e89cdc2ccfb40603",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_migrations.py": "0279fd56674325872c36febdd0db64a3368a5af7394d163c020819a1f563f74a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_authorization.py": "044c6d654e4de4c3a4899a7d17a69928d6731f990139e43070e4858e636d2dda",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_identity.py": "d06441e61a2218804b490bdede3ea90a53c561188dfff0383964f6bbd57a4694",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/solutions/__init__.py": "ba156278a5e29a4bde6424c3c225ffc00178aad3bd6f7f1a8dcf7a3feb5cdf9a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/solutions/project_summary.py": "c27f8489cfdb0fc1365b88538ea61e67c4ac0f484475e6ca2932e602d845e040",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/005_owner_guard.py": "dfae20f1777b520ca547804dff471f40c660d01ae506d72ebfa59186ced0c4ba",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/002_expand.py": "da198f9a50872aeaa17c09aaba080a883f697cd2372d434c9f2c39b5ff1311ce",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/001_base.py": "05143b89aa86070f8248699beea1f42e53457ac8dfc92d97870e415edd85f6fe",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/003_contract.py": "ffa82310957d11510cbfac1d08a025fb24b6a1a6b747832681a81ba4fdce4f41",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/004_identity.py": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/db.py": "08692c1b112c8c2035bfefcdefcc24427735f9636ce4a3cb7da9f8e63ae65fa2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/models.py": "d023e0c4e85a619a4b0b1875ee19927157d83526bb8596cbdd7480f03507bb37",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/uv.lock": "b54d510e866440a6f092db1252cae82839bcab7cb61fb3b9b2a795106f7acbb1",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/alembic.ini": "e7955a0ffb9c32a9c5067d7885ee9197328f17a4a12fb4a5bb556c2b85763aa2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/client.py": "8b2946f5a0f1b26dfa4a0903532af464936ce594dbbb3c526b3dc3ed10d1e7cf",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/security.py": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/purge_expired.py": "288de2287aeb72b88c83b0527f508d99164465431dd8181cbbe29202f146b3b7",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/pyproject.toml": "63cba4503a9323b053e96476ddbf341cb8832c7c09410795ed6d5fc2caf857a2",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/serve.py": "7ca140c92d08b609915fb5900e1850aadfbb6c10fd2278fae2d0f810906f8f8d",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/reliable.py": "4e30f86753dccb0135ffaebe5af9e57775af3ab5f27be175f7898cfc45402984",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/authorization.py": "5d17aef50eb16babf0ac431be15efbe3cf7184f40f95da29e2c6f892db10af90",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/schemas.py": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/admin.py": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/.gitignore": "08ef93e9d069dd81cf1203228e088adc11a5c887d11b0552688541e0bf0f795a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/app.py": "164cabdb5c06daf50a2e86c7b5fd3959be6537f54b2e10344efe2722c5322a9e",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/representations.py": "9a7d2a94b3f6dd0732d0913f1567babeae16e0e334769eb4a1b8224b2feaefb5",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/labdb.py": "f4f33ad63fb3111f6f5fcbc1c993aac3d77475403489739a8b8a73ddca29bf30",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/env.py": "ff463ec2ea5f55cca9dfbc0b28b7c639bd7932ef847fb9883e00791dc9d7b0ea",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_solution.py": "94d03f58013767b98d8cff115f76a9e8da2e85f538a2ceca9b90001f8bce89e3",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/conftest.py": "fd92ee517163da74f4163bc4e0468f3527489e55b26da7c8e89cdc2ccfb40603",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_migrations.py": "0279fd56674325872c36febdd0db64a3368a5af7394d163c020819a1f563f74a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_representations.py": "bf418c4ec131aa7950ff629bea73036f0b9c86f26f6f17eb9062335a1588c6bf",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_authorization.py": "044c6d654e4de4c3a4899a7d17a69928d6731f990139e43070e4858e636d2dda",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_identity.py": "d06441e61a2218804b490bdede3ea90a53c561188dfff0383964f6bbd57a4694",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_reliable.py": "84ccc48f0c9432819e860699763fa8e5e29b6815ef4e014644cf6d9868077794",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/solutions/__init__.py": "ba156278a5e29a4bde6424c3c225ffc00178aad3bd6f7f1a8dcf7a3feb5cdf9a",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/solutions/project_summary.py": "c27f8489cfdb0fc1365b88538ea61e67c4ac0f484475e6ca2932e602d845e040",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/005_owner_guard.py": "dfae20f1777b520ca547804dff471f40c660d01ae506d72ebfa59186ced0c4ba",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/002_expand.py": "da198f9a50872aeaa17c09aaba080a883f697cd2372d434c9f2c39b5ff1311ce",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/001_base.py": "05143b89aa86070f8248699beea1f42e53457ac8dfc92d97870e415edd85f6fe",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/003_contract.py": "ffa82310957d11510cbfac1d08a025fb24b6a1a6b747832681a81ba4fdce4f41",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/004_identity.py": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/006_task_operations.py": "13d910a8fe03c3af75f4d06a471caa745f8f05cb71497e0c74dc5bdfc8088491",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.mdx": "06be98e44b9207a1d26cca4d662ef78c0954f572aa7a51b33e49b9e566f49be9",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-tw.mdx": "3aecad260a81cf030b48cc0cd615fe73009ba00151c30c656102396be529b256",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx": "ece4e3c04f704756a1daa0d5e1016a11bc70b43eaf52b0c9047a92e6c655006f",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-tw.mdx": "f3e70cafda9777f7a56bca08da3d5f7057c88d3d85b974f176aabe9cce39cc91",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx": "5ca9fc853779c03e754c9011f52fb7669051b2d5a5a24a524a75629948ace79f",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.mdx": "b9b9df0bc6469a91a5ea737081b11f66616eb6b760ae4b47f6d946a4eb183de8",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx": "968a5dd8f9f5ed55479d862ccac98e90ab3e68befdb594316a0ea47b03e9b4d0",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.mdx": "1d50550abcb44afc9e63521c3ee9b3696bf2cf357a498a15cf306bcfbee48843",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-tw.mdx": "87fa9501179554ca007596487bf53e2082f4ba4779076b8e05a20cb3aef3fe7d"
+      },
+      "changed": [],
+      "added": [
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.mdx",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-tw.mdx",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-tw.mdx",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.mdx",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.mdx",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-tw.mdx"
+      ]
+    },
+    "delivery_recheck_at": "2026-09-28T05:34:24.716647+00:00",
+    "changes_since_end_manifest": [
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/.gitignore",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/labdb.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/.gitignore",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/labdb.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/.gitignore",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/labdb.py"
+    ],
+    "delivery_changed_file_hashes": [
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/.gitignore",
+        "tested_or_read_sha256": "08ef93e9d069dd81cf1203228e088adc11a5c887d11b0552688541e0bf0f795a",
+        "delivery_sha256": "5ac5e91d27d9ac8cfba38f66cf16684f0f451f05b44a3c2341cfdca64df90a16"
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/labdb.py",
+        "tested_or_read_sha256": "f4f33ad63fb3111f6f5fcbc1c993aac3d77475403489739a8b8a73ddca29bf30",
+        "delivery_sha256": "59cc63751978ba58c80d3222209d84511dfd2e1c2b5257cae0007571d5315abc"
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/.gitignore",
+        "tested_or_read_sha256": "08ef93e9d069dd81cf1203228e088adc11a5c887d11b0552688541e0bf0f795a",
+        "delivery_sha256": "5ac5e91d27d9ac8cfba38f66cf16684f0f451f05b44a3c2341cfdca64df90a16"
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/labdb.py",
+        "tested_or_read_sha256": "f4f33ad63fb3111f6f5fcbc1c993aac3d77475403489739a8b8a73ddca29bf30",
+        "delivery_sha256": "59cc63751978ba58c80d3222209d84511dfd2e1c2b5257cae0007571d5315abc"
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/.gitignore",
+        "tested_or_read_sha256": "08ef93e9d069dd81cf1203228e088adc11a5c887d11b0552688541e0bf0f795a",
+        "delivery_sha256": "5ac5e91d27d9ac8cfba38f66cf16684f0f451f05b44a3c2341cfdca64df90a16"
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/labdb.py",
+        "tested_or_read_sha256": "f4f33ad63fb3111f6f5fcbc1c993aac3d77475403489739a8b8a73ddca29bf30",
+        "delivery_sha256": "59cc63751978ba58c80d3222209d84511dfd2e1c2b5257cae0007571d5315abc"
+      }
+    ]
+  },
+  "official_primary_references": [
+    {
+      "url": "https://docs.python.org/3.13/library/urllib.request.html#urllib.request.ProxyHandler",
+      "used_for": "默认代理读取环境/系统设置，传空字典禁用自动代理。"
+    },
+    {
+      "url": "https://argon2-cffi.readthedocs.io/en/stable/api.html",
+      "used_for": "高层 PasswordHasher 参数/随机盐/verify/check_needs_rehash。"
+    },
+    {
+      "url": "https://www.postgresql.org/docs/18/transaction-iso.html",
+      "used_for": "READ COMMITTED 各语句快照以及 ON CONFLICT DO NOTHING 的竞争语义。"
+    },
+    {
+      "url": "https://www.postgresql.org/docs/18/explicit-locking.html",
+      "used_for": "行级共享/排他锁冲突和锁持有到事务结束。"
+    },
+    {
+      "url": "https://docs.sqlalchemy.org/en/20/orm/session_transaction.html",
+      "used_for": "Session.begin 的提交/回滚所有权。"
+    }
+  ],
+  "artifacts": [
+    "/tmp/langshift-s01-s03-security-audit.json",
+    "/tmp/langshift-s01-s03-security-probes.py",
+    "/tmp/langshift-s01-s03-security-probe-results.json",
+    "/tmp/langshift-s01-s03-security-hashes-start.json",
+    "/tmp/langshift-s01-s03-security-hashes-end.json"
+  ],
+  "completed_at": "2026-09-28T05:34:24.716931+00:00"
+}

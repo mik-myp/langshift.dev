@@ -1,0 +1,1180 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "Full English + full non-lock text files distributed across bounded slices; all lock bytes deterministically checked. No claim that a single slice viewed other slices.",
+  "slices": [
+    {
+      "batch": "review-92",
+      "metadata": {
+        "started_at_utc": "2026-09-28T06:08:04.995298+00:00",
+        "elapsed_seconds": 0.98,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "488e2b9e25177ce857dc403d644a26daaf6ce54c408a739552d9f4b64ecfe065",
+        "usage": {
+          "input_tokens": 23927,
+          "output_tokens": 341
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "d02-sql",
+          "current_contract": {
+            "id": "D02",
+            "title": "SQL 与参数化查询",
+            "prerequisites": [
+              "D01"
+            ],
+            "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+            "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+            "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            }
+          ],
+          "declared_transitive_prior_capabilities": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "H05",
+              "title": "应用组织、配置与依赖",
+              "prerequisites": [
+                "H04",
+                "L14"
+              ],
+              "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+              "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+              "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+              "status": "planned"
+            },
+            {
+              "id": "H06",
+              "title": "API 测试与前后端联调",
+              "prerequisites": [
+                "H05",
+                "L09",
+                "L13"
+              ],
+              "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+              "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+              "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+              "status": "planned"
+            },
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            }
+          ],
+          "prerequisite_scope": "Current direct edges plus their transitive contracts are included. Contracts describe curriculum capabilities, not proof that a particular learner has passed; review required concepts against actual lesson explanation, not absence of transitive detail from earlier rounds.",
+          "actual_english_lesson": "---\ntitle: SQL and parameterized queries — derive results instead of building strings\ndescription: Work through filtering, stable ordering, pagination, joins, aggregation and NULL; understand synchronous drivers, connections, cursors and placeholders, then verify CRUD and injection boundaries.\n---\n\nimport { getSqlExample } from '@/lib/js2py-examples'\n\n## 1. Describe the result before writing SQL\n\nD01 made the server enforce the shape of records. Now decide which records to return, how to combine them and in what order. Loading the entire database into Python to filter/map wastes more than bandwidth: it bypasses set operations and scatters responsibilities such as pagination. SQL describes a relational result; the executor chooses access paths. It is not a JavaScript for loop written in another syntax.\n\n| Chapter contract | Scope |\n| --- | --- |\n| Prerequisites | D01's exclusive PostgreSQL cluster, four-table model and constraints; L/H functions, exceptions, tests and request input |\n| New capabilities | CRUD, filtering, sorting, pagination, JOIN, aggregation and NULL; driver/cursor responsibilities and the value/SQL-structure boundary |\n| Independent acceptance | Predict seed results before querying, demonstrate malicious text remains a value, and write a project report independently |\n| Exclusions | ORM, index tuning, HTTP/authentication integration and pools; multi-statement atomicity belongs to D03 |\n\nDownload the [complete D02 lab](/learning-assets/js2py/d02-sql.zip) and enter `d02-sql`. It includes its own copy of D01's schema and seed, does not connect to a still-running D01 database, and requires no authentication implementation. `done → status`, `note → description` and retained estimate `minutes` are deliberate model evolution, not a direct dump of the old memory dictionary.\n\n## 2. Rebuild the checkpoint and claim this lab's server\n\nVerified **2026-09-28**, fixed baseline: **PostgreSQL 18.6, Python 3.13.15, uv 0.12.13, pytest 8.4.2, psycopg 3.3.6**. Reuse the tool, private-storage, role and Unix-socket concepts from D01. Run all commands in this lab directory.\n\n**Connection-environment checkpoint.** libpq can read defaults beyond the socket in a DSN: for example `PGHOSTADDR` selects a network address and `PGSERVICE` loads a saved connection profile. Therefore the controller refuses every inherited `PG*` name except `PG_BIN` (the tool directory) and `PGHOST` (overridden by the explicit private socket), before startup or SQL. It reports variable names, never their values. If refused, inspect and remove only those settings in this lab shell, then retry; do not substitute a production DSN or blindly reset an existing database. `DATABASE_URL` remains ignored. The controller supplies its own empty mode-0600 password file instead of reading a user credential file, and strips database defaults from child processes. Even a polluted shell can run `status`/`stop` to clean up this owned cluster; stop still verifies the saved server identity. The translated README explains the same policy.\n\n**Test counts.** This lab has 16 business/SQL cases plus 50 environment-boundary cases (66 total). The latter include parametrized rejected settings, private-passfile validation and owned-loopback probes. They protect the experiment; they are not 50 new SQL topics or proof of production security.\n\n```bash\nexport PATH=\"$HOME/.local/bin:$PATH\"\nexport UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928\nexport UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928\nexport PG_BIN=/opt/homebrew/bin\nuv sync --locked\nuv run --locked python labctl.py start\nuv run --locked python labctl.py reset --yes-reset\nuv run --locked python labctl.py psql --file sql/queries.sql\n```\n\nStart saves this directory's `.lab-state.json`, disables TCP and ignores existing DATABASE_URL. Reset checks ownership and server identity before rebuilding only the owned tables. This is not a production migration utility. Never replace the target with a company database or use reset to treat an unexplained error.\n\nWrite down the input first: task IDs 1–5; statuses todo/doing/done/todo/done; minutes 30/45/15/20/40. The first three tasks belong to Launch, the last two to Docs; Empty has none. Knowing the input lets you validate output rather than trusting a query merely because it succeeded.\n\n## 3. Logical SELECT stages differ from written clause order\n\nThe file groups queries A–G. Read A and B first, then return to the joins and aggregates. SQL keyword case is insignificant. Strings use single quotes; double quotes primarily quote identifiers. JavaScript quote habits do not transfer directly.\n\n<Code language=\"sql\">{getSqlExample('sql/queries.sql')}</Code>\n\nFollow A logically: FROM identifies tasks; WHERE retains todo tasks estimated at least 20 minutes; SELECT projects id/title; ORDER BY sorts IDs. Expect `(1, 'Design API')` and `(4, 'Read SQL')`. This is a reasoning model, not a promise about physical scan order: the optimizer may rearrange equivalent operations.\n\nAND binds more tightly than OR. To request “todo or doing tasks in Launch,” group the statuses in parentheses; otherwise an ungrouped `OR status='doing'` can admit another project's tasks. `=` compares values, `<>` means not equal, and IN tests membership in a set. Do not use `==` or infer SQL truth from Python truthiness.\n\nUnknown conditions are also discarded. F prints `(null)` for `NULL = NULL` and true for `NULL IS NULL`. `description IS NULL` selects 1 and 4; `description = ''` selects only 2; `description = NULL` selects nothing. COALESCE chooses the first non-NULL value, useful for a presentation default but not evidence that missing and zero mean the same thing.\n\n## 4. Ordering and pagination: stable does not mean frozen\n\nA table has no default display order. B orders by `minutes DESC, id ASC`: largest estimates first, with unique ID breaking ties. `LIMIT 2 OFFSET 1` skips one row and takes two, giving IDs 5 and 1. Sorting only by a nonunique field leaves ties ambiguous; adding LIMIT does not create an order.\n\nPagination parameters are business input. The lab requires integer limit 1–100 and nonnegative integer offset, rejecting Python bool despite its integer relationship. A page-size cap limits resource use; it is not authentication. Stable ordering orders the current result only. After the first request returns 1 and 2, deleting 1 before OFFSET 2 makes the next request return 4 and 5, skipping 3. A test performs that deletion for real. Cross-request snapshots, keyset pagination and indexing need separate design; large offsets are not promised to be efficient here.\n\n<details>\n<summary>Explanation answer: why does the backend need ORDER BY when the frontend has list keys?</summary>\n\nReact keys identify elements already received; they cannot determine which records the server selected. ORDER BY determines result order, and a unique tie-breaker removes ambiguity within equal values. Inserts and deletes between requests still change offset positions. UI identity, query order and cross-request consistency are separate responsibilities.\n\n</details>\n\n## 5. JOIN creates matching pairs, not automatically nested objects\n\nC matches tasks to projects by project ID and then to users by created_by. Aliases t/p/u identify the source of overlapping names such as id. INNER JOIN emits one row per matching pair and emits none for an unmatched record. Because foreign keys hold, each seed task finds its parent and creator. The result is still a flat `(task_id, title, project, creator)` row, not nested JSON.\n\nD uses LEFT JOIN with projects as the preserved side. Even an empty project produces a row, with NULL task columns. This explains a counting trap: `count(*)` counts result rows, so Empty produces 1; `count(t.id)` counts non-NULL task IDs, so it produces 0. SUM without non-NULL inputs is NULL. The report deliberately coalesces that to zero to mean no tasks and therefore zero total estimate. This is not a policy that an unknown task estimate equals zero.\n\nG places `t.status='todo'` in ON: choose eligible matches, then preserve every project. Expect todo counts 1/1/0 for Launch/Docs/Empty. Moving the condition to WHERE removes the NULL-extended Empty row. ON versus WHERE changes meaning, not just style.\n\nPredict cardinality before adding memberships. Launch's three tasks joined to two members produce six rows. Summing minutes now doubles the total. `count(DISTINCT t.id)` can fix task counting, but `sum(DISTINCT minutes)` is not the corresponding fix: different tasks can share an estimate. Aggregate tasks at the desired project grain before combining membership data, or avoid an unnecessary join.\n\n## 6. GROUP BY and HAVING filter at a different level\n\nD groups matched records by project and selects project identity/name plus aggregates. E first removes done tasks with WHERE, groups the rest by project_id and sums minutes, then uses HAVING to keep totals at least 30. Only `(1, 75)` remains; Docs has only 20. Do not put `sum(minutes)` in WHERE, whose logical stage does not yet have the group total.\n\nBefore writing a query, finish the sentence “one output row represents…”. If the answer is a project, selecting an arbitrary task title has no clear meaning. Change the grouping grain or choose a meaningful aggregate instead of adding min merely to satisfy syntax. Successful execution proves the statement is executable, not that it answers the business question.\n\n<details>\n<summary>Guided modification answer: change G into unfinished minutes per project, retaining Empty</summary>\n\nChange the ON condition to `t.status <> 'done'` and select `coalesce(sum(t.minutes), 0)`, still grouping by project. Expect Launch=75, Docs=20, Empty=0. Move the condition to WHERE and Empty disappears; remove coalesce and Empty is NULL. All three outcomes are explainable, but only the first meets this report's contract.\n\n</details>\n\n## 7. CRUD affects the matching set, not the row selected on screen\n\nCRUD maps to INSERT, SELECT, UPDATE and DELETE. INSERT specifies columns and omits the identity primary key. RETURNING returns the ID actually generated by that write; “SELECT the largest ID” is unsafe because another connection can write too. UPDATE/DELETE's WHERE controls affected records. Without it the entire table may change; selecting one row in a frontend cannot constrain the SQL.\n\nThe complete module below includes safe queries and individual writes. Its CRUD functions return id/title/status on insert, explicitly maintain updated_at on update, and return the deleted ID. No matching WHERE row is normally not a SQL error: fetchone returns None, and the caller chooses the business response. An invalid parent project instead produces a foreign-key exception; it is not just “not found.”\n\n<Code language=\"python\">{getSqlExample('queries.py')}</Code>\n\nThese helpers **do not commit or close the connection**. Their responsibility is statements; their caller owns lifecycle. D02's demo uses autocommit, making each statement independent rather than a multi-step business transaction. D03 will keep this responsibility boundary while grouping statements. CURRENT_TIMESTAMP means transaction start time, not a newly sampled wall clock on each statement.\n\n## 8. Separate driver, connection, cursor and parameters\n\npsycopg translates Python calls into PostgreSQL communication. It is neither a database nor an ORM. Connect establishes a server session at a particular address and returns a connection. A cursor executes commands on that connection and tracks retrieval of the current result. Fetchone gets the next row or None; fetchall gets the remaining rows, represented here as tuples. Closing a cursor releases result resources, not the transaction or connection. Two cursors on one connection are not two independent transactions.\n\nTrace list_tasks: Python validates options, chooses fixed SQL structure, execute sends structure and parameters, the server parses/executes/checks constraints, the driver converts returned values, and fetchall returns them. SQL does not run inside Python. Connection failures, Python ValueError and SQL constraint errors originate in different layers.\n\n`%s` is a psycopg value placeholder, not string formatting. Use it for every value type, rather than `%d` for integers. Do not put SQL quotes around it, and do not use the `%` operator, f-strings or concatenation to insert values. `(title,)` is a one-element tuple; its comma matters. None adapts to SQL NULL, while the server can still reject an incompatible type.\n\nParameters **cannot replace column names, table names, ASC/DESC or other grammar**. Supplying title to `SELECT %s ...` returns the string title, not the title column; a real test demonstrates this. ORDERINGS selects between two author-written fragments and concatenates that selected constant, never the raw user value. When dynamic identifiers are genuinely needed, the driver's Identifier composition interface can quote them; you must still restrict which objects a caller may select. Quoting safety does not grant access permission.\n\n## 9. Injection experiment and the boundary of protection\n\nInjection happens when untrusted data becomes parsed SQL structure. Interpolating title into quoted SQL text lets an attacker close a quote and change a condition or add a command. Do not race an ever-growing list of attacks by replacing quote characters. Pass values through the driver's parameter channel.\n\n<Code language=\"python\">{getSqlExample('demo.py')}</Code>\n\n```bash\nuv run --locked python labctl.py reset --yes-reset\nuv run --locked python demo.py\nuv run --locked pytest -q\n```\n\n```text\ntodo [(1, 'Design API', 'todo', 30), (4, 'Read SQL', 'todo', 20)]\npage [(3, 'Ship demo', 'done', 15), (4, 'Read SQL', 'todo', 20)]\ntotals [('Launch', 3, 90), ('Docs', 2, 60), ('Empty', 0, 0)]\nunmatched payload []\nliteral stored [(6, \"x' OR TRUE --\")]\nupdated (6, 'doing')\ndeleted (6,)\ntasks remaining 5\n```\n\nThis output is deterministic after reset; without reset subsequent demo IDs increase. Tests also store `'; DROP TABLE tasks; --`, read back that exact value and verify tasks still contains data. This proves those calls keep values out of SQL grammar, not that the whole application can never have injection. `%` and `_` in a LIKE value remain pattern wildcards; parameterization does not automatically make patterns literal. Nor does it implement XSS protection, authorization or pagination cost limits.\n\nDeliberately change sort to a semicolon-bearing string: expect Python ValueError before SQL execution. Use project_id 9999: expect PostgreSQL `ForeignKeyViolation / 23503`. Compare description to NULL with `=`: execution succeeds but the result is wrong. Distinguishing these three failure classes is part of diagnosis.\n\n## 10. An independent report without line-by-line instructions\n\nImplement `progress_report(conn, minimum_minutes=0)`: return each project's name, unfinished task count and unfinished total estimate; retain projects with no tasks; keep only totals reaching the supplied threshold; order by project ID. The threshold must be a nonnegative integer, rejecting bool. Predict results for 0 and 30 before writing SQL and tests. Do not fetch the whole database and filter in Python.\n\n<details>\n<summary>Independent variation reference and verification</summary>\n\n<Code language=\"python\">{getSqlExample('answers/variant.py')}</Code>\n\nAt threshold 0 expect `('Launch', 2, 75)`, `('Docs', 1, 20)` and `('Empty', 0, 0)`; at 30 only Launch remains. ON selects contributing tasks, GROUP BY establishes project grain, and HAVING filters group totals. Both values are parameters. `tests/test_queries.py` validates the reports, NULL, join multiplication, invalid pagination and injected sort options. When the requirement changes to doing tasks only, derive and test the new results yourself.\n\n</details>\n\n## 11. Recovery checkpoint, acceptance and official references\n\nRun all 66 tests (16 SQL + 50 environment), save your report SQL and the last unexpected result, and stop only the owned cluster.\n\n```bash\nuv run --locked python labctl.py stop\nuv run --locked python labctl.py status\n```\n\nRecord the chapter directory, root, schema version d01-d03-v1, passed tests, expected versus actual row counts, and next action. Start preserves committed data; reset discards it. Diagnose excess rows through join cardinality, a missing Empty through WHERE placement, quoting trouble through accidental interpolation, and connection trouble through this lab's status/log. Changing placeholders does not fix a network issue.\n\nAcceptance means explaining each output row, NULL and pagination limits, writing an unfamiliar joined report and demonstrating value/structure separation while recognizing it is not an authorization system. Production performance, query plans, authentication and cross-request snapshots are not validated. Tests use PostgreSQL, never SQLite as a substitute.\n\nOfficial references checked **2026-09-28**:\n\n- [PostgreSQL 18 queries](https://www.postgresql.org/docs/18/queries.html), [table expressions, JOIN and GROUP BY](https://www.postgresql.org/docs/18/queries-table-expressions.html).\n- [LIMIT/OFFSET](https://www.postgresql.org/docs/18/queries-limit.html), [NULL comparisons](https://www.postgresql.org/docs/18/functions-comparison.html).\n- [psycopg 3.3.6 official parameter documentation source](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/params.rst), [basic usage source](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/usage.rst). The documentation site returned 403 during verification; the same project's tagged official sources were inspected instead of third-party tutorials.\n- [PostgreSQL 18.6 release notes](https://www.postgresql.org/docs/release/18.6/).\n",
+          "mechanism_focus": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界; 独立写查询并解释结果、非法输入与注入防护; 不先用ORM隐藏SQL；用户输入不拼接成SQL",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "5ab5662ce8de4e68019b653c48a0b59cf6eb6f7007caf490137292d6f94f6fd4",
+              "bytes": 10130,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".env.example",
+            ".gitignore",
+            ".python-version",
+            "FILES.json",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "answers/variant.py",
+            "conftest.py",
+            "demo.py",
+            "labctl.py",
+            "model-contract.json",
+            "pyproject.toml",
+            "queries.py",
+            "sources.json",
+            "sql/queries.sql",
+            "sql/schema.sql",
+            "sql/seed.sql",
+            "tests/test_environment.py",
+            "tests/test_queries.py",
+            "uv.lock"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "Mainline independently reconstructed allowlisted ZIPs in fresh directories with locked CPython3.13.15/psycopg3.3.6 and actual PostgreSQL18.6. Final D01/D02/D03 counts64/66/63 (original SQL14/16/13 plus50 environment-boundary cases per lab), each independently repeated twice after actual libpq environment repair; owned private socket clusters only; outsider refusal, persistence across own restart, SQL constraints, cleanup and real transaction concurrency checked. Concrete repair rejects implicit PG* except explicitly overridden PGHOST and tool directory PG_BIN, passes owned empty0600 pgpass in every DSN, scrubs child defaults; stop/status remain usable in poisoned environments while preserving identity verification. Direct owned-loopback/service-file/passfile canaries observed no wrong-target connection. Three locale pages now teach this safety boundary before commands and explain business vs environment case counts. This is not public deployment. Original36 H/D pages passed actual browser; these changed9 pages and ZIPs will be refreshed after final build.",
+          "slice": {
+            "index": 1,
+            "count": 2,
+            "source_paths_here": [
+              ".env.example",
+              ".gitignore",
+              ".python-version",
+              "FILES.json",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "answers/variant.py",
+              "conftest.py",
+              "demo.py",
+              "labctl.py"
+            ],
+            "source_paths_elsewhere": [
+              "model-contract.json",
+              "pyproject.toml",
+              "queries.py",
+              "sources.json",
+              "sql/queries.sql",
+              "sql/schema.sql",
+              "sql/seed.sql",
+              "tests/test_environment.py",
+              "tests/test_queries.py"
+            ]
+          },
+          "actual_download_files": {
+            ".env.example": "# Documentation only: this file is NOT automatically loaded.\n# Point PG_BIN to a directory containing initdb, pg_ctl, psql and postgres.\nPG_BIN=/opt/homebrew/bin\n# The lab deliberately ignores DATABASE_URL and PGHOST/PGPORT/PGUSER.\n# Use: uv run --locked python labctl.py dsn\n# It produces an owned, local Unix-socket DSN with no password.\n",
+            ".gitignore": ".venv/\n__pycache__/\n.pytest_cache/\n.lab-state.json\n",
+            ".python-version": "3.13.15\n",
+            "FILES.json": "[\n  \".env.example\",\n  \".gitignore\",\n  \".python-version\",\n  \"FILES.json\",\n  \"README.md\",\n  \"README.zh-cn.md\",\n  \"README.zh-tw.md\",\n  \"answers/variant.py\",\n  \"conftest.py\",\n  \"demo.py\",\n  \"labctl.py\",\n  \"model-contract.json\",\n  \"pyproject.toml\",\n  \"queries.py\",\n  \"sources.json\",\n  \"sql/queries.sql\",\n  \"sql/schema.sql\",\n  \"sql/seed.sql\",\n  \"tests/test_environment.py\",\n  \"tests/test_queries.py\",\n  \"uv.lock\"\n]\n",
+            "README.md": "# d02-sql — SQL, result shape and parameter boundaries\n\nVerified 2026-09-28. A standalone lab using real PostgreSQL, not SQLite or browser Python. The full three-language lesson is `module-22-sql`.\n\n## Outcome and prerequisites\n\nPrerequisites: L00–L14 and H01–H06; D02 additionally requires D01, D03 requires D02. D01 does not assume SQL or operations knowledge. Read the lesson's mechanisms before following this reproducibility guide; installation alone is not mastery.\n\nThis lab verifies sql, result shape and parameter boundaries. `model-contract.json` records `d01-d03-v1`, and `sql/schema.sql` is the executable DDL. User fixtures are not login accounts. H's done explicitly becomes status (todo/doing/done), note becomes nullable description, and nonnegative estimate minutes is retained. Users, projects, memberships and time fields are new. No existing in-memory data is automatically migrated.\n\n## Fixed environment, no system service installation\n\n- PostgreSQL 18.6 (Homebrew here; actual server_version_num=180006), officially released 2026-08-13.\n- CPython 3.13.15, uv 0.12.13, pytest 8.4.2, psycopg[binary] 3.3.6.\n- requires-python >=3.13,<3.14; uv package=false; a real public-PyPI uv.lock.\n- Only macOS/Homebrew execution was tested. Other OS installation, TCP/TLS and production configuration were not. No Docker, ORM, authentication or frontend dependencies.\n\nWork inside extracted `d02-sql`, not its parent. Tools already exist on this machine. **Do not run brew services, connect to default port 5432, or initialize existing storage.**\n\n```bash\nexport PATH=\"$HOME/.local/bin:$PATH\"\nexport UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928\nexport UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928\nexport PG_BIN=/opt/homebrew/bin\n\"$PG_BIN/postgres\" --version\n\"$PG_BIN/initdb\" --version\n\"$PG_BIN/pg_ctl\" --version\n\"$PG_BIN/psql\" --version\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\nStop on a version mismatch. PG_BIN is a binary directory. psql is the client, postgres the server, initdb creates new storage, and pg_ctl manages the explicitly selected data directory's process. Installed binaries, running processes and data directories are different objects.\n\n## Own an isolated cluster and database\n\n```bash\nuv run --locked python labctl.py start\nuv run --locked python labctl.py status\nuv run --locked python labctl.py dsn\nuv run --locked python labctl.py reset --yes-reset\n```\n\nStart allocates a short `/tmp/lsdb-*` path (possibly displayed as /private/tmp on macOS), sets root/socket permissions to 0700, saves matching state and marker files, initializes new storage, disables TCP, chooses a private-socket port, and starts pg_ctl with explicit -D and server.log. A random administrator creates database langshift_lab and ordinary role lab_student. A database is a logical namespace inside the cluster; a role is a database identity, not a users-table record. The socket is an endpoint, a DSN describes the address/options, and a connection is an active session.\n\nPasswordless local trust is for the private directory with TCP disabled only. Processes under the same OS account and root are not isolated. Never copy this policy into an exposed or production server. Ownership is checked before connection/reset/stop; SQL connections additionally verify server data directory, system identifier and version. DATABASE_URL is ignored and arbitrary remote DSNs are not accepted. Do not remove those protections.\n\nReset **destructively recreates the four owned lab tables**, printing `schema + seed ready: users=2 projects=3 members=4 tasks=5`. Every business pytest case and D03 demo scenario also resets. Do not run competing runners or keep business data here. Stop/start retains committed data; OS cleanup of /tmp means this is still neither permanent storage nor backup.\n\n## PostgreSQL environment boundary\n\n`labctl.py` itself checks the environment before startup or any SQL connection, including direct Python imports: **all `PG*` variables except `PG_BIN` and `PGHOST` are rejected**, even empty or unknown names. This deliberately also rejects explicitly overridden variables such as `PGPORT`, `PGUSER` and `PGDATABASE`, not just `PGHOSTADDR`, `PGSERVICE`, `PGSERVICEFILE`, `PGPASSFILE`, `PGPASSWORD` or `PGOPTIONS`. Errors list variable **names only**, never their values. Unset the reported variables in your lab shell before starting or running SQL; do not copy service settings or credentials into this lab.\n\n`PG_BIN` still selects the tool directory. `PGHOST` remains accepted but ignored because every DSN explicitly selects the owned private socket; the maintenance runner's `PGHOST=/nonexistent/...` check remains valid. `DATABASE_URL` is still ignored. All child processes (including initdb, pg_ctl and psql) receive an environment without any `PG*` variables or `DATABASE_URL`; tool paths and data paths are explicit. Python connections do not temporarily mutate the process environment, so D03's concurrent connections do not race over environment restoration.\n\nEvery administrator/student DSN explicitly selects the owned root's **empty, mode-0600 `empty.pgpass`**, not the user's default `~/.pgpass`. It is created for new or previously owned clusters; symlink, nonempty, wrong-owner, nonregular or wrong-mode files are refused. psql also uses `-X -w` (no startup file or password prompt). The random administrator and server data-directory/system-identifier/version checks are retained; no business SQL is changed.\n\n**Bad connection environment does not block cleanup:** `status` uses clean pg_ctl calls, and `stop` performs the same server identity check in a clean Python child before stopping the explicitly owned data directory. It does not bypass marker/PID/identity failures. After stopping, remove the reported variables before restarting. An exported `dsn` is descriptive, not a sandbox: do not pass it to an arbitrary client with inherited connection defaults; use `labctl.py psql` instead.\n\n`tests/test_environment.py` adds 50 cases: pre-connection/pre-start mock refusals, subprocess environment checks, passfile checks, standalone CLI refusals against our own loopback listener, private-socket PGHOST/DATABASE_URL compatibility, and poisoned-environment stop/status/restart recovery. These cases override the business tests' automatic SQL reset so negative tests do not open a connection first. They exercise selected failure paths, not every possible attack; same-OS-user/root process or file tampering is outside this lab's isolation boundary.\n\n## Execute, interpret and verify\n\n```bash\nuv run --locked python labctl.py psql --file sql/queries.sql\nuv run --locked python demo.py\nuv run --locked pytest -q\n```\n\nExpect **66 passed** (16 existing business cases + 50 environment cases), with variable duration. ERROR output in intentionally failing SQL is expected; unexpected command failure must not be ignored. D01 checks duplicate 23505, bad foreign key 23503, CHECK 23514, NULL 23502, length 22001 and this version's delete RESTRICT 23001. D02 stores attack payloads literally without dropping tasks, and rejects invalid sorting/pagination in Python. D03 checks second-step 23503, subsequent-query 25P02, zero residue after rollback, real read-committed [30,40], repeatable-read [30,30], lost update 37, atomic increments 42, a one-row uniqueness race, lock timeout 55P03, and old-snapshot update 40001 followed by a whole-unit retry to 42.\n\nThe lesson contains exact demo output. D02's fixed ID requires reset first; D03 resets each scenario itself. These tests are execution, not compilation: an actual server applies constraints, parameters, transactions and locks. Independent exercise references are in answers; attempt them before looking. They are not extra baseline schema or HTTP integration.\n\n## File responsibilities\n\n- labctl.py: exclusive startup, address/identity checks, reset, psql and stop; no global service management.\n- sql/schema.sql and sql/seed.sql: identical three-lab schema and deterministic fixture; model-contract records the DDL hash.\n- sql/*.sql: queries or explicitly labeled failure experiments.\n- tests/ and conftest.py: reset only the owned database per business case, including reference-variation execution.\n- answers/: references for independent work, not the starting point.\n- pyproject.toml, uv.lock, .python-version, .env.example: dependencies/configuration; env.example is documentation, not automatically loaded.\n- Three READMEs, sources.json and model-contract.json: reproducibility, provenance and ORM handoff.\n- FILES.json: packaged file allowlist; the repository's sibling ../d02-sql-files.json drives integration packaging. No data directories, .lab-state.json, .venv, caches or credentials belong in the archive.\n\n## Safe shutdown and recovery\n\n```bash\nuv run --locked python labctl.py stop\nuv run --locked python labctl.py status\nuv run --locked python labctl.py start\nuv run --locked python labctl.py stop\n```\n\nStop checks the marker, PID-directory relationship and healthy server identity before fast shutdown of its explicit -D, then waits. Status reports running=false and pg_ctl_status=3. Fast shutdown disconnects this cluster's clients, rolls back uncommitted work and retains committed data/logs. It never signals unrelated postgres processes, invokes brew services or deletes directories. Start after stop resumes storage, not initdb.\n\nFor connection failure inspect status and the printed root's server.log; for version mismatch inspect PG_BIN; for missing tables check preparation. Ownership/identity mismatch refuses reset and stop: investigate rather than deleting markers or substituting a user database. Partial first startup attempts to stop only its newly allocated directory and preserves the error. Inspect status/logs before proceeding; never reinitialize old storage. When a health/identity check itself is impossible, the controller refuses rather than guessing. Never use killall as a fallback.\n\nAt a break, record lab path, root, last command, tests, SQLSTATE and next action. After OS cleanup of /tmp, begin with a fresh extraction rather than treating unmarked old data as a new cluster.\n\n## Limits and official sources\n\nNormal stop/start is not disaster recovery. No production backup restore, power loss, ambiguous network commit, full Serializable matrix, real deadlock, authentication, authorization, pooling or load test is claimed. Later ORM work must preserve constraint names/types and failure tests. updated_at is not automatic. Owner existence and creator authorization are not fully enforced by foreign keys.\n\nOfficial sources checked 2026-09-28. psycopg's docs site returned 403, so the official repository's fixed 3.3.6 documentation sources were read. PostgreSQL 18 docs and the 18.6 release page were accessible.\n\n- https://www.postgresql.org/docs/18/queries.html\n- https://www.postgresql.org/docs/18/queries-table-expressions.html\n- https://www.postgresql.org/docs/18/queries-limit.html\n- https://www.postgresql.org/docs/18/functions-comparison.html\n- https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/params.rst\n- https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/usage.rst\n- https://www.postgresql.org/docs/release/18.6/\n",
+            "README.zh-cn.md": "# d02-sql — SQL、结果形状与参数边界\n\n核验日期：2026-09-28。独立下载实验，全部使用真实 PostgreSQL，不能用 SQLite 或浏览器 Python 替代。完整教材是 `module-22-sql` 的三语版本。\n\n## 目标与前置\n\n前置 L00–L14、H01–H06；D02 另需 D01，D03 另需 D02。D01 学习者不需提前会 SQL 或运维。先读教材中的机制解释再执行本文件；README 是可重建运行指南，不把安装成功当掌握。\n\n本实验验收 SQL、结果形状与参数边界。模型版本 `d01-d03-v1`；`model-contract.json` 给出字段与 ORM 衔接，`sql/schema.sql` 是可执行 DDL。身份/权限尚未实现：users 是测试人员，不是可登录账号。旧 H 字段明确演进：done 变 status（todo/doing/done），note 变 description（可空），minutes 保留为非负估时；新增用户、项目、成员和时间字段。这不是对已有内存数据自动迁移。\n\n## 固定环境，不安装系统服务\n\n- PostgreSQL 18.6（本机 Homebrew，服务端实际 `server_version_num=180006`）；官方发布日期 2026-08-13。\n- CPython 3.13.15，uv 0.12.13，pytest 8.4.2，psycopg[binary] 3.3.6。\n- `requires-python = \">=3.13,<3.14\"`；uv package=false；公共 PyPI 的真实 uv.lock。\n- 仅 macOS/Homebrew 环境已实测；其他 OS 安装、TCP/TLS 和生产配置未实测。无 Docker、ORM、认证、前端依赖。\n\n工作目录必须是解压后的 `d02-sql`，不是上级目录。此机器工具已有，**不要 brew services，不要连接默认 5432，不要初始化现有目录**。\n\n```bash\nexport PATH=\"$HOME/.local/bin:$PATH\"\nexport UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928\nexport UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928\nexport PG_BIN=/opt/homebrew/bin\n\"$PG_BIN/postgres\" --version\n\"$PG_BIN/initdb\" --version\n\"$PG_BIN/pg_ctl\" --version\n\"$PG_BIN/psql\" --version\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\n版本不匹配先停下。`PG_BIN` 是程序目录；`psql` 是客户端；`postgres` 是服务器；`initdb` 只创建新存储；`pg_ctl` 按明确目录启动/停止进程。安装物、运行进程、数据目录不是一件事。\n\n## 认领独占集群与数据库\n\n```bash\nuv run --locked python labctl.py start\nuv run --locked python labctl.py status\nuv run --locked python labctl.py dsn\nuv run --locked python labctl.py reset --yes-reset\n```\n\nstart 的具体顺序：新建短路径 `/tmp/lsdb-*`（macOS 可显示 /private/tmp）；目录和 socket 均 0700；保存匹配的 `.lab-state.json` 与目录 marker；initdb 新目录；关闭 TCP；为私有 socket 选端口；pg_ctl 用显式 -D 和 server.log 启动；随机管理角色建立 `langshift_lab` 数据库和普通 `lab_student` 角色。数据库是 cluster 内的逻辑命名空间，角色是数据库身份，不是 users 表的用户。Unix socket 是通信入口，DSN 是地址/选项，连接才是活动会话。\n\n本地 trust 仅因目录私有且 TCP 禁止才用于无密码练习；同一 OS 用户下的进程和 root 不在隔离范围内，不能复制到公网或生产。连接、reset、stop 都验证所有权；SQL 连接还验证服务端数据目录、系统标识和版本。脚本忽略 DATABASE_URL，不接受任意远端 DSN；不要修改这些防护。\n\nreset **有损重建自己数据库的四表**，打印 `schema + seed ready: users=2 projects=3 members=4 tasks=5`。每次业务 pytest、D03 demo 也会 reset，因此不要并行启动两个运行器，不要拿这里保存业务数据。停启不会 reset；系统可能清理 /tmp，所以它仍不是长期保存或备份方案。\n\n## PostgreSQL 环境边界\n\n`labctl.py` 自身在启动或任何 SQL 连接前检查环境，直接通过 Python 导入调用也一样：**拒绝除 `PG_BIN`、`PGHOST` 外的全部 `PG*` 变量**，包括空值和未知名称。这也会保守拒绝虽已被显式覆盖的 `PGPORT`、`PGUSER`、`PGDATABASE`，不只 `PGHOSTADDR`、`PGSERVICE`、`PGSERVICEFILE`、`PGPASSFILE`、`PGPASSWORD`、`PGOPTIONS`。错误只列变量**名**，不打印值。启动或执行 SQL 前，在实验 shell 中 unset 报出的变量；不要把其他服务配置或凭证复制进实验。\n\n`PG_BIN` 仍用于选择工具目录。`PGHOST` 仍被接受但忽略，因为每条 DSN 都显式指定自有私有 socket；维护 runner 的 `PGHOST=/nonexistent/...` 验证仍成立。`DATABASE_URL` 仍忽略。所有子进程（包括 initdb、pg_ctl、psql）都使用清除全部 `PG*` 和 `DATABASE_URL` 的环境，工具和数据路径显式指定。Python 连接不临时修改进程环境，因此 D03 并发连接不存在环境恢复竞态。\n\n管理员和学生的每条 DSN 均显式指定自有 root 下**内容为空、权限 0600 的 `empty.pgpass`**，不使用默认 `~/.pgpass`。新集群和已有自有集群均可创建该文件；符号链接、非空、属主错误、非普通文件或权限错误均拒绝。psql 同时使用 `-X -w`（不读启动文件、不提示输入密码）。随机管理员及服务端数据目录／系统标识／版本核验保留，不改业务 SQL。\n\n**错误的连接环境不阻止清理：** `status` 使用清洁环境调用 pg_ctl；`stop` 在清洁 Python 子进程中完成相同的服务器身份核验，再停止显式指定的自有数据目录。不会绕过 marker／PID／身份检查失败。停止后须清除报出的变量才能重新 start。导出的 `dsn` 只是连接描述，不是沙箱：不要交给继承其他连接默认值的任意客户端；请使用 `labctl.py psql`。\n\n`tests/test_environment.py` 新增 50 例：连接／启动前 mock 拒绝、子进程环境、passfile、面对自有 loopback 监听器的直接 CLI 拒绝、私有 socket 下 PGHOST／DATABASE_URL 兼容，以及污染环境下 stop／status／重新启动恢复。该模块覆盖业务测试的自动 SQL reset fixture，避免负向测试在拒绝前先连接。这里只验证列出的路径，不声称覆盖所有攻击；同一 OS 用户／root 对进程或文件的篡改不在隔离范围内。\n\n## 运行、解释和验收\n\n```bash\nuv run --locked python labctl.py psql --file sql/queries.sql\nuv run --locked python demo.py\nuv run --locked pytest -q\n```\n\n应有 **66 passed**（原 16 例业务测试 + 50 例环境测试），耗时不固定。故意错误 SQL 的 ERROR 是预期；普通命令失败不能被忽略。D01：23505 重复、23503 坏外键、23514 CHECK、23502 NULL、22001 长度；本版本删除引用的 RESTRICT 是 23001。D02：注入载荷作为原字符串保存，tasks 不被删除；非法排序/分页在 Python 拒绝。D03：后步 23503，后续查询 25P02，rollback 后零残留；真实两连接的结果分别为读提交 [30,40]、可重复读 [30,30]、丢失更新 37、原子累加 42、唯一竞争一行、锁超时 55P03、旧快照更新冲突 40001 后完整重试 42。\n\n`demo.py` 的输出以教材为准，D02 确定 ID 需要先 reset；D03 每个场景自己 reset。测试不是编译：实际启动的服务器执行了约束、参数和值转换、事务与锁。独立题参考在 answers 中，先自己尝试；不是主模型新增字段，也没有自动接入 HTTP。\n\n## 文件职责\n\n- `labctl.py`：独占启动、地址、身份验证、reset、psql、stop；无全局服务操作。\n- `sql/schema.sql` / `sql/seed.sql`：三章相同结构与确定种子；DDL 哈希在 model-contract。\n- `sql/*.sql`：本章查询或明确标记的失败实验。\n- `tests/`、`conftest.py`：业务测试每例重置自己的数据库；参考变式也执行验证。\n- `answers/`：独立题参考，不要先抄。\n- `pyproject.toml`、`uv.lock`、`.python-version`、`.env.example`：依赖与配置；env.example 仅文档，不自动加载。\n- `README.md`、`README.zh-cn.md`、`README.zh-tw.md`、`sources.json`、`model-contract.json`：复现、来源和衔接。\n- `FILES.json`：包内文件 allowlist；仓库同名 `../d02-sql-files.json` 用于主线打包。数据目录、.lab-state.json、.venv、cache 和凭证不进入包。\n\n## 安全停机与恢复\n\n```bash\nuv run --locked python labctl.py stop\nuv run --locked python labctl.py status\nuv run --locked python labctl.py start\nuv run --locked python labctl.py stop\n```\n\nstop 先核对 marker/PID 目录/健康服务器身份，然后对自己的 -D 执行 fast shutdown 并等待；status 返回 running=false、pg_ctl_status=3。fast 会断开本集群连接并回滚未提交事务，保留提交数据与日志；不对其他 postgres 发信号，不 brew services，也不删目录。停止后重新 start 是恢复同一存储，不是 initdb。\n\n若连接失败先查 status 与所打印 root 的 server.log；若版本错查 PG_BIN；若缺表确认是否准备数据；若 marker/服务器身份不符则拒绝重置与停止，必须查明原因，不能删除 marker 或改成用户数据库来绕过。首次启动中途失败会尝试只停止刚分配目录，异常保留，后续先查 status 和日志，不对旧目录再 initdb。若健康检查也无法完成，控制脚本宁可拒绝；不要用 killall 兜底。\n\n暂停时保存目录、root、最后成功命令、测试结果、失败错误码和下次第一步。/tmp 自动清理后应从全新解压目录开始；不要拿无 marker 的旧数据冒充新集群。\n\n## 边界与官方来源\n\n正常停启持久性不是灾难恢复。本实验没做生产备份/恢复、断电、提交时断网、Serializable 全矩阵、真实死锁、认证、权限、连接池或容量压测。后续 ORM 应保留约束名称/类型和失败测试；updated_at 不自动更新；至少一个负责人和创建者的项目权限不是外键保证的。\n\n下列官方来源核验于 2026-09-28。psycopg 文档站当次 403，读取同官方仓库 3.3.6 标签的文档源码；PostgreSQL 文档与 18.6 发布页可读取。\n\n- https://www.postgresql.org/docs/18/queries.html\n- https://www.postgresql.org/docs/18/queries-table-expressions.html\n- https://www.postgresql.org/docs/18/queries-limit.html\n- https://www.postgresql.org/docs/18/functions-comparison.html\n- https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/params.rst\n- https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/usage.rst\n- https://www.postgresql.org/docs/release/18.6/\n",
+            "README.zh-tw.md": "# d02-sql — SQL、結果形狀與參數邊界\n\n核驗日期：2026-09-28。獨立下載實驗，全部使用真實 PostgreSQL，不能用 SQLite 或瀏覽器 Python 替代。完整教材是 `module-22-sql` 的三語版本。\n\n## 目標與前置\n\n前置 L00–L14、H01–H06；D02 另需 D01，D03 另需 D02。D01 學習者不需提前會 SQL 或運維。先讀教材中的機制解釋再執行本文件；README 是可重建運行指南，不把安裝成功當掌握。\n\n本實驗驗收 SQL、結果形狀與參數邊界。模型版本 `d01-d03-v1`；`model-contract.json` 給出字段與 ORM 銜接，`sql/schema.sql` 是可執行 DDL。身份/權限尚未實現：users 是測試人員，不是可登錄賬號。舊 H 字段明確演進：done 變 status（todo/doing/done），note 變 description（可空），minutes 保留為非負估時；新增用戶、項目、成員和時間字段。這不是對已有內存數據自動遷移。\n\n## 固定環境，不安裝系統服務\n\n- PostgreSQL 18.6（本機 Homebrew，服務端實際 `server_version_num=180006`）；官方發佈日期 2026-08-13。\n- CPython 3.13.15，uv 0.12.13，pytest 8.4.2，psycopg[binary] 3.3.6。\n- `requires-python = \">=3.13,<3.14\"`；uv package=false；公共 PyPI 的真實 uv.lock。\n- 僅 macOS/Homebrew 環境已實測；其他 OS 安裝、TCP/TLS 和生產配置未實測。無 Docker、ORM、認證、前端依賴。\n\n工作目錄必須是解壓後的 `d02-sql`，不是上級目錄。此機器工具已有，**不要 brew services，不要連接默認 5432，不要初始化現有目錄**。\n\n```bash\nexport PATH=\"$HOME/.local/bin:$PATH\"\nexport UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928\nexport UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928\nexport PG_BIN=/opt/homebrew/bin\n\"$PG_BIN/postgres\" --version\n\"$PG_BIN/initdb\" --version\n\"$PG_BIN/pg_ctl\" --version\n\"$PG_BIN/psql\" --version\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\n版本不匹配先停下。`PG_BIN` 是程序目錄；`psql` 是客戶端；`postgres` 是服務器；`initdb` 只創建新存儲；`pg_ctl` 按明確目錄啟動/停止進程。安裝物、運行進程、數據目錄不是一件事。\n\n## 認領獨佔集群與數據庫\n\n```bash\nuv run --locked python labctl.py start\nuv run --locked python labctl.py status\nuv run --locked python labctl.py dsn\nuv run --locked python labctl.py reset --yes-reset\n```\n\nstart 的具體順序：新建短路徑 `/tmp/lsdb-*`（macOS 可顯示 /private/tmp）；目錄和 socket 均 0700；保存匹配的 `.lab-state.json` 與目錄 marker；initdb 新目錄；關閉 TCP；為私有 socket 選端口；pg_ctl 用顯式 -D 和 server.log 啟動；隨機管理角色建立 `langshift_lab` 數據庫和普通 `lab_student` 角色。數據庫是 cluster 內的邏輯命名空間，角色是數據庫身份，不是 users 表的用戶。Unix socket 是通信入口，DSN 是地址/選項，連接才是活動會話。\n\n本地 trust 僅因目錄私有且 TCP 禁止才用於無密碼練習；同一 OS 用戶下的進程和 root 不在隔離範圍內，不能複製到公網或生產。連接、reset、stop 都驗證所有權；SQL 連接還驗證服務端數據目錄、系統標識和版本。腳本忽略 DATABASE_URL，不接受任意遠端 DSN；不要修改這些防護。\n\nreset **有損重建自己數據庫的四表**，打印 `schema + seed ready: users=2 projects=3 members=4 tasks=5`。每次業務 pytest、D03 demo 也會 reset，因此不要並行啟動兩個運行器，不要拿這裡保存業務數據。停啟不會 reset；系統可能清理 /tmp，所以它仍不是長期保存或備份方案。\n\n## PostgreSQL 環境邊界\n\n`labctl.py` 自身在啟動或任何 SQL 連接前檢查環境，直接透過 Python 匯入呼叫也一樣：**拒絕除 `PG_BIN`、`PGHOST` 外的全部 `PG*` 變數**，包括空值和未知名稱。這也會保守拒絕雖已被顯式覆蓋的 `PGPORT`、`PGUSER`、`PGDATABASE`，不只 `PGHOSTADDR`、`PGSERVICE`、`PGSERVICEFILE`、`PGPASSFILE`、`PGPASSWORD`、`PGOPTIONS`。錯誤只列變數**名**，不列印值。啟動或執行 SQL 前，在實驗 shell 中 unset 報出的變數；不要把其他服務設定或憑證複製進實驗。\n\n`PG_BIN` 仍用於選擇工具目錄。`PGHOST` 仍被接受但忽略，因為每條 DSN 都顯式指定自有私有 socket；維護 runner 的 `PGHOST=/nonexistent/...` 驗證仍成立。`DATABASE_URL` 仍忽略。所有子行程（包括 initdb、pg_ctl、psql）都使用清除全部 `PG*` 和 `DATABASE_URL` 的環境，工具和資料路徑顯式指定。Python 連接不暫時修改行程環境，因此 D03 並行連接不存在環境還原競態。\n\n管理員和學生的每條 DSN 均顯式指定自有 root 下**內容為空、權限 0600 的 `empty.pgpass`**，不使用預設 `~/.pgpass`。新集群和已有自有集群均可建立該檔案；符號連結、非空、擁有者錯誤、非一般檔案或權限錯誤均拒絕。psql 同時使用 `-X -w`（不讀啟動檔案、不提示輸入密碼）。隨機管理員及伺服器資料目錄／系統識別碼／版本核驗保留，不改業務 SQL。\n\n**錯誤的連接環境不阻止清理：** `status` 使用乾淨環境呼叫 pg_ctl；`stop` 在乾淨 Python 子行程中完成相同的伺服器身分核驗，再停止顯式指定的自有資料目錄。不會繞過 marker／PID／身分檢查失敗。停止後須清除報出的變數才能重新 start。匯出的 `dsn` 只是連接描述，不是沙箱：不要交給繼承其他連接預設值的任意客戶端；請使用 `labctl.py psql`。\n\n`tests/test_environment.py` 新增 50 例：連接／啟動前 mock 拒絕、子行程環境、passfile、面對自有 loopback 監聽器的直接 CLI 拒絕、私有 socket 下 PGHOST／DATABASE_URL 相容，以及污染環境下 stop／status／重新啟動恢復。該模組覆蓋業務測試的自動 SQL reset fixture，避免負向測試在拒絕前先連接。這裡只驗證列出的路徑，不宣稱涵蓋所有攻擊；同一 OS 使用者／root 對行程或檔案的竄改不在隔離範圍內。\n\n## 運行、解釋和驗收\n\n```bash\nuv run --locked python labctl.py psql --file sql/queries.sql\nuv run --locked python demo.py\nuv run --locked pytest -q\n```\n\n應有 **66 passed**（原 16 例業務測試 + 50 例環境測試），耗時不固定。故意錯誤 SQL 的 ERROR 是預期；普通命令失敗不能被忽略。D01：23505 重複、23503 壞外鍵、23514 CHECK、23502 NULL、22001 長度；本版本刪除引用的 RESTRICT 是 23001。D02：注入載荷作為原字符串保存，tasks 不被刪除；非法排序/分頁在 Python 拒絕。D03：後步 23503，後續查詢 25P02，rollback 後零殘留；真實兩連接的結果分別為讀提交 [30,40]、可重複讀 [30,30]、丟失更新 37、原子累加 42、唯一競爭一行、鎖超時 55P03、舊快照更新衝突 40001 後完整重試 42。\n\n`demo.py` 的輸出以教材為準，D02 確定 ID 需要先 reset；D03 每個場景自己 reset。測試不是編譯：實際啟動的服務器執行了約束、參數和值轉換、事務與鎖。獨立題參考在 answers 中，先自己嘗試；不是主模型新增字段，也沒有自動接入 HTTP。\n\n## 文件職責\n\n- `labctl.py`：獨佔啟動、地址、身份驗證、reset、psql、stop；無全局服務操作。\n- `sql/schema.sql` / `sql/seed.sql`：三章相同結構與確定種子；DDL 哈希在 model-contract。\n- `sql/*.sql`：本章查詢或明確標記的失敗實驗。\n- `tests/`、`conftest.py`：業務測試每例重置自己的數據庫；參考變式也執行驗證。\n- `answers/`：獨立題參考，不要先抄。\n- `pyproject.toml`、`uv.lock`、`.python-version`、`.env.example`：依賴與配置；env.example 僅文檔，不自動加載。\n- `README.md`、`README.zh-cn.md`、`README.zh-tw.md`、`sources.json`、`model-contract.json`：復現、來源和銜接。\n- `FILES.json`：包內文件 allowlist；倉庫同名 `../d02-sql-files.json` 用於主線打包。數據目錄、.lab-state.json、.venv、cache 和憑證不進入包。\n\n## 安全停機與恢復\n\n```bash\nuv run --locked python labctl.py stop\nuv run --locked python labctl.py status\nuv run --locked python labctl.py start\nuv run --locked python labctl.py stop\n```\n\nstop 先核對 marker/PID 目錄/健康服務器身份，然後對自己的 -D 執行 fast shutdown 並等待；status 返回 running=false、pg_ctl_status=3。fast 會斷開本集群連接並回滾未提交事務，保留提交數據與日誌；不對其他 postgres 發信號，不 brew services，也不刪目錄。停止後重新 start 是恢復同一存儲，不是 initdb。\n\n若連接失敗先查 status 與所打印 root 的 server.log；若版本錯查 PG_BIN；若缺表確認是否準備數據；若 marker/服務器身份不符則拒絕重置與停止，必須查明原因，不能刪除 marker 或改成用戶數據庫來繞過。首次啟動中途失敗會嘗試只停止剛分配目錄，異常保留，後續先查 status 和日誌，不對舊目錄再 initdb。若健康檢查也無法完成，控制腳本寧可拒絕；不要用 killall 兜底。\n\n暫停時保存目錄、root、最後成功命令、測試結果、失敗錯誤碼和下次第一步。/tmp 自動清理後應從全新解壓目錄開始；不要拿無 marker 的舊數據冒充新集群。\n\n## 邊界與官方來源\n\n正常停啟持久性不是災難恢復。本實驗沒做生產備份/恢復、斷電、提交時斷網、Serializable 全矩陣、真實死鎖、認證、權限、連接池或容量壓測。後續 ORM 應保留約束名稱/類型和失敗測試；updated_at 不自動更新；至少一個負責人和創建者的項目權限不是外鍵保證的。\n\n下列官方來源核驗於 2026-09-28。psycopg 文檔站當次 403，讀取同官方倉庫 3.3.6 標籤的文檔源碼；PostgreSQL 文檔與 18.6 發佈頁可讀取。\n\n- https://www.postgresql.org/docs/18/queries.html\n- https://www.postgresql.org/docs/18/queries-table-expressions.html\n- https://www.postgresql.org/docs/18/queries-limit.html\n- https://www.postgresql.org/docs/18/functions-comparison.html\n- https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/params.rst\n- https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/usage.rst\n- https://www.postgresql.org/docs/release/18.6/\n",
+            "answers/variant.py": "def progress_report(conn, minimum_minutes=0):\n    if type(minimum_minutes) is not int or minimum_minutes < 0:\n        raise ValueError(\"minimum_minutes must be a nonnegative integer\")\n    return conn.execute(\"\"\"\n        SELECT p.name, count(t.id), coalesce(sum(t.minutes), 0)\n        FROM projects AS p\n        LEFT JOIN tasks AS t ON t.project_id=p.id AND t.status <> %s\n        GROUP BY p.id, p.name\n        HAVING coalesce(sum(t.minutes), 0) >= %s\n        ORDER BY p.id\n    \"\"\", (\"done\", minimum_minutes)).fetchall()\n",
+            "conftest.py": "import pytest\nimport labctl\n\n\n@pytest.fixture(autouse=True)\ndef fresh_owned_database():\n    # reset() refuses a missing/tampered ownership marker or a different server.\n    labctl.reset()\n",
+            "demo.py": "import labctl\nfrom queries import create_task, delete_task, find_by_title, list_tasks, project_totals, update_status\n\n\nwith labctl.connect(autocommit=True) as conn:\n    print(\"todo\", list_tasks(conn, status=\"todo\"))\n    print(\"page\", list_tasks(conn, limit=2, offset=2))\n    print(\"totals\", project_totals(conn))\n    payload = \"x' OR TRUE --\"\n    print(\"unmatched payload\", find_by_title(conn, payload))\n    created = create_task(conn, payload)\n    print(\"literal stored\", find_by_title(conn, payload))\n    print(\"updated\", update_status(conn, created[0], \"doing\"))\n    print(\"deleted\", delete_task(conn, created[0]))\n    print(\"tasks remaining\", conn.execute(\"SELECT count(*) FROM tasks\").fetchone()[0])\n",
+            "labctl.py": "\"\"\"Own one disposable PostgreSQL 18.6 cluster; never use DATABASE_URL.\n\nAll destructive operations are restricted to our marker-checked /tmp directory.\nStop retains files for recovery. Nothing invokes brew services, kill or rm -rf.\n\"\"\"\nimport argparse\nimport json\nimport os\nfrom pathlib import Path\nimport secrets\nimport shutil\nimport stat\nimport subprocess\nimport sys\nimport tempfile\n\nimport psycopg\nfrom psycopg.conninfo import make_conninfo\n\nLAB = Path(__file__).resolve().parent\nSTATE = LAB / \".lab-state.json\"\nMARKER = \"langshift-owned-cluster.json\"\nVERSION_NUM = 180006\n\n\n# PGHOST is safe only because every SQL DSN supplies an explicit private socket.\n# PG_BIN selects executables, not a libpq connection parameter. Fail closed for\n# all other PG* names (even empty/unknown ones), including future libpq defaults.\nALLOWED_PG_ENV = frozenset({\"PGHOST\", \"PG_BIN\"})\n\n\ndef check_environment():\n    rejected = sorted(name for name in os.environ\n                      if name.startswith(\"PG\") and name not in ALLOWED_PG_ENV)\n    if rejected:\n        # Never echo values: these may contain passwords or service credentials.\n        raise RuntimeError(\"Refusing implicit PostgreSQL environment: \" + \", \".join(rejected))\n\n\ndef child_environment():\n    # Do not mutate os.environ: D03 can open connections from multiple threads.\n    return {name: value for name, value in os.environ.items()\n            if not name.startswith(\"PG\") and name != \"DATABASE_URL\"}\n\n\ndef run(*args, check=True):\n    result = subprocess.run(args, check=False, text=True, capture_output=True,\n                            env=child_environment())\n    if check and result.returncode:\n        raise RuntimeError(\n            f\"{Path(args[0]).name} exited {result.returncode}:\\n\"\n            f\"{result.stdout}{result.stderr}\"\n        )\n    return result\n\n\ndef load_state():\n    if STATE.is_symlink():\n        raise RuntimeError(\"Refusing a symlink state file\")\n    if not STATE.exists():\n        raise RuntimeError(\"No owned cluster. Run labctl.py start first\")\n    state = json.loads(STATE.read_text())\n    root = Path(state[\"root\"])\n    if root.is_symlink() or root.resolve().parent != Path(\"/tmp\").resolve():\n        raise RuntimeError(\"Refusing a cluster outside the owned /tmp root\")\n    if not root.name.startswith(\"lsdb-\"):\n        raise RuntimeError(\"Unexpected cluster directory name\")\n    metadata = root.stat()\n    if metadata.st_uid != os.getuid() or stat.S_IMODE(metadata.st_mode) != 0o700:\n        raise RuntimeError(\"Cluster root must be owned by this OS user, mode 0700\")\n    marker = root / MARKER\n    if marker.is_symlink() or json.loads(marker.read_text()) != state:\n        raise RuntimeError(\"Ownership marker mismatch; no database action performed\")\n    if state[\"lab\"] != str(LAB):\n        raise RuntimeError(\"This cluster belongs to a different lab directory\")\n    for child in (\"data\", \"socket\"):\n        path = root / child\n        if path.is_symlink() or path.resolve().parent != root.resolve():\n            raise RuntimeError(\"Refusing redirected cluster paths\")\n    return state\n\n\ndef empty_passfile(state):\n    # Also works for previously created, marker-checked clusters. Never consult\n    # HOME/.pgpass; never follow a passfile symlink or reuse nonempty credentials.\n    path = Path(state[\"root\"]) / \"empty.pgpass\"\n    fd = os.open(path, os.O_RDONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600)\n    try:\n        metadata = os.fstat(fd)\n        if (not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != os.getuid()\n                or stat.S_IMODE(metadata.st_mode) != 0o600 or metadata.st_size != 0):\n            raise RuntimeError(\"Refusing unsafe lab passfile\")\n    finally:\n        os.close(fd)\n    return str(path)\n\n\ndef raw_dsn(state, admin=False):\n    check_environment()\n    return make_conninfo(\n        host=str(Path(state[\"root\"]) / \"socket\"), port=state[\"port\"],\n        dbname=\"langshift_lab\", user=state[\"admin\"] if admin else \"lab_student\",\n        passfile=empty_passfile(state),\n        connect_timeout=3, application_name=LAB.name,\n        options=\"-c timezone=UTC -c statement_timeout=8000 -c lock_timeout=3000\",\n    )\n\n\ndef check_pid_file(state):\n    root = Path(state[\"root\"])\n    pid_file = root / \"data/postmaster.pid\"\n    if pid_file.is_symlink():\n        raise RuntimeError(\"Refusing redirected PID file\")\n    if pid_file.exists():\n        lines = pid_file.read_text().splitlines()\n        if (Path(lines[1]).resolve() != (root / \"data\").resolve()\n                or lines[3] != str(state[\"port\"])\n                or Path(lines[4]).resolve() != (root / \"socket\").resolve()):\n            raise RuntimeError(\"PID file does not describe the owned server\")\n\n\ndef verify_server(state):\n    check_environment()\n    check_pid_file(state)\n    with psycopg.connect(raw_dsn(state, admin=True), autocommit=True) as conn:\n        actual = conn.execute(\"\"\"\n            SELECT current_setting('data_directory'),\n                   current_setting('server_version_num')::int,\n                   system_identifier::text\n            FROM pg_control_system()\n        \"\"\").fetchone()\n    if (Path(actual[0]).resolve() != Path(state[\"root\"]) / \"data\"\n            or actual[1] != VERSION_NUM\n            or actual[2] != state[\"system_identifier\"]):\n        raise RuntimeError(\"Wrong server identity/version; refusing SQL\")\n\n\ndef connect(*, autocommit=False):\n    check_environment()\n    state = load_state()\n    verify_server(state)\n    return psycopg.connect(raw_dsn(state), autocommit=autocommit)\n\n\ndef start():\n    check_environment()\n    if STATE.exists() or STATE.is_symlink():\n        state = load_state()\n        check_pid_file(state)\n        result = run(str(Path(state[\"pg_bin\"]) / \"pg_ctl\"), \"-D\",\n                     str(Path(state[\"root\"]) / \"data\"), \"status\", check=False)\n        if result.returncode == 3:\n            run(str(Path(state[\"pg_bin\"]) / \"pg_ctl\"), \"-D\",\n                str(Path(state[\"root\"]) / \"data\"), \"-l\",\n                str(Path(state[\"root\"]) / \"server.log\"), \"-w\", \"-t\", \"15\", \"start\")\n        elif result.returncode != 0:\n            raise RuntimeError(result.stderr or result.stdout)\n        verify_server(state)\n        print(\"owned cluster ready (existing data retained)\")\n        return\n    default = Path(shutil.which(\"initdb\") or \"/opt/homebrew/bin/initdb\").parent\n    pg_bin = Path(os.environ.get(\"PG_BIN\", str(default))).resolve()\n    for tool in (\"postgres\", \"initdb\", \"pg_ctl\", \"psql\"):\n        version = run(str(pg_bin / tool), \"--version\").stdout.strip()\n        if \" 18.6\" not in version:\n            raise RuntimeError(f\"Expected PostgreSQL 18.6: {version}\")\n    root = Path(tempfile.mkdtemp(prefix=\"lsdb-\", dir=\"/tmp\")).resolve()\n    root.chmod(0o700)\n    (root / \"socket\").mkdir(mode=0o700)\n    state = {\n        \"root\": str(root), \"lab\": str(LAB), \"token\": secrets.token_hex(16),\n        \"admin\": \"lab_admin_\" + secrets.token_hex(6), \"pg_bin\": str(pg_bin),\n        \"port\": 49152 + secrets.randbelow(12000),\n    }\n    # Persist ownership before starting so partial failures remain recoverable.\n    def save():\n        text = json.dumps(state, indent=2) + \"\\n\"\n        (root / MARKER).write_text(text)\n        STATE.write_text(text)\n        STATE.chmod(0o600)\n    save()\n    try:\n        run(str(pg_bin / \"initdb\"), \"-D\", str(root / \"data\"), \"-U\", state[\"admin\"],\n            \"--auth-local=trust\", \"--auth-host=reject\", \"--encoding=UTF8\", \"--no-locale\")\n        with (root / \"data/postgresql.conf\").open(\"a\") as config:\n            config.write(f\"\\nlisten_addresses = ''\\nport = {state['port']}\\n\")\n            config.write(f\"unix_socket_directories = '{root / 'socket'}'\\n\")\n            config.write(\"unix_socket_permissions = 0700\\ntimezone = 'UTC'\\n\")\n        run(str(pg_bin / \"pg_ctl\"), \"-D\", str(root / \"data\"), \"-l\",\n            str(root / \"server.log\"), \"-w\", \"-t\", \"15\", \"start\")\n        admin_dsn = make_conninfo(raw_dsn(state, admin=True), dbname=\"postgres\")\n        with psycopg.connect(admin_dsn, autocommit=True) as conn:\n            state[\"system_identifier\"] = conn.execute(\n                \"SELECT system_identifier::text FROM pg_control_system()\"\n            ).fetchone()[0]\n            save()\n            conn.execute(\"CREATE ROLE lab_student LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE\")\n            conn.execute(\"CREATE DATABASE langshift_lab OWNER lab_student\")\n        verify_server(state)\n    except BaseException:\n        # This exact new root was allocated above; never stop any default service.\n        run(str(pg_bin / \"pg_ctl\"), \"-D\", str(root / \"data\"),\n            \"-m\", \"fast\", \"-w\", \"-t\", \"15\", \"stop\", check=False)\n        raise\n    print(\"owned cluster ready: PostgreSQL 18.6; TCP disabled\")\n    print(f\"root={root}\")\n\n\ndef reset():\n    with connect() as conn:\n        conn.execute(\"DROP TABLE IF EXISTS tasks, project_members, projects, users\")\n        conn.execute((LAB / \"sql/schema.sql\").read_text())\n        conn.execute((LAB / \"sql/seed.sql\").read_text())\n\n\ndef stop():\n    state = load_state()\n    check_pid_file(state)\n    pg_ctl = str(Path(state[\"pg_bin\"]) / \"pg_ctl\")\n    data = str(Path(state[\"root\"]) / \"data\")\n    result = run(pg_ctl, \"-D\", data, \"status\", check=False)\n    if result.returncode == 3:\n        print(\"owned cluster already stopped; files retained\")\n        return\n    if result.returncode != 0:\n        raise RuntimeError(result.stderr or result.stdout)\n    # Keep the identity check, but run it in a clean child so a poisoned shell\n    # cannot prevent cleanup. No process-global environment mutation/race, and\n    # no SQL against any target other than this lab's marker-checked socket.\n    run(sys.executable, str(LAB / \"labctl.py\"), \"dsn\")\n    print(run(pg_ctl, \"-D\", data, \"-m\", \"fast\", \"-w\", \"-t\", \"15\", \"stop\").stdout.strip())\n    if run(pg_ctl, \"-D\", data, \"status\", check=False).returncode != 3:\n        raise RuntimeError(\"Owned server did not stop\")\n    print(\"owned cluster stopped; pg_ctl status=3; files retained\")\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"command\", choices=[\"start\", \"status\", \"dsn\", \"reset\", \"stop\", \"psql\"])\n    parser.add_argument(\"--yes-reset\", action=\"store_true\")\n    parser.add_argument(\"--file\")\n    args = parser.parse_args()\n    if args.command not in {\"stop\", \"status\"}:\n        check_environment()\n    if args.command == \"start\":\n        start()\n    elif args.command == \"stop\":\n        stop()\n    elif args.command == \"reset\":\n        if not args.yes_reset:\n            parser.error(\"reset destroys only this lab's tables; require --yes-reset\")\n        reset()\n        print(\"schema + seed ready: users=2 projects=3 members=4 tasks=5\")\n    elif args.command == \"status\":\n        state = load_state()\n        check_pid_file(state)\n        result = run(str(Path(state[\"pg_bin\"]) / \"pg_ctl\"), \"-D\",\n                     str(Path(state[\"root\"]) / \"data\"), \"status\", check=False)\n        if result.returncode not in (0, 3):\n            raise RuntimeError(result.stderr or result.stdout)\n        print(json.dumps({\"root\": state[\"root\"], \"running\": result.returncode == 0,\n                          \"pg_ctl_status\": result.returncode}))\n    else:\n        state = load_state()\n        verify_server(state)\n        if args.command == \"dsn\":\n            print(raw_dsn(state))\n        else:\n            command = [str(Path(state[\"pg_bin\"]) / \"psql\"), \"-X\", \"-w\", raw_dsn(state),\n                       \"-v\", \"ON_ERROR_STOP=1\", \"-P\", \"pager=off\"]\n            if args.file:\n                command += [\"-f\", str(Path(args.file).resolve())]\n            subprocess.run(command, check=True, env=child_environment())\n\n\nif __name__ == \"__main__\":\n    main()\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.58
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 1.0,
+            "probabilities": {
+              "SUBSTANTIVE": 1.0,
+              "UNCERTAIN": 0.0,
+              "API_CATALOGUE": 0.0,
+              "PARTIAL": 0.0
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.9,
+            "probabilities": {
+              "NECESSARY_GAP": 0.04,
+              "ACCURATE_AND_BOUNDED": 0.93,
+              "UNCERTAIN": 0.0,
+              "MATERIAL_ERROR": 0.03
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.91,
+            "probabilities": {
+              "NECESSARY_GAP": 0.01,
+              "ACCURATE_AND_BOUNDED": 0.93,
+              "UNCERTAIN": 0.0,
+              "MATERIAL_ERROR": 0.06
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.79,
+            "probabilities": {
+              "CONTRADICTORY": 0.14,
+              "COHERENT_AND_TESTABLE": 0.84,
+              "UNCERTAIN": 0.01,
+              "UNDERSPECIFIED": 0.01
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.87
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "PROCEED",
+            "confidence": 0.25,
+            "probabilities": {
+              "REVISE": 0.06,
+              "TARGETED_REVIEW": 0.44,
+              "PROCEED": 0.5
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 23927,
+          "output_tokens": 341
+        }
+      },
+      "raw_response_sha256": "2af3c6539d348421465ef22b218cae2fcbb135b06ed139d4d4a807cf8738d8c9"
+    },
+    {
+      "batch": "review-93",
+      "metadata": {
+        "started_at_utc": "2026-09-28T06:08:06.026747+00:00",
+        "elapsed_seconds": 1.161,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "2ec30075f925e4aa4a8882f66d795ac33642d975dce9c55b39d8cdab4c21d13c",
+        "usage": {
+          "input_tokens": 18352,
+          "output_tokens": 341
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "d02-sql",
+          "current_contract": {
+            "id": "D02",
+            "title": "SQL 与参数化查询",
+            "prerequisites": [
+              "D01"
+            ],
+            "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+            "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+            "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            }
+          ],
+          "declared_transitive_prior_capabilities": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "H05",
+              "title": "应用组织、配置与依赖",
+              "prerequisites": [
+                "H04",
+                "L14"
+              ],
+              "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+              "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+              "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+              "status": "planned"
+            },
+            {
+              "id": "H06",
+              "title": "API 测试与前后端联调",
+              "prerequisites": [
+                "H05",
+                "L09",
+                "L13"
+              ],
+              "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+              "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+              "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+              "status": "planned"
+            },
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            }
+          ],
+          "prerequisite_scope": "Current direct edges plus their transitive contracts are included. Contracts describe curriculum capabilities, not proof that a particular learner has passed; review required concepts against actual lesson explanation, not absence of transitive detail from earlier rounds.",
+          "actual_english_lesson": "---\ntitle: SQL and parameterized queries — derive results instead of building strings\ndescription: Work through filtering, stable ordering, pagination, joins, aggregation and NULL; understand synchronous drivers, connections, cursors and placeholders, then verify CRUD and injection boundaries.\n---\n\nimport { getSqlExample } from '@/lib/js2py-examples'\n\n## 1. Describe the result before writing SQL\n\nD01 made the server enforce the shape of records. Now decide which records to return, how to combine them and in what order. Loading the entire database into Python to filter/map wastes more than bandwidth: it bypasses set operations and scatters responsibilities such as pagination. SQL describes a relational result; the executor chooses access paths. It is not a JavaScript for loop written in another syntax.\n\n| Chapter contract | Scope |\n| --- | --- |\n| Prerequisites | D01's exclusive PostgreSQL cluster, four-table model and constraints; L/H functions, exceptions, tests and request input |\n| New capabilities | CRUD, filtering, sorting, pagination, JOIN, aggregation and NULL; driver/cursor responsibilities and the value/SQL-structure boundary |\n| Independent acceptance | Predict seed results before querying, demonstrate malicious text remains a value, and write a project report independently |\n| Exclusions | ORM, index tuning, HTTP/authentication integration and pools; multi-statement atomicity belongs to D03 |\n\nDownload the [complete D02 lab](/learning-assets/js2py/d02-sql.zip) and enter `d02-sql`. It includes its own copy of D01's schema and seed, does not connect to a still-running D01 database, and requires no authentication implementation. `done → status`, `note → description` and retained estimate `minutes` are deliberate model evolution, not a direct dump of the old memory dictionary.\n\n## 2. Rebuild the checkpoint and claim this lab's server\n\nVerified **2026-09-28**, fixed baseline: **PostgreSQL 18.6, Python 3.13.15, uv 0.12.13, pytest 8.4.2, psycopg 3.3.6**. Reuse the tool, private-storage, role and Unix-socket concepts from D01. Run all commands in this lab directory.\n\n**Connection-environment checkpoint.** libpq can read defaults beyond the socket in a DSN: for example `PGHOSTADDR` selects a network address and `PGSERVICE` loads a saved connection profile. Therefore the controller refuses every inherited `PG*` name except `PG_BIN` (the tool directory) and `PGHOST` (overridden by the explicit private socket), before startup or SQL. It reports variable names, never their values. If refused, inspect and remove only those settings in this lab shell, then retry; do not substitute a production DSN or blindly reset an existing database. `DATABASE_URL` remains ignored. The controller supplies its own empty mode-0600 password file instead of reading a user credential file, and strips database defaults from child processes. Even a polluted shell can run `status`/`stop` to clean up this owned cluster; stop still verifies the saved server identity. The translated README explains the same policy.\n\n**Test counts.** This lab has 16 business/SQL cases plus 50 environment-boundary cases (66 total). The latter include parametrized rejected settings, private-passfile validation and owned-loopback probes. They protect the experiment; they are not 50 new SQL topics or proof of production security.\n\n```bash\nexport PATH=\"$HOME/.local/bin:$PATH\"\nexport UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928\nexport UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928\nexport PG_BIN=/opt/homebrew/bin\nuv sync --locked\nuv run --locked python labctl.py start\nuv run --locked python labctl.py reset --yes-reset\nuv run --locked python labctl.py psql --file sql/queries.sql\n```\n\nStart saves this directory's `.lab-state.json`, disables TCP and ignores existing DATABASE_URL. Reset checks ownership and server identity before rebuilding only the owned tables. This is not a production migration utility. Never replace the target with a company database or use reset to treat an unexplained error.\n\nWrite down the input first: task IDs 1–5; statuses todo/doing/done/todo/done; minutes 30/45/15/20/40. The first three tasks belong to Launch, the last two to Docs; Empty has none. Knowing the input lets you validate output rather than trusting a query merely because it succeeded.\n\n## 3. Logical SELECT stages differ from written clause order\n\nThe file groups queries A–G. Read A and B first, then return to the joins and aggregates. SQL keyword case is insignificant. Strings use single quotes; double quotes primarily quote identifiers. JavaScript quote habits do not transfer directly.\n\n<Code language=\"sql\">{getSqlExample('sql/queries.sql')}</Code>\n\nFollow A logically: FROM identifies tasks; WHERE retains todo tasks estimated at least 20 minutes; SELECT projects id/title; ORDER BY sorts IDs. Expect `(1, 'Design API')` and `(4, 'Read SQL')`. This is a reasoning model, not a promise about physical scan order: the optimizer may rearrange equivalent operations.\n\nAND binds more tightly than OR. To request “todo or doing tasks in Launch,” group the statuses in parentheses; otherwise an ungrouped `OR status='doing'` can admit another project's tasks. `=` compares values, `<>` means not equal, and IN tests membership in a set. Do not use `==` or infer SQL truth from Python truthiness.\n\nUnknown conditions are also discarded. F prints `(null)` for `NULL = NULL` and true for `NULL IS NULL`. `description IS NULL` selects 1 and 4; `description = ''` selects only 2; `description = NULL` selects nothing. COALESCE chooses the first non-NULL value, useful for a presentation default but not evidence that missing and zero mean the same thing.\n\n## 4. Ordering and pagination: stable does not mean frozen\n\nA table has no default display order. B orders by `minutes DESC, id ASC`: largest estimates first, with unique ID breaking ties. `LIMIT 2 OFFSET 1` skips one row and takes two, giving IDs 5 and 1. Sorting only by a nonunique field leaves ties ambiguous; adding LIMIT does not create an order.\n\nPagination parameters are business input. The lab requires integer limit 1–100 and nonnegative integer offset, rejecting Python bool despite its integer relationship. A page-size cap limits resource use; it is not authentication. Stable ordering orders the current result only. After the first request returns 1 and 2, deleting 1 before OFFSET 2 makes the next request return 4 and 5, skipping 3. A test performs that deletion for real. Cross-request snapshots, keyset pagination and indexing need separate design; large offsets are not promised to be efficient here.\n\n<details>\n<summary>Explanation answer: why does the backend need ORDER BY when the frontend has list keys?</summary>\n\nReact keys identify elements already received; they cannot determine which records the server selected. ORDER BY determines result order, and a unique tie-breaker removes ambiguity within equal values. Inserts and deletes between requests still change offset positions. UI identity, query order and cross-request consistency are separate responsibilities.\n\n</details>\n\n## 5. JOIN creates matching pairs, not automatically nested objects\n\nC matches tasks to projects by project ID and then to users by created_by. Aliases t/p/u identify the source of overlapping names such as id. INNER JOIN emits one row per matching pair and emits none for an unmatched record. Because foreign keys hold, each seed task finds its parent and creator. The result is still a flat `(task_id, title, project, creator)` row, not nested JSON.\n\nD uses LEFT JOIN with projects as the preserved side. Even an empty project produces a row, with NULL task columns. This explains a counting trap: `count(*)` counts result rows, so Empty produces 1; `count(t.id)` counts non-NULL task IDs, so it produces 0. SUM without non-NULL inputs is NULL. The report deliberately coalesces that to zero to mean no tasks and therefore zero total estimate. This is not a policy that an unknown task estimate equals zero.\n\nG places `t.status='todo'` in ON: choose eligible matches, then preserve every project. Expect todo counts 1/1/0 for Launch/Docs/Empty. Moving the condition to WHERE removes the NULL-extended Empty row. ON versus WHERE changes meaning, not just style.\n\nPredict cardinality before adding memberships. Launch's three tasks joined to two members produce six rows. Summing minutes now doubles the total. `count(DISTINCT t.id)` can fix task counting, but `sum(DISTINCT minutes)` is not the corresponding fix: different tasks can share an estimate. Aggregate tasks at the desired project grain before combining membership data, or avoid an unnecessary join.\n\n## 6. GROUP BY and HAVING filter at a different level\n\nD groups matched records by project and selects project identity/name plus aggregates. E first removes done tasks with WHERE, groups the rest by project_id and sums minutes, then uses HAVING to keep totals at least 30. Only `(1, 75)` remains; Docs has only 20. Do not put `sum(minutes)` in WHERE, whose logical stage does not yet have the group total.\n\nBefore writing a query, finish the sentence “one output row represents…”. If the answer is a project, selecting an arbitrary task title has no clear meaning. Change the grouping grain or choose a meaningful aggregate instead of adding min merely to satisfy syntax. Successful execution proves the statement is executable, not that it answers the business question.\n\n<details>\n<summary>Guided modification answer: change G into unfinished minutes per project, retaining Empty</summary>\n\nChange the ON condition to `t.status <> 'done'` and select `coalesce(sum(t.minutes), 0)`, still grouping by project. Expect Launch=75, Docs=20, Empty=0. Move the condition to WHERE and Empty disappears; remove coalesce and Empty is NULL. All three outcomes are explainable, but only the first meets this report's contract.\n\n</details>\n\n## 7. CRUD affects the matching set, not the row selected on screen\n\nCRUD maps to INSERT, SELECT, UPDATE and DELETE. INSERT specifies columns and omits the identity primary key. RETURNING returns the ID actually generated by that write; “SELECT the largest ID” is unsafe because another connection can write too. UPDATE/DELETE's WHERE controls affected records. Without it the entire table may change; selecting one row in a frontend cannot constrain the SQL.\n\nThe complete module below includes safe queries and individual writes. Its CRUD functions return id/title/status on insert, explicitly maintain updated_at on update, and return the deleted ID. No matching WHERE row is normally not a SQL error: fetchone returns None, and the caller chooses the business response. An invalid parent project instead produces a foreign-key exception; it is not just “not found.”\n\n<Code language=\"python\">{getSqlExample('queries.py')}</Code>\n\nThese helpers **do not commit or close the connection**. Their responsibility is statements; their caller owns lifecycle. D02's demo uses autocommit, making each statement independent rather than a multi-step business transaction. D03 will keep this responsibility boundary while grouping statements. CURRENT_TIMESTAMP means transaction start time, not a newly sampled wall clock on each statement.\n\n## 8. Separate driver, connection, cursor and parameters\n\npsycopg translates Python calls into PostgreSQL communication. It is neither a database nor an ORM. Connect establishes a server session at a particular address and returns a connection. A cursor executes commands on that connection and tracks retrieval of the current result. Fetchone gets the next row or None; fetchall gets the remaining rows, represented here as tuples. Closing a cursor releases result resources, not the transaction or connection. Two cursors on one connection are not two independent transactions.\n\nTrace list_tasks: Python validates options, chooses fixed SQL structure, execute sends structure and parameters, the server parses/executes/checks constraints, the driver converts returned values, and fetchall returns them. SQL does not run inside Python. Connection failures, Python ValueError and SQL constraint errors originate in different layers.\n\n`%s` is a psycopg value placeholder, not string formatting. Use it for every value type, rather than `%d` for integers. Do not put SQL quotes around it, and do not use the `%` operator, f-strings or concatenation to insert values. `(title,)` is a one-element tuple; its comma matters. None adapts to SQL NULL, while the server can still reject an incompatible type.\n\nParameters **cannot replace column names, table names, ASC/DESC or other grammar**. Supplying title to `SELECT %s ...` returns the string title, not the title column; a real test demonstrates this. ORDERINGS selects between two author-written fragments and concatenates that selected constant, never the raw user value. When dynamic identifiers are genuinely needed, the driver's Identifier composition interface can quote them; you must still restrict which objects a caller may select. Quoting safety does not grant access permission.\n\n## 9. Injection experiment and the boundary of protection\n\nInjection happens when untrusted data becomes parsed SQL structure. Interpolating title into quoted SQL text lets an attacker close a quote and change a condition or add a command. Do not race an ever-growing list of attacks by replacing quote characters. Pass values through the driver's parameter channel.\n\n<Code language=\"python\">{getSqlExample('demo.py')}</Code>\n\n```bash\nuv run --locked python labctl.py reset --yes-reset\nuv run --locked python demo.py\nuv run --locked pytest -q\n```\n\n```text\ntodo [(1, 'Design API', 'todo', 30), (4, 'Read SQL', 'todo', 20)]\npage [(3, 'Ship demo', 'done', 15), (4, 'Read SQL', 'todo', 20)]\ntotals [('Launch', 3, 90), ('Docs', 2, 60), ('Empty', 0, 0)]\nunmatched payload []\nliteral stored [(6, \"x' OR TRUE --\")]\nupdated (6, 'doing')\ndeleted (6,)\ntasks remaining 5\n```\n\nThis output is deterministic after reset; without reset subsequent demo IDs increase. Tests also store `'; DROP TABLE tasks; --`, read back that exact value and verify tasks still contains data. This proves those calls keep values out of SQL grammar, not that the whole application can never have injection. `%` and `_` in a LIKE value remain pattern wildcards; parameterization does not automatically make patterns literal. Nor does it implement XSS protection, authorization or pagination cost limits.\n\nDeliberately change sort to a semicolon-bearing string: expect Python ValueError before SQL execution. Use project_id 9999: expect PostgreSQL `ForeignKeyViolation / 23503`. Compare description to NULL with `=`: execution succeeds but the result is wrong. Distinguishing these three failure classes is part of diagnosis.\n\n## 10. An independent report without line-by-line instructions\n\nImplement `progress_report(conn, minimum_minutes=0)`: return each project's name, unfinished task count and unfinished total estimate; retain projects with no tasks; keep only totals reaching the supplied threshold; order by project ID. The threshold must be a nonnegative integer, rejecting bool. Predict results for 0 and 30 before writing SQL and tests. Do not fetch the whole database and filter in Python.\n\n<details>\n<summary>Independent variation reference and verification</summary>\n\n<Code language=\"python\">{getSqlExample('answers/variant.py')}</Code>\n\nAt threshold 0 expect `('Launch', 2, 75)`, `('Docs', 1, 20)` and `('Empty', 0, 0)`; at 30 only Launch remains. ON selects contributing tasks, GROUP BY establishes project grain, and HAVING filters group totals. Both values are parameters. `tests/test_queries.py` validates the reports, NULL, join multiplication, invalid pagination and injected sort options. When the requirement changes to doing tasks only, derive and test the new results yourself.\n\n</details>\n\n## 11. Recovery checkpoint, acceptance and official references\n\nRun all 66 tests (16 SQL + 50 environment), save your report SQL and the last unexpected result, and stop only the owned cluster.\n\n```bash\nuv run --locked python labctl.py stop\nuv run --locked python labctl.py status\n```\n\nRecord the chapter directory, root, schema version d01-d03-v1, passed tests, expected versus actual row counts, and next action. Start preserves committed data; reset discards it. Diagnose excess rows through join cardinality, a missing Empty through WHERE placement, quoting trouble through accidental interpolation, and connection trouble through this lab's status/log. Changing placeholders does not fix a network issue.\n\nAcceptance means explaining each output row, NULL and pagination limits, writing an unfamiliar joined report and demonstrating value/structure separation while recognizing it is not an authorization system. Production performance, query plans, authentication and cross-request snapshots are not validated. Tests use PostgreSQL, never SQLite as a substitute.\n\nOfficial references checked **2026-09-28**:\n\n- [PostgreSQL 18 queries](https://www.postgresql.org/docs/18/queries.html), [table expressions, JOIN and GROUP BY](https://www.postgresql.org/docs/18/queries-table-expressions.html).\n- [LIMIT/OFFSET](https://www.postgresql.org/docs/18/queries-limit.html), [NULL comparisons](https://www.postgresql.org/docs/18/functions-comparison.html).\n- [psycopg 3.3.6 official parameter documentation source](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/params.rst), [basic usage source](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/usage.rst). The documentation site returned 403 during verification; the same project's tagged official sources were inspected instead of third-party tutorials.\n- [PostgreSQL 18.6 release notes](https://www.postgresql.org/docs/release/18.6/).\n",
+          "mechanism_focus": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界; 独立写查询并解释结果、非法输入与注入防护; 不先用ORM隐藏SQL；用户输入不拼接成SQL",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "5ab5662ce8de4e68019b653c48a0b59cf6eb6f7007caf490137292d6f94f6fd4",
+              "bytes": 10130,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".env.example",
+            ".gitignore",
+            ".python-version",
+            "FILES.json",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "answers/variant.py",
+            "conftest.py",
+            "demo.py",
+            "labctl.py",
+            "model-contract.json",
+            "pyproject.toml",
+            "queries.py",
+            "sources.json",
+            "sql/queries.sql",
+            "sql/schema.sql",
+            "sql/seed.sql",
+            "tests/test_environment.py",
+            "tests/test_queries.py",
+            "uv.lock"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "Mainline independently reconstructed allowlisted ZIPs in fresh directories with locked CPython3.13.15/psycopg3.3.6 and actual PostgreSQL18.6. Final D01/D02/D03 counts64/66/63 (original SQL14/16/13 plus50 environment-boundary cases per lab), each independently repeated twice after actual libpq environment repair; owned private socket clusters only; outsider refusal, persistence across own restart, SQL constraints, cleanup and real transaction concurrency checked. Concrete repair rejects implicit PG* except explicitly overridden PGHOST and tool directory PG_BIN, passes owned empty0600 pgpass in every DSN, scrubs child defaults; stop/status remain usable in poisoned environments while preserving identity verification. Direct owned-loopback/service-file/passfile canaries observed no wrong-target connection. Three locale pages now teach this safety boundary before commands and explain business vs environment case counts. This is not public deployment. Original36 H/D pages passed actual browser; these changed9 pages and ZIPs will be refreshed after final build.",
+          "slice": {
+            "index": 2,
+            "count": 2,
+            "source_paths_here": [
+              "model-contract.json",
+              "pyproject.toml",
+              "queries.py",
+              "sources.json",
+              "sql/queries.sql",
+              "sql/schema.sql",
+              "sql/seed.sql",
+              "tests/test_environment.py",
+              "tests/test_queries.py"
+            ],
+            "source_paths_elsewhere": [
+              ".env.example",
+              ".gitignore",
+              ".python-version",
+              "FILES.json",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "answers/variant.py",
+              "conftest.py",
+              "demo.py",
+              "labctl.py"
+            ]
+          },
+          "actual_download_files": {
+            "model-contract.json": "{\n  \"contract_version\": \"d01-d03-v1\",\n  \"date\": \"2026-09-28\",\n  \"baseline\": {\n    \"postgresql_runtime\": \"18.6 (Homebrew); live server_version_num=180006 verified in all three owned clusters\",\n    \"postgresql_docs\": \"Official 18.6 release notes fetched 2026-09-28; release date 2026-08-13\",\n    \"python\": \"3.13.15\",\n    \"uv\": \"0.12.13\",\n    \"pytest\": \"8.4.2\",\n    \"requires_python\": \">=3.13,<3.14\",\n    \"driver\": \"psycopg[binary]==3.3.6 (public PyPI, released 2026-09-18)\"\n  },\n  \"schema\": \"public\",\n  \"ddl\": \"-- Teaching contract d01-d03-v1 (2026-09-28). Apply only to the owned lab database.\\nCREATE TABLE users (\\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\\n    login varchar(80) NOT NULL UNIQUE,\\n    CONSTRAINT users_login_nonblank CHECK (length(btrim(login)) > 0)\\n);\\n\\nCREATE TABLE projects (\\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\\n    name varchar(120) NOT NULL,\\n    created_by bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\\n    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\\n    CONSTRAINT projects_name_nonblank CHECK (length(btrim(name)) > 0)\\n);\\n\\nCREATE TABLE project_members (\\n    project_id bigint NOT NULL REFERENCES projects(id) ON DELETE RESTRICT,\\n    user_id bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\\n    role varchar(8) NOT NULL,\\n    PRIMARY KEY (project_id, user_id),\\n    CONSTRAINT project_members_role_valid CHECK (role IN ('owner', 'member'))\\n);\\n\\nCREATE TABLE tasks (\\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\\n    project_id bigint NOT NULL REFERENCES projects(id) ON DELETE RESTRICT,\\n    created_by bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\\n    title varchar(120) NOT NULL,\\n    description varchar(2000),\\n    status varchar(8) NOT NULL DEFAULT 'todo',\\n    minutes integer NOT NULL DEFAULT 0,\\n    due_at timestamptz,\\n    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\\n    updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\\n    CONSTRAINT tasks_title_nonblank CHECK (length(btrim(title)) > 0),\\n    CONSTRAINT tasks_status_valid CHECK (status IN ('todo', 'doing', 'done')),\\n    CONSTRAINT tasks_minutes_nonnegative CHECK (minutes >= 0)\\n);\\n\",\n  \"ddl_sha256\": \"b94f3559f7b0da1e1897c148176b154b9a1ed557f69182a39eb2933c91f97310\",\n  \"tables\": {\n    \"users\": {\n      \"id\": \"bigint identity PK\",\n      \"login\": \"varchar(80) NOT NULL UNIQUE, case-sensitive, btrim nonblank\"\n    },\n    \"projects\": {\n      \"id\": \"bigint identity PK\",\n      \"name\": \"varchar(120) NOT NULL, btrim nonblank\",\n      \"created_by\": \"bigint NOT NULL FK users.id RESTRICT\",\n      \"created_at\": \"timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP\"\n    },\n    \"project_members\": {\n      \"project_id\": \"bigint NOT NULL FK projects.id RESTRICT\",\n      \"user_id\": \"bigint NOT NULL FK users.id RESTRICT\",\n      \"role\": \"varchar(8) NOT NULL CHECK owner/member\",\n      \"primary_key\": [\n        \"project_id\",\n        \"user_id\"\n      ]\n    },\n    \"tasks\": {\n      \"id\": \"bigint identity PK\",\n      \"project_id\": \"bigint NOT NULL FK projects.id RESTRICT\",\n      \"created_by\": \"bigint NOT NULL FK users.id RESTRICT\",\n      \"title\": \"varchar(120) NOT NULL btrim nonblank\",\n      \"description\": \"varchar(2000) NULL\",\n      \"status\": \"varchar(8) NOT NULL DEFAULT todo CHECK todo/doing/done\",\n      \"minutes\": \"integer NOT NULL DEFAULT 0 CHECK >=0 (retained estimate extension)\",\n      \"due_at\": \"timestamptz NULL\",\n      \"created_at\": \"timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP\",\n      \"updated_at\": \"timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP; application updates explicitly\"\n    }\n  },\n  \"evolution\": {\n    \"id\": \"DB identity, not the H-series in-memory allocator; no automatic import\",\n    \"title\": \"retained with database constraints\",\n    \"minutes\": \"retained estimate for aggregation/concurrency, not a capstone mandatory field\",\n    \"done\": \"replaced by status: false->todo, true->done; doing is new\",\n    \"note\": \"renamed description, NULL means not supplied, empty string is supplied-but-empty\",\n    \"new\": [\n      \"users\",\n      \"projects\",\n      \"project_members\",\n      \"created_by\",\n      \"due_at\",\n      \"created_at\",\n      \"updated_at\"\n    ]\n  },\n  \"orm_handoff\": [\n    \"Use identical SQLAlchemy table/column/constraint names and bigint identity mapping\",\n    \"Use timezone-aware DateTime for timestamptz; updated_at is not automatic\",\n    \"Project+owner membership is one transaction; no nested commit inside repository helper\",\n    \"Auth columns are deliberately absent, add with later migrations rather than fake password defaults\",\n    \"FK existence does not imply membership/authorization; no cross-project auth claim\",\n    \"At least/exactly one owner and creator-is-owner are service invariants, not fully enforced by this DDL\",\n    \"ON DELETE RESTRICT everywhere; teach ordered explicit child deletion later\",\n    \"btrim default removes ASCII spaces only; app may reject broader Unicode whitespace; do not claim equivalence\"\n  ]\n}\n",
+            "pyproject.toml": "[project]\nname = \"d02-sql\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = [\"psycopg[binary]==3.3.6\"]\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\"]\n\n[tool.uv]\npackage = false\n\n[[tool.uv.index]]\nname = \"pypi\"\nurl = \"https://pypi.org/simple\"\ndefault = true\n\n[tool.pytest.ini_options]\ntestpaths = [\"tests\"]\npythonpath = [\".\"]\naddopts = \"-ra\"\n",
+            "queries.py": "\"\"\"Statement helpers: caller owns the connection and transaction boundary.\"\"\"\nfrom psycopg import Connection\n\nORDERINGS = {\"id\": \"t.id ASC\", \"minutes\": \"t.minutes DESC, t.id ASC\"}\nSTATUSES = {\"todo\", \"doing\", \"done\"}\n\n\ndef list_tasks(conn: Connection, *, status=None, limit=20, offset=0, sort=\"id\"):\n    if type(limit) is not int or not 1 <= limit <= 100:\n        raise ValueError(\"limit must be an integer from 1 to 100\")\n    if type(offset) is not int or offset < 0:\n        raise ValueError(\"offset must be a nonnegative integer\")\n    if status is not None and status not in STATUSES:\n        raise ValueError(\"unknown status\")\n    if sort not in ORDERINGS:\n        raise ValueError(\"unknown sort\")\n    statement = \"SELECT t.id, t.title, t.status, t.minutes FROM tasks AS t\"\n    params = []\n    if status is not None:\n        statement += \" WHERE t.status = %s\"\n        params.append(status)\n    # Only our constant fragments enter the SQL grammar, never the raw sort input.\n    statement += \" ORDER BY \" + ORDERINGS[sort] + \" LIMIT %s OFFSET %s\"\n    params.extend([limit, offset])\n    with conn.cursor() as cursor:\n        cursor.execute(statement, params)\n        return cursor.fetchall()\n\n\ndef find_by_title(conn: Connection, title: str):\n    with conn.cursor() as cursor:\n        cursor.execute(\"SELECT id, title FROM tasks WHERE title = %s ORDER BY id\", (title,))\n        return cursor.fetchall()\n\n\ndef create_task(conn: Connection, title: str, *, project_id=1, created_by=1):\n    if not isinstance(title, str) or not title.strip() or len(title) > 120:\n        raise ValueError(\"title must contain 1..120 characters, not only whitespace\")\n    return conn.execute(\n        \"INSERT INTO tasks (project_id, created_by, title) VALUES (%s, %s, %s) \"\n        \"RETURNING id, title, status\", (project_id, created_by, title)\n    ).fetchone()\n\n\ndef update_status(conn: Connection, task_id: int, status: str):\n    if status not in STATUSES:\n        raise ValueError(\"unknown status\")\n    return conn.execute(\n        \"UPDATE tasks SET status=%s, updated_at=CURRENT_TIMESTAMP WHERE id=%s \"\n        \"RETURNING id, status\", (status, task_id)\n    ).fetchone()\n\n\ndef delete_task(conn: Connection, task_id: int):\n    return conn.execute(\"DELETE FROM tasks WHERE id=%s RETURNING id\", (task_id,)).fetchone()\n\n\ndef project_totals(conn: Connection):\n    return conn.execute(\"\"\"\n        SELECT p.name, count(t.id), coalesce(sum(t.minutes), 0)\n        FROM projects AS p LEFT JOIN tasks AS t ON t.project_id=p.id\n        GROUP BY p.id, p.name ORDER BY p.id\n    \"\"\").fetchall()\n",
+            "sources.json": "{\n  \"checked_at\": \"2026-09-28\",\n  \"urls\": [\n    \"https://www.postgresql.org/docs/18/queries.html\",\n    \"https://www.postgresql.org/docs/18/queries-table-expressions.html\",\n    \"https://www.postgresql.org/docs/18/queries-limit.html\",\n    \"https://www.postgresql.org/docs/18/functions-comparison.html\",\n    \"https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/params.rst\",\n    \"https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/usage.rst\",\n    \"https://www.postgresql.org/docs/release/18.6/\"\n  ],\n  \"psycopg_note\": \"Official docs website returned HTTP 403; verified tagged 3.3.6 raw GitHub documentation\"\n}\n",
+            "sql/queries.sql": "\\pset null '(null)'\n-- A: filter before projection; AND binds more tightly than OR.\nSELECT id, title FROM tasks\nWHERE status = 'todo' AND minutes >= 20 ORDER BY id;\n-- B: a tie-breaker makes ordering total for this snapshot.\nSELECT id, title FROM tasks ORDER BY minutes DESC, id ASC LIMIT 2 OFFSET 1;\n-- C: inner join returns one row for each matching pair.\nSELECT t.id, t.title, p.name AS project, u.login AS creator\nFROM tasks AS t JOIN projects AS p ON p.id = t.project_id\nJOIN users AS u ON u.id = t.created_by ORDER BY t.id;\n-- D: preserve empty projects; count the non-NULL child key, not count(*).\nSELECT p.name, count(t.id) AS task_count, coalesce(sum(t.minutes), 0) AS total\nFROM projects AS p LEFT JOIN tasks AS t ON t.project_id = p.id\nGROUP BY p.id, p.name ORDER BY p.id;\n-- E: WHERE filters rows, HAVING filters groups.\nSELECT project_id, sum(minutes) AS total FROM tasks\nWHERE status <> 'done' GROUP BY project_id HAVING sum(minutes) >= 30\nORDER BY project_id;\n-- F: NULL comparisons produce unknown, not true.\nSELECT NULL = NULL AS equality, NULL IS NULL AS is_null;\nSELECT id FROM tasks WHERE description IS NULL ORDER BY id;\n-- G: put the child condition in ON to keep projects with no todo tasks.\nSELECT p.name, count(t.id) AS todo_count\nFROM projects AS p LEFT JOIN tasks AS t\nON t.project_id=p.id AND t.status='todo'\nGROUP BY p.id, p.name ORDER BY p.id;\n",
+            "sql/schema.sql": "-- Teaching contract d01-d03-v1 (2026-09-28). Apply only to the owned lab database.\nCREATE TABLE users (\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    login varchar(80) NOT NULL UNIQUE,\n    CONSTRAINT users_login_nonblank CHECK (length(btrim(login)) > 0)\n);\n\nCREATE TABLE projects (\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    name varchar(120) NOT NULL,\n    created_by bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\n    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    CONSTRAINT projects_name_nonblank CHECK (length(btrim(name)) > 0)\n);\n\nCREATE TABLE project_members (\n    project_id bigint NOT NULL REFERENCES projects(id) ON DELETE RESTRICT,\n    user_id bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\n    role varchar(8) NOT NULL,\n    PRIMARY KEY (project_id, user_id),\n    CONSTRAINT project_members_role_valid CHECK (role IN ('owner', 'member'))\n);\n\nCREATE TABLE tasks (\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    project_id bigint NOT NULL REFERENCES projects(id) ON DELETE RESTRICT,\n    created_by bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\n    title varchar(120) NOT NULL,\n    description varchar(2000),\n    status varchar(8) NOT NULL DEFAULT 'todo',\n    minutes integer NOT NULL DEFAULT 0,\n    due_at timestamptz,\n    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    CONSTRAINT tasks_title_nonblank CHECK (length(btrim(title)) > 0),\n    CONSTRAINT tasks_status_valid CHECK (status IN ('todo', 'doing', 'done')),\n    CONSTRAINT tasks_minutes_nonnegative CHECK (minutes >= 0)\n);\n",
+            "sql/seed.sql": "INSERT INTO users (login) VALUES ('alice'), ('bob');\nINSERT INTO projects (name, created_by) VALUES\n    ('Launch', 1), ('Docs', 2), ('Empty', 1);\nINSERT INTO project_members (project_id, user_id, role) VALUES\n    (1, 1, 'owner'), (1, 2, 'member'), (2, 2, 'owner'), (3, 1, 'owner');\nINSERT INTO tasks\n    (project_id, created_by, title, description, status, minutes,\n     created_at, updated_at)\nVALUES\n    (1, 1, 'Design API', NULL, 'todo', 30,\n     '2026-09-28 09:00:00+00', '2026-09-28 09:00:00+00'),\n    (1, 2, 'Add tests', '', 'doing', 45,\n     '2026-09-28 09:00:00+00', '2026-09-28 09:00:00+00'),\n    (1, 1, 'Ship demo', 'reviewed', 'done', 15,\n     '2026-09-28 09:00:00+00', '2026-09-28 09:00:00+00'),\n    (2, 2, 'Read SQL', NULL, 'todo', 20,\n     '2026-09-28 09:00:00+00', '2026-09-28 09:00:00+00'),\n    (2, 2, 'Write guide', 'draft', 'done', 40,\n     '2026-09-28 09:00:00+00', '2026-09-28 09:00:00+00');\n",
+            "tests/test_environment.py": "\"\"\"Environment boundary regressions; no default/remote database is contacted.\n\nNegative unit cases replace psycopg/process entry points before adding poison.\nIntegration cases use only the already-owned private cluster and a listener we\nbind ourselves on loopback; this module never starts another database target.\n\"\"\"\nimport json\nimport os\nfrom pathlib import Path\nimport select\nimport shutil\nimport socket\nimport stat\nimport subprocess\nimport sys\nfrom unittest.mock import Mock\n\nimport pytest\nfrom psycopg.conninfo import conninfo_to_dict\n\nimport labctl\n\n\n@pytest.fixture(autouse=True)\ndef fresh_owned_database(monkeypatch):\n    # Override the business suite's autouse reset: negative cases must reach NO\n    # SQL at all. Real integration cases below explicitly use the owned cluster.\n    for name in tuple(os.environ):\n        if name.startswith(\"PG\") and name not in {\"PGHOST\", \"PG_BIN\"}:\n            monkeypatch.delenv(name)\n\n\n@pytest.mark.parametrize(\"name\", [\n    \"PGHOSTADDR\", \"PGSERVICE\", \"PGSERVICEFILE\", \"PGSYSCONFDIR\", \"PGPASSFILE\",\n    \"PGPASSWORD\", \"PGUSER\", \"PGDATABASE\", \"PGPORT\", \"PGOPTIONS\",\n    \"PGCONNECT_TIMEOUT\", \"PGAPPNAME\", \"PGCLIENTENCODING\", \"PGSSLMODE\",\n    \"PGSSLKEY\", \"PGSSLCERT\", \"PGSSLROOTCERT\", \"PGREQUIRESSL\", \"PGREQUIREAUTH\",\n    \"PGGSSENCMODE\", \"PGTARGETSESSIONATTRS\", \"PGLOADBALANCEHOSTS\", \"PGDATA\",\n    \"PG_FUTURE_DEFAULT\",\n])\ndef test_reject_before_state_sql_or_subprocess(monkeypatch, name):\n    sql = Mock(side_effect=AssertionError(\"must not reach psycopg\"))\n    process = Mock(side_effect=AssertionError(\"must not launch a process\"))\n    state = Mock(side_effect=AssertionError(\"must not load state\"))\n    monkeypatch.setattr(labctl.psycopg, \"connect\", sql)\n    monkeypatch.setattr(labctl.subprocess, \"run\", process)\n    monkeypatch.setattr(labctl, \"load_state\", state)\n    monkeypatch.setenv(name, \"synthetic-secret-not-to-be-printed\")\n    with pytest.raises(RuntimeError) as error:\n        labctl.connect()\n    assert str(error.value) == \"Refusing implicit PostgreSQL environment: \" + name\n    sql.assert_not_called()\n    process.assert_not_called()\n    state.assert_not_called()\n\n\ndef test_empty_setting_is_still_rejected(monkeypatch):\n    monkeypatch.setenv(\"PGSERVICE\", \"\")\n    with pytest.raises(RuntimeError, match=\"environment: PGSERVICE$\"):\n        labctl.check_environment()\n\n\ndef test_error_lists_only_sorted_names(monkeypatch):\n    monkeypatch.setenv(\"PGSERVICE\", \"service-secret\")\n    monkeypatch.setenv(\"PGPASSWORD\", \"password-secret\")\n    with pytest.raises(RuntimeError) as error:\n        labctl.check_environment()\n    assert str(error.value) == (\n        \"Refusing implicit PostgreSQL environment: PGPASSWORD, PGSERVICE\"\n    )\n\n\n@pytest.mark.parametrize(\"entry\", [\n    \"start\", \"reset\", \"raw_dsn\", \"verify_server\", \"cli-start\", \"cli-dsn\",\n    \"cli-reset\", \"cli-psql\",\n])\ndef test_all_sql_entries_reject_before_work(monkeypatch, entry):\n    sql = Mock(side_effect=AssertionError(\"must not reach psycopg\"))\n    process = Mock(side_effect=AssertionError(\"must not launch a process\"))\n    state = Mock(side_effect=AssertionError(\"must not load state\"))\n    monkeypatch.setattr(labctl.psycopg, \"connect\", sql)\n    monkeypatch.setattr(labctl.subprocess, \"run\", process)\n    monkeypatch.setattr(labctl, \"load_state\", state)\n    monkeypatch.setenv(\"PGHOSTADDR\", \"synthetic-not-an-address\")\n    with pytest.raises(RuntimeError, match=\"environment: PGHOSTADDR$\"):\n        if entry.startswith(\"cli-\"):\n            monkeypatch.setattr(sys, \"argv\", [\"labctl.py\", entry[4:], \"--yes-reset\"])\n            labctl.main()\n        elif entry in {\"raw_dsn\", \"verify_server\"}:\n            getattr(labctl, entry)({})\n        else:\n            getattr(labctl, entry)()\n    sql.assert_not_called()\n    process.assert_not_called()\n    state.assert_not_called()\n\n\ndef test_run_removes_all_pg_defaults_without_mutating_parent(monkeypatch):\n    for name in (\"PGHOST\", \"PG_BIN\", \"PGHOSTADDR\", \"PGSERVICE\", \"PGPASSWORD\"):\n        monkeypatch.setenv(name, \"synthetic-child-poison\")\n    monkeypatch.setenv(\"DATABASE_URL\", \"synthetic-url\")\n    before = dict(os.environ)\n    process = Mock(return_value=subprocess.CompletedProcess([], 0, \"\", \"\"))\n    monkeypatch.setattr(labctl.subprocess, \"run\", process)\n    labctl.run(\"explicit-tool\", \"--version\")\n    assert process.call_args.kwargs[\"env\"] == {\n        k: v for k, v in before.items() if not k.startswith(\"PG\") and k != \"DATABASE_URL\"\n    }\n    assert dict(os.environ) == before\n\n\ndef test_psql_has_clean_environment_explicit_passfile_and_no_prompt(monkeypatch, tmp_path):\n    state = {\"root\": str(tmp_path), \"port\": 50000, \"admin\": \"test_admin\",\n             \"pg_bin\": \"/synthetic-tools\"}\n    monkeypatch.setattr(labctl, \"load_state\", lambda: state)\n    monkeypatch.setattr(labctl, \"verify_server\", lambda state: None)\n    monkeypatch.setenv(\"PGHOST\", \"/nonexistent/langshift-test-ignore-environment\")\n    monkeypatch.setenv(\"DATABASE_URL\", \"synthetic-url\")\n    process = Mock(return_value=subprocess.CompletedProcess([], 0))\n    monkeypatch.setattr(labctl.subprocess, \"run\", process)\n    monkeypatch.setattr(sys, \"argv\", [\"labctl.py\", \"psql\"])\n    labctl.main()\n    command = process.call_args.args[0]\n    assert command[:3] == [\"/synthetic-tools/psql\", \"-X\", \"-w\"]\n    params = conninfo_to_dict(command[3])\n    assert params[\"host\"] == str(tmp_path / \"socket\")\n    assert params[\"passfile\"] == str(tmp_path / \"empty.pgpass\")\n    env = process.call_args.kwargs[\"env\"]\n    assert not any(k.startswith(\"PG\") or k == \"DATABASE_URL\" for k in env)\n\n\ndef test_both_dsns_use_private_empty_passfile(tmp_path):\n    state = {\"root\": str(tmp_path), \"port\": 50000, \"admin\": \"random_test_admin\"}\n    for admin in (False, True):\n        params = conninfo_to_dict(labctl.raw_dsn(state, admin=admin))\n        path = Path(params[\"passfile\"])\n        assert path == tmp_path / \"empty.pgpass\"\n        assert path.read_bytes() == b\"\"\n        assert stat.S_IMODE(path.stat().st_mode) == 0o600\n        assert path.stat().st_uid == os.getuid()\n        assert params[\"user\"] == (state[\"admin\"] if admin else \"lab_student\")\n\n\n@pytest.mark.parametrize(\"kind\", [\"symlink\", \"nonempty\", \"wide-mode\", \"directory\", \"fifo\"])\ndef test_unsafe_passfile_is_refused_before_psycopg(monkeypatch, tmp_path, kind):\n    path = tmp_path / \"empty.pgpass\"\n    if kind == \"symlink\":\n        target = tmp_path / \"do-not-read\"\n        target.write_text(\"synthetic-secret\")\n        path.symlink_to(target)\n    elif kind == \"directory\":\n        path.mkdir()\n    elif kind == \"fifo\":\n        os.mkfifo(path, 0o600)\n    else:\n        path.write_text(\"synthetic-secret\" if kind == \"nonempty\" else \"\")\n        path.chmod(0o644 if kind == \"wide-mode\" else 0o600)\n    state = {\"root\": str(tmp_path), \"port\": 50000, \"admin\": \"test_admin\"}\n    monkeypatch.setattr(labctl, \"load_state\", lambda: state)\n    sql = Mock(side_effect=AssertionError(\"must not reach psycopg\"))\n    monkeypatch.setattr(labctl.psycopg, \"connect\", sql)\n    with pytest.raises((RuntimeError, OSError)):\n        labctl.connect()\n    sql.assert_not_called()\n\n\n@pytest.fixture\ndef owned_listener():\n    # Match the private socket's port to catch a regressed PGHOSTADDR override.\n    # If this loopback port is occupied, fail safely rather than contact it.\n    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:\n        listener.bind((\"127.0.0.1\", int(labctl.load_state()[\"port\"])))\n        listener.listen(8)\n        try:\n            yield listener\n        finally:\n            assert not select.select([listener], [], [], 0.05)[0], (\n                \"unexpected connection to our loopback listener\"\n            )\n\n\ndef poisoned_env(tmp_path, listener):\n    port = listener.getsockname()[1]\n    secret = \"synthetic-pass-canary\"\n    passfile = tmp_path / \"supplied.pgpass\"\n    passfile.write_text(f\"*:*:*:*:{secret}\\n\")\n    passfile.chmod(0o600)\n    servicefile = tmp_path / \"supplied-services.conf\"\n    servicefile.write_text(\n        f\"[synthetic_service_canary]\\nhostaddr=127.0.0.1\\nport={port}\\n\"\n        f\"dbname=canary\\nuser=canary\\npassfile={passfile}\\n\"\n    )\n    return dict(os.environ, PG_BIN=\"/nonexistent/synthetic-tools\",\n                PGHOST=\"/nonexistent/langshift-test-ignore-environment\",\n                PGHOSTADDR=\"127.0.0.1\", PGSERVICE=\"synthetic_service_canary\",\n                PGSERVICEFILE=str(servicefile), PGPASSFILE=str(passfile),\n                PGPASSWORD=secret, PGOPTIONS=\"synthetic-options-canary\")\n\n\ndef cli(*args, env=None, cwd=None):\n    return subprocess.run([sys.executable, \"labctl.py\", *args],\n                          cwd=cwd or labctl.LAB, env=env, text=True,\n                          capture_output=True, timeout=40)\n\n\n@pytest.mark.parametrize(\"command\", [\"start\", \"dsn\", \"reset\", \"psql\"])\ndef test_direct_cli_rejects_poison_without_contacting_listener(tmp_path, owned_listener, command):\n    env = poisoned_env(tmp_path, owned_listener)\n    result = cli(command, \"--yes-reset\", env=env)\n    assert result.returncode != 0\n    output = result.stdout + result.stderr\n    assert \"Refusing implicit PostgreSQL environment:\" in output\n    for name in (\"PGHOSTADDR\", \"PGSERVICE\", \"PGSERVICEFILE\", \"PGPASSFILE\", \"PGPASSWORD\"):\n        assert name in output\n    for value in (env[\"PGPASSWORD\"], env[\"PGSERVICE\"], env[\"PGSERVICEFILE\"], env[\"PGPASSFILE\"]):\n        assert value not in output\n\n\ndef test_fresh_standalone_start_rejects_before_creating_state(tmp_path, owned_listener):\n    fresh = tmp_path / \"fresh\"\n    fresh.mkdir()\n    shutil.copy2(labctl.LAB / \"labctl.py\", fresh / \"labctl.py\")\n    result = cli(\"start\", env=poisoned_env(tmp_path, owned_listener), cwd=fresh)\n    assert result.returncode != 0\n    assert \"Refusing implicit PostgreSQL environment:\" in result.stderr\n    assert not (fresh / \".lab-state.json\").exists()\n\n\ndef test_ignored_host_url_and_default_pgpass_with_real_private_connections(monkeypatch, tmp_path, owned_listener):\n    home = tmp_path / \"synthetic-home\"\n    home.mkdir()\n    (home / \".pgpass\").write_text(\"*:*:*:*:synthetic-home-password\\n\")\n    (home / \".pgpass\").chmod(0o600)\n    monkeypatch.setenv(\"HOME\", str(home))\n    monkeypatch.setenv(\"PGHOST\", \"/nonexistent/langshift-test-ignore-environment\")\n    monkeypatch.setenv(\"DATABASE_URL\", f\"postgresql://127.0.0.1:{owned_listener.getsockname()[1]}/canary\")\n    state = labctl.load_state()\n    with labctl.connect(autocommit=True) as conn:\n        assert conn.execute(\"SELECT current_database(), current_user\").fetchone() == (\n            \"langshift_lab\", \"lab_student\"\n        )\n        assert conn.info.host == str(Path(state[\"root\"]) / \"socket\")\n        # PQpass exposes the selected password, even when trust didn't need it.\n        assert conn.pgconn.password == b\"\"\n    query = tmp_path / \"private-query.sql\"\n    query.write_text(\"SELECT current_database(), current_user;\\n\")\n    result = cli(\"psql\", \"--file\", str(query), env=dict(os.environ))\n    assert result.returncode == 0, result.stderr\n    assert \"langshift_lab\" in result.stdout and \"lab_student\" in result.stdout\n    assert \"synthetic-home-password\" not in result.stdout + result.stderr\n    assert (home / \".pgpass\").read_text() == \"*:*:*:*:synthetic-home-password\\n\"\n\n\ndef test_poisoned_status_stop_and_restart_recovery(tmp_path, owned_listener):\n    env = poisoned_env(tmp_path, owned_listener)\n    state_before = labctl.load_state()\n    try:\n        running = cli(\"status\", env=env)\n        assert running.returncode == 0, running.stderr\n        assert json.loads(running.stdout)[\"running\"] is True\n        stopped = cli(\"stop\", env=env)\n        assert stopped.returncode == 0, stopped.stderr\n        status = cli(\"status\", env=env)\n        assert status.returncode == 0, status.stderr\n        assert json.loads(status.stdout)[\"pg_ctl_status\"] == 3\n        assert cli(\"stop\", env=env).returncode == 0  # Idempotent cleanup.\n        refused_restart = cli(\"start\", env=env)\n        assert refused_restart.returncode != 0\n        assert \"Refusing implicit PostgreSQL environment:\" in refused_restart.stderr\n        assert json.loads(cli(\"status\", env=env).stdout)[\"running\"] is False\n    finally:\n        # Restore only this marker-checked cluster for the remaining tests.\n        restored = cli(\"start\", env=dict(os.environ))\n        assert restored.returncode == 0, restored.stderr\n    assert labctl.load_state() == state_before\n\n\ndef test_stop_keeps_identity_failure_as_a_hard_boundary(monkeypatch, tmp_path):\n    state = {\"root\": str(tmp_path), \"pg_bin\": \"/saved-private-tools\"}\n    monkeypatch.setattr(labctl, \"load_state\", lambda: state)\n    monkeypatch.setattr(labctl, \"check_pid_file\", lambda state: None)\n    monkeypatch.setenv(\"PGHOSTADDR\", \"synthetic-not-an-address\")\n    calls = []\n\n    def fake_run(*args, **kwargs):\n        calls.append(args)\n        if args[0] == sys.executable:\n            raise RuntimeError(\"synthetic server identity mismatch\")\n        assert args[-1] == \"status\"\n        return subprocess.CompletedProcess(args, 0, \"\", \"\")\n\n    monkeypatch.setattr(labctl, \"run\", fake_run)\n    with pytest.raises(RuntimeError, match=\"synthetic server identity mismatch\"):\n        labctl.stop()\n    assert len(calls) == 2\n    assert calls[0][0] == \"/saved-private-tools/pg_ctl\"\n    assert calls[1] == (sys.executable, str(labctl.LAB / \"labctl.py\"), \"dsn\")\n    assert not any(\"stop\" in args for args in calls)\n",
+            "tests/test_queries.py": "import pytest\nfrom psycopg import errors\nimport labctl\nfrom queries import create_task, delete_task, find_by_title, list_tasks, project_totals, update_status\nfrom answers.variant import progress_report\n\n\ndef test_filter_order_page_and_aggregate():\n    with labctl.connect(autocommit=True) as conn:\n        assert [r[0] for r in list_tasks(conn, status=\"todo\")] == [1, 4]\n        assert [r[0] for r in list_tasks(conn, limit=2, offset=2)] == [3, 4]\n        assert [r[0] for r in list_tasks(conn, sort=\"minutes\", limit=2)] == [2, 5]\n        assert project_totals(conn) == [(\"Launch\", 3, 90), (\"Docs\", 2, 60), (\"Empty\", 0, 0)]\n        assert progress_report(conn) == [(\"Launch\", 2, 75), (\"Docs\", 1, 20), (\"Empty\", 0, 0)]\n        assert progress_report(conn, 30) == [(\"Launch\", 2, 75)]\n\n\n@pytest.mark.parametrize(\"options\", [\n    {\"limit\": 0}, {\"limit\": 101}, {\"limit\": True}, {\"limit\": \"2\"},\n    {\"offset\": -1}, {\"offset\": False}, {\"status\": \"later\"},\n    {\"sort\": \"id; DROP TABLE tasks; --\"},\n])\ndef test_reject_bad_query_options(options):\n    with labctl.connect(autocommit=True) as conn:\n        with pytest.raises(ValueError):\n            list_tasks(conn, **options)\n        assert conn.execute(\"SELECT count(*) FROM tasks\").fetchone() == (5,)\n\n\n@pytest.mark.parametrize(\"payload\", [\"x' OR TRUE --\", \"'; DROP TABLE tasks; --\"])\ndef test_payload_stays_a_value(payload):\n    with labctl.connect(autocommit=True) as conn:\n        assert find_by_title(conn, payload) == []\n        row = create_task(conn, payload)\n        assert find_by_title(conn, payload) == [(row[0], payload)]\n        assert conn.execute(\"SELECT count(*) FROM tasks\").fetchone() == (6,)\n        assert delete_task(conn, row[0]) == (row[0],)\n        assert conn.execute(\"SELECT count(*) FROM tasks\").fetchone() == (5,)\n\n\ndef test_update_delete_missing_and_constraints():\n    with labctl.connect(autocommit=True) as conn:\n        assert update_status(conn, 1, \"done\") == (1, \"done\")\n        assert update_status(conn, 9999, \"done\") is None\n        assert delete_task(conn, 9999) is None\n        assert delete_task(conn, 5) == (5,)\n        with pytest.raises(errors.ForeignKeyViolation):\n            create_task(conn, \"Orphan\", project_id=9999)\n\n\ndef test_null_and_left_join_trap():\n    with labctl.connect(autocommit=True) as conn:\n        assert conn.execute(\"SELECT NULL = NULL, NULL IS NULL\").fetchone() == (None, True)\n        assert conn.execute(\"SELECT count(*) FROM tasks WHERE description = NULL\").fetchone() == (0,)\n        assert conn.execute(\"SELECT count(*) FROM tasks WHERE description IS NULL\").fetchone() == (2,)\n        assert conn.execute(\"SELECT count(*), count(t.id) FROM projects p LEFT JOIN tasks t \"\n                            \"ON t.project_id=p.id WHERE p.name='Empty'\").fetchone() == (1, 0)\n        assert conn.execute(\"SELECT p.name FROM projects p LEFT JOIN tasks t ON t.project_id=p.id \"\n                            \"WHERE t.status='todo' ORDER BY p.id\").fetchall() == [(\"Launch\",), (\"Docs\",)]\n\n\ndef test_join_multiplication_and_distinct():\n    with labctl.connect(autocommit=True) as conn:\n        assert conn.execute(\"SELECT count(t.id), count(DISTINCT t.id) FROM tasks t \"\n                            \"JOIN project_members m ON m.project_id=t.project_id \"\n                            \"WHERE t.project_id=1\").fetchone() == (6, 3)\n\n\ndef test_parameter_is_not_identifier():\n    with labctl.connect(autocommit=True) as conn:\n        assert conn.execute(\"SELECT %s FROM tasks WHERE id=1\", (\"title\",)).fetchone() == (\"title\",)\n\n\ndef test_offset_is_not_a_snapshot_across_requests():\n    with labctl.connect(autocommit=True) as conn:\n        assert [r[0] for r in list_tasks(conn, limit=2)] == [1, 2]\n        delete_task(conn, 1)\n        assert [r[0] for r in list_tasks(conn, limit=2, offset=2)] == [4, 5]\n        # id=3 was not returned: stable ordering does not freeze changing data.\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.59
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 1.0,
+            "probabilities": {
+              "SUBSTANTIVE": 1.0,
+              "UNCERTAIN": 0.0,
+              "PARTIAL": 0.0,
+              "API_CATALOGUE": 0.0
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.95,
+            "probabilities": {
+              "NECESSARY_GAP": 0.02,
+              "UNCERTAIN": 0.0,
+              "MATERIAL_ERROR": 0.02,
+              "ACCURATE_AND_BOUNDED": 0.96
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.94,
+            "probabilities": {
+              "NECESSARY_GAP": 0.01,
+              "UNCERTAIN": 0.0,
+              "MATERIAL_ERROR": 0.03,
+              "ACCURATE_AND_BOUNDED": 0.96
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.78,
+            "probabilities": {
+              "CONTRADICTORY": 0.15,
+              "UNDERSPECIFIED": 0.0,
+              "UNCERTAIN": 0.01,
+              "COHERENT_AND_TESTABLE": 0.84
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.89
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "PROCEED",
+            "confidence": 0.43,
+            "probabilities": {
+              "PROCEED": 0.62,
+              "REVISE": 0.05,
+              "TARGETED_REVIEW": 0.33
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 18352,
+          "output_tokens": 341
+        }
+      },
+      "raw_response_sha256": "17654c02ed96efea3a152ba36d1f715f16389bad7af5067886a3e66749123965"
+    }
+  ],
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-22-sql.mdx",
+    "examples/js2py/d02-sql/.env.example",
+    "examples/js2py/d02-sql/.gitignore",
+    "examples/js2py/d02-sql/.python-version",
+    "examples/js2py/d02-sql/FILES.json",
+    "examples/js2py/d02-sql/README.md",
+    "examples/js2py/d02-sql/README.zh-cn.md",
+    "examples/js2py/d02-sql/README.zh-tw.md",
+    "examples/js2py/d02-sql/answers/variant.py",
+    "examples/js2py/d02-sql/conftest.py",
+    "examples/js2py/d02-sql/demo.py",
+    "examples/js2py/d02-sql/labctl.py",
+    "examples/js2py/d02-sql/model-contract.json",
+    "examples/js2py/d02-sql/pyproject.toml",
+    "examples/js2py/d02-sql/queries.py",
+    "examples/js2py/d02-sql/sources.json",
+    "examples/js2py/d02-sql/sql/queries.sql",
+    "examples/js2py/d02-sql/sql/schema.sql",
+    "examples/js2py/d02-sql/sql/seed.sql",
+    "examples/js2py/d02-sql/tests/test_environment.py",
+    "examples/js2py/d02-sql/tests/test_queries.py"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-22-sql.mdx": "919e5a5a8a4c0bf43d7d0f051c56a99f6958e605ec06e9a9f1d376fd8f0d4012",
+    "examples/js2py/d02-sql/.env.example": "8eb54486aa6dec73fb05000dc8cf9d5a46914582dee6b6a2d85b0d6059bf5205",
+    "examples/js2py/d02-sql/.gitignore": "3f9c24dea3df4c5658c720107bec6ec85423e9a0e4b6a5e05aa32d51ca4c50c2",
+    "examples/js2py/d02-sql/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/d02-sql/FILES.json": "4a955cdfd8c5c68f93f04f7cc5dc263e18a8597c8d70563223aeae7943fc00eb",
+    "examples/js2py/d02-sql/README.md": "a502eb4ce00bc16171f738d9188d0551715c9909cf98d7da90823138cad337f3",
+    "examples/js2py/d02-sql/README.zh-cn.md": "e884c0c4bfaf26499fed8185a2ec6f1cde790bf36b82a7bd4ee660806a6ed866",
+    "examples/js2py/d02-sql/README.zh-tw.md": "81a33e3b93650a8f70fa9de5e49418148513b2dfcab823086fe0e14ebb2666d5",
+    "examples/js2py/d02-sql/answers/variant.py": "a3e256e0f8fa0c0a8fe046519b851ea5cd7f5b8a848c664e85b7ed146d0e8691",
+    "examples/js2py/d02-sql/conftest.py": "8f6c80af8608050eb70c6618e282e78594424c9a8942e13782a0375914507544",
+    "examples/js2py/d02-sql/demo.py": "bce58f886ebd7a5b9827971d0aeb00659a3214abcefa15d00e43dd2a90552e4f",
+    "examples/js2py/d02-sql/labctl.py": "01ce56eacb3d72b1d4e2122fdc84a5b25435a84164457ffcfa64d33d7437a74b",
+    "examples/js2py/d02-sql/model-contract.json": "f378479040c0dd24ec51f83581078099a66809b0e60803fc6e54353617b84bb9",
+    "examples/js2py/d02-sql/pyproject.toml": "523b2f7e9027700e8685533433a5460b0fed30e7570a7d73df8883cec27056c4",
+    "examples/js2py/d02-sql/queries.py": "da03a17a06ac53ffe8ed8983fc9bb1b4c339ec3c322936591608645b0761661e",
+    "examples/js2py/d02-sql/sources.json": "f34f0058d09759bbf8b1885ba6d9817e29b860ec1528cef97b0222d9b096d6b2",
+    "examples/js2py/d02-sql/sql/queries.sql": "8cf6d0a3c2873e50613afc96f237df07b1eb0e18a8f633d9c2378f16bba97ff6",
+    "examples/js2py/d02-sql/sql/schema.sql": "b94f3559f7b0da1e1897c148176b154b9a1ed557f69182a39eb2933c91f97310",
+    "examples/js2py/d02-sql/sql/seed.sql": "cb9a10e67537c16f72ffaacb318a6b9ab69266d368fdbe5c2d46c04315f331d4",
+    "examples/js2py/d02-sql/tests/test_environment.py": "28315d3663c52609e793a8fb14c6248ea953cd96ecaefeee3427839fef03cf59",
+    "examples/js2py/d02-sql/tests/test_queries.py": "11189baa9346656a4a5fe6496e5255cd37facadc80d4eb5ce7779c3ecf3e211a",
+    "content/docs/js2py/module-22-sql.zh-tw.mdx": "b089bae85ee5db0789edbc680447e981b1b545348685b8e35d9621b2f192bd3a",
+    "content/docs/js2py/module-22-sql.zh-cn.mdx": "1219f2f88546256bae5e7b05e45d674ec6a94aaeaf5eefadc4a12e7ebffabe27",
+    "examples/js2py/d02-sql-files.json": "4a955cdfd8c5c68f93f04f7cc5dc263e18a8597c8d70563223aeae7943fc00eb",
+    "public/learning-assets/js2py/d02-sql.zip": "0476aeb19c79c01535da978d10f28e511d4ce9f0adb956a2fa998772c2758aa2",
+    "examples/js2py/d02-sql/uv.lock": "5ab5662ce8de4e68019b653c48a0b59cf6eb6f7007caf490137292d6f94f6fd4"
+  },
+  "deterministically_checked_lock_files": {
+    "uv.lock": {
+      "sha256": "5ab5662ce8de4e68019b653c48a0b59cf6eb6f7007caf490137292d6f94f6fd4",
+      "bytes": 10130,
+      "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+    }
+  },
+  "interface_failures": [],
+  "post_review_changes": [],
+  "submitted_source_sha256": {
+    "content/docs/js2py/module-22-sql.mdx": "919e5a5a8a4c0bf43d7d0f051c56a99f6958e605ec06e9a9f1d376fd8f0d4012",
+    "examples/js2py/d02-sql/.env.example": "8eb54486aa6dec73fb05000dc8cf9d5a46914582dee6b6a2d85b0d6059bf5205",
+    "examples/js2py/d02-sql/.gitignore": "3f9c24dea3df4c5658c720107bec6ec85423e9a0e4b6a5e05aa32d51ca4c50c2",
+    "examples/js2py/d02-sql/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/d02-sql/FILES.json": "4a955cdfd8c5c68f93f04f7cc5dc263e18a8597c8d70563223aeae7943fc00eb",
+    "examples/js2py/d02-sql/README.md": "a502eb4ce00bc16171f738d9188d0551715c9909cf98d7da90823138cad337f3",
+    "examples/js2py/d02-sql/README.zh-cn.md": "e884c0c4bfaf26499fed8185a2ec6f1cde790bf36b82a7bd4ee660806a6ed866",
+    "examples/js2py/d02-sql/README.zh-tw.md": "81a33e3b93650a8f70fa9de5e49418148513b2dfcab823086fe0e14ebb2666d5",
+    "examples/js2py/d02-sql/answers/variant.py": "a3e256e0f8fa0c0a8fe046519b851ea5cd7f5b8a848c664e85b7ed146d0e8691",
+    "examples/js2py/d02-sql/conftest.py": "8f6c80af8608050eb70c6618e282e78594424c9a8942e13782a0375914507544",
+    "examples/js2py/d02-sql/demo.py": "bce58f886ebd7a5b9827971d0aeb00659a3214abcefa15d00e43dd2a90552e4f",
+    "examples/js2py/d02-sql/labctl.py": "01ce56eacb3d72b1d4e2122fdc84a5b25435a84164457ffcfa64d33d7437a74b",
+    "examples/js2py/d02-sql/model-contract.json": "f378479040c0dd24ec51f83581078099a66809b0e60803fc6e54353617b84bb9",
+    "examples/js2py/d02-sql/pyproject.toml": "523b2f7e9027700e8685533433a5460b0fed30e7570a7d73df8883cec27056c4",
+    "examples/js2py/d02-sql/queries.py": "da03a17a06ac53ffe8ed8983fc9bb1b4c339ec3c322936591608645b0761661e",
+    "examples/js2py/d02-sql/sources.json": "f34f0058d09759bbf8b1885ba6d9817e29b860ec1528cef97b0222d9b096d6b2",
+    "examples/js2py/d02-sql/sql/queries.sql": "8cf6d0a3c2873e50613afc96f237df07b1eb0e18a8f633d9c2378f16bba97ff6",
+    "examples/js2py/d02-sql/sql/schema.sql": "b94f3559f7b0da1e1897c148176b154b9a1ed557f69182a39eb2933c91f97310",
+    "examples/js2py/d02-sql/sql/seed.sql": "cb9a10e67537c16f72ffaacb318a6b9ab69266d368fdbe5c2d46c04315f331d4",
+    "examples/js2py/d02-sql/tests/test_environment.py": "28315d3663c52609e793a8fb14c6248ea953cd96ecaefeee3427839fef03cf59",
+    "examples/js2py/d02-sql/tests/test_queries.py": "11189baa9346656a4a5fe6496e5255cd37facadc80d4eb5ce7779c3ecf3e211a"
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not gpt-6-astra; independent reasoning assistants are separate.",
+    "decision": "Original slice choices unchanged. New targeted audits, reproduced repairs, real runtime/browser evidence and exact new source deltas support conditional ACCEPT_WITH_EXPLICIT_ENVIRONMENT_GATES; see closure record for outstanding/final deterministic gates. Never a production or learner approval.",
+    "scope": "Full English in every slice; union of slices covers every non-lock allowlisted file. Only the original H01 request included lock text. Other opaque locks were checked by registry/hash/locked reconstruction rather than semantic inference. No single slice is presented as whole-chapter review.",
+    "uncertainty": "Raw unfavorable branches preserved. Confidence is distribution concentration, not factual correctness or learner outcomes. Initial direct predecessor contracts omit transitive detail; follow-up audits must examine the actual full path rather than assume missing learner capability.",
+    "snapshot": "Submitted source hashes and full requests remain unchanged. Effective source_sha256 includes each explicitly recorded post-review repair; closure delta review binds the final D03 assertion and O privilege wording changes. Locale/locks/manifests/ZIP are deterministic evidence, not semantic translation review."
+  },
+  "credential_persisted": false,
+  "prior_review_rounds": [
+    {
+      "lab": "d02-sql",
+      "prior_plan": {
+        "lab": "d02-sql",
+        "slug": "module-22-sql",
+        "batches": [
+          "review-35"
+        ],
+        "scope": "Full English + full non-lock text files distributed across bounded slices; all lock bytes deterministically checked. No claim that a single slice viewed other slices.",
+        "lock_files": {
+          "uv.lock": {
+            "sha256": "5ab5662ce8de4e68019b653c48a0b59cf6eb6f7007caf490137292d6f94f6fd4",
+            "bytes": 10130,
+            "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+          }
+        }
+      },
+      "archive": "docs/reviews/js2py-d02-initial-review-2026-09-28.json",
+      "reason": "New concrete source/pedagogy repair after independent reproduction; this is review of changed evidence, not resampling an accepted judgment."
+    }
+  ],
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+}

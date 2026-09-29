@@ -1,0 +1,20 @@
+[
+  ".python-version",
+  "ENVIRONMENT.json",
+  "README.md",
+  "README.zh-cn.md",
+  "README.zh-tw.md",
+  "SOURCES.json",
+  "environment_lab.py",
+  "permissions_lab.py",
+  "port_lab.py",
+  "process_lab.py",
+  "pyproject.toml",
+  "solutions/__init__.py",
+  "solutions/test_two_directories.py",
+  "solutions/two_directories.py",
+  "systemd/ops-worker.service",
+  "tests/test_operations.py",
+  "uv.lock",
+  "worker.py"
+]

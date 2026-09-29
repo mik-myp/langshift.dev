@@ -1,0 +1,72 @@
+{
+  "date": "2026-09-28",
+  "finding": "OPS-PED-P2-001",
+  "resolution": "Narrow the factual teaching claim; explicitly distinguish DDL refusal from minimal DML/sequence grants and require a route/job privilege audit before real deployment. No SQL grants or runtime behavior changed.",
+  "runtime_files_changed": false,
+  "three_locale_pages": 3,
+  "readme_files": 9,
+  "changes": [
+    {
+      "path": "content/docs/js2py/module-36-observability.mdx",
+      "before_sha256": "2ac6782e515c44f522e9287526c72ce852c22a3ba9685105f2e00d7740b19d3f",
+      "after_sha256": "4c11f08aa7bd5635ea02456312da26d9083deb2352c52c4755f7754beb024a79"
+    },
+    {
+      "path": "content/docs/js2py/module-36-observability.zh-cn.mdx",
+      "before_sha256": "0e4efe4a2fa06728ae98a8796d550d36b866bc520ed38eb6c82e82d6f2dd8aab",
+      "after_sha256": "d348cd0962caa99297f615ac5a58e64a41b0ca60114f82a3e3f9771616cfd02f"
+    },
+    {
+      "path": "content/docs/js2py/module-36-observability.zh-tw.mdx",
+      "before_sha256": "715e8f0cc2f7bbfcc97a849d9eadb67fce60b166d9077bf9b90a066bfff662ca",
+      "after_sha256": "712efdd750c8b451b307d7d281e896d11793bd42e463ac62d242b16764cf06be"
+    },
+    {
+      "path": "examples/js2py/o04-release/README.md",
+      "before_sha256": "f85b95ce2b8ddfbd51df4dce07d714851196cccc13ae06146de6abe6d805f536",
+      "after_sha256": "51bc68fd844541bd7abd3ed87fe1f8f12f4fc76d52f2108263b54614deae29a2"
+    },
+    {
+      "path": "examples/js2py/o04-release/README.zh-cn.md",
+      "before_sha256": "9fa369c6b28a55bad24507575f006d81cf21c2192d6c04d6c7769ebdf7441aa5",
+      "after_sha256": "14d73f2d85e42987fc912013334a50b770106a80bd8ae7a8f23525eea238b69e"
+    },
+    {
+      "path": "examples/js2py/o04-release/README.zh-tw.md",
+      "before_sha256": "8530a0af7d4ba20dd05d09ec6e341e82b008271a88283c15b8cf2edb4c9dbb78",
+      "after_sha256": "f4c149fa3ad7a1fdcd73d521222d4738f8328026c7db300cf1ab5ad0e6185ea6"
+    },
+    {
+      "path": "examples/js2py/o05-observability/README.md",
+      "before_sha256": "defdd8c3a6c586f64b7d2d3d19929a10d745f493f507b3656840ee14760266dc",
+      "after_sha256": "925eba762c22909c98dc748d15891271573ba1738dcae78b4ba4fb4590e09c61"
+    },
+    {
+      "path": "examples/js2py/o05-observability/README.zh-cn.md",
+      "before_sha256": "b503014126bbe856627f77990a654744e01c7cb1c0fd1d86cef59827ead0f50a",
+      "after_sha256": "b5b586823c8e0fd75f638caf66130d8c1846b5fbcb351758e68f976228c667d6"
+    },
+    {
+      "path": "examples/js2py/o05-observability/README.zh-tw.md",
+      "before_sha256": "d57d5734b324c7255cb54ef9225d1b267caa222674649539e9be6caf41afb03b",
+      "after_sha256": "fd1fd956272ead293047ee271240d877a43283ba339f909597b332217f09b92f"
+    },
+    {
+      "path": "examples/js2py/o06-recovery/README.md",
+      "before_sha256": "acddffbb2933d0f6757d64a4ba4482b8a49bd0166206b6ff02ab00ab364bb37d",
+      "after_sha256": "208b9252d4b2faf39b9dc69e18e537d2bdde6f1a8d3fd406a0bc4e86bc85571d"
+    },
+    {
+      "path": "examples/js2py/o06-recovery/README.zh-cn.md",
+      "before_sha256": "14bcdfb2191d095d5c6ffde6871ac5e6a74378b6b847b98148883b5f1b167fbe",
+      "after_sha256": "72921fb6579af83dad9af049e72994bd14ece3d05a432edc814a05dad06b3aad"
+    },
+    {
+      "path": "examples/js2py/o06-recovery/README.zh-tw.md",
+      "before_sha256": "45a4f5ed964e8d985f6e4dcb56fa0f45ec39b6d03c0c27154b02625053a556a2",
+      "after_sha256": "e0d9e69f858da4d070bb246bfff4a44ba7db0f9af497e6804d333af03a53c65a"
+    }
+  ],
+  "validation": "PASS: exact source/ZIP parity; current public-ZIP operations25cases+realPG drills; unchanged full runtime sources; accepted bounded TypeSafe review97; final production build and refreshed9localized pages. Existing SQL still broad; production least-privilege gate NOT_RUN.",
+  "remaining_production_gate": "Current grants intentionally remain broader than the operational slice; real least-privilege narrowing/negative tests are NOT_RUN."
+}

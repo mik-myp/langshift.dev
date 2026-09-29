@@ -1,0 +1,251 @@
+---
+title: "Network entry and HTTPS: verify the connection and whom you trust"
+description: "Use a temporary CA and loopback proxy to test certificates, hostnames, trusted forwarding, sanitized errors and CORS; connect the S-stage Bearer boundary without claiming public deployment."
+---
+
+import { getHttpsExample } from '@/lib/js2py-examples'
+
+## 1. A production entry point is not simply host=0.0.0.0
+
+Seeing JSON locally proves one local request path works. Reliable, safe access for invited users requires more answers: where does DNS point, who authenticates the server, where does encryption end, which proxy may supply client information, and can errors or logs expose a token? Opening every interface and disabling certificate checks does not solve those problems.
+
+This chapter follows O02, using HTTP and identity concepts established in H/S. You will explain responsibilities along DNS→connection→TLS→proxy→application and test certificate failures, forwarding trust, production errors, and browser-origin policy. Independent acceptance means testable entry constraints matched to the real authentication scheme. We buy no domain, request no public certificate, create no externally visible resource, and do not deploy a complete product for you.
+
+[Download the complete O03 lab](/learning-assets/js2py/o03-https-production.zip). Python/web versions match O02; local tools tested were OpenSSL 3.6.4 and curl 8.7.1. The diagnostic API, failure endpoint, and standard-library forwarder are **local teaching tools**, not a production reverse proxy. They implement neither real login nor task authorization and must never receive real users or tokens.
+
+## 2. Separate names, addresses, ports, and paths first
+
+In `https://lab.test:8443/probe`, https selects encrypted HTTP, lab.test is the hostname, 8443 is the TCP destination port, and /probe is the HTTP application path after connection establishment. DNS commonly associates names with IPv4/IPv6 addresses through A/AAAA records. It does not select /probe or store login sessions. A CNAME aliases one name to another; it does not automatically issue a certificate for that alias.
+
+Recursive resolvers and clients cache DNS results. TTL participates in cache lifetime; it is not a button that makes every device update immediately after a record changes. Checking A while leaving AAAA pointing at an old machine can send some clients to a different service. Domain control, DNS configuration, and the process running on a host are separate records.
+
+This lab uses reserved `.test` names and does not modify system hosts or DNS. curl’s `--resolve` supplies a name→address mapping for that client invocation while preserving the URL hostname for TLS SNI, hostname verification, and HTTP Host. Local success therefore proves no public DNS configuration. The production template uses a reserved `.invalid` placeholder and is not a real deployment domain.
+
+## 3. What TLS does—and does not—verify
+
+TLS negotiates encryption and integrity for a connection while the client verifies such properties as the certificate chain, validity period, and hostname. The server possesses the private key corresponding to its leaf certificate; subjectAltName declares applicable names. Trusting a CA does not accept arbitrary hostnames: a certificate issued for lab.test cannot impersonate wrong.test.
+
+TLS protects a connection. It does not decide whether a Bearer token expired, whether Alice belongs to a project, or whether the application leaks another user’s data. The HTTPS indicator is not general certification of business trustworthiness. If a proxy terminates TLS and connects to the application over HTTP, that later hop is plaintext. This lab confines it to same-host loopback. A cross-host or untrusted network requires a new transport-protection design, not copying this local upstream address.
+
+A temporary local CA gives the experiment a controllable trust chain. `--cacert` selects it for this curl invocation without installing it into a system store. CA and leaf keys exist only in an owned /tmp directory with mode 0700 and files at 0600, removed afterward. Certificates last one day and are recreated rather than packaging old keys. `-k` skips essential checks and is not certificate acceptance.
+
+<Code language="python">{getHttpsExample('certificates.py')}</Code>
+
+The OpenSSL commands first create a local signing CA, then a leaf key and signing request, and finally a signed leaf with lab.test SAN, server usage, and a non-CA constraint. `-noenc` leaves the temporary private key unencrypted. Its boundary relies on short lifetime, restrictive directory access, and no export—not a recommendation for storing long-lived production keys. Real renewal and key rotation remain deployment gates.
+
+## 4. Restore the lab and run positive and negative evidence together
+
+From the repository root, enter the lab directory; ZIP users enter the extracted root. The runner requires POSIX, an ordinary account, OpenSSL 3.x supporting req -addext and -noenc, and curl. This run used OpenSSL 3.6.4. Record missing platform tools instead of bypassing verification or borrowing real certificates. Restoring Python dependencies with uv does not install system OpenSSL, Caddy, or a container engine.
+
+```bash
+cd examples/js2py/o03-https-production
+uv sync --locked
+openssl version
+curl --version
+uv run --locked python tls_lab.py
+uv run --locked python -m pytest -q
+```
+
+```text
+trusted_ca_https=200
+unknown_ca_curl_exit=60
+wrong_hostname_curl_exit=60
+edge_overwrites_forged_forwarding=True
+authorization_forwarded_not_authenticated=True
+untrusted_proxy_headers_ignored=True
+trusted_loopback_direct_spoof_possible=True
+sanitized_error=500
+sanitized_validation=422
+teaching_edge_body_limit=413
+owned_processes_stopped_and_temp_keys_removed=True
+```
+
+These are observations, not a fabricated success screenshot. The script asserts HTTP statuses/bodies, curl failure exits, and temporary-directory cleanup. `trusted_loopback_direct_spoof_possible=True` deliberately exposes a **residual trust gap**, not a security pass. We explain below why other same-host processes remain inside that trust boundary. Automatically selected ports avoid taking over a user’s fixed service.
+
+## 5. Two-terminal requests: curl is the client, not the server
+
+In terminal A, start from the lab root. `--serve` keeps the process in the foreground; `--port 0` lets the OS choose an available port. It prints the public CA path and two copyable lines, `export CA=...` and `export PORT=...`. The ellipses here describe runtime values, not paths to type. Copy the actual printed lines into terminal B and remain at the lab root. They contain a public trust-material path and port, not a private key or session token.
+
+```bash
+uv run --locked python tls_lab.py --serve --port 0
+```
+
+After pasting the actual export lines, run the following in terminal B. curl sends one request and exits; it does not create a listening service. `--noproxy '*'` prevents local proxy configuration from sending the teaching request elsewhere. `--resolve` maps this name/port to loopback, `--cacert` chooses the local trust CA, `--max-time` bounds total waiting, `--include` displays response headers, and `-H` adds a request header. The Bearer value is a fixed fictional marker, not a login credential.
+
+```bash
+curl --silent --show-error --include --max-time 5 --noproxy '*'   --resolve "lab.test:$PORT:127.0.0.1" --cacert "$CA"   -H 'Authorization: Bearer demo-not-a-valid-session'   "https://lab.test:$PORT/probe"
+```
+
+Expect HTTP 200 with scheme=https, host=lab.test, client=127.0.0.1, and authorization_present=true. The last field proves only that a header was forwarded, **never that authentication succeeded**. To observe failures, omit --cacert, then separately change both the resolve name and URL to wrong.test. Both returned curl exit 60 in this run, before business handling. 60 is not an HTTP status.
+
+Finish with Ctrl+C in terminal A. The program stops its own edge and backend process and removes temporary keys. Do not use killall or stop every uvicorn on the machine. Terminal B’s CA variable now points to a deleted file; reusing it causes a local file/trust error. A fresh launch requires fresh printed export lines.
+
+## 6. Reverse proxies: trace requests and credentials across every hop
+
+A client selects a server entry point. A **reverse proxy** accepts requests on behalf of the application and opens an upstream connection. The application’s immediate TCP peer is usually the proxy, not the original browser. A proxy can terminate TLS, centralize entry, and constrain requests, but does not automatically establish user identity. Authorization must reach the authentication layer on routes that need it, without appearing in access logs or debug echoes.
+
+The local chain is curl → loopback teaching TLS edge → loopback HTTP Uvicorn → FastAPI. The edge forwards an allowlist of headers, bounds bodies at 4096 bytes, applies timeouts/response bounds, rejects unsupported transfer forms, and overwrites forwarding information. This deliberately small implementation has no HTTP/2, WebSocket, streaming, complete request-smuggling-resistant parser, or production throttling. **Never deploy it publicly.**
+
+413 is an observed policy of this teaching edge, not evidence that H04 or S03 already limits request sizes. Production must separately implement and test real entry-point bounds and login throttling, including the boundary when a caller bypasses the normal proxy and reaches upstream directly.
+
+<Code language="python">{getHttpsExample('edge.py')}</Code>
+
+## 7. Trusted proxies: a header is not a network fact
+
+Any client can send `X-Forwarded-For: 203.0.113.9` or `X-Forwarded-Proto: https`. Unconditional trust can poison rate-limit/audit identity, generate wrong redirects, or misclassify HTTP as HTTPS. `--proxy-headers` enables interpretation; `--forwarded-allow-ips` restricts which immediate peers may supply that information. `*` trusts every reachable peer and is not a quick fix for a wrong URL.
+
+The experiment has three stages. With proxy trust disabled, forged headers are ignored and scheme=http/client=127.0.0.1. Through the trusted edge, caller values are overwritten and the application sees https and actual loopback. But another local client connecting directly to the trusted loopback upstream **can forge the client value**. This reveals the limit: trusting 127.0.0.1 trusts local processes able to reach that upstream, not exclusively one proxy process.
+
+Production must review the proxy allowlist together with real network isolation, socket permissions, process accounts, and container networking. Multiple proxies or a hosted CDN require an explicit hop-by-hop design for sanitizing, appending, and interpreting headers. Even a reliable source IP is not a user identity and never replaces Bearer validation or object authorization.
+
+<Code language="python">{getHttpsExample('tls_lab.py')}</Code>
+
+## 8. Production errors: return less without losing diagnosis
+
+Debug pages, tracebacks, exception repr, and validation input/ctx can disclose paths, SQL parameters, passwords, or tokens. Production must not expose convenient debugging as a default public interface. The diagnostic app creates its own random request ID, returns only generic detail for 500, logs a safe event name and correlation ID, and returns only loc/type for validation failures without echoing input.
+
+Do not swallow every error and return 200. Clients still receive 500/422 and operators can correlate events, without copying secrets into responses. Real operations need access-controlled error observation, appropriate safe context, and alerting; this small logging demonstration is not full observability. /fail exists to trigger a local experiment, not as a public failure button in the real application.
+
+<Code language="python">{getHttpsExample('app.py')}</Code>
+
+The error-boundary middleware catches exceptions in normal request flow and records a sanitized event for this experiment instead of forwarding the exception into the server’s default traceback logging path. CORS wraps the entire application so an approved frontend can read sanitized errors rather than misdiagnosing them as cross-origin failures. Host checking is separate from TLS: successful certificate validation should not enable arbitrary Host routing. Tests inspect both error bodies and the private runtime log for fictional sensitive markers.
+
+## 9. Align with S01–S03: opaque Bearer, not JWT or cookies
+
+Integration follows the S-stage contract: the service generates a high-entropy opaque random session token. Its raw value is returned only on successful login; the database stores its SHA-256 digest, expiry/revocation state, and session auth_version. Every request checks the session, expiry, active user, and current version before project membership and action authorization. HTTPS protects transport and the proxy forwards Authorization; **neither performs the application’s database verification**.
+
+This is not JWT signature verification and requires no JWT key pair from this chapter. Logout, password changes, disabling, and logout-all are enforced by S-stage revocation logic, not bypassed by a proxy-cached successful response. S03’s UUIDv4 Idempotency-Key and Idempotency-Replayed must also survive the entry path; an idempotency receipt is not permanent permission.
+
+This download verifies only `authorization_present`, with no real session database. Its 200 is not an S03 login success. Production must reconnect S03’s DB-backed readiness, authorization/revocation/idempotency tests, credential-safe logging, and configured/tested login throttling and request bounds. Never replace the complete identity system with a simplified operations-demo bypass.
+
+## 10. CORS constrains browser response access, not caller authority
+
+A browser origin combines scheme, host, and port. `https://frontend.lab.test:8444` differs from HTTP, another port, or another subdomain. Explicit Authorization or certain content types can cause a browser to send an OPTIONS preflight asking whether the origin, method, and headers are allowed. It sends the corresponding actual request after permission. CORS does not sign request bodies or prevent non-browser clients from calling an API directly.
+
+The local app permits one exact demonstration origin, GET/POST, and Authorization/Content-Type/Idempotency-Key headers. expose_headers lets the frontend read correlation and idempotency-replay headers. There are no cookies, allow_credentials is false, and no wildcard opens access to everything. The complete S API also uses methods such as PATCH/DELETE; integration must add and test the real method policy rather than treating this diagnostic app’s two methods as production configuration.
+
+The experiment verifies approved-origin preflight=200 and another origin’s preflight=400, yet a direct ordinary GET still returns 200 without Access-Control-Allow-Origin. curl does not enforce browser response-access rules. **CORS cannot replace authentication or authorization.** HTTP-header tests also do not accept every real browser behavior; actual frontend integration remains pending.
+
+## 11. CSRF follows credential mechanics, not frontend/backend separation
+
+Traditional CSRF exploits automatically attached ambient credentials, such as cookies, so a malicious page can send requests as a logged-in user. Our opaque Bearer is explicitly placed in Authorization by frontend code; the service does not treat cookies as sessions, so it does not expose that same automatic-cookie path. This is not “all CSRF/XSS risk disappears.” Stolen tokens, incorrectly allowed origins, unsafe redirects, or caller logic sending credentials to the wrong address still create failures.
+
+Switching to cookie sessions requires renewed evaluation of SameSite, Secure, HttpOnly, Origin/Referer checks, anti-CSRF tokens, safe-method semantics, and legitimate cross-site flows. Setting allow_credentials=true is not a release plan. HttpOnly limits script access to a cookie but does not stop automatic sending. Secure restricts transport to HTTPS but does not establish user intent.
+
+The S-stage demonstration frontend can use a short-lived in-memory token and require login after reload. This reduces some persistent-storage exposure but cannot defeat XSS in the current page. Do not recommend long-lived localStorage tokens as a universal default or copy real tokens into screenshots, error reports, or proxy logs. This chapter uses fictional markers only.
+
+## 12. Caddy configuration and public gates: a template is not deployment
+
+Production reverse proxying should use maintained software rather than this standard-library teaching tool. Local and production Caddy templates support review: the same-host proxy connects to 127.0.0.1:8034, removes caller Forwarded, uses Caddy’s default X-Forwarded handling, defines no broad trusted_proxies, and does not enable access logging. The local template binds loopback, uses explicit certificate paths, and disables automatic HTTPS. The production template still contains api.example.invalid, **not a configured real domain**.
+
+Automatic HTTPS commonly manages issuance and renewal, requiring correct DNS, verifiable domain control, reachability for the selected challenge, and writable protected storage. HTTP/TLS-ALPN challenges need their respective ports; DNS challenges require controlled DNS access. Not every deployment reduces to “open port 80.” We have no domain/server/production keys and initiated none of these actions.
+
+Caddy is absent here. These files passed only selected text-invariant checks, not real `caddy validate` or proxy execution. Run validation in an approved controlled environment after preparing certificates and selecting a fixed Caddy version. Even validation then needs real HTTPS, request-size bounds, login throttling, renewal, frontend, and full authorized-app tests. The templates do not claim those production policies are already implemented.
+
+<Code language="text">{getHttpsExample('Caddyfile.local')}</Code>
+
+<Code language="text">{getHttpsExample('Caddyfile.production.template')}</Code>
+
+```bash
+uv run --locked python check_config.py
+```
+
+```text
+same_host_upstream=loopback
+production_domain=reserved_placeholder
+caddy_runtime=NOT_VERIFIED
+public_dns_and_certificate=NOT_VERIFIED
+```
+
+These are **same-host topology** templates. If Caddy runs in a separate container, its 127.0.0.1 is not the application container. Choose controlled internal networking/service discovery and revisit upstream trust rather than publishing the backend publicly. Development reload, diagnostic /fail, and broad debug logging do not belong in production. User-facing release still requires later migration, rollback, backup/restore, and controlled-trial acceptance.
+
+## 13. Layered diagnosis: do not conceal distinct faults with -k
+
+| Observation | Layer | Next step |
+| --- | --- | --- |
+| Name resolution fails | DNS/client resolution | Inspect records or local --resolve; TLS has not started |
+| Connection refused | Address/port/listener | Inspect your own process and actual port, not certificates |
+| curl 60, unknown CA | Trust chain | Use this run’s public CA and check validity, never -k |
+| curl 60, wrong name | URL hostname versus SAN | Correct name/certificate, not authentication code |
+| 502 | Proxy-to-upstream hop | Inspect upstream process, address/namespace, and timeout |
+| 500/422 | Application/input | Use sanitized request ID or loc/type without echoing secrets |
+| Browser CORS error while curl responds | Browser access policy | Check exact origin, preflight and actual headers; assess authentication separately |
+| Wrong scheme or forgeable client IP | Forwarding trust | Inspect peer, sanitization and reachability, not allow-ips=* |
+
+A TLS handshake failure occurs at a different stage from HTTP 401/403. The diagnostic app implements no 401/403 authentication behavior; verify that in the complete S03 service. Share only safe categories and correlation IDs, never Authorization, Cookie, database URLs, or private keys.
+
+## 14. Explanation checkpoint: encryption, origin, and identity differ
+
+Before opening the answer, explain why wrong.test still fails with a trusted CA, why forwarded Authorization does not prove login, why curl can receive 200 with a disallowed Origin, and why trusted loopback does not identify one trusted proxy process.
+
+<details>
+<summary>Answer and explanation</summary>
+
+Chain trust and hostname matching are separate checks; SAN does not contain wrong.test. The proxy moved bytes, while authentication still needs digest lookup, expiry/revocation/version checks, then authorization. CORS governs browser response access and curl does not enforce it; an unprotected diagnostic endpoint still answers. Loopback is an address boundary containing other reachable local processes. The third experiment actually observed accepted forged forwarding from such a client.
+
+</details>
+
+## 15. Guided exercise: bad input and faults must not echo markers
+
+Use fictional markers only. POST /probe with string minutes must return 422 with useful loc/type but no input/ctx. GET /fail must return a generic 500 and random correlation ID. Errors for an approved origin must retain CORS headers. Inspect logs too: preserve the event ID, not the marker or traceback. Hint: deleting response details alone may not stop a framework subsequently logging the original exception; inspect control flow.
+
+<details>
+<summary>Guided answer and real TLS tests</summary>
+
+A dedicated validation handler extracts only allowed fields. The outer error boundary converts unknown exceptions into generic 500 responses and records only a safe event. CORS wraps the complete app so approved origins can read errors. The tests also cover wrong hostname, unknown CA, forged headers, body bounds, and owned-resource cleanup; they do not merely assume TLS works because TestClient passed.
+
+<Code language="python">{getHttpsExample('tests/test_https.py')}</Code>
+
+</details>
+
+## 16. Independent variation: two exact origins, not substring domains
+
+Requirements only: allow `https://frontend.lab.test:8444` and `https://admin.lab.test:8445` to POST /probe with Authorization and Idempotency-Key. Use no cookies and implement no real authentication. Reject preflights with the wrong port, HTTP, an evil.invalid suffix, or Origin:null. A direct request without Origin must explicitly report authenticated=false, not treat “CORS did not block it” as login. Write the policy and tests before opening the answer.
+
+<details>
+<summary>Independent reference and counterexamples</summary>
+
+<Code language="python">{getHttpsExample('solutions/origin_policy.py')}</Code>
+
+<Code language="python">{getHttpsExample('solutions/test_origin_policy.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_origin_policy.py
+```
+
+Exact-set matching avoids the substring flaw in `"lab.test" in origin`. Seven cases cover two approved origins, four rejected near-matches, and one direct non-browser-style request. They verify HTTP policy, not real browser behavior, TLS, or S03 identity. A cookie migration requires a redesigned answer, not one changed boolean.
+
+</details>
+
+## 17. Environment matrix: local TLS passed; public release did not
+
+| State | Evidence or gate |
+| --- | --- |
+| Actually executed | 17 standard and 7 independent tests; temporary CA/leaf, successful curl --cacert, unknown-CA/wrong-hostname failures, real loopback TLS proxy, trusted/untrusted forwarding, sanitized 500/422, teaching 413 bound, CORS headers, and resource cleanup |
+| Unavailable on this host | No Caddy or controlled Linux/container environment; Caddy files had text-invariant checks only, not parsing/execution |
+| User-provided environment | Controlled Linux/proxy version, owned domain/DNS/host, approved firewall/ports, production secret and certificate storage; never move teaching keys into it |
+| Pending public/product acceptance | Real A/AAAA, trusted public issuance/renewal, external/browser tests, non-bypassable proxy boundary, full S03 authorization/revocation/DB readiness, body bounds and throttling, migration/rollback/backup/restore |
+
+Text, source, local TLS, and policy tests are implemented. Caddy, Linux, real-browser integration, and public deployment remain environment_pending. No public issuance request, system trust-store change, cloud resource, or real-token operation occurred. The teaching edge, /fail, and diagnostic application are not deployable user-facing services.
+
+## 18. Sources, dates, and a resumable record
+
+Primary sources checked **2026-09-28**. `SOURCES.json` records URLs, dates, and retrieval summaries; it does not promise that documentation will never change. The three READMEs distinguish observations from environment gaps. The existence of configuration is not deployment acceptance.
+
+- [DNS concepts RFC1034](https://www.rfc-editor.org/rfc/rfc1034)
+- [Reserved names RFC2606](https://www.rfc-editor.org/rfc/rfc2606)
+- [TLS1.3 RFC8446](https://www.rfc-editor.org/rfc/rfc8446)
+- [Python SSL](https://docs.python.org/3.13/library/ssl.html)
+- [OpenSSL req](https://docs.openssl.org/3.6/man1/openssl-req/)
+- [OpenSSL x509](https://docs.openssl.org/3.6/man1/openssl-x509/)
+- [curl TLS certificates](https://curl.se/docs/sslcerts.html)
+- [curl command reference](https://curl.se/docs/manpage.html)
+- [Uvicorn settings](https://www.uvicorn.dev/settings/)
+- [Caddy reverse_proxy](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)
+- [Caddy automatic HTTPS](https://caddyserver.com/docs/automatic-https)
+- [FastAPI CORS](https://fastapi.tiangolo.com/tutorial/cors/)
+- [Starlette middleware](https://starlette.dev/middleware/)
+- [OWASP CSRF prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
+
+A resume checkpoint records source/lock hashes, tool versions, last successful command, whether 17+7 cases reproduced locally, remaining proxy-trust gaps, approved origins and actual authentication scheme, the environment matrix, and the next first action. Record only the public CA’s lifecycle, never keys or real tokens. After certificates expire, regenerate the experiment instead of using -k. A new server requires new entry/identity integration acceptance; local TLS evidence is not “live in production.”
+

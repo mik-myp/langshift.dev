@@ -1,0 +1,208 @@
+---
+title: Backups, Recovery, and a Controlled Launch
+description: Restore into a fresh isolated target with pg_restore, verify records, constraints, sequences and permissions, prevent old credentials from returning, and measure recovery before considering invited use.
+---
+
+import { getRecoveryExample } from '@/lib/js2py-examples'
+
+## 1. A backup matters because of what you can recover
+
+“A .dump file appears every day” does not identify its database, required tables, readability, access controls, recovery time, or restored-user safety. An empty file can have the right name. An archive whose inventory can be listed can still fail during restoration.
+
+Our acceptance endpoint is **useful, authorized behavior after an isolated restore**: real pg_restore → matching data fingerprints → constraints still reject invalid records → sequences support new writes → runtime identity is not owner → old credentials fail → valid users can access only their own projects. Only then do we discuss the gates for invited use.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | O05 observation, O04 release/rollback, D05/D06 migrations/real databases, S01–S03 identity/authorization |
+| New capabilities | Backup scope, custom archives, exclusive restore targets, integrity/business checks, session quarantine, RPO/RTO, recovery procedures |
+| Independent acceptance | Restore and verify data/constraints/permissions; reject corruption/wrong targets; implement a manifest preflight |
+| Not claimed | Scheduled/off-site backups, PITR, cross-host disaster recovery, production RPO/RTO, actual invited-user availability |
+
+Download the [independent O06 lab](/learning-assets/js2py/o06-recovery.zip) and enter `o06-recovery`. All data is generated. Only an owned mkdtemp cluster and fresh source/restored/damaged databases are created. No existing user database, real backup, or production credential is read.
+
+## 2. Define backup scope before selecting tools
+
+Pg_dump creates a consistent snapshot of one database. We use custom format with pg_restore, not SQL text redirected into psql. The archive includes users, projects, project_members, tasks, auth_sessions, task_operations, and alembic_version, including a nonempty synthetic idempotency receipt. Saving task titles alone would not preserve the application.
+
+A single-database dump excludes cluster-global roles and tablespaces. It also does not save application configuration, deployment artifacts, encryption keys, object storage, logs, or separate security-change records. We explicitly choose no-owner/no-privileges, prepare roles in the private cluster, and reapply reviewed grants rather than blindly transporting old superuser identities.
+
+<Code language="sql">{getRecoveryExample('sql/grants.sql')}</Code>
+
+A real recovery plan inventories each asset, its authority, retention, encryption, access policy, and consistency requirements. Password hashes, session digests, and business records make an archive sensitive even without raw tokens. Mode 0700 directories and 0600 files protect synthetic data here, and exit removes it. This does not replace production encryption, off-site storage, or retention.
+
+## 3. Define RPO and RTO, then measure a rehearsal
+
+RPO is the maximum data-loss time window the business can accept. RTO is the target time to restore service. Writing targets in a README does not guarantee them. Daily backups do not automatically guarantee at most one day lost: failed jobs, unreadable archives, replication delays, and late discovery can increase exposure.
+
+We commit one task after the snapshot and explicitly observe its absence in the restored target. The known loss is one post-snapshot row. We measure from beginning restoration through data, security, and real-API checks as restore_and_validation_seconds. Snapshot_age_seconds is the age of this small snapshot at inspection, not a production RPO measurement.
+
+Sub-second or few-second results for tiny data on the same host and tool version, without remote transfer, cannot predict a large database or cross-host disaster. Real drills must define whether detection, decisions, retrieval, decryption, capacity preparation, validation, and reopening approval are included in timing.
+
+<details>
+<summary>Explanation answer: why is “pg_restore took a second” not a one-second RTO?</summary>
+
+Roles, credentials, DNS/proxy routing, or compatible applications may still be missing. Data may omit tables, violate expected authorization, or revive revoked sessions. Timing only import excludes required recovery work. Define the start/end events first, then measure a representative complete drill by stage and retain uncertainty.
+
+</details>
+
+## 4. An external URL must not choose the restore target
+
+Overwriting the wrong database is worse than a failed restore. The tool never accepts an existing DATABASE_URL. It creates only **new** databases from an allowlist, rejects names already created, and offers no --clean overwrite shortcut. The directory must also belong to this run, with UID, mode, ownership marker, and symlink checks.
+
+<details>
+<summary>Complete owned-cluster and real-application process tools</summary>
+
+<Code language="python">{getRecoveryExample('ops/cluster.py')}</Code>
+
+<Code language="python">{getRecoveryExample('ops/server.py')}</Code>
+
+</details>
+
+PostgreSQL uses a private Unix socket and never claims the user's TCP 5432. Source and target are separate databases in the same owned cluster. That prevents rewriting the source but **does not verify disaster recovery onto another host**. Application processes listen only on temporary 127.0.0.1 ports. Finally stops owned processes, closes their ports, and deletes owned paths; it never scans for other PostgreSQL services to stop.
+
+New restore databases revoke PUBLIC CONNECT. The runtime role receives no connection grant until data, constraints, and security handling have passed. Explicit isolation is stronger than merely hiding an address, especially because roles are shared across databases within a cluster.
+
+Passing a private-socket host is not sufficient by itself: libpq can still obtain other connection defaults from `PGHOSTADDR`, `PGSERVICE`, `PGSERVICEFILE`, and related variables. `reject_connection_environment` rejects every inherited `PG*` name before temporary-directory creation and before each direct connection, migration, or server launch. The only exception is `PG_BIN`, which locates executables, not a database. Errors list names only, never their values, and do not mutate the caller's environment. Python connections, SQLAlchemy's connection creator, and PostgreSQL subprocesses use an empty mode0600 `empty.pgpass` in the owned directory rather than the user's default password file. Direct `demo.py` and `ci.py` execution have these guards too; safety does not depend on the repository runner cleaning up first.
+
+The controller no longer probes an unused port, closes that socket, and asks another process to acquire the same number. Uvicorn binds `--port 0` itself. The controller reads the actual port from **that child's own private startup log**, then requests readiness. `--no-access-log` does not suppress the info-level startup banner; the controller explicitly selects uncolored logs and one worker. Concurrent identical releases have distinct log files. A real test starts two servers together and checks their different ports, corresponding banners, actual requests, and cleanup. This removes the probe-close-rebind window, not every possible concurrency failure. A future incompatible Uvicorn banner format fails by deadline rather than guessing a port.
+
+## 5. A real backup, manifest, and restore controller
+
+The verification date is 2026-09-28. The baseline is CPython 3.13.15, uv 0.12.13, pytest 8.4.2, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, HTTPX 0.28.1, SQLAlchemy 2.0.54, Alembic 1.20.0, psycopg 3.3.6, and PostgreSQL tools 18.6.
+
+<Code language="toml">{getRecoveryExample('pyproject.toml')}</Code>
+
+<Code language="python">{getRecoveryExample('ops/backup.py')}</Code>
+
+Backup records table counts and stable content digests, invokes real pg_dump, calculates archive hash/size, and checks inventory with pg_restore --list. **A readable inventory is one small gate, not restoration success.** Restore verifies its path/checksum, creates a fresh target, executes pg_restore with exit-on-error/single-transaction, and compares every table.
+
+The archive hash detects accidental damage; it does not authenticate the publisher. PostgreSQL dumps from malicious or unknown sources can execute code. Do not restore unfamiliar archives merely because they have a SHA-256 value. Production needs trusted provenance, access controls/signatures, and appropriate review.
+
+There are no concurrent writes during fingerprinting and dump in this exercise, making their consistency boundary explicit. On a busy system, counts queried at one time cannot simply be compared with a later dump as if both shared a snapshot. Coordinate snapshots or use meaningful restored-business invariants. This chapter does not silently introduce WAL/PITR or promise zero loss.
+
+## 6. What security state can a backup bring back?
+
+Under the S contract, opaque-token validity depends on database state. After a backup, a user may log out everywhere, be disabled, or lose membership. Restoring older users/auth_sessions/project_members may make an old token satisfy the earlier auth_version/expiry and reintroduce old memberships. Exact row restoration can itself restore a security risk.
+
+While the target remains isolated, quarantine_sessions disables every restored user, increments auth_version, and deletes restored sessions. Accounts and memberships must then be reconciled against **trusted security changes outside the backup** before explicit approval to enable them. Our known synthetic ledger says Bob was removed from Alice's project. The fixture reapplies that change, approves the two synthetic accounts, and creates new test sessions as an operator.
+
+This is not automatically signing every user back in. Without trustworthy newer authorization records, keep the target isolated or accounts disabled pending authorized review. A stale backup cannot establish current membership. Old password hashes restored after password changes also need consideration; real recovery may require resets, separately retained revocation history, or another explicit policy.
+
+<Code language="python">{getRecoveryExample('ops/app.py')}</Code>
+
+The operational slice only reads/creates projects and validates sessions. It contains no public login or account-reactivation backdoor. Inaccessible projects remain 404. Its runtime role can only read users/auth_sessions and cannot grant itself administrative powers.
+
+<details>
+<summary>Security answer: is deleting auth_sessions without checking project_members enough?</summary>
+
+No. Old tokens fail, but a user who later obtains a legitimate new token may still use restored, outdated membership to access a revoked project. Session invalidation and object authorization are separate responsibilities. Isolate, handle credentials, reconcile accounts/memberships, then approve reopening. Without an authoritative record, fail closed rather than guess.
+
+</details>
+
+## 7. Restore data, constraints, permissions, and real requests
+
+<Code language="python">{getRecoveryExample('ops/recover.py')}</Code>
+
+The repository runner reconstructs child settings: inherited `UV_*`, virtual-environment selectors, and Python injection settings are removed before the course cache/interpreter directories, public PyPI, and `UV_NO_CONFIG=1` are set. Only `PG_BIN` survives the `PG*` filter. A real check uses an owned external-venv decoy, a nonexistent interpreter, and invalid user uv configuration: installation must stay inside the clean copy's `.venv`, with the decoy unchanged. This cannot undo actions an outer uv command already performed before Python started. Before the manual uv commands below, leave other virtual environments and use a clean terminal; remove overrides such as `VIRTUAL_ENV`, `UV_PROJECT_ENVIRONMENT`, `UV_ACTIVE`, `UV_PYTHON`, and `UV_CONFIG_FILE`, and set `UV_NO_CONFIG=1`. If a direct Python entry rejects PG settings, remove only the reported names from this experiment's environment; never edit production configuration or print their values.
+
+```bash
+uv sync --locked
+uv run --locked python ci.py
+uv run --locked python demo.py
+```
+
+Ci.py already performs a drill; running demo separately replays it. Stable result lines are:
+
+```text
+PASS backup: custom archive and inventory created privately; restore still required
+PASS restore: actual pg_restore, all table fingerprints match; corrupt restore rejected
+PASS security: stale/expired tokens denied; reviewed memberships; cross-user 404; app cannot DROP
+CLEANUP PASS: source/targets/archive/private logs and owned processes removed
+```
+
+MEASURED JSON also reports real variable durations. Do not hard-code timing to stabilize tests. The drill first corrupts a copy, verifies checksum rejection, and actually invokes pg_restore against the damaged archive to observe failure. That bad target contains no user tables. After restoring the complete archive and comparing fingerprints, it verifies:
+
+- Duplicate login, missing parent project, negative minutes, and a second owner fail actual database constraints. Transactions recover so further queries work.
+- The old Alice token would have become valid in the still-isolated restored database. Account/session quarantine and membership reconciliation happen before access is granted.
+- Real Uvicorn requests reject old, expired, and invalid tokens with 401. Fresh Alice reads her own project but receives 404 for Bob's. Fresh Bob cannot read Alice's project.
+- Restored identity sequences generate new project IDs without colliding. The application role cannot DROP TABLE.
+- Source retains its third post-snapshot task while restored has the two snapshot tasks. Restoration never overwrites the source.
+
+Explain how each observation adds evidence beyond pg_dump exiting zero. Restoring does not mean copying this archive into a data directory; a logical dump is not a physical data-directory backup.
+
+## 8. Ordinary tests and recovery from deliberate failures
+
+<Code language="python">{getRecoveryExample('tests/test_recovery.py')}</Code>
+
+The three restore-focused cases create real PostgreSQL: full restore/constraints, checksum rejection before target creation, and refusing an existing target. SQLite cannot simulate pg_restore semantics; actual PostgreSQL tools and server behavior are the subject.
+
+| Failure | Correct response | Unacceptable shortcut |
+| --- | --- | --- |
+| Checksum mismatch | Leave target uncreated; retrieve a trusted archive again | Change the manifest hash to accept damaged bytes |
+| Nonzero pg_restore | Keep the target isolated; investigate archive/tool/role; use a new target | Ignore exit status and open the app |
+| Fingerprint/business constraints differ | Mark restore incomplete and check scope/consistency | Delete assertions or compare counts alone |
+| Old token works | Stop reopening; enforce session/account/membership recovery policy | Call revived credentials good compatibility |
+| App can DROP a table | Review owner/ACL separation | Run the app as the same superuser |
+
+<details>
+<summary>Guided recovery answer: why exercise both checksum rejection and real corrupt restore?</summary>
+
+The checksum gate rejects accidental damage before creating a target. A real pg_restore failure verifies that tool errors are not ignored and an unsuccessful target cannot masquerade as a healthy service. Those are distinct responsibilities. Only an owned truncated copy is damaged here; no real backup is used for destructive experimentation and --clean never targets the source.
+
+</details>
+
+## 9. Independent variation: check manifest scope and age
+
+Without the solution, implement verify_manifest: reject future snapshots, excessive age, empty archives, and any missing required table, especially auth_sessions, task_operations, and alembic_version. Exactly the permitted maximum age is accepted. An unexpected table set requires review rather than silently changing scope.
+
+<details>
+<summary>Independent reference and test</summary>
+
+<Code language="python">{getRecoveryExample('solutions/check_manifest.py')}</Code>
+
+<Code language="python">{getRecoveryExample('solutions/test_manifest.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions
+```
+
+```text
+1 passed
+```
+
+This is a preflight rule, not evidence that the archive contains genuine records. Even a valid manifest still requires checksum, pg_restore, fingerprints, constraints, and authorization acceptance. The allowed-age argument is not an automatically measured production RPO.
+
+</details>
+
+## 10. A recovery runbook with actionable gates
+
+Before touching a real environment, name an operator and evidence location for each stage:
+
+1. Declare incident scope and suspend dangerous writes/ingress. Do not overwrite first and ask afterwards.
+2. Choose a trusted, decryptable backup with a clear time point; review version, scope, and retention.
+3. Prepare a new adequately sized isolated target, roles, and private directories; deny ordinary clients.
+4. Restore and record exit status/duration. Never reopen after a failed tool run.
+5. Check fingerprints/business samples, constraints, sequences, revision, application compatibility, and least privilege.
+6. Reconcile accounts, password/session state, memberships, and other post-backup security changes; keep accounts disabled until approval.
+7. Test fresh credentials with two users on allowed and denied paths, verify log privacy, and obtain authorized approval for ingress switching.
+8. Observe errors, latency, and differences; preserve the original environment for investigation; clean up under reviewed retention rules.
+
+Do not put real tokens, passwords, or complete connection secrets in the runbook. Report the recoverable point, known losses, measured duration, and unresolved risks—not just a green service indicator. This lab executes only local stages and cannot manufacture production approval or a public traffic switch.
+
+## 11. Gates for invited use, not public registration
+
+Before V4, combine the earlier evidence: full S01–S03 behavior and object permissions; HTTPS/proxy/CORS and authentication-related risks; executed CI, versioned migrations, and rollback; an actual backup policy and isolated restoration; logging/metrics/notification delivery; secrets and account privileges; bounded capacity/quotas; invited-user feedback and maintenance ownership.
+
+No container, Linux systemd service, cloud host, domain, production key, notification channel, or invited-user environment is available here. Mark these pending. Do not buy or publish infrastructure—or invent an address—to make a course appear complete. This chapter does not add public registration, password-reset email, payments, or other excluded first-release features.
+
+Have the business approve backup frequency, encryption, off-site storage, retention, access auditing, and rehearsal frequency, then measure them. A disposable archive deleted at lab exit is not a production backup system.
+
+## 12. Resume checkpoint and official references
+
+Record non-secret database/archive identifiers, snapshot time, whether the target is new and isolated, last completed stage, intentional corruption, data/constraint/permission outcomes, session invalidation policy, known loss window, measured duration, owned-process/directory cleanup, and missing external environments. Exit removes owned state; resume by rerunning, not by searching for deleted credential files.
+
+Checked on 2026-09-28: [PostgreSQL 18 backup overview](https://www.postgresql.org/docs/18/backup.html), [pg_dump](https://www.postgresql.org/docs/18/app-pgdump.html), [pg_restore](https://www.postgresql.org/docs/18/app-pgrestore.html), [restoring SQL dumps](https://www.postgresql.org/docs/18/backup-dump.html), [pg_dumpall and global objects](https://www.postgresql.org/docs/18/app-pg-dumpall.html), and [database privileges](https://www.postgresql.org/docs/18/ddl-priv.html). Actual tools are 18.6. A small same-version local restore does not establish cross-major, extension, or other-platform compatibility.
+
+Three real PostgreSQL tests, one independent manifest test, and actual archive/restore/corruption/permissions/API checks ran. No production data, database password, archive, or log enters source/download allowlists. Cleanup evidence and limitations accompany the result; neither file existence nor syntax checking substitutes for recovery or a public launch.
+
+Environment acceptance adds two isolation-rule checks and one real PostgreSQL/two-server port check in `tests/test_environment.py`. There are six ordinary cases and the same one independent manifest case. Record these separately from the restore-focused cases and the real recovery drill.

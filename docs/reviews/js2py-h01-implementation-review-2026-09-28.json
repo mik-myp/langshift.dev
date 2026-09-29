@@ -1,0 +1,1146 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "Original complete English and every download file; accepted response retained without resampling.",
+  "slices": [
+    {
+      "batch": "review-20",
+      "metadata": {
+        "started_at_utc": "2026-09-28T04:43:10.931182+00:00",
+        "elapsed_seconds": 1.142,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "323193b4bda7fbbe361d00fb5d80b561ec218e51edddccbf60466a61f8624148",
+        "usage": {
+          "input_tokens": 29294,
+          "output_tokens": 341
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "h01-service-process",
+          "logical_contracts": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "H05",
+              "title": "应用组织、配置与依赖",
+              "prerequisites": [
+                "H04",
+                "L14"
+              ],
+              "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+              "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+              "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+              "status": "planned"
+            },
+            {
+              "id": "H06",
+              "title": "API 测试与前后端联调",
+              "prerequisites": [
+                "H05",
+                "L09",
+                "L13"
+              ],
+              "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+              "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+              "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+              "status": "planned"
+            },
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            },
+            {
+              "id": "D02",
+              "title": "SQL 与参数化查询",
+              "prerequisites": [
+                "D01"
+              ],
+              "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+              "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+              "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+              "status": "planned"
+            },
+            {
+              "id": "D03",
+              "title": "事务、约束与并发冲突",
+              "prerequisites": [
+                "D02"
+              ],
+              "teach": "原子性、提交回滚、约束失败、隔离和竞争、事务边界",
+              "acceptance": "制造两步写入的后一步失败，证明前一步未残留",
+              "boundary": "不仅背ACID；不以单进程内存检查代替约束",
+              "status": "planned"
+            },
+            {
+              "id": "D04",
+              "title": "同步 SQLAlchemy 与 Session",
+              "prerequisites": [
+                "D03",
+                "H05"
+              ],
+              "teach": "映射、连接池与Session、事务所有权、查询、提交失败后的恢复",
+              "acceptance": "把API接入真实数据库并验证成功/失败都释放资源",
+              "boundary": "不第一次学数据库就加入异步ORM",
+              "status": "planned"
+            },
+            {
+              "id": "D05",
+              "title": "Alembic 与已有数据迁移",
+              "prerequisites": [
+                "D04"
+              ],
+              "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+              "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+              "boundary": "不删库重建；不承诺任意降级都无损",
+              "status": "planned"
+            },
+            {
+              "id": "D06",
+              "title": "数据库测试与查询诊断",
+              "prerequisites": [
+                "D05",
+                "H06"
+              ],
+              "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+              "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+              "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+              "status": "planned"
+            },
+            {
+              "id": "S01",
+              "title": "身份与凭证生命周期",
+              "prerequisites": [
+                "D06"
+              ],
+              "teach": "用户、密码哈希、登录、凭证验证/失效、禁用用户、日志脱敏",
+              "acceptance": "拒绝错误/过期/篡改凭证并验证撤销策略",
+              "boundary": "不自创密码学；登录成功不等于有对象权限",
+              "status": "planned"
+            },
+            {
+              "id": "S02",
+              "title": "对象级授权与多用户隔离",
+              "prerequisites": [
+                "S01"
+              ],
+              "teach": "角色和成员关系、所有权、默认拒绝、越权与负向测试",
+              "acceptance": "Alice知道Bob对象ID仍无法读取/修改，角色不能由请求体自授",
+              "boundary": "前端隐藏按钮和CORS都不是服务端授权",
+              "status": "planned"
+            },
+            {
+              "id": "S03",
+              "title": "可靠业务操作与幂等",
+              "prerequisites": [
+                "S02",
+                "D03"
+              ],
+              "teach": "业务冲突、重复提交、事务与幂等范围、日期时间/标识/精确数值的必要标准库",
+              "acceptance": "复现重复请求或并发冲突并验证约定行为",
+              "boundary": "不承诺仅靠重试就能实现恰好一次；按业务需要教学数据表示",
+              "status": "planned"
+            },
+            {
+              "id": "A01",
+              "title": "Python 异步执行模型",
+              "prerequisites": [
+                "S03"
+              ],
+              "teach": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制",
+              "acceptance": "通过可观察实验选择同步/异步边界，并验证取消行为",
+              "boundary": "JS熟悉async不代表Python自动调度；不机械改全部async",
+              "status": "planned"
+            },
+            {
+              "id": "A02",
+              "title": "外部服务与异步资源生命周期",
+              "prerequisites": [
+                "A01",
+                "L14",
+                "H05"
+              ],
+              "teach": "客户端复用、lifespan、超时、重试与幂等、故障替身、清理",
+              "acceptance": "外部依赖失败不拖垮核心CRUD；正常/异常/取消均释放资源",
+              "boundary": "不把进程内队列或BackgroundTasks当持久任务系统",
+              "status": "planned"
+            },
+            {
+              "id": "O01",
+              "title": "操作系统与服务运行基础",
+              "prerequisites": [
+                "A02"
+              ],
+              "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+              "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+              "boundary": "不先让初学者背Docker命令绕过OS基础",
+              "status": "planned"
+            },
+            {
+              "id": "O02",
+              "title": "容器与可部署应用",
+              "prerequisites": [
+                "O01",
+                "L08"
+              ],
+              "teach": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查",
+              "acceptance": "从干净环境构建运行并重启，确认数据和秘密边界",
+              "boundary": "不在镜像写密钥；不把容器健康等同于业务正确",
+              "status": "planned"
+            },
+            {
+              "id": "O03",
+              "title": "网络入口、HTTPS 与生产配置",
+              "prerequisites": [
+                "O02"
+              ],
+              "teach": "域名/DNS、反向代理、TLS终止、可信代理、生产错误与凭证/CORS/CSRF边界",
+              "acceptance": "验证HTTPS、错误响应、请求来源与凭证传递策略",
+              "boundary": "公开前需按实际认证方案检查CSRF等风险",
+              "status": "planned"
+            },
+            {
+              "id": "O04",
+              "title": "持续集成、发布与回退",
+              "prerequisites": [
+                "O03",
+                "D05",
+                "D06"
+              ],
+              "teach": "检查/测试流水线、环境分离、迁移执行时机、发布兼容与应用回退",
+              "acceptance": "完成一次成功发布和一次有数据的兼容回退演练",
+              "boundary": "不把危险数据库降级当作普通应用回退",
+              "status": "planned"
+            },
+            {
+              "id": "O05",
+              "title": "日志、监控与故障定位",
+              "prerequisites": [
+                "O04"
+              ],
+              "teach": "结构化日志、关联ID、错误和耗时、指标/告警、脱敏与容量观察",
+              "acceptance": "从一次错误请求追踪原因并证明日志不泄露凭证",
+              "boundary": "不是安装一个仪表盘就完成可观测性",
+              "status": "planned"
+            },
+            {
+              "id": "O06",
+              "title": "备份、恢复与受控上线",
+              "prerequisites": [
+                "O05"
+              ],
+              "teach": "备份范围、恢复目标、隔离恢复、数据验证、访问控制和操作手册",
+              "acceptance": "实际恢复数据库并验证数据后允许受邀用户使用",
+              "boundary": "只有备份文件不算通过；不直接扩展到开放注册",
+              "status": "planned"
+            },
+            {
+              "id": "G01",
+              "title": "独立需求与毕业验收",
+              "prerequisites": [
+                "O06"
+              ],
+              "teach": "仅给需求/验收/约束，不给实现步骤；设计、迁移、权限、测试、发布和维护",
+              "acceptance": "独立完成新功能并说明权衡、失败处理和恢复证据",
+              "boundary": "阅读完毕不等于毕业；以毕业项目规格的交付范围为准",
+              "status": "planned"
+            }
+          ],
+          "actual_english_lesson": "---\ntitle: \"From client to a long-running service: processes, ports, and boundaries\"\ndescription: Trace requests with a loopback-only standard-library tool and two terminals, separate connection, request, and process lifetimes, and test path failures, port conflicts, and safe shutdown.\n---\n\nimport { getServiceProcessExample } from '@/lib/js2py-examples'\n\n## 1. Why is the service still running after a request finishes?\n\nAs a frontend developer, you are usually given a URL. Now reverse the question: what keeps waiting at that address? Why can you refresh without restarting the backend? Does closing the browser shut down the backend? Confusing these lifetimes makes it easy to misdiagnose “the endpoint returned 404” as “Python did not start,” or to stop somebody else's program while resolving a port conflict.\n\nWe first learn to observe a running service, without writing framework routes. Python's existing static-file server makes request paths, operating-system processes, and file locations visible. It is neither the capstone task API nor a production server. Subclassing HTTP handlers, socket programming, threads, and ASGI are not prerequisites.\n\n| Chapter contract | Scope |\n| --- | --- |\n| Prerequisites | L10 local multi-file projects; L14 acquiring, using, and releasing resources |\n| New capabilities | Distinguish programs from processes, addresses from ports, and requests from connections; locate failures along the request path; identify trust boundaries |\n| Independent acceptance | Draw the request path; complete success, failure, success requests; prove request completion is not process termination; stop only your own service |\n| Not required yet | FastAPI, databases, authentication implementation, async, production deployment, or server concurrency internals |\n\nDownload the [complete H01 lab](/learning-assets/js2py/h01-service-process.zip). Run it locally, not in the browser Python editor: the page's Python environment cannot listen on this TCP port in your operating system. The baseline is CPython 3.13.15, uv 0.12.13, and pytest 8.4.2. The maintainer tested macOS with curl 8.7.1 on **2026-09-28**. Commands use a macOS/Linux shell; Windows commands and signal behavior have not been verified.\n\n## 2. Three lifetimes that are easily confused\n\nA **program** is code on disk. A **process** is a running instance started by the operating system, with its own runtime state and resources. Starting the same code twice creates two processes; sharing source code does not make them share a Python list. A terminal is a place to launch and observe a process, not the process itself.\n\nAn ordinary script can finish one job and exit. This complete file has no loop or wait for more input. After the two print calls, no work remains.\n\n<Code language=\"python\">{getServiceProcessExample('one_shot.py')}</Code>\n\nA service process retains the ability to receive further requests. A **request** is one round of “the client asks; the server responds.” A **connection** is a communication channel carrying that interaction. After a request, a connection may close or be reused. Neither outcome implies that the entire service process should exit. See the client, server, and connection roles in [RFC 9110 §3.3](https://www.rfc-editor.org/rfc/rfc9110.html#section-3.3).\n\nYour development server offers a useful analogy: completing a hot update does not terminate it. The analogy stops there. A backend must also take responsibility for validation, permissions, and storage, not merely deliver frontend build output. Knowing how to start Vite does not replace learning those responsibilities.\n\n## 3. The address locates the host; the port locates a listening endpoint\n\nOur URL is `http://127.0.0.1:8765/hello.txt`. `http` selects the protocol; `127.0.0.1` is an IPv4 loopback address referring to the machine initiating the connection; `8765` is this experiment's TCP port; `/hello.txt` is the request path sent to the service. A port is neither a directory nor a Python function name. [IANA's special-address registry](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml) reserves `127.0.0.0/8` for loopback.\n\n**Listening** means a process asks the operating system to receive connections at a particular address and port. The operating system delivers a connection to that endpoint; the HTTP service then interprets the path and responds. A path named `/hello.txt` does not bypass the port and search your disk. Nor does a 404 prove that nothing is listening: receiving HTTP 404 already means an HTTP service responded.\n\nWe bind only to `127.0.0.1`. Do not omit the bind option or change it to `0.0.0.0`, which listens on all IPv4 interfaces rather than providing a “better localhost.” The Python tool defaults to listening on all interfaces, so we explicitly narrow its reach. Loopback reduces network exposure; **it is not login or authorization**. Other local processes may still connect. The [Python CLI documentation](https://docs.python.org/3.13/library/http.server.html#command-line-interface) describes binding behavior.\n\nIf you send this URL to another computer, its `127.0.0.1` points to that computer, not yours. Do not change firewall rules, expose a router port, or use a tunnel to share this lab. The name `localhost` may also resolve to IPv6 `::1`; we consistently use the literal `127.0.0.1` to reduce variables.\n\n## 4. Prepare the project and locate both terminals\n\nOpen terminal A at the repository root and run the following. If you downloaded the ZIP, enter the extracted `h01-service-process` directory and start with `uv sync`; do not run from its parent. `pwd` checks the current working directory. `uv run --locked` uses the locked project environment. `python -m` runs the named Python module, not a local file named `http.server.py`.\n\n```bash\ncd examples/js2py/h01-service-process\npwd\nuv sync --locked --default-index https://pypi.org/simple\nuv run --locked python --version\nuv run --locked python one_shot.py\necho $?\n```\n\n```text\nPython 3.13.15\nscript: started\nscript: finished\n0\n```\n\nThis output omits uv's installation progress and the machine-specific path from `pwd`. Run `echo $?` immediately after the command you are examining: it prints that command's exit status. Zero normally means success; it is not an HTTP status. Once the script finishes, the terminal prompt returns immediately.\n\n<Code language=\"toml\">{getServiceProcessExample('pyproject.toml')}</Code>\n\nThere are no third-party runtime packages; pytest is for verification. `package = false` means this is an experiment project, not a requirement to build and install a distribution package. The lockfile has already been generated; ordinary reproduction should not delete it or select new dependency versions.\n\n## 5. Start the service: understand the command before observing it wait\n\nServe only dedicated teaching files. Do not include `.env`, credentials, your home directory, the project root, or symbolic links. The static tool may produce directory listings and follows symbolic links; `--directory` is not a security sandbox. Our boundary relies on controlled, nonsecret files and loopback, not a claim of production isolation. See the [security considerations](https://docs.python.org/3.13/library/http.server.html#security-considerations).\n\n<Code language=\"text\">{getServiceProcessExample('public/hello.txt')}</Code>\n\nIn terminal A, still at the lab root, run:\n\n```bash\nuv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory public\n```\n\n```text\nServing HTTP on 127.0.0.1 port 8765 (http://127.0.0.1:8765/) ...\n```\n\n`8765` selects the listening port. `--bind` selects the listening address. `--directory public` selects the public file root; the relative path `public` is interpreted against the **working directory at startup**. The missing prompt is expected: this foreground service is waiting for requests, not “stuck.” The standard library already implements waiting and handling; rewriting it is not required here.\n\nIf startup reports `Address already in use`, this attempt failed; it did not silently choose another port. Do not kill processes by port or run `killall python`. First check whether another terminal contains an instance you started. If ownership is uncertain, choose `8766` and change all client commands consistently. Only a foreground instance you started should be stopped using this lesson's procedure.\n\n## 6. curl is a client, not another server\n\nOpen terminal B and enter the same lab root. Leave A alone. Run:\n\n```bash\ncurl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt'\n```\n\ncurl connects, sends a request, reads the response, and exits. `--noproxy '*'` bypasses proxies for this experiment. Quotes pass the asterisk literally rather than letting the shell expand it to filenames. `--max-time 3` limits the whole transfer to three seconds. `--verbose` shows connection diagnostics and sent/received headers. Diagnostics go to standard error and the body to standard output, so their order may interleave when copying a log. See the [curl manual](https://curl.se/docs/manpage.html).\n\nFocus on this **excerpt of key lines**. Real output also includes changing dates, file sizes, and tool-version headers; this is not a byte-for-byte snapshot:\n\n```text\n> GET /hello.txt HTTP/1.1\n> Host: 127.0.0.1:8765\n< HTTP/1.0 200 OK\nhello from the service\n```\n\n`>` and `<` are curl's sending/receiving markers, not part of the HTTP message. The service tool defaults to HTTP/1.0 responses. That does not mean your request failed or that the service process exited. We are observing one interaction; implementing HTTP version differences or connection reuse is outside the independent exercise.\n\nImmediately run the request again. A shows a second request log; B receives the body again. The second curl invocation is another short-lived client process. The service is the same long-running process. **A's log demonstrates arrival; B's response demonstrates a returned result. A startup banner alone does not prove a path is correct.**\n\n## 7. Draw the route instead of treating a URL as a local filename\n\n```text\nterminal B: curl (client)\n    -> TCP 127.0.0.1:8765\n    -> terminal A: Python process listening on that address\n    -> HTTP GET /hello.txt\n    -> serving directory public -> public/hello.txt\n    <- HTTP status + headers + body\nclient exits; server waits for another request\n```\n\nMapping to a file is this tool's behavior, not an HTTP requirement. A later path such as `/projects/7/tasks/41` can identify a resource assembled by business logic without a matching directory or file on disk. The request path and working directory belong to different layers: the client supplies the former; the process launch environment determines the latter.\n\nThe next URL sends a path and query. `#client-note` is a client-side fragment and is not sent to the HTTP service. The standard-library file tool assigns no business meaning to the query, so it does not search for a file literally named `hello.txt?attempt=2`. A future API will interpret query parameters according to its contract. See [URL structure](https://url.spec.whatwg.org/) and [Python's path handling](https://docs.python.org/3.13/library/http.server.html#http.server.SimpleHTTPRequestHandler).\n\n```bash\ncurl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt?attempt=2#client-note'\n```\n\n```text\n> GET /hello.txt?attempt=2 HTTP/1.1\nhello from the service\n```\n\nAgain, these are selected lines. The query does not create application state in this chapter; refreshing does not add a task.\n\n## 8. Three failures at three different layers\n\nIn terminal B, request a missing path, then a working one:\n\n```bash\ncurl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/not-here.txt'\necho $?\ncurl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/hello.txt'\n```\n\n`--include` displays response headers with the body, without `--verbose`'s full connection diagnostics. The first request receives HTTP 404 and an HTML error page; the second still receives 200. By default curl can exit zero after receiving a complete HTTP error response. HTTP status and command exit status are not interchangeable.\n\nNow return to A and press **Ctrl+C**. This requests an interrupt of the current foreground program; the standard-library tool exits and A's prompt returns. Request the original URL again from B:\n\n```bash\ncurl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/hello.txt'\necho $?\n```\n\nIn our tested conditions, with nobody taking over the port, curl fails to connect and exits `7`, with no HTTP status or body. A local security tool could instead cause a timeout; do not label every network failure 404. If you receive a successful response, investigate whether another process is listening rather than stopping unidentified programs.\n\n| Observation | Failure stage | Check and recovery |\n| --- | --- | --- |\n| Startup reports a busy address and immediately returns the prompt | Acquiring the listening endpoint | Identify your instance; choose another port if ownership is unclear |\n| HTTP 404 and a request log in A | Connection and HTTP succeeded; resource not found | Check path, `pwd`, and public directory; do not reinstall Python |\n| Connection refused, no HTTP response | Before HTTP handling | Check address, port, and whether your service is still running |\n\nTo recover, repeat section 5 in A, then verify the working path in B. Do not casually background this beginner experiment with `&`, or assume that closing a terminal window guarantees correct cleanup in every environment.\n\n## 9. Python can be the client: closing its connection does not stop the service\n\n<Code language=\"python\">{getServiceProcessExample('client.py')}</Code>\n\nThis file is still not a server. `HTTPConnection` specifies the destination address and port; `request` sends GET; `getresponse` reads status and headers; `read` retrieves body bytes. We decode as UTF-8 because that is the known encoding of this lab's file. `finally` closes this client connection; it does not acquire power over another process. A timeout prevents indefinite client waiting, but does not automatically undo business changes already made on the server. See the [client documentation](https://docs.python.org/3.13/library/http.client.html).\n\nThe file hardcodes loopback and accepts only a port and path, not arbitrary external URLs. It is not a general downloader: no retries, large-file streaming, or complex encoding support. HTTP errors retain their status; connection exceptions are reported separately. Exit code `2` is this script's convention, not a rule for all Python clients.\n\n```bash\nuv run --locked python client.py 8765 /hello.txt\nuv run --locked python client.py 8765 /not-here.txt\necho $?\n```\n\n```text\nstatus=200\nhello from the service\n```\n\nThe displayed body belongs only to the first command. The second prints `status=404` and an HTML error page; its final exit code is `2`. It has not shut down A's service.\n\n## 10. Trust boundaries: your frontend does not control every request\n\nA title-length restriction in a browser form provides immediate help. curl or another script never passes through that form. The server must validate input, establish identity, check object permissions, and expose only permitted information. It must not trust `creator_id` or `role` supplied in a request, or equate a local request with an authenticated user. Establish this responsibility boundary before designing HTTP contracts.\n\nThe division does not mean “delete all frontend validation.” The frontend serves usability; the server enforces rules clients cannot bypass; later, storage enforces its persistence constraints. Different layers may check similar facts while providing different guarantees. We do not yet have a database or authentication. Serving a static `hello.txt` successfully is not a secure backend.\n\n**Explanation exercise:** Why does A keep running when B finishes reading the file? Which layers does a 404 show are working? Would making a title input read-only stop another client from modifying a task? Write reasons before expanding the answer.\n\n<details>\n<summary>Explanation answer: separate lifetime from the source of trust</summary>\n\nB ends one client invocation. A still holds the listening resource and waits for further connections. A 404 proves that some HTTP service received and answered the request; it proves neither that this is your intended instance nor that the resource exists. Correlate the address, port, and A's log. A read-only input constrains that UI, not other request generators. The eventual server must independently reject unauthorized modifications; this chapter has not implemented that permission system.\n\n</details>\n\n## 11. Guided experiment: can the wrong directory start successfully?\n\nFirst stop your own A. Stay at the lab root, change the public directory to the existing `solutions/public`, keep port `8765`, and request `/hello.txt` followed by `/health.txt`. Hint: do not change the client host or expose the whole project to obtain 200. Predict whether startup succeeds and both response statuses.\n\n<details>\n<summary>Guided answer: working directory and serving directory are different</summary>\n\n```bash\nuv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory solutions/public\n```\n\nIn the other terminal, still at the lab root:\n\n```bash\nuv run --locked python client.py 8765 /hello.txt\nuv run --locked python client.py 8765 /health.txt\n```\n\nStartup succeeds. The first request gets 404; the second gets 200 with `ready`. The process working directory stayed the same, but the explicit serving root changed, changing path resolution. Press Ctrl+C to stop your variation, then restore `--directory public`. This is path diagnosis, not a permission system implemented by switching directories.\n\n</details>\n\n## 12. What automated verification is for—and what it does not prove\n\n<Code language=\"python\">{getServiceProcessExample('observe.py')}</Code>\n\n```bash\nuv run --locked python observe.py\nuv run --locked python -m pytest -q\n```\n\n```text\n200 hello from the service\n404 missing\n200 hello from the service\nrequest_done_process_alive=True\nprocess_stopped=True\n```\n\nThe standard suite has **13 tests**. `observe.py` uses `tools/owned_server.py` to start the standard-library CLI with port `0`. Here `0` asks the operating system to allocate a free port. The client uses the actual port announced in the startup log; `0` is not a browser destination port. The helper tracks its own child process, bounds waits, and cleans up only that child. It does not scan for or kill other listeners.\n\n<Code language=\"python\">{getServiceProcessExample('tests/test_service_process.py')}</Code>\n\nTests cover repeated requests, continued service after 404, query versus filename, HEAD's empty body, unexposed project files, port collisions, wrong directories, exception cleanup, and interruption of our own child. Process APIs are **maintainer test infrastructure**, not server internals you must independently reconstruct in H01. Consult the [subprocess documentation](https://docs.python.org/3.13/library/subprocess.html) to review the helper. It does not reimplement HTTP.\n\nThese tests do not prove safety for every firewall, external network, production load, or hostile request. A single liveness check is not a complete health check. They establish the explicitly listed observations for this experiment.\n\n## 13. Independent variation: change the public directory and keep the evidence\n\nWithout reading the answer, create a teaching directory containing only your own `health.txt` and `note.txt`. Choose another unused port, `8766`. Complete a successful health request, a missing-path failure, and a successful note request. Record how paths resolve to files, whether the process survives the failure, and how to stop only your instance. Do not copy a `while True` loop and call it a service; do not include symbolic links or real data.\n\nAcceptance also needs negative evidence: the old `/hello.txt` must not automatically appear in the new directory just because you requested it earlier. Compare with the reference files and tests after your attempt. If you chose different body text, your own assertions should match that deliberate choice.\n\n<details>\n<summary>Independent reference and two checks</summary>\n\n<Code language=\"text\">{getServiceProcessExample('solutions/public/health.txt')}</Code>\n\n<Code language=\"text\">{getServiceProcessExample('solutions/public/note.txt')}</Code>\n\n```bash\nuv run --locked python -m http.server 8766 --bind 127.0.0.1 --directory solutions/public\n```\n\nIn the other terminal:\n\n```bash\nuv run --locked python client.py 8766 /health.txt\nuv run --locked python client.py 8766 /not-here.txt\nuv run --locked python client.py 8766 /note.txt\nuv run --locked python client.py 8766 /hello.txt\n```\n\nStatuses are 200, 404, 200, 404. Successful bodies are `ready` and `a separate serving directory`. Finally press Ctrl+C only in the terminal that started it. The automated reference below uses an allocated loopback port and does not depend on your manual instance remaining active:\n\n<Code language=\"python\">{getServiceProcessExample('solutions/observe_health.py')}</Code>\n\n<Code language=\"python\">{getServiceProcessExample('solutions/test_health.py')}</Code>\n\n```bash\nuv run --locked python -m solutions.observe_health\nuv run --locked python -m pytest -q solutions/test_health.py\n```\n\nTwo reference tests show that both new files are accessible, the old file is not implicitly shared, and our process has ended after leaving the context. Passing this reference does not replace drawing the path and diagnosing failures yourself.\n\n</details>\n\n## 14. Pause, resume, and the chapter's finish line\n\nBefore pausing, record the lab directory, public directory, address and port, terminal owning the service, last successful command, layer of the last failure, standard and variation test results, and the first next step. Stop services you started before leaving the computer; do not leave unidentified background instances.\n\nResume in order: check CPython and the working directory; run `observe.py` for an isolated check; start the manual service in A; repeat success, failure, success in B; correlate logs and stop it. If a port is occupied, do not copy an old PID from your notes into a kill command. That PID may now belong to a different program.\n\nAcceptance is not “I saw 200 once.” Without relying on framework terminology, explain why the process survives, who interprets the path, where failures occur, which inputs are untrusted, and who has authority to stop the process. H02 turns these interactions into an API contract; H03 implements the first synchronous FastAPI service.\n\n## 15. Primary sources and verification scope\n\nChecked on 2026-09-28: [Python 3.13 http.server](https://docs.python.org/3.13/library/http.server.html), [http.client](https://docs.python.org/3.13/library/http.client.html), [subprocess](https://docs.python.org/3.13/library/subprocess.html), [official curl manual](https://curl.se/docs/manpage.html), [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html), [IANA loopback registry](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml), and [WHATWG URL Standard](https://url.spec.whatwg.org/).\n\nVerification covers local loopback success, failures, the independent variation, and cleanup of owned children. It does not cover public deployment, browser cross-origin policy, TLS, databases, or persistence. The standard-library static server is not positioned as a production application server. An explicit file allowlist connects the download and displayed source without including virtual environments, caches, temporary logs, or credentials.\n",
+          "actual_download_files": {
+            ".python-version": "3.13.15\n",
+            "README.md": "# H01: From client to a long-running service\n\nStatus: a local lab, not a task API or deployable backend. Checked 2026-09-28.\n\n## Goal and scope\n\nPrerequisites are L10 local projects and L14 resource lifetimes. Start a process, observe loopback listening, trace a request to a file, distinguish request completion from process termination, diagnose 404/connection failure/port collision, and stop only your own service. HTTP server implementation, FastAPI, databases, authentication, and async are not required.\n\nExpose only `public` or the reference `solutions/public`. Do not expose the project root, home directory, credentials, `.env`, or symbolic links. `http.server` follows symbolic links and may list directories; it is not a security sandbox. Loopback is not authentication.\n\n## Environment and working directory\n\nPin CPython 3.13.15 in `.python-version`, with range `>=3.13,<3.14`; pytest 8.4.2 is a development dependency. Tested with uv 0.12.13, macOS, and curl 8.7.1. No third-party runtime dependencies. Commands use a macOS/Linux shell; Windows terminal and signal behavior are not verified.\n\nRepository users enter the directory below from the repository root. Download users enter the extracted `h01-service-process` and start at `uv sync`.\n\n```bash\ncd examples/js2py/h01-service-process\npwd\nuv sync --locked --default-index https://pypi.org/simple\nuv run --locked python --version\nuv run --locked python one_shot.py\nuv run --locked python observe.py\nuv run --locked python -m pytest -q\nuv run --locked python -m solutions.observe_health\nuv run --locked python -m pytest -q solutions/test_health.py\n```\n\nStable `observe.py` output:\n\n```text\n200 hello from the service\n404 missing\n200 hello from the service\nrequest_done_process_alive=True\nprocess_stopped=True\n```\n\nThe standard 13 tests and 2 independent-reference tests pass. The independent reference returns `ready` for health and succeeds again after 404. Automation listens only on `127.0.0.1`, lets the OS allocate a port, and cleans up its own child in finally. Tests establish the listed local behavior, not production concurrency, external-network security, or persistence.\n\n## Two terminals and real requests\n\nBoth A and B use the lab root. Start the foreground service in A:\n\n```bash\nuv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory public\n```\n\n`-m` runs the standard-library module; `8765` selects the port; `--bind` limits listening to loopback; `--directory` selects the public directory relative to A's startup directory. The missing prompt is normal while the service waits.\n\nSend requests from B:\n\n```bash\ncurl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt'\ncurl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/not-here.txt'\necho $?\nuv run --locked python client.py 8765 /hello.txt\n```\n\ncurl is a client, not a listener. `--noproxy '*'` bypasses proxies; quotes prevent shell expansion. `--max-time 3` bounds the whole transfer. `--verbose` sends connection/header diagnostics to standard error; `--include` displays response headers with the body. First observe 200 and `hello from the service`, then 404 with an HTML error page. curl can exit zero after an HTTP error by default. `echo $?` is a command exit status, not HTTP status. The Python client exits zero on success, 2 on an HTTP error, and 1 on connection exceptions.\n\nReturn to A and press Ctrl+C to stop only that foreground instance. A repeat request from B exits 7 without an HTTP response in the tested condition where nobody takes over the port. Restore using the original start command. Do not use `killall`, kill unknown processes by port, expose `0.0.0.0`, or add a public tunnel.\n\n## Diagnosis and exercises\n\n- `Address already in use` means startup failed to acquire a listener. Identify your prior instance; if uncertain, choose `8766` and update all clients. Do not stop an unknown process.\n- 404 is an HTTP response: check path and public directory rather than reinstalling Python. Changing the public directory to `solutions/public` makes `/hello.txt` return 404 and `/health.txt` return 200.\n- Connection failure precedes an HTTP response. Check your process, host, and port. Reproduce by stopping your own service, not probing others.\n- Independent task: use another directory and port for health success, missing-path failure, and note success; prove the old hello file is not shared. Attempt it before reading `solutions`.\n\nExplanation answer: a client exits only itself; the service keeps its listening resource. A 404 proves neither resource existence nor, by itself, the identity of the intended responding process. A disabled frontend input cannot constrain other clients; later the server must validate and authorize.\n\n## Pause/resume and file roles\n\nRecord the working/public directories, port, owning terminal, last successful/failed commands, failure layer, 13+2 test results, and first next step. Stop your instance before pausing. Resume with `observe.py`, then repeat manual success/failure/success. Do not kill a PID merely because it appears in old notes.\n\n`client.py` is a one-request client; `observe.py` observes lifetimes; `tools/owned_server.py` is bounded test infrastructure, not required student server implementation. It uses only the standard-library CLI and never scans ports to stop other programs. `tests` is the standard suite; `solutions` contains independent references. The external matching `-files.json` explicitly allowlists download contents, excluding `.venv`, caches, temporary logs, and credentials.\n\n## Primary sources\n\nChecked 2026-09-28: [http.server](https://docs.python.org/3.13/library/http.server.html), [http.client](https://docs.python.org/3.13/library/http.client.html), [subprocess](https://docs.python.org/3.13/library/subprocess.html), [curl](https://curl.se/docs/manpage.html), [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html), [IANA loopback](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml), and [WHATWG URL](https://url.spec.whatwg.org/). Public networking, TLS, browser cross-origin policy, databases, and production deployment are unverified.\n",
+            "README.zh-cn.md": "# H01：从客户端到持续运行的服务\n\n状态：本地实验，不是任务 API 或可部署后端。核验日期 2026-09-28。\n\n## 目标与范围\n\n前置为 L10 本地工程和 L14 资源生命周期。你将启动一个进程、观察 loopback 监听、追踪请求到文件的路径，区分请求完成与进程退出，定位 404/连接失败/端口冲突，并只停止自己的服务。不要求实现 HTTP 服务器、FastAPI、数据库、认证或异步。\n\n只公开 `public` 或参考 `solutions/public`。不要公开工程根、用户目录、凭证、`.env` 或符号链接。`http.server` 会跟随符号链接且可能列出目录，不是安全沙箱；loopback 不是身份验证。\n\n## 环境与工作目录\n\n固定 CPython 3.13.15（`.python-version`），范围 `>=3.13,<3.14`；开发依赖 pytest 8.4.2；实测 uv 0.12.13、macOS、curl 8.7.1。无第三方运行依赖。命令为 macOS/Linux shell；未验收 Windows 的终端与信号行为。\n\n仓库用户先从仓库根进入下面目录。下载用户进入解压后的 `h01-service-process`，从 `uv sync` 开始。\n\n```bash\ncd examples/js2py/h01-service-process\npwd\nuv sync --locked --default-index https://pypi.org/simple\nuv run --locked python --version\nuv run --locked python one_shot.py\nuv run --locked python observe.py\nuv run --locked python -m pytest -q\nuv run --locked python -m solutions.observe_health\nuv run --locked python -m pytest -q solutions/test_health.py\n```\n\n`observe.py` 的稳定输出：\n\n```text\n200 hello from the service\n404 missing\n200 hello from the service\nrequest_done_process_alive=True\nprocess_stopped=True\n```\n\n标准 13 项、独立参考 2 项通过。独立参考访问 health 返回 `ready`，404 后再请求仍成功。自动工具只监听 `127.0.0.1`，让操作系统选择端口，并在 finally 中清理自己创建的子进程。测试证明列出的本地行为，不证明生产并发、外网安全或持久化。\n\n## 两个终端，真实请求\n\nA、B 都位于实验根。A 前台启动：\n\n```bash\nuv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory public\n```\n\n`-m` 运行标准库模块；`8765` 为端口；`--bind` 限定 loopback；`--directory` 指公开目录，相对 A 的启动工作目录。提示符不回来是服务等待请求的正常行为。\n\nB 发出请求：\n\n```bash\ncurl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt'\ncurl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/not-here.txt'\necho $?\nuv run --locked python client.py 8765 /hello.txt\n```\n\ncurl 是客户端，不监听服务端口。`--noproxy '*'` 绕过代理，引号防止 shell 展开星号；`--max-time 3` 限制整轮传输；`--verbose` 把连接/头部诊断写到标准错误；`--include` 把响应头和正文一起显示。先看到 200 与 `hello from the service`，再看到 404 的 HTML 错误页。默认 curl 收到 HTTP 错误仍可退出零；`echo $?` 是命令退出状态，不是 HTTP 状态。Python 客户端成功为零、HTTP 错误退出 2、连接异常退出 1。\n\n回到 A 按 Ctrl+C，只停止这个前台实例。B 再请求原 URL，在端口无人接管的实测条件下 curl 退出 7，没有 HTTP 响应。恢复用原启动命令。禁止 `killall`、按端口杀陌生进程、开放 `0.0.0.0` 或加公网隧道。\n\n## 失败定位与练习\n\n- `Address already in use` 是启动阶段获取监听失败。确认自己的旧实例，不能确认就换 `8766` 并同步所有客户端；不停止不明进程。\n- 404 表示有 HTTP 响应，检查路径与公开目录，而非重装 Python。把公开目录换为 `solutions/public` 会让 `/hello.txt` 404、`/health.txt` 200。\n- 连接失败发生在 HTTP 响应之前，检查自己的进程、主机和端口。停止自有服务再重试可以复现，不探测他人的服务。\n- 独立任务：用另一个公开目录和端口完成 health 成功、缺失路径失败、note 成功，并证明旧 hello 不共享。先自己完成，再看 `solutions`。\n\n解释题答案：客户端退出只结束自己；服务继续持有监听资源。404 不能证明资源存在，也不能单独证明响应者是预期实例。前端禁用输入框无法约束其他客户端；后续必须由服务端验证与授权。\n\n## 暂停恢复与文件说明\n\n记录工作目录、公开目录、端口、拥有服务的终端、最后成功/失败命令、失败层次、13+2 项测试结果与下次第一步；暂停前停止自己的实例。恢复先跑 `observe.py`，再重做手动成功/失败/成功，不拿旧笔记 PID 随意杀进程。\n\n`client.py` 是单次 HTTP 客户端；`observe.py` 是生命周期观察；`tools/owned_server.py` 是有超时的测试基础设施，不是学生必须重建的服务器实现。它只使用标准库 CLI，绝不按端口扫描或停止其他程序。`tests` 是默认套件，`solutions` 是独立参考。下载由外部同名 `-files.json` 显式清单生成；不包含 `.venv`、缓存、临时日志或凭证。\n\n## 一手资料\n\n2026-09-28 核对：[http.server](https://docs.python.org/3.13/library/http.server.html)、[http.client](https://docs.python.org/3.13/library/http.client.html)、[subprocess](https://docs.python.org/3.13/library/subprocess.html)、[curl](https://curl.se/docs/manpage.html)、[RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)、[IANA loopback](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml)、[WHATWG URL](https://url.spec.whatwg.org/)。没有验收公网、TLS、浏览器跨源策略、数据库或生产部署。\n",
+            "README.zh-tw.md": "# H01：從客戶端到持續運行的服務\n\n狀態：本地實驗，不是任務 API 或可部署後端。核驗日期 2026-09-28。\n\n## 目標與範圍\n\n前置為 L10 本地工程和 L14 資源生命週期。你將啟動一個進程、觀察 loopback 監聽、追蹤請求到文件的路徑，區分請求完成與進程退出，定位 404/連接失敗/端口衝突，並只停止自己的服務。不要求實現 HTTP 服務器、FastAPI、數據庫、認證或異步。\n\n只公開 `public` 或參考 `solutions/public`。不要公開工程根、用戶目錄、憑證、`.env` 或符號鏈接。`http.server` 會跟隨符號鏈接且可能列出目錄，不是安全沙箱；loopback 不是身份驗證。\n\n## 環境與工作目錄\n\n固定 CPython 3.13.15（`.python-version`），範圍 `>=3.13,<3.14`；開發依賴 pytest 8.4.2；實測 uv 0.12.13、macOS、curl 8.7.1。無第三方運行依賴。命令為 macOS/Linux shell；未驗收 Windows 的終端與信號行為。\n\n倉庫用戶先從倉庫根進入下面目錄。下載用戶進入解壓後的 `h01-service-process`，從 `uv sync` 開始。\n\n```bash\ncd examples/js2py/h01-service-process\npwd\nuv sync --locked --default-index https://pypi.org/simple\nuv run --locked python --version\nuv run --locked python one_shot.py\nuv run --locked python observe.py\nuv run --locked python -m pytest -q\nuv run --locked python -m solutions.observe_health\nuv run --locked python -m pytest -q solutions/test_health.py\n```\n\n`observe.py` 的穩定輸出：\n\n```text\n200 hello from the service\n404 missing\n200 hello from the service\nrequest_done_process_alive=True\nprocess_stopped=True\n```\n\n標準 13 項、獨立參考 2 項通過。獨立參考訪問 health 返回 `ready`，404 後再請求仍成功。自動工具只監聽 `127.0.0.1`，讓操作系統選擇端口，並在 finally 中清理自己創建的子進程。測試證明列出的本地行為，不證明生產併發、外網安全或持久化。\n\n## 兩個終端，真實請求\n\nA、B 都位於實驗根。A 前臺啟動：\n\n```bash\nuv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory public\n```\n\n`-m` 運行標準庫模塊；`8765` 為端口；`--bind` 限定 loopback；`--directory` 指公開目錄，相對 A 的啟動工作目錄。提示符不回來是服務等待請求的正常行為。\n\nB 發出請求：\n\n```bash\ncurl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt'\ncurl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/not-here.txt'\necho $?\nuv run --locked python client.py 8765 /hello.txt\n```\n\ncurl 是客戶端，不監聽服務端口。`--noproxy '*'` 繞過代理，引號防止 shell 展開星號；`--max-time 3` 限制整輪傳輸；`--verbose` 把連接/頭部診斷寫到標準錯誤；`--include` 把響應頭和正文一起顯示。先看到 200 與 `hello from the service`，再看到 404 的 HTML 錯誤頁。默認 curl 收到 HTTP 錯誤仍可退出零；`echo $?` 是命令退出狀態，不是 HTTP 狀態。Python 客戶端成功為零、HTTP 錯誤退出 2、連接異常退出 1。\n\n回到 A 按 Ctrl+C，只停止這個前臺實例。B 再請求原 URL，在端口無人接管的實測條件下 curl 退出 7，沒有 HTTP 響應。恢復用原啟動命令。禁止 `killall`、按端口殺陌生進程、開放 `0.0.0.0` 或加公網隧道。\n\n## 失敗定位與練習\n\n- `Address already in use` 是啟動階段獲取監聽失敗。確認自己的舊實例，不能確認就換 `8766` 並同步所有客戶端；不停止不明進程。\n- 404 表示有 HTTP 響應，檢查路徑與公開目錄，而非重裝 Python。把公開目錄換為 `solutions/public` 會讓 `/hello.txt` 404、`/health.txt` 200。\n- 連接失敗發生在 HTTP 響應之前，檢查自己的進程、主機和端口。停止自有服務再重試可以復現，不探測他人的服務。\n- 獨立任務：用另一個公開目錄和端口完成 health 成功、缺失路徑失敗、note 成功，並證明舊 hello 不共享。先自己完成，再看 `solutions`。\n\n解釋題答案：客戶端退出只結束自己；服務繼續持有監聽資源。404 不能證明資源存在，也不能單獨證明響應者是預期實例。前端禁用輸入框無法約束其他客戶端；後續必須由服務端驗證與授權。\n\n## 暫停恢復與文件說明\n\n記錄工作目錄、公開目錄、端口、擁有服務的終端、最後成功/失敗命令、失敗層次、13+2 項測試結果與下次第一步；暫停前停止自己的實例。恢復先跑 `observe.py`，再重做手動成功/失敗/成功，不拿舊筆記 PID 隨意殺進程。\n\n`client.py` 是單次 HTTP 客戶端；`observe.py` 是生命週期觀察；`tools/owned_server.py` 是有超時的測試基礎設施，不是學生必須重建的服務器實現。它只使用標準庫 CLI，絕不按端口掃描或停止其他程序。`tests` 是默認套件，`solutions` 是獨立參考。下載由外部同名 `-files.json` 顯式清單生成；不包含 `.venv`、緩存、臨時日誌或憑證。\n\n## 一手資料\n\n2026-09-28 核對：[http.server](https://docs.python.org/3.13/library/http.server.html)、[http.client](https://docs.python.org/3.13/library/http.client.html)、[subprocess](https://docs.python.org/3.13/library/subprocess.html)、[curl](https://curl.se/docs/manpage.html)、[RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)、[IANA loopback](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml)、[WHATWG URL](https://url.spec.whatwg.org/)。沒有驗收公網、TLS、瀏覽器跨源策略、數據庫或生產部署。\n",
+            "client.py": "\"\"\"A one-request CLIENT, not a listening server. Only 127.0.0.1.\"\"\"\nfrom http.client import HTTPConnection, HTTPException\nimport sys\n\n\ndef fetch(port: int, path: str) -> tuple[int, str]:\n    if not 1 <= port <= 65535:\n        raise ValueError(\"port must be between 1 and 65535\")\n    if not path.startswith(\"/\") or path.startswith(\"//\"):\n        raise ValueError(\"use a local request path such as /hello.txt\")\n    connection = HTTPConnection(\"127.0.0.1\", port, timeout=3)\n    try:\n        connection.request(\"GET\", path, headers={\"Connection\": \"close\"})\n        response = connection.getresponse()\n        return response.status, response.read().decode(\"utf-8\")\n    finally:\n        connection.close()\n\n\ndef main() -> int:\n    if len(sys.argv) != 3:\n        print(\"usage: python client.py PORT /PATH\", file=sys.stderr)\n        return 2\n    try:\n        status, body = fetch(int(sys.argv[1]), sys.argv[2])\n    except (OSError, HTTPException, ValueError) as error:\n        print(f\"client error: {type(error).__name__}: {error}\", file=sys.stderr)\n        return 1\n    print(f\"status={status}\")\n    print(body, end=\"\" if body.endswith(\"\\n\") else \"\\n\")\n    return 0 if status < 400 else 2\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n",
+            "observe.py": "\"\"\"Repeat requests against our own standard-library child, then clean up.\"\"\"\nfrom pathlib import Path\nfrom tools.owned_server import exchange, owned_server\n\n\ndef observe(directory: Path, path: str) -> list[str]:\n    lines = []\n    with owned_server(directory) as (process, port):\n        for target in (path, \"/not-here.txt\", path):\n            status, _, body = exchange(port, target)\n            label = body.decode(\"utf-8\").strip() if status == 200 else \"missing\"\n            lines.append(f\"{status} {label}\")\n        lines.append(f\"request_done_process_alive={process.poll() is None}\")\n    lines.append(f\"process_stopped={process.poll() is not None}\")\n    return lines\n\n\nif __name__ == \"__main__\":\n    root = Path(__file__).resolve().parent\n    print(\"\\n\".join(observe(root / \"public\", \"/hello.txt\")))\n",
+            "one_shot.py": "print(\"script: started\")\nprint(\"script: finished\")\n",
+            "public/hello.txt": "hello from the service\n",
+            "public/index.html": "<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><title>H01 local lab</title>\n<h1>Local teaching files only</h1><a href=\"/hello.txt\">hello.txt</a></html>\n",
+            "pyproject.toml": "[project]\nname = \"js2py-h01-service-process\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = []\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\"]\n\n[tool.uv]\npackage = false\n\n[tool.pytest.ini_options]\npythonpath = [\".\"]\ntestpaths = [\"tests\"]\n",
+            "solutions/__init__.py": "\"\"\"Open after attempting the independent variation.\"\"\"\n",
+            "solutions/observe_health.py": "from pathlib import Path\nfrom observe import observe\n\nif __name__ == \"__main__\":\n    directory = Path(__file__).resolve().parent / \"public\"\n    print(\"\\n\".join(observe(directory, \"/health.txt\")))\n",
+            "solutions/public/health.txt": "ready\n",
+            "solutions/public/note.txt": "a separate serving directory\n",
+            "solutions/test_health.py": "from pathlib import Path\nfrom tools.owned_server import exchange, owned_server\n\nPUBLIC = Path(__file__).resolve().parent / \"public\"\n\n\ndef test_independent_directory_and_a_second_request():\n    with owned_server(PUBLIC) as (process, port):\n        assert exchange(port, \"/health.txt\")[2] == b\"ready\\n\"\n        assert exchange(port, \"/note.txt\")[2] == b\"a separate serving directory\\n\"\n        assert process.poll() is None\n    assert process.poll() is not None\n\n\ndef test_original_directory_is_not_implicitly_shared():\n    with owned_server(PUBLIC) as (_, port):\n        assert exchange(port, \"/hello.txt\")[0] == 404\n",
+            "tests/test_service_process.py": "from pathlib import Path\nimport signal\nimport subprocess\nimport sys\nfrom tempfile import TemporaryDirectory\n\nimport pytest\n\nfrom client import fetch\nfrom observe import observe\nfrom tools.owned_server import exchange, owned_server\n\nROOT = Path(__file__).resolve().parents[1]\nPUBLIC = ROOT / \"public\"\n\n\ndef test_success_failure_success_does_not_stop_the_process():\n    assert observe(PUBLIC, \"/hello.txt\") == [\n        \"200 hello from the service\", \"404 missing\", \"200 hello from the service\",\n        \"request_done_process_alive=True\", \"process_stopped=True\",\n    ]\n\n\ndef test_client_reads_the_response():\n    with owned_server(PUBLIC) as (_, port):\n        assert fetch(port, \"/hello.txt\") == (200, \"hello from the service\\n\")\n\n\ndef test_query_is_not_a_literal_filename():\n    with owned_server(PUBLIC) as (_, port):\n        status, _, body = exchange(port, \"/hello.txt?attempt=2\")\n        assert status == 200\n        assert body == b\"hello from the service\\n\"\n\n\ndef test_head_has_no_response_body():\n    with owned_server(PUBLIC) as (_, port):\n        status, headers, body = exchange(port, \"/hello.txt\", \"HEAD\")\n        assert status == 200\n        assert int(headers[\"Content-Length\"]) == len(b\"hello from the service\\n\")\n        assert body == b\"\"\n\n\ndef test_project_file_is_not_inside_the_served_directory():\n    with owned_server(PUBLIC) as (_, port):\n        assert exchange(port, \"/pyproject.toml\")[0] == 404\n\n\ndef test_address_collision_does_not_kill_the_first_server():\n    with owned_server(PUBLIC) as (first, port):\n        second = subprocess.run(\n            [sys.executable, \"-m\", \"http.server\", str(port),\n             \"--bind\", \"127.0.0.1\", \"--directory\", str(PUBLIC)],\n            capture_output=True, text=True, timeout=5,\n        )\n        assert second.returncode != 0\n        assert \"Address already in use\" in second.stderr\n        assert first.poll() is None\n        assert exchange(port, \"/hello.txt\")[0] == 200\n\n\ndef test_wrong_existing_directory_causes_404_not_startup_failure():\n    with TemporaryDirectory() as empty:\n        with owned_server(Path(empty)) as (process, port):\n            assert exchange(port, \"/hello.txt\")[0] == 404\n            assert process.poll() is None\n\n\ndef test_exception_still_stops_only_our_child():\n    with pytest.raises(RuntimeError, match=\"intentional experiment failure\"):\n        with owned_server(PUBLIC) as (process, _):\n            raise RuntimeError(\"intentional experiment failure\")\n    assert process.poll() is not None\n\n\ndef test_ctrl_c_signal_stops_our_foreground_equivalent():\n    with owned_server(PUBLIC) as (process, _):\n        process.send_signal(signal.SIGINT)\n        assert process.wait(timeout=3) == 0\n\n\n@pytest.mark.parametrize(\"port,path\", [(0, \"/hello.txt\"), (65536, \"/hello.txt\"), (8765, \"hello.txt\")])\ndef test_client_rejects_invalid_local_arguments(port, path):\n    with pytest.raises(ValueError):\n        fetch(port, path)\n\n\ndef test_client_cli_http_failure_has_exit_2():\n    with owned_server(PUBLIC) as (_, port):\n        result = subprocess.run(\n            [sys.executable, str(ROOT / \"client.py\"), str(port), \"/not-here.txt\"],\n            capture_output=True, text=True, timeout=5,\n        )\n        assert result.returncode == 2\n        assert result.stdout.startswith(\"status=404\\n\")\n",
+            "tools/__init__.py": "\"\"\"Local experiment support, not application server code.\"\"\"\n",
+            "tools/owned_server.py": "\"\"\"Start ONLY our child, on IPv4 loopback, and stop ONLY that child.\n\nMaintenance/test infrastructure: students need not recreate subprocess control.\nPort 0 lets the OS allocate a free port without a find-then-bind race.\nThe CPython 3.13.15 CLI banner supplies that port. No custom HTTP handler.\n\"\"\"\nfrom contextlib import contextmanager\nfrom http.client import HTTPConnection\nfrom pathlib import Path\nimport re\nimport subprocess\nimport sys\nfrom tempfile import TemporaryDirectory\nimport time\n\n\ndef stop_owned(process):\n    if process.poll() is None:\n        process.terminate()\n        try:\n            process.wait(timeout=3)\n        except subprocess.TimeoutExpired:\n            process.kill()\n            process.wait(timeout=3)\n\n\n@contextmanager\ndef owned_server(directory: Path):\n    directory = directory.absolute()\n    if not directory.is_dir():\n        raise ValueError(\"serving directory must exist\")\n    if directory.is_symlink() or any(p.is_symlink() for p in directory.rglob(\"*\")):\n        raise ValueError(\"do not serve symbolic links\")\n    with TemporaryDirectory(prefix=\"js2py-owned-http-\") as temporary:\n        log_path = Path(temporary) / \"server.log\"\n        with log_path.open(\"w\", encoding=\"utf-8\") as output:\n            process = subprocess.Popen(\n                [sys.executable, \"-u\", \"-m\", \"http.server\", \"0\",\n                 \"--bind\", \"127.0.0.1\", \"--directory\", str(directory)],\n                cwd=temporary, stdout=output, stderr=subprocess.STDOUT,\n            )\n            try:\n                deadline = time.monotonic() + 8\n                while time.monotonic() < deadline:\n                    log = log_path.read_text(encoding=\"utf-8\")\n                    if process.poll() is not None:\n                        raise RuntimeError(f\"owned server exited during startup:\\n{log}\")\n                    match = re.search(r\"Serving HTTP on 127\\.0\\.0\\.1 port (\\d+)\", log)\n                    if match:\n                        yield process, int(match.group(1))\n                        break\n                    time.sleep(0.02)\n                else:\n                    raise TimeoutError(\"owned server did not announce its port\")\n            finally:\n                stop_owned(process)\n\n\ndef exchange(port: int, path: str, method=\"GET\", body=None, headers=None):\n    \"\"\"Bounded client request. No redirects, proxies, or external destinations.\"\"\"\n    connection = HTTPConnection(\"127.0.0.1\", port, timeout=3)\n    try:\n        connection.request(method, path, body=body, headers=headers or {})\n        response = connection.getresponse()\n        data = response.read()\n        return response.status, dict(response.getheaders()), data\n    finally:\n        connection.close()\n",
+            "uv.lock": "version = 1\nrevision = 3\nrequires-python = \"==3.13.*\"\n\n[[package]]\nname = \"colorama\"\nversion = \"0.4.6\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz\", hash = \"sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44\", size = 27697, upload-time = \"2022-10-25T02:36:22.414Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl\", hash = \"sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6\", size = 25335, upload-time = \"2022-10-25T02:36:20.889Z\" },\n]\n\n[[package]]\nname = \"iniconfig\"\nversion = \"2.3.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz\", hash = \"sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730\", size = 20503, upload-time = \"2025-10-18T21:55:43.219Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl\", hash = \"sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12\", size = 7484, upload-time = \"2025-10-18T21:55:41.639Z\" },\n]\n\n[[package]]\nname = \"js2py-h01-service-process\"\nversion = \"0.1.0\"\nsource = { virtual = \".\" }\n\n[package.dev-dependencies]\ndev = [\n    { name = \"pytest\" },\n]\n\n[package.metadata]\n\n[package.metadata.requires-dev]\ndev = [{ name = \"pytest\", specifier = \"==8.4.2\" }]\n\n[[package]]\nname = \"packaging\"\nversion = \"26.3\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/7d/fa/3944b40b07da9ce895c0e6303a5ab7d53da063554f534556b134a54d6093/packaging-26.3.tar.gz\", hash = \"sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79\", size = 313412, upload-time = \"2026-08-04T18:15:28.737Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl\", hash = \"sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c\", size = 129956, upload-time = \"2026-08-04T18:15:27.159Z\" },\n]\n\n[[package]]\nname = \"pluggy\"\nversion = \"1.6.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz\", hash = \"sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3\", size = 69412, upload-time = \"2025-05-15T12:30:07.975Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl\", hash = \"sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746\", size = 20538, upload-time = \"2025-05-15T12:30:06.134Z\" },\n]\n\n[[package]]\nname = \"pygments\"\nversion = \"2.21.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/49/2e/ced460408999b33da6b31b0021b0f37d329e202d4169aeb164493778f25b/pygments-2.21.0.tar.gz\", hash = \"sha256:610ca751c9bc2492b38eb9a38a7fbc93edbbb2d7182edaf34e66ae493dee5c8c\", size = 5005329, upload-time = \"2026-08-17T08:02:48.824Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl\", hash = \"sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9\", size = 1250147, upload-time = \"2026-08-17T08:02:44.912Z\" },\n]\n\n[[package]]\nname = \"pytest\"\nversion = \"8.4.2\"\nsource = { registry = \"https://pypi.org/simple\" }\ndependencies = [\n    { name = \"colorama\", marker = \"sys_platform == 'win32'\" },\n    { name = \"iniconfig\" },\n    { name = \"packaging\" },\n    { name = \"pluggy\" },\n    { name = \"pygments\" },\n]\nsdist = { url = \"https://files.pythonhosted.org/packages/a3/5c/00a0e072241553e1a7496d638deababa67c5058571567b92a7eaa258397c/pytest-8.4.2.tar.gz\", hash = \"sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01\", size = 1519618, upload-time = \"2025-09-04T14:34:22.711Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl\", hash = \"sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79\", size = 365750, upload-time = \"2025-09-04T14:34:20.226Z\" },\n]\n"
+          },
+          "mechanism_focus": "Process vs request lifetimes, bind/listen/loopback/port ownership, request path query vs fragment, static public directory and trust boundaries. Standard-library file server is NOT production or task CRUD.",
+          "observed_verification": [
+            {
+              "handoff": "langshift-h01-h02-handoff.json",
+              "status": "chapter_and_lab_scope_verified; shared integration pending",
+              "facts": {
+                "platform": "macOS",
+                "python": "CPython 3.13.15",
+                "uv": "0.12.13",
+                "curl": "8.7.1",
+                "pytest": "8.4.2",
+                "requires_python": ">=3.13,<3.14",
+                "uv_package": false,
+                "lock_generation_commands": [
+                  {
+                    "cwd": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h01-service-process",
+                    "command": "uv lock --default-index https://pypi.org/simple",
+                    "result": "exit 0; actual public-index uv.lock generated; registry is https://pypi.org/simple"
+                  },
+                  {
+                    "cwd": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h02-http-contract",
+                    "command": "uv lock --default-index https://pypi.org/simple",
+                    "result": "exit 0; actual public-index uv.lock generated; registry is https://pypi.org/simple"
+                  }
+                ],
+                "test_cases": {
+                  "h01-service-process": {
+                    "standard": 13,
+                    "independent": 2,
+                    "passed": 15
+                  },
+                  "h02-http-contract": {
+                    "standard": 40,
+                    "standard_offline": 36,
+                    "standard_live_http": 4,
+                    "independent": 5,
+                    "passed": 45
+                  },
+                  "total_passing": 60,
+                  "intentional_failing": 1
+                },
+                "static_audit": [
+                  {
+                    "lab": "h01-service-process",
+                    "source_file_count": 19,
+                    "sections": 15,
+                    "details": 3,
+                    "source_refs": 10,
+                    "fences": 20,
+                    "locale_parity": true,
+                    "readme_fence_parity": true,
+                    "official_link_parity": true,
+                    "python_syntax": true,
+                    "allowlist_safe": true
+                  },
+                  {
+                    "lab": "h02-http-contract",
+                    "source_file_count": 45,
+                    "sections": 17,
+                    "details": 3,
+                    "source_refs": 11,
+                    "fences": 10,
+                    "locale_parity": true,
+                    "readme_fence_parity": true,
+                    "official_link_parity": true,
+                    "python_syntax": true,
+                    "allowlist_safe": true
+                  }
+                ],
+                "mdx_validation": {
+                  "files": 6,
+                  "yaml_parsed": true,
+                  "mdx_gfm_compiled": true,
+                  "log": "/tmp/langshift-h01-h02-work/mdx-compile.log",
+                  "note": "Compilation used existing installed dependencies only. It does not resolve the not-yet-integrated loader exports or prove the full site build."
+                },
+                "clean_allowlist_rebuild": {
+                  "files": 64,
+                  "labs": 2,
+                  "passed": true,
+                  "lockfiles_unchanged": true,
+                  "zip_generated": false,
+                  "records": [
+                    {
+                      "lab": "h01-service-process",
+                      "allowlisted_files": 19,
+                      "clean_directory": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h01-service-process",
+                      "lock_unchanged": true,
+                      "commands": [
+                        {
+                          "command": [
+                            "uv",
+                            "sync",
+                            "--locked",
+                            "--default-index",
+                            "https://pypi.org/simple"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h01-service-process",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": "",
+                          "stderr": "Using CPython 3.13.15\nCreating virtual environment at: .venv\nResolved 7 packages in 2ms\nInstalled 5 packages in 8ms\n + iniconfig==2.3.0\n + packaging==26.3\n + pluggy==1.6.0\n + pygments==2.21.0\n + pytest==8.4.2\n"
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "--version"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h01-service-process",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": "Python 3.13.15\n",
+                          "stderr": ""
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "one_shot.py"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h01-service-process",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": "script: started\nscript: finished\n",
+                          "stderr": ""
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "observe.py"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h01-service-process",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": "200 hello from the service\n404 missing\n200 hello from the service\nrequest_done_process_alive=True\nprocess_stopped=True\n",
+                          "stderr": ""
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "-m",
+                            "pytest",
+                            "-q"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h01-service-process",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": ".............                                                            [100%]\n13 passed in 0.63s\n",
+                          "stderr": ""
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "-m",
+                            "pytest",
+                            "-q",
+                            "solutions/test_health.py"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h01-service-process",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": "..                                                                       [100%]\n2 passed in 0.13s\n",
+                          "stderr": ""
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "-m",
+                            "solutions.observe_health"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h01-service-process",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": "200 ready\n404 missing\n200 ready\nrequest_done_process_alive=True\nprocess_stopped=True\n",
+                          "stderr": ""
+                        }
+                      ]
+                    },
+                    {
+                      "lab": "h02-http-contract",
+                      "allowlisted_files": 45,
+                      "clean_directory": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h02-http-contract",
+                      "lock_unchanged": true,
+                      "commands": [
+                        {
+                          "command": [
+                            "uv",
+                            "sync",
+                            "--locked",
+                            "--default-index",
+                            "https://pypi.org/simple"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h02-http-contract",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": "",
+                          "stderr": "Using CPython 3.13.15\nCreating virtual environment at: .venv\nResolved 7 packages in 2ms\nInstalled 5 packages in 5ms\n + iniconfig==2.3.0\n + packaging==26.3\n + pluggy==1.6.0\n + pygments==2.21.0\n + pytest==8.4.2\n"
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "--version"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h02-http-contract",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": "Python 3.13.15\n",
+                          "stderr": ""
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "contract_examples.py"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h02-http-contract",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": "PROPOSED GET /projects/7/tasks?offset=0&limit=2 -> 200\nPROPOSED GET /projects/7/tasks?offset=2&limit=2 -> 200\nPROPOSED GET /projects/7/tasks?offset=99&limit=2 -> 200\nPROPOSED GET /projects/7/tasks?status=doing&offset=0&limit=2 -> 200\nPROPOSED GET /projects/7/tasks/41 -> 200\nPROPOSED POST /projects/7/tasks -> 201\nPROPOSED PATCH /projects/7/tasks/41 -> 200\nPROPOSED PATCH /projects/7/tasks/41 -> 200\nPROPOSED DELETE /projects/7/tasks/41 -> 204\nPROPOSED DELETE /projects/7/tasks/41 -> 404\nPROPOSED GET /projects/7/tasks/999 -> 404\nPROPOSED POST /projects/7/tasks -> 422\nPROPOSED GET /projects/7/tasks?offset=-1&limit=2 -> 422\nPROPOSED POST /projects/7/tasks -> 415\nPROPOSED PUT /projects/7/tasks/41 -> 405\nPROPOSED POST /projects/7/tasks -> 400\nPROPOSED PATCH /projects/7/tasks/41 -> 422\nPROPOSED POST /projects/7/tasks -> 422\nchecked 18 proposed exchanges; no CRUD requests executed\n",
+                          "stderr": ""
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "inspect_transport.py"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h02-http-contract",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": "real GET example: HTTP 200; proposed POST: 201\nreal GET tasks: HTTP 404\nreal POST tasks: HTTP 501; no CRUD implemented\nreal HEAD example: HTTP 200; body bytes=0\nreal GET with Origin: HTTP 200; allow-origin=False\nservice_alive=True\nowned_service_stopped=True\n",
+                          "stderr": ""
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "-m",
+                            "pytest",
+                            "-q"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h02-http-contract",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": "........................................                                 [100%]\n40 passed in 0.26s\n",
+                          "stderr": ""
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "-m",
+                            "pytest",
+                            "-q",
+                            "solutions/test_review_cases.py"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h02-http-contract",
+                          "exit": 0,
+                          "expected_exit": 0,
+                          "stdout": ".....                                                                    [100%]\n5 passed in 0.01s\n",
+                          "stderr": ""
+                        },
+                        {
+                          "command": [
+                            "uv",
+                            "run",
+                            "--locked",
+                            "python",
+                            "-m",
+                            "pytest",
+                            "-q",
+                            "errors/test_wrong_contract.py"
+                          ],
+                          "cwd": "/tmp/langshift-h01-h02-work/allowlist-rebuild-01zi21k3/h02-http-contract",
+                          "exit": 1,
+                          "expected_exit": 1,
+                          "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________ test_wrong_assumption_that_delete_returns_json ________________\n\n    def test_wrong_assumption_that_delete_returns_json():\n        response = read_case(\"delete-ok\")[\"response\"]\n>       assert response[\"status\"] == 200, \"204 is success without a JSON response body\"\nE       AssertionError: 204 is success without a JSON response body\nE       assert 204 == 200\n\nerrors/test_wrong_contract.py:7: AssertionError\n=========================== short test summary info ============================\nFAILED errors/test_wrong_contract.py::test_wrong_assumption_that_delete_returns_json\n1 failed in 0.01s\n",
+                          "stderr": ""
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "manual_observations": [
+                  {
+                    "lab": "h01-service-process",
+                    "command": "uv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory public",
+                    "result": "Started in foreground; exact CPython 3.13.15 banner observed; own process later exited 0 after Ctrl+C."
+                  },
+                  {
+                    "lab": "h01-service-process",
+                    "command": "curl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt'",
+                    "result": "GET /hello.txt HTTP/1.1 sent; HTTP/1.0 200 OK received; body hello from the service."
+                  },
+                  {
+                    "lab": "h01-service-process",
+                    "command": "curl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt?attempt=2#client-note'",
+                    "result": "Sent /hello.txt?attempt=2 (fragment absent); HTTP 200, same body."
+                  },
+                  {
+                    "lab": "h01-service-process",
+                    "command": "curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/not-here.txt'",
+                    "result": "HTTP 404 with HTML error body; default curl exit 0; next successful request still HTTP 200."
+                  },
+                  {
+                    "lab": "h01-service-process",
+                    "command": "uv run --locked python client.py 8765 /not-here.txt",
+                    "result": "status=404, HTML body, client exit 2."
+                  },
+                  {
+                    "lab": "h01-service-process",
+                    "command": "second owned launch on 127.0.0.1:8765",
+                    "result": "Intentional startup failure: OSError Errno 48 Address already in use, exit 1; first process remained alive."
+                  },
+                  {
+                    "lab": "h01-service-process",
+                    "command": "curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/hello.txt' after Ctrl+C",
+                    "result": "No listener took over; no HTTP response, curl exit 7."
+                  },
+                  {
+                    "lab": "h01-service-process",
+                    "command": "uv run --locked python -m http.server 8766 --bind 127.0.0.1 --directory solutions/public; client.py requests /health.txt, /not-here.txt, /note.txt, /hello.txt",
+                    "result": "200 ready; 404; 200 a separate serving directory; 404; client exits 0,2,0,2. Own process exited 0 after Ctrl+C."
+                  },
+                  {
+                    "lab": "h02-http-contract",
+                    "command": "uv run --locked python -m http.server 8767 --bind 127.0.0.1 --directory public",
+                    "result": "Started in foreground; own process exited 0 after Ctrl+C."
+                  },
+                  {
+                    "lab": "h02-http-contract",
+                    "command": "curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8767/exchanges/create-ok.json'",
+                    "result": "Real HTTP 200 with an example whose proposed response.status is 201."
+                  },
+                  {
+                    "lab": "h02-http-contract",
+                    "command": "curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8767/projects/7/tasks'",
+                    "result": "Real HTTP 404, HTML; no task route."
+                  },
+                  {
+                    "lab": "h02-http-contract",
+                    "command": "curl --noproxy '*' --max-time 3 --include --header 'Content-Type: application/json' --data-binary @requests/create.json 'http://127.0.0.1:8767/projects/7/tasks'",
+                    "result": "Real HTTP 501 Unsupported method POST; no CRUD implemented."
+                  },
+                  {
+                    "lab": "h02-http-contract",
+                    "command": "curl --noproxy '*' --max-time 3 --include --fail-with-body 'http://127.0.0.1:8767/projects/7/tasks'",
+                    "result": "HTTP 404 body retained; curl exit 22."
+                  },
+                  {
+                    "lab": "h02-http-contract",
+                    "command": "curl --noproxy '*' --max-time 3 --include --header 'Origin: https://untrusted.invalid' 'http://127.0.0.1:8767/exchanges/create-ok.json'",
+                    "result": "HTTP 200 without Access-Control-Allow-Origin; request stayed on loopback, no visit to header domain. This is not browser CORS verification."
+                  },
+                  {
+                    "lab": "h02-http-contract",
+                    "command": "curl --noproxy '*' --max-time 3 --include --request OPTIONS --header 'Origin: http://127.0.0.1:5173' --header 'Access-Control-Request-Method: POST' --header 'Access-Control-Request-Headers: content-type' 'http://127.0.0.1:8767/projects/7/tasks'",
+                    "result": "HTTP 501; intentionally not a successful preflight configuration."
+                  },
+                  {
+                    "lab": "h02-http-contract",
+                    "command": "curl --noproxy '*' --max-time 3 --head 'http://127.0.0.1:8767/exchanges/create-ok.json'",
+                    "result": "HTTP 200, headers only; automated client additionally asserted 0 response body bytes."
+                  }
+                ],
+                "intentional_failure": {
+                  "command": "uv run --locked python -m pytest -q errors/test_wrong_contract.py",
+                  "cwd": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h02-http-contract",
+                  "exit": 1,
+                  "case_count": 1,
+                  "failure": "assert 204 == 200",
+                  "expected": true,
+                  "default_suite_excludes_it": true,
+                  "log": "/tmp/langshift-h01-h02-work/h02-intentional-failure.log"
+                },
+                "logs": [
+                  "/tmp/langshift-h01-h02-work/h01-tests.log",
+                  "/tmp/langshift-h01-h02-work/h02-tests.log",
+                  "/tmp/langshift-h01-h02-work/h01-manual.log",
+                  "/tmp/langshift-h01-h02-work/h01-after-stop.log",
+                  "/tmp/langshift-h01-h02-work/h01-independent-manual.log",
+                  "/tmp/langshift-h01-h02-work/h02-manual.log",
+                  "/tmp/langshift-h01-h02-work/h02-intentional-failure.log",
+                  "/tmp/langshift-h01-h02-work/clean-verification.log",
+                  "/tmp/langshift-h01-h02-work/source-review.log",
+                  "/tmp/langshift-h01-h02-work/mdx-compile.log"
+                ]
+              },
+              "unverified": [
+                "Real task CRUD or full schema/request validation; the HTTP contract remains proposed.",
+                "Real browser cross-origin fetch/preflight success, credential transport, authentication, authorization or CSRF defense.",
+                "Database persistence, transaction atomicity, concurrent idempotency, production load or security.",
+                "Public networking, proxy, TLS, deployment, or Linux/Windows execution. Shell commands were exercised on macOS.",
+                "Final ZIPs, shared loader exports, integrated frontend rendering/build and aggregate regression after mainline integration."
+              ]
+            },
+            {
+              "handoff": "langshift-h01-stable-handoff.json",
+              "status": null,
+              "facts": {},
+              "unverified": []
+            }
+          ],
+          "mainline_status": "Canonical sources/allowlists integrated. Semantic request is conditional: aggregate regression, real runtime verification where possible, final production build and three-locale page checks must still pass. A source file existing, syntax compiling, or a subprocess author claiming success is not production readiness or learner effectiveness. Environmental gates must remain explicitly pending. Do not infer missing operations occurred.",
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written."
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this chapter only, conditional on outstanding integrated checks passing. Do not label environmental prerequisites passed without evidence.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.16
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 1.0,
+            "probabilities": {
+              "API_CATALOGUE": 0.0,
+              "SUBSTANTIVE": 1.0,
+              "PARTIAL": 0.0,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.99,
+            "probabilities": {
+              "MATERIAL_ERROR": 0.0,
+              "ACCURATE_AND_BOUNDED": 1.0,
+              "NECESSARY_GAP": 0.0,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.99,
+            "probabilities": {
+              "MATERIAL_ERROR": 0.0,
+              "NECESSARY_GAP": 0.0,
+              "ACCURATE_AND_BOUNDED": 1.0,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.96,
+            "probabilities": {
+              "CONTRADICTORY": 0.02,
+              "UNDERSPECIFIED": 0.0,
+              "COHERENT_AND_TESTABLE": 0.97,
+              "UNCERTAIN": 0.01
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.94
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "PROCEED",
+            "confidence": 0.4,
+            "probabilities": {
+              "REVISE": 0.02,
+              "TARGETED_REVIEW": 0.38,
+              "PROCEED": 0.6
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 29294,
+          "output_tokens": 341
+        }
+      },
+      "raw_response_sha256": "75c85c558f4bd649f7b0d14651c6f32854cb8fd24bd68feca8c2c300aa517b9f"
+    }
+  ],
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-15-service-process.mdx",
+    "examples/js2py/h01-service-process/.python-version",
+    "examples/js2py/h01-service-process/README.md",
+    "examples/js2py/h01-service-process/README.zh-cn.md",
+    "examples/js2py/h01-service-process/README.zh-tw.md",
+    "examples/js2py/h01-service-process/client.py",
+    "examples/js2py/h01-service-process/observe.py",
+    "examples/js2py/h01-service-process/one_shot.py",
+    "examples/js2py/h01-service-process/public/hello.txt",
+    "examples/js2py/h01-service-process/public/index.html",
+    "examples/js2py/h01-service-process/pyproject.toml",
+    "examples/js2py/h01-service-process/solutions/__init__.py",
+    "examples/js2py/h01-service-process/solutions/observe_health.py",
+    "examples/js2py/h01-service-process/solutions/public/health.txt",
+    "examples/js2py/h01-service-process/solutions/public/note.txt",
+    "examples/js2py/h01-service-process/solutions/test_health.py",
+    "examples/js2py/h01-service-process/tests/test_service_process.py",
+    "examples/js2py/h01-service-process/tools/__init__.py",
+    "examples/js2py/h01-service-process/tools/owned_server.py",
+    "examples/js2py/h01-service-process/uv.lock"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-15-service-process.mdx": "cd8bfc9c86383795403183a188d9d2085f8fecb31d6ee053d80333376719bbfe",
+    "examples/js2py/h01-service-process/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/h01-service-process/README.md": "7ffc2ab39af0c95fb5b9f48c3cac965c71e8404548419ef568a86aff931546a5",
+    "examples/js2py/h01-service-process/README.zh-cn.md": "ee14fae3a58fb0bd1fbaef74039467a0efba28eedd3f2a23d5622372b54c97bc",
+    "examples/js2py/h01-service-process/README.zh-tw.md": "c789b736c8ed4bd79c3bd122186b27b640697f88190277ee4fcde90f5a2ec6a2",
+    "examples/js2py/h01-service-process/client.py": "02fa846f2dfcf9ec9086e849820eda308c8503dc0c48533b6990cd0ea0c5ee5b",
+    "examples/js2py/h01-service-process/observe.py": "6fbe31a46c374c8c8dcd5dbe3066167e4bcab2459876875802406c797fde1cd2",
+    "examples/js2py/h01-service-process/one_shot.py": "5f70f0afad4f94811aaa2bc4516469028540c7d112a379cba7fd40cd191b9e52",
+    "examples/js2py/h01-service-process/public/hello.txt": "5b6d18abdcaa8e06c8fbe98381ad03535bdcda6ed5f7a839ef187536de374db2",
+    "examples/js2py/h01-service-process/public/index.html": "8d6389c0b27a33803d8f8f9802ceea4096e0684daf688ac48776ed47b0c15fb3",
+    "examples/js2py/h01-service-process/pyproject.toml": "a8a4282b2f5a10e74e0ef977a3eb6d54d1ddc4810804063ef7759a65ab7678b8",
+    "examples/js2py/h01-service-process/solutions/__init__.py": "036dccb81b9d631d98677ff6752de3ae19c344dba9f901d9a84b68473b043642",
+    "examples/js2py/h01-service-process/solutions/observe_health.py": "4e0e10644ed45520acd2901cb7b8966190178c3f6270caa038693d74ef5f2827",
+    "examples/js2py/h01-service-process/solutions/public/health.txt": "ed1a545bb85e55816bbf9566b028b2a0bc456b88f49f6f266c0401048824194b",
+    "examples/js2py/h01-service-process/solutions/public/note.txt": "29a5148cc4edafbecfca74afd568c38e562fe5cd42f1b1fffe8e487846a4c842",
+    "examples/js2py/h01-service-process/solutions/test_health.py": "f22f993ec0dad23decb91422b36de285969467d13a5723a9b36553aa01dc4685",
+    "examples/js2py/h01-service-process/tests/test_service_process.py": "079cd139c6315397f0999988a5327aa27027d0600f1b314216a9c34ed804e284",
+    "examples/js2py/h01-service-process/tools/__init__.py": "dce5eda879e1c0b317094ebdf78ad8c4297bdb847e212e0b13bac9785edf394c",
+    "examples/js2py/h01-service-process/tools/owned_server.py": "adb70204fe9325cb33be71fa98fc0c12fa1ed6807f3d870db8443d085a90c3b3",
+    "examples/js2py/h01-service-process/uv.lock": "4ea2cb0821d5e315f9453f432056561e86a27f8c197ba9b996de60c09a0469f3",
+    "content/docs/js2py/module-15-service-process.zh-tw.mdx": "06a22ee203991ac01f9974525a75a5f7e02ad334190ce92f4939edc95e4e3f25",
+    "content/docs/js2py/module-15-service-process.zh-cn.mdx": "a234f2db6b97304f8ba796ef0213d8941360ecaa8acd200dea3c0d16cdb8d0b5",
+    "examples/js2py/h01-service-process-files.json": "6914028f4ac399f8c9ac10699ce3359e251cac87308a43312960ad6fbe97d575",
+    "public/learning-assets/js2py/h01-service-process.zip": "7de92478c1793922434356487007cb38bfd802028f565b7ca06d03c1556b0378"
+  },
+  "deterministically_checked_lock_files": {},
+  "interface_failures": [],
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not gpt-6-astra; independent reasoning assistants are separate.",
+    "decision": "Original slice choices unchanged. New targeted audits, reproduced repairs, real runtime/browser evidence and exact new source deltas support conditional ACCEPT_WITH_EXPLICIT_ENVIRONMENT_GATES; see closure record for outstanding/final deterministic gates. Never a production or learner approval.",
+    "scope": "Full English in every slice; union of slices covers every non-lock allowlisted file. Only the original H01 request included lock text. Other opaque locks were checked by registry/hash/locked reconstruction rather than semantic inference. No single slice is presented as whole-chapter review.",
+    "uncertainty": "Raw unfavorable branches preserved. Confidence is distribution concentration, not factual correctness or learner outcomes. Initial direct predecessor contracts omit transitive detail; follow-up audits must examine the actual full path rather than assume missing learner capability.",
+    "snapshot": "Submitted source hashes and full requests remain unchanged. Effective source_sha256 includes each explicitly recorded post-review repair; closure delta review binds the final D03 assertion and O privilege wording changes. Locale/locks/manifests/ZIP are deterministic evidence, not semantic translation review."
+  },
+  "credential_persisted": false,
+  "post_review_changes": [],
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+}

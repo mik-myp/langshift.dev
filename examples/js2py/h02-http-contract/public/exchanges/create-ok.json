@@ -1,0 +1,31 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "create-ok",
+  "precondition": {
+    "seed_tasks": []
+  },
+  "request": {
+    "method": "POST",
+    "target": "/tasks",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "title": "  Ship the draft  ",
+      "minutes": 15
+    }
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "id": 1,
+      "title": "  Ship the draft  ",
+      "minutes": 15,
+      "done": false,
+      "note": null
+    }
+  }
+}

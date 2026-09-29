@@ -1,971 +1,701 @@
 ---
-title: "Python Module System and Project Organization"
-description: "Learn Python's module system, package management, and project organization best practices from a JavaScript developer's perspective."
+title: "Containers, References, and Mutation"
+description: "Organize task data with lists, dictionaries, tuples, and sets. Distinguish missing fields from None, rebinding from mutation, and shared references from shallow copies, then independently build plans that do not accidentally affect each other."
 ---
 
-## 1. Introduction
+import { getContainerExample } from '@/lib/js2py-examples'
 
-### Why Do We Need a Module System?
+## 1. The problem now involves more than one value
 
-In front-end development, we are used to organizing code with ES6 modules or CommonJS. Python also has its own module system. Although the syntax is different, the core concepts are similar.
+In L01, a few names held a title and duration, which became a readable message. That is sufficient for one task. With two tasks, each containing a title, tags, an owner, and a duration, adding `title_1`, `title_2`, and `minutes_1` soon makes it easy to associate the wrong values.
 
-**Core Value of Modularity**
-- Code reuse: Avoid writing the same functionality repeatedly
-- Namespace isolation: Avoid variable name conflicts
-- Project organization: Group related functionality together
-- Dependency management: Clearly define project dependencies
+We need two ways to organize data: **group entries of a collection, and group the named fields of a single record.** Another, less visible problem follows: after copying a task into a draft, why might changing the draft's tags also change the original task?
 
-> 💡 **Learning Strategy**: Think of Python's module system as a "dialect version" of the JavaScript module system.
+Memorizing container APIs is not the goal. We want to draw the relationships between data, explain which reference a mutation follows, and decide where sharing is intentional and where isolation is needed.
 
-## 2. Python Module System Basics
+### Chapter contract
 
-### 2.1 What is a Module?
+| Item | Agreement |
+| --- | --- |
+| Prerequisites | Complete L00 and L01: run scripts; explain name binding, basic values, comparisons, None, method calls, and formatting |
+| New capabilities | Lists, dictionaries, tuples, sets; positions and keys; missing fields and None; mutation, identity, shallow copying, and isolation at a chosen level |
+| Independent exit task | Create two independently editable study plans from a template, represent missing fields correctly, and predict and repair unintended shared-reference mutations |
+| Not required here | `if`, loops, comprehensions, function definitions, exception handling, imports, classes, annotations, JSON, databases, or web services |
 
-In Python, any `.py` file can be a module. This is similar to a single `.js` file in JavaScript.
+We use nested containers, but do not skip their explanation with an untaught `for`, `def`, or `import copy`. For now we construct two records manually. Handling an arbitrary number belongs in the next chapter on control flow.
 
-<PythonEditor title="Creating and Using Modules" compare={true}>
-```javascript !! js
-// math_utils.js - JavaScript module
-export function add(a, b) {
-    return a + b;
-}
+### Files and execution
 
-export function multiply(a, b) {
-    return a * b;
-}
+Download the [L02 independent examples and reference answers](/learning-assets/js2py/u02-containers.zip), or type them as you read. Open the extracted `u02-containers` folder in your editor and place the terminal there. Each file executes independently, without variables left by another file.
 
-export const PI = 3.14159;
-
-// Default export
-export default function calculator() {
-    console.log("Calculator initialized");
-}
+```bash
+uv run --no-project --python 3.13 python lists.py
 ```
 
-```python !! py
-# math_utils.py - Python module
-def add(a, b):
-    """Addition function"""
-    return a + b
+Replace only the final filename for later examples. We continue with CPython 3.13 and built-in functionality: no third-party Python packages or project configuration. If the command does not work yet, return to [L00](/en/docs/js2py/module-00-python-introduction) to diagnose the environment rather than starting another installation approach.
 
-def multiply(a, b):
-    """Multiplication function"""
-    return a * b
+`errors/` contains explicitly labelled failure experiments; `solutions/` contains references to consult after your attempt. You do not need to run every file at once.
 
-# Module-level variable (similar to a constant in JavaScript)
-PI = 3.14159
+## 2. Choose the meaning of the data before its container
 
-# Python has no concept of a default export, but you can define __all__ to control the behavior of `from module import *`
-__all__ = ['add', 'multiply', 'PI']
-```
-</PythonEditor>
+This is a learning map, not a substitute for the experiments. **Reading the table does not mean you have learned all four types.**
 
-### 2.2 Ways to Import Modules
+| Container | Meaning it can express here | Access | Boundary to understand |
+| --- | --- | --- | --- |
+| `list` | An ordered collection of tasks or titles, allowing duplicates | Position index | Mutable; after reordering, an index may refer to another entry |
+| `dict` | Named fields in one task record | A key such as `"title"` | Mutable; a missing key differs from a value of None |
+| `tuple` | Positions with fixed meaning, such as coordinates | Position index | Its own slots cannot be replaced; referenced objects are not necessarily immutable |
+| `set` | Distinct tags and membership | Membership checks, not positions | No positional order guarantee; members must be hashable, explained later |
 
-Python provides several ways to import modules, each with its own use case.
+These are not language rules requiring lists to contain one type or tuples to contain different types. Choose according to meaning. For readability, our task lists contain tasks and tag lists contain strings rather than arbitrary mixtures.
 
-<PythonEditor title="Module Import Comparison" compare={true}>
-```javascript !! js
-// JavaScript import methods
+JS Array, Object, and Set provide useful intuition, but Python containers are not merely alternative spellings. Bounds, equality, missing fields, and permissible set members differ.
 
-// 1. Named import
-import { add, multiply } from './math_utils.js';
+## 3. Lists: positions, mutation, and return values
 
-// 2. Default import
-import calculator from './math_utils.js';
+### 3.1 Brackets that create entries and brackets that access one
 
-// 3. Namespace import
-import * as MathUtils from './math_utils.js';
+`["Read names", "Practice values"]` creates a list. Commas separate entries; the two strings remain separate values rather than being concatenated.
 
-// 4. Renaming import
-import { add as addFunction } from './math_utils.js';
+After creation, `titles[0]` reads the entry at index `0`. Indexing starts at zero, so a two-entry list has valid nonnegative indices `0` and `1`. `titles[-1]` reads the last entry from the end; `-2` reads the second-to-last. Negative indices do not wrap indefinitely: going past the beginning still fails.
 
-// 5. Mixed import
-import calculator, { add, multiply } from './math_utils.js';
+`len(titles)` returns the entry count, not the final index. An empty list is `[]`, has length `0`, and has no first entry to read.
 
-console.log(add(5, 3));        // 8
-console.log(multiply(4, 2));   // 8
-console.log(MathUtils.PI);     // 3.14159
-```
+### 3.2 Introduce the operations before using them
 
-```python !! py
-# Python import methods
+- `titles[1] = "Practice containers"` replaces an existing entry. It mutates the list rather than rebinding `titles`.
+- `titles.append("Review")` adds **one entry** at the end, mutates the list, and returns `None`, not a new list.
+- `titles.pop(0)` removes and returns the entry at index `0`. Remaining positions shift forward. Without an index, `pop()` removes the last entry.
+- `titles[0:1]` is a slice: start at index `0`, stop before index `1`, and produce a new list. The ending boundary is excluded. For now, observe the outer list; section 7 explains whether its contents are copied.
+- `"Review" in titles` checks for an equal entry and produces a Boolean. It neither returns an index nor executes a loop body you must write.
 
-# 1. Import the entire module
-import math_utils
+File: `lists.py`. Predict before running.
 
-# 2. Import specific functions/variables from a module
-from math_utils import add, multiply, PI
+<Code language="python">{getContainerExample('lists.py')}</Code>
 
-# 3. Import everything (not recommended)
-from math_utils import *
+Expected:
 
-# 4. Renaming import
-from math_utils import add as add_function
-
-# 5. Renaming a module
-import math_utils as math
-
-# 6. Import from a module and rename
-from math_utils import add as add_func, multiply as mul
-
-print(add(5, 3))           // 8
-print(multiply(4, 2))      // 8
-print(PI)                  // 3.14159
-print(math_utils.add(10, 5))  // 15
-```
-</PythonEditor>
-
-**Import Method Comparison Table**
-
-| Function | JavaScript | Python | Description |
-|---|---|---|---|
-| **Import entire module** | `import * as Module` | `import module` | Python is more concise. |
-| **Named import** | `import { func }` | `from module import func` | Different syntax, but the same concept. |
-| **Rename** | `import { func as newName }` | `from module import func as newName` | Both support it. |
-| **Default import** | `import defaultFunc` | No corresponding concept | Python has no default export. |
-| **Namespace import** | `import * as Namespace` | `import module as namespace` | Same concept. |
-
-### 2.3 Special Variables in Modules
-
-Python modules have some special variables, similar to some global variables in JavaScript.
-
-<PythonEditor title="Module Special Variables" compare={true}>
-```javascript !! js
-// JavaScript module special variables
-
-// __filename - current file path
-console.log(__filename);
-
-// __dirname - current directory path
-console.log(__dirname);
-
-// module.exports - export object
-console.log(module.exports);
-
-// require.main - check if the file is run directly
-if (require.main === module) {
-    console.log("This file is being run directly");
-} else {
-    console.log("This file is being imported as a module");
-}
+```text
+2
+Read names
+Practice values
+['Read names', 'Practice containers', 'Review']
+None
+Read names
+['Practice containers', 'Review']
+['Practice containers']
+True
 ```
 
-```python !! py
-# Python module special variables
+Printing a whole list displays a container representation: brackets remain, and string entries show quotes. `print(titles[0])` prints the selected string itself without delimiter quotes. Neither operation automatically converts Python data into JSON.
 
-# __file__ - current file path
-print(__file__)
+Trace three changes: replace the second entry, append a third, and remove the first. After `pop(0)`, `titles[0]` is now `Practice containers`. Having once occupied index 0 is therefore not a task's permanent business identity. Actual backend identifiers receive their own explanation later.
 
-# __name__ - module name
-print(__name__)
+### 3.3 Successful mutation does not imply a returned container
 
-# __doc__ - module docstring
-print(__doc__)
+`result` is `None`, yet the append succeeded. **Consider a method's side effect and return value separately.** `append` is used for mutation; `pop` both mutates and returns the removed value. Do not generalize this into “all mutation methods return None.”
 
-# __all__ - controls the behavior of `from module import *`
-print(__all__)
+Intentional failure: `errors/append_rebind.py`.
 
-# Check if the file is run directly
-if __name__ == "__main__":
-    print("This file is being run directly")
-else:
-    print("This file is being imported as a module")
-```
-</PythonEditor>
+<Code language="python">{getContainerExample('errors/append_rebind.py')}</Code>
 
+It first prints:
 
-### 2.4 Running Modules: Script vs Module
-
-This is one of the most confusing parts for Python beginners: how to properly run a Python file?
-
-**Direct Execution vs Module Execution**
-
-| Execution Mode | Command | `sys.path` (Search Path) | `__name__` | Use Case |
-|----------------|---------|--------------------------|------------|----------|
-| **Script Execution** | `python file.py` | Contains the directory of `file.py` | `"__main__"` | Simple single-file scripts |
-| **Module Execution** | `python -m package.module` | Contains the **current working directory** | `"__main__"` | Modules in a project, especially when using relative imports |
-
-**Common Error Example**
-
-Assume the following directory structure:
-```
-project/
-├── main.py
-└── utils.py
+```text
+None
 ```
 
-If `main.py` contains `from . import utils` (relative import):
-- Running `python project/main.py` will **fail**: `ImportError: attempted relative import with no known parent package`.
-- Running `python -m project.main` (from the parent directory of `project`) will **succeed**.
+Then line 4 raises `TypeError`, indicating that `NoneType` cannot be indexed this way. Line 2 first mutates the original list, then rebinds `titles` to the method's returned `None`. By line 4, reading that name no longer retrieves a list.
 
-> 💡 **Best Practice**: When developing a project, get used to running code from the project root using `python -m package.module`. This ensures `sys.path` is correct and relative imports work as expected.
+The repair is not another index. Keep the call `titles.append("Review")` without assigning its result over the list name, then read the list separately. Do not borrow the return-value behavior of JS Array `push`: Python `append` does not return the new length.
 
-## 3. Package System
+### 3.4 Out of bounds does not mean undefined
 
+Intentional failure: `errors/list_index.py`.
 
-### 3.1 What is a Package?
+<Code language="python">{getContainerExample('errors/list_index.py')}</Code>
 
-A package is a directory containing multiple modules, similar to an npm package or directory structure in JavaScript.
+There is no normal output. Line 2 raises `IndexError: list index out of range`, and `finished` is never executed. With one entry, index `1` is already beyond the end. This differs from reading a nonexistent position of an ordinary JS array and receiving `undefined`.
 
-<PythonEditor title="Package Structure Example" compare={true}>
-```javascript !! js
-// JavaScript package structure example
-// my-package/
-// ├── package.json
-// ├── index.js
-// ├── utils/
-// │   ├── math.js
-// │   └── string.js
-// └── tests/
-//     └── test.js
+Indexed assignment does not automatically extend a list either. A one-entry list cannot use `titles[1] = ...` as an append operation. If you need an append, use `append`; if you need a read, check the length and intended position. Conditional guards come in L03. An untaught `if` must not hide a misunderstanding of indexing.
 
-// index.js - main entry file
-export { add, multiply } from './utils/math.js';
-export { capitalize, reverse } from './utils/string.js';
+Slices have different boundary rules. This produces an empty list rather than IndexError:
 
-// utils/math.js
-export function add(a, b) {
-    return a + b;
-}
-
-export function multiply(a, b) {
-    return a * b;
-}
-
-// utils/string.js
-export function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-export function reverse(str) {
-    return str.split('').reverse().join('');
-}
+```python case=empty_slice
+items = ["Read"]
+print(items[2:5])
 ```
 
-```python !! py
-# Python package structure example
-# my_package/
-# ├── __init__.py          # Package initialization file
-# ├── math_utils.py        # Math utility module
-# ├── string_utils.py      # String utility module
-# └── tests/
-#     ├── __init__.py
-#     └── test_math.py
-
-# __init__.py - package initialization file
-from .math_utils import add, multiply
-from .string_utils import capitalize, reverse
-
-__all__ = ['add', 'multiply', 'capitalize', 'reverse']
-
-# math_utils.py
-def add(a, b):
-    """Addition function"""
-    return a + b
-
-def multiply(a, b):
-    """Multiplication function"""
-    return a * b
-
-# string_utils.py
-def capitalize(text):
-    """Capitalize the first letter"""
-    return text.capitalize()
-
-def reverse(text):
-    """Reverse a string"""
-    return text[::-1]
-```
-</PythonEditor>
-
-### 3.2 Importing and Using Packages
-
-<PythonEditor title="Importing and Using Packages" compare={true}>
-```javascript !! js
-// Using a JavaScript package
-
-// 1. Import specific functions from a package
-import { add, multiply } from 'my-package';
-
-// 2. Import the entire package
-import * as MyPackage from 'my-package';
-
-// 3. Import from a submodule
-import { capitalize } from 'my-package/utils/string';
-
-console.log(add(5, 3));           // 8
-console.log(MyPackage.multiply(4, 2));  // 8
-console.log(capitalize("hello")); // "Hello"
+```text
+[]
 ```
 
-```python !! py
-# Using a Python package
+A safe empty slice does not make single-entry access always safe. References: [list introduction](https://docs.python.org/3.13/tutorial/introduction.html#lists) and [list methods](https://docs.python.org/3.13/tutorial/datastructures.html#more-on-lists).
 
-# 1. Import specific functions from a package
-from my_package import add, multiply
+**Checkpoint A:** Start with two entries, replace one, append one, and remove the first. Record the contents, length, and method return value at each step instead of checking only whether the program raises an exception.
 
-# 2. Import the entire package
-import my_package
+## 4. Dictionaries: named fields in a record
 
-# 3. Import from a submodule
-from my_package.string_utils import capitalize
+### 4.1 Why title, duration, and owner should not require guessing positions
 
-print(add(5, 3))                    // 8
-print(my_package.multiply(4, 2))    // 8
-print(capitalize("hello"))          // "Hello"
+Representing a task as `["Read names", 25, None]` makes readers remember what each position means. A dictionary can instead be `{"title": "Read names", "minutes": 25, "owner": None}`, placing field names directly in the data.
+
+Braces surround key-value pairs. A colon connects each key to its value; commas separate the pairs. This chapter uses string keys. `task["title"]` retrieves its associated value; a Python dictionary does not use `task.title` for this field.
+
+In a multiline dictionary, braces already delimit the expression. Newlines and indentation aid layout rather than introducing the control-flow blocks taught next chapter. A comma after the final pair is also permitted.
+
+### 4.2 Existing keys are replaced; new keys are added
+
+File: `dictionaries.py`.
+
+<Code language="python">{getContainerExample('dictionaries.py')}</Code>
+
+Expected:
+
+```text
+Read names
+{'title': 'Read names', 'minutes': 30, 'owner': None, 'done': False}
+None
+False
+3
+```
+
+The example starts with three fields, replaces the existing `minutes` value, and adds the previously absent `done`. Assignment to an existing key replaces its association rather than creating a second copy of the key.
+
+`task.pop("owner")` removes that key and returns its former value, so the result is `None`. That is the value the example originally stored, not an indication that deletion failed. Afterwards, `"owner" in task` is `False`, and three fields remain.
+
+The same method name can take different kinds of arguments: list `pop(0)` uses a position; dictionary `pop("owner")` uses a key. Dictionary `pop` requires a key, unlike the no-argument list operation that removes the final entry.
+
+Dictionaries in Python 3.13 preserve insertion order, and replacing an existing key's value does not move it to the end. But preserving order is not positional access: `task[0]` looks for integer key `0`, not the first field. Dictionary equality concerns keys and values rather than insertion order.
+
+Use explicit string keys for now rather than importing JS object numeric-property conversion rules. Python keys have their own types: integer key `1` differs from string key `"1"`. Not every object can be a key; the set section introduces the hashability constraint.
+
+## 5. A missing field differs from a field whose value is None
+
+### 5.1 Brackets express a stronger requirement
+
+`task["owner"]` asks to retrieve that key's associated value. If the key does not exist, it raises `KeyError` rather than generating a field containing None.
+
+Intentional failure: `errors/missing_key.py`.
+
+<Code language="python">{getContainerExample('errors/missing_key.py')}</Code>
+
+There is no normal output; the final error line for line 2 is `KeyError: 'owner'`. First check the requirement: must the field exist, or may it be absent? Inserting None everywhere just to eliminate an exception changes the meaning of the data.
+
+### 5.2 The default in `get` applies only to absence
+
+`task.get("owner")` returns `None` for a missing key instead of raising that KeyError. A second argument, as in `task.get("owner", "unassigned")`, supplies a default used **only if the key is missing**. It does not replace an existing None, empty string, 0, or False. It also does not write the default into the dictionary.
+
+If the application distinguishes an absent field from an explicitly empty one, testing whether a `get` result is None is insufficient: you also need to check whether the key exists. We print these facts separately for now, without premature conditional branches.
+
+File: `missing_values.py`.
+
+<Code language="python">{getContainerExample('missing_values.py')}</Code>
+
+Expected:
+
+```text
+True
+None
+False
+None
+None
+unassigned
+[]
+False
+```
+
+| Check | Explanation |
+| --- | --- |
+| `"owner" in task` | The key exists, although its value is None |
+| `task.get("owner")` | Returns the stored None |
+| `"deadline" in task` | This key is absent |
+| `task.get("deadline")` | Missing keys default to None, so the result alone cannot distinguish this case |
+| `task.get("owner", "unassigned")` | The key exists; the default is not used |
+| `task.get("deadline", "unassigned")` | The key is missing; the default is returned |
+| Checking `deadline` again | Still missing: `get` does not insert a default field |
+
+The `[]` output line consists of two bracket characters surrounding an empty title, **not a printed empty list**. It demonstrates that an empty string was not replaced by the default. This reuses L01's technique for making otherwise invisible text visible.
+
+For dictionaries, `in` checks **keys**, not all values. `"Read" in {"title": "Read"}` is False because the key is `title`. When changing container types, reconsider what membership means.
+
+Servers may later need to distinguish “the request omitted a field” from “the request explicitly asks to clear it.” We are establishing data representation, not teaching an update protocol yet. Reference: [dictionaries and get](https://docs.python.org/3.13/library/stdtypes.html#mapping-types-dict).
+
+## 6. Shared references: changing a name or changing an object?
+
+### 6.1 Return to the question deliberately deferred in L01
+
+In L01, two names could refer to an integer, yet rebinding one did not change the other. A list can be mutated in place. Assignment rules have not changed; the operation performed on the object has.
+
+Here we extend L01's use of `is` for None checks into an experimental tool: determine whether both sides are the **same object**. Memory addresses and `id()` numbers are unnecessary.
+
+File: `aliases.py`.
+
+<Code language="python">{getContainerExample('aliases.py')}</Code>
+
+Expected:
+
+```text
+True
+['todo', 'review']
+['todo', 'review']
+['done']
+False
+```
+
+After `alias = original`, there is one list accessible through two names. `alias.append("review")` mutates it through one name, so the new entry is also visible through `original`. Python did not broadcast a change to two copies: there never were two copies.
+
+Next, `alias = ["done"]` creates another list and makes `alias` refer to it. `original` still refers to the initial list. Rebinding a name does not reset that list's contents.
+
+| Statement | What changes |
+| --- | --- |
+| `alias = other` | The binding of the name `alias` |
+| `alias[0] = value` | One position in the list currently referenced by `alias` |
+| `alias.append(value)` | The current list, by adding one entry |
+| `task["tags"] = new_tags` | One dictionary association, making that key refer to another value |
+
+This is why a subscript on the left matters. Not every line containing `=` can be explained as the same kind of name rebinding.
+
+### 6.2 Equal contents do not imply the same container
+
+Separately created lists with equal contents can compare `==` while `is` is False. Python `==` must not be translated directly into JS `===` on arrays.
+
+This is a static syntax comparison. Acceptance uses local CPython and independent examples rather than the webpage runner.
+
+<PythonEditor title="Container contents and identity" compare={true} canRun={false}>
+```javascript case=container_equality
+const left = ["python"];
+const right = ["python"];
+const alias = left;
+console.log(left === right);
+console.log(alias === left);
+```
+
+```python case=container_equality
+left = ["python"]
+right = ["python"]
+alias = left
+print(left == right)
+print(left is right)
+print(alias is left)
 ```
 </PythonEditor>
 
-## 4. Project Organization Best Practices
+Python output:
 
-### 4.1 Project Directory Structure
-
-A good project structure is crucial for code maintenance and team collaboration.
-
-<PythonEditor title="Project Directory Structure Comparison" compare={true}>
-```javascript !! js
-// JavaScript project structure
-// my-project/
-// ├── package.json
-// ├── README.md
-// ├── .gitignore
-// ├── src/
-// │   ├── index.js
-// │   ├── utils/
-// │   │   ├── math.js
-// │   │   └── string.js
-// │   ├── components/
-// │   │   └── Calculator.js
-// │   └── services/
-// │       └── api.js
-// ├── tests/
-// │   ├── math.test.js
-// │   └── string.test.js
-// ├── docs/
-// │   └── API.md
-// └── dist/
-//     └── bundle.js
-
-// src/index.js
-import { Calculator } from './components/Calculator.js';
-import { add, multiply } from './utils/math.js';
-
-export { Calculator, add, multiply };
+```text
+True
+False
+True
 ```
 
-```python !! py
-# Python project structure
-# my_project/
-# ├── setup.py              # Package installation configuration
-# ├── requirements.txt      # Dependency management
-# ├── README.md
-# ├── .gitignore
-# ├── my_project/
-# │   ├── __init__.py
-# │   ├── main.py
-# │   ├── utils/
-# │   │   ├── __init__.py
-# │   │   ├── math_utils.py
-# │   │   └── string_utils.py
-# │   ├── components/
-# │   │   ├── __init__.py
-# │   │   └── calculator.py
-# │   └── services/
-# │       ├── __init__.py
-# │       └── api.py
-# ├── tests/
-# │   ├── __init__.py
-# │   ├── test_math.py
-# │   └── test_string.py
-# ├── docs/
-# │   └── api.md
-# └── build/
-#     └── dist/
+JS output:
 
-# my_project/__init__.py
-from .main import main
-from .components.calculator import Calculator
-from .utils.math_utils import add, multiply
-
-__all__ = ['main', 'Calculator', 'add', 'multiply']
-```
-</PythonEditor>
-
-### 4.2 Dependency Management Comparison
-
-<PythonEditor title="Dependency Management File Comparison" compare={true}>
-```json
-// package.json (JavaScript)
-{
-  "name": "my-project",
-  "version": "1.0.0",
-  "description": "A sample project",
-  "main": "src/index.js",
-  "scripts": {
-    "start": "node src/index.js",
-    "test": "jest",
-    "build": "webpack",
-    "dev": "nodemon src/index.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "axios": "^1.6.0",
-    "lodash": "^4.17.21"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "eslint": "^8.55.0",
-    "webpack": "^5.89.0"
-  },
-  "keywords": ["javascript", "nodejs"],
-  "author": "Your Name",
-  "license": "MIT"
-}
+```text
+false
+true
 ```
 
-```python !! py
-# setup.py (Python)
-from setuptools import setup, find_packages
+For the built-in containers in this chapter, comparing contents and testing object identity answer different questions. Contents may happen to match and later diverge after mutation; `is` establishes whether the object itself is shared. Do not take this back to L01 and use `is` for numeric or string contents. See [Python comparisons](https://docs.python.org/3.13/reference/expressions.html#comparisons) and [JS strict equality](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality).
 
-setup(
-    name="my-project",
-    version="1.0.0",
-    description="A sample Python project",
-    author="Your Name",
-    author_email="your.email@example.com",
-    packages=find_packages(),
-    install_requires=[
-        "flask>=2.3.0",
-        "requests>=2.31.0",
-        "pandas>=2.1.0",
-    ],
-    extras_require={
-        "dev": [
-            "pytest>=7.4.0",
-            "black>=23.0.0",
-            "flake8>=6.0.0",
-        ],
-    },
-    python_requires=">=3.8",
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-    ],
-)
+## 7. Copying: always specify how many levels
 
-# requirements.txt
-flask>=2.3.0
-requests>=2.31.0
-pandas>=2.1.0
+### 7.1 Begin with a list containing only strings
 
-# requirements-dev.txt
--r requirements.txt
-pytest>=7.4.0
-black>=23.0.0
-flake8>=6.0.0
-```
-</PythonEditor>
+`original.copy()` creates a new outer list, unlike `draft = original`. A full list slice, `original[:]`, also creates a shallow copy; we use the explicit `.copy()` consistently for now.
 
-## 5. Practical Project Example
+File: `list_copy.py`.
 
-### 5.1 Creating a Simple Calculator Package
+<Code language="python">{getContainerExample('list_copy.py')}</Code>
 
-Let's create a complete calculator package to demonstrate the practical application of the module system.
+Expected:
 
-<PythonEditor title="Calculator Package Example" compare={true}>
-```javascript !! js
-// calculator.js - JavaScript version
-class Calculator {
-    constructor() {
-        this.history = [];
-    }
-    
-    add(a, b) {
-        const result = a + b;
-        this.history.push(`${a} + ${b} = ${result}`);
-        return result;
-    }
-    
-    subtract(a, b) {
-        const result = a - b;
-        this.history.push(`${a} - ${b} = ${result}`);
-        return result;
-    }
-    
-    multiply(a, b) {
-        const result = a * b;
-        this.history.push(`${a} * ${b} = ${result}`);
-        return result;
-    }
-    
-    divide(a, b) {
-        if (b === 0) {
-            throw new Error("Divisor cannot be zero");
-        }
-        const result = a / b;
-        this.history.push(`${a} / ${b} = ${result}`);
-        return result;
-    }
-    
-    getHistory() {
-        return this.history;
-    }
-    
-    clearHistory() {
-        this.history = [];
-    }
-}
-
-// Utility functions
-export function validateNumber(num) {
-    return typeof num === 'number' && !isNaN(num);
-}
-
-export function formatResult(result) {
-    return `Result: ${result}`;
-}
-
-export default Calculator;
+```text
+['read']
+['read', 'review']
+False
 ```
 
-```python !! py
-# calculator.py - Python version
-class Calculator:
-    """Calculator class that supports basic operations and history"""
-    
-    def __init__(self):
-        self.history = []
-    
-    def add(self, a, b):
-        """Addition operation"""
-        result = a + b
-        self.history.append(f"{a} + {b} = {result}")
-        return result
-    
-    def subtract(self, a, b):
-        """Subtraction operation"""
-        result = a - b
-        self.history.append(f"{a} - {b} = {result}")
-        return result
-    
-    def multiply(self, a, b):
-        """Multiplication operation"""
-        result = a * b
-        self.history.append(f"{a} * {b} = {result}")
-        return result
-    
-    def divide(self, a, b):
-        """Division operation"""
-        if b == 0:
-            raise ValueError("Divisor cannot be zero")
-        result = a / b
-        self.history.append(f"{a} / {b} = {result}")
-        return result
-    
-    def get_history(self):
-        """Get calculation history"""
-        return self.history
-    
-    def clear_history(self):
-        """Clear calculation history"""
-        self.history = []
+The append affects the new list; the original gains no entry. The existing strings are immutable, so this example has not yet exposed a risk from inner sharing. It does not establish that `.copy()` recursively copies arbitrary structures.
 
-# Utility functions
-def validate_number(num):
-    """Validate a number"""
-    return isinstance(num, (int, float)) and not isinstance(num, bool)
+### 7.2 A new dictionary can contain the old inner list
 
-def format_result(result):
-    """Format the result"""
-    return f"Result: {result}"
+A **shallow copy** creates an outer container while its entries or values continue to refer to the original objects. Dictionary `.copy()` follows this principle too.
 
-# If this file is run directly
-if __name__ == "__main__":
-    calc = Calculator()
-    print(calc.add(10, 5))
-    print(calc.multiply(4, 3))
-    print("Calculation history:", calc.get_history())
-```
-</PythonEditor>
+Let a task's `tags` field contain a list. `draft["tags"]` first retrieves that list, and `.append(...)` mutates it. This is not the addition of a dictionary field named append.
 
-### 5.2 Using the Calculator Package
+File: `shallow_copy.py`.
 
-<PythonEditor title="Using the Calculator Package" compare={true}>
-```javascript !! js
-// main.js - Using the calculator
-import Calculator, { validateNumber, formatResult } from './calculator.js';
+<Code language="python">{getContainerExample('shallow_copy.py')}</Code>
 
-// Create a calculator instance
-const calc = new Calculator();
+Expected:
 
-// Basic operations
-console.log(formatResult(calc.add(10, 5)));      // Result: 15
-console.log(formatResult(calc.subtract(10, 3))); // Result: 7
-console.log(formatResult(calc.multiply(4, 6)));  // Result: 24
-console.log(formatResult(calc.divide(20, 4)));   // Result: 5
-
-// View history
-console.log("Calculation history:");
-calc.getHistory().forEach(record => {
-    console.log(`  ${record}`);
-});
-
-// Error handling
-try {
-    calc.divide(10, 0);
-} catch (error) {
-    console.error("Error:", error.message);
-}
-
-// Validate numbers
-console.log(validateNumber(42));     // true
-console.log(validateNumber("42"));   // false
-console.log(validateNumber(NaN));    // false
+```text
+False
+True
+Read
+['python', 'basics']
+Practice
 ```
 
-```python !! py
-# main.py - Using the calculator
-from calculator import Calculator, validate_number, format_result
+Drawing the relationships matters more than memorizing the term:
 
-def main():
-    # Create a calculator instance
-    calc = Calculator()
-    
-    # Basic operations
-    print(format_result(calc.add(10, 5)))      # Result: 15
-    print(format_result(calc.subtract(10, 3))) # Result: 7
-    print(format_result(calc.multiply(4, 6)))  # Result: 24
-    print(format_result(calc.divide(20, 4)))   # Result: 5.0
-    
-    # View history
-    print("Calculation history:")
-    for record in calc.get_history():
-        print(f"  {record}")
-    
-    # Error handling
-    try:
-        calc.divide(10, 0)
-    except ValueError as error:
-        print(f"Error: {error}")
-    
-    # Validate numbers
-    print(validate_number(42))     # True
-    print(validate_number("42"))   # False
-    print(validate_number(3.14))   # True
+| Stage | Outer dictionaries | The list referenced by `tags` |
+| --- | --- | --- |
+| Create `original` | One | One list containing `python` |
+| `draft = original.copy()` | Two different dictionaries | Both dictionaries still share one list |
+| Assign `draft["title"]` | Only the draft's association changes | The tag list is not involved |
+| Mutate the list retrieved by `draft["tags"]` | Still two dictionaries | The shared list gains an entry, visible through the original too |
 
-if __name__ == "__main__":
-    main()
-```
-</PythonEditor>
+Assigning a new string to `draft["title"]` does not replace the original dictionary's `title` association. But `draft["tags"]` and `original["tags"]` retrieve the same mutable list. These operations target different objects; dictionary copying is not succeeding inconsistently.
 
-## 6. Advanced Module Features
+### 7.3 Isolate the level you will mutate in this data shape
 
-### 6.1 Relative Imports
+The shape is currently known: an outer dictionary contains `tags`, the inner list we will mutate, and its entries are immutable strings. Copying the dictionary and then this field's list satisfies the current editing requirement.
 
-Python supports relative imports, similar to relative path imports in JavaScript.
+File: `isolated_copy.py`.
 
-<PythonEditor title="Relative Import Example" compare={true}>
-```javascript !! js
-// JavaScript relative import
-// project/
-// ├── src/
-// │   ├── utils/
-// │   │   ├── math.js
-// │   │   └── string.js
-// │   ├── components/
-// │   │   └── calculator.js
-// │   └── main.js
+<Code language="python">{getContainerExample('isolated_copy.py')}</Code>
 
-// src/components/calculator.js
-import { add, multiply } from '../utils/math.js';
-import { capitalize } from '../utils/string.js';
+Expected:
 
-export class Calculator {
-    constructor() {
-        this.math = { add, multiply };
-        this.string = { capitalize };
-    }
-}
-
-// src/main.js
-import { Calculator } from './components/calculator.js';
+```text
+Read
+['python']
+Practice
+['python', 'basics']
+False
 ```
 
-```python !! py
-# Python relative import
-# project/
-# ├── my_package/
-# │   ├── utils/
-# │   │   ├── __init__.py
-# │   │   ├── math_utils.py
-# │   │   └── string_utils.py
-# │   ├── components/
-# │   │   ├── __init__.py
-# │   │   └── calculator.py
-# │   └── main.py
+The key statement is `draft["tags"] = original["tags"].copy()`. The right side creates a new list; the left side replaces only the draft dictionary's `tags` association. It breaks the unwanted shared path before mutation.
 
-# my_package/components/calculator.py
-from ..utils.math_utils import add, multiply
-from ..utils.string_utils import capitalize
+**This is not a general deep-copy function.** If tag entries later become mutable dictionaries, or another mutable field is added, the code does not guarantee their independence. Redraw the relationships and identify the levels you intend to mutate. Sharing is not always wrong either: a board and task details may intentionally refer to the same task.
 
-class Calculator:
-    def __init__(self):
-        self.math = {'add': add, 'multiply': multiply}
-        self.string = {'capitalize': capitalize}
+Python's `copy` module offers shallow and deep copying tools, but imports belong after module prerequisites, and deep copying still requires boundary analysis. This chapter does not substitute an unexplained `import copy` for understanding. See the [copy module's explanation of copying semantics](https://docs.python.org/3.13/library/copy.html).
 
-# my_package/main.py
-from .components.calculator import Calculator
-```
-</PythonEditor>
+**Checkpoint B:** Close the code and draw the failing arrangement with two dictionaries and one list. Add a second list to explain the repair. Identify the replaced association instead of memorizing two `.copy()` lines.
 
-### 6.2 Dynamic Imports
+## 8. An easily missed source of sharing: list repetition
 
-Python supports dynamic module imports, similar to JavaScript's dynamic `import()`.
+`["todo"] * 2` repeats list entries. It is neither numeric multiplication nor recursive copying of each entry. References matter especially when the repeated entry is mutable.
 
-<PythonEditor title="Dynamic Import Example" compare={true}>
-```javascript !! js
-// JavaScript dynamic import
-async function loadModule(moduleName) {
-    try {
-        const module = await import(`./modules/${moduleName}.js`);
-        return module;
-    } catch (error) {
-        console.error(`Failed to load module ${moduleName}:`, error);
-        return null;
-    }
-}
+`[[]] * 2` first creates one inner empty list and repeats its reference twice; it does not evaluate the inner `[]` creation twice.
 
-// Using dynamic import
-async function main() {
-    const mathModule = await loadModule('math');
-    if (mathModule) {
-        console.log(mathModule.add(5, 3));
-    }
-    
-    const stringModule = await loadModule('string');
-    if (stringModule) {
-        console.log(stringModule.capitalize('hello'));
-    }
-}
+File: `repeated_rows.py`.
 
-main();
+<Code language="python">{getContainerExample('repeated_rows.py')}</Code>
+
+Expected:
+
+```text
+True
+[['Read'], ['Read']]
 ```
 
-```python !! py
-# Python dynamic import
-import importlib
-import sys
+No exception occurs, yet the behavior is wrong if the requirement is two independent rows. With only two rows needed, create two different empty lists explicitly:
 
-def load_module(module_name):
-    """Dynamically load a module"""
-    try:
-        module = importlib.import_module(f"modules.{module_name}")
-        return module
-    except ImportError as error:
-        print(f"Failed to load module {module_name}: {error}")
-        return None
-
-# Using dynamic import
-def main():
-    math_module = load_module('math_utils')
-    if math_module:
-        print(math_module.add(5, 3))
-    
-    string_module = load_module('string_utils')
-    if string_module:
-        print(string_module.capitalize('hello'))
-
-if __name__ == "__main__":
-    main()
-```
-</PythonEditor>
-
-
-### 6.3 Circular Import Pitfalls
-
-Circular imports occur when two or more modules import each other, forming a closed loop. In Python, this often leads to `ImportError` or `AttributeError` because modules execute top-level code upon import.
-
-**Problem Example**
-
-```python
-# a.py
-from b import func_b
-
-def func_a():
-    func_b()
-
-# b.py
-from a import func_a
-
-def func_b():
-    func_a()
+```python case=independent_rows
+rows = [[], []]
+print(rows[0] is rows[1])
+rows[0].append("Read")
+print(rows)
 ```
 
-**Solutions**
-
-1.  **Refactor**: Extract shared dependencies into a third module (Recommended).
-2.  **Delayed Import**: Move the import statement inside the function/method (Import only when needed).
-
-```python
-# b.py (Fixed)
-def func_b():
-    # Delayed import breaks the cycle
-    from a import func_a
-    func_a()
+```text
+False
+[['Read'], []]
 ```
 
-## 7. Exercises
+The empty lists initially have equal contents but different identities. Later, loops and comprehensions will use the same principle to construct arbitrary numbers of independent lists. They are not prerequisites here. The official FAQ explains [sharing in multidimensional lists](https://docs.python.org/3.13/faq/programming.html#how-do-i-create-a-multidimensional-list).
 
+## 9. Tuples fix their slots, not the entire object graph
 
-### Exercise 1: Create a Utility Package
+Lists suit sequences whose entries need adding or removing. Some data uses positions with fixed meanings, such as two-dimensional coordinates. A tuple can express that its own slots are not added, removed, or replaced in place.
 
-Create a utility package that includes math and string utilities.
+`(2, 5)` is a two-element tuple. A one-element tuple requires the comma: `("todo",)`. `("todo")` merely groups a string expression and still produces a string. The empty tuple is `()`. You can index it and count elements with `len`, but it has no list-style `append`.
 
-<PythonEditor title="Exercise 1: Utility Package" compare={true}>
-```javascript !! js
-// Create the following file structure:
-// my-utils/
-// ├── package.json
-// ├── src/
-// │   ├── index.js
-// │   ├── math.js
-// │   └── string.js
-// └── test/
-//     └── test.js
+File: `tuples.py`.
 
-// src/math.js
-export function add(a, b) {
-    return a + b;
-}
+<Code language="python">{getContainerExample('tuples.py')}</Code>
 
-export function multiply(a, b) {
-    return a * b;
-}
+Expected:
 
-export function factorial(n) {
-    if (n <= 1) return 1;
-    return n * factorial(n - 1);
-}
-
-// src/string.js
-export function reverse(str) {
-    return str.split('').reverse().join('');
-}
-
-export function isPalindrome(str) {
-    const clean = str.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return clean === clean.split('').reverse().join('');
-}
-
-// src/index.js
-export * from './math.js';
-export * from './string.js';
+```text
+2
+1
+<class 'str'>
+<class 'tuple'>
+('task-1', ['python', 'basics'])
 ```
 
-```python !! py
-# Create the following file structure:
-# my_utils/
-# ├── setup.py
-# ├── my_utils/
-# │   ├── __init__.py
-# │   ├── math_utils.py
-# │   └── string_utils.py
-# └── tests/
-#     └── test_utils.py
+The final `record` has two slots, containing a string and a list. `record[1].append(...)` retrieves and mutates the list. The tuple's second slot still refers to that same list, so the tuple's own immutability is not violated.
 
-# my_utils/math_utils.py
-def add(a, b):
-    """Addition function"""
-    return a + b
+“Tuples are immutable” does not mean every referenced layer is deeply read-only. In this example, the references held by the tuple are fixed, not the contents of the referenced list.
 
-def multiply(a, b):
-    """Multiplication function"""
-    return a * b
+Intentional failure: `errors/tuple_assignment.py`.
 
-def factorial(n):
-    """Factorial function"""
-    if n <= 1:
-        return 1
-    return n * factorial(n - 1)
+<Code language="python">{getContainerExample('errors/tuple_assignment.py')}</Code>
 
-# my_utils/string_utils.py
-def reverse(text):
-    """Reverse a string"""
-    return text[::-1]
+There is no normal output. Line 2 raises `TypeError` because tuple does not support item assignment. This attempts to replace the tuple's own slot, unlike mutating a list retrieved from a slot.
 
-def is_palindrome(text):
-    """Check if a string is a palindrome"""
-    import re
-    clean = re.sub(r'[^a-z0-9]', '', text.lower())
-    return clean == clean[::-1]
+If you need a new coordinate, create a new tuple, for example by rebinding the name to `(9, position[1])`. If the design requires frequent slot replacement, consider whether a list fits better. Do not blindly change types just to silence an exception. See [tuples and sequences](https://docs.python.org/3.13/tutorial/datastructures.html#tuples-and-sequences).
 
-# my_utils/__init__.py
-from .math_utils import add, multiply, factorial
-from .string_utils import reverse, is_palindrome
+## 10. Sets: membership rather than entry positions
 
-__all__ = ['add', 'multiply', 'factorial', 'reverse', 'is_palindrome']
-```
-</PythonEditor>
+### 10.1 Start with the question: which required tags are still missing?
 
-### Exercise 2: Module Import Exercise
+A task's tags might be entered more than once. If only membership matters, without recording order or frequency, a set can represent distinct members.
 
-<PythonEditor title="Exercise 2: Module Import" compare={true}>
-```javascript !! js
-// Practice different import methods
-import { add, multiply } from './math.js';
-import * as MathUtils from './math.js';
-import { add as addFunction } from './math.js';
+A nonempty set can be `{"python", "basics"}`: braces, but no dictionary key-value colons. **Empty braces `{}` create a dictionary. An empty set is `set()`.** `set` is built in and requires no import.
 
-console.log(add(5, 3));           // 8
-console.log(MathUtils.multiply(4, 2));  // 8
-console.log(addFunction(10, 5));  // 15
+Introduce the operations used in this example first:
+
+| Operation | Meaning here |
+| --- | --- |
+| `tag in tags` | Produce a Boolean indicating membership |
+| `tags.add(tag)` | Add one member without duplicating an existing member |
+| `tags.discard(tag)` | Remove a member; absence does not itself raise KeyError |
+| `required - tags` | New set of required members that are currently missing |
+| `required & tags` | New set of members present on both sides |
+| `required \| tags` | New set containing all distinct members from both sides |
+
+The final three expressions do not mutate the original sets here. `add` and `discard` mutate in place and return None, not a new set.
+
+A set has no list-style positional order guarantee and does not support `tags[0]`. To keep textbook output stable, we call the built-in `sorted(tags)` to obtain a sorted **list** for printing. Our values are lowercase ASCII strings, so ordinary alphabetical order is sufficient to predict the result. `sorted` neither assigns positions to the original set nor mutates it.
+
+File: `sets.py`.
+
+<Code language="python">{getContainerExample('sets.py')}</Code>
+
+Expected:
+
+```text
+2
+True
+['basics', 'practice', 'python']
+['sql']
+['python']
+['basics', 'practice', 'python', 'sql']
+0
 ```
 
-```python !! py
-# Practice different import methods
-from my_utils import add, multiply
-import my_utils
-from my_utils import add as add_function
+The initial literal includes `python` twice, but it is one member value, so the length is 2. Do not arrange a UI using the incidental printed order of a raw set or use a set for study records whose repetitions and sequence matter. Understanding the business meaning matters more than memorizing three symbols.
 
-print(add(5, 3))              // 8
-print(my_utils.multiply(4, 2))  // 8
-print(add_function(10, 5))    // 15
+### 10.2 Why cannot a list be a set member?
+
+Set members and dictionary keys must be **hashable**. Understand the necessary constraint first: an object must provide a hash value stable during its lifetime, with equal objects having equal hashes, allowing the container to organize and find members accordingly. We do not need to calculate these numbers or implement class methods yet.
+
+The `str` and `int` values used here can be keys and set members; `list`, `dict`, and `set` cannot. A tuple is hashable only when each element is hashable. Its own immutability therefore does not make a tuple containing a list eligible for a set. “Immutable” and “hashable” are not interchangeable terms.
+
+Intentional failure: `errors/unhashable_member.py`.
+
+<Code language="python">{getContainerExample('errors/unhashable_member.py')}</Code>
+
+There is no normal output. Line 2 raises `TypeError: unhashable type: 'list'`. The attempted member is list `["python"]`, not string `"python"`. If the requirement is one tag, pass that string. Do not arbitrarily convert any object to text just to get past a failure.
+
+Using a list as a dictionary key similarly raises TypeError. This differs from JS Set storing array objects by identity. Permission to store something in JS does not establish the Python rule.
+
+Deduplication also depends on equality, not merely spelling. L01 explained `True == 1`; a set therefore does not keep these as two distinct members, and a dictionary cannot use them as two distinct keys. We use homogeneous string tags rather than mixing Boolean state with identifiers. References: [set types](https://docs.python.org/3.13/library/stdtypes.html#set-types-set-frozenset), [hashable](https://docs.python.org/3.13/glossary.html#term-hashable), and [sorted](https://docs.python.org/3.13/library/functions.html#sorted).
+
+**Checkpoint C:** Explain why a tuple can still contain something that changes, and why a set has no “entry 0.” Then choose containers for ordered tasks and distinct tags and justify the choices.
+
+## 11. Connect the pieces: independent task cards and intentional board sharing
+
+Combine what you already know: a template supplies defaults, two tasks own independently editable tags, and a board holds those tasks.
+
+`board[0]["title"]` performs two reads: retrieve the first task dictionary from the list, then retrieve its title. `board[0]["minutes"] = 40` changes a field in that task dictionary rather than replacing the board list.
+
+File: `task_board.py`.
+
+<Code language="python">{getContainerExample('task_board.py')}</Code>
+
+Run:
+
+```bash
+uv run --no-project --python 3.13 python task_board.py
 ```
-</PythonEditor>
 
-## 8. Summary
+Expected:
 
-### Key Concept Review
+```text
+Tasks: 2
+Read names
+['python', 'basics']
+['python']
+['python']
+True
+Mina
+40
+25
+```
 
-1.  **Module**: Any `.py` file can be used as a module.
-2.  **Package**: A directory containing an `__init__.py` file, which can contain multiple modules.
-3.  **Import Methods**: `import`, `from ... import`, `as` for renaming.
-4.  **Special Variables**: `__name__`, `__file__`, `__all__`.
-5.  **Project Organization**: Reasonable directory structure and dependency management.
+### Decide which relationships are independent and which are shared
 
-### JavaScript vs. Python Comparison Summary
+| Relationship | Design intention |
+| --- | --- |
+| The template, first task, and second task dictionaries | Three different dictionaries; title and duration edits do not affect the template |
+| Their three `tags` lists | Three different lists; editing one does not affect the other two |
+| `board[0]` and `first` | The same task dictionary; `first` should observe an edit made through the board |
+| `board[1]` and `second` | The same task dictionary, not an automatic copy created by insertion into a list |
 
-| Concept | JavaScript | Python | Description |
-|---|---|---|---|
-| **Module File** | `.js` file | `.py` file | Both use a single file as a module. |
-| **Package** | Directory + `package.json` | Directory + `__init__.py` | Python requires `__init__.py`. |
-| **Import Syntax** | `import { func }` | `from module import func` | Different syntax, but the same concept. |
-| **Default Export** | `export default` | No corresponding concept | Python has no default export. |
-| **Relative Import** | `../utils/math` | `..utils.math_utils` | Both support relative paths. |
-| **Dynamic Import** | `import()` | `importlib.import_module()` | Both support runtime imports. |
+That is why the final numbers are `40` and `25`. Editing the first task through the board makes `first` observe 40, while the template keeps 25. We are not trying to make every object unrelated forever. We distinguish the **task intentionally shared with a board** from **draft tags that should not be shared**.
 
-### Next Steps
+### Make two changes and verify relationships
 
-In the next module, we will learn about:
-- Object-oriented programming (classes, inheritance, polymorphism)
-- Functional programming features
-- Decorators and metaprogramming
-- Special methods (magic methods)
+1. Replace the tag `"basics"` appended to the first task with `"review"`. Only its tags should change; the template and second task should still contain only `python`.
+2. Change the final assignment to `board[0]["minutes"]` from `40` to `55`. `first` should observe 55 while the template retains 25.
 
-These concepts will help you gain a deeper understanding of Python's programming paradigms and enable you to write more complex and elegant code.
+There is no persistence here: rerunning reconstructs objects from the source. This is not a database and provides no multi-user or concurrent-request isolation. Those server concerns require later chapters. Do not treat this `.copy()` example as production data-safety architecture.
+
+**Checkpoint D:** Draw three dictionaries, three tag lists, and a board list, using arrows for references. Explain why some changes must be visible and others must be isolated.
+
+## 12. Graduated practice: predict, repair, and model independently
+
+Answers start collapsed. Running a downloaded answer is not the task; explain why your own program meets the requirements.
+
+### Exercise A: who observes the append?
+
+```python case=exercise_alias
+original = ["read"]
+alias = original
+draft = original.copy()
+alias.append("review")
+print(original)
+print(draft)
+print(alias is original)
+```
+
+Predict the output and draw how many lists exist and where each name points. Then save `prediction.py` and verify with the chapter's execution command.
+
+<details>
+<summary>After predicting and drawing the relationships, reveal the explanation</summary>
+
+```text
+['read', 'review']
+['read']
+True
+```
+
+`original` and `alias` share one list; `draft` is a second list. The append affects only the first. The preexisting string entry inside the new outer list is immutable, so no deeper copy is needed for this experiment.
+
+</details>
+
+### Exercise B: no exception, but the draft changes the saved record
+
+This starter **violates the requirement** without raising an interpreter exception:
+
+```python case=exercise_shared_tags
+saved = {"title": "Read", "tags": ["python"]}
+draft = saved.copy()
+draft["tags"].append("review")
+print(saved["tags"])
+print(draft["tags"])
+```
+
+Its current actual output is:
+
+```text
+['python', 'review']
+['python', 'review']
+```
+
+Requirement: preserve the original `saved` data and add `review` only to the draft. Isolate the necessary object before mutation rather than removing a tag from the original afterwards to disguise the problem. Also print an identity comparison establishing that the two tag lists are different objects.
+
+Then change the initial tag from `"python"` to `"language"` and verify both results. Your repair must not hard-code the old tag.
+
+<details>
+<summary>After the independent repair and input variation, reveal the reference</summary>
+
+File: `solutions/fix_draft.py`.
+
+<Code language="python">{getContainerExample('solutions/fix_draft.py')}</Code>
+
+Expected output for the original input:
+
+```text
+['python']
+['python', 'review']
+False
+```
+
+The extra copy isolates the inner list before placing it in the draft dictionary; the outer dictionary was already copied. This addresses the current shape, not arbitrary deep-copy requirements.
+
+</details>
+
+### Exercise C: create two study plans from an empty file
+
+Create `study_board.py` yourself, starting with this template:
+
+```python case=exercise_template
+template = {"title": "Untitled", "topics": ["python"], "minutes": 20, "owner": None}
+```
+
+Meet these requirements independently, without loops, function definitions, or imports:
+
+1. Create different plan dictionaries from the template, named `first` and `second`. All three `topics` lists must support independent edits.
+2. The first title is `Read lists`; retain the default duration and owner field.
+3. The second title is `Practice dictionaries`; append topic `copy`, set duration to 35, and remove its `owner` field. It must be missing, not assigned None again.
+4. Store both plans in list `plans`; calculate total minutes from their fields, without hard-coding 55.
+5. Print the plan count, total duration, both titles, three topic lists, owner presence/absence checks, and the identity comparison between the plans' topic lists.
+
+The original inputs should produce:
+
+```text
+Plans: 2; total: 55 minutes
+Read lists
+Practice dictionaries
+['python']
+['python']
+['python', 'copy']
+True
+True
+False
+False
+```
+
+The final four lines answer, in order: does the first plan have an `owner` key? Is its value None? Does the second plan have an `owner` key? Are their topic lists the same object?
+
+Run the file you created:
+
+```bash
+uv run --no-project --python 3.13 python study_board.py
+```
+
+Try two variations: set the second duration to 50, expecting total 70; restore the duration, then change the template topic to `"language"`. All three topic lists must derive from the changed template, with only the second plan additionally containing `copy`. Change only these inputs, not the calculation or copying logic.
+
+Finally explain why `get("owner")` alone cannot establish that the first plan is explicitly unassigned while the second omits the field. Why should `plans[0]` still share a dictionary with `first`?
+
+<details>
+<summary>After independent completion and variations, reveal the reference answer</summary>
+
+File: `solutions/study_board.py`.
+
+<Code language="python">{getContainerExample('solutions/study_board.py')}</Code>
+
+Your solution need not match every line, but the specified names make relationships easy to check. Verify that source data remains intact, mutable levels are isolated, absence is represented correctly, and total duration comes from current inputs.
+
+There are only two plans. Eliminating the few repeated copy statements is not a requirement yet. Learn loops and functions before extracting reusable abstractions, rather than letting abstraction precede the mechanism.
+
+</details>
+
+## 13. What evidence should you have before moving on?
+
+- Choose containers for ordered tasks, named records, fixed slots, and distinct tags, and explain why they are not freely interchangeable.
+- Distinguish an index, slice, and key; explain out-of-range access, missing keys, and existing None without disguising meanings with defaults.
+- Explain a method call's side effect and return value separately, without rebinding a list name to None.
+- Predict rebinding, mutation, and shallow-copy behavior; draw nested sharing and repeated-list relationships.
+- Explain the limits of tuple immutability and set ordering/membership rather than merely recalling type names.
+- Build both study plans and pass input variations from an empty file; identify intentional sharing and verified isolation.
+
+If you still need an answer, return to the relevant experiment instead of memorizing more methods. Before leaving, record the last successful file and output, one reference relationship you cannot explain, and one input to change next time. Predict that change before running when you return; you do not need to start from installation.
+
+Next is [L03: Conditions, Loops, and Traversal](/en/docs/js2py/module-03-oop-functional), extending manual handling of two entries into processing different amounts of data. L00–L03 now follow the new contracts; later historical pages are still being migrated. The old module 02 material has been archived, not discarded. Modules belong in the new L06.
+
+## 14. Official references and this chapter's boundaries
+
+The relevant sections link their primary references. Two additional checks are useful:
+
+- [Data model: objects, values, and types](https://docs.python.org/3.13/reference/datamodel.html#objects-values-and-types): how mutable containers reference objects, without reading every special method now.
+- [Assignment statements](https://docs.python.org/3.13/reference/simple_stmts.html#assignment-statements): distinguish name binding from assignment to container entries.
+
+CPython 3.13 is the teaching baseline, not a claim about the latest release. The page and download use the same sources, while maintainer runtime checks remain outside learner prerequisites. These examples have no input validation, persistence, transactions, or concurrency handling. Containers are one foundation for a real backend, not all the capabilities required to launch one.

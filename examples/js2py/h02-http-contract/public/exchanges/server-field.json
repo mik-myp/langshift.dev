@@ -1,0 +1,38 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "server-field",
+  "precondition": {
+    "seed_tasks": []
+  },
+  "request": {
+    "method": "POST",
+    "target": "/tasks",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "title": "Ship the draft",
+      "minutes": 15,
+      "id": 99
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "detail": [
+        {
+          "type": "extra_forbidden",
+          "loc": [
+            "body",
+            "id"
+          ],
+          "msg": "Extra inputs are not permitted",
+          "input": 99
+        }
+      ]
+    }
+  }
+}

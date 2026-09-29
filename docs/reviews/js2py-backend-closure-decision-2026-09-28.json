@@ -1,0 +1,2114 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "New evidence/repair-delta closure, not a resampled initial chapter judgment; original full-source slices and all adverse branches retained.",
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "reader": "Experienced JS frontend engineer, comfortable with Promise/async-await and basic TS, originally no Python/backend/SQL/operations. Slow mastery by chapter, target independently ship and maintain an invited-user backend, not just memorize APIs.",
+      "review_stage": "New aggregate-evidence and precise repair-delta closure judgment. NOT resampling any earlier slice for a better score. Initial 24 chapter records retain full English and union of every non-lock source/README; locks/locales/ZIPs deterministically bound. You are not being asked to pretend to reread those entire lessons here. Judge the proposed bounded completion record using the follow-up evidence and all changed English/source deltas below.",
+      "initial_source_coverage_and_remaining_deltas": [
+        {
+          "lab": "h01-service-process",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "h02-http-contract",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "h03-first-fastapi",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "h04-validation",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "h05-dependencies",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "h06-api-testing",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "d01-relational-data",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "d02-sql",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "d03-transactions",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": [
+            "examples/js2py/d03-transactions/tests/test_transactions.py",
+            "public/learning-assets/js2py/d03-transactions.zip"
+          ]
+        },
+        {
+          "lab": "d04-sqlalchemy",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "d05-migrations",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "d06-database-testing",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "s01-identity",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "s02-authorization",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "s03-reliable-operations",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "a01-async-model",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "a02-external-services",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "o01-operating-system",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "o02-containers",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "o03-https-production",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        },
+        {
+          "lab": "o04-release",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": [
+            "examples/js2py/o04-release/README.md",
+            "examples/js2py/o04-release/README.zh-cn.md",
+            "examples/js2py/o04-release/README.zh-tw.md",
+            "public/learning-assets/js2py/o04-release.zip"
+          ]
+        },
+        {
+          "lab": "o05-observability",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": [
+            "content/docs/js2py/module-36-observability.mdx",
+            "examples/js2py/o05-observability/README.md",
+            "examples/js2py/o05-observability/README.zh-cn.md",
+            "examples/js2py/o05-observability/README.zh-tw.md",
+            "content/docs/js2py/module-36-observability.zh-tw.mdx",
+            "content/docs/js2py/module-36-observability.zh-cn.mdx",
+            "public/learning-assets/js2py/o05-observability.zip"
+          ]
+        },
+        {
+          "lab": "o06-recovery",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": [
+            "examples/js2py/o06-recovery/README.md",
+            "examples/js2py/o06-recovery/README.zh-cn.md",
+            "examples/js2py/o06-recovery/README.zh-tw.md",
+            "public/learning-assets/js2py/o06-recovery.zip"
+          ]
+        },
+        {
+          "lab": "g01-graduation",
+          "complete_initial_source_coverage": true,
+          "post_review_paths_changed": []
+        }
+      ],
+      "raw_prior_slice_decisions_retained": [
+        {
+          "lab": "h01-service-process",
+          "slices": [
+            {
+              "batch": "review-20",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.02,
+                "TARGETED_REVIEW": 0.38,
+                "PROCEED": 0.6
+              },
+              "confidence": 0.4,
+              "hidden_prerequisite": 0.16
+            }
+          ]
+        },
+        {
+          "lab": "h03-first-fastapi",
+          "slices": [
+            {
+              "batch": "review-25",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.05,
+                "PROCEED": 0.7,
+                "TARGETED_REVIEW": 0.25
+              },
+              "confidence": 0.56,
+              "hidden_prerequisite": 0.18
+            }
+          ]
+        },
+        {
+          "lab": "h04-validation",
+          "slices": [
+            {
+              "batch": "review-26",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.26,
+                "REVISE": 0.07,
+                "PROCEED": 0.67
+              },
+              "confidence": 0.51,
+              "hidden_prerequisite": 0.27
+            }
+          ]
+        },
+        {
+          "lab": "h02-http-contract",
+          "slices": [
+            {
+              "batch": "review-30",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.45,
+                "PROCEED": 0.5,
+                "REVISE": 0.05
+              },
+              "confidence": 0.25,
+              "hidden_prerequisite": 0.25
+            },
+            {
+              "batch": "review-31",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.09,
+                "TARGETED_REVIEW": 0.36,
+                "PROCEED": 0.55
+              },
+              "confidence": 0.32,
+              "hidden_prerequisite": 0.25
+            },
+            {
+              "batch": "review-32",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.15,
+                "PROCEED": 0.35,
+                "TARGETED_REVIEW": 0.5
+              },
+              "confidence": 0.25,
+              "hidden_prerequisite": 0.27
+            },
+            {
+              "batch": "review-33",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.46,
+                "REVISE": 0.06,
+                "PROCEED": 0.48
+              },
+              "confidence": 0.22,
+              "hidden_prerequisite": 0.25
+            }
+          ]
+        },
+        {
+          "lab": "d04-sqlalchemy",
+          "slices": [
+            {
+              "batch": "review-37",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.45,
+                "PROCEED": 0.52,
+                "REVISE": 0.03
+              },
+              "confidence": 0.28,
+              "hidden_prerequisite": 0.27
+            },
+            {
+              "batch": "review-38",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.39,
+                "REVISE": 0.03,
+                "PROCEED": 0.58
+              },
+              "confidence": 0.37,
+              "hidden_prerequisite": 0.3
+            }
+          ]
+        },
+        {
+          "lab": "a01-async-model",
+          "slices": [
+            {
+              "batch": "review-43",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.27,
+                "PROCEED": 0.68,
+                "REVISE": 0.05
+              },
+              "confidence": 0.52,
+              "hidden_prerequisite": 0.39
+            }
+          ]
+        },
+        {
+          "lab": "g01-graduation",
+          "slices": [
+            {
+              "batch": "review-46",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.59,
+                "REVISE": 0.07,
+                "PROCEED": 0.34
+              },
+              "confidence": 0.39,
+              "hidden_prerequisite": 0.76
+            },
+            {
+              "batch": "review-47",
+              "action": "PROCEED",
+              "probabilities": {
+                "PROCEED": 0.53,
+                "REVISE": 0.04,
+                "TARGETED_REVIEW": 0.43
+              },
+              "confidence": 0.3,
+              "hidden_prerequisite": 0.67
+            }
+          ]
+        },
+        {
+          "lab": "d05-migrations",
+          "slices": [
+            {
+              "batch": "review-48",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.04,
+                "PROCEED": 0.49,
+                "TARGETED_REVIEW": 0.47
+              },
+              "confidence": 0.24,
+              "hidden_prerequisite": 0.55
+            },
+            {
+              "batch": "review-49",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.46,
+                "PROCEED": 0.51,
+                "REVISE": 0.03
+              },
+              "confidence": 0.27,
+              "hidden_prerequisite": 0.49
+            },
+            {
+              "batch": "review-50",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.04,
+                "TARGETED_REVIEW": 0.35,
+                "PROCEED": 0.61
+              },
+              "confidence": 0.41,
+              "hidden_prerequisite": 0.51
+            }
+          ]
+        },
+        {
+          "lab": "d06-database-testing",
+          "slices": [
+            {
+              "batch": "review-51",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.41,
+                "PROCEED": 0.56,
+                "REVISE": 0.03
+              },
+              "confidence": 0.34,
+              "hidden_prerequisite": 0.59
+            },
+            {
+              "batch": "review-52",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.04,
+                "TARGETED_REVIEW": 0.4,
+                "PROCEED": 0.55
+              },
+              "confidence": 0.33,
+              "hidden_prerequisite": 0.65
+            },
+            {
+              "batch": "review-53",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.41,
+                "PROCEED": 0.54,
+                "REVISE": 0.05
+              },
+              "confidence": 0.32,
+              "hidden_prerequisite": 0.65
+            }
+          ]
+        },
+        {
+          "lab": "a02-external-services",
+          "slices": [
+            {
+              "batch": "review-54",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.04,
+                "PROCEED": 0.5,
+                "TARGETED_REVIEW": 0.46
+              },
+              "confidence": 0.26,
+              "hidden_prerequisite": 0.55
+            },
+            {
+              "batch": "review-55",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.45,
+                "PROCEED": 0.48,
+                "REVISE": 0.07
+              },
+              "confidence": 0.23,
+              "hidden_prerequisite": 0.68
+            },
+            {
+              "batch": "review-56",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.05,
+                "PROCEED": 0.58,
+                "TARGETED_REVIEW": 0.37
+              },
+              "confidence": 0.37,
+              "hidden_prerequisite": 0.57
+            }
+          ]
+        },
+        {
+          "lab": "h05-dependencies",
+          "slices": [
+            {
+              "batch": "review-57",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.03,
+                "PROCEED": 0.31,
+                "TARGETED_REVIEW": 0.66
+              },
+              "confidence": 0.48,
+              "hidden_prerequisite": 0.33
+            },
+            {
+              "batch": "review-58",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "PROCEED": 0.47,
+                "REVISE": 0.03,
+                "TARGETED_REVIEW": 0.5
+              },
+              "confidence": 0.25,
+              "hidden_prerequisite": 0.35
+            }
+          ]
+        },
+        {
+          "lab": "h06-api-testing",
+          "slices": [
+            {
+              "batch": "review-59",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.04,
+                "PROCEED": 0.42,
+                "TARGETED_REVIEW": 0.54
+              },
+              "confidence": 0.31,
+              "hidden_prerequisite": 0.37
+            },
+            {
+              "batch": "review-60",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.05,
+                "PROCEED": 0.41,
+                "TARGETED_REVIEW": 0.54
+              },
+              "confidence": 0.31,
+              "hidden_prerequisite": 0.35
+            },
+            {
+              "batch": "review-61",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.07,
+                "PROCEED": 0.35,
+                "TARGETED_REVIEW": 0.58
+              },
+              "confidence": 0.36,
+              "hidden_prerequisite": 0.37
+            }
+          ]
+        },
+        {
+          "lab": "s01-identity",
+          "slices": [
+            {
+              "batch": "review-62",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.05,
+                "TARGETED_REVIEW": 0.5,
+                "PROCEED": 0.45
+              },
+              "confidence": 0.25,
+              "hidden_prerequisite": 0.76
+            },
+            {
+              "batch": "review-63",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.11,
+                "PROCEED": 0.42,
+                "TARGETED_REVIEW": 0.47
+              },
+              "confidence": 0.21,
+              "hidden_prerequisite": 0.72
+            },
+            {
+              "batch": "review-64",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.4,
+                "REVISE": 0.03,
+                "PROCEED": 0.57
+              },
+              "confidence": 0.37,
+              "hidden_prerequisite": 0.75
+            },
+            {
+              "batch": "review-65",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.42,
+                "REVISE": 0.03,
+                "PROCEED": 0.55
+              },
+              "confidence": 0.33,
+              "hidden_prerequisite": 0.77
+            }
+          ]
+        },
+        {
+          "lab": "s02-authorization",
+          "slices": [
+            {
+              "batch": "review-66",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.06,
+                "PROCEED": 0.41,
+                "TARGETED_REVIEW": 0.53
+              },
+              "confidence": 0.3,
+              "hidden_prerequisite": 0.72
+            },
+            {
+              "batch": "review-67",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.56,
+                "REVISE": 0.07,
+                "PROCEED": 0.37
+              },
+              "confidence": 0.33,
+              "hidden_prerequisite": 0.66
+            },
+            {
+              "batch": "review-68",
+              "action": "PROCEED",
+              "probabilities": {
+                "PROCEED": 0.66,
+                "TARGETED_REVIEW": 0.3,
+                "REVISE": 0.04
+              },
+              "confidence": 0.49,
+              "hidden_prerequisite": 0.63
+            },
+            {
+              "batch": "review-69",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.36,
+                "REVISE": 0.03,
+                "PROCEED": 0.61
+              },
+              "confidence": 0.43,
+              "hidden_prerequisite": 0.73
+            },
+            {
+              "batch": "review-70",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.03,
+                "PROCEED": 0.54,
+                "TARGETED_REVIEW": 0.43
+              },
+              "confidence": 0.3,
+              "hidden_prerequisite": 0.67
+            }
+          ]
+        },
+        {
+          "lab": "s03-reliable-operations",
+          "slices": [
+            {
+              "batch": "review-71",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "PROCEED": 0.34,
+                "TARGETED_REVIEW": 0.55,
+                "REVISE": 0.11
+              },
+              "confidence": 0.32,
+              "hidden_prerequisite": 0.52
+            },
+            {
+              "batch": "review-72",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.62,
+                "PROCEED": 0.3,
+                "REVISE": 0.08
+              },
+              "confidence": 0.43,
+              "hidden_prerequisite": 0.52
+            },
+            {
+              "batch": "review-73",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.04,
+                "PROCEED": 0.48,
+                "TARGETED_REVIEW": 0.48
+              },
+              "confidence": 0.23,
+              "hidden_prerequisite": 0.57
+            },
+            {
+              "batch": "review-74",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.42,
+                "REVISE": 0.04,
+                "PROCEED": 0.54
+              },
+              "confidence": 0.31,
+              "hidden_prerequisite": 0.51
+            },
+            {
+              "batch": "review-75",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.37,
+                "REVISE": 0.03,
+                "PROCEED": 0.6
+              },
+              "confidence": 0.4,
+              "hidden_prerequisite": 0.57
+            },
+            {
+              "batch": "review-76",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.42,
+                "REVISE": 0.03,
+                "PROCEED": 0.55
+              },
+              "confidence": 0.33,
+              "hidden_prerequisite": 0.47
+            }
+          ]
+        },
+        {
+          "lab": "o01-operating-system",
+          "slices": [
+            {
+              "batch": "review-77",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.51,
+                "REVISE": 0.01,
+                "PROCEED": 0.48
+              },
+              "confidence": 0.26,
+              "hidden_prerequisite": 0.39
+            }
+          ]
+        },
+        {
+          "lab": "o02-containers",
+          "slices": [
+            {
+              "batch": "review-78",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.02,
+                "TARGETED_REVIEW": 0.38,
+                "PROCEED": 0.6
+              },
+              "confidence": 0.39,
+              "hidden_prerequisite": 0.43
+            },
+            {
+              "batch": "review-79",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.38,
+                "REVISE": 0.02,
+                "PROCEED": 0.6
+              },
+              "confidence": 0.4,
+              "hidden_prerequisite": 0.36
+            }
+          ]
+        },
+        {
+          "lab": "o03-https-production",
+          "slices": [
+            {
+              "batch": "review-80",
+              "action": "PROCEED",
+              "probabilities": {
+                "PROCEED": 0.56,
+                "TARGETED_REVIEW": 0.42,
+                "REVISE": 0.02
+              },
+              "confidence": 0.34,
+              "hidden_prerequisite": 0.5
+            },
+            {
+              "batch": "review-81",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.39,
+                "REVISE": 0.03,
+                "PROCEED": 0.58
+              },
+              "confidence": 0.37,
+              "hidden_prerequisite": 0.49
+            }
+          ]
+        },
+        {
+          "lab": "o04-release",
+          "slices": [
+            {
+              "batch": "review-82",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.05,
+                "TARGETED_REVIEW": 0.57,
+                "PROCEED": 0.38
+              },
+              "confidence": 0.36,
+              "hidden_prerequisite": 0.64
+            },
+            {
+              "batch": "review-83",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.04,
+                "TARGETED_REVIEW": 0.54,
+                "PROCEED": 0.42
+              },
+              "confidence": 0.3,
+              "hidden_prerequisite": 0.65
+            }
+          ]
+        },
+        {
+          "lab": "o05-observability",
+          "slices": [
+            {
+              "batch": "review-84",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.07,
+                "PROCEED": 0.38,
+                "TARGETED_REVIEW": 0.55
+              },
+              "confidence": 0.32,
+              "hidden_prerequisite": 0.66
+            },
+            {
+              "batch": "review-85",
+              "action": "PROCEED",
+              "probabilities": {
+                "PROCEED": 0.47,
+                "REVISE": 0.06,
+                "TARGETED_REVIEW": 0.47
+              },
+              "confidence": 0.21,
+              "hidden_prerequisite": 0.68
+            }
+          ]
+        },
+        {
+          "lab": "o06-recovery",
+          "slices": [
+            {
+              "batch": "review-86",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "REVISE": 0.04,
+                "PROCEED": 0.41,
+                "TARGETED_REVIEW": 0.55
+              },
+              "confidence": 0.33,
+              "hidden_prerequisite": 0.6
+            },
+            {
+              "batch": "review-87",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.44,
+                "REVISE": 0.05,
+                "PROCEED": 0.51
+              },
+              "confidence": 0.27,
+              "hidden_prerequisite": 0.61
+            },
+            {
+              "batch": "review-88",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.06,
+                "PROCEED": 0.52,
+                "TARGETED_REVIEW": 0.42
+              },
+              "confidence": 0.28,
+              "hidden_prerequisite": 0.6
+            }
+          ]
+        },
+        {
+          "lab": "d01-relational-data",
+          "slices": [
+            {
+              "batch": "review-89",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.38,
+                "REVISE": 0.04,
+                "PROCEED": 0.58
+              },
+              "confidence": 0.37,
+              "hidden_prerequisite": 0.46
+            },
+            {
+              "batch": "review-90",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.06,
+                "TARGETED_REVIEW": 0.37,
+                "PROCEED": 0.57
+              },
+              "confidence": 0.35,
+              "hidden_prerequisite": 0.42
+            },
+            {
+              "batch": "review-91",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.28,
+                "PROCEED": 0.69,
+                "REVISE": 0.03
+              },
+              "confidence": 0.54,
+              "hidden_prerequisite": 0.41
+            }
+          ]
+        },
+        {
+          "lab": "d02-sql",
+          "slices": [
+            {
+              "batch": "review-92",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.06,
+                "TARGETED_REVIEW": 0.44,
+                "PROCEED": 0.5
+              },
+              "confidence": 0.25,
+              "hidden_prerequisite": 0.58
+            },
+            {
+              "batch": "review-93",
+              "action": "PROCEED",
+              "probabilities": {
+                "PROCEED": 0.62,
+                "REVISE": 0.05,
+                "TARGETED_REVIEW": 0.33
+              },
+              "confidence": 0.43,
+              "hidden_prerequisite": 0.59
+            }
+          ]
+        },
+        {
+          "lab": "d03-transactions",
+          "slices": [
+            {
+              "batch": "review-94",
+              "action": "TARGETED_REVIEW",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.63,
+                "PROCEED": 0.3,
+                "REVISE": 0.07
+              },
+              "confidence": 0.46,
+              "hidden_prerequisite": 0.54
+            },
+            {
+              "batch": "review-95",
+              "action": "PROCEED",
+              "probabilities": {
+                "TARGETED_REVIEW": 0.38,
+                "REVISE": 0.06,
+                "PROCEED": 0.56
+              },
+              "confidence": 0.34,
+              "hidden_prerequisite": 0.62
+            },
+            {
+              "batch": "review-96",
+              "action": "PROCEED",
+              "probabilities": {
+                "REVISE": 0.06,
+                "PROCEED": 0.63,
+                "TARGETED_REVIEW": 0.31
+              },
+              "confidence": 0.45,
+              "hidden_prerequisite": 0.66
+            }
+          ]
+        }
+      ],
+      "new_semantic_deltas": [
+        {
+          "lab": "d03-transactions",
+          "path": "examples/js2py/d03-transactions/tests/test_transactions.py",
+          "submitted_sha256": "5e1df7aa806cde39f68b76845e9be9aab5b85984ce052b4ddb4cd61a282d1c19",
+          "current_sha256": "2ae6d63c07cb50c88b754c136e88852e16302eb671a23ea1c1921ef4fc300c42",
+          "complete_unified_diff": "--- submitted/examples/js2py/d03-transactions/tests/test_transactions.py\n+++ current/examples/js2py/d03-transactions/tests/test_transactions.py\n@@ -95,3 +95,13 @@\n         project_id, task_id = create_project_with_task(conn, \"Three steps\", 1, \"First task\")\n     with labctl.connect(autocommit=True) as observer:\n         assert observer.execute(\"SELECT project_id FROM tasks WHERE id=%s\", (task_id,)).fetchone() == (project_id,)\n+        assert observer.execute(\n+            \"SELECT name, created_by FROM projects WHERE id=%s\", (project_id,),\n+        ).fetchone() == (\"Three steps\", 1)\n+        assert observer.execute(\n+            \"SELECT user_id, role FROM project_members WHERE project_id=%s ORDER BY user_id\",\n+            (project_id,),\n+        ).fetchall() == [(1, \"owner\")]\n+        assert observer.execute(\n+            \"SELECT project_id, created_by, title FROM tasks WHERE id=%s\", (task_id,),\n+        ).fetchone() == (project_id, 1, \"First task\")\n"
+        },
+        {
+          "lab": "o04-release",
+          "path": "examples/js2py/o04-release/README.md",
+          "submitted_sha256": "f85b95ce2b8ddfbd51df4dce07d714851196cccc13ae06146de6abe6d805f536",
+          "current_sha256": "51bc68fd844541bd7abd3ed87fe1f8f12f4fc76d52f2108263b54614deae29a2",
+          "complete_unified_diff": "--- submitted/examples/js2py/o04-release/README.md\n+++ current/examples/js2py/o04-release/README.md\n@@ -79,8 +79,10 @@\n nullable projects.description. They are for this disposable laboratory, NOT\n permission to replace an existing application's migration history. Application\n startup reads schema compatibility but NEVER migrates. Administrative migration\n-and runtime roles are separate; grants.sql lists the operational slice privileges.\n+and runtime roles are separate; grants.sql lists the current lab privileges, not a proven minimal set.\n The migration controller is serial, not a distributed deployment lock.\n+\n+This lab verifies separation of administrative and runtime identities and rejection of the tested ALTER/DROP operations; it does **not** prove least-privilege DML. The shared `sql/grants.sql` still gives SELECT/INSERT/UPDATE/DELETE on projects, project_members and tasks, plus USAGE/SELECT on all public sequences. Several grants exceed the current read/create-project routes. Before a real deployment, map each route and job to its table operation, narrow the table/sequence grants, and verify required actions succeed while unused UPDATE/DELETE and other unneeded actions are denied. Passing the existing DDL-denial tests cannot replace that audit.\n \n ops/server.py owns actual Uvicorn subprocesses, waits for database-backed readiness,\n and closes only those processes in finally. All database roots, synthetic backups,\n"
+        },
+        {
+          "lab": "o05-observability",
+          "path": "content/docs/js2py/module-36-observability.mdx",
+          "submitted_sha256": "2ac6782e515c44f522e9287526c72ce852c22a3ba9685105f2e00d7740b19d3f",
+          "current_sha256": "4c11f08aa7bd5635ea02456312da26d9083deb2352c52c4755f7754beb024a79",
+          "complete_unified_diff": "--- submitted/content/docs/js2py/module-36-observability.mdx\n+++ current/content/docs/js2py/module-36-observability.mdx\n@@ -86,7 +86,9 @@\n \n Events are created mode 0600 inside the exclusive 0700 temporary directory. Uvicorn access logging is disabled so another logger cannot record full query URLs. Validation errors return only safe loc/type fields, not input/body/context. PostgreSQL does not log statements or error parameters. Those controls and the event allowlist work together; fixing one logger while leaving a proxy/access log leak is insufficient.\n \n-The runtime role has only the table/sequence permissions needed by this slice. A separate administrative connection operates the drill. No real user logs, passwords, or production database are read. Synthetic secrets exist only to test negative disclosure paths.\n+This lab verifies separation of administrative and runtime identities and rejection of the tested ALTER/DROP operations; it does **not** prove least-privilege DML. The shared `sql/grants.sql` still gives SELECT/INSERT/UPDATE/DELETE on projects, project_members and tasks, plus USAGE/SELECT on all public sequences. Several grants exceed the current read/create-project routes. Before a real deployment, map each route and job to its table operation, narrow the table/sequence grants, and verify required actions succeed while unused UPDATE/DELETE and other unneeded actions are denied. Passing the existing DDL-denial tests cannot replace that audit.\n+\n+ A separate administrative connection operates the drill. No real user logs, passwords, or production database are read. Synthetic secrets exist only to test negative disclosure paths.\n \n Passing a private-socket host is not sufficient by itself: libpq can still obtain other connection defaults from `PGHOSTADDR`, `PGSERVICE`, `PGSERVICEFILE`, and related variables. `reject_connection_environment` rejects every inherited `PG*` name before temporary-directory creation and before each direct connection, migration, or server launch. The only exception is `PG_BIN`, which locates executables, not a database. Errors list names only, never their values, and do not mutate the caller's environment. Python connections, SQLAlchemy's connection creator, and PostgreSQL subprocesses use an empty mode0600 `empty.pgpass` in the owned directory rather than the user's default password file. Direct `demo.py` and `ci.py` execution have these guards too; safety does not depend on the repository runner cleaning up first.\n \n"
+        },
+        {
+          "lab": "o05-observability",
+          "path": "examples/js2py/o05-observability/README.md",
+          "submitted_sha256": "defdd8c3a6c586f64b7d2d3d19929a10d745f493f507b3656840ee14760266dc",
+          "current_sha256": "925eba762c22909c98dc748d15891271573ba1738dcae78b4ba4fb4590e09c61",
+          "complete_unified_diff": "--- submitted/examples/js2py/o05-observability/README.md\n+++ current/examples/js2py/o05-observability/README.md\n@@ -80,8 +80,10 @@\n nullable projects.description. They are for this disposable laboratory, NOT\n permission to replace an existing application's migration history. Application\n startup reads schema compatibility but NEVER migrates. Administrative migration\n-and runtime roles are separate; grants.sql lists the operational slice privileges.\n+and runtime roles are separate; grants.sql lists the current lab privileges, not a proven minimal set.\n The migration controller is serial, not a distributed deployment lock.\n+\n+This lab verifies separation of administrative and runtime identities and rejection of the tested ALTER/DROP operations; it does **not** prove least-privilege DML. The shared `sql/grants.sql` still gives SELECT/INSERT/UPDATE/DELETE on projects, project_members and tasks, plus USAGE/SELECT on all public sequences. Several grants exceed the current read/create-project routes. Before a real deployment, map each route and job to its table operation, narrow the table/sequence grants, and verify required actions succeed while unused UPDATE/DELETE and other unneeded actions are denied. Passing the existing DDL-denial tests cannot replace that audit.\n \n ops/server.py owns actual Uvicorn subprocesses, waits for database-backed readiness,\n and closes only those processes in finally. All database roots, synthetic backups,\n"
+        },
+        {
+          "lab": "o06-recovery",
+          "path": "examples/js2py/o06-recovery/README.md",
+          "submitted_sha256": "acddffbb2933d0f6757d64a4ba4482b8a49bd0166206b6ff02ab00ab364bb37d",
+          "current_sha256": "208b9252d4b2faf39b9dc69e18e537d2bdde6f1a8d3fd406a0bc4e86bc85571d",
+          "complete_unified_diff": "--- submitted/examples/js2py/o06-recovery/README.md\n+++ current/examples/js2py/o06-recovery/README.md\n@@ -84,8 +84,10 @@\n nullable projects.description. They are for this disposable laboratory, NOT\n permission to replace an existing application's migration history. Application\n startup reads schema compatibility but NEVER migrates. Administrative migration\n-and runtime roles are separate; grants.sql lists the operational slice privileges.\n+and runtime roles are separate; grants.sql lists the current lab privileges, not a proven minimal set.\n The migration controller is serial, not a distributed deployment lock.\n+\n+This lab verifies separation of administrative and runtime identities and rejection of the tested ALTER/DROP operations; it does **not** prove least-privilege DML. The shared `sql/grants.sql` still gives SELECT/INSERT/UPDATE/DELETE on projects, project_members and tasks, plus USAGE/SELECT on all public sequences. Several grants exceed the current read/create-project routes. Before a real deployment, map each route and job to its table operation, narrow the table/sequence grants, and verify required actions succeed while unused UPDATE/DELETE and other unneeded actions are denied. Passing the existing DDL-denial tests cannot replace that audit.\n \n ops/server.py owns actual Uvicorn subprocesses, waits for database-backed readiness,\n and closes only those processes in finally. All database roots, synthetic backups,\n"
+        }
+      ],
+      "current_D03_complete_test_file": "import pytest\nfrom psycopg import IsolationLevel, errors\nimport labctl\nimport concurrency\nfrom transactions import create_project, insert_project_and_owner\nfrom answers.variant import create_project_with_task\n\n\ndef test_second_step_has_no_residue():\n    assert concurrency.failed_second_step() == {\"sqlstate\": \"23503\", \"projects_remaining\": 0, \"memberships\": 4}\n\n\ndef test_commit_visibility_and_close():\n    conn = labctl.connect()\n    observer = labctl.connect(autocommit=True)\n    try:\n        project_id = insert_project_and_owner(conn, \"Visible after commit\", 1, 1)\n        assert observer.execute(\"SELECT count(*) FROM projects WHERE id=%s\", (project_id,)).fetchone() == (0,)\n        conn.commit()\n        assert observer.execute(\"SELECT count(*) FROM projects WHERE id=%s\", (project_id,)).fetchone() == (1,)\n        assert observer.execute(\"SELECT user_id,role FROM project_members WHERE project_id=%s\", (project_id,)).fetchone() == (1, \"owner\")\n    finally:\n        conn.close()\n        observer.close()\n    assert conn.closed and observer.closed\n\n\ndef test_aborted_transaction_needs_rollback():\n    with labctl.connect() as conn:\n        conn.execute(\"UPDATE tasks SET minutes=35 WHERE id=1\")\n        with pytest.raises(errors.CheckViolation) as failure:\n            conn.execute(\"UPDATE tasks SET minutes=-1 WHERE id=2\")\n        assert failure.value.sqlstate == \"23514\"\n        with pytest.raises(errors.InFailedSqlTransaction) as aborted:\n            conn.execute(\"SELECT 1\")\n        assert aborted.value.sqlstate == \"25P02\"\n        conn.rollback()\n        assert conn.execute(\"SELECT minutes FROM tasks WHERE id=1\").fetchone() == (30,)\n        assert conn.execute(\"SELECT 1\").fetchone() == (1,)\n\n\ndef test_close_does_not_commit():\n    conn = labctl.connect()\n    conn.execute(\"UPDATE tasks SET minutes=999 WHERE id=1\")\n    conn.close()\n    with labctl.connect(autocommit=True) as observer:\n        assert observer.execute(\"SELECT minutes FROM tasks WHERE id=1\").fetchone() == (30,)\n\n\ndef test_success_and_identity_gap():\n    with labctl.connect() as conn:\n        discarded = insert_project_and_owner(conn, \"Discarded\", 1, 1)\n        conn.rollback()\n    project_id = create_project(\"Committed\", 1)\n    assert project_id > discarded  # Identity allocation is not rolled back.\n\n\n@pytest.mark.parametrize(\"level, expected\", [\n    (IsolationLevel.READ_COMMITTED, [30, 40]),\n    (IsolationLevel.REPEATABLE_READ, [30, 30]),\n])\ndef test_snapshot_boundary(level, expected):\n    assert concurrency.snapshot(level) == expected\n\n\ndef test_actual_lost_update():\n    assert concurrency.lost_update() == 37\n\n\ndef test_overlapping_atomic_updates_wait_then_add():\n    assert concurrency.overlapping_write(\"increment\") == {\"lock_wait_observed\": True, \"worker\": \"committed\", \"value\": 42}\n\n\ndef test_unique_constraint_arbitrates_two_connections():\n    assert concurrency.overlapping_write(\"unique\") == {\"lock_wait_observed\": True, \"worker\": \"23505\", \"value\": 1}\n\n\ndef test_row_lock_timeout_recovers():\n    assert concurrency.lock_timeout() == {\"sqlstate\": \"55P03\", \"minutes_after_rollback\": 30}\n\n\ndef test_serialization_conflict_and_full_retry():\n    assert concurrency.serialization_conflict() == {\"sqlstate\": \"40001\", \"after_full_retry\": 42}\n\n\ndef test_three_step_independent_variation():\n    with pytest.raises(errors.CheckViolation):\n        with labctl.connect() as conn:\n            create_project_with_task(conn, \"Three steps\", 1, \"   \")\n    with labctl.connect(autocommit=True) as observer:\n        assert observer.execute(\"SELECT count(*) FROM projects WHERE name='Three steps'\").fetchone() == (0,)\n        assert observer.execute(\"SELECT count(*) FROM project_members\").fetchone() == (4,)\n        assert observer.execute(\"SELECT count(*) FROM tasks\").fetchone() == (5,)\n    with labctl.connect() as conn:\n        project_id, task_id = create_project_with_task(conn, \"Three steps\", 1, \"First task\")\n    with labctl.connect(autocommit=True) as observer:\n        assert observer.execute(\"SELECT project_id FROM tasks WHERE id=%s\", (task_id,)).fetchone() == (project_id,)\n        assert observer.execute(\n            \"SELECT name, created_by FROM projects WHERE id=%s\", (project_id,),\n        ).fetchone() == (\"Three steps\", 1)\n        assert observer.execute(\n            \"SELECT user_id, role FROM project_members WHERE project_id=%s ORDER BY user_id\",\n            (project_id,),\n        ).fetchall() == [(1, \"owner\")]\n        assert observer.execute(\n            \"SELECT project_id, created_by, title FROM tasks WHERE id=%s\", (task_id,),\n        ).fetchone() == (project_id, 1, \"First task\")\n",
+      "current_D03_solution": "def create_project_with_task(conn, name, creator_id, title):\n    project_id = conn.execute(\n        \"INSERT INTO projects(name, created_by) VALUES (%s,%s) RETURNING id\",\n        (name, creator_id),\n    ).fetchone()[0]\n    conn.execute(\n        \"INSERT INTO project_members(project_id,user_id,role) VALUES (%s,%s,'owner')\",\n        (project_id, creator_id),\n    )\n    task_id = conn.execute(\n        \"INSERT INTO tasks(project_id,created_by,title) VALUES (%s,%s,%s) RETURNING id\",\n        (project_id, creator_id, title),\n    ).fetchone()[0]\n    return project_id, task_id\n",
+      "current_operations_grants": "-- Runtime identity for this read/create-project operational slice, NOT a superuser.\nREVOKE ALL ON SCHEMA public FROM PUBLIC;\nGRANT USAGE ON SCHEMA public TO lab_app;\nGRANT SELECT ON users, auth_sessions TO lab_app;\nGRANT SELECT, INSERT, UPDATE, DELETE ON projects, project_members, tasks TO lab_app;\nGRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO lab_app;\nGRANT SELECT ON alembic_version TO lab_app;\n",
+      "new_targeted_followups": {
+        "S_pedagogy": {
+          "verdict": {
+            "status": "NO_REPRODUCIBLE_P1_P2_PEDAGOGICAL_BLOCKER_FOUND",
+            "P1": 0,
+            "P2": 0,
+            "findings": [],
+            "conclusion": "按指定读者和先修，在完整三章中文正文及必要引用源码内，未发现可定位、可说明学习阻断或错误行为的 P1/P2。支持的是有界实验能力，不是无辅助的生产重建或实际读者学习效果证明。",
+            "strict_first_explain_then_show_code": false,
+            "explanation_available_before_required_independent_exercises": true,
+            "rationale": "部分是完整代码后同节讲解，不能报告成每个新 API 都严格先解释后出现；但本轮未找到由该排版顺序造成必要知识完全缺位的具体练习。"
+          },
+          "remaining_boundaries": [
+            "真实读者的首次尝试、学习时间、停顿点和间隔学习保留未被观察；本报告是可尝试性的文本/代码论证，不是实测教学效果。",
+            "全文范围仅简体中文三章；未重新证明三语完全等价或全 39 章闭合。",
+            "实际后端验证是既有证据，本轮未重跑；代码与文件哈希限定本结论。",
+            "本地 loopback 实验不构成生产 TLS、限流、密码哈希容量、找回/MFA、Cookie/CSRF、生产日志/备份/时钟同步验收。",
+            "授权只覆盖声明的成员/owner/创建者规则；不包含所有权转移、组织管理、RLS、任意缓存一致性或追回已发送响应。",
+            "幂等只在已定义范围、相同规范化 payload、权限和保留政策内成立；不包含外部副作用恰好一次、永久去重、所有清理交错/死锁或任意盲重试。",
+            "UTC/Decimal 练习不证明掌握夏令时/本地日历、任意 Decimal 上下文、财务舍入或多币种。"
+          ]
+        },
+        "S_summary": "gpt-6-astra independent targeted read-only audit of51 file hashes found no reproducible P1/P2 teaching prerequisite blocker; maps hashing/salt/session/SecretStr/time/authorization/rowlock/ON-CONFLICT/Decimal/TTL introductions to exercises. Some whole modules appear before same-section explanation, but explanations precede independent exercises. No real learner trial claimed. Prior security proxy P2 has actual target3/proxy0/redirect0 regressions on all3 clients.",
+        "D03_pedagogy": {
+          "findings": [
+            {
+              "id": "F1",
+              "priority": "P2",
+              "category": "independent_exercise_acceptance_contract",
+              "title": "三步变式的成功分支没有验收负责人关系，漏掉第二步仍可能得到绿色结果",
+              "location": {
+                "source_id": "tests",
+                "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_transactions.py",
+                "start_line": 94,
+                "end_line": 97
+              },
+              "contract_locations": [
+                {
+                  "source_id": "d03_zh",
+                  "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+                  "start_line": 167,
+                  "end_line": 174,
+                  "section": "D03 §11"
+                },
+                {
+                  "source_id": "d03_en",
+                  "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.mdx",
+                  "start_line": 167,
+                  "end_line": 174,
+                  "section": "D03 §11"
+                }
+              ],
+              "supporting_locations": [
+                {
+                  "source_id": "variant",
+                  "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/answers/variant.py",
+                  "start_line": 6,
+                  "end_line": 9
+                },
+                {
+                  "source_id": "schema",
+                  "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sql/schema.sql",
+                  "start_line": 16,
+                  "end_line": 27
+                },
+                {
+                  "source_id": "fixture",
+                  "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/conftest.py",
+                  "start_line": 5,
+                  "end_line": 8
+                },
+                {
+                  "source_id": "tests",
+                  "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_transactions.py",
+                  "start_line": 13,
+                  "end_line": 21
+                },
+                {
+                  "source_id": "d01_zh",
+                  "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-21-relational-data.zh-cn.mdx",
+                  "start_line": 54,
+                  "end_line": 54
+                },
+                {
+                  "source_id": "d03_zh",
+                  "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+                  "start_line": 189,
+                  "end_line": 189
+                }
+              ],
+              "observed": "正文要求成功后外部连接能查到项目、负责人和任务。现有测试在失败路径核对全表基线，在成功路径却只查询 tasks.project_id；没有断言新 project_id 的 project_members 中存在指定用户且 role=owner。",
+              "why_other_evidence_does_not_close_it": "两步成功测试第 21 行确实检查 owner，但调用的是 transactions.insert_project_and_owner，不是独立实现的 answers.variant.create_project_with_task。当前变式自行写 SQL，并未复用这个已检查 helper；DDL 也不会自动创建成员或要求项目至少一个 owner。",
+              "static_counterexample_not_executed": [
+                "只在三步变式中省略 INSERT project_members，保留项目和任务 INSERT；或把 role 从 owner 写成 member。",
+                "非法标题仍触发 tasks_title_nonblank，外层上下文回滚项目/任务，因此失败路径的 0/4/5 断言仍成立。",
+                "合法标题下 task 仍引用实际项目，现有第 97 行断言仍成立；成功分支缺失或错误的负责人关系未被查询。",
+                "其他两步/并发测试不调用这个变式实现，不能替它补齐断言。"
+              ],
+              "impact": "这是本章开头“无人负责项目”问题在独立验收中的漏检；suite 通过不足以声称三步成功契约已闭合。参考答案当前没有漏写，问题不是其运行逻辑，而是练习验收的关键观察缺失。",
+              "minimal_follow_up_not_performed": "在成功调用结束后的同一独立 observer 中，以返回的 project_id 查询并断言所需成员为 (creator_id, owner)，并明确检查成功项目及任务关系。之后由主线自行决定是否做省略/错误角色的定向变异验收；本轮没有改测试或运行变异。",
+              "scope_boundary": "不要求新增生产权限模型、线程框架或通用测试覆盖率；只补已声明的成功后三者可见这一条契约。",
+              "confidence": "high_static_reasoning",
+              "runtime_reproduced_in_this_review": false
+            }
+          ]
+        },
+        "D03_owner_repair": {
+          "status": "passed",
+          "mutation": {
+            "location": "temporary copy only: answers/variant.py",
+            "change": "Remove exactly the project_members INSERT; keep both project and task INSERTs unchanged.",
+            "diff": "--- reference/answers/variant.py\n+++ mutant/answers/variant.py\n@@ -3,10 +3,6 @@\n         \"INSERT INTO projects(name, created_by) VALUES (%s,%s) RETURNING id\",\n         (name, creator_id),\n     ).fetchone()[0]\n-    conn.execute(\n-        \"INSERT INTO project_members(project_id,user_id,role) VALUES (%s,%s,'owner')\",\n-        (project_id, creator_id),\n-    )\n     task_id = conn.execute(\n         \"INSERT INTO tasks(project_id,created_by,title) VALUES (%s,%s,%s) RETURNING id\",\n         (project_id, creator_id, title),\n",
+            "same_mutant_used_before_and_after_fix": true
+          },
+          "fix_diff": "--- /Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_transactions.py\n+++ /Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_transactions.py\n@@ -95,3 +95,13 @@\n         project_id, task_id = create_project_with_task(conn, \"Three steps\", 1, \"First task\")\n     with labctl.connect(autocommit=True) as observer:\n         assert observer.execute(\"SELECT project_id FROM tasks WHERE id=%s\", (task_id,)).fetchone() == (project_id,)\n+        assert observer.execute(\n+            \"SELECT name, created_by FROM projects WHERE id=%s\", (project_id,),\n+        ).fetchone() == (\"Three steps\", 1)\n+        assert observer.execute(\n+            \"SELECT user_id, role FROM project_members WHERE project_id=%s ORDER BY user_id\",\n+            (project_id,),\n+        ).fetchall() == [(1, \"owner\")]\n+        assert observer.execute(\n+            \"SELECT project_id, created_by, title FROM tasks WHERE id=%s\", (task_id,),\n+        ).fetchone() == (project_id, 1, \"First task\")\n",
+          "test_counts": {
+            "before": 63,
+            "after": 63,
+            "business": 13,
+            "environment": 50,
+            "new_test_functions": 0
+          },
+          "stages": {
+            "old_target_mutant": {
+              "returncode": 0,
+              "result": "1 passed; omission escaped old target",
+              "junit": {
+                "path": "/private/tmp/langshift-d03-owner-ed_5t1s4/old-test-mutant.xml",
+                "sha256": "d134d4f378e73d114355f80084b1594693c13ef59796659bea9f661880e7a2a5",
+                "tests": 1,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0,
+                "failure_messages": [],
+                "cases": [
+                  {
+                    "name": "test_three_step_independent_variation",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  }
+                ]
+              },
+              "source_was_unmodified_when_run": true
+            },
+            "fixed_target_mutant": {
+              "returncode": 1,
+              "result": "1 failed at the new membership assertion: [] != [(1, 'owner')]",
+              "junit": {
+                "path": "/private/tmp/langshift-d03-owner-ed_5t1s4/fixed-test-mutant.xml",
+                "sha256": "5cfcb55e24101f3d351ed31c747a34aba6310675fb7a4c3e667916e706f304e3",
+                "tests": 1,
+                "failures": 1,
+                "errors": 0,
+                "skipped": 0,
+                "failure_messages": [
+                  "AssertionError: assert [] == [(1, 'owner')]\n  \n  Right contains one more item: (1, 'owner')\n  Use -v to get more diff"
+                ],
+                "cases": [
+                  {
+                    "name": "test_three_step_independent_variation",
+                    "classname": "tests.test_transactions",
+                    "failed": true
+                  }
+                ]
+              }
+            },
+            "fixed_target_reference": {
+              "returncode": 0,
+              "result": "1 passed",
+              "junit": {
+                "path": "/private/tmp/langshift-d03-owner-ed_5t1s4/fixed-test-reference.xml",
+                "sha256": "ae31b2297505edc6fc59fbc85b62ddc06a32b7d149ab606b5fc7cf00f574a18a",
+                "tests": 1,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0,
+                "failure_messages": [],
+                "cases": [
+                  {
+                    "name": "test_three_step_independent_variation",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  }
+                ]
+              }
+            },
+            "full_correct_reference": {
+              "returncode": 0,
+              "result": "63 passed (13 business + 50 environment)",
+              "junit": {
+                "path": "/private/tmp/langshift-d03-owner-ed_5t1s4/fixed-reference-full-suite.xml",
+                "sha256": "0258e60c03a9835a82d2bd755fbb8d62ff55277833c769b75a97ee3b1f7dfb23",
+                "tests": 63,
+                "failures": 0,
+                "errors": 0,
+                "skipped": 0,
+                "failure_messages": [],
+                "cases": [
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGHOSTADDR]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGSERVICE]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGSERVICEFILE]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGSYSCONFDIR]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGPASSFILE]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGPASSWORD]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGUSER]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGDATABASE]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGPORT]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGOPTIONS]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGCONNECT_TIMEOUT]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGAPPNAME]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGCLIENTENCODING]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGSSLMODE]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGSSLKEY]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGSSLCERT]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGSSLROOTCERT]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGREQUIRESSL]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGREQUIREAUTH]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGGSSENCMODE]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGTARGETSESSIONATTRS]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGLOADBALANCEHOSTS]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PGDATA]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_reject_before_state_sql_or_subprocess[PG_FUTURE_DEFAULT]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_empty_setting_is_still_rejected",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_error_lists_only_sorted_names",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_all_sql_entries_reject_before_work[start]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_all_sql_entries_reject_before_work[reset]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_all_sql_entries_reject_before_work[raw_dsn]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_all_sql_entries_reject_before_work[verify_server]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_all_sql_entries_reject_before_work[cli-start]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_all_sql_entries_reject_before_work[cli-dsn]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_all_sql_entries_reject_before_work[cli-reset]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_all_sql_entries_reject_before_work[cli-psql]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_run_removes_all_pg_defaults_without_mutating_parent",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_psql_has_clean_environment_explicit_passfile_and_no_prompt",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_both_dsns_use_private_empty_passfile",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_unsafe_passfile_is_refused_before_psycopg[symlink]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_unsafe_passfile_is_refused_before_psycopg[nonempty]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_unsafe_passfile_is_refused_before_psycopg[wide-mode]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_unsafe_passfile_is_refused_before_psycopg[directory]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_unsafe_passfile_is_refused_before_psycopg[fifo]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_direct_cli_rejects_poison_without_contacting_listener[start]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_direct_cli_rejects_poison_without_contacting_listener[dsn]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_direct_cli_rejects_poison_without_contacting_listener[reset]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_direct_cli_rejects_poison_without_contacting_listener[psql]",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_fresh_standalone_start_rejects_before_creating_state",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_ignored_host_url_and_default_pgpass_with_real_private_connections",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_poisoned_status_stop_and_restart_recovery",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_stop_keeps_identity_failure_as_a_hard_boundary",
+                    "classname": "tests.test_environment",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_second_step_has_no_residue",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_commit_visibility_and_close",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_aborted_transaction_needs_rollback",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_close_does_not_commit",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_success_and_identity_gap",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_snapshot_boundary[2-expected0]",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_snapshot_boundary[3-expected1]",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_actual_lost_update",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_overlapping_atomic_updates_wait_then_add",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_unique_constraint_arbitrates_two_connections",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_row_lock_timeout_recovers",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_serialization_conflict_and_full_retry",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  },
+                  {
+                    "name": "test_three_step_independent_variation",
+                    "classname": "tests.test_transactions",
+                    "failed": false
+                  }
+                ]
+              }
+            }
+          },
+          "cleanup": {
+            "postmaster_pid_before_stop": 85070,
+            "stop_returncode": 0,
+            "status_returncode": 0,
+            "final_status": {
+              "root": "/private/tmp/lsdb-_cltxd4z",
+              "running": false,
+              "pg_ctl_status": 3
+            },
+            "postmaster_pidfile_absent": true,
+            "private_socket_absent": true,
+            "server_log_path": "/private/tmp/lsdb-_cltxd4z/server.log",
+            "server_log_last_line": "2026-09-28 14:25:41.144 CST [85070] LOG:  database system is shut down",
+            "state_and_ownership_marker_retained": true,
+            "all_resources_created_by_this_run_stopped": true,
+            "files_retained_for_audit": true,
+            "environment_suite_owned_loopback_listeners": "If the full suite completed successfully, its seven loopback-listener fixtures passed and closed their sockets; no listener was separately started by this script."
+          },
+          "functional_verification_passed": true,
+          "original_failure_assertions_preserved_verbatim": true,
+          "tested_copy_matches_current_allowlisted_workspace_sources": true
+        },
+        "operations_pedagogy": {
+          "verdict": {
+            "status": "ONE_P2_FACTUAL_CORRECTION_REQUIRED",
+            "P1": 0,
+            "P2": 1,
+            "findings_count": 1,
+            "local_exercise_execution_blocker_identified": false,
+            "summary": "除 O05 的运行角色“只持有所需权限”声明超出实际授权外，未发现其余可定位 P1/P2 教学阻断或事实错误。现有环境未验收项均保持NOT_RUN，不作为缺陷。无需因无文字理由的TypeSafe分数全文重写。",
+            "deployment_accepted": false
+          },
+          "findings": [
+            {
+              "id": "OPS-PED-P2-001",
+              "priority": "P2",
+              "kind": "incorrect_teaching_claim_about_runtime_privileges",
+              "title": "运行角色仍有切片不需要的写权限，不能称为只持有所需权限",
+              "location": {
+                "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-cn.mdx",
+                "line": 89,
+                "end_line": 89
+              },
+              "claim": "运行角色只持有这份接口切片需要的表/序列权限。",
+              "evidence": [
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/sql/grants.sql",
+                  "line": 5,
+                  "end_line": 5
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/sql/grants.sql",
+                  "line": 5,
+                  "end_line": 5
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/sql/grants.sql",
+                  "line": 5,
+                  "end_line": 5
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/ops/app.py",
+                  "line": 73,
+                  "end_line": 73
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/ops/app.py",
+                  "line": 83,
+                  "end_line": 83
+                }
+              ],
+              "reason": "实际 grants.sql 对 projects、project_members、tasks 全部授予 SELECT/INSERT/UPDATE/DELETE；而 ops/app.py 只做项目读取/创建、成员读取/创建、会话与版本查询，没有任务写入或项目/成员 UPDATE/DELETE 路径。因此“只持有切片需要的权限”是比代码更强且不成立的声明。该 SQL 在 O04/O05/O06 完全相同并进入当前 ZIP。",
+              "impact": "读者会把没有 DDL/超级用户权限误当成已按业务操作最小授权。实际应用数据库身份仍有未使用的修改/删除能力；ALTER/DROP 拒绝测试无法证明这些多余 DML 已被撤销。",
+              "not_claimed": "没有声称本次发现了可公网利用的漏洞，也没有因缺少生产环境报错；本地演练仍可运行。此项是可定位的教学事实错误，不是要求补齐完整安全产品。",
+              "minimal_closure": "二选一：将 grants 收敛到当前应用和明示验收实际所需操作，并增加多余写操作拒绝断言；或只定点收窄该句，明确当前证明的是管理/运行身份分离与 DDL 拒绝，尚未证明按切片操作收敛的最小 DML/序列授权。无需全文重写。",
+              "verification_method": "只读核对 SQL 与所有实际路由/查询；未执行授权变更或破坏性 SQL。",
+              "confidence": "high",
+              "blocks_local_drill_execution": false,
+              "requires_factual_correction_for_unqualified_closure": true
+            }
+          ],
+          "sequencing_and_migration_assessment": {
+            "new_concepts": "O01先给进程/cwd/端口/退出状态/信号/模式位及服务管理器责任；O04先说明切片、隔离和版本兼容，再做有数据迁移/回退；O05先定义事件/ID/计时/阈值，再关联真实故障；O06先定义范围、RPO/RTO和目标隔离，再实际恢复与安全核对。未找到因缺失必需先修而使当前要求无法完成的具体P1/P2路径。",
+            "synchronous_boundary": "S03明确同步API；A01说明不应把所有函数改成async，A02声明内存外部依赖切片不是S03替代。O04–O06 ops/app.py仍是def同步PG路由；只有O05外层观测中间件async/await。正文没有要求把同步PG调用直接搬到事件循环或声称已完成异步DB迁移。",
+            "identity_boundary": "保留 opaque SHA256会话摘要、到期/撤销/用户启用/auth_version及项目成员404；不引入JWT或Cookie身份替代。登录/改密/成员管理/任务幂等被明确排除，恢复时另核对较新安全变更。",
+            "static_not_runtime": "unit/Dockerfile/Caddyfile/YAML静态检查始终不能升级成相应环境通过；本报告的ZIP字节检查亦不冒充运行验收。"
+          },
+          "remaining_boundaries": [
+            {
+              "area": "Linux/systemd",
+              "status": "NOT_RUN",
+              "required_evidence": "目标机配置解析、实际专用账户/解释器可执行性与写目录限制、启停/失败重启及需要时开机生命周期。",
+              "refs": [
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-32-operating-system.zh-cn.mdx",
+                  "start": 136,
+                  "end": 156
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-32-operating-system.zh-cn.mdx",
+                  "start": 219,
+                  "end": 229
+                }
+              ]
+            },
+            {
+              "area": "Docker/Compose",
+              "status": "NOT_RUN",
+              "required_evidence": "受控引擎真实构建/运行、目标架构与镜像身份、非root、网络/卷/只读根/健康与生命周期。",
+              "refs": [
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-33-containers.zh-cn.mdx",
+                  "start": 124,
+                  "end": 144
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-33-containers.zh-cn.mdx",
+                  "start": 201,
+                  "end": 211
+                }
+              ]
+            },
+            {
+              "area": "Caddy/public DNS/public CA/real browser",
+              "status": "NOT_RUN",
+              "required_evidence": "真实解析与入口、证书申请/续期、代理不可绕过、浏览器/完整S03整合；不把临时本地CA当公网CA。",
+              "refs": [
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-34-https-production.zh-cn.mdx",
+                  "start": 137,
+                  "end": 161
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-34-https-production.zh-cn.mdx",
+                  "start": 220,
+                  "end": 230
+                }
+              ]
+            },
+            {
+              "area": "Hosted CI/artifact delivery/production traffic rollback",
+              "status": "NOT_RUN",
+              "required_evidence": "经授权目标runner和发布环境的真实执行与记录；本地ci.py和YAML存在均不是托管CI通过。",
+              "refs": [
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-35-release.zh-cn.mdx",
+                  "start": 54,
+                  "end": 78
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-35-release.zh-cn.mdx",
+                  "start": 173,
+                  "end": 180
+                }
+              ]
+            },
+            {
+              "area": "Alert delivery/log platform",
+              "status": "NOT_RUN",
+              "required_evidence": "实际接收端送达、抑制/解除、失败处理、日志轮转/采集及权限留存；page布尔决策不算通知。",
+              "refs": [
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-cn.mdx",
+                  "start": 58,
+                  "end": 69
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-cn.mdx",
+                  "start": 135,
+                  "end": 157
+                }
+              ]
+            },
+            {
+              "area": "Scheduled/encrypted/offsite backups and cross-host recovery",
+              "status": "NOT_RUN",
+              "required_evidence": "可信备份选择、取回/解密、异机恢复、安全变更核对和批准；同一自有PG集群的两个库不算异地容灾。",
+              "refs": [
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-37-recovery.zh-cn.mdx",
+                  "start": 23,
+                  "end": 32
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-37-recovery.zh-cn.mdx",
+                  "start": 33,
+                  "end": 47
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-37-recovery.zh-cn.mdx",
+                  "start": 177,
+                  "end": 191
+                }
+              ]
+            },
+            {
+              "area": "Production load/RPO/RTO/invited users",
+              "status": "NOT_RUN",
+              "required_evidence": "代表性负载、容量/配额和故障下全流程计时与试用责任；不外推本机小数据顺序请求。",
+              "refs": [
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-cn.mdx",
+                  "start": 158,
+                  "end": 165
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-37-recovery.zh-cn.mdx",
+                  "start": 192,
+                  "end": 199
+                }
+              ]
+            },
+            {
+              "area": "Full S03 integration",
+              "status": "EXPLICITLY_OUTSIDE_OPERATIONS_SLICE",
+              "required_evidence": "保留完整登录/改密/撤销/成员动作权限与任务幂等API；当前fixture会话和项目GET/POST不可替换它。",
+              "refs": [
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-35-release.zh-cn.mdx",
+                  "start": 23,
+                  "end": 34
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-34-https-production.zh-cn.mdx",
+                  "start": 113,
+                  "end": 120
+                },
+                {
+                  "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-37-recovery.zh-cn.mdx",
+                  "start": 192,
+                  "end": 199
+                }
+              ]
+            }
+          ]
+        },
+        "operations_privilege_claim_closure": {
+          "verdict": {
+            "status": "CLOSED_BY_FACTUAL_CLAIM_NARROWING",
+            "original_finding_closed": true,
+            "remaining_findings_in_this_patch_scope": [],
+            "summary": "修补满足原报告明确允许的“定点收窄声明”闭合路径。三语O05正文与九份README不再称现有角色仅持有所需权限，而是准确区分管理/运行身份分离、已有ALTER/DROP拒绝证据和尚未收敛的DML/序列权限。",
+            "least_privilege_dml_implemented_or_verified": false,
+            "production_or_deployment_accepted": false
+          },
+          "closure_checks": [
+            {
+              "check": "撤回过强的最小授权事实声明",
+              "result": "PASS",
+              "detail": "正文明确没有证明DML最小化；README原“切片所需”改为“当前实验权限，不代表已最小授权”。"
+            },
+            {
+              "check": "列明仍然存在的宽授权",
+              "result": "PASS",
+              "detail": "projects/project_members/tasks的SELECT/INSERT/UPDATE/DELETE，以及public全部序列USAGE/SELECT，与当前三份grants.sql一致。"
+            },
+            {
+              "check": "正确解释现有证据强度",
+              "result": "PASS",
+              "detail": "管理/运行身份分离与已测试ALTER/DROP拒绝不再被用来证明最小DML。ALTER证据位于O04测试，DROP证据位于O06恢复演练；本次仅阅读既有代码与原复核记录，没有新增执行。"
+            },
+            {
+              "check": "明确上线前操作权限矩阵及正反验收门槛",
+              "result": "PASS",
+              "detail": "要求逐路由/作业列出表操作，收窄表/序列权限，并验证必要操作成功、未使用UPDATE/DELETE等操作拒绝；没有把这项后续要求写成已完成。"
+            },
+            {
+              "check": "三语正文与九份README一致",
+              "result": "PASS",
+              "detail": "分别阅读英文/简中/繁中修补措辞；每种语言的三个README与O05正文对应权限段落完全相同，共9组。"
+            },
+            {
+              "check": "修复记录与最终文件字节身份",
+              "result": "PASS",
+              "detail": "12个before SHA-256均匹配原复核快照；12个after SHA-256均匹配本次读取的当前文件。"
+            },
+            {
+              "check": "未借文稿修补暗改运行行为",
+              "result": "PASS_HASH_IDENTITY",
+              "detail": "O04/O05/O06共103个allowlist运行源码/SQL/测试/配置/版本与锁文件哈希仍等于原复核快照；不是新一轮运行结果。"
+            }
+          ],
+          "remaining_boundaries": [
+            {
+              "item": "实际最小DML/序列授权收敛及成功/拒绝测试",
+              "status": "NOT_RUN_NOT_IMPLEMENTED_BY_THIS_PATCH",
+              "note": "现有宽授权保留是已如实披露的边界；原措辞发现闭合不等于这项工程工作完成。"
+            },
+            {
+              "item": "重新打包ZIP及source/ZIP一致性",
+              "status": "PENDING_MAINLINE_NOT_VERIFIED_BY_THIS_REVIEW",
+              "note": "按用户说明由主线重建；本次未读取或验证重建后的ZIP，也不沿用旧报告的ZIP一致性结论覆盖新文稿。"
+            },
+            {
+              "item": "O实验复跑、建站、九页面浏览器验收",
+              "status": "PENDING_MAINLINE_NOT_RUN_BY_THIS_REVIEW",
+              "note": "本次没有运行测试、构建或浏览器，不报告这些检查已通过。"
+            },
+            {
+              "item": "原报告中的其他外部环境验收",
+              "status": "UNCHANGED_NOT_REVIEWED_AGAIN",
+              "note": "不改变原NOT_RUN/环境待验收状态；不把此项关闭解释为部署或公网验收。"
+            }
+          ]
+        },
+        "H05_H06": "Earlier targeted audit found no sequencing blocker, did reproduce false-green persisted-state PATCH test and cleanup short-circuit. Both repaired; canonical client fault regression and state-corruption mutants detected,70 tests rerun; actual Chromium allow/deny/allow CORS with real preflight400 and no data leak done. Chapter pages all3 locales verified.",
+        "H02_D05_D06_A02": "Exact H02/H04 contract mismatch repaired; D05 full new-sandbox autogenerate sequence executed; D06 small-data exercise corrected and executed retaining correctness while relaxing scale-specific plan expectation; A02 async-for first-use mechanism explained in all3 locales. Original adverse findings and changed-evidence reviews retained.",
+        "G01": "Earlier review concern included not-yet-authored S/O prerequisites. All S/O texts now exist with code/downloads; their external runtime gates remain explicitly pending. G01 is only a requirements/comments extension packet with15 material tests,24 student scenarios NOT_RUN; no solution implementation supplied or graduation awarded."
+      },
+      "actual_local_validation": {
+        "H01-H02": {
+          "tests": 67,
+          "breakdown": "13+2 / 47+5",
+          "evidence": "Owned static/service processes, intentional contract failure, contract aligned to H04."
+        },
+        "H03-H04": {
+          "named_checks": 124,
+          "actual_http_assertions": 107,
+          "scope": "Named integration checks, not called124 pytest cases."
+        },
+        "H05-H06": {
+          "tests": 70,
+          "breakdown": "17+2 / 48+3",
+          "failure_regressions": [
+            "No-op PATCH must preserve persisted full state",
+            "Cleanup tries every owned record after first DELETE failure and retains body exception"
+          ],
+          "real_browser_CORS": "Actual Chromium allowed/denied/allowed; OPTIONS400 on disallowed origin, no record leak; nonbrowser unaffected."
+        },
+        "D01-D03": {
+          "tests_per_round": 193,
+          "rounds_per_maintained_run": 2,
+          "breakdown": [
+            64,
+            66,
+            63
+          ],
+          "original_SQL_cases": 43,
+          "environment_case_executions_per_round": 150,
+          "scope": "Parametrized/same environment implementation repeated across3 independent labs, not150 unique security mechanisms."
+        },
+        "D04-D06": {
+          "tests_per_round": 45,
+          "rounds_per_maintained_run": 2,
+          "breakdown": [
+            10,
+            9,
+            26
+          ],
+          "evidence": "Actual PostgreSQL18.6, commit failure/rollback, populated migration,60k-row plans and real HTTP."
+        },
+        "S01-S03": {
+          "tests": 123,
+          "breakdown": [
+            22,
+            43,
+            58
+          ],
+          "recorded_real_api_responses_per_suite": 631,
+          "fake_proxy_regression_per_lab": {
+            "target": 3,
+            "proxy": 0,
+            "redirect_target": 0
+          },
+          "scope": "Synthetic credentials, owned DB/sockets; no production account exposure."
+        },
+        "A01-A02": {
+          "tests_per_round": 60,
+          "rounds": 2,
+          "mutants_detected": 4,
+          "real_TCP_tests": 5,
+          "scope": "Cancellation/resource/timeout model, not full authenticated persistent capstone."
+        },
+        "O01-O03": {
+          "local_tests": 58,
+          "breakdown": [
+            "16+1",
+            "14+3",
+            "17+7"
+          ],
+          "container_probe_exit_code": 77,
+          "environment_status": "environment_pending"
+        },
+        "O04-O06": {
+          "local_tests": 25,
+          "breakdown": [
+            "7+2",
+            "8+1",
+            "6+1"
+          ],
+          "real_drills": [
+            "with-data release and compatible application rollback",
+            "log-based privilege-fault diagnosis/repair",
+            "actual private pg_dump/pg_restore and fingerprints/corrupt-restore rejection"
+          ],
+          "not_production_RPO_RTO": true
+        },
+        "G01": {
+          "material_tests_per_round": 15,
+          "rounds": 2,
+          "student_behavior_scenarios_not_run": 24,
+          "implementation_solution_supplied": false,
+          "learner_graduation_awarded": false
+        }
+      },
+      "publication_evidence": {
+        "actual_browser_pages_checked": 72,
+        "locales": 3,
+        "all24_backend_downloads_checked_over_HTTP": true,
+        "all_page_sources_exact": true,
+        "all_native_disclosures_physically_opened": true,
+        "mobile_real_disclosure_samples": 3,
+        "index_links": {
+          "indexes": 3,
+          "chapters_each": 39,
+          "all_targets_HTTP200": true
+        },
+        "production_build": 1597,
+        "visual_samples": "24 Chinese top/expanded-disclosure pairs,3 mobile pairs,3 indexes; explicit actual image inspection, not proofread every pixel."
+      },
+      "latest_runtime_delta_gates": "D03 independent old mutant1passed vs fixed mutant1failed and correct63passed already complete. O04-O06 exact published ZIPs rerun25 tests+real PG release/log/restore after wording repair. Main full aggregate lab command and final build/browser refresh are being rerun on final bytes; code must keep status unpromoted until they pass. An ACCEPT choice is conditional on these deterministic gates, not evidence they already passed.",
+      "proposed_completion_record": {
+        "authored_chapters": 39,
+        "localized_chapter_pages": 117,
+        "localized_indexes": 3,
+        "status_implemented_local_scope": [
+          "L00-L14",
+          "H01-H06",
+          "D01-D06",
+          "S01-S03",
+          "A01-A02",
+          "G01 material packet only"
+        ],
+        "implemented_count": 33,
+        "environment_pending": [
+          "O01",
+          "O02",
+          "O03",
+          "O04",
+          "O05",
+          "O06"
+        ],
+        "planned_count": 0,
+        "learner_graduation": "NOT_ASSESSED",
+        "student_G01_scenarios": "24 NOT_RUN",
+        "public_deployment": "NOT_PERFORMED",
+        "quality_limit": "No claim of perfect or classroom-proven pedagogy; continue actual learner exercises and prerequisite gates."
+      },
+      "never_convert_to_passed": [
+        "Linux/systemd and dedicated service account",
+        "Docker build, nonroot/read-only root and real volume lifecycle",
+        "Caddy/public DNS/firewall/public CA issuance and renewal",
+        "Hosted CI runner and real deployment switch",
+        "Full S03 app integration and production body-size/login-throttling/hash-capacity validation",
+        "Real alert delivery/acknowledgment/recovery notification",
+        "Encrypted off-site and cross-host restoration including roles/config/secrets",
+        "Representative load/capacity and production RPO/RTO",
+        "Explicit invited-user trial, no public self-registration",
+        "Audit and narrow DML/sequence grants to actual full-application route/job needs; existing DDL refusal does not prove least privilege."
+      ],
+      "policy": "The unchanged wide operations grants remain a real external least-privilege work item. Correcting an overstatement is not implementing a minimal grant set. Do not require unavailable external services merely to publish an explicitly gated exercise; do not let publication imply all operational or student acceptance is done. Any concrete unrepaired P1/P2 stays a blocker; all low-confidence/unfavorable original branches remain visible."
+    },
+    "questions": {
+      "completion_record": {
+        "type": "choice",
+        "instructions": "Choose the next action for the proposed completion record based on this NEW closure evidence and exact repair deltas. Conditional on the explicitly named final deterministic reruns passing, distinguish publishable study materials from external operational acceptance and student competence. Do not select acceptance by treating earlier probabilities, author self-report alone, or absence of a known bug as proof of perfect pedagogy. Do not demand repeating identical model inputs to change confidence.",
+        "criteria": {
+          "ACCEPT_WITH_EXPLICIT_ENVIRONMENT_GATES": "The concrete targeted findings are resolved within their stated scope; publishing39 authored/33 implemented-local/6 environment_pending with G01 material-only and no graduation/public claim is supported, conditional on final deterministic checks.",
+          "TARGETED_REVIEW_REMAINS": "The new evidence or repair deltas leave a specific unresolved material/acceptance question requiring targeted examination before this proposed record can be accepted.",
+          "REVISE_MATERIALS": "The provided evidence shows a concrete incorrect lesson/acceptance behavior or misleading completion claim that must be corrected, beyond merely retaining declared external gates."
+        }
+      },
+      "owner_acceptance_delta": {
+        "type": "choice",
+        "instructions": "Judge only whether the D03 changed success assertions and actual old/fixed mutant experiment close the stated omitted-owner acceptance gap without falsely claiming all mutations are caught.",
+        "criteria": {
+          "GAP_CLOSED": "Independent observer now checks project creator, exact owner relation and full task association; old mutant escapes, fixed mutant fails, correct suite succeeds, preserving failure rollback checks.",
+          "GAP_NOT_CLOSED": "The change or supplied experiment does not actually establish those specific contract assertions.",
+          "INSUFFICIENT_EVIDENCE": "Evidence needed to decide this exact gap is absent or contradictory."
+        }
+      },
+      "privilege_claim_delta": {
+        "type": "choice",
+        "instructions": "Compare the actual grants with the English lesson/README deltas and proposed production gate. Judge whether the false ONLY-needed-permissions claim is corrected, not whether least-privilege SQL has been implemented.",
+        "criteria": {
+          "CLAIM_CORRECTED_WITH_GATE": "The new text accurately acknowledges extra DML/sequence privileges, bounds current DDL-denial evidence, and explicitly requires narrowing/positive-negative checks before real deployment.",
+          "STILL_OVERCLAIMS": "The new wording or proposed completion record still implies least-privilege DML or production readiness has been proven.",
+          "INSUFFICIENT_EVIDENCE": "The source/text needed for this comparison is missing."
+        }
+      },
+      "completion_conflation": {
+        "type": "noul",
+        "instructions": "Does the proposed completion record materially conflate authored teaching materials or local reference tests with actual learner graduation or successful public operation?",
+        "criteria": {
+          "true": "It would tell the reader those student/public outcomes happened without evidence.",
+          "false": "It explicitly separates them and keeps the required operations/learner gates unpassed."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "completion_record": {
+        "type": "choice",
+        "choice": "ACCEPT_WITH_EXPLICIT_ENVIRONMENT_GATES",
+        "confidence": 0.98,
+        "probabilities": {
+          "TARGETED_REVIEW_REMAINS": 0.01,
+          "REVISE_MATERIALS": 0.0,
+          "ACCEPT_WITH_EXPLICIT_ENVIRONMENT_GATES": 0.99
+        }
+      },
+      "owner_acceptance_delta": {
+        "type": "choice",
+        "choice": "GAP_CLOSED",
+        "confidence": 0.99,
+        "probabilities": {
+          "INSUFFICIENT_EVIDENCE": 0.0,
+          "GAP_NOT_CLOSED": 0.0,
+          "GAP_CLOSED": 1.0
+        }
+      },
+      "privilege_claim_delta": {
+        "type": "choice",
+        "choice": "CLAIM_CORRECTED_WITH_GATE",
+        "confidence": 1.0,
+        "probabilities": {
+          "INSUFFICIENT_EVIDENCE": 0.0,
+          "CLAIM_CORRECTED_WITH_GATE": 1.0,
+          "STILL_OVERCLAIMS": 0.0
+        }
+      },
+      "completion_conflation": {
+        "type": "noul",
+        "noul": 0.08
+      }
+    },
+    "usage": {
+      "input_tokens": 24960,
+      "output_tokens": 214
+    }
+  },
+  "metadata": {
+    "started_at_utc": "2026-09-28T06:32:54.224807+00:00",
+    "elapsed_seconds": 1.564,
+    "http_status": 200,
+    "endpoint": "https://api.typesafe.ai/v1/systemone",
+    "requested_model": "jev-latest",
+    "returned_model": "jev-1.13.0",
+    "questions": 4,
+    "request_sha256": "6eae0d91bd592a8f8becf8629e917d14d3bf7883bbff2d461ed34fcc66e78ce1",
+    "usage": {
+      "input_tokens": 24960,
+      "output_tokens": 214
+    },
+    "credential_persisted": false,
+    "probability_sums": {
+      "completion_record": 1.0,
+      "owner_acceptance_delta": 1.0,
+      "privilege_claim_delta": 1.0
+    },
+    "probability_sum_absolute_tolerance": 0.02,
+    "raw_probabilities_renormalized": false
+  },
+  "raw_response_sha256": "08e4b5f905cb8f5825c05cd077a3086e75f0881b1ef4640849f894801e9f99d6",
+  "deterministic_gates_passed": true,
+  "deterministic_gate_state": "PASS: full post-fix pnpm lab aggregate; final stable production build;72 localized backend pages with all final ZIP hashes; refreshed D03/O04-O06 pages;3 indexes with39 working targets each/no literal emphasis markers;3 mobile interactions;153 post-promotion maintenance tests+8Node+9 fresh declaration processes; content/ZIP parity. External operational and learner gates remain unpassed.",
+  "interpretation": "Conditional acceptance of39 authored/33 implemented-local/6 environment_pending. Distribution confidence0.98 is not proof of truth, perfect pedagogy, student graduation or real public operation. Specific D03 owner acceptance gap closed; operations minimum-grants claim corrected but least-privilege DML remains an actual not-run production gate.",
+  "credential_persisted": false,
+  "gate_evidence": {
+    "all-labs-after-targeted-fixes.log": {
+      "path": "/tmp/langshift-backend-20260928/all-labs-after-targeted-fixes.log",
+      "sha256": "c19b382f8e05be6b8c6d476c2dbc12eb71b5b875a133a0ac1801fb0aadecc767"
+    },
+    "build-final-stable.log": {
+      "path": "/tmp/langshift-backend-20260928/build-final-stable.log",
+      "sha256": "08193f08f4e0b386e6172548c4909c877ee05785c2ed1ec002aca7901ec1f872"
+    },
+    "maintenance-before-status-final.log": {
+      "path": "/tmp/langshift-backend-20260928/maintenance-before-status-final.log",
+      "sha256": "ee3eb024f1a1c36b5d739f379debf9d336cf21993db3338cc60736f1e54b9b55"
+    },
+    "browser-after-targeted-fixes.log": {
+      "path": "/tmp/langshift-backend-20260928/browser-after-targeted-fixes.log",
+      "sha256": "cbaec2742a94c1a881b162b4af790fb7f5d4ddb231d2ed90ac27b7ac73a3f6e3"
+    },
+    "browser-extra-final-stable.log": {
+      "path": "/tmp/langshift-backend-20260928/browser-extra-final-stable.log",
+      "sha256": "56102b39fbb5ca86453ce9b1ebe678b85f715f00ce70d0146ba40a470f2a827e"
+    }
+  },
+  "post_promotion_regression": {
+    "command": "pnpm test:js2py",
+    "exit_code": 0,
+    "maintenance_tests": 153,
+    "node_tests": 8,
+    "declaration_processes": 9,
+    "log_sha256": "f18bf591dcb3a27a3a7f32acd61ff912397d6f95a30beee3aa4e3360ae10a023",
+    "log_path": "/tmp/langshift-backend-20260928/maintenance-after-status-final.log"
+  },
+  "final_lint_and_types": {
+    "lint_exit_code": 0,
+    "typescript_exit_code": 0,
+    "content_MDX": 756,
+    "existing_Hook_dependency_warnings": 2,
+    "log_paths": [
+      "/tmp/langshift-backend-20260928/lint-final-complete.log",
+      "/tmp/langshift-backend-20260928/typescript-final-complete.log"
+    ]
+  },
+  "cleanup_evidence": "docs/reviews/js2py-backend-browser-qa-2026-09-28.json"
+}

@@ -1,0 +1,264 @@
+---
+title: 可靠業務操作：事務、冪等回執與真實競爭
+description: 在 PostgreSQL 上把任務與冪等回執原子提交，用兩連接觀察唯一約束等待，解釋重放前授權、過期保留和數據表示的邊界。
+---
+
+import { getReliableOperationExample } from '@/lib/js2py-examples'
+
+## 1. 沒收到響應，不等於服務器沒做事
+
+前端禁用提交按鈕可以減少重複點擊，卻擋不住網絡中斷、頁面刷新、代理重試或兩個客戶端同時提交。假設服務器已經插入任務並提交，但響應在路上丟失：客戶端只知道“沒有收到結果”，無法據此斷言事務回滾。直接再發一次 POST，可能產生第二個任務。把每次重試都包裝成新事務，並不能解決這個問題。
+
+| 本章契約 | 範圍 |
+| --- | --- |
+| 前置 | S02 的身份、對象權限和同步 API；D03 的事務、約束與兩連接；D06 的真實 PG/HTTP fixture |
+| 新能力 | 定義冪等範圍、規範化請求、保存公開回執、原子提交、觀察唯一索引競爭、重放前重驗權限、明確 TTL/清理邊界 |
+| 獨立驗收 | 同 key 同 payload 返回同一任務；不同 payload 得 409；同時請求只提交一項；回滾不留下半成品；撤權後不能取回舊回執 |
+| 暫不實現 | 恰好一次投遞、跨服務事務、消息隊列/outbox、任意故障自動重試、生產清理調度與容量承諾 |
+
+下載 [S03 完整實驗](/learning-assets/js2py/s03-reliable-operations.zip)。實驗完整包含 S01 身份和 S02 權限，不從別章導入代碼。數據庫字段仍是 D 的 bigint id、title、description、status、minutes、due_at、priority，不悄悄改回 H 的 done/note。唯一變化是創建任務增加冪等協議。
+
+## 2. 先把“相同請求”變成明確契約
+
+本章客戶端為**一個邏輯創建操作**生成 UUIDv4，放在 Idempotency-Key 請求頭。請求結果未知時，重發同一個 key 和同一個邏輯 payload；真正要再創建一項時才換 key。UUID 不證明身份，也不是不可猜測對象權限的替代。服務仍先驗證 Bearer 和當前成員關係。
+
+| 情況 | 本例響應 | 數據庫結果 |
+| --- | --- | --- |
+| 新 key、合法成員、合法任務 | 201；Idempotency-Replayed: false | 任務和回執一起提交 |
+| 有效期內，同範圍同 key 同 payload | 原來的 201；Idempotency-Replayed: true | 不插入第二項 |
+| 同範圍同 key，不同 payload | 409 | 不改原任務和回執 |
+| key 缺失、不是規範小寫 UUIDv4 | 脫敏 422 | 不產生任務 |
+| 過期但仍保留的回執 | 409，要求核對結果 | 不自動重新執行 |
+| 會話失效 / 項目權限已撤銷 | 401 / 404 | 不返回歷史回執 |
+
+範圍是 actor_id + project_id + operation + key。actor_id 從認證取得，operation 由服務固定為 create-task-v1，不接受客戶端自選。Alice 與 Bob 即使使用同一個 key，也不是同一次操作；同一人在兩個項目使用同 key 也獨立。這樣不會把一個用戶的響應誤發給另一個用戶。未來變更操作語義，需要顯式考慮 operation 版本，而不是讓舊回執被新代碼隨意解釋。
+
+## 3. 從故障窗口推導事務邊界
+
+```text
+request -> authenticate -> guard current project membership
+                          |
+                  unique receipt claim
+                  /                  
+            winner                    existing key
+              |                           |
+        insert task                 read committed receipt
+        fill public receipt         expiry + digest checks
+              |                           |
+       commit BOTH                  replay original response
+              |
+       HTTP response may be lost
+```
+
+如果先提交任務、再寫回執，進程在中間退出就會留下“任務已存在但沒有去重依據”。如果先提交一個空回執再創建任務，失敗可能讓重試永遠拿到空結果。因此一個事務必須包含認領 key、創建任務、填寫回執。任何提交前異常都回滾三者；提交後丟失響應由同 key 重放解決，而不是猜測服務是否曾執行。
+
+這隻覆蓋本地數據庫寫入。事務裡調用外部郵件/支付服務不會自動加入 PostgreSQL 回滾；不能把本例函數包住網絡調用就宣稱跨系統恰好一次。可靠外部副作用需要另一套可審查協議，本章不隱瞞這個缺口。
+
+## 4. 新遷移只保存必要的公開回執
+
+固定版本於 **2026-09-28** 核驗：CPython 3.13.15、uv 0.12.13、FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、SQLAlchemy 2.0.54、Alembic 1.20.0、psycopg[binary] 3.3.6、PostgreSQL 18.6、argon2-cffi 25.1.0、pytest 8.4.2。真實 uv.lock 來自公開 PyPI；不是“最新版本”的承諾。
+
+<Code language="toml">{getReliableOperationExample('pyproject.toml')}</Code>
+
+遷移 001–003 保留 D 的字段演進，004 增加身份，005 限制一個項目至多一個 owner，006 增加 task_operations：
+
+<Code language="python">{getReliableOperationExample('migrations/versions/006_task_operations.py')}</Code>
+
+複合主鍵是併發仲裁依據；應用裡先 SELECT 再 INSERT 不是等價替代。request_digest 用於比較規範化請求，不是密碼哈希。response_body 只存 TaskPublic 的 JSON，絕不存 Authorization、密碼或完整請求頭；response_status 固定為這個操作的 201。created_at/expires_at 都是 timestamptz，清理索引只是加速掃描，不會自動刪除記錄。
+
+回執是創建時的歷史結果，不是任務的實時鏡像。任務後來被 PATCH 或刪除，舊 key 仍返回原創建回執；要看當前狀態需單獨 GET。若項目已刪除，先做項目檢查會得到 404，不會借回執繞過項目生命週期。刪除項目時，在同一事務裡先刪其回執，再刪任務、成員和項目，仍遵守 RESTRICT 外鍵。
+
+## 5. 規範化先於摘要，不對原始 JSON 字符串做比較
+
+<Code language="python">{getReliableOperationExample('schemas.py')}</Code>
+
+TaskInput 先做運行時驗證：title 非空白但保留原字形；minutes 普通非負 int，拒絕 bool/text/float；status 有限枚舉；額外字段禁止。缺省值補齊後，model_dump(mode="json") 得到明確表示，再按字段名排序，用固定分隔符序列化並求 SHA-256。客戶端 JSON 字段順序不同不算不同請求；省略 minutes 與顯式 minutes=0 等價。
+
+due_at 是一個特別需要先講清的轉換：JSON 沒有 datetime 類型，因此代碼只在這個邊界明確解析帶偏移的 ISO 時間並轉 UTC，其餘字段仍嚴格驗證。同一時刻的 +08:00 與 +00:00 歸一化後相同。沒有偏移的時間被拒絕，不猜測客戶端時區。title 則不 trim："Review" 與 " Review " 在本章是不同 payload，不因為它們看起來相似就合併用戶意圖。
+
+<details>
+<summary>解釋性答案：為什麼不直接 hash(request.body())？</summary>
+
+原始 JSON 的空格、鍵順序、缺省值和日期偏移可能不同，但表達同一個已驗證操作；直接散列原字節會誤報衝突。反過來，過度規範化也會合並本來不同的意圖，例如擅自裁掉 title 空格。規範化是業務契約的一部分，不是隨手用一個 JSON 工具就獲得“語義相等”。本例明確列出歸一化範圍，摘要本身不是授權，也不是對任意未來字段的兼容保證。
+
+</details>
+
+## 6. 跟隨認領者與等待者，理解為何要第二條 SQL
+
+<Code language="python">{getReliableOperationExample('reliable.py')}</Code>
+
+create_task_once 一進入就調用 guard_project，取得項目共享鎖並檢查當前成員。然後嘗試 INSERT ... ON CONFLICT DO NOTHING RETURNING key。插入成功的請求是認領者；它調用 create_task，驗證公開模型，填入回執，最後由 HTTP 入口提交，輔助函數不偷偷 commit。
+
+另一個連接可能同時認領同一複合主鍵。PostgreSQL 唯一索引會等待未提交的競爭事務。若先行者提交，後來的 INSERT 不插入；若先行者回滾，後來的 INSERT 可以成功。本章沒有使用 Python 字典或線程鎖假裝跨進程唯一保證。
+
+<Code language="python">{getReliableOperationExample('db.py')}</Code>
+
+引擎顯式使用 READ COMMITTED。每條語句取得自己的已提交視圖；ON CONFLICT DO NOTHING 可能因為另一個事務的行而放棄插入，即使那個行不在本條 INSERT 最初的快照中。因此等待結束後要執行**新的 SELECT**，並對回執取排他鎖，再檢查過期與摘要。不能在原快照裡反覆尋找，不能把“這次沒有 RETURNING 值”誤讀成“任務不存在”。
+
+若運維同時清理過期回執，新的 SELECT 也可能找不到；本例返回 409 要求核對，不悄悄創建另一項。所有鎖都持有到事務結束；約定順序為用戶、會話、項目、任務/回執。已測路徑不等於任意新業務組合都無死鎖，更不自動帶來無界吞吐。
+
+<details>
+<summary>故障推演答案：認領後插入任務，再拋異常會怎樣？</summary>
+
+只要還在同一個 Session.begin 裡，任務和暫存回執都回滾。下次請求可以認領同 key 並創建一項。自增序列可能已經前進，ID 出現間隙並不是偷偷多提交了一項。測試應數已提交行、檢查回執與結果，而不是要求每次失敗後 ID 連續。若你把輔助函數里的 flush 改成 commit，就破壞了這個推理，必須讓故障測試抓住它。
+
+</details>
+
+## 7. 重放仍是受保護的數據讀取
+
+<Code language="python">{getReliableOperationExample('app.py')}</Code>
+
+入口先認證，再調用事務內的冪等服務。重放不是“緩存命中就跳過所有邏輯”：持有舊 key 的已移除成員必須得到 404；已退出或改密後的舊令牌必須得到 401。保存的公開結果也屬於項目數據，不能因為是歷史回執就對任何知道 key 的人公開。
+
+這裡的撤權保證有明確順序：已持用戶/項目共享鎖的操作可以完成，改密、停用或成員移除等待相應排他鎖；撤權事務提交後，新的受保護操作觀察到新狀態並被拒絕。不能追回已授權發出的響應。全局項目列表仍是 S02 的成員過濾語句快照，不具有逐項目鎖或 items/total 一致快照承諾。
+
+登錄、驗證錯誤與數據庫失敗繼續使用 S01 脫敏策略；SQL 參數隱藏不是驅動異常文本自動安全的證明，數據庫異常適配器只返回通用 409/503，不輸出異常 repr。測試檢查應用及 PostgreSQL 日誌中的秘密標記。任意未來日誌、反向代理、APM 和未知第三方異常需要額外審查。
+
+## 8. 在獨佔本地集群上啟動，不借用別人的數據庫
+
+工作目錄為解壓後的 s03-reliable-operations。不要複用正在運行的 S01/S02 集群或默認端口的數據庫。
+
+```bash
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+unset VIRTUAL_ENV UV_PROJECT_ENVIRONMENT UV_ACTIVE UV_PYTHON UV_CONFIG_FILE
+export UV_NO_CONFIG=true
+uv sync --locked
+uv run --locked python labdb.py start
+```
+
+複製程序輸出的 DATABASE_URL export 行到當前終端；它指向 mkdtemp 私有目錄的 Unix socket，不含密碼。然後：
+
+```bash
+uv run --locked alembic upgrade head
+uv run --locked python admin.py create-user Alice
+uv run --locked python admin.py create-user Bob
+uv run --locked python serve.py --port 8063
+```
+
+賬號密碼通過 getpass 設置，不放在命令行或文稿裡。HTTP 僅監聽 127.0.0.1；單 worker 不代表沒有併發請求。客戶端另開終端並進入同目錄，用私人會話文件保存憑證。所有例子是假設新庫中 Alice/Bob id 為 1/2、首個項目 id 為 1；若重做過實驗，讀取真實響應並替換業務 ID，不偽造會話身份。
+
+## 9. 真實請求：重放、衝突、撤權與恢復
+
+```bash
+uv run --locked python client.py --port 8063 --session .session-alice.json login Alice
+uv run --locked python client.py --port 8063 --session .session-bob.json login Bob
+uv run --locked python client.py --port 8063 --session .session-bob.json request POST /projects --json '{"name":"Reliability lab"}'
+uv run --locked python client.py --port 8063 --session .session-bob.json request POST /projects/1/members --json '{"user_id":1}'
+KEY="$(uv run --locked python -c 'import uuid; print(uuid.uuid4())')"
+uv run --locked python client.py --port 8063 --session .session-alice.json request POST /projects/1/tasks --key "$KEY" --json '{"title":"Review","minutes":15}'
+uv run --locked python client.py --port 8063 --session .session-alice.json request POST /projects/1/tasks --key "$KEY" --json '{"minutes":15,"title":"Review"}'
+uv run --locked python client.py --port 8063 --session .session-alice.json request POST /projects/1/tasks --key "$KEY" --json '{"title":"Review","minutes":16}'
+uv run --locked python client.py --port 8063 --session .session-bob.json request GET '/projects/1/tasks?limit=10&offset=0'
+```
+
+前兩次任務創建都為 201，返回同一個 id，頭依次為 false/true；第三次為 409；列表 total 為 1。key 是操作標識，不是憑證，可以記錄用於核對，但也不該無限收集業務關聯元數據。Bearer 從不在 --json 或 --key 傳遞，客戶端不打印原令牌。
+
+```bash
+uv run --locked python client.py --port 8063 --session .session-bob.json request DELETE /projects/1/members/1
+uv run --locked python client.py --port 8063 --session .session-alice.json request POST /projects/1/tasks --key "$KEY" --json '{"title":"Review","minutes":15}'
+uv run --locked python client.py --port 8063 --session .session-alice.json request GET /users/me
+```
+
+依次為 204、404、200：Alice 仍是已認證用戶，卻已不能重放項目數據。恢復由 owner 重新邀請；如果回執仍在有效期內，同 key 可取回原結果。不能讓 Alice 提交 role 來恢復權限，也不能換 key 逃過權限檢查。
+
+另做缺 key、UUIDv1/大寫 key、無偏移 due_at 的失敗實驗，預期 422 且不產生任務。把響應丟失理解為“結果未知”：保留同一 key 重試並核對；409 不應被一個 while True 盲重試掩蓋。
+
+## 10. 兩連接競爭必須真的同時存在
+
+```bash
+uv run --locked python -m pytest -q
+```
+
+<Code language="python">{getReliableOperationExample('tests/test_reliable.py')}</Code>
+
+測試第一層用兩個同時發出的真實 HTTP 請求，斷言同任務 id、只有一項和一個回執。第二層主動讓連接 A 持有未提交認領，連接 B 開始競爭，通過不同 pg_backend_pid 和 pg_blocking_pids 證明 B 真正在等 A，而不是兩個順序請求碰巧得出同樣數字。
+
+| A 的結果 | B 的 payload | B 結果 |
+| --- | --- | --- |
+| 提交 | 相同 | 取得原回執，不多建任務 |
+| 提交 | 不同 | 409 |
+| 回滾 | 相同 | B 成為認領者，提交一項 |
+
+沒有用 sleep 猜測競爭已經發生：測試等待數據庫報告阻塞關係，使用有限超時並在 finally 釋放自己的事務。另有兩連接測試觀察停用用戶和移除成員如何等待已有操作完成。API 重啟和自有 PG 重啟後，已提交回執仍可重放；這與 H04 內存重啟歸零不同。
+
+## 11. TTL 是保留協議，不是魔法過期刪除器
+
+默認回執有效期 86400 秒，IDEMPOTENCY_TTL_SECONDS 允許 60–604800。過期但保留的 key 返回 409，要求客戶端先核對是否已有任務；不能直接把過期當作“從未執行”。本地應用使用 UTC 時鐘，多實例需要額外時間同步和偏差策略。
+
+<Code language="python">{getReliableOperationExample('purge_expired.py')}</Code>
+
+```bash
+uv run --locked python purge_expired.py
+uv run --locked python purge_expired.py --apply
+```
+
+第一條只報告待刪數量，第二條是明確的運維刪除操作。清理後服務器已不記得舊 key，重用它可能創建第二項。測試在專用庫調整過期時間，驗證保留期衝突、顯式清理及去重邊界結束；不讓讀者等待一天才有證據。生產需要約定客戶端最長重試窗口、回執保留/備份、刪除責任、審計和調度，不應照搬本實驗手動清理就對外承諾永久去重。
+
+<details>
+<summary>邊界答案：保留更久是不是總能解決可靠性？</summary>
+
+更長保留能覆蓋更長重試窗口，但有存儲、隱私、索引和刪除成本，也不能解決客戶端換 key 或外部副作用。這個協議只對同一範圍、同 key、同規範化 payload、有效權限和保留規則成立。過期回執刪除後，不存在一個隱藏的“永遠記得執行過”的機制。必須把邊界寫進 API 與運維契約，而不是把數據庫表稱作永久緩存。
+
+</details>
+
+## 12. 按業務需要選擇 UTC、UUID 與精確數值
+
+<Code language="python">{getReliableOperationExample('representations.py')}</Code>
+
+UTC 是統一表示同一時刻的座標，不是用戶本地展示格式。UUIDv4 在本章只用於客戶端操作 key，原有數據庫 bigint 主鍵保留；把對象 ID 換成 UUID 也不會替代授權。精確金額不應從二進制 float 構造 Decimal，因此獨立變式只接受十進制字符串，並在運行時拒絕 bool/float、NaN/Infinity、負值及超過兩位小數。
+
+exact_total 的金額和數量均有上限，並在局部 Decimal 上下文內固定精度；不要讓全局上下文或無限大輸入悄悄改變計算。它不涉及真實支付、稅務舍入或多幣種，更沒有給任務表偷偷增加 NUMERIC 字段。若未來加入金額，需要單獨設計 API、數據庫精度和舍入政策。
+
+```bash
+uv run --locked python representations.py
+```
+
+```text
+2026-09-28T08:30:00+00:00
+4
+0.30
+```
+
+## 13. 獨立重建與可驗收變式
+
+**獨立重建：** 只攜帶環境、既有身份/權限契約及 001–005 遷移，在新目錄自己設計 006、payload 規範化、認領與重放服務。不要導入參考 reliable.py。先預測故障窗口，再重做同 key、異 payload、兩連接提交/回滾、撤權、API/PG 重啟和過期清理。提交狀態碼、已提交行數與阻塞關係，不提交秘密或只提交綠燈截圖。
+
+**變式 A：** 故意把 minutes 缺省省略，與顯式 0 的請求比較；再改成 1，證明只有最後一個衝突。改變 title 首尾空格不得被誤認為同一請求。解釋你的規範化契約，而不修改規則去迎合現有測試。
+
+**變式 B：** 獨立寫帶偏移 UTC 轉換與字符串金額乘整數數量；合法 0.10×3 得到精確 0.30，float/布爾數量/三位小數必須失敗。這是數據表示練習，不是新增支付服務。
+
+<details>
+<summary>獨立答案與失敗定位</summary>
+
+冪等答案是上面的 reliable.py；讀完思路後關掉它重建，再用 tests/test_reliable.py 的驗收矩陣對照。數據表示答案是 representations.py，對應以下可執行斷言：
+
+<Code language="python">{getReliableOperationExample('tests/test_representations.py')}</Code>
+
+如果返回同一個 id 卻總計有兩行，先檢查是否先創建任務後查回執；如果一個失敗後永遠重試不了，檢查是否提前提交空回執；如果撤權後還能重放，檢查授權是否被放在“緩存未命中”分支。恢復要修正確切責任邊界，而不是刪光表後說測試恢復正常。
+
+</details>
+
+## 14. 暫停記錄、未覆蓋面與官方依據
+
+```text
+checkpoint: S03 atomic task receipt
+migration: 006_task_operations
+operation: create-task-v1
+observed: first 201; replay 201; changed payload 409; removed member 404
+race: distinct backend PIDs; blocked contender; commit/rollback outcomes checked
+credential_values: not recorded
+next: verify readiness; reconcile task id before choosing a new operation key
+```
+
+停止自己終端中的 API。labdb.py restart 保留自有數據庫；labdb.py stop 是確認歸屬後停止並刪除臨時數據，不是持久化故障。會話、PG 數據、環境、緩存、日誌和憑證均不在下載 allowlist 中。
+
+這次驗證不覆蓋生產 TLS/限流、任意未知異常、分佈式時鐘偏差、備份恢復、清理任務併發的所有交錯、跨庫/外部副作用、客戶端永久重試、所有業務死鎖及真實過載。全局列表和已經開始的響應不提供撤權追溯取消。保留期後的重複創建是明確邊界，不是“恰好一次”實現。未來獨立安全審查仍必須審閱所有新增路由和日誌路徑。
+
+官方資料於 2026-09-28 核驗，完整 URL/版本見 SOURCES.md，實跑命令與 case 見 VERIFICATION.md：
+
+- [PostgreSQL Transaction Isolation](https://www.postgresql.org/docs/18/transaction-iso.html) 與 [INSERT](https://www.postgresql.org/docs/18/sql-insert.html)：READ COMMITTED 與 ON CONFLICT 的快照/等待語義。
+- [PostgreSQL Explicit Locking](https://www.postgresql.org/docs/18/explicit-locking.html)：行鎖與阻塞。
+- [SQLAlchemy PostgreSQL](https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#insert-on-conflict-upsert)：明確目標的衝突處理。
+- [Python datetime](https://docs.python.org/3.13/library/datetime.html)、[uuid](https://docs.python.org/3.13/library/uuid.html)、[decimal](https://docs.python.org/3.13/library/decimal.html)：時區、標識和精確計算的能力邊界。

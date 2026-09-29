@@ -1,0 +1,350 @@
+---
+title: API 測試與前後端聯調：從普通斷言到真實瀏覽器
+description: 先用 TestClient 自動走完整請求邊界，再逐步建立 fixture、隔離和覆寫清理；用真實 Uvicorn、HTTPX 與瀏覽器對照測試替身能夠與不能證明的行為。
+---
+
+import { getApiTestingExample } from '@/lib/js2py-examples'
+
+## 1. 業務函數通過，接口仍可能壞在哪裡？
+
+L09 已能寫普通測試函數、斷言與 pytest.raises；L13 已知道參數化如何把多組數據變成獨立用例。H05 的 store 測試可以證明 PATCH 合併規則，卻沒有證明 /tasks 已被註冊、請求 JSON 被解析、錯誤狀態正確，或輸出模型真的過濾內部字段。手動 curl 能看到這些，但每次修改都靠記憶重放容易遺漏。
+
+本章先增加一層自動化：測試從 HTTP 請求形狀進入真實 FastAPI 應用，再檢查狀態、響應和後續數據。隨後才抽出 fixture，避免把沒有解釋的 conftest.py 當作“測試框架魔法”。最後啟動真正服務並打開瀏覽器，補上內存內測試不經過的邊界。
+
+| 本章契約 | 範圍 |
+| --- | --- |
+| 前置 | H05 依賴與工廠；L09 普通測試/異常斷言；L13 參數化；L14 yield/with |
+| 新能力 | TestClient、fixture 參數供應與清理、每測試隔離、dependency_overrides、錯誤契約、真實客戶端與 CORS 聯調 |
+| 獨立驗收 | 自動覆蓋成功/失敗/狀態不變；驗證覆寫恢復；補寫刪除後分頁和混合錯誤 PATCH 測試；完成真實瀏覽器聯調 |
+| 暫不要求 | 數據庫測試、登錄、對象權限、異步測試、並行壓測、CI、重建前端框架 |
+
+下載 [H06 完整獨立實驗](/learning-assets/js2py/h06-api-testing.zip)，進入 `h06-api-testing`。它自帶全部服務源碼，不需要運行 H05 或引用旁邊目錄。當前仍是可丟棄的單進程內存應用，不承諾持久化、生產併發和權限。
+
+## 2. 先分清三種“客戶端”
+
+TestClient 把請求交給同一 Python 進程裡的 ASGI 應用，經過真實路由、依賴、Pydantic 驗證和響應處理；它不需要 Uvicorn 監聽端口。**它不是把每條路由都 mock 成一個固定 JSON。** 但網絡、進程啟動和瀏覽器安全策略不在這條路徑上。
+
+HTTPX Client 向真正地址發請求，會經過本機 TCP 端口和 Uvicorn；連接拒絕是可觀察故障。真實瀏覽器又多了一層 Origin 與 CORS 執行：服務器允許頭是否足夠、預檢是否成功、前端能否讀取響應，要由瀏覽器實際證明。三者互補，不應拿“測試很快”推導“已經端到端上線”。
+
+| 檢查入口 | 本章能夠證明 | 不能由它單獨證明 |
+| --- | --- | --- |
+| 普通 store/config 測試 | 具體 Python 行為、配置解析 | 路由/HTTP/監聽 |
+| TestClient，未覆寫業務依賴 | 輸入到輸出的進程內 API 行為 | Uvicorn 導入入口、端口、瀏覽器 CORS |
+| TestClient，加依賴替身 | 替身場景下的消費方行為 | 被替換的真實依賴及其子依賴正常 |
+| 真實 HTTPX/urllib | 實際進程、端口和 HTTP 契約 | 瀏覽器執行 CORS、生產網絡、TLS |
+| 真實瀏覽器 fetch | 本次頁面來源的可讀取響應與預檢 | 用戶身份、對象權限、所有瀏覽器環境 |
+
+## 3. 固定環境，先寫一個沒有 fixture 的測試
+
+2026-09-28 實測基線：CPython 3.13.15、uv 0.12.13、FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、Starlette 0.52.1、HTTPX 0.28.1、pytest 8.4.2。HTTPX 放開發依賴：服務運行本身不需要這個測試客戶端。requires-python 為 `>=3.13,<3.14`，uv package=false；uv.lock 來自 public PyPI。
+
+<Code language="toml">{getApiTestingExample('pyproject.toml')}</Code>
+
+第一次直接閱讀完整測試，不需要先理解整個 tests 目錄：
+
+<Code language="python">{getApiTestingExample('tests/test_first_request.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python -m pytest -q tests/test_first_request.py
+```
+
+```text
+1 passed
+```
+
+輸出展示關鍵結果，不包含隨機器變化的耗時。測試本質仍是 Arrange/Act/Assert：建立 app 和客戶端；發 POST；比較 201 與完整 JSON。`json=...` 表示把 Python 對象編碼為請求 JSON，並設置對應 Content-Type；`response.json()` 是把收到的 JSON 解碼回 Python 對象。不要拿 response 本身與字典比較，也不要把 Python 的 True 直接寫進原始 JSON 文本。
+
+with 管理客戶端的進入與關閉，不代表開啟數據庫事務。這裡的請求方法是同步調用，不寫 await。退出 with 後仍可檢查已讀取的響應數據。FastAPI TestClient 使用 Starlette 實現，與 HTTPX 請求方法相近；但“方法長得像”不表示傳輸路徑相同。
+
+實驗初次放任傳遞依賴解析曾得到 Starlette 1.7.0，它對 HTTPX 0.28.1 發出棄用警告；本實驗顯式固定已驗證兼容的 0.52.1，而不是屏蔽警告。升級時要連同客戶端和測試實際重跑，不能把一次綠色結果套到任意版本組合。
+
+## 4. 獨立服務源碼：先說明沿用什麼
+
+任務契約與 H04/H05 一致：服務端 int id，非空白且保留原字形的 title，嚴格非負整數 minutes，嚴格 bool done 默認 false，可空 note 默認 null；PATCH 分遺漏/賦值/null，只有 note 可 null；列表按 id 排序，返回 items/limit/offset/total。請求額外字段拒絕，響應過濾 internal_tag。狀態為創建 201、讀取/更新 200、刪除 204、不存在 404、非法輸入 422。
+
+所有基礎文件在本包內，下面是完整引用，不是省略號代表的隱含實現。已經掌握 H05 的讀者可摺疊複習，但做實驗不依賴另一個包。
+
+<details>
+<summary>完整配置、模型、存儲、依賴與路由</summary>
+
+<Code language="python">{getApiTestingExample('task_api/config.py')}</Code>
+
+<Code language="python">{getApiTestingExample('task_api/models.py')}</Code>
+
+<Code language="python">{getApiTestingExample('task_api/store.py')}</Code>
+
+<Code language="python">{getApiTestingExample('task_api/dependencies.py')}</Code>
+
+<Code language="python">{getApiTestingExample('task_api/routes.py')}</Code>
+
+</details>
+
+工廠依然每 app 建一個 MemoryStore。唯一新增服務行為是稍後解釋的明確 CORS 允許來源；測試不引入登錄、數據庫或權限。Settings("Test") 是可信測試代碼構造值，它繞過環境讀取，因此這種測試也**不能證明真實啟動時環境配置正確**。
+
+## 5. fixture 解決的是準備與清理，不是自動 mock
+
+多個測試都寫 create_app/with TestClient 容易遺漏關閉，也容易偷懶把 app 變成模塊全局。pytest fixture 是帶名稱的準備函數：用 `@pytest.fixture` 登記；測試形參寫 client，pytest 找到名為 client 的 fixture，先運行它，再把產物傳給測試。不是靠 Python 自動猜參數，也不是寫個同名全局變量。
+
+fixture 自己也可以要求其他 fixture：client 的形參 app 讓 pytest 先創建 app。默認 scope 是 function，每個測試用例重新準備；同一測試裡 client 和 overrides 都需要 app 時，拿到的是同一個本次 app，而不是兩個不相干的應用。參數化的每一行也各自得到這套準備。
+
+<Code language="python">{getApiTestingExample('tests/conftest.py')}</Code>
+
+conftest.py 是 pytest 會在目錄作用域發現的 fixture 文件；普通測試不需要手動 import client。這裡 app fixture 用 return，因為它沒有額外退出動作；client fixture 用 yield，測試執行完（包括斷言失敗）後繼續退出 with，關閉客戶端。overrides 的 finally 在第 9 節解釋。**fixture 的 yield 與 FastAPI 依賴的 yield 由不同框架驅動**，只是共同建立在 L14 的暫停/恢復機制上。
+
+創建前就失敗、根本沒到 yield 的 fixture，不會神奇地執行寫在 yield 後的所有語句。需要為實際已經取得的資源安排 try/finally 或 with；不能寫“只要有 yield 就一定安全”。本例客戶端由 with 管理，覆寫由 finally 管理。
+
+<details>
+<summary>解釋題答案：把 fixture 改成 session scope 會更快，所以更好嗎？</summary>
+
+不一定。共享整個測試會話裡的 MemoryStore 會讓後執行測試看到前面的任務和遞增編號，測試開始依賴順序。當前對象很輕，function scope 直接表達“每例一份狀態”。若將來資源昂貴，要另設計隔離策略，不是隻為縮短耗時擴大作用域。fixture 本身既不是 mock，也不保證它返回的對象是乾淨的；乾淨來自這裡的工廠和生命週期設計。
+
+</details>
+
+## 6. 狀態、正文與後續讀取要一起檢查
+
+<Code language="python">{getApiTestingExample('tests/test_contract.py')}</Code>
+
+參數化的 note 三態測試還分別為遺漏、替換和 null 構造完整預期任務：先核對 PATCH 響應，再 GET 同一個 ID，核對狀態 200 與整條預期記錄。只有響應斷言，可能放過“返回舊內容、存儲已經損壞”的實現。
+
+先讀 test_crud，不要一口氣背所有方法。201 證明創建狀態符合契約，完整或關鍵字段斷言證明結果形狀，後續 GET 證明修改確實寫入當前存儲，204 的 `content == b""` 證明刪除沒有錯誤地返回 JSON，隨後 404 證明資源不再可讀。只斷言 status_code < 500，會把業務拒絕、錯誤路由和成功都混成一類。
+
+`set(task)` 在字典上取得鍵集合，檢測內部字段是否洩漏；`type(id) is int` 避免把 Python bool 當整數。本例第一項測試對完整響應相等，也同時證明標題空格保留和默認值正確。不要為了測試方便把響應中的所有“多餘”字段先刪掉再比較，那會掩蓋輸出白名單失效。
+
+test_each_case_starts_empty 用兩行參數各執行一次：每項先觀察 total=0，再創建自己的記錄並得到 id=1。若一個用例需要另一個用例先創建數據，它不是獨立測試。涉及多步業務的一個測試內部可以有順序；不同測試之間不該通過遺留數據互相喂輸入。
+
+## 7. 錯誤測試要證明“正確地失敗，而且沒有寫壞數據”
+
+這裡分三類故障：壞 JSON 文本返回 json_invalid；JSON 合法但 minutes=true/"3"/3.0 等不符合模型，返回 422 且定位 body 字段；合法 ID 查不到對象返回 404 和穩定的業務 detail。它們不應該被統一成一個模糊的“有錯誤”。
+
+參數化按 field/value 展開嚴格校驗，不使用一堆 copy-paste 測試。檢查 detail 中的 loc，確認錯誤發生在 body/query/path 的預期位置；不過不硬編碼整段 Pydantic 人類可讀錯誤文案、文檔 URL 和所有版本相關字段。對自己擁有的 404 detail 則可以完整斷言，它屬於本章接口契約。
+
+非法創建之後檢查 total 仍為 0；混合非法 PATCH 後重新 GET，確認任何字段都沒有偷偷改變。只檢查 422 不足以排除“先寫入部分值，再報錯”。注意當前代碼的候選記錄驗證與替換順序只保障這些順序執行路徑，不是在承諾併發事務。
+
+PATCH note 的三行分別表達不改、賦新文本、顯式清空；非 note 字段的 null 被拒絕。`if payload.note` 無法表達三態，因為空字符串和 None 都是假值；本例使用顯式字段集合生成的 exclude_unset 結果。需要斷言行為，而不是要求學習者記住某段框架實現。
+
+<details>
+<summary>帶提示答案：如何設計一個能抓住“錯誤 PATCH 先改了一部分”的測試？</summary>
+
+先創建 title="Keep"、minutes=5、note="keep"，保存完整響應；PATCH 同時提交合法的新 title、非法 minutes=true 和 note=null；確認 422 後重新 GET，與原響應完整相等。若只測試一個非法字段，未必暴露實現提前寫入其他字段的問題。獨立題會要求你自己寫出這個測試，而不是隻口頭描述。
+
+</details>
+
+## 8. 應用異常與 HTTP 錯誤不是同一個觀察方式
+
+未處理 RuntimeError 是應用缺陷，不是你有意拋出的 HTTPException。TestClient 默認把這類服務端異常重新拋給測試，方便看到原始 traceback；因此一個期待 response.status_code 的測試可能在 client.get 處就停了。
+
+要驗收對外 500 響應，局部創建 `TestClient(app, raise_server_exceptions=False)`；再檢查狀態和文本。默認非 debug 應用的 500 正文是 Internal Server Error，不是 JSON，不能無條件 response.json()。這不是讓測試忽略缺陷：一個測試檢查異常傳播，另一個檢查對外錯誤面，兩者目的不同。
+
+<Code language="python">{getApiTestingExample('tests/test_dependencies.py')}</Code>
+
+test_unhandled_errors_raise_by_default 使用故意拋錯的依賴，分別觀察兩種客戶端模式；這隻能證明這個受控失敗路徑，不代表生產故障觀測已做好。capsys 是 pytest 自帶的捕獲輸出 fixture，讀取本次 stdout；test_real_trace_cached_and_closed 檢查原依賴一次 acquire、兩次使用、一次 release。它沒有替換 trace，所以確實執行了真實臨時文件邏輯。
+
+即使 capsys 在客戶端返回後讀到了 release，也不能據此確定 release 與響應發送的先後。H05 的版本化時序與維護用 ASGI 探針負責那項更細的證據；本章不偷加異步測試前置。
+
+## 9. dependency_overrides：替換哪個函數，丟失哪部分證據
+
+app.dependency_overrides 是字典：鍵為路由聲明時使用的**原函數對象**，值為替代提供者函數。`overrides[get_store] = replacement_store` 正確；字符串 "get_store"、get_store() 的結果或另寫一個同名函數都不是同一鍵。框架解析請求依賴時才查這張表，它不重寫 Python 模塊裡的全部函數調用。
+
+test_override_store 返回預置記錄的另一份 MemoryStore，讓列表行為可控；同時斷言 app.state.store 仍為空，明確說明真實提供者被繞過。get_store 原本依賴 request_trace；覆寫 get_store 的列表測試不會執行原 get_store，也不會執行它原有的 trace 子依賴。不能拿這項綠色結果宣稱資源創建/清理正確。
+
+test_dependency_rejection 用替身拋 503，證明消費方能得到預定狀態和正文；它沒有真的拔網線、製造磁盤故障或驗證恢復策略。這裡使用普通函數作為 stub（提供預設結果的替身），沒有必要先引入 unittest.mock。mock 是寬泛術語時，應說清替換邊界，而不是聲稱“有 mock 就是完整集成測試”。
+
+覆寫僅作用於依賴解析。真實環境在 create_app 時已被讀取；事後覆寫 get_settings 不能倒流修復一個已經失敗的工廠。這個區別解釋了為什麼測試使用顯式 Settings 後，還要單獨啟動真實進程檢驗環境。
+
+## 10. 覆寫必須恢復，而且要在失敗時也恢復
+
+不要寫“請求、斷言、最後清空”三個普通語句：斷言一失敗，清空就不執行。conftest 中 overrides fixture 先複製原映射，再 try/yield/finally；無論測試是否通過都清除本次改動並恢復原映射。恢復快照比永遠賦空字典更穩妥，因為調用者可能原本有別的受控覆寫。
+
+即使本章每測試新建 app，也保留這個清理習慣：共享 app 的診斷、一個測試裡的多個階段、以後改變 fixture scope，都可能讓殘留產生誤判。下面故意讓一項測試失敗，並保留同一個 app 的引用供下一項檢查；這是**有意按順序的清理探針**，不是普通測試互相依賴的推薦模式。
+
+<Code language="python">{getApiTestingExample('experiments/test_fixture_failure.py')}</Code>
+
+這個目錄為了複用已解釋的三個 fixture，顯式重新導出它們：
+
+<Code language="python">{getApiTestingExample('experiments/conftest.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q experiments/test_fixture_failure.py
+```
+
+```text
+1 failed, 1 passed
+```
+
+預期退出碼為 1，第一項斷言刻意失敗，第二項檢查剛才那個 app 的覆寫已恢復為空。不要改為 xfail 再聲稱“沒有失敗”；它是實際清理證據，不屬於正常綠燈套件。pyproject 的 testpaths 只自動收集 tests，所以顯式運行故障文件與正常命令不會混淆。
+
+<details>
+<summary>故障診斷答案：第二項也失敗，應該修哪一層？</summary>
+
+先確認運行的是整個診斷文件，而不是隻挑第二項；這個特定探針需要前一項保留引用。再檢查 overrides fixture 是否把恢復放在 finally，是否誤覆寫另一個 app，或把快照本身當成同一個可變字典。恢復清理後應重新得到 1 failed, 1 passed，再跑正常套件。不要修改第二項為“允許覆寫殘留”，也不要將它當作日常測試順序依賴的模板。
+
+</details>
+
+## 11. 正常自動驗收與獨立變式
+
+```bash
+uv run --locked python -m pytest -q
+```
+
+```text
+48 passed
+```
+
+這是 48 個實際收集的用例，不是 48 個函數或斷言。原來的 44 項涵蓋進程內 CRUD、嚴格輸入、PATCH 三態、錯誤定位、缺失資源、分頁、隔離、原依賴清理、替身錯誤、500 模式及 CORS 響應頭。新增 2 項用自有本地故障服務器驗證真實客戶端清理，另 2 項在可丟棄副本驗證驗收能抓住“舊響應掩蓋壞狀態”的 mutant。重複運行不應依賴上一次數據。故障服務器提供的是狹義真實端口證據，不代表健康服務完整流程或瀏覽器可讀。
+
+維護檢查 tests/test_patch_readback_regression.py 只把必要輸入複製到臨時目錄，在那裡植入原盲區：空 PATCH 返回舊記錄，卻把存儲字段改成默認值。它分別運行加強後的基礎 note 三態測試和獨立空 PATCH 測試；子 pytest 必須退出 1，並且確實失敗在後續 GET 的完整內容斷言，導入錯誤不算抓住缺陷。外層迴歸觀察到這種預期拒絕才通過。canonical 服務從未被改壞，內層測試也不調用另一個測試函數：
+
+```bash
+uv run --locked python -m pytest -q tests/test_patch_readback_regression.py
+```
+
+```text
+2 passed
+```
+
+這項維護探針不是獨立編寫普通 TestClient 測試的新先修要求。
+
+獨立任務，先不看答案：
+
+1. 創建 A/B/C，刪除中間 ID，再創建 D；證明新 ID 不復用刪除的值，limit=1&offset=1 取得 C，total 是現存總數 3，而不是頁長 1 或最大 ID。
+2. 對有 note 的任務發送合法 title、非法 minutes=true 和 note=null 的混合 PATCH；證明 422 且原記錄逐字段不變。
+3. 創建 done=true、非零 minutes、有 note 的任務；發送空 PATCH，再 GET 同一個 ID。兩次響應都必須為 200，完整 JSON 都與原記錄相等，證明全部非默認值保持。只看貌似正確的 PATCH 響應不能證明存儲未變；“都是默認初始數據”的測試也可能放過錯誤合併。
+
+每個測試自己準備乾淨 app/client，不調用另一個 test 函數，不借用上一個測試的 ID，不讀取存儲內部字典來代替公共響應。至少做一次受控變壞：把 exclude_unset 去掉，確認第三項會失敗，再恢復原代碼。
+
+<details>
+<summary>獨立參考測試與運行命令</summary>
+
+<Code language="python">{getApiTestingExample('solutions/test_independent.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_independent.py
+```
+
+```text
+3 passed
+```
+
+答案有意自帶 client fixture，單獨運行不依賴 tests/conftest 的目錄作用域。ID 從創建響應讀取；offset 在刪除產生空洞後仍按現存記錄位置解釋；PATCH 響應和隨後狀態為 200 的 GET 都進行完整 JSON 比較，才能捕捉“響應看似正確、存儲卻已損壞”的情況。先運行自己寫的測試，再比對它是否遺漏這些證據。
+
+</details>
+
+## 12. 真服務對照：同樣的斷言，換一條傳輸路徑
+
+先不使用任何 dependency_overrides。終端一在實驗根目錄啟動空服務：
+
+```bash
+TASKS_APP_NAME="Learning tasks" uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8006
+```
+
+終端二進入同目錄運行：
+
+```bash
+uv run --locked python live_httpx.py --port 8006
+```
+
+```text
+HTTPX LIVE PASS: real socket, 201/200/422, PATCH unchanged, preflight
+HTTPX LIVE PASS: cleanup 204/404
+```
+
+<Code language="python">{getApiTestingExample('live_httpx.py')}</Code>
+
+這裡 HTTPX 沒有收到 app，而是收到 base_url，真的向 127.0.0.1 連接。timeout=5 給等待一個上界；trust_env=False 避免環境代理把本地實驗轉發到別處，不是關閉 TLS 檢查。程序檢查空教學服務，創建自己的任務，在 finally 刪除；不會讀取憑證或訪問公共服務。
+
+停掉 Uvicorn 再運行該命令，應在連接階段失敗，不會產生 422 JSON；此時進程內 TestClient 用例仍可通過，因為它們根本不經過那個端口。維護清理用例會在其他臨時端口啟動獨佔服務器；它們通過也不能證明這個已停止的服務仍可訪問。重新啟動正確工廠，再跑真實客戶端恢復。這個對照正說明兩類綠色結果不同，不是測試工具互相矛盾。
+
+真實配置也單獨驗收：去掉 TASKS_APP_NAME 時工廠退出，TASKS_MAX_PAGE_SIZE=bad 同樣失敗；改成合法名稱和上限後重啟恢復。TestClient 使用顯式 Settings 的測試不會覆蓋這些啟動故障。完整 urllib 客戶端也在包中，可重放更多真實 PATCH/分頁邊界：
+
+<Code language="python">{getApiTestingExample('live_client.py')}</Code>
+
+finally 不是“裡面每條語句都會成功”的保證。客戶端對本次創建的每個 ID 單獨 try/except：記錄該 ID 的清理失敗，再嘗試其他自有 ID，不清空整個服務。循環結束輸出 CLEANUP FAILED、清理未確認的 ID 及各自診斷。“未確認”不聲稱超時刪除到底有沒有生效；重放前只檢查這些自有 ID。主體已完成時，清理失敗拋出 RuntimeError，進程非零退出；主體本來就失敗時，body_succeeded 仍為 false，清理錯誤照樣報告，但 finally 不再拋替代異常，也不 return，因此原 traceback 繼續傳播。逐項捕獲清理錯誤不等於把整次運行偽裝成功；一個簡單標誌即可保留兩類診斷，不需要異常組框架。
+
+```bash
+uv run --locked python live_client.py --port 8006
+```
+
+```text
+LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist
+LIVE PASS: cleanup and subsequent 404
+```
+
+tests/test_live_client_cleanup.py 的兩項在操作系統分配的本地端口啟動臨時故障應用，運行真實 urllib 程序。第一個自有 ID 的 DELETE 返回 503，第二個仍必須刪除，只允許第一個剩餘，且客戶端非零退出。第二項還故意讓主體斷言失敗，要求保留原 traceback，而不是被清理異常替換。每項在 finally 停止自己的服務器。這些是維護迴歸，不要求學習者先學異步測試代碼：
+
+```bash
+uv run --locked python -m pytest -q tests/test_live_client_cleanup.py
+```
+
+```text
+2 passed
+```
+
+## 13. CORS 先解釋參與者，再加中間件
+
+瀏覽器頁面 http://127.0.0.1:5506 與 API http://127.0.0.1:8006 端口不同，因此不同源。Origin 由協議、主機、端口組成；localhost 和 127.0.0.1 也不是字符串相同的來源。CORS 是瀏覽器決定是否允許頁面腳本讀取跨源響應的協議，不是登錄或服務端對象權限。
+
+瀏覽器發送 Content-Type: application/json 的跨源 POST 前，通常先發 OPTIONS 預檢，帶 Origin、Access-Control-Request-Method 和 Access-Control-Request-Headers。CORSMiddleware 在路由外處理這類預檢，併為符合配置的響應添加允許頭；不是要求每條路由自己寫 OPTIONS。中間件是包在應用請求/響應外的一層處理器，這裡只使用這個明確功能，不講任意中間件架構。
+
+<Code language="python">{getApiTestingExample('task_api/main.py')}</Code>
+
+允許來源只有 http://127.0.0.1:5506，允許本章方法與 Content-Type，不攜帶 credentials。沒有用星號擴大來源，也沒有 token/cookie 認證。已解釋的普通 create_app 工廠仍然是唯一組合入口；不用異步 lifespan。
+
+<Code language="python">{getApiTestingExample('tests/test_cors.py')}</Code>
+
+允許預檢得到 200 與精確來源頭；5507 的預檢得到 400 且沒有允許來源頭。更重要的第三項：直接 GET 即使帶一個不允許的 Origin，也可能得到 200，只是沒有允許瀏覽器讀取的頭；不帶 Origin 的非瀏覽器客戶端仍可訪問。因此 **CORS 不是把非允許調用者擋在服務之外的認證機制**。
+
+TestClient 只檢查服務發出的頭與狀態，不會像瀏覽器一樣阻止腳本讀取響應。到這裡仍不算前後端聯調完成。
+
+## 14. 真瀏覽器聯調：一個靜態頁面就足夠
+
+無需安裝前端框架。繼續保持 API 在 8006 運行，第三個終端提供靜態頁面：
+
+```bash
+uv run --locked python -m http.server 5506 --bind 127.0.0.1 --directory browser
+```
+
+打開 http://127.0.0.1:5506，點擊 Run browser check。不是雙擊 file:// 文件，不是打開 localhost:5506；這些來源不在本章允許表裡。
+
+<Code language="html">{getApiTestingExample('browser/index.html')}</Code>
+
+```text
+PASS: browser POST 201, GET 200, strict input 422
+PASS: cleanup DELETE 204
+```
+
+瀏覽器按鈕禁用期間避免重複點擊；fetch 不會因為 HTTP 422 自動拋異常，所以頁面明確檢查狀態和 detail。CORS/網絡錯誤則可能讓 fetch 直接拒絕，根本拿不到可讀 Response。finally 刪除已成功創建的任務，並單獨顯示清理是否失敗；測試失敗不是留下垃圾數據的理由。
+
+再開一個終端從不被允許的端口提供同一文件：
+
+```bash
+uv run --locked python -m http.server 5507 --bind 127.0.0.1 --directory browser
+```
+
+打開 http://127.0.0.1:5507，點擊按鈕，預期頁面以 FAIL 開頭，瀏覽器 Network 中 POST 的 OPTIONS 被拒絕，任務沒有被創建。不同瀏覽器錯誤文字可能不同，不固定 TypeError 的完整句子。回到 5506 再運行應恢復通過；同時真實 Python 客戶端依舊能請求 API，進一步證明 CORS 不是身份驗證。
+
+若第一次就失敗，按順序檢查 API 是否在監聽、頁面的完整 Origin、OPTIONS 狀態與響應頭、POST 是否實際發出、服務器是否返回 422、前端是否錯誤讀取 JSON。不要用 mode:no-cors 修復：opaque 響應無法完成本章的狀態/JSON 驗收；也不要關閉瀏覽器安全性或改成任意來源。
+
+完成後 Ctrl-C 停 API 與兩個靜態服務器，記錄清理後的任務數。若瀏覽器失敗在刪除環節，頁面會保留 task id；只刪除自己創建的教學記錄，再複驗。
+
+## 15. 故障定位、恢復記錄與證據邊界
+
+| 現象 | 區分原因 | 恢復與複驗 |
+| --- | --- | --- |
+| fixture 'client' not found | 文件不在對應 conftest 目錄作用域 | 放回 tests，或像獨立答案那樣聲明本地 fixture |
+| 單測單獨過，整套失敗 | 共享 app、共享可變輸入、未恢復覆寫 | 回到 function scope 和工廠；重跑單項、整套、第二次整套 |
+| client.get 直接拋 RuntimeError | 默認傳播服務異常 | 修實現；若故意驗收 500，局部關閉傳播並斷言正文 |
+| JSONDecodeError | 500 文本或 204 空正文被當 JSON | 先檢查狀態/Content-Type；204 檢查空 bytes |
+| TestClient 過，HTTPX 連接拒絕 | 服務未啟動、工廠失敗、端口不一致 | 看服務日誌，重啟正確入口後再驗收 |
+| HTTPX 過，瀏覽器 fetch 失敗 | 來源或預檢，或頁面請求錯誤 | 查 Network；保持安全邊界，不擴大允許表掩蓋問題 |
+| mock 測試過，真實 trace 無日誌 | 替換跳過真實依賴與子依賴 | 保留替身測試，再增加未覆寫的真實路徑證據 |
+
+暫停記錄：當前目錄與鎖版本；基礎套件實際 count；獨立題實際 count；故障探針是否得到 1 failed, 1 passed；覆寫在哪個 app 上且是否已恢復；真實服務啟動命令/PID/端口；兩個瀏覽器 Origin 的結果；任務清理與進程停止情況；尚未驗證項與下次第一步。不要只寫“全部通過”。
+
+畢業門檻是能解釋每層證據、獨立補測試、讓受控缺陷被抓住並恢復、完成真實瀏覽器聯調。下載 allowlist 排除環境、緩存、.env、日誌和秘密。當前的 48+3 項與真實進程/瀏覽器驗收不證明數據庫、認證授權、生產併發、部署、TLS、性能或所有瀏覽器兼容性；這些仍要在後續階段建立。
+
+## 16. 一手資料與核驗日期
+
+2026-09-28 實時核對 [Starlette 0.52.1 TestClient](https://github.com/Kludex/starlette/blob/0.52.1/docs/testclient.md)、[pytest 8.4.2 fixture 與安全清理](https://github.com/pytest-dev/pytest/blob/8.4.2/doc/en/how-to/fixtures.rst)、[FastAPI 0.135.1 dependency_overrides](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/advanced/testing-dependencies.md)、[FastAPI CORS](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/cors.md)、[HTTPX 0.28.1 transports](https://github.com/encode/httpx/blob/0.28.1/docs/advanced/transports.md)、[Pydantic 2.12.5 strict mode](https://github.com/pydantic/pydantic/blob/v2.12.5/docs/concepts/strict_mode.md)。Pydantic 文檔站本次返回 403，因此改用官方版本倉庫文檔；SOURCES.md 保存更完整的版本依據。
+
+維護驗收實際從 allowlist 乾淨副本安裝並運行，而非只編譯源碼；還包括故意失敗的 fixture 清理、真實進程錯誤/恢復和瀏覽器允許/拒絕來源。記錄哪條命令得到什麼結果，比一個沒有範圍說明的覆蓋率數字更有用。

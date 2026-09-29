@@ -80,6 +80,7 @@ export function CodeClient({ codeblock, highlighted }: CodeClientProps) {
 
       <Pre 
         code={highlighted} 
+        style={{ color: highlighted.style.color }}
         handlers={[callout]} 
         className="
           border border-zinc-700/50 

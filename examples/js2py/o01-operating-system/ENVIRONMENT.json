@@ -1,0 +1,31 @@
+{
+  "standard_tests": 16,
+  "independent_tests": 1,
+  "actually_run": [
+    "CPython3.13.15 on Darwin25.6.0 arm64 ordinary uid501",
+    "env/cwd and missing-file failure",
+    "SIGTERM/SIGINT cleanup, SIGKILL absence of cleanup",
+    "nonroot mode denial/restoration",
+    "loopback bind collision and owned socket cleanup",
+    "configuration78/data65/I-O74 failures",
+    "two independent data roots"
+  ],
+  "unavailable_here": [
+    "Linux/systemd runtime and service account provisioning"
+  ],
+  "user_must_supply": [
+    "rebuildable controlled Linux/systemd host",
+    "dedicated service account/group and reviewed deployment directories",
+    "administrator approval for installing a system unit"
+  ],
+  "pending_acceptance": [
+    "systemd-analyze verify on target",
+    "real unit start/stop/restart and effective filesystem restrictions",
+    "boot lifecycle if enabled",
+    "Windows semantics and power-loss/concurrent persistence are outside acceptance"
+  ],
+  "verified_date": "2026-09-28",
+  "implementation_status": "implemented",
+  "environment_status": "environment_pending",
+  "claims_do_not_include": "documentation completion is not deployment/environment acceptance"
+}

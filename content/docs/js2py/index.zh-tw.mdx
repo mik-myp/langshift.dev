@@ -1,114 +1,124 @@
 ---
-title: JavaScript 到 Python 學習模組
-description: 專為有 JavaScript 背景的開發者設計的 Python 學習模組，透過對比學習方法快速掌握 Python 程式設計。
+title: JavaScript 到 Python：從前端工程走向後端開發
+description: 面向有成熟前端工程經驗、沒有後端實踐的開發者，系統學習 Python 語言差異，並逐步補齊 API、數據庫、權限、測試與上線維護能力。
 ---
 
+## 這套教材為誰編寫？
 
-## 📖 模組概述
+你能夠獨立搭建前端項目，做過接口聯調，熟悉 Promise 與 async/await，瞭解 TypeScript 基礎類型，但還沒有親自實現後端或數據庫。這就是本教材的讀者起點。
 
-本模組專為有 JavaScript 背景的開發者設計。透過對比學習方法，幫助您快速掌握 Python 程式設計，充分利用您現有的 JavaScript 知識。我們採用「從已知到未知」的學習方法，將 JavaScript 概念對應到 Python 對應概念。
+我們不要求你先學 Express，也不把複雜類型體操作為門檻。已有工程經驗會幫助你理解項目組織、測試和協作，但不能替代第一次設計表結構、事務、權限與部署流程的實踐。教材會把這些陌生職責逐步講清，而不是用一張庫名和 API 表格代替教學。
 
-## 🎯 學習方法
+## 學習目標：能交付，而不只是能看懂
 
-### 核心方法論
-- **對比學習**：透過 JavaScript 概念理解 Python
-- **概念對應**：將熟悉的 JavaScript 模式對應到 Python 對應概念
-- **實踐導向**：透過動手編碼範例學習
-- **效能意識**：理解語言特定的效能特徵
+最終目標是：允許查閱文檔，能夠根據需求獨立實現、測試、部署和維護一個可供受邀用戶使用的中小型後端，並完成一次沒有逐步實現教程的新需求。
 
-### 關鍵學習原則
-1. **利用現有知識**：基於您的 JavaScript 基礎
-2. **關注差異**：強調 Python 的獨特之處
-3. **實踐驅動**：透過互動式程式碼範例學習
-4. **實際應用**：將概念應用到實際專案中
+“讀完所有頁面”不是完成標準。每個階段都需要實際產物、成功與失敗場景、驗收步驟，以及對設計的解釋。後續開放公共註冊等功能還需要額外的安全與運維驗收，不能把演示程序直接當成完整產品。
 
-## 🔄 語言對比概述
+> **改造狀態（2026-09-28）：** 39 章均已提供英文、簡體、繁體完整正文與配套材料。驗收記錄區分本機實際運行的實驗，以及需要受控 Linux、容器、HTTPS 或託管交付環境的待驗證項目。教材內容完成不自動代表公網上線成功，也不代表讀者已經畢業。
 
-### 語法哲學
-- **JavaScript**：C 風格語法，靈活且動態
-- **Python**：簡潔、可讀的語法，使用縮排
+## 怎樣使用本教材？
 
-### 核心概念對應
-- **變數**：`let/const` → 直接賦值
-- **函數**：`function` → `def` 帶顯式 `self`
-- **類別**：`class` → `class` 帶 `__init__`
-- **模組**：`import/export` → `import/from`
-- **非同步**：`Promise/async-await` → `async/await`
+一個知識點通常沿著這樣的過程展開：
 
-### 執行模型
-- **JavaScript**：事件驅動，單執行緒非同步
-- **Python**：多執行緒帶 GIL，非同步使用 asyncio
+1. 先提出一個真實問題，解釋為什麼需要這個知識。
+2. 借用你熟悉的前端經驗建立聯繫，同時說明類比失效的邊界。
+3. 解釋概念與運行機制，再給出必要的語法和 API。
+4. 運行完整例子，預測並解釋輸入、輸出及失敗行為。
+5. 完成帶提示的修改，然後獨立完成變式需求。
+6. 用測試或明確操作驗收，之後再查看分開放置的參考答案。
 
-## 📚 模組結構
+不是所有例子都適合在網頁運行。純語法可以使用瀏覽器實驗；多文件、依賴、數據庫和 Web 服務應在明確的本地環境中執行。配置文件、故意錯誤的例子和服務程序不能僅因有一個編輯器，就被稱為“點擊即可運行”。
 
-學習路徑組織為 **12 個漸進式模組**：
+## 分階段的能力路線
 
-1. **基礎**：Python 介紹和學習方法論
-2. **語法**：核心語法對比和對應
-3. **模組化**：套件管理和專案組織
-4. **物件導向與函數式**：物件導向和函數式程式設計
-5. **非同步**：非同步程式設計模式
-6. **品質**：測試、型別和程式碼品質
-7. **Web 開發**：Web 開發框架和實踐
-8. **資料處理與自動化**：資料處理和自動化
-9. **專案實戰**：真實專案實作
-10. **進階主題**：元程式設計和進階特性
-11. **Pythonic 風格**：Python 特定最佳實踐
-12. **型別系統**：型別註解和靜態分析
+| 階段 | 需要形成的能力 | 產物 |
+| --- | --- | --- |
+| Python 基礎 | 語言差異、函數、類型、模塊、異常、資源與測試 | 可復現的本地任務程序 |
+| HTTP 與 FastAPI | 接口契約、驗證、響應、路由、依賴與配置 | 可聯調的 API |
+| 數據庫 | SQL、關係、約束、事務、ORM 與遷移 | 不靠內存保存狀態的服務 |
+| 多用戶 | 身份、密碼、憑證失效、對象級權限 | 不會跨用戶洩露數據的應用 |
+| 可靠性 | API/數據庫測試、異步邊界、超時與故障處理 | 可以解釋和驗證失敗行為的項目 |
+| 交付與維護 | 部署、日誌、備份恢復、迭代與回退 | 受控真實上線與獨立新功能 |
 
-## 🛠️ 開發環境
+先把同步後端的基本行為做正確，再學習有具體用途的異步。數據分析、複雜元類、高級泛型和分佈式任務等內容可以作為選修，不阻斷第一個項目的交付。這個順序不是壓縮基礎，而是避免讓不必要的複雜度搶在必要知識之前。
 
-### 必備工具
-- **IDE**：帶 Python 擴充功能的 VS Code 或 PyCharm
-- **套件管理器**：pip 或 poetry
-- **虛擬環境**：venv 用於隔離
-- **程式碼品質**：flake8、black、mypy
-- **測試**：pytest 框架
+## 先後順序比一次學多少更重要
 
-### 快速設定
+新的 Python 主線按小步驟展開：**第一次運行 → 名稱與值 → 容器 → 控制流 → 函數 → 異常 → 模塊 → 文件/JSON → 環境與依賴 → 基礎測試 → 第一個獨立可復現項目**。隨後再補齊類型、類、裝飾器和資源生命週期，進入服務端與 FastAPI。
 
-<Code language="bash">{`# 建立並啟動虛擬環境
-python -m venv langshift-env
-source langshift-env/bin/activate  # macOS/Linux
-# langshift-env\\Scripts\\activate   # Windows
+每一步都有當前知識足以解釋的小程序，不是先讀完整本語法書才實踐，也不是先搭工程再長期欠下解釋。各章按前置能力驗收，不按固定週數推進。按目錄逐章通過能力驗收，而不是讀過標題就算掌握。環境準備、憑證處理、遷移安全和恢復都有自己的教學與證據；後續章節不會無聲地把本地演示升級成生產服務。
 
-# 安裝開發工具
-pip install black flake8 mypy pytest
-`}</Code>
+## 當前內容目錄
 
-## 🎯 學習成果
+全書共 **39 個循序漸進的章節（00—38）**。L/H/D/S/A/O/G 是能力階段編號，頁面編號是實際閱讀順序。已有頁面 URL 保持穩定，因此部分舊 slug 與新正文標題不同。頁面和下載包存在，不代表環境門檻、畢業驗收或真實上線已經通過。
 
-完成本模組後，您將能夠：
+### Python 語言與本地工程 · L00—L14
 
-- **掌握 Python 語法**：理解 Python 的獨特語法和慣用法
-- **應用 JavaScript 知識**：利用您的 JS 背景加速學習
-- **編寫 Pythonic 程式碼**：遵循 Python 最佳實踐和約定
-- **建構真實專案**：使用 Python 建立實際應用
-- **理解效能特徵**：知道何時以及為什麼使用 Python vs JavaScript
+- **00 · L00** — [認識 Python：讀懂並運行第一份腳本](/zh-tw/docs/js2py/module-00-python-introduction)
+- **01 · L01** — [名稱、值與基本運算](/zh-tw/docs/js2py/module-01-syntax-comparison)
+- **02 · L02** — [容器、引用與修改](/zh-tw/docs/js2py/module-02-module-system)
+- **03 · L03** — [條件、循環與遍歷](/zh-tw/docs/js2py/module-03-oop-functional)
+- **04 · L04** — [函數、參數與作用域](/zh-tw/docs/js2py/module-04-async-programming)
+- **05 · L05** — [異常與調試](/zh-tw/docs/js2py/module-05-quality-testing-typing)
+- **06 · L06** — [模塊與標準庫](/zh-tw/docs/js2py/module-06-web-development)
+- **07 · L07** — [文件、JSON 與資源使用](/zh-tw/docs/js2py/module-07-data-automation)
+- **08 · L08** — [環境與依賴管理](/zh-tw/docs/js2py/module-08-projects)
+- **09 · L09** — [基礎自動化測試](/zh-tw/docs/js2py/module-09-advanced-topics)
+- **10 · L10** — [第一個獨立可復現項目](/zh-tw/docs/js2py/module-10-common-pitfalls)
+- **11 · L11** — [基礎類型註解：契約、檢查與輸入邊界](/zh-tw/docs/js2py/module-11-pythonic-code)
+- **12 · L12** — [類與數據模型：實例、狀態歸屬與顯式校驗](/zh-tw/docs/js2py/module-12-type-annotations)
+- **13 · L13** — [裝飾器與聲明式接口：先展開，再使用](/zh-tw/docs/js2py/module-13-decorators)
+- **14 · L14** — [生成器與資源生命週期：暫停、恢復與可靠釋放](/zh-tw/docs/js2py/module-14-resources)
 
-## 🚀 開始學習
+### 服務進程、HTTP 與 FastAPI · H01—H06
 
-1. **設定環境**：使用推薦的工具
-2. **從模組 0 開始**：Python 介紹和方法論
-3. **使用互動式程式碼編輯器**：練習概念
-4. **完成練習**：鞏固學習內容
-5. **建構專案**：應用您的知識
+- **15 · H01** — [從客戶端到持續運行的服務：進程、端口與邊界](/zh-tw/docs/js2py/module-15-service-process)
+- **16 · H02** — [HTTP 與接口契約：先約定可觀察行為，再實現服務](/zh-tw/docs/js2py/module-16-http-contract)
+- **17 · H03** — [第一個同步 FastAPI 服務：從導入到真實響應](/zh-tw/docs/js2py/module-17-first-fastapi)
+- **18 · H04** — [Pydantic 輸入輸出邊界：嚴格驗證與不會誤清空的 PATCH](/zh-tw/docs/js2py/module-18-validation)
+- **19 · H05** — [應用組織、配置與依賴：讓創建、使用、清理各有主人](/zh-tw/docs/js2py/module-19-application-dependencies)
+- **20 · H06** — [API 測試與前後端聯調：從普通斷言到真實瀏覽器](/zh-tw/docs/js2py/module-20-api-testing)
 
-## 🔗 相關資源
+### 真實數據庫 · D01—D06
 
-- [Python 官方文件](https://docs.python.org/)
-- [PEP 8 風格指南](https://www.python.org/dev/peps/pep-0008/)
-- [Real Python 教學](https://realpython.com/)
-- [Python 套件索引](https://pypi.org/)
+- **21 · D01** — [關係模型與 PostgreSQL：先認識數據，再連接服務器](/zh-tw/docs/js2py/module-21-relational-data)
+- **22 · D02** — [SQL 與參數化查詢：從結果推導查詢，而不是拼字符串](/zh-tw/docs/js2py/module-22-sql)
+- **23 · D03** — [事務、連接與併發：失敗後數據庫究竟剩下什麼](/zh-tw/docs/js2py/module-23-transactions)
+- **24 · D04** — [同步 SQLAlchemy：把數據庫資源和業務事務交給明確的主人](/zh-tw/docs/js2py/module-24-sqlalchemy)
+- **25 · D05** — [Alembic 遷移：改變結構，不能丟掉用戶已經寫入的事實](/zh-tw/docs/js2py/module-25-migrations)
+- **26 · D06** — [數據庫測試與查詢診斷：用隔離 PostgreSQL 證明失敗、恢復和改進](/zh-tw/docs/js2py/module-26-database-testing)
 
-## 🤝 貢獻指南
+### 身份、授權與可靠業務 · S01—S03
 
-我們歡迎貢獻！請確保：
-- 程式碼範例可在我們的編輯器中執行
-- 提供 JavaScript 和 Python 實作
-- 包含效能考量
-- 遵循我們的文件標準
+- **27 · S01** — [身份與憑證生命週期：密碼不是會話，登錄不是授權](/zh-tw/docs/js2py/module-27-identity)
+- **28 · S02** — [對象級授權：知道別人的 ID，也不能操作別人的項目](/zh-tw/docs/js2py/module-28-authorization)
+- **29 · S03** — [可靠業務操作：事務、冪等回執與真實競爭](/zh-tw/docs/js2py/module-29-reliable-operations)
 
----
+### 異步與外部服務 · A01—A02
 
-**將您的 JavaScript 技能轉化為 Python 精通！** 🐍 
+- **30 · A01** — [Python 異步執行模型：先擁有，再調度，再等待](/zh-tw/docs/js2py/module-30-async-model)
+- **31 · A02** — [外部服務與異步資源生命週期：讓可選依賴真的可選](/zh-tw/docs/js2py/module-31-external-services)
+
+### 交付與維護 · O01—O06
+
+- **32 · O01** — [操作系統與服務：知道進程在誰的目錄裡、以誰的權限活著](/zh-tw/docs/js2py/module-32-operating-system)
+- **33 · O02** — [容器與可部署應用：鏡像不是數據，健康也不是業務正確](/zh-tw/docs/js2py/module-33-containers)
+- **34 · O03** — [網絡入口與 HTTPS：驗證連接，也驗證你信任了誰](/zh-tw/docs/js2py/module-34-https-production)
+- **35 · O04** — [持續集成、發佈與回退：先證明兼容，再切換代碼](/zh-tw/docs/js2py/module-35-release)
+- **36 · O05** — [日誌、監控與故障定位：讓一次失敗留下安全證據](/zh-tw/docs/js2py/module-36-observability)
+- **37 · O06** — [備份、恢復與受控上線：文件存在不等於數據可用](/zh-tw/docs/js2py/module-37-recovery)
+
+### 獨立畢業項目 · G01
+
+- **38 · G01** — [畢業驗收：獨立交付任務評論，而不是再跟一次教程](/zh-tw/docs/js2py/module-38-graduation)
+
+**始終分開四種結論：** 教材正文完成、參考實驗實跑通過、你獨立具備交付能力、服務真正受控上線。每章都要處理正常輸入和失敗輸入；獨立練習先完成自己的嘗試，再展開答案。格式檢查變綠、存在備份文件或能訪問一次頁面，都不能替代行為驗收、真實恢復和維護證據。
+
+## 從哪裡開始？
+
+從[第 00 章：讀懂並運行第一份腳本](/zh-tw/docs/js2py/module-00-python-introduction)開始。本章只用 uv 準備和選擇 CPython 3.13，不教學整套工程配置；虛擬環境、鎖文件和 pytest 在具備語言與模塊基礎之後再系統學習。
+
+普通 Python 函數使用 `def`，並不需要 `self`；實例方法才會涉及顯式的實例參數。Python 的 async/await 與 JS 表面相似，也不表示調度和執行行為完全一樣。我們會通過可驗證的例子建立準確聯繫，不用一句“對應關係”抹平差異。
+
+學習時間可以不固定。每次結束時記錄當前代碼狀態、通過的測試、仍不理解的問題和下次第一步。按能力驗收推進，而不是按週數趕進度。

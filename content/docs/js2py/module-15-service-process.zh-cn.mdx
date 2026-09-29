@@ -1,0 +1,306 @@
+---
+title: 从客户端到持续运行的服务：进程、端口与边界
+description: 用只监听本机的标准库工具和两个终端，追踪一次请求，区分连接、请求与进程的生命周期，并实测路径错误、端口冲突与安全停止。
+---
+
+import { getServiceProcessExample } from '@/lib/js2py-examples'
+
+## 1. 为什么一次请求完成了，服务还在运行？
+
+写前端时，你通常已经拿到一个 URL。现在需要反过来问：谁一直等在那里？为什么刷新页面不需要重新启动后端？关闭浏览器是否会把后端关掉？如果不能区分这些生命周期，很容易把“接口返回 404”误诊为“Python 没启动”，或者为解决端口冲突而误停别人的程序。
+
+本章先认识运行中的服务，不先写框架路由。我们使用 Python 已提供的静态文件服务工具，让请求路径、操作系统中的进程和文件位置都能看见。它不是贯穿项目的任务 API，也不是生产服务器；你不需要先懂继承 HTTP 处理器、套接字编程、线程或 ASGI。
+
+| 本章契约 | 范围 |
+| --- | --- |
+| 前置 | L10 本地多文件工程；L14 获取、使用与释放资源 |
+| 新能力 | 分清程序与进程、地址与端口、请求与连接；沿路径定位失败；划分可信边界 |
+| 独立验收 | 画出请求路径；连续完成成功、失败、成功请求；证明请求结束不等于进程结束；只停止自己的服务 |
+| 暂不要求 | FastAPI、数据库、认证实现、异步、生产部署、服务器内部并发模型 |
+
+下载 [H01 完整实验](/learning-assets/js2py/h01-service-process.zip)。本地运行，不使用浏览器 Python 编辑器：页面里的 Python 环境不能替你的操作系统监听这里的 TCP 端口。基线为 CPython 3.13.15、uv 0.12.13、pytest 8.4.2；维护者实际使用 macOS 与 curl 8.7.1，核验日期为 **2026-09-28**。命令采用 macOS/Linux 的 shell；未验收 Windows 命令与信号行为。
+
+## 2. 三个容易混成一个的生命周期
+
+**程序**是磁盘上的代码；**进程**是操作系统启动它之后的一个运行实例，拥有自己的运行状态与资源。相同代码可以启动成两个进程，两个进程不会因为源文件相同就共享同一份 Python 列表。终端只是启动和观察它的入口，不等于进程本身。
+
+普通脚本可以完成一件事后退出。下面整个文件没有循环或等待下一次输入；两次打印完成后，就没有后续工作了。
+
+<Code language="python">{getServiceProcessExample('one_shot.py')}</Code>
+
+服务进程则保留接收后续请求的能力。**请求**是一轮“客户端提出要求，服务端给出响应”的交互；**连接**是承载这轮交互的通信通道。一次请求完成后，连接可以关闭，也可以复用。无论哪一种，都不能由此推出整个服务进程应该退出。HTTP 的客户端、服务端与连接角色见 [RFC 9110 §3.3](https://www.rfc-editor.org/rfc/rfc9110.html#section-3.3)。
+
+你熟悉的开发服务器可以帮助建立直觉：一次热更新结束后，开发服务器没有结束。但类比到此为止：后端还必须承担数据验证、权限与存储等责任，不只是把前端构建结果送给浏览器。本章不以“会启动 Vite”代替这些责任的教学。
+
+## 3. 地址找到机器，端口找到监听入口
+
+本章 URL 是 `http://127.0.0.1:8765/hello.txt`。`http` 指定协议；`127.0.0.1` 是 IPv4 loopback 地址，指向发起连接的这台机器自身；`8765` 是本实验选择的 TCP 端口；`/hello.txt` 是发给服务的请求路径。端口不是文件夹，也不是 Python 函数名。[IANA 的特殊地址登记](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml)将 `127.0.0.0/8` 保留为 loopback 范围。
+
+**监听**表示进程请求操作系统在特定地址与端口接收连接。操作系统先把连接交到监听入口，随后 HTTP 服务才根据路径作出响应。不能因为路径叫 `/hello.txt` 就跳过端口去寻找本机文件，也不能仅凭一个 404 判断端口没监听：收到 HTTP 404 已说明某个 HTTP 服务给出了响应。
+
+本实验只绑定 `127.0.0.1`。不要省略绑定参数，也不要改成 `0.0.0.0`；后者是监听所有 IPv4 接口的地址，不是“更好用的 localhost”。Python 工具默认会监听所有接口，所以我们显式收窄范围。loopback 降低了网络暴露范围，**不是登录或授权**：本机其他进程仍可能访问。[Python CLI 文档](https://docs.python.org/3.13/library/http.server.html#command-line-interface)说明了绑定行为。
+
+如果把同样 URL 发给另一台电脑，那里 `127.0.0.1` 指向的是那台电脑，不是你的电脑。先不改防火墙、不开放路由、不用隧道分享本实验。`localhost` 名称还可能解析到 IPv6 的 `::1`；为减少变量，本章统一使用字面量 `127.0.0.1`。
+
+## 4. 准备工程，明确两个终端各在哪个目录
+
+在仓库根目录打开终端 A，执行以下命令。下载包用户应进入解压后的 `h01-service-process` 文件夹，从 `uv sync` 开始；不要在解压父目录运行。`pwd` 用于核对当前工作目录，`uv run --locked` 使用已锁定工程环境，`python -m` 运行指定 Python 模块，而不是运行一个叫 `http.server.py` 的本地文件。
+
+```bash
+cd examples/js2py/h01-service-process
+pwd
+uv sync --locked --default-index https://pypi.org/simple
+uv run --locked python --version
+uv run --locked python one_shot.py
+echo $?
+```
+
+```text
+Python 3.13.15
+script: started
+script: finished
+0
+```
+
+输出省略了 uv 的安装进度与 `pwd` 的机器相关路径。`echo $?` 必须紧跟要观察的命令：它打印上一条命令的退出状态，零通常表示成功，不是 HTTP 状态码。一次脚本结束后终端提示符立即回来。
+
+<Code language="toml">{getServiceProcessExample('pyproject.toml')}</Code>
+
+运行时没有第三方包；pytest 只用于验证。`package = false` 表示这是实验工程，不要求把它构建安装成一个分发包。锁文件已经生成，普通复现不要删除它或重新选择依赖版本。
+
+## 5. 启动服务：先读懂命令，再观察它没有退出
+
+服务目录只放专用教学文件，不放 `.env`、凭证、用户目录、工程根目录或符号链接。静态工具可能生成目录列表，也会跟随符号链接；`--directory` 不是安全沙箱。这里靠的是受控的无秘密文件与 loopback，而不是声称工具具备生产隔离保证。[安全范围](https://docs.python.org/3.13/library/http.server.html#security-considerations)
+
+<Code language="text">{getServiceProcessExample('public/hello.txt')}</Code>
+
+在终端 A、仍然是实验根目录运行：
+
+```bash
+uv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory public
+```
+
+```text
+Serving HTTP on 127.0.0.1 port 8765 (http://127.0.0.1:8765/) ...
+```
+
+`8765` 是选择的监听端口；`--bind` 指定监听地址；`--directory public` 指定公开文件根目录，`public` 相对**启动时工作目录**解释。命令没有返回提示符是预期行为：这个前台服务正在等待请求，不是“卡住了”。标准库已实现等待与处理，本章不要求你重写那部分。
+
+若启动提示 `Address already in use`，此次启动失败，不是自动换了端口。不要用按端口杀进程或 `killall python` 的命令。先确认是否是自己另一个终端已经启动的实例；确认不清就改用 `8766`，并同步修改所有客户端命令。只有你自己启动的前台实例才能按本章方式停止。
+
+## 6. curl 是客户端，不是另一个服务器
+
+打开终端 B，也进入实验根目录。终端 A 不动。执行：
+
+```bash
+curl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt'
+```
+
+curl 建立连接、发出请求、读取响应，然后退出。`--noproxy '*'` 让本实验不经过代理；引号让星号原样传给 curl，不被 shell 展开成文件名。`--max-time 3` 将这次传输的总等待限制为三秒。`--verbose` 显示连接诊断和收发的头部，诊断写到标准错误、正文写到标准输出，所以复制日志时顺序可能交错。[curl 手册](https://curl.se/docs/manpage.html)
+
+只看以下**关键行摘录**；真实日志还包含动态时间、文件大小、工具版本等头部，不能把这段当逐字快照：
+
+```text
+> GET /hello.txt HTTP/1.1
+> Host: 127.0.0.1:8765
+< HTTP/1.0 200 OK
+hello from the service
+```
+
+`>` 是 curl 标出的发送方向，`<` 是接收方向，不属于 HTTP 报文本身。服务工具默认以 HTTP/1.0 响应，这不表示你的请求没有发送成功，也不表示服务进程退出了。我们现在只观察一轮交互，HTTP 版本差异和连接复用不作为独立实现要求。
+
+立刻再执行一次。终端 A 出现第二条请求日志，终端 B 又得到正文。客户端第二次运行是另一个短命进程，服务仍是刚才那个持续运行的进程。**A 的日志证明有请求到达，B 的响应证明有结果返回；只看到启动横幅不证明路径正确。**
+
+## 7. 画出路径，而不是把 URL 当成本机文件路径
+
+```text
+terminal B: curl (client)
+    -> TCP 127.0.0.1:8765
+    -> terminal A: Python process listening on that address
+    -> HTTP GET /hello.txt
+    -> serving directory public -> public/hello.txt
+    <- HTTP status + headers + body
+client exits; server waits for another request
+```
+
+映射到文件是本次工具的行为，不是 HTTP 的强制规定。后面的 `/projects/7/tasks/41` 可以标识由业务逻辑组成的资源，磁盘上不必有同名目录或文件。请求路径和工作目录是不同层次：前者由客户端发送，后者由进程启动环境决定。
+
+下面 URL 的请求目标包含路径和查询，`#client-note` 是客户端 fragment，不发送给 HTTP 服务。标准库文件工具忽略查询的业务含义，所以不会寻找名为 `hello.txt?attempt=2` 的文件；未来 API 才会按契约解释查询参数。[URL 结构](https://url.spec.whatwg.org/)、[Python 路径处理说明](https://docs.python.org/3.13/library/http.server.html#http.server.SimpleHTTPRequestHandler)
+
+```bash
+curl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt?attempt=2#client-note'
+```
+
+```text
+> GET /hello.txt?attempt=2 HTTP/1.1
+hello from the service
+```
+
+这同样是关键行摘录。查询不是本章新建的数据状态；再刷新不会增加一个任务。
+
+## 8. 三种失败，发生在三层不同的位置
+
+先在终端 B 请求不存在的路径，再请求成功路径：
+
+```bash
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/not-here.txt'
+echo $?
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/hello.txt'
+```
+
+`--include` 把响应头连同正文显示出来，不显示 `--verbose` 那种完整连接诊断。第一条得到 HTTP 404 和 HTML 错误页，第二条仍是 200。默认 curl 收到了完整的 HTTP 错误响应也可退出为零；HTTP 状态和命令退出状态不能互相替代。
+
+现在回到终端 A 按 **Ctrl+C**。这是发给当前前台程序的中断请求，标准库工具退出，A 的提示符回来。再在 B 请求原 URL：
+
+```bash
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/hello.txt'
+echo $?
+```
+
+在本章无人接管端口的实测条件下，curl 连接失败并退出 `7`，没有 HTTP 状态或正文；若本机安全工具阻断，可能超时，不能硬把所有网络失败写成 404。若得到成功响应，先怀疑另一个进程正在监听，不要据此乱停程序。
+
+| 现象 | 发生阶段 | 应检查与恢复 |
+| --- | --- | --- |
+| 启动报端口占用，提示符马上回来 | 服务获取监听入口失败 | 确认自己的实例；不能确认就选另一端口 |
+| 收到 HTTP 404，A 有请求日志 | 连接与 HTTP 已完成，资源未找到 | 核对路径、`pwd`、公开目录；不是重装 Python |
+| 连接被拒绝，没有 HTTP 响应 | 请求尚未到达 HTTP 处理 | 确认地址、端口、自己的服务是否仍运行 |
+
+恢复时先在 A 重跑第 5 节命令，再在 B 验证成功路径。不要用 `&` 把初学实验随手放到后台，更不要把“关闭一个终端窗口一定做了正确清理”当成跨环境保证。
+
+## 9. Python 也能当客户端：释放连接不等于停服
+
+<Code language="python">{getServiceProcessExample('client.py')}</Code>
+
+这个文件仍然不是服务端。`HTTPConnection` 指明要连接的地址与端口；`request` 发送 GET；`getresponse` 读取状态与头部；`read` 读取正文的字节；已知本实验文件是 UTF-8，才进行解码。`finally` 关闭本次客户端连接，作用范围没有扩大到另一个进程。超时是客户端避免无限等待的限制，不会自动取消服务端已经发生的业务变化。[客户端文档](https://docs.python.org/3.13/library/http.client.html)
+
+本文件硬编码 loopback，只接收端口与路径，不接收任意外部 URL。它也不是通用下载器：没有重试、流式大文件或复杂编码处理。HTTP 错误保留实际状态，连接异常单独输出；退出码 `2` 是这个脚本自己的约定，不是所有 Python 客户端的惯例。
+
+```bash
+uv run --locked python client.py 8765 /hello.txt
+uv run --locked python client.py 8765 /not-here.txt
+echo $?
+```
+
+```text
+status=200
+hello from the service
+```
+
+上面的正文仅对应第一条命令。第二条打印 `status=404` 和 HTML 错误页，最后退出码是 `2`。它没有关闭 A 的服务。
+
+## 10. 可信边界：你写的前端并不拥有全部请求
+
+浏览器表单限制标题长度，可以即时帮助用户；但 curl 或另一份脚本根本不经过那个表单。服务端必须验证输入、确定真实身份、校验对象权限，并只输出允许公开的信息。不能相信请求里的 `creator_id` 或 `role`，也不能因为请求来自本机就把它等同于已认证的用户。这是我们进入 HTTP 契约之前必须建立的责任边界。
+
+分工不是“前端所有校验都删掉”：前端负责体验，服务端负责不能被客户端绕过的规则，存储层后续负责自己的持久化约束。不同层可能检查同一件事，但提供的保证不同。此时还没有数据库，也没有身份验证；不要把静态 `hello.txt` 的成功访问称为安全后端。
+
+**解释题：** B 请求完文件并退出，为什么 A 不退出？B 收到 404 时，能证明哪些层已工作？如果把标题输入框改成只读，能否阻止另一个客户端修改任务？先写出理由再展开。
+
+<details>
+<summary>解释题答案：分别讨论生命周期与信任来源</summary>
+
+B 只结束自身的一次客户端运行；A 还持有监听资源并等待后续连接。404 证明某个 HTTP 服务接收并回应了请求，不证明它是你预期的实例，也不证明资源存在；应联合地址、端口和 A 的日志确认。只读输入框只约束这份 UI，不能约束其他请求生成者。将来服务端必须独立拒绝未经许可的修改，本章没有实现那个权限系统。
+
+</details>
+
+## 11. 引导实验：错误目录能否与正常启动同时出现？
+
+先停止你自己的 A。保持实验根目录不变，把公开目录改为已有的 `solutions/public`，端口仍用 `8765`；请求 `/hello.txt`，再请求 `/health.txt`。提示：不要修改客户端主机，也不要为得到 200 而公开整个工程。预测启动是否成功、两次状态分别是什么。
+
+<details>
+<summary>引导实验答案：工作目录与公开目录不是同一个概念</summary>
+
+```bash
+uv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory solutions/public
+```
+
+另一个终端仍在实验根目录：
+
+```bash
+uv run --locked python client.py 8765 /hello.txt
+uv run --locked python client.py 8765 /health.txt
+```
+
+服务正常启动，但第一条得到 404，第二条得到 200 与 `ready`。进程工作目录未变，显式公开根目录变了，路径映射也随之变化。按 Ctrl+C 停止自己的变式实例，再用 `--directory public` 恢复原实验。这是路径定位练习，不是用换目录来实现权限系统。
+
+</details>
+
+## 12. 自动验证的用途与它不替你证明的事
+
+<Code language="python">{getServiceProcessExample('observe.py')}</Code>
+
+```bash
+uv run --locked python observe.py
+uv run --locked python -m pytest -q
+```
+
+```text
+200 hello from the service
+404 missing
+200 hello from the service
+request_done_process_alive=True
+process_stopped=True
+```
+
+标准套件 **13 个测试**。`observe.py` 使用 `tools/owned_server.py`，让标准库 CLI 以端口 `0` 启动；这里的 `0` 请操作系统分配空闲端口，客户端使用启动日志里的实际端口，不能拿 `0` 当浏览器访问端口。工具记录自己创建的子进程，超时有界，退出时只对这个子进程清理，不扫描或杀死其他监听者。
+
+<Code language="python">{getServiceProcessExample('tests/test_service_process.py')}</Code>
+
+测试包含连续请求、404 后仍可用、查询与文件名区别、HEAD 空正文、工程文件未公开、端口冲突、错误目录、异常清理与自己子进程的中断。进程 API 属于**维护者测试工具**，不是 H01 必须独立重建的服务器知识；需要审阅时看 [subprocess 文档](https://docs.python.org/3.13/library/subprocess.html)。工具不会重新实现 HTTP。
+
+自动测试没有证明任意机器的防火墙、外部网络、生产负载与恶意请求都安全；一次存活检查也不等于完整健康检查。它证明的是本实验明确列出的可观察行为。
+
+## 13. 独立变式：换一个公开目录，保留完整证据链
+
+不看下面答案，创建仅含自写 `health.txt` 与 `note.txt` 的教学目录。使用另一个未占用端口 `8766`，完成健康文件成功、缺失路径失败、说明文件成功三轮请求。记录请求路径如何落到文件、失败后进程是否仍在、怎样只停止自己的实例。不要复制一个 `while True` 假装服务，也不要在新目录放符号链接或真实数据。
+
+验收还需要反证：旧目录的 `/hello.txt` 不应因为你以前请求过就自动出现在新目录。完成后可以对照提供的独立参考文件与测试；若你更改了正文，自己的断言也应使用自己选定的正文。
+
+<details>
+<summary>独立变式参考答案与两项验证</summary>
+
+<Code language="text">{getServiceProcessExample('solutions/public/health.txt')}</Code>
+
+<Code language="text">{getServiceProcessExample('solutions/public/note.txt')}</Code>
+
+```bash
+uv run --locked python -m http.server 8766 --bind 127.0.0.1 --directory solutions/public
+```
+
+另一个终端：
+
+```bash
+uv run --locked python client.py 8766 /health.txt
+uv run --locked python client.py 8766 /not-here.txt
+uv run --locked python client.py 8766 /note.txt
+uv run --locked python client.py 8766 /hello.txt
+```
+
+依次为 200、404、200、404；成功正文分别是 `ready`、`a separate serving directory`。最后只在启动它的终端按 Ctrl+C。以下自动参考采用随机空闲 loopback 端口，不依赖你仍保留手动实例：
+
+<Code language="python">{getServiceProcessExample('solutions/observe_health.py')}</Code>
+
+<Code language="python">{getServiceProcessExample('solutions/test_health.py')}</Code>
+
+```bash
+uv run --locked python -m solutions.observe_health
+uv run --locked python -m pytest -q solutions/test_health.py
+```
+
+两项参考测试证明新目录两份文件可访问、原文件不自动共享、退出后自己的进程已结束。不要把自动参考的通过替代自己画路径和定位失败。
+
+</details>
+
+## 14. 暂停、恢复和本章的终点
+
+暂停前记录：当前实验目录、公开目录、地址与端口、服务所在终端、最后一条成功命令、最后一次失败在哪一层、标准测试与变式测试结果、下次第一步。若会离开电脑，先停止自己启动的服务，不留下不明后台实例。
+
+恢复时按顺序：确认 CPython 版本与工作目录；运行 `observe.py` 检查独立实验；在 A 前台启动手动服务；在 B 重做成功、失败、成功；核对日志后停止。若端口占用，不从笔记中随意拷贝一个旧 PID 去杀进程，PID 可能已经属于别的程序。
+
+验收不是“看到一次 200”：你必须能不用框架术语解释进程为什么仍在、路径由谁解释、失败属于哪一层、哪些输入不可信，以及谁拥有停止权。下一章 H02 才把这些交互写成完整 API 契约，H03 才实现第一个同步 FastAPI 服务。
+
+## 15. 一手资料与验证范围
+
+2026-09-28 核对：[Python 3.13 http.server](https://docs.python.org/3.13/library/http.server.html)、[http.client](https://docs.python.org/3.13/library/http.client.html)、[subprocess](https://docs.python.org/3.13/library/subprocess.html)、[curl 官方手册](https://curl.se/docs/manpage.html)、[RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)、[IANA loopback 登记](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml)、[WHATWG URL Standard](https://url.spec.whatwg.org/)。
+
+已验证的是本机 loopback 上的成功、失败、独立变式与自有子进程清理。没有验证公网部署、浏览器跨源策略、TLS、数据库或持久化；标准库静态服务的官方定位也不是生产应用服务器。下载与网页展示由同一份显式文件清单衔接，不包含虚拟环境、缓存、临时日志或凭证。

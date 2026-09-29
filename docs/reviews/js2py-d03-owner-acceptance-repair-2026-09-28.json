@@ -1,0 +1,716 @@
+{
+  "schema_version": 1,
+  "started_at": "2026-09-28T14:25:30.774012+08:00",
+  "status": "passed",
+  "workspace": "/Users/mikmyp/Documents/code-projects/langshift.dev",
+  "validation_directory": "/private/tmp/langshift-d03-owner-ed_5t1s4",
+  "clean_copy": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+  "scope": {
+    "only_workspace_file_modified": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_transactions.py",
+    "change": "Append three independent-observer success assertions; preserve the entire original test file as a byte-identical prefix.",
+    "not_modified": [
+      "MDX",
+      "shared runner",
+      "manifest/allowlist",
+      "reference implementation",
+      "other chapters"
+    ],
+    "typesafe_calls": 0,
+    "no_other_agent_or_user_processes_reused": true
+  },
+  "environment": {
+    "PG_BIN": "/opt/homebrew/bin",
+    "PGHOST": "/nonexistent/langshift-test-ignore-environment",
+    "DATABASE_URL": "deliberately-invalid-ignored-database-url",
+    "uv_path": "/Users/mikmyp/.local/bin/uv",
+    "UV_PYTHON_INSTALL_DIR": "/tmp/langshift-js2py-python-20260928",
+    "UV_CACHE_DIR": "/tmp/langshift-js2py-uv-cache-20260928",
+    "inherited_PG_names_removed_before_explicit_overrides": [
+      "PGDATABASE",
+      "PGUSER"
+    ],
+    "policy": "Strip inherited PG*/PYTHON*/UV_* settings, DATABASE_URL and VIRTUAL_ENV; use explicit private-lab configuration. Never use a workspace .lab-state.json."
+  },
+  "source_hashes": {
+    "test_before_sha256": "5e1df7aa806cde39f68b76845e9be9aab5b85984ce052b4ddb4cd61a282d1c19",
+    "test_after_sha256": "2ae6d63c07cb50c88b754c136e88852e16302eb671a23ea1c1921ef4fc300c42",
+    "reference_variant_sha256": "b955ea2d04cae65fb902fa21db9d36db54313cc000fde45d7984bfe42d78bd77",
+    "omitted_owner_mutant_sha256": "412f10847d2fe4356252e66afbd538b21fe54146992d11d6881de3a0cda0242c",
+    "all_allowlisted_D03_sources_and_parent_manifest_after": {
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/.env.example": "8eb54486aa6dec73fb05000dc8cf9d5a46914582dee6b6a2d85b0d6059bf5205",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/.gitignore": "3f9c24dea3df4c5658c720107bec6ec85423e9a0e4b6a5e05aa32d51ca4c50c2",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/FILES.json": "04b0f92857bb674585a55bad3a43b69d7282a52c25bfebf5984ca7e896644f6b",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/README.md": "42b5cda997b3174f9f0d2455574a4a226190a48087b243ca83c36a4e360bf89d",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/README.zh-cn.md": "f2c69210673c5f9d30c9b3b27442ee18fc482dd674e82ec4eb07545612fa1701",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/README.zh-tw.md": "90fe0d2f93f7c8eaa6a0e01ed65d4bbf7f7e10616cc03862de2daf9204bb87b3",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/answers/variant.py": "b955ea2d04cae65fb902fa21db9d36db54313cc000fde45d7984bfe42d78bd77",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/concurrency.py": "c3d2c4908be8abf4736924560804fbb36de3731c345cb805d4ceb9ea1a2a3c48",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/conftest.py": "8f6c80af8608050eb70c6618e282e78594424c9a8942e13782a0375914507544",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/demo.py": "9e039d59dcfcc87277eb8382e6239f57be8c298453e60f3324ca3b756885579a",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/labctl.py": "01ce56eacb3d72b1d4e2122fdc84a5b25435a84164457ffcfa64d33d7437a74b",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/model-contract.json": "f378479040c0dd24ec51f83581078099a66809b0e60803fc6e54353617b84bb9",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/pyproject.toml": "12f857086674c04ab188353fe565c8b1002eb74635d5049d6377f0ebc24a67f2",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sources.json": "0532947244ca2b10c477d41e1a4d47b0beca77b0f1093965509a906e19b35243",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sql/failed_transaction.sql": "ae1bd92c7943e978ca84a2541122c767fae3791ec532d75064735073fcfa0a20",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sql/schema.sql": "b94f3559f7b0da1e1897c148176b154b9a1ed557f69182a39eb2933c91f97310",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sql/seed.sql": "cb9a10e67537c16f72ffaacb318a6b9ab69266d368fdbe5c2d46c04315f331d4",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_environment.py": "28315d3663c52609e793a8fb14c6248ea953cd96ecaefeee3427839fef03cf59",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_transactions.py": "2ae6d63c07cb50c88b754c136e88852e16302eb671a23ea1c1921ef4fc300c42",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/transactions.py": "65e6419583ee575de7d0734abb6880b772b386c5a08b9e89239537c01ee2981b",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/uv.lock": "71e3100dd6d38b04aafa2c731e5fd896edeb46d33f61fbc21d8ce620f7734673",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions-files.json": "04b0f92857bb674585a55bad3a43b69d7282a52c25bfebf5984ca7e896644f6b"
+    }
+  },
+  "mutation": {
+    "location": "temporary copy only: answers/variant.py",
+    "change": "Remove exactly the project_members INSERT; keep both project and task INSERTs unchanged.",
+    "diff": "--- reference/answers/variant.py\n+++ mutant/answers/variant.py\n@@ -3,10 +3,6 @@\n         \"INSERT INTO projects(name, created_by) VALUES (%s,%s) RETURNING id\",\n         (name, creator_id),\n     ).fetchone()[0]\n-    conn.execute(\n-        \"INSERT INTO project_members(project_id,user_id,role) VALUES (%s,%s,'owner')\",\n-        (project_id, creator_id),\n-    )\n     task_id = conn.execute(\n         \"INSERT INTO tasks(project_id,created_by,title) VALUES (%s,%s,%s) RETURNING id\",\n         (project_id, creator_id, title),\n",
+    "same_mutant_used_before_and_after_fix": true
+  },
+  "fix_diff": "--- /Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_transactions.py\n+++ /Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_transactions.py\n@@ -95,3 +95,13 @@\n         project_id, task_id = create_project_with_task(conn, \"Three steps\", 1, \"First task\")\n     with labctl.connect(autocommit=True) as observer:\n         assert observer.execute(\"SELECT project_id FROM tasks WHERE id=%s\", (task_id,)).fetchone() == (project_id,)\n+        assert observer.execute(\n+            \"SELECT name, created_by FROM projects WHERE id=%s\", (project_id,),\n+        ).fetchone() == (\"Three steps\", 1)\n+        assert observer.execute(\n+            \"SELECT user_id, role FROM project_members WHERE project_id=%s ORDER BY user_id\",\n+            (project_id,),\n+        ).fetchall() == [(1, \"owner\")]\n+        assert observer.execute(\n+            \"SELECT project_id, created_by, title FROM tasks WHERE id=%s\", (task_id,),\n+        ).fetchone() == (project_id, 1, \"First task\")\n",
+  "test_counts": {
+    "before": 63,
+    "after": 63,
+    "business": 13,
+    "environment": 50,
+    "new_test_functions": 0
+  },
+  "stages": {
+    "old_target_mutant": {
+      "returncode": 0,
+      "result": "1 passed; omission escaped old target",
+      "junit": {
+        "path": "/private/tmp/langshift-d03-owner-ed_5t1s4/old-test-mutant.xml",
+        "sha256": "d134d4f378e73d114355f80084b1594693c13ef59796659bea9f661880e7a2a5",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failure_messages": [],
+        "cases": [
+          {
+            "name": "test_three_step_independent_variation",
+            "classname": "tests.test_transactions",
+            "failed": false
+          }
+        ]
+      },
+      "source_was_unmodified_when_run": true
+    },
+    "fixed_target_mutant": {
+      "returncode": 1,
+      "result": "1 failed at the new membership assertion: [] != [(1, 'owner')]",
+      "junit": {
+        "path": "/private/tmp/langshift-d03-owner-ed_5t1s4/fixed-test-mutant.xml",
+        "sha256": "5cfcb55e24101f3d351ed31c747a34aba6310675fb7a4c3e667916e706f304e3",
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "failure_messages": [
+          "AssertionError: assert [] == [(1, 'owner')]\n  \n  Right contains one more item: (1, 'owner')\n  Use -v to get more diff"
+        ],
+        "cases": [
+          {
+            "name": "test_three_step_independent_variation",
+            "classname": "tests.test_transactions",
+            "failed": true
+          }
+        ]
+      }
+    },
+    "fixed_target_reference": {
+      "returncode": 0,
+      "result": "1 passed",
+      "junit": {
+        "path": "/private/tmp/langshift-d03-owner-ed_5t1s4/fixed-test-reference.xml",
+        "sha256": "ae31b2297505edc6fc59fbc85b62ddc06a32b7d149ab606b5fc7cf00f574a18a",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failure_messages": [],
+        "cases": [
+          {
+            "name": "test_three_step_independent_variation",
+            "classname": "tests.test_transactions",
+            "failed": false
+          }
+        ]
+      }
+    },
+    "full_correct_reference": {
+      "returncode": 0,
+      "result": "63 passed (13 business + 50 environment)",
+      "junit": {
+        "path": "/private/tmp/langshift-d03-owner-ed_5t1s4/fixed-reference-full-suite.xml",
+        "sha256": "0258e60c03a9835a82d2bd755fbb8d62ff55277833c769b75a97ee3b1f7dfb23",
+        "tests": 63,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failure_messages": [],
+        "cases": [
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGHOSTADDR]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGSERVICE]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGSERVICEFILE]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGSYSCONFDIR]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGPASSFILE]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGPASSWORD]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGUSER]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGDATABASE]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGPORT]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGOPTIONS]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGCONNECT_TIMEOUT]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGAPPNAME]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGCLIENTENCODING]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGSSLMODE]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGSSLKEY]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGSSLCERT]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGSSLROOTCERT]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGREQUIRESSL]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGREQUIREAUTH]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGGSSENCMODE]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGTARGETSESSIONATTRS]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGLOADBALANCEHOSTS]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PGDATA]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_reject_before_state_sql_or_subprocess[PG_FUTURE_DEFAULT]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_empty_setting_is_still_rejected",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_error_lists_only_sorted_names",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_all_sql_entries_reject_before_work[start]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_all_sql_entries_reject_before_work[reset]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_all_sql_entries_reject_before_work[raw_dsn]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_all_sql_entries_reject_before_work[verify_server]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_all_sql_entries_reject_before_work[cli-start]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_all_sql_entries_reject_before_work[cli-dsn]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_all_sql_entries_reject_before_work[cli-reset]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_all_sql_entries_reject_before_work[cli-psql]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_run_removes_all_pg_defaults_without_mutating_parent",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_psql_has_clean_environment_explicit_passfile_and_no_prompt",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_both_dsns_use_private_empty_passfile",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_unsafe_passfile_is_refused_before_psycopg[symlink]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_unsafe_passfile_is_refused_before_psycopg[nonempty]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_unsafe_passfile_is_refused_before_psycopg[wide-mode]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_unsafe_passfile_is_refused_before_psycopg[directory]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_unsafe_passfile_is_refused_before_psycopg[fifo]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_direct_cli_rejects_poison_without_contacting_listener[start]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_direct_cli_rejects_poison_without_contacting_listener[dsn]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_direct_cli_rejects_poison_without_contacting_listener[reset]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_direct_cli_rejects_poison_without_contacting_listener[psql]",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_fresh_standalone_start_rejects_before_creating_state",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_ignored_host_url_and_default_pgpass_with_real_private_connections",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_poisoned_status_stop_and_restart_recovery",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_stop_keeps_identity_failure_as_a_hard_boundary",
+            "classname": "tests.test_environment",
+            "failed": false
+          },
+          {
+            "name": "test_second_step_has_no_residue",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_commit_visibility_and_close",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_aborted_transaction_needs_rollback",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_close_does_not_commit",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_success_and_identity_gap",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_snapshot_boundary[2-expected0]",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_snapshot_boundary[3-expected1]",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_actual_lost_update",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_overlapping_atomic_updates_wait_then_add",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_unique_constraint_arbitrates_two_connections",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_row_lock_timeout_recovers",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_serialization_conflict_and_full_retry",
+            "classname": "tests.test_transactions",
+            "failed": false
+          },
+          {
+            "name": "test_three_step_independent_variation",
+            "classname": "tests.test_transactions",
+            "failed": false
+          }
+        ]
+      }
+    }
+  },
+  "cleanup": {
+    "postmaster_pid_before_stop": 85070,
+    "stop_returncode": 0,
+    "status_returncode": 0,
+    "final_status": {
+      "root": "/private/tmp/lsdb-_cltxd4z",
+      "running": false,
+      "pg_ctl_status": 3
+    },
+    "postmaster_pidfile_absent": true,
+    "private_socket_absent": true,
+    "server_log_path": "/private/tmp/lsdb-_cltxd4z/server.log",
+    "server_log_last_line": "2026-09-28 14:25:41.144 CST [85070] LOG:  database system is shut down",
+    "state_and_ownership_marker_retained": true,
+    "all_resources_created_by_this_run_stopped": true,
+    "files_retained_for_audit": true,
+    "environment_suite_owned_loopback_listeners": "If the full suite completed successfully, its seven loopback-listener fixtures passed and closed their sockets; no listener was separately started by this script."
+  },
+  "commands": [
+    {
+      "label": "uv_version",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "--version"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": "uv 0.12.13 (0ebbd9274 2026-09-10 aarch64-apple-darwin)\n",
+      "stderr": "",
+      "duration_seconds": 0.024
+    },
+    {
+      "label": "postgres_version",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/opt/homebrew/bin/postgres",
+        "--version"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": "postgres (PostgreSQL) 18.6 (Homebrew)\n",
+      "stderr": "",
+      "duration_seconds": 0.011
+    },
+    {
+      "label": "sync_locked",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "sync",
+        "--locked"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": "",
+      "stderr": "Using CPython 3.13.15\nCreating virtual environment at: .venv\nResolved 10 packages in 9ms\nInstalled 7 packages in 11ms\n + iniconfig==2.3.0\n + packaging==26.3\n + pluggy==1.6.0\n + psycopg==3.3.6\n + psycopg-binary==3.3.6\n + pygments==2.21.0\n + pytest==8.4.2\n",
+      "duration_seconds": 0.053
+    },
+    {
+      "label": "python_version",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "--version"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": "Python 3.13.15\n",
+      "stderr": "",
+      "duration_seconds": 0.075
+    },
+    {
+      "label": "start_new_owned_cluster",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "start"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": "owned cluster ready: PostgreSQL 18.6; TCP disabled\nroot=/private/tmp/lsdb-_cltxd4z\n",
+      "stderr": "",
+      "duration_seconds": 6.053
+    },
+    {
+      "label": "initial_status",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "status"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": "{\"root\": \"/private/tmp/lsdb-_cltxd4z\", \"running\": true, \"pg_ctl_status\": 0}\n",
+      "stderr": "",
+      "duration_seconds": 0.112
+    },
+    {
+      "label": "old_target_allows_omitted_owner_mutant",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q",
+        "tests/test_transactions.py::test_three_step_independent_variation",
+        "--junitxml=/private/tmp/langshift-d03-owner-ed_5t1s4/old-test-mutant.xml"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": ".                                                                        [100%]\n- generated xml file: /private/tmp/langshift-d03-owner-ed_5t1s4/old-test-mutant.xml -\n1 passed in 0.04s\n",
+      "stderr": "",
+      "duration_seconds": 0.729
+    },
+    {
+      "label": "fixed_target_rejects_same_omitted_owner_mutant",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q",
+        "tests/test_transactions.py::test_three_step_independent_variation",
+        "--junitxml=/private/tmp/langshift-d03-owner-ed_5t1s4/fixed-test-mutant.xml"
+      ],
+      "returncode": 1,
+      "expected_returncode": 1,
+      "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________________ test_three_step_independent_variation _____________________\n\n    def test_three_step_independent_variation():\n        with pytest.raises(errors.CheckViolation):\n            with labctl.connect() as conn:\n                create_project_with_task(conn, \"Three steps\", 1, \"   \")\n        with labctl.connect(autocommit=True) as observer:\n            assert observer.execute(\"SELECT count(*) FROM projects WHERE name='Three steps'\").fetchone() == (0,)\n            assert observer.execute(\"SELECT count(*) FROM project_members\").fetchone() == (4,)\n            assert observer.execute(\"SELECT count(*) FROM tasks\").fetchone() == (5,)\n        with labctl.connect() as conn:\n            project_id, task_id = create_project_with_task(conn, \"Three steps\", 1, \"First task\")\n        with labctl.connect(autocommit=True) as observer:\n            assert observer.execute(\"SELECT project_id FROM tasks WHERE id=%s\", (task_id,)).fetchone() == (project_id,)\n            assert observer.execute(\n                \"SELECT name, created_by FROM projects WHERE id=%s\", (project_id,),\n            ).fetchone() == (\"Three steps\", 1)\n>           assert observer.execute(\n                \"SELECT user_id, role FROM project_members WHERE project_id=%s ORDER BY user_id\",\n                (project_id,),\n            ).fetchall() == [(1, \"owner\")]\nE           AssertionError: assert [] == [(1, 'owner')]\nE             \nE             Right contains one more item: (1, 'owner')\nE             Use -v to get more diff\n\ntests/test_transactions.py:101: AssertionError\n- generated xml file: /private/tmp/langshift-d03-owner-ed_5t1s4/fixed-test-mutant.xml -\n=========================== short test summary info ============================\nFAILED tests/test_transactions.py::test_three_step_independent_variation - As...\n1 failed in 0.05s\n",
+      "stderr": "",
+      "duration_seconds": 0.241
+    },
+    {
+      "label": "fixed_target_accepts_correct_reference",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q",
+        "tests/test_transactions.py::test_three_step_independent_variation",
+        "--junitxml=/private/tmp/langshift-d03-owner-ed_5t1s4/fixed-test-reference.xml"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": ".                                                                        [100%]\n- generated xml file: /private/tmp/langshift-d03-owner-ed_5t1s4/fixed-test-reference.xml -\n1 passed in 0.04s\n",
+      "stderr": "",
+      "duration_seconds": 0.221
+    },
+    {
+      "label": "fixed_correct_reference_full_suite",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q",
+        "--junitxml=/private/tmp/langshift-d03-owner-ed_5t1s4/fixed-reference-full-suite.xml"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": "...............................................................          [100%]\n- generated xml file: /private/tmp/langshift-d03-owner-ed_5t1s4/fixed-reference-full-suite.xml -\n63 passed in 2.46s\n",
+      "stderr": "",
+      "duration_seconds": 2.651
+    },
+    {
+      "label": "final_stop_owned_cluster",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "stop"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": "waiting for server to shut down.... done\nserver stopped\nowned cluster stopped; pg_ctl status=3; files retained\n",
+      "stderr": "",
+      "duration_seconds": 0.305
+    },
+    {
+      "label": "final_status_owned_cluster",
+      "cwd": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "status"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": "{\"root\": \"/private/tmp/lsdb-_cltxd4z\", \"running\": false, \"pg_ctl_status\": 3}\n",
+      "stderr": "",
+      "duration_seconds": 0.109
+    }
+  ],
+  "owned_cluster": {
+    "root": "/private/tmp/lsdb-_cltxd4z",
+    "lab": "/private/tmp/langshift-d03-owner-ed_5t1s4/d03-transactions",
+    "port": 49728,
+    "pg_bin": "/opt/homebrew/bin",
+    "system_identifier": "7690468523897879498",
+    "initial_postmaster_pid": 84951,
+    "private_root_mode": "0o700",
+    "tcp_disabled": true
+  },
+  "functional_verification_passed": true,
+  "workspace_changes": [
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_transactions.py",
+      "before_sha256": "5e1df7aa806cde39f68b76845e9be9aab5b85984ce052b4ddb4cd61a282d1c19",
+      "after_sha256": "2ae6d63c07cb50c88b754c136e88852e16302eb671a23ea1c1921ef4fc300c42"
+    }
+  ],
+  "original_failure_assertions_preserved_verbatim": true,
+  "current_correct_reference_restored_in_copy": true,
+  "tested_copy_matches_current_allowlisted_workspace_sources": true,
+  "artifacts": {
+    "evidence_directory": "/private/tmp/langshift-d03-owner-ed_5t1s4/evidence",
+    "command_log": "/private/tmp/langshift-d03-owner-ed_5t1s4/commands.json",
+    "validation_script": "/tmp/langshift-d03-owner-acceptance-validate.py"
+  },
+  "completed_at": "2026-09-28T14:25:41.368945+08:00"
+}

@@ -1,0 +1,96 @@
+{
+  "date": "2026-09-24",
+  "route": "/[locale]/docs/js2py/module-07-data-automation",
+  "results": [
+    {
+      "locale": "zh-cn",
+      "title": "文件、JSON 与资源使用",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "details_initially_closed": 3,
+      "details_clicked_and_open": 3,
+      "sources_exact": 32,
+      "python_sources_exact": 31,
+      "unicode_data_literals_preserved": true,
+      "page_horizontal_overflow": false,
+      "code_colors": [
+        "rgb(201, 209, 217)"
+      ],
+      "zip_bytes": 17466,
+      "zip_sha256": "a35f9317a92cd92991996c1dc9b58f14cf6add6585e89bd65994a8dd082a816b",
+      "screenshots": [
+        "zh-cn-top.png",
+        "zh-cn-resources.png",
+        "zh-cn-answer.png"
+      ]
+    },
+    {
+      "locale": "en",
+      "title": "Files, JSON and Resource Use",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "details_initially_closed": 3,
+      "details_clicked_and_open": 3,
+      "sources_exact": 32,
+      "python_sources_exact": 31,
+      "unicode_data_literals_preserved": true,
+      "page_horizontal_overflow": false,
+      "code_colors": [
+        "rgb(201, 209, 217)"
+      ],
+      "zip_bytes": 17466,
+      "zip_sha256": "a35f9317a92cd92991996c1dc9b58f14cf6add6585e89bd65994a8dd082a816b",
+      "screenshots": [
+        "en-top.png",
+        "en-resources.png",
+        "en-answer.png"
+      ]
+    },
+    {
+      "locale": "zh-tw",
+      "title": "文件、JSON 與資源使用",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "details_initially_closed": 3,
+      "details_clicked_and_open": 3,
+      "sources_exact": 32,
+      "python_sources_exact": 31,
+      "unicode_data_literals_preserved": true,
+      "page_horizontal_overflow": false,
+      "code_colors": [
+        "rgb(201, 209, 217)"
+      ],
+      "zip_bytes": 17466,
+      "zip_sha256": "a35f9317a92cd92991996c1dc9b58f14cf6add6585e89bd65994a8dd082a816b",
+      "screenshots": [
+        "zh-tw-top.png",
+        "zh-tw-resources.png",
+        "zh-tw-answer.png"
+      ]
+    }
+  ],
+  "screenshots_actually_viewed": 9,
+  "screenshot_directory": "/tmp/langshift-l07-work",
+  "screenshot_sha256": {
+    "zh-cn-top.png": "7d8e54042bfd6992ad04e2a27e87256e5979e682ff7001c981d00145dae296cb",
+    "zh-cn-resources.png": "64a5548f0a896e7c64e413c9686756788d02e49e5074f942da70b362241b8989",
+    "zh-cn-answer.png": "a83aa9819263429e38548d900be324c0fe13b0eeb71af39a02e1b9f9f63dd07c",
+    "en-top.png": "7e2353aac6d8277380ac561cc51a6a05059190f0cd279ab4a242ca9b31ffe5bd",
+    "en-resources.png": "508f32988874e843844a6f66f6c2f290ebfff5a280e48c8513344459acdf60d1",
+    "en-answer.png": "ad4f126c6cfbf356c5b21a031865ac938b13e468f9053c3f9ed593bdfc1098e3",
+    "zh-tw-top.png": "56c918151eebfcf54cabbfae1c8dcc4c5f4b2866c37abcfaacd5e4ca9a3e963b",
+    "zh-tw-resources.png": "bbc0809d67a7ddb9afae3f874fdb196bad079423f7a253d54b3eb054a024fb75",
+    "zh-tw-answer.png": "d4fcc179db4460d530f912dfc41b4a3f92c747889c7bfe4ea0bfb58fb2f80680"
+  },
+  "limitations": "1280x900 desktop viewport and named interactions only. Long code lines scroll within code blocks. Not mobile/all-site/zero-network-request certification.",
+  "maintainer_check_correction": "Initial browser assertion incorrectly expected False in a prose prediction answer. Actual opened text contained None and a JSON numeric-string example; corrected the check against observed content without modifying the lesson. All three locale runs subsequently passed."
+}

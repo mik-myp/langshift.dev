@@ -1,267 +1,801 @@
 ---
-title: "Python for Data Handling and Automation"
-description: "From a JavaScript developer's perspective, learn the powerful features of Python for file handling, regular expressions, and data analysis (Pandas)."
+title: "Files, JSON and Resource Use"
+description: "Move from in-memory data to small local files: paths, text and bytes, encoding, read/write modes, resource lifetime and JSON. Diagnose failures by layer, then independently build a task store that refuses to overwrite damaged input."
 ---
 
-## 1. Introduction
+import { getFileExample } from '@/lib/js2py-examples'
 
-### Python: The Swiss Army Knife for Data Processing
+## 1. A returned dictionary does not survive a restarted program
 
-While JavaScript (especially Node.js) is capable of handling files and executing scripts, Python has a more powerful and mature ecosystem for data processing, scientific computing, and automation tasks. For many developers, this is one of the main reasons to learn Python.
+L06 separated rules, summaries and entry points. The program still recreated its input on each run. A dictionary returned by a function exists in the current process; it is not automatically saved because it has a variable name or appears in the terminal.
 
-This module will show you how Python easily handles various data processing challenges, from simple file I/O to complex data analysis.
+Persistence means recording data somewhere it can be retrieved after the process ends. We will start with **small local files owned by this exercise**, not databases or a server. The goal is to explain every boundary between a Python value, text, encoded bytes, a filesystem path and an open resource.
 
-**Core Concept Analogy**
+### Chapter contract
 
-| Python | JavaScript | Main Function |
+| Item | Agreement |
+| --- | --- |
+| Prerequisites | L00–L06: values/containers, functions, control flow, exceptions, modules, working directories and entry points |
+| New capabilities | Paths, text/bytes and UTF-8, file modes/cursors, `with` and closing, JSON serialization, data validation and layered failure handling |
+| Independent acceptance | Save tasks, load them in a new process, refuse malformed data without overwriting it, and explain when acquired files close |
+| Not required | Custom context-manager implementation, databases, async I/O, atomic-save protocols, dependency projects, pytest, Pandas or FastAPI |
+
+Download [L07 source files, fixtures and answers](/learning-assets/js2py/u07-files.zip). Extract and open `u07-files` in your editor and terminal. Use the [L00 environment](/en/docs/js2py/module-00-python-introduction): CPython 3.13, with no third-party packages. The actual verification baseline is **3.13.15 on 2026-09-24**, not a claim about the newest release.
+
+```bash
+uv run --no-project --python 3.13 python paths.py
+```
+
+Unless `cd` is shown, run from the extracted lab root. There are **31 Python files and six data fixtures**; some files are helpers inside a package, not standalone entry points. Keep the directory structure. The examples run locally, not in a browser's temporary filesystem.
+
+### A deliberate boundary around writes
+
+- `fixtures/` contains known inputs, including deliberately malformed JSON and invalid UTF-8. Do not repair them in place: their failures are part of the lesson.
+- Generated files go only into explicitly named `_output/` directories inside this extracted lab or your own exercise. Treat those directories as disposable lab space; never put valuable files there.
+- Some demonstrations deliberately **replace or damage their own generated files**. Do not substitute a real document path. Make copies when experimenting.
+- Most demonstrations reset their own output. `create_once.py` intentionally behaves differently on its second run; the independent app also distinguishes a missing file from an existing one. We will state those conditions rather than promise every run has identical output.
+
+## 2. A path names a location; it is not an open file
+
+In L06, current directory and script directory could differ. File operations have the same distinction: a relative path is interpreted against the process's current working directory, not automatically against the source file containing it.
+
+We will use `Path` from the standard library. `Path("fixtures")` creates a path object; it does not create a directory or open anything. You have already called methods on lists and dictionaries. Here you use an existing library type and its methods; you do not need to implement a class.
+
+File: `paths.py`.
+
+<Code language="python">{getFileExample('paths.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python paths.py
+```
+
+Expected display below uses `<LAB>` for your real absolute extracted directory. It is a placeholder in output, not a command to type:
+
+```text
+Cwd: <LAB>
+Relative: fixtures/notes.txt
+Absolute: True
+Name: notes.txt
+Parent name: fixtures
+Target: <LAB>/fixtures/notes.txt
+```
+
+The operations have different responsibilities:
+
+1. `Path.cwd()` observes where the process is working.
+2. `/` joins path components when the left operand is a Path. It is not numeric division here. You do not manually concatenate platform separators.
+3. `Path(__file__).resolve().parent` starts from the current source file, resolves its absolute location and selects its containing directory. `resolve()` also resolves symbolic links; it is not a guarantee of existence, readability or security.
+4. `.name` is the final component's string; `.parent` is another path object. The object still does not hold the file's contents.
+
+An absolute right-hand component can replace the earlier path, rather than stay below it. Our programs use fixed, trusted components. **Path joining is not a sandbox for arbitrary user-supplied paths**; handling those belongs with the later server/security boundary.
+
+Change only the working directory, then run the same file:
+
+```bash
+cd fixtures
+uv run --no-project --python 3.13 python ../paths.py
+cd ..
+```
+
+Only `Cwd:` changes to `<LAB>/fixtures`; the anchored `Target:` stays the same. Paths use `/` in these macOS verification displays; your system may display separators differently. Anchoring beside the script is suitable for this writable local exercise, not a claim that installed application source directories are always writable places for production data.
+
+## 3. Read one complete file and see the resource boundary
+
+The UTF-8 fixture `fixtures/notes.txt` has two lines. Its second line has **two leading and two trailing spaces**, and both lines end with a newline. We will use `repr` to make invisible characters observable rather than silently trim them.
+
+File: `read_text.py`.
+
+<Code language="python">{getFileExample('read_text.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python read_text.py
+```
+
+```text
+Inside closed: False
+Text: 'Python 学习\n  keep spaces  \n'
+After closed: True
+```
+
+Read the expression `with path.open("r", encoding="utf-8") as stream:` as a sequence:
+
+1. `path.open(...)` asks the operating system to open that path for reading. If it fails, the indented block does not run.
+2. On successful entry, `stream` refers to a **file object** that tracks the open resource and its current read position. It is not the Path and not the text.
+3. `.read()` obtains text through that resource. The `encoding` setting tells the text stream how to decode stored bytes.
+4. Leaving this file's `with` block closes the resource, even on the ordinary exception and return paths we will examine. `.closed` lets us observe that state.
+
+`text` is an independent string already read into memory; closing the stream does not erase it or delete the file. The name `stream` still exists after the block, but its resource is closed. This is not JavaScript-style block-local name creation.
+
+`Path.open(...)` serves the same basic purpose as built-in `open(path, ...)`. We consistently use the former here to keep path handling visible. `with` is the resource-use construct; it is not an import, loop or exception handler that automatically turns failure into success.
+
+The path is anchored, so this also reads the same fixture:
+
+```bash
+cd fixtures
+uv run --no-project --python 3.13 python ../read_text.py
+cd ..
+```
+
+## 4. Reads move a cursor; iteration preserves the data you actually read
+
+File: `read_cursor.py`.
+
+<Code language="python">{getFileExample('read_cursor.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python read_cursor.py
+```
+
+```text
+First: 'Python'
+Rest: ' 学习\n  keep spaces  \n'
+At end: ''
+Reopened: 'Python'
+```
+
+`read(6)` reads up to six characters in this text stream and advances its position. A later `read()` continues from there; it does not start over. At end of file, an unrestricted read returns an empty string. Opening a new read stream starts a new cursor at the beginning. We do not need random-access positioning to understand sequential reading.
+
+Calling `.read()` without a limit can load the entire file. That is acceptable for these tiny fixtures, not an unlimited-memory strategy for uploads or logs. For sequential text, iterate over the file:
+
+<Code language="python">{getFileExample('read_lines.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python read_lines.py
+```
+
+```text
+1 'Python 学习\n'
+2 '  keep spaces  \n'
+```
+
+The loop uses the iterator behavior of the file; each iteration supplies a line. Line endings are generally included when present, and a final line need not have a newline. Do not assume every line is terminated merely because this fixture is.
+
+`.strip()` would remove the second line's meaningful spaces as well as its newline. It is a data transformation, not a compulsory step in reading a file. `print(line)` can also show extra blank lines because the line may already end with `\n` and print adds another. `repr` makes those mechanisms visible without changing the input.
+
+**Pause point A:** from a new terminal, predict the cursor experiment and read the fixture from two directories. Record which location remained fixed and which changed before continuing to writes.
+
+## 5. Text is not bytes, and encoding is not a cosmetic option
+
+A Python `str` represents Unicode text. A file stores bytes. Encoding maps text to bytes; decoding interprets bytes as text. These are not JSON operations. UTF-8 is the explicit agreement used by our files, so results do not depend on an implicit machine encoding.
+
+File: `encoding_bytes.py`.
+
+<Code language="python">{getFileExample('encoding_bytes.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python encoding_bytes.py
+```
+
+```text
+Text length: 2
+Byte length: 6
+Bytes: b'\xe5\xad\xa6\xe4\xb9\xa0'
+Decoded: 学习
+```
+
+These two Chinese characters each take three UTF-8 bytes. `b'...'` denotes a bytes value, not an ordinary text string with a decorative prefix. `len(str)` counts Unicode code points; complex visible symbols can contain more than one code point, so it is not a universal count of what a user perceives as characters. `len(bytes)` counts bytes.
+
+A text stream does the decoding for you. Binary mode returns bytes instead. File: `read_binary.py`.
+
+<Code language="python">{getFileExample('read_binary.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python read_binary.py
+```
+
+```text
+Is bytes: True
+Decoded: 'Python 学习\n  keep spaces  \n'
+```
+
+`"rb"` means read binary. Do not pass `encoding` to a binary open; decode separately when you actually know the format. Text writes expect str and binary writes expect bytes. This small comparison establishes the boundary; it is not a binary-file-format course.
+
+Now intentionally choose the wrong decoder in `error_wrong_encoding.py`:
+
+<Code language="python">{getFileExample('error_wrong_encoding.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python error_wrong_encoding.py
+```
+
+It prints `After error closed: True`, then exits with **UnicodeDecodeError**: ASCII cannot decode the fixture's Chinese bytes. Opening succeeded; decoding failed during read; leaving with still closed the file before the outer handler ran. This handler refers to `stream` only for that known post-open decode failure, not for every possible open error.
+
+Changing the declared encoding does not convert a damaged file's bytes into the intended text. Do not add `errors="ignore"` just to hide an exception: discarded bytes may be meaningful. Establish the actual source encoding or refuse the input. The download also includes `invalid-utf8.bin`, a single byte `0xff` deliberately invalid as a standalone UTF-8 sequence, for a later diagnostic experiment.
+
+## 6. Write modes are data-loss decisions
+
+Before writing, inspect the destination path. The programs below create `_output/` with `.mkdir(exist_ok=True)`. Its parent already exists. `exist_ok=True` accepts an already existing directory; it does not turn a file into a directory or ignore permissions. Missing intermediate directories require a deliberate directory-creation policy, not a magical behavior of open.
+
+File: `write_text.py`.
+
+<Code language="python">{getFileExample('write_text.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python write_text.py
+```
+
+```text
+Characters written: 10
+Read back: '学习 Python\n'
+```
+
+`write` does not add a newline automatically, so the string includes one. The returned 10 counts text characters here, **not bytes**; the generated UTF-8 file is 14 bytes. `newline="\n"` prevents platform-specific translation of our written newline, keeping the exercise's output bytes deterministic. Text reading with the default newline behavior normalizes common line endings to `\n`; binary reading does not make that translation.
+
+| Mode used here | Missing target | Existing target | Main risk |
+| --- | --- | --- | --- |
+| `r` | Fails | Reads without intentional writing | Incorrect path/encoding or unbounded reads |
+| `w` | Creates if the parent exists | Truncates on opening, before your first write | Old contents can disappear even if later work fails |
+| `a` | Creates if the parent exists | Appends writes at the end | Repeated runs add data; not a whole-JSON update protocol |
+| `x` | Creates a new file | Fails with FileExistsError | Caller must choose what an existing file means |
+
+File: `write_modes.py` resets only its own `_output/modes.txt` and compares append with replacement:
+
+<Code language="python">{getFileExample('write_modes.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python write_modes.py
+```
+
+```text
+Appended: 'First\nNext\n'
+Replaced: 'Reset\n'
+```
+
+Now `create_once.py` uses exclusive creation:
+
+<Code language="python">{getFileExample('create_once.py')}</Code>
+
+From a fresh extraction where `_output/once.txt` does not exist, run **both commands in order**:
+
+```bash
+uv run --no-project --python 3.13 python create_once.py
+uv run --no-project --python 3.13 python create_once.py
+```
+
+The first prints `Created once`. The second is an **expected FileExistsError**, prints no success line and leaves the first file's bytes unchanged. If you ran this experiment before, the first command may already encounter that file. To start over, use a new extraction rather than deleting unrelated files or changing the mode to `w` without understanding the consequence.
+
+Exclusive creation expresses the decision in the opening operation itself. An `exists()` check followed by a separate write cannot guarantee that the filesystem remains unchanged between the two steps. We do not implement multi-process coordination here.
+
+## 7. Closing is deterministic cleanup, not rollback
+
+A file object holds operating-system resources and buffered state. Do not rely on a variable being discarded or on the interpreter eventually cleaning it up. Put acquisition and use under an explicit lifetime.
+
+First run `closed_stream.py`, an **expected failure**:
+
+<Code language="python">{getFileExample('closed_stream.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python closed_stream.py
+```
+
+It prints the previously read string, then raises **ValueError: I/O operation on closed file**. The string is usable, but the closed stream is not. Returning data from a reading function is useful; returning a resource that has already been closed by that function is usually not.
+
+### Normal completion, return, failure and failed acquisition
+
+File: `cleanup_paths.py` makes each path observable. `stream = None` records that no file has yet been acquired; it prevents the observer itself from using an unbound name if opening fails.
+
+<Code language="python">{getFileExample('cleanup_paths.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python cleanup_paths.py
+```
+
+```text
+Mode: normal
+Inside closed: False
+After block closed: True
+Finally closed: True
+Result: normal
+Mode: return
+Inside closed: False
+Finally closed: True
+Result: early
+Mode: error
+Inside closed: False
+Finally closed: True
+Caught: ValueError
+Mode: missing
+No stream acquired
+Caught: FileNotFoundError
+```
+
+The normal path reaches the statement after with. The return path does not, but leaving the with block still closes the file before the surrounding finally runs. The error path closes first, then propagates ValueError to the caller. The missing path never enters the body or obtains a stream. The observer's finally does not perform a second close; it only reports the resulting state.
+
+This teaches **using built-in file resources**, not implementing a custom context-manager protocol. Other context managers can have different exception policies. We also do not promise cleanup after forceful process termination or power loss. Buffered writes and closing can themselves fail; a successful call to write is not a crash-durability guarantee.
+
+### A closed file can still contain the wrong data
+
+File: `pitfall_truncate.py` deliberately prepares and then damages **its own scratch file**, not a fixture:
+
+<Code language="python">{getFileExample('pitfall_truncate.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python pitfall_truncate.py
+```
+
+```text
+Closed: True
+Remaining: ''
+```
+
+Opening the existing target with `w` removed its previous contents. The subsequent exception occurred before a write, but closing did not restore the old bytes. **Resource cleanup and data rollback solve different problems.** Calculate and validate before a destructive open where possible; section 11 applies that ordering to serialization. It still will not become an atomic or transactional save.
+
+## 8. Locate file failures before interpreting data
+
+These complete files intentionally fail. They do not need the output of a previous script:
+
+`error_missing_file.py`:
+
+<Code language="python">{getFileExample('error_missing_file.py')}</Code>
+
+`error_missing_parent.py`:
+
+<Code language="python">{getFileExample('error_missing_parent.py')}</Code>
+
+`error_directory.py`:
+
+<Code language="python">{getFileExample('error_directory.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python error_missing_file.py
+uv run --no-project --python 3.13 python error_missing_parent.py
+uv run --no-project --python 3.13 python error_directory.py
+```
+
+The first raises FileNotFoundError without printing `Entered block`; `fixtures/absent.txt` is intentionally absent. The second also raises FileNotFoundError: opening a new file with `w` does not create its missing parent `absent-folder`. The third uses a directory as a file; the verified macOS run raises IsADirectoryError. Some platforms can report PermissionError for that operation, so inspect the operation and path as well as the category.
+
+| Failure | What to investigate | What not to infer |
 | --- | --- | --- |
-| **Built-in file operations** | `fs` module | File reading and writing |
-| **`pathlib`** | `path` module | Cross-platform path operations |
-| **`re` module** | `RegExp` object | Regular expressions |
-| **`pandas`** | `lodash`, `danfo.js` | High-performance data analysis |
-| **`csv` module** | `csv-parser`, `papaparse` | CSV file reading and writing |
+| FileNotFoundError | Exact resolved target and missing path component | Not every missing component means “a brand-new empty user dataset” |
+| FileExistsError | Exclusive-create policy and existing destination | Do not silently switch to destructive overwrite |
+| IsADirectoryError / NotADirectoryError | Whether components are files or directories | Extension spelling does not determine filesystem type |
+| PermissionError | Access rights and intended writable location | It does not mean the file is absent |
+| UnicodeDecodeError | Bytes and expected text encoding | It is not automatically malformed JSON syntax |
 
-> 💡 **Learning Strategy**: Think of these Python tools as a "super-upgrade" to your existing JavaScript/Node.js workflow. You'll find Python to be more adept at handling structured data and large datasets.
+Open the intended resource and handle the failures you can actually recover from. Do not preflight with `exists()` as a replacement for exception handling. Never respond to an access failure by granting broad permissions merely to make an example run. Keep unknown OSError failures visible.
 
-## 2. File Operations
+## 9. JSON converts values to text; saving is a separate step
 
-Python provides a very concise and intuitive syntax for file operations.
+JSON is a data-interchange format, not Python source and not a database. A file called `tasks.json` still contains bytes; its extension does not validate them. A syntactically valid JSON document can also contain the wrong kind of value for your program.
 
-### 2.1 Reading and Writing Files
+The complete path is:
 
-<PythonEditor title="File Read/Write Comparison" compare={true}>
-```javascript !! js
-// JavaScript (Node.js)
-const fs = require('fs');
-
-// Write file
-fs.writeFileSync('hello.txt', 'Hello from Node.js!');
-
-// Read file
-const content = fs.readFileSync('hello.txt', 'utf8');
-console.log(content);
-
-// Async read/write
-fs.writeFile('hello_async.txt', 'Async hello!', (err) => {
-  if (err) throw err;
-  fs.readFile('hello_async.txt', 'utf8', (err, data) => {
-    if (err) throw err;
-    console.log(data);
-  });
-});
+```text
+Python values -> JSON text (str) -> UTF-8 bytes in a file
+file bytes -> decoded text -> parsed Python values -> business validation
 ```
 
-```python !! py
-# Python
-# Write file
-with open("hello.txt", "w", encoding="utf-8") as f:
-    f.write("Hello from Python!")
+File: `json_values.py` performs only the value/text steps. It does not create a file:
 
-# Read file
-with open("hello.txt", "r", encoding="utf-8") as f:
-    content = f.read()
-    print(content)
+<Code language="python">{getFileExample('json_values.py')}</Code>
 
-# pathlib (the more modern way)
-from pathlib import Path
-
-Path("hello_pathlib.txt").write_text("Hello from Pathlib!", encoding="utf-8")
-content_pathlib = Path("hello_pathlib.txt").read_text(encoding="utf-8")
-print(content_pathlib)
-```
-</PythonEditor>
-
-### 2.2 Handling JSON Files
-
-<PythonEditor title="JSON File Handling Comparison" compare={true}>
-```javascript !! js
-// JavaScript
-const data = { name: "Alice", age: 30 };
-
-// Write to JSON file
-fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
-
-// Read from JSON file
-const rawData = fs.readFileSync('data.json');
-const parsedData = JSON.parse(rawData);
-console.log(parsedData.name); // Alice
+```bash
+uv run --no-project --python 3.13 python json_values.py
 ```
 
-```python !! py
-# Python
+```text
+Is text: True
+{
+  "title": "学习",
+  "minutes": 20,
+  "done": false,
+  "note": null
+}
+Equal value: True
+Same object: False
+Escaped: "\u5b66\u4e60"
+```
+
+`dumps` returns a JSON string; `loads` parses a string into Python values. The `s` versions operate on a string rather than an already opened file. The restored dictionary is a new object. `indent=2` controls formatting; it does not make the document more valid.
+
+`ensure_ascii=False` keeps characters such as 学习 visibly present in the JSON text. The default escaped spelling `"\u5b66\u4e60"` represents the same JSON string after parsing. **Escaping is not file encoding.** Both representations can be written using UTF-8. `allow_nan=False` rejects non-finite output numbers, discussed next.
+
+Here is a static browser-language comparison, with local verification rather than browser file access:
+
+<PythonEditor title="JSON text is not a saved file" compare={true} canRun={false}>
+```javascript case=json-text-comparison
+const value = { title: "学习", done: false };
+const text = JSON.stringify(value, null, 2);
+console.log(text);
+console.log(JSON.parse(text).title);
+```
+
+```python case=json-text-comparison
 import json
 
-data = {"name": "Alice", "age": 30}
-
-# Write to JSON file
-with open("data.json", "w", encoding="utf-8") as f:
-    json.dump(data, f, indent=2)
-
-# Read from JSON file
-with open("data.json", "r", encoding="utf-8") as f:
-    parsed_data = json.load(f)
-    print(parsed_data["name"])  # Alice
+value = {"title": "学习", "done": False}
+text = json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False)
+print(text)
+print(json.loads(text)["title"])
 ```
 </PythonEditor>
 
-## 3. Regular Expressions
+Both display:
 
-Python's `re` module provides powerful regular expression capabilities.
-
-<PythonEditor title="Regular Expression Comparison" compare={true}>
-```javascript !! js
-// JavaScript
-const text = "My email is test@example.com";
-const regex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
-const match = text.match(regex);
-if (match) {
-  console.log(match[0]); // test@example.com
+```text
+{
+  "title": "学习",
+  "done": false
 }
-
-// Replace
-const newText = text.replace(/email/g, 'address');
-console.log(newText); // My address is test@example.com
+学习
 ```
 
-```python !! py
-# Python
-import re
+Transfer your experience with `JSON.parse` and `JSON.stringify`, but keep serialization separate from storage. Neither pair saves data on its own.
 
-text = "My email is test@example.com"
-regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
-match = re.search(regex, text);
-if match:
-    print(match.group(0))  # test@example.com
+## 10. JSON is not a universal copy of every Python object
 
-# Replace
-new_text = re.sub(r"email", "address", text)
-print(new_text)  # My address is test@example.com
-```
-</PythonEditor>
+| JSON value | Typical Python value after decoding |
+| --- | --- |
+| object with string member names | dict with str keys |
+| array | list |
+| string | str |
+| integer / fractional number | int / float under the default decoder |
+| true / false | True / False |
+| null | None |
 
-## 4. Pandas: The Powerhouse of Python Data Analysis
+JSON does not preserve Python tuple identity, set values, functions or arbitrary objects. In portable JSON, object member names are strings. Python's encoder accepts some other key types by converting them; that can change meaning or cause collisions, so our task format uses fixed string keys.
 
-`pandas` is the core library of the Python data science ecosystem. It provides two powerful data structures, `DataFrame` and `Series`, which make data cleaning, transformation, analysis, and visualization incredibly simple.
+File: `json_limits.py`:
 
-### 4.1 Series: One-Dimensional Data
+<Code language="python">{getFileExample('json_limits.py')}</Code>
 
-A `Series` is like a labeled array.
-
-<PythonEditor title="Pandas Series Basics" compare={true}>
-```javascript !! js
-// JavaScript (Array-like)
-const data = [10, 20, 30, 40];
-data.forEach(d => console.log(d));
-
-const filteredData = data.filter(d => d > 20);
-console.log(filteredData); // [30, 40]
+```bash
+uv run --no-project --python 3.13 python json_limits.py
 ```
 
-```python !! py
-# Python (Pandas Series)
-import pandas as pd
-
-data = pd.Series([10, 20, 30, 40])
-print(data)
-
-filtered_data = data[data > 20]
-print(filtered_data)
-```
-</PythonEditor>
-
-### 4.2 DataFrame: Two-Dimensional Data
-
-The `DataFrame` is the core of `pandas`. It is a two-dimensional tabular data structure, which can be thought of as a container for `Series`.
-
-<PythonEditor title="Pandas DataFrame Basics" compare={true}>
-```javascript !! js
-// JavaScript (Array of objects)
-const users = [
-  { name: 'Alice', age: 30, city: 'New York' },
-  { name: 'Bob', age: 25, city: 'Paris' },
-  { name: 'Charlie', age: 35, city: 'London' },
-];
-
-// Filtering
-const youngUsers = users.filter(u => u.age < 30);
-console.log(youngUsers);
-
-// Adding a new column
-users.forEach(u => u.is_senior = u.age > 30);
-console.log(users);
+```text
+Restored: {'pair': [20, 35], 'labels': {'1': 'one'}}
+Equal: False
+Set is not JSON-serializable
+Non-finite output rejected
+Default decoder accepts NaN: True
+Repeated key: {'minutes': 20}
+Python repr is not JSON
 ```
 
-```python !! py
-# Python (Pandas DataFrame)
-import pandas as pd
+Trace the differences rather than treating round-trip equality as universal:
 
-data = {
-    'name': ['Alice', 'Bob', 'Charlie'],
-    'age': [30, 25, 35],
-    'city': ['New York', 'Paris', 'London']
-}
-df = pd.DataFrame(data)
+- The tuple becomes a list, and the integer key becomes a string.
+- A set is unsupported by the default encoder. Do not silence the error with a generic conversion without defining the data format.
+- Standard JSON does not include NaN or Infinity. Python's default JSON behavior has extensions; `allow_nan=False` controls **encoding**, not `loads`. The default decoder can accept NaN. JavaScript's `JSON.stringify(NaN)` instead produces `null`; do not assume identical failure behavior.
+- Repeated object names keep the last value with Python's default decoder. That is not duplicate detection.
+- `str`/`repr` of a dictionary can contain single quotes and Python False, so they are not JSON encoders. Never use `eval` as a JSON parser.
 
-# Filtering
-young_users = df[df['age'] < 30]
-print(young_users)
+Our later task validator restricts minutes to ordinary nonnegative integers, rejecting bool and float values, including NaN. It does **not** detect duplicate keys in the original text, implement a general strict JSON decoder or set size/depth limits. This is a small owned-file format, not a policy for arbitrary untrusted uploads. Such input needs explicit limits and parsing policies at the later backend boundary.
 
-# Adding a new column
-df['is_senior'] = df['age'] > 30
-print(df)
-```
-</PythonEditor>
+## 11. Save one JSON document, and do fallible preparation before opening w
 
-### 4.3 Reading Data from CSV
+The file variants take an **open file object**, not a path string. File: `json_file.py`.
 
-`pandas` can very conveniently read data from various data sources (CSV, Excel, SQL, etc.).
+<Code language="python">{getFileExample('json_file.py')}</Code>
 
-<PythonEditor title="Reading from CSV Comparison" compare={true}>
-```javascript !! js
-// JavaScript (Node.js with csv-parser)
-const fs = require('fs');
-const csv = require('csv-parser');
-
-const results = [];
-
-fs.createReadStream('data.csv')
-  .pipe(csv())
-  .on('data', (data) => results.push(data))
-  .on('end', () => {
-    console.log(results);
-  });
+```bash
+uv run --no-project --python 3.13 python json_file.py
 ```
 
-```python !! py
-# Python (Pandas)
-import pandas as pd
-
-# Assume there is a data.csv file
-# name,age,city
-# Alice,30,New York
-# Bob,25,Paris
-
-df = pd.read_csv("data.csv")
-print(df)
-
-# For very large files, you can read in chunks to save memory
-# chunk_iter = pd.read_csv("large_data.csv", chunksize=1000)
-# for chunk in chunk_iter:
-#     process(chunk)
-
-# Example data analysis
-print("\nAverage age:", df["age"].mean())
-print("\nUsers from New York:")
-print(df[df["city"] == "New York"])
+```text
+dump returned: None
+Title: 学习
+Equal value: True
 ```
-</PythonEditor>
 
-## 5. Summary
+`dump(value, stream)` writes JSON text to the text stream. It returns None rather than the generated text. `load(stream)` reads and decodes one JSON document. The stream handles UTF-8, while the JSON functions handle JSON syntax and values. Neither automatically closes a caller-owned stream; its with block owns the lifetime. We add a final newline explicitly because dump does not add one for us.
 
-Python's capabilities in data processing and automation go far beyond this, but this module has laid a solid foundation for you. You now know how to:
+| Pair | Takes / returns | Resource ownership here |
+| --- | --- | --- |
+| dumps / loads | Python value ↔ string | No file opened by these calls |
+| dump / load | Value → writable stream; readable stream → value | Caller opens and closes the file |
 
-*   Perform basic file operations using Python.
-*   Use the `re` module for powerful text matching and processing.
-*   Use the `pandas` library for efficient data analysis.
+### Appending documents is not updating an array
 
-These skills will open a new door for you, allowing you to use Python to solve a variety of complex data problems and write powerful automation scripts.
+`pitfall_two_documents.py` is an **expected failure**. It writes only its own `_output/two-documents.json`:
+
+<Code language="python">{getFileExample('pitfall_two_documents.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python pitfall_two_documents.py
+```
+
+Before JSONDecodeError for extra data, it prints:
+
+```text
+Written: {"part": 1}{"part": 2}
+```
+
+Two adjacent JSON objects are not one JSON document. Opening with append mode does not insert array punctuation or merge objects either. To save a small list as one document, construct the list in memory and serialize that list once. Line-delimited JSON is a different agreed format and reader, not a property that `json.load` silently supplies.
+
+### Prepare before a destructive open, without promising atomicity
+
+File: `serialize_before_open.py` first creates its own valid scratch baseline, then attempts to save a value containing an unsupported set:
+
+<Code language="python">{getFileExample('serialize_before_open.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python serialize_before_open.py
+```
+
+```text
+Serialization refused
+Unchanged: True
+```
+
+`save_json` computes the full string before opening the destination with `w`. That TypeError therefore occurs before truncation. `json.dump` to an already open write stream can fail after opening, and can even have emitted part of the document. Merely wrapping it in with does not preserve the old file.
+
+This ordering protects against **the demonstrated pre-write serialization failure**, not every save failure. Once w has opened, a disk-full error, write/close failure or process crash can still leave empty or partial data. It also does not coordinate two writers. We deliberately do not label this an atomic save, backup scheme or database transaction. Keep the data small, use only the owned exercise location, and learn stronger persistence guarantees in their later project/operations context.
+
+**Pause point B:** explain why the serialization experiment keeps the old file while the earlier truncation experiment does not. If your explanation is only “both use with, so both are safe,” repeat the two observations before continuing.
+
+## 12. Parse success is not business validation: identify the failing layer
+
+The valid fixture `fixtures/tasks.json` is an array of records. It contains one completed and one incomplete task:
+
+<Code language="json">{getFileExample('fixtures/tasks.json')}</Code>
+
+For this guided example, we only total all minutes; we are **not yet validating title/done or filtering completed tasks**. The independent task later specifies the full shape.
+
+File: `validate_data.py`:
+
+<Code language="python">{getFileExample('validate_data.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python validate_data.py
+```
+
+```text
+Total: 20
+Rejected: root must be a list
+Rejected: row 1 minutes must be a non-negative integer
+Rejected: row 1 minutes must be a non-negative integer
+```
+
+All four input strings are parseable JSON. The second has the wrong root shape. The third uses a string where our format requires an integer. The fourth uses a boolean, which must not sneak through as an integer: `type(minutes) is int` expresses this strict boundary. Unlike L05's form-like text input, this file format stores numbers as numbers. Automatically calling `int` would conceal that contract mismatch.
+
+Now inspect six distinct cases without changing their files. `inspect_documents.py` imports the already explained function:
+
+<Code language="python">{getFileExample('inspect_documents.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python inspect_documents.py
+```
+
+```text
+tasks.json: total=55
+absent.json: missing file
+invalid-utf8.bin: invalid UTF-8
+malformed.json: invalid JSON at line 1, column 2
+wrong-root.json: invalid data: root must be a list
+wrong-types.json: invalid data: row 1 minutes must be a non-negative integer
+```
+
+Follow the boundaries:
+
+1. Opening can fail before any contents are available.
+2. Decoding bytes can fail before there is valid text.
+3. Parsing text can raise `json.JSONDecodeError`; `.lineno` and `.colno` help locate the syntax error, not validate business meaning.
+4. Validation happens after the reading with block, so the file is already closed. It can reject perfectly parseable values.
+
+JSONDecodeError and UnicodeDecodeError are ValueError subclasses. Putting one broad ValueError handler first would erase these distinctions. Here the reading handlers are specific, and the validator's ValueError handler belongs to a separate call. PermissionError and unknown failures are not reinterpreted as missing data or successful zero totals.
+
+The inspector reports a bad file and continues because inspecting a known batch is its explicit job. A task-saving program has a different responsibility: **after a damaged input, it must stop before overwriting that input**. Do not copy a recovery policy without its purpose.
+
+## 13. Three levels of practice
+
+### A. Predict the data and the lifetime
+
+Before running again, answer:
+
+1. What does a second unrestricted read on an exhausted stream return? What changes after reopening?
+2. Does with delete the name `stream`, erase a previously read string, or restore truncated file contents?
+3. Can `json.loads` succeed for a value your task program must reject? Give a concrete example.
+4. Why do `dumps` and `dump` have different return values and resource requirements?
+5. In `cleanup_paths.py`, which routes reach the line after with, and which still close a file?
+
+<details>
+<summary>Prediction checkpoint — compare mechanisms after writing your own answers</summary>
+
+The exhausted read returns an empty string; a new read stream starts at the beginning. With closes the acquired stream but does not remove the Python name, delete the file, erase returned text or undo writes. JSON such as `{"minutes": "20"}` can parse yet violate a number contract. Dumps returns text without opening a file; dump writes through a supplied stream and returns None. Only the normal observation reaches the line after with; normal, return and error routes close acquired files, while failed opening acquires none.
+
+</details>
+
+### B. Repair the false “empty file” recovery
+
+`exercises/unsafe_load.py` is deliberately wrong. Its main prepares a damaged scratch file under **`exercises/_output/`**, then a broad recovery policy turns the failure into an empty list and overwrites the evidence:
+
+<Code language="python">{getFileExample('exercises/unsafe_load.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python exercises/unsafe_load.py
+```
+
+```text
+Stored: []
+```
+
+Successful exit is the bug, not acceptance. Repair the behavior:
+
+- Only an actually missing file may produce an initial empty list.
+- Existing malformed JSON, invalid UTF-8, a non-list root and access failures must not become an empty result.
+- Reading failures must prevent the subsequent write. Preserve the old bytes; do not merely print a warning and continue.
+- A new process must not perform this demonstration just because the module is imported.
+
+The helper in this exercise only requires a list root, not the complete task-item schema. Keep that boundary explicit rather than claiming it validates every record.
+
+<details>
+<summary>Repair reference — distinguish the helper's policy from the demonstration</summary>
+
+`solutions/recover_missing_only.py`:
+
+<Code language="python">{getFileExample('solutions/recover_missing_only.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python solutions/recover_missing_only.py
+```
+
+```text
+Refused damaged JSON
+Unchanged: True
+```
+
+The helper only recovers FileNotFoundError. Its caller deliberately catches JSONDecodeError to demonstrate preservation and then returns **before any saving**. The helper still propagates syntax, encoding, shape and permission failures to its own callers. Try it with an absent path, a valid empty array and a valid nonempty array as separate cases; missing and valid-empty may return equal values without being the same event.
+
+</details>
+
+### C. Independently build a small local task store
+
+Create a genuinely empty directory **outside the download**, then build this layout yourself. The output directory should be created only when the program entry runs, not on import:
+
+```text
+my_tasks/
+  check_import.py
+  run_store.py
+  task_store/
+    __init__.py
+    validation.py
+    storage.py
+    app.py
+```
+
+Use plain modules and functions from L06, not classes, a database or a framework.
+
+**Data contract:** one JSON array. Every item is a dictionary with **exactly** `title`, `minutes` and `done`. Title must be str and not whitespace-only; preserve its original spelling rather than silently trimming it. Minutes must be an ordinary nonnegative int, rejecting bool, float, numeric text and None. Done must be bool, not 0, 1 or a string. Empty arrays and zero minutes are valid. Preserve item order; duplicate task titles are allowed because titles are not defined as IDs here.
+
+**Responsibilities:**
+
+- `validation.py`: `validate_tasks(value)` returns fresh task dictionaries in a fresh list, without mutating the source. Reject wrong root/items, missing/extra keys and invalid fields with ValueError messages identifying the row/field. This is validation of the agreed small format, not general schema tooling.
+- `storage.py`: `load_tasks(path)` opens UTF-8 text with with, parses one document, closes it and validates the result. It must propagate FileNotFoundError; the library must not assume that every caller wants initialization.
+- `save_tasks(path, value)` validates and serializes **before** opening w. Write readable UTF-8 JSON with two-space indentation, literal Unicode characters, no non-finite output and one final newline. The caller passes a Path and owns parent-directory creation. Invalid values must leave an existing destination unchanged and must not create a missing one.
+- `app.py`: put directory creation, initialization, reading, mutation, saving and display inside guarded `main`. Use `_output/tasks.json` under the `my_tasks` directory, anchored independently of cwd. Only a missing file permits the two initial tasks below. Existing corrupt/invalid data must cause a visible failure before saving, not a silent reset.
+- On every valid run, mark all tasks titled `Read` as done, save once, and sum the minutes of unfinished tasks. A valid empty array must stay empty rather than being mistaken for a missing file.
+- `run_store.py`: an alternative file entry. Import `main` from `task_store.app` and call it under its own main guard. This wrapper lets a direct file command find the package through the wrapper's directory, using the L06 mechanism, without changing search paths.
+- `check_import.py`: import app and storage and print only `Imported: task_store.app task_store.storage`. Import must not create `_output`, read data or start the business entry.
+
+For a missing file, initialize Read / 20 / False and 练习 / 35 / False. From your own **`my_tasks` directory**, run:
+
+```bash
+uv run --no-project --python 3.13 python check_import.py
+uv run --no-project --python 3.13 python -m task_store.app
+uv run --no-project --python 3.13 python -m task_store.app
+```
+
+The probe prints:
+
+```text
+Imported: task_store.app task_store.storage
+```
+
+The first app process prints:
+
+```text
+Source: new file
+Saved: 2
+Pending minutes: 35
+Tasks: [{'title': 'Read', 'minutes': 20, 'done': True}, {'title': '练习', 'minutes': 35, 'done': False}]
+```
+
+The next app process prints:
+
+```text
+Source: existing file
+Saved: 2
+Pending minutes: 35
+Tasks: [{'title': 'Read', 'minutes': 20, 'done': True}, {'title': '练习', 'minutes': 35, 'done': False}]
+```
+
+The second process proves persistence rather than reuse of the previous process's variables. Open your generated file in an editor and confirm lowercase JSON booleans, preserved Unicode and the updated Read item. Then vary the input. Work only on this disposable exercise copy, keeping a copy of valid data before each corruption experiment.
+
+| Variation | Required observation |
+| --- | --- |
+| Saved file contains `[]` | Existing-file branch; save zero tasks, total zero, do not restore initial tasks |
+| Unfinished task has zero minutes | Valid item preserved, not dropped by truthiness |
+| Change 练习 minutes to 36 | Next fresh run reports pending 36 without changing the calculation code |
+| All done; reordered data; Unicode titles | Correct zero/order/text preservation |
+| Malformed JSON / invalid UTF-8 / wrong root or fields | Visible failure; destination bytes unchanged; no success message |
+| minutes is True, `20.0`, `"20"`, None or negative | Reject; no implicit conversion to a valid estimate |
+| Missing/extra key, blank title, non-bool done | Reject with a useful field/row diagnosis |
+| Save invalid data to existing / absent target | Existing bytes unchanged / no new file |
+| Read twice, then mutate one result | Other result and saved file remain unchanged until an explicit save |
+| Missing parent or permission failure | Propagate I/O failure; do not convert it into empty data |
+| Import from a fresh process | Only probe marker; no output directory or business work |
+| Start from a different cwd with the same package containing directory discoverable | The same anchored data location, not a second accidental data file |
+
+For the final context check, from the **parent of `my_tasks`**, run the wrapper:
+
+```bash
+uv run --no-project --python 3.13 python my_tasks/run_store.py
+```
+
+It imports through the wrapper's directory as in L06, then explicitly calls the app's main. The app still uses `my_tasks/_output/tasks.json`; it must not create `_output` in the terminal's current directory. For the module entry, change to `my_tasks` before `-m task_store.app`. Directly executing `task_store/app.py` still lacks the relative-import package context; do not introduce sys.path patches to “fix” it.
+
+Use temporary calls in your own probe to exercise load/save with different Path values, and L05's specific exception handlers to inspect expected rejections. Automated tests are maintenance evidence here, not an unexplained learner prerequisite.
+
+<details>
+<summary>Independent reference package — open after your own implementation</summary>
+
+`solutions/independent/task_store/__init__.py`:
+
+<Code language="python">{getFileExample('solutions/independent/task_store/__init__.py')}</Code>
+
+`validation.py`:
+
+<Code language="python">{getFileExample('solutions/independent/task_store/validation.py')}</Code>
+
+`storage.py`:
+
+<Code language="python">{getFileExample('solutions/independent/task_store/storage.py')}</Code>
+
+`app.py`:
+
+<Code language="python">{getFileExample('solutions/independent/task_store/app.py')}</Code>
+
+`solutions/independent/check_import.py`:
+
+<Code language="python">{getFileExample('solutions/independent/check_import.py')}</Code>
+
+`solutions/independent/run_store.py`:
+
+<Code language="python">{getFileExample('solutions/independent/run_store.py')}</Code>
+
+From the downloaded lab root, run the reference in its own containing directory:
+
+```bash
+cd solutions/independent
+uv run --no-project --python 3.13 python check_import.py
+uv run --no-project --python 3.13 python -m task_store.app
+uv run --no-project --python 3.13 python -m task_store.app
+cd ../..
+uv run --no-project --python 3.13 python solutions/independent/run_store.py
+```
+
+The reference only uses its own `solutions/independent/_output/`. Validation does not mutate the argument; reading closes before validation; saving does fallible preparation before truncation. Application initialization is not smuggled into the storage library or import time. The app's specific load messages re-raise the original failure, so refusing corrupted data does not masquerade as a successful save.
+
+The default JSON decoder's repeated-key behavior still applies, and successful writing is still not atomic or crash-safe. These limits are part of the contract, not problems that with or schema checks secretly solve.
+
+</details>
+
+## 14. Exit gate, recovery after a pause and the next chapter
+
+You can continue when you can independently:
+
+- Distinguish Path, open stream, text, bytes and decoded business data.
+- Predict cursor position, mode effects and the location used when cwd changes.
+- Explain encoding versus JSON escaping, and serialization versus file saving.
+- Track closing on success, return, exception and failed acquisition without promising rollback.
+- Locate the failing layer and justify which caller can recover, instead of treating every error as empty data.
+- Reconstruct the task store from an empty directory, run it in fresh processes and verify preservation on rejected input.
+
+When stopping, record the **current directory, last command, which output files now exist, whether this was a first or repeated run, observed result, and the next unchecked variation**. A saved `_output/once.txt` or `_output/tasks.json` changes the next run's preconditions. Resume by inspecting that state and predicting one small experiment; do not erase it blindly or rebuild the entire environment.
+
+Next is [L08: environments and dependency management](/en/docs/js2py/module-08-projects). With language, modules and files understood, we can explain interpreters, isolation, declarations, lock files and environment reconstruction. That page now follows this contract. Basic automated tests remain L09, and the first independent reproducible application remains L10. This local task store is not a deployed service or a production persistence system.
+
+## 15. Sources and deliberate limits
+
+Technical sources checked on 2026-09-24 against the Python 3.13 baseline:
+
+- [Reading and writing files](https://docs.python.org/3.13/tutorial/inputoutput.html#reading-and-writing-files): text/binary operations, cursors, iteration, closing and serialization.
+- [pathlib](https://docs.python.org/3.13/library/pathlib.html): path construction, resolve, parent, open and explicit directory creation.
+- [Built-in open](https://docs.python.org/3.13/library/functions.html#open) and [I/O](https://docs.python.org/3.13/library/io.html): modes, encoding, newline translation, buffered streams and closing.
+- [Unicode HOWTO](https://docs.python.org/3.13/howto/unicode.html): code points, encoding and decoding.
+- [with statement](https://docs.python.org/3.13/reference/compound_stmts.html#the-with-statement) and [built-in exceptions](https://docs.python.org/3.13/library/exceptions.html): acquisition/exit and failure categories.
+- [Python JSON](https://docs.python.org/3.13/library/json.html), [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259) and [MDN JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify): conversion rules, one-document framing, non-finite numbers, repeated names and JavaScript differences.
+
+Custom context-manager protocols, generators, async file APIs, atomic replacement, locking, backups, database transactions, arbitrary upload validation, CSV, regular expressions and data analysis are not mandatory in this chapter. They require their own motivation and full teaching, not a one-line API list attached to an already dense foundation.

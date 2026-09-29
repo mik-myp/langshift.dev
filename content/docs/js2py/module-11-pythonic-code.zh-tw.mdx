@@ -1,188 +1,241 @@
 ---
-title: "模塊 11: 編寫 Pythonic 代碼"
-description: "學習如何編寫地道、優雅且高效的 Python 代碼，真正像一個 Python 開發者一樣思考。"
+title: 基礎類型註解：契約、檢查與輸入邊界
+description: 在已經理解的函數上添加註解，區分可空與缺省、靜態檢查與運行時校驗，並用真實錯誤解釋 Any、object 和外部 JSON 的信任邊界。
 ---
 
-## 1. 引言
+import { getTypingExample } from '@/lib/js2py-examples'
 
-每種編程語言都有其獨特的風格和哲學。“Pythonic”這個詞用來描述那些遵循 Python 社區公認的最佳實踐、充分利用語言特性、代碼簡潔易讀且高效的代碼風格。
+## 1. 先有行為，再把契約寫給人和工具
 
-對於從 JavaScript 過來的開發者來說，僅僅掌握語法是不夠的。學習編寫 Pythonic 代碼，意味著要開始用“Python 的方式”去思考和解決問題。
+L10 的程序已經能運行、保存和測試。為什麼還要類型？當一個函數期望分鐘列表，而調用者給了字符串列表，越早發現兩方對數據的理解不同，排錯範圍就越小。註解把這種約定放在函數入口和返回值旁，讓編輯器、檢查器和協作者不必到每個調用點猜測。
 
-> 💡 **學習策略**：將編寫 Pythonic 代碼看作是學習一門語言的“習語”和“俚語”。它能讓你的代碼更受社區歡迎，也更易於他人理解和維護。
+這與 TypeScript 的基礎經驗相通，但不要認為 Python 會先經過一個自動攔住錯誤的編譯關卡。執行 Python 與運行靜態檢查器是兩條獨立命令；註解本身通常不拒絕錯誤輸入。測試觀察具體運行，靜態檢查分析源代碼，運行時校驗守住真實數據入口，三者不能相互替代。
 
-## 2. 列表推導式 (List Comprehensions)
+| 本章契約 | 範圍 |
+| --- | --- |
+| 前置 | L02 容器、L04 函數、L06 模塊、L10 獨立項目 |
+| 新能力 | 函數和容器註解、聯合與可空、缺省、靜態診斷、外部輸入校驗 |
+| 驗收 | 給已有函數補註解；修復靜態錯誤；證明檢查通過仍不足以信任 JSON |
+| 暫不要求 | 類模型、TypedDict、複雜泛型、協議、零 Any 指標 |
 
-列表推導式是 Python 中最具代表性的特性之一。它提供了一種簡潔優雅的方式來根據現有列表創建新列表，通常比使用 `map()` 和 `filter()` 更具可讀性。
+下載 [L11 完整實驗](/learning-assets/js2py/u11-typing.zip)。本章是本地多文件實驗，不在瀏覽器執行 mypy。頁面顯示的文件與下載包來自同一份源碼。
 
-<PythonEditor title="列表推導式 vs. map/filter" compare={true}>
-```javascript !! js
-// JavaScript (map and filter)
-const numbers = [1, 2, 3, 4, 5];
+## 2. 建立兩個獨立的檢查入口
 
-// 獲取所有數字的平方
-const squares = numbers.map(n => n * n);
+解壓後進入 u11-typing。實測基線（2026-09-28）為 CPython 3.13.15、uv 0.12.13、mypy 2.3.1、pytest 8.4.2；這是一組固定驗收版本，不是要求你隨時追逐最新版。
 
-// 獲取所有偶數的平方
-const evenSquares = numbers
-  .filter(n => n % 2 === 0)
-  .map(n => n * n);
-console.log(numbers);
-console.log(squares);
-console.log(evenSquares);
+<Code language="toml">{getTypingExample('pyproject.toml')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python -m mypy
+uv run --locked python -m pytest -q
 ```
 
-```python !! py
-# Python (List Comprehensions)
-numbers = [1, 2, 3, 4, 5]
+mypy 配置只把已註解的業務文件、入口與獨立參考函數列為正常檢查範圍，要求這些範圍內的函數有註解。錯誤示例和刻意傳錯類型的運行時測試不在這條通過命令中；它們稍後單獨執行，不能悄悄刪除來“變綠”。pytest 默認只發現 tests 下的正常套件，獨立答案也單獨運行。
 
-# 獲取所有數字的平方 (Pythonic)
-squares = [n * n for n in numbers]
+檢查器顯示成功時，先問它檢查了哪些文件、是否檢查函數體、有哪些動態類型入口，而不是把綠色當成全項目保證。運行程序不隱含運行 mypy，CI 也只有在你明確配置後才會執行檢查。
 
-# 獲取所有偶數的平方 (Pythonic)
-even_squares = [n * n for n in numbers if n % 2 == 0]
+## 3. 從已理解的函數讀懂註解語法
 
-# 非 Pythonic 的方式
-even_squares_long = list(map(lambda n: n * n, filter(lambda n: n % 2 == 0, numbers)))
-print(numbers)
-print(squares)
-print(even_squares)
-print(even_squares_long)
-```
-</PythonEditor>
+先閱讀這個沒有註解的舊函數，預測它如何跳過超預算項並繼續向後選擇：
 
-## 3. EAFP vs LBYL
+<Code language="python">{getTypingExample('baseline.py')}</Code>
 
-這是兩種不同的編程風格，Python 社區普遍推崇 EAFP。
+函數的參數名後用冒號標類型，右箭頭標返回類型；局部變量可以註解，也可以由賦值推斷。以下是完整的聲明實驗，可以獨立執行；沒有調用就沒有打印。
 
-*   **LBYL (Look Before You Leap)**: “三思而後行”。在執行操作前，先進行各種檢查。這在 JavaScript 中很常見。
-*   **EAFP (Easier to Ask for Forgiveness than Permission)**: “先斬後奏”。直接嘗試執行操作，如果出現問題（異常），再進行處理。
+```python smoke=typing
+def add_minutes(left: int, right: int) -> int:
+    total: int = left + right
+    return total
 
-<PythonEditor title="EAFP vs. LBYL 對比" compare={true}>
-```javascript !! js
-// JavaScript (LBYL 風格)
-const user = { profile: { name: 'Alice' } };
 
-if (user && user.profile && user.profile.name) {
-  console.log(user.profile.name);
-} else {
-  console.log('Name not found');
-}
-
-// 使用可選鏈操作符 ?. 更簡潔
-console.log(user?.profile?.name || 'Name not found');
+def show_minutes(value: int) -> None:
+    print(value)
 ```
 
-```python !! py
-# Python (EAFP 風格 - Pythonic)
-user = {"profile": {"name": "Alice"}}
+`-> None` 表示正常返回沒有業務結果，不表示函數不會執行、不會失敗或“任何返回值都可以”。沒有顯式 return 的 Python 函數正常結束也返回 None。類型是契約的一部分，不能表達全部業務規則：int 不等於非負分鐘，str 不等於非空標題。
 
-try:
-    print(user["profile"]["name"])
-except (KeyError, TypeError):
-    print("Name not found")
+先自己給 baseline 的參數和返回值補註解，不改算法。稍後完整實現會額外保留運行時規則；**“補註解”與“加校驗”是兩個有意分開的改動**。
 
-# Python (LBYL 風格 - 不那麼 Pythonic)
-if "profile" in user and isinstance(user["profile"], dict) and "name" in user["profile"]:
-    print(user["profile"]["name"])
-else:
-    print("Name not found")
-```
-</PythonEditor>
+## 4. 聯合、可空和可省略，是三個相關但不同的問題
 
-## 4. 使用 `enumerate` 進行迭代
+```python smoke=typing
+def required_budget(budget: int | None) -> str:
+    if budget is None:
+        return "unlimited"
+    return str(budget)
 
-當你在循環中同時需要索引和值時，不要使用 `range(len(my_list))`。Pythonic 的方式是使用內置函數 `enumerate`。
 
-<PythonEditor title="enumerate vs. range(len(...))" compare={true}>
-```javascript !! js
-// JavaScript
-const items = ['a', 'b', 'c'];
+def default_budget(budget: int = 45) -> int:
+    return budget
 
-items.forEach((item, index) => {
-  console.log(`Index: ${index}, Item: ${item}`);
-});
+
+def optional_budget(budget: int | None = None) -> str:
+    return required_budget(budget)
 ```
 
-```python !! py
-# Python (Pythonic)
-items = ['a', 'b', 'c']
+`int | None` 允許值是整數或 None；它不替你提供默認實參。required_budget 必須傳參，可以顯式傳 None。default_budget 可以不傳，但其靜態契約不接受 None。optional_budget 同時允許不傳和傳 None。不要把 TypeScript 可選屬性、Python 默認實參以及可空值合併成一個概念。
 
-for index, item in enumerate(items):
-    print(f"Index: {index}, Item: {item}")
+在分支中先用 `is None` 排除 None，檢查器才能把剩餘路徑縮窄成 int。用 `if budget` 會同時把合法的 0 排除；類型提示不能替你決定“零預算”和“不限預算”是否相同。本章約定零隻允許零分鐘項，None 表示不限。
 
-# Python (不那麼 Pythonic)
-for i in range(len(items)):
-    print(f"Index: {i}, Item: {items[i]}")
-```
-</PythonEditor>
+<details>
+<summary>解釋題答案：怎樣判斷一個參數能不能省略？</summary>
 
-## 5. 解包 (Unpacking)
+看是否有默認值，不是看類型裡有沒有 None。分別預測 required_budget()、required_budget(None)、default_budget()、default_budget(None)：第一項運行時缺參數，第二項合法，第三項用 45，第四項違反靜態契約，但沒有運行時守衛的函數仍可能把 None 原樣返回。
 
-Python 允許你將一個可迭代對象（如列表或元組）的元素“解包”到多個變量中。這使得代碼更加簡潔。
+</details>
 
-<PythonEditor title="解包 vs. 手動賦值" compare={true}>
-```javascript !! js
-// JavaScript (解構賦值)
-const point = [10, 20, 30];
-const [x, y, z] = point;
+## 5. 容器描述元素，不自動描述整個業務模型
 
-const [first, ...rest] = [1, 2, 3, 4];
-// first = 1, rest = [2, 3, 4]
+`list[int]` 約定列表元素為 int；空列表也符合。`dict[str, int]` 約定鍵為 str、值為 int，但不保證恰好存在 count 和 minutes，也不限制只能有這兩個鍵。混合字段字典若標成 `dict[str, object]`，取出的值還需縮窄才能做整數運算。本章不為了給每個字段精確建模而搶先引入類或複雜類型語法，L12 會解決另一部分模型表達問題。
 
-console.log(x, y, z);
-console.log(first, rest);
-```
+Any 與 object 也不是同義詞。Any 讓檢查器容許許多未經證明的操作；object 表示“這是某個 Python 對象，但還不知道具體能力”，使用特定能力前需要檢查。以下兩個函數不在聲明時執行。第一種契約容許未經證明的 upper 調用；第二種先檢查再使用能力。
 
-```python !! py
-# Python (解包)
-point = (10, 20, 30)
-x, y, z = point
+```python smoke=typing
+from typing import Any
 
-# 星號表達式 (類似 JS 的 rest)
-first, *rest, last = [1, 2, 3, 4, 5]
-# first = 1, rest = [2, 3, 4], last = 5
 
-print(x, y, z)
-print(first, rest)
-```
-</PythonEditor>
+def unchecked_label(value: Any) -> str:
+    return value.upper()
 
-## 6. 使用 `with` 語句管理資源
 
-正如在“常見陷阱”模塊中提到的，使用 `with` 語句（上下文管理器）是處理需要顯式關閉的資源（如文件、數據庫連接）的最 Pythonic 的方式。它能確保資源即使在發生錯誤時也能被正確釋放。
-
-<PythonEditor title="with 語句 vs. try...finally" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript (沒有直接對應物，通常用 try...finally)
-let resource;
-try {
-  resource = acquireResource();
-  // use resource
-} finally {
-  if (resource) {
-    releaseResource(resource);
-  }
-}
+def value_label(value: object) -> str:
+    if isinstance(value, str):
+        return value.upper()
+    return "not text"
 ```
 
-```python !! py
-# Python (Pythonic)
-with open("my_file.txt", "r") as f:
-    content = f.read()
-    # 文件會自動關閉，即使在讀取時發生錯誤
+兩個函數都可以通過當前靜態檢查，但第一個若收到整數仍會運行失敗。對比時請在自己的副本里刪去第二個函數的判斷，直接返回 value.upper()：object 沒有承諾 upper，這次檢查器會拒絕。不要用把參數改成 Any 或添加忽略指令的方式掩蓋缺失的邊界檢查。
 
-# Python (不那麼 Pythonic)
-f = open("my_file.txt", "r")
-try:
-    content = f.read()
-finally:
-    f.close()
+## 6. 真正運行檢查器，也觀察它會漏掉什麼
+
+<Code language="python">{getTypingExample('errors/static_errors.py')}</Code>
+
+```bash
+uv run --locked python -m mypy errors/static_errors.py
 ```
-</PythonEditor>
 
-## 7. 總結
+這條命令應非零失敗：None 未排除就參與加法、列表裡混入字符串、預算傳字符串。診斷髮生在靜態分析階段，不是 pytest 斷言失敗；逐個修改對應原因，而不是讓調用者強制轉換所有輸入。
 
-編寫 Pythonic 代碼是一個持續的過程，它關乎於代碼的可讀性、簡潔性和效率。當你開始自然地使用列表推導式、`enumerate` 和 `with` 語句時，你就真正走上了成為一名地道 Python 開發者的道路。
+<Code language="python">{getTypingExample('errors/annotation_only.py')}</Code>
 
-**核心原則**：代碼首先是寫給人看的，其次才是給機器執行的。Pythonic 的代碼正是這一原則的最佳體現。
+```bash
+uv run --locked python -m mypy errors/annotation_only.py
+uv run --locked python errors/annotation_only.py
+```
+
+第一條拒絕參數類型；第二條仍輸出 33，因為實際執行的是字符串重複，不是數值加倍。Python 不會因為返回註解寫了 int 就把結果轉成整數。
+
+<Code language="ini">{getTypingExample('errors/mypy-default.ini')}</Code>
+
+<Code language="python">{getTypingExample('errors/unchecked.py')}</Code>
+
+```bash
+uv run --locked python -m mypy --config-file errors/mypy-default.ini errors/unchecked.py
+uv run --locked python -m mypy --config-file errors/mypy-default.ini --check-untyped-defs errors/unchecked.py
+uv run --locked python errors/unchecked.py
+```
+
+中性配置的第一條通過；增加函數體檢查後第二條失敗；實際執行第三條產生 TypeError。這個受控反例不是建議降低項目檢查範圍，而是提醒你審查“綠色”的前提。項目正常配置額外要求業務函數聲明類型，但也不因此擁有運行時輸入防護。
+
+## 7. 把外部數據從未知變成已驗證的值
+
+下面是最終業務實現，先沿著 text → JSON 解碼 → 數組形狀 → 單項檢查 → 新列表 → 選擇 → 彙總讀一遍，再逐函數解釋責任：
+
+<Code language="python">{getTypingExample('estimates.py')}</Code>
+
+JSON 解碼器能產生對象、數組、文本、數值、布爾和空值，返回類型是動態的。把它接成 object 是明確的檢查邊界，不是一次數據轉換。確認 list 後，逐項交給接受 object 的 non_negative_int；只有完成檢查才進入結果列表。內部邏輯得到可信的分鐘，但函數仍保留顯式業務檢查，避免從別的運行時入口繞過規則。
+
+`type(value) is int` 刻意表達本章“普通整數，拒絕 bool 和整數子類”的精確政策。bool 在 Python 的類型關係中也是 int 的子類，mypy 可能接受它；業務上 true 不是一分鐘。泛用庫可能合理接受子類，本章不是推薦所有程序一律精確類型判斷。
+
+<Code language="python">{getTypingExample('errors/bool_static.py')}</Code>
+
+```bash
+uv run --locked python -m mypy errors/bool_static.py
+uv run --locked python -m errors.bool_static
+```
+
+前者通過，後者由顯式守衛拋出 ValueError。這正是靜態契約與業務規則不能畫等號的可重複證據。dict 返回值只表達同類數值映射，具體鍵名和結果關係還要由實現、測試和文檔共同約定。
+
+## 8. 運行完整程序，解釋零、跳過與不修改輸入
+
+<Code language="python">{getTypingExample('app.py')}</Code>
+
+```bash
+uv run --locked python app.py
+```
+
+```text
+[30, 0, 15]
+{'count': 3, 'minutes': 45}
+[30, 0, 90, 15]
+```
+
+90 超出剩餘預算，只跳過這一項，不提前停止；後面的 15 仍能入選。0 合法且保留；不傳預算則全部入選。返回列表是新容器，不是把源列表原地刪改。類型檢查並不能證明“跳過而不是 break”這個業務政策，因此仍需測試。
+
+## 9. 測試的是行為，不是註解看起來完整
+
+<Code language="python">{getTypingExample('tests/test_estimates.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q
+```
+
+正常套件有 8 項測試。一個循環裡覆蓋多個壞值不等於多項 pytest 用例；目前沿用 L09 的普通測試寫法，參數化機制在 L13 再講。分別觀察語法錯誤、形狀錯誤、值錯誤、零預算、跳過後繼續和原輸入不變。故意把選擇循環裡的繼續改成提前終止，測試應失敗，而不是隻檢查輸出類型。
+
+<Code language="python">{getTypingExample('errors/bad_json.py')}</Code>
+
+```bash
+uv run --locked python -m errors.bad_json
+```
+
+這次 JSON 文本語法正確，卻在第一個 bool 元素觸發 ValueError。不要把這類業務拒絕標成 JSON 解析器故障。也不要將所有異常吞掉後返回空列表，否則“沒有任務”與“輸入壞了”就無法區分。
+
+## 10. 帶提示修復：別讓類型通過代替理解
+
+任務一：複製 static_errors，在不使用 Any、cast 或忽略指令的前提下修復三處錯誤，並寫出 None 分支的業務政策。任務二：把 budget 判斷改成真值判斷，找出最小錯誤輸入。任務三：給 baseline 補註解後，說明為什麼還不能放心接收網絡傳來的 JSON。
+
+<details>
+<summary>提示與核對方向</summary>
+
+None 分支可以明確拒絕或給出業務返回值，但不能假裝 None 是 int。把字符串元素和預算修成約定的整數，或者先在獨立解析邊界驗證。零預算配合 [1, 0] 能暴露把零當不限的錯誤。baseline 仍然既沒有驗證外部數組形狀，也沒有拒絕 bool、負數和字符串；註解不會自動補上這些代碼。
+
+</details>
+
+## 11. 獨立變式：第一個超限值
+
+先不打開答案。實現 first_over：輸入分鐘列表和非負整數 limit，先驗證**所有**元素，再返回原順序中第一個嚴格大於 limit 的整數；沒有匹配返回 None。拒絕 bool、負數、浮點和文本；不修改原列表。不允許因為早早找到一個匹配就放過後續壞元素。
+
+<Code language="python">{getTypingExample('exercises/first_over.py')}</Code>
+
+這個文件明確是練習起點，會拋出 NotImplementedError，不是完整實現。獨立寫註解和測試，覆蓋空列表、等於上限、多個匹配、先匹配後壞數據、零、無匹配與原輸入不變。然後對自己的文件運行 mypy 和 pytest；檢查器通過與測試通過分別記錄。
+
+<details>
+<summary>獨立參考答案與測試</summary>
+
+<Code language="python">{getTypingExample('solutions/first_over.py')}</Code>
+
+<Code language="python">{getTypingExample('solutions/test_first_over.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_first_over.py
+```
+
+兩輪循環並非為了性能展示：第一輪完整驗證，第二輪找首個匹配，使錯誤政策不隨匹配位置改變。這裡返回 None 有明確業務含義，調用者不能直接把結果當整數相加。
+
+</details>
+
+## 12. 驗收與暫停恢復記錄
+
+完成標準：不看答案給舊函數補上合理註解；解釋可空與缺省；復現一次靜態失敗、一次“靜態通過但運行拒絕”；畫出 JSON 邊界；完成獨立變式並讓測試抓住“找到匹配就不驗證後面”的缺陷。允許查文檔，不要求背診斷文字。
+
+暫停時記錄 Python/mypy 版本、當前檢查範圍、最後通過的兩條命令、哪個錯誤是刻意保留的、尚未驗證的輸入，以及下次第一步。恢復時先跑正常套件，再單獨復現待處理失敗，不把 errors 目錄一股腦當通過標準。
+
+下一章 L12 學類和數據模型，重點是實例、狀態歸屬與顯式校驗；不會把 dataclass 或類型提示誤當成自動守住所有入口的框架。
+
+## 13. 一手資料與適用邊界
+
+2026-09-28 核對 [Python 3.13 typing](https://docs.python.org/3.13/library/typing.html)、[mypy 2.3.1 常見誤區源碼](https://github.com/python/mypy/blob/v2.3.1/docs/source/common_issues.rst)與[類型種類](https://github.com/python/mypy/blob/v2.3.1/docs/source/kinds_of_types.rst)。mypy 文檔站本次抓取返回 403，使用官方倉庫同版本文檔核驗，而非第三方摘要。
+
+這章只建立基本契約工具，不承諾靜態檢查能證明算法、安全性或所有動態行為。複雜類型應在真實需要出現後再引入，不能讓類型體操遮住數據驗證和業務解釋。

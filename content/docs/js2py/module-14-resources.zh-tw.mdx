@@ -1,0 +1,222 @@
+---
+title: 生成器與資源生命週期：暫停、恢復與可靠釋放
+description: 追蹤 yield 的惰性執行、耗盡與提前關閉，再解釋 with 協議和 contextlib；用真實文件驗證正常、異常、獲取失敗及部分寫入的不同結果。
+---
+
+import { getResourceExample } from '@/lib/js2py-examples'
+
+## 1. 不再只問“函數返回什麼”，還要問“誰負責結束”
+
+此前 with 打開文件後能自動關閉，似乎已經夠用。但服務端以後還會涉及連接、會話和依賴：使用者中途失敗、只讀第一項就停止，甚至獲取資源本身失敗。若只背一行 yield 或 with，很容易把“請求已結束”誤認為“所有資源都已釋放”。
+
+本章先建立一個可觀察的生命週期，再把已熟悉的文件用法展開。這裡只處理同步代碼，不教數據庫事務，也不提前使用異步上下文管理器。關閉文件、回滾業務和持久化成功是不同承諾。
+
+| 本章契約 | 範圍 |
+| --- | --- |
+| 前置 | L05 異常、L07 文件、L12 類、L13 裝飾器，以及測試基礎 |
+| 新能力 | yield、暫停/恢復、迭代與耗盡、顯式關閉、上下文協議與 contextlib |
+| 驗收 | 追蹤獲取→使用→正常/異常釋放；證明 break 不保證關閉；驗證獲取失敗政策 |
+| 暫不要求 | send/雙向生成器、複雜委派、異步資源協議、連接池和事務實現 |
+
+下載 [L14 完整實驗](/learning-assets/js2py/u14-resources.zip)，進入 u14-resources。基線為 CPython 3.13.15、uv 0.12.13、pytest 8.4.2；文件操作在本地，不給它們加瀏覽器執行按鈕。
+
+## 2. 調用生成器函數，不會立即執行函數體
+
+普通函數調用通常執行到返回或拋錯。函數體中出現 yield 後，調用會創建生成器對象；實際代碼從第一次請求下一項才開始執行。yield 交出一個值並暫停，局部變量和執行位置保留；下次請求繼續從暫停處往下走，而不是從函數開頭重跑。
+
+消費者可以是 next，也可以是 for 或 list。for 會處理正常耗盡；手動 next 在耗盡後拋 StopIteration。一個已經耗盡的生成器不是可反覆播放的數組；需要重新調用生成器函數建立新的迭代過程。
+
+<Code language="python">{getResourceExample('sequences.py')}</Code>
+
+tracked_minutes 用 events 記錄機制，不代表真的持有系統資源。它每次準備產出時才驗證當前值，因此前面可能已消費成功，後面才失敗。惰性讀取不同於 L11 獨立題要求的“全部驗證後才返回匹配”，不能僅憑節約內存就無條件替換。
+
+`Generator[int]` 和 `Generator[str]` 描述這裡實際返回的生成器，包含迭代和 close 能力；單個產出類型參數的寫法適用於本章 Python 3.13 基線。它們不是列表。後面 `Iterator[TextIO]` 表示產生文本文件對象的迭代過程，供 contextmanager 包裝；不要求學習雙向傳值的高級類型參數。
+
+## 3. 把暫停點和清理點畫成時間線
+
+```python
+from collections.abc import Generator
+
+
+def numbers() -> Generator[int]:
+    print("start")
+    try:
+        yield 30
+        print("resume")
+        yield 0
+    finally:
+        print("finish")
+
+
+values = numbers()
+print("created")
+print(next(values))
+print(list(values))
+print(list(values))
+```
+
+```text
+created
+start
+30
+resume
+finish
+[0]
+[]
+```
+
+created 在 start 前，說明創建對象沒有進入函數體。list(values) 消費剩餘過程，先打印 resume，再走到正常結束並執行 finally，最後才把收集的 [0] 交給 print。第二次 list 得到空列表，不會重啟。
+
+finally 會在正常結束、傳播異常或關閉一個已經暫停在相應 try 內的生成器時參與清理。**從未開始的生成器被 close，不會先跑一遍函數體或該 finally。** 所以獲取資源放在函數體裡時，未開始也就還沒有獲取；若把獲取放在外層後才返回另一個生成器，所有權就必須另外設計。
+
+<details>
+<summary>解釋題答案：生成器能否保證整批輸入都有效？</summary>
+
+不能。tracked_minutes([30, -1], events) 創建時不報錯，第一次 next 得到 30，第二次才在驗證 -1 時失敗並清理。如果業務要求在任何效果發生前拒絕整批壞輸入，應先完整驗證，不能拿惰性迭代冒充預先驗證。
+
+</details>
+
+## 4. break 停的是循環，不是所有權協議
+
+<Code language="python">{getResourceExample('break_demo.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python break_demo.py
+```
+
+```text
+30
+['started', 'yield 30']
+['started', 'yield 30', 'finished']
+```
+
+循環 break 後，values 仍引用著暫停中的生成器，finally 尚未運行；顯式 close 才觸發本例清理。不要依賴某個解釋器剛好立即回收臨時對象，也不要把程序退出時的偶然回收當作穩定的資源政策。
+
+close 會讓暫停的生成器結束；以後再迭代它沒有結果。未開始時關閉沒有獲取/釋放日誌，已關閉後再 close 不重複清理。普通業務代碼不需要自己向生成器注入異常；只需要明確誰消費、誰有責任關閉。
+
+## 5. 文件生成器：少讀一些，也要完整釋放
+
+lines_from 在真正開始迭代時打開文件，每次產出一行去掉行尾換行後的文本，保留空行。暫停在 yield 時，文件仍在 with 的作用域內，因此還開著。完全耗盡會退出 with；中途停下則需要消費方建立可靠退出邊界。
+
+這裡使用 `contextlib.closing`：它接收有 close 方法的對象，在 with 退出時調用該方法，即使塊內 break 或拋錯也會走退出路徑。它不把任意對象變成生成器，也不負責撤銷已經產生的業務效果。原始生成器本身不能僅因有 yield 就直接作為 with 的上下文管理器。
+
+只取第一行的完整用法在後面的 app 中。注意兩種資源層次：外層 closing 關閉生成器；生成器結束讓內部 with 關閉文件。不能只證明不再打印，便宣稱底層文件已經釋放。
+
+## 6. 展開 with：進入的對象與交給塊內的對象可以不同
+
+類版本實現了兩個特殊方法。__enter__ 負責獲取並返回塊內使用的值；__exit__ 負責退出政策。`with TextFile(...) as handle` 裡的 handle 是 __enter__ 返回的真實文件，不是 TextFile 實例自身。
+
+<Code language="python">{getResourceExample('resources.py')}</Code>
+
+先讀 TextFile。進入時記錄 acquire-attempt，成功打開後記錄 acquired。塊內正常結束，__exit__ 收到三個 None；塊內拋錯時收到異常類型、異常對象和回溯。參數名 traceback 只是本章未使用的診斷信息，不要求現在掌握它的內部結構或複雜註解。
+
+返回 False 表示不壓下塊內異常，讓調用者繼續處理；返回 True 會抑制它，必須有明確理由才這樣做。若 __enter__ 打開文件就失敗，塊內不執行，__exit__ 也不會替這個未進入的上下文執行。獲取多個資源時，應逐個建立負責釋放的邊界，而不是假設最後一個 with 會處理前面所有獲取失敗。
+
+該簡單 TextFile 不承諾同一實例可嵌套重入。每次 with 構造新的管理器，避免第二次進入覆蓋第一次持有的 handle。異常期間如果 close 自己又失敗，也可能產生新的異常；本章不偽裝成已經覆蓋磁盤與系統的所有故障模式。
+
+## 7. contextmanager：恰好一次 yield 的協議適配
+
+再讀 opened_text。@contextmanager 接收生成器函數，產生供 with 使用的上下文管理器工廠。進入時執行到 yield，把文件交給塊內；退出時恢復這個暫停點。正常退出繼續向下執行，異常退出會在暫停點拋入塊內的異常，使 finally 仍有機會關閉文件。
+
+這不是“把函數中某一行挪去後臺執行”，也不是協程調度。yield 前是獲取，yield 的值供使用，finally 是退出清理。正常成功的進入必須恰好產出一次；沒有產出或產出兩次都違反協議。打開失敗可以直接拋錯，不需要為了湊一次 yield 而提供假文件。
+
+一個管理器實例不是通用可重入對象；每次使用都重新調用 opened_text(...)。記錄並重新拋出異常是合理的診斷方式，捕獲後不重新拋則可能把失敗變成成功。下一節會觀察這個危險的差別。
+
+## 8. 完整運行：正常關閉與異常關閉分開觀察
+
+<Code language="toml">{getResourceExample('pyproject.toml')}</Code>
+
+<Code language="text">{getResourceExample('fixtures/lines.txt')}</Code>
+
+<Code language="python">{getResourceExample('app.py')}</Code>
+
+```bash
+uv run --locked python app.py
+uv run --locked python -m pytest -q
+```
+
+```text
+[]
+30
+['started', 'yield 30']
+['started', 'yield 30', 'finished']
+alpha
+True ['acquire-attempt', 'acquired', 'released']
+True ['acquire-attempt', 'acquired', 'released']
+alpha
+```
+
+第一段觀察惰性與 close；第二段正常離開類管理器，handle.closed 為 True；第三段塊內主動失敗，文件仍關閉，而且 ValueError 傳播到外部 except 後才打印；最後通過 closing 提前退出文件迭代。相同的 released 日誌並不表示塊內業務都成功，只能結合異常和結果判斷。
+
+## 9. 兩種真實錯誤：悄悄吞錯與違反協議
+
+<Code language="python">{getResourceExample('errors/suppressed.py')}</Code>
+
+```bash
+uv run --locked python errors/suppressed.py
+```
+
+輸出 hidden 和 continued，退出碼為零。塊內已經失敗，但生成器捕獲後正常結束，contextmanager 將其視為處理完異常。若需求是不許隱藏保存失敗，修復應重新 raise，而非只把打印文本改成“嚴重錯誤”。
+
+<Code language="python">{getResourceExample('errors/two_yields.py')}</Code>
+
+```bash
+uv run --locked python errors/two_yields.py
+```
+
+先輸出 first，退出時發現第二次產出，拋 RuntimeError。這不同於文件路徑不存在、塊內業務失敗或 pytest 斷言失敗。排錯要標記獲取、使用、釋放哪個階段出了問題，不把它們全部歸為“with 有問題”。
+
+## 10. 用真實句柄和失敗路徑驗證，而不是隻看日誌
+
+<Code language="python">{getResourceExample('tests/test_resources.py')}</Code>
+
+套件實際為 12 項測試，參數化讓類管理器與生成器管理器接受同樣的正常、異常、獲取失敗驗收。測試同時看 closed 屬性、異常是否傳播、塊內是否執行、事件順序和後續迭代；日誌本身可以寫錯，不能只斷言打印過 released。
+
+獲取失敗使用臨時目錄內不存在的文件，避免讀取機器上偶然存在的路徑。嵌套測試證明內部退出後外部仍可用，最後外部才關閉。這裡只依靠已經學習的 TemporaryDirectory 與參數化，不偷用未解釋的 fixture。
+
+帶提示任務：故意把 __exit__ 返回值改成 True，看哪個異常測試失敗；把 break_demo 的 close 刪除，說明為什麼程序退出碼仍可能為零，卻沒有完成確定性釋放證明。
+
+<details>
+<summary>帶提示練習核對</summary>
+
+pytest.raises 要求 ValueError 傳到測試的外層；被抑制就會失敗。刪除顯式 close 後，在還持有生成器引用的位置檢查 events，finished 不應出現。不要把等待垃圾回收或加 sleep 當修復；應給資源一個明確擁有者和退出邊界。
+
+</details>
+
+## 11. 獨立變式：新建報告，但不偽裝成事務
+
+實現 new_report(path, events) 上下文管理器：只能新建文件，路徑已存在時拒絕並保留原字節；返回可寫文本句柄，正常和塊內異常退出都關閉；塊內異常繼續傳播。事件與 opened_text 一樣區分 acquire-attempt、acquired、released。父目錄由調用者準備，不偷偷創建或覆蓋別人的目錄。
+
+所需文件模式為 x：獨佔創建，已存在就拋 FileExistsError；與 w 會截斷現有文件不同。這裡的“獨佔”是創建規則，不是為後續所有文件操作加事務鎖。寫入一部分後塊內失敗，文件可以留下部分內容，必須在文檔和測試裡明確承認，不能聲稱 close 等於回滾或原子替換。
+
+自己在臨時目錄測試正常寫入、已有目標、塊內寫一半失敗和真實句柄關閉。失敗後保留什麼是需求的一部分，不要為了測試變綠悄悄刪文件。
+
+<details>
+<summary>獨立參考實現與測試</summary>
+
+<Code language="python">{getResourceExample('solutions/new_report.py')}</Code>
+
+<Code language="python">{getResourceExample('solutions/test_new_report.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_new_report.py
+```
+
+兩項參考測試包含成功、獲取失敗和使用中失敗三個路徑。已有文件只記錄嘗試，不進入塊內，也不偽造 released；寫一半失敗則關閉並傳播，同時留下 partial 內容。若業務要求全有或全無，需要進一步的存儲策略和失敗演練，本章沒有完成那項保證。
+
+</details>
+
+## 12. 驗收與暫停恢復：記錄生命週期，不只記錄頁碼
+
+能獨立畫出創建生成器、首次 next、暫停、再次恢復、耗盡/close 的時間線；證明 break 不保證釋放；區分未開始與已暫停的 close；實現不吞異常的管理器；讓測試發現抑制異常的缺陷；獨立完成新報告政策。
+
+暫停記錄：當前資源由誰獲取和關閉、是否已開始迭代、最後成功/失敗命令、臨時文件是否留有部分內容、失敗發生階段和下一步。恢復時先用臨時數據重放錯誤路徑，不直接拿重要文件試覆蓋或刪除。
+
+這些基礎完成後，H01 才進入持續運行的服務：進程為什麼不隨一次調用結束、端口由誰監聽、客戶端輸入為何不能直接信任。不會把文件演示突然包裝成“已可上線的後端”。
+
+## 13. 一手資料與釋放保證的範圍
+
+2026-09-28 核對 [生成器表達式與方法](https://docs.python.org/3.13/reference/expressions.html#generator-iterator-methods)、[with 協議](https://docs.python.org/3.13/reference/compound_stmts.html#the-with-statement)、[contextlib](https://docs.python.org/3.13/library/contextlib.html)和 [Generator 類型註解](https://docs.python.org/3.13/library/typing.html#typing.Generator)。
+
+這裡驗證正常控制流、Python 異常和顯式關閉，不保證強制殺進程、掉電、文件系統失效時仍執行 finally。關閉句柄不等於業務回滾，也不自動證明數據已可靠持久化到存儲介質；後續數據庫與運維章節會分別建立那些責任。

@@ -1,0 +1,264 @@
+---
+title: Reliable operations — transactions, idempotency receipts and real races
+description: Commit tasks and receipts atomically in PostgreSQL, observe unique-key waits with two connections, and explain reauthorization, retention and data-representation boundaries.
+---
+
+import { getReliableOperationExample } from '@/lib/js2py-examples'
+
+## 1. No response does not mean no work happened
+
+Disabling a submit button reduces double clicks, but cannot prevent network interruption, a refresh, proxy retries or two clients submitting simultaneously. Suppose the server inserts a task and commits, but the response is lost in transit. The client knows only that it received no result; it cannot conclude that the transaction rolled back. Sending another POST may create a second task. Wrapping every retry in a new transaction does not solve that uncertainty.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | S02 identity, object policy and synchronous APIs; D03 transactions, constraints and two connections; D06 real PostgreSQL/HTTP fixtures |
+| New capabilities | Define idempotency scope, normalize input, store public receipts, commit atomically, observe unique-index contention, reauthorize replay and specify TTL/cleanup boundaries |
+| Independent acceptance | Same key/payload returns the same task; a changed payload gets 409; simultaneous requests commit one task; rollback leaves no partial result; removed members cannot retrieve old receipts |
+| Not implemented | Exactly-once delivery, cross-service transactions, queues/outbox, automatic retries for arbitrary failures, production cleanup scheduling or capacity guarantees |
+
+Download the [complete S03 lab](/learning-assets/js2py/s03-reliable-operations.zip). It includes S01 identity and S02 authorization without importing other chapters. The schema still uses D's bigint id, title, description, status, minutes, due_at and priority; it does not silently revert to H's done/note. Task creation now adds an explicit idempotency protocol.
+
+## 2. Define what counts as the same request
+
+The client generates a UUIDv4 for **one logical creation operation** and sends it in the Idempotency-Key header. When the result is unknown, it repeats the same key and logical payload. It generates a different key only when it really intends another creation. A UUID does not establish identity or replace object authorization. The service still verifies the Bearer and current membership.
+
+| Situation | Response in this lab | Database outcome |
+| --- | --- | --- |
+| New key, valid member, valid task | 201; Idempotency-Replayed: false | Task and receipt commit together |
+| Within lifetime, same scope/key/payload | Original 201; Idempotency-Replayed: true | No second insertion |
+| Same scope/key, different payload | 409 | Original task and receipt unchanged |
+| Missing or noncanonical lowercase UUIDv4 key | Sanitized 422 | No task |
+| Expired but retained receipt | 409; reconcile the result | No automatic reexecution |
+| Invalid session / revoked project membership | 401 / 404 | No historical receipt disclosure |
+
+The scope is actor_id + project_id + operation + key. Authentication supplies actor_id; the server fixes operation to create-task-v1 instead of accepting it from the client. Alice and Bob using the same key do not represent one operation; the same person using it in different projects is also independent. This prevents one user's response from being returned to another. Future semantic changes require a deliberate operation-version decision, not arbitrary reinterpretation of old receipts by new code.
+
+## 3. Derive transaction boundaries from failure windows
+
+```text
+request -> authenticate -> guard current project membership
+                          |
+                  unique receipt claim
+                  /                  
+            winner                    existing key
+              |                           |
+        insert task                 read committed receipt
+        fill public receipt         expiry + digest checks
+              |                           |
+       commit BOTH                  replay original response
+              |
+       HTTP response may be lost
+```
+
+If the task commits before the receipt is written, a crash between them leaves a task with no deduplication evidence. If an empty receipt commits first, later failure can trap retries behind an empty result. Therefore claiming the key, creating the task and filling the receipt belong in **one transaction**. Any precommit exception rolls back all three; replay with the same key resolves a response lost after commit, rather than guessing whether the server ran.
+
+This covers local database writes only. An email or payment API called inside the transaction does not automatically participate in PostgreSQL rollback. Wrapping a network call in this function cannot establish cross-system exactly-once behavior. Reliable external side effects need another reviewed protocol; this chapter does not conceal that gap.
+
+## 4. A migration stores only the necessary public receipt
+
+Pinned versions verified on **2026-09-28**: CPython 3.13.15, uv 0.12.13, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, SQLAlchemy 2.0.54, Alembic 1.20.0, psycopg[binary] 3.3.6, PostgreSQL 18.6, argon2-cffi 25.1.0 and pytest 8.4.2. The real uv.lock comes from public PyPI; this is not a latest-release claim.
+
+<Code language="toml">{getReliableOperationExample('pyproject.toml')}</Code>
+
+Migrations 001–003 preserve D's evolution, 004 adds identity, 005 permits at most one owner per project, and 006 adds task_operations:
+
+<Code language="python">{getReliableOperationExample('migrations/versions/006_task_operations.py')}</Code>
+
+The composite primary key arbitrates concurrent claims. An application SELECT followed by INSERT is not an equivalent replacement. request_digest compares normalized requests; it is not a password hash. response_body stores only TaskPublic JSON, never Authorization, passwords or complete request headers. response_status is fixed to this operation's 201. created_at/expires_at use timestamptz; the cleanup index speeds scans but deletes nothing by itself.
+
+A receipt is the historical creation result, not a live task mirror. A later PATCH or deletion of the task does not rewrite the old receipt. Use a separate GET for current state. If the project has been deleted, the initial project check produces 404 instead of bypassing its lifecycle through a receipt. Project deletion removes its receipts, then tasks, members and the project in one transaction, respecting RESTRICT foreign keys.
+
+## 5. Normalize before hashing, rather than comparing raw JSON strings
+
+<Code language="python">{getReliableOperationExample('schemas.py')}</Code>
+
+TaskInput first performs runtime validation: nonblank title with spelling preserved; ordinary nonnegative integer minutes rejecting bool/text/float; a finite status enum; no extra fields. After defaults are filled, model_dump(mode="json") creates an explicit representation. Sorted keys and fixed separators produce the string that SHA-256 hashes. JSON key order does not make a different operation; omitted minutes and explicit minutes=0 are equivalent.
+
+due_at needs an intentional conversion because JSON has no datetime value type. This boundary explicitly parses offset-bearing ISO text and converts it to UTC while the other fields remain strict. +08:00 and +00:00 representations of the same instant normalize identically. Offset-free times are rejected rather than guessing the client's timezone. In contrast, title is not trimmed: "Review" and " Review " are different payloads here, not intentions to merge just because they look similar.
+
+<details>
+<summary>Explanation answer: why not hash(request.body())?</summary>
+
+Raw JSON can vary in spacing, key order, omitted defaults and date offsets while representing the same validated operation. Hashing its bytes would report false conflicts. Over-normalizing can cause the opposite bug, merging different intentions by trimming a title, for example. Normalization is a business contract, not “semantic equality” obtained by choosing a JSON tool. This example declares the exact normalization scope; the digest is neither authorization nor a compatibility promise for arbitrary future fields.
+
+</details>
+
+## 6. Follow claimant and contender to understand the second SQL statement
+
+<Code language="python">{getReliableOperationExample('reliable.py')}</Code>
+
+create_task_once immediately calls guard_project, acquiring a shared project lock and checking current membership. It then attempts INSERT ... ON CONFLICT DO NOTHING RETURNING key. A successful inserter is the claimant: it calls create_task, validates the public model and fills the receipt. The HTTP entry point owns the commit; helpers do not secretly commit.
+
+Another connection can attempt the same composite key concurrently. PostgreSQL's unique index waits for the competing uncommitted transaction. If the first transaction commits, the later INSERT does not insert. If the first rolls back, the later INSERT can succeed. No Python dictionary or thread lock is pretending to guarantee uniqueness across processes.
+
+<Code language="python">{getReliableOperationExample('db.py')}</Code>
+
+The engine explicitly uses READ COMMITTED. Each statement has its own committed view. ON CONFLICT DO NOTHING may decline an insertion because of another transaction's row even when that row was outside the INSERT's initial snapshot. After waiting, execute a **new SELECT**, lock the receipt exclusively, then check expiry and digest. Do not keep searching the original snapshot or interpret “no RETURNING value” as “no task exists.”
+
+An operator might concurrently purge an expired receipt, so the new SELECT can find nothing. This branch returns 409 for reconciliation, rather than silently creating another task. Locks last until the transaction ends; the declared order is user, credential, project, task/receipt. Tested paths do not prove every future business combination deadlock-free or supply unlimited throughput.
+
+<details>
+<summary>Failure answer: what happens if creation throws after claiming and inserting?</summary>
+
+While both writes remain inside one Session.begin, both task and provisional receipt roll back. A later request can claim the same key and create one task. The identity sequence may already have advanced: gaps do not demonstrate a secretly committed duplicate. Count committed rows and inspect receipts, not consecutive IDs after failures. Replacing a helper's flush with commit breaks this reasoning, and the failure test must catch it.
+
+</details>
+
+## 7. Replay is still a protected data read
+
+<Code language="python">{getReliableOperationExample('app.py')}</Code>
+
+The entry point authenticates before invoking the transactional idempotency service. A replay is not “cache hit, skip everything”: a removed member holding an old key must get 404, and an old token after logout or password change must get 401. Even a public-shaped saved result belongs to the project; being historical does not make it available to everyone who knows the key.
+
+Revocation has a precise ordering guarantee. Operations already holding user/project shared locks may finish. Password change, disabling or membership removal waits for the corresponding exclusive lock; after revocation commits, new protected operations observe the new state and are denied. Already-authorized responses cannot be recalled. The global project list retains S02's membership-filtered statement-snapshot boundary, with neither per-project locking nor a single items/total snapshot guarantee.
+
+Login, validation and database failures retain S01's redaction rules. Hiding SQL parameters does not prove driver exception text safe; the database adapters return generic 409/503 responses without exception repr. Tests inspect secret markers in application and PostgreSQL logs. Future logging, reverse proxies, APM and unknown third-party exceptions still need separate review.
+
+## 8. Start on an owned local cluster
+
+Work in the extracted s03-reliable-operations directory. Do not reuse running S01/S02 clusters or the database on a default port.
+
+```bash
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+unset VIRTUAL_ENV UV_PROJECT_ENVIRONMENT UV_ACTIVE UV_PYTHON UV_CONFIG_FILE
+export UV_NO_CONFIG=true
+uv sync --locked
+uv run --locked python labdb.py start
+```
+
+Copy the program's DATABASE_URL export into this terminal. It points to a Unix socket in a private mkdtemp directory and contains no password. Then:
+
+```bash
+uv run --locked alembic upgrade head
+uv run --locked python admin.py create-user Alice
+uv run --locked python admin.py create-user Bob
+uv run --locked python serve.py --port 8063
+```
+
+Passwords are set through getpass, not command arguments or tutorial literals. HTTP binds only to 127.0.0.1; one worker does not imply no concurrent requests. Open another terminal in the same directory and use the client's private session files. Commands assume fresh Alice/Bob IDs 1/2 and first project ID 1. If you repeated the lab, read actual responses and substitute business IDs instead of forging session identity.
+
+## 9. Real requests: replay, conflict, removal and recovery
+
+```bash
+uv run --locked python client.py --port 8063 --session .session-alice.json login Alice
+uv run --locked python client.py --port 8063 --session .session-bob.json login Bob
+uv run --locked python client.py --port 8063 --session .session-bob.json request POST /projects --json '{"name":"Reliability lab"}'
+uv run --locked python client.py --port 8063 --session .session-bob.json request POST /projects/1/members --json '{"user_id":1}'
+KEY="$(uv run --locked python -c 'import uuid; print(uuid.uuid4())')"
+uv run --locked python client.py --port 8063 --session .session-alice.json request POST /projects/1/tasks --key "$KEY" --json '{"title":"Review","minutes":15}'
+uv run --locked python client.py --port 8063 --session .session-alice.json request POST /projects/1/tasks --key "$KEY" --json '{"minutes":15,"title":"Review"}'
+uv run --locked python client.py --port 8063 --session .session-alice.json request POST /projects/1/tasks --key "$KEY" --json '{"title":"Review","minutes":16}'
+uv run --locked python client.py --port 8063 --session .session-bob.json request GET '/projects/1/tasks?limit=10&offset=0'
+```
+
+Both initial task calls return 201 with the same id; the replay header changes from false to true. The third call returns 409, and the list total is 1. A key identifies an operation rather than authenticating it. It may be recorded for reconciliation, but business-correlation metadata should not be collected indefinitely. Bearers never go in --json or --key, and the client never prints the raw token.
+
+```bash
+uv run --locked python client.py --port 8063 --session .session-bob.json request DELETE /projects/1/members/1
+uv run --locked python client.py --port 8063 --session .session-alice.json request POST /projects/1/tasks --key "$KEY" --json '{"title":"Review","minutes":15}'
+uv run --locked python client.py --port 8063 --session .session-alice.json request GET /users/me
+```
+
+Expect 204, 404 and 200. Alice remains authenticated but can no longer replay project data. Recovery requires the owner to invite her again; if the receipt remains valid, the same key retrieves the original result. Alice cannot restore permission by submitting role, nor bypass the check by generating a new key.
+
+Also try missing keys, UUIDv1/uppercase keys and offset-free due_at. Expect 422 and no task. Treat a lost response as an **unknown outcome**: retain the key, retry and reconcile. Do not hide a 409 behind a blind while True retry loop.
+
+## 10. Two connections must actually exist concurrently
+
+```bash
+uv run --locked python -m pytest -q
+```
+
+<Code language="python">{getReliableOperationExample('tests/test_reliable.py')}</Code>
+
+The first test layer sends two real HTTP calls simultaneously, asserting one task ID, one task row and one receipt. The second deliberately holds an uncommitted claim on connection A while connection B contends. Different pg_backend_pid values and pg_blocking_pids prove that B is actually waiting for A, rather than two sequential calls coincidentally returning the same number.
+
+| A outcome | B payload | B outcome |
+| --- | --- | --- |
+| Commit | Same | Retrieve original receipt; no extra task |
+| Commit | Different | 409 |
+| Rollback | Same | B becomes claimant and commits one task |
+
+Tests do not use a sleep to guess that contention occurred. They wait for a reported database blocking relationship with bounded timeouts and release their own transactions in finally. Separate two-connection tests observe disable and membership-removal ordering. Committed receipts still replay after both API and owned-PG restarts, unlike H04's reset-on-restart memory store.
+
+## 11. TTL is a retention contract, not automatic deletion
+
+Receipts default to 86400 seconds; IDEMPOTENCY_TTL_SECONDS permits 60–604800. Expired but retained keys produce 409 so the client checks whether a task already exists. Expiry must not be read as “never executed.” The lab uses the application UTC clock; multiple instances require synchronization and a clock-skew policy.
+
+<Code language="python">{getReliableOperationExample('purge_expired.py')}</Code>
+
+```bash
+uv run --locked python purge_expired.py
+uv run --locked python purge_expired.py --apply
+```
+
+The first command reports the number eligible for deletion; the second is an explicit operator deletion. After cleanup, the service no longer remembers that old key and reuse may create another task. Tests move expiry into the past in their owned database, checking retained-key conflict, explicit purge and the end of deduplication. Readers do not have to wait a day for evidence. Production needs a maximum client retry window, receipt retention/backups, deletion ownership, auditing and scheduling. Manual lab cleanup is not a perpetual-deduplication promise.
+
+<details>
+<summary>Boundary answer: does keeping receipts longer solve reliability?</summary>
+
+Longer retention covers a longer retry window but costs storage, privacy, index maintenance and deletion work. It cannot prevent a client changing keys or solve external side effects. This protocol applies only to the same scope, key and normalized payload under valid permissions and the declared retention rules. Once the receipt is removed, there is no hidden mechanism that remembers execution forever. Put that limit in the API and operations contract rather than calling the table a permanent cache.
+
+</details>
+
+## 12. Choose UTC, UUID and exact numbers for an actual requirement
+
+<Code language="python">{getReliableOperationExample('representations.py')}</Code>
+
+UTC is a common coordinate for an instant, not a user's local display format. UUIDv4 is used only for the client operation key; existing database bigint primary keys remain. Replacing object IDs with UUIDs would not replace authorization. Exact monetary values should not be constructed from binary floats. The independent exercise therefore accepts decimal strings and rejects bool/float, NaN/Infinity, negatives and more than two fractional digits at runtime.
+
+exact_total bounds both amount and quantity and fixes precision in a local Decimal context, preventing an ambient global context or unbounded input from silently changing the calculation. This is not a payment, tax-rounding or multicurrency implementation, and no NUMERIC field has been added to tasks. A future money feature needs its own API, database precision and rounding policy.
+
+```bash
+uv run --locked python representations.py
+```
+
+```text
+2026-09-28T08:30:00+00:00
+4
+0.30
+```
+
+## 13. Independent rebuild and measurable variations
+
+**Rebuild independently:** take only the environment, existing identity/authorization contract and migrations 001–005 into a new directory. Implement 006, normalization, claiming and replay yourself, without importing reference reliable.py. Predict failure windows before repeating same-key, changed-payload, two-connection commit/rollback, revocation, API/PG restart and expiry-cleanup checks. Deliver statuses, committed row counts and blocking relationships, not secrets or just a green screenshot.
+
+**Variation A:** omit minutes, compare against explicit 0, then change it to 1. Only the final request should conflict. Changing leading/trailing title spaces must not be mistaken for the same operation. Explain your normalization contract instead of changing it merely to satisfy existing tests.
+
+**Variation B:** independently implement offset-aware UTC conversion and decimal-string price times integer quantity. Valid 0.10×3 yields exactly 0.30; floats, boolean quantities and three decimal places fail. This is a representation exercise, not a new payment service.
+
+<details>
+<summary>Independent answers and failure diagnosis</summary>
+
+The idempotency reference is reliable.py above. Close it after understanding the reasoning, implement your version, and compare against tests/test_reliable.py's acceptance matrix. The representation answer is representations.py with these executable assertions:
+
+<Code language="python">{getReliableOperationExample('tests/test_representations.py')}</Code>
+
+If you return one id but have two rows, check whether task insertion happens before receipt lookup. If every retry remains stuck after one failure, look for an early commit of an empty receipt. If replay survives revoked membership, check whether authorization sits only inside the cache-miss branch. Recovery means repairing the responsible boundary, not deleting every table and declaring success.
+
+</details>
+
+## 14. Resume notes, exclusions and primary sources
+
+```text
+checkpoint: S03 atomic task receipt
+migration: 006_task_operations
+operation: create-task-v1
+observed: first 201; replay 201; changed payload 409; removed member 404
+race: distinct backend PIDs; blocked contender; commit/rollback outcomes checked
+credential_values: not recorded
+next: verify readiness; reconcile task id before choosing a new operation key
+```
+
+Stop the API in its owning terminal. labdb.py restart preserves the owned database; labdb.py stop verifies ownership, stops it and deletes temporary data. That deletion is not a persistence failure. Sessions, PG data, environments, caches, logs and credentials are excluded from the download allowlist.
+
+This verification does not cover production TLS/throttling, arbitrary unknown exceptions, distributed clock skew, backup recovery, every cleanup concurrency interleaving, cross-database/external side effects, indefinite retries, every business deadlock or real overload. Global lists and already-started responses do not provide retroactive cancellation on revocation. Duplicates after retention ends are an explicit boundary, not an exactly-once implementation. Future independent security review must inspect every added route and logging path.
+
+Official documentation was verified on 2026-09-28. SOURCES.md records full URLs/versions and VERIFICATION.md the executed commands and cases:
+
+- [PostgreSQL Transaction Isolation](https://www.postgresql.org/docs/18/transaction-iso.html) and [INSERT](https://www.postgresql.org/docs/18/sql-insert.html): READ COMMITTED and ON CONFLICT snapshot/wait semantics.
+- [PostgreSQL Explicit Locking](https://www.postgresql.org/docs/18/explicit-locking.html): row locks and blocking.
+- [SQLAlchemy PostgreSQL](https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#insert-on-conflict-upsert): explicit conflict targets.
+- [Python datetime](https://docs.python.org/3.13/library/datetime.html), [uuid](https://docs.python.org/3.13/library/uuid.html) and [decimal](https://docs.python.org/3.13/library/decimal.html): timezone, identifier and exact-calculation boundaries.

@@ -1,0 +1,785 @@
+{
+  "review_date": "2026-09-24",
+  "scope": "L06 模块与标准库：完整英文正文、37 份共享 Python 源码、下载 README、读者与先修契约。不是全部教材、不是实际学习效果评估。",
+  "metadata": {
+    "started_at_utc": "2026-09-24T08:20:08.349779+00:00",
+    "elapsed_seconds": 1.253,
+    "http_status": 200,
+    "endpoint": "https://api.typesafe.ai/v1/systemone",
+    "requested_model": "jev-latest",
+    "returned_model": "jev-1.13.0",
+    "questions": 9,
+    "request_sha256": "300291a76bbc76d61f671248979299239d6c6d1551c82e1a3f282f0907107f76",
+    "usage": {
+      "input_tokens": 20696,
+      "output_tokens": 482
+    },
+    "credential_persisted": false
+  },
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "reader": "Experienced enterprise frontend engineer; fluent JS/Promises/async-await and basic TS; no original Python, backend, database or ops experience; wants independent production backend development; slow flexible schedule, no rush or API catalogues.",
+      "prior_learning": "L00 scripts; L01 name binding scalars; L02 containers shared mutation; L03 conditions loops comprehensions; L04 functions arguments defaults scope closures; L05 exception matching recovery/propagation narrow try/else cause chains and asserts. Imports/packages not previously required.",
+      "chapter_contracts": {
+        "schema_version": 1,
+        "updated_at": "2026-09-24",
+        "reader": "成熟前端工程师，未实践Python、服务端、数据库和运维；允许慢速、间断学习。",
+        "status_note": "L00—L06已实现；其余条目是编写契约而非已完成教材，仍需逐章审查和验证。逻辑编号不改变现有URL。",
+        "chapters": [
+          {
+            "id": "L00",
+            "title": "认识 Python 与第一次运行",
+            "prerequisites": [],
+            "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+            "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+            "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+            "status": "implemented"
+          },
+          {
+            "id": "L01",
+            "title": "名称、值与基本运算",
+            "prerequisites": [
+              "L00"
+            ],
+            "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+            "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+            "boundary": "不引入复杂容器、作用域或类型体操",
+            "status": "implemented"
+          },
+          {
+            "id": "L02",
+            "title": "容器、引用与修改",
+            "prerequisites": [
+              "L01"
+            ],
+            "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+            "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+            "boundary": "不依赖循环或自定义函数完成首次容器实验",
+            "status": "implemented"
+          },
+          {
+            "id": "L03",
+            "title": "条件、循环与遍历",
+            "prerequisites": [
+              "L02"
+            ],
+            "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+            "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+            "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+            "status": "implemented"
+          },
+          {
+            "id": "L04",
+            "title": "函数、参数与作用域",
+            "prerequisites": [
+              "L03"
+            ],
+            "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+            "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+            "boundary": "不以装饰器或类封装作为练习要求",
+            "status": "implemented"
+          },
+          {
+            "id": "L05",
+            "title": "异常与调试",
+            "prerequisites": [
+              "L04"
+            ],
+            "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+            "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+            "boundary": "不把assert当作不可信输入的生产校验",
+            "status": "implemented"
+          },
+          {
+            "id": "L06",
+            "title": "模块与标准库",
+            "prerequisites": [
+              "L05"
+            ],
+            "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+            "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+            "boundary": "不先要求发布包、动态导入或框架架构",
+            "status": "implemented"
+          },
+          {
+            "id": "L07",
+            "title": "文件、JSON 与资源使用",
+            "prerequisites": [
+              "L06"
+            ],
+            "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+            "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+            "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+            "status": "planned"
+          },
+          {
+            "id": "L08",
+            "title": "环境与依赖管理",
+            "prerequisites": [
+              "L06",
+              "L07"
+            ],
+            "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+            "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+            "boundary": "不在入门章考核；不同时比较所有包管理器",
+            "status": "planned"
+          },
+          {
+            "id": "L09",
+            "title": "基础自动化测试",
+            "prerequisites": [
+              "L04",
+              "L05",
+              "L06",
+              "L08"
+            ],
+            "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+            "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+            "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+            "status": "planned"
+          },
+          {
+            "id": "L10",
+            "title": "第一个独立可复现项目",
+            "prerequisites": [
+              "L07",
+              "L08",
+              "L09"
+            ],
+            "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+            "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+            "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+            "status": "planned"
+          },
+          {
+            "id": "L11",
+            "title": "基础类型注解",
+            "prerequisites": [
+              "L02",
+              "L04",
+              "L06",
+              "L10"
+            ],
+            "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+            "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+            "boundary": "不要求复杂泛型、协议或零Any指标",
+            "status": "planned"
+          },
+          {
+            "id": "L12",
+            "title": "类与数据模型",
+            "prerequisites": [
+              "L04",
+              "L06",
+              "L11"
+            ],
+            "teach": "实例、self、初始化、组合、简单继承、dataclass",
+            "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+            "boundary": "不要求元类、深继承或框架内部实现",
+            "status": "planned"
+          },
+          {
+            "id": "L13",
+            "title": "装饰器与声明式接口",
+            "prerequisites": [
+              "L04",
+              "L06",
+              "L12"
+            ],
+            "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+            "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+            "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+            "status": "planned"
+          },
+          {
+            "id": "L14",
+            "title": "生成器与资源生命周期",
+            "prerequisites": [
+              "L05",
+              "L07",
+              "L12",
+              "L13"
+            ],
+            "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+            "acceptance": "跟踪资源获取、使用、正常及异常释放",
+            "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+            "status": "planned"
+          },
+          {
+            "id": "H01",
+            "title": "从客户端到持续运行的服务",
+            "prerequisites": [
+              "L10",
+              "L14"
+            ],
+            "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+            "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+            "boundary": "不假定有Express、数据库或服务器管理经验",
+            "status": "planned"
+          },
+          {
+            "id": "H02",
+            "title": "HTTP 与接口契约",
+            "prerequisites": [
+              "H01"
+            ],
+            "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+            "acceptance": "先写可联调的任务接口契约及失败场景",
+            "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+            "status": "planned"
+          },
+          {
+            "id": "H03",
+            "title": "第一个同步 FastAPI 服务",
+            "prerequisites": [
+              "H02",
+              "L13"
+            ],
+            "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+            "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+            "boundary": "不引入数据库或未教过的异步lifespan",
+            "status": "planned"
+          },
+          {
+            "id": "H04",
+            "title": "Pydantic 与输入输出边界",
+            "prerequisites": [
+              "H03",
+              "L11",
+              "L12"
+            ],
+            "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+            "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+            "boundary": "内存存储不是上线版本；不默认信任客户端",
+            "status": "planned"
+          },
+          {
+            "id": "H05",
+            "title": "应用组织、配置与依赖",
+            "prerequisites": [
+              "H04",
+              "L14"
+            ],
+            "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+            "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+            "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+            "status": "planned"
+          },
+          {
+            "id": "H06",
+            "title": "API 测试与前后端联调",
+            "prerequisites": [
+              "H05",
+              "L09",
+              "L13"
+            ],
+            "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+            "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+            "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+            "status": "planned"
+          },
+          {
+            "id": "D01",
+            "title": "关系模型与 PostgreSQL 入门",
+            "prerequisites": [
+              "H06"
+            ],
+            "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+            "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+            "boundary": "不把安装成功当掌握数据模型",
+            "status": "planned"
+          },
+          {
+            "id": "D02",
+            "title": "SQL 与参数化查询",
+            "prerequisites": [
+              "D01"
+            ],
+            "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+            "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+            "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+            "status": "planned"
+          },
+          {
+            "id": "D03",
+            "title": "事务、约束与并发冲突",
+            "prerequisites": [
+              "D02"
+            ],
+            "teach": "原子性、提交回滚、约束失败、隔离和竞争、事务边界",
+            "acceptance": "制造两步写入的后一步失败，证明前一步未残留",
+            "boundary": "不仅背ACID；不以单进程内存检查代替约束",
+            "status": "planned"
+          },
+          {
+            "id": "D04",
+            "title": "同步 SQLAlchemy 与 Session",
+            "prerequisites": [
+              "D03",
+              "H05"
+            ],
+            "teach": "映射、连接池与Session、事务所有权、查询、提交失败后的恢复",
+            "acceptance": "把API接入真实数据库并验证成功/失败都释放资源",
+            "boundary": "不第一次学数据库就加入异步ORM",
+            "status": "planned"
+          },
+          {
+            "id": "D05",
+            "title": "Alembic 与已有数据迁移",
+            "prerequisites": [
+              "D04"
+            ],
+            "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+            "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+            "boundary": "不删库重建；不承诺任意降级都无损",
+            "status": "planned"
+          },
+          {
+            "id": "D06",
+            "title": "数据库测试与查询诊断",
+            "prerequisites": [
+              "D05",
+              "H06"
+            ],
+            "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+            "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+            "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+            "status": "planned"
+          },
+          {
+            "id": "S01",
+            "title": "身份与凭证生命周期",
+            "prerequisites": [
+              "D06"
+            ],
+            "teach": "用户、密码哈希、登录、凭证验证/失效、禁用用户、日志脱敏",
+            "acceptance": "拒绝错误/过期/篡改凭证并验证撤销策略",
+            "boundary": "不自创密码学；登录成功不等于有对象权限",
+            "status": "planned"
+          },
+          {
+            "id": "S02",
+            "title": "对象级授权与多用户隔离",
+            "prerequisites": [
+              "S01"
+            ],
+            "teach": "角色和成员关系、所有权、默认拒绝、越权与负向测试",
+            "acceptance": "Alice知道Bob对象ID仍无法读取/修改，角色不能由请求体自授",
+            "boundary": "前端隐藏按钮和CORS都不是服务端授权",
+            "status": "planned"
+          },
+          {
+            "id": "S03",
+            "title": "可靠业务操作与幂等",
+            "prerequisites": [
+              "S02",
+              "D03"
+            ],
+            "teach": "业务冲突、重复提交、事务与幂等范围、日期时间/标识/精确数值的必要标准库",
+            "acceptance": "复现重复请求或并发冲突并验证约定行为",
+            "boundary": "不承诺仅靠重试就能实现恰好一次；按业务需要教学数据表示",
+            "status": "planned"
+          },
+          {
+            "id": "A01",
+            "title": "Python 异步执行模型",
+            "prerequisites": [
+              "S03"
+            ],
+            "teach": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制",
+            "acceptance": "通过可观察实验选择同步/异步边界，并验证取消行为",
+            "boundary": "JS熟悉async不代表Python自动调度；不机械改全部async",
+            "status": "planned"
+          },
+          {
+            "id": "A02",
+            "title": "外部服务与异步资源生命周期",
+            "prerequisites": [
+              "A01",
+              "L14",
+              "H05"
+            ],
+            "teach": "客户端复用、lifespan、超时、重试与幂等、故障替身、清理",
+            "acceptance": "外部依赖失败不拖垮核心CRUD；正常/异常/取消均释放资源",
+            "boundary": "不把进程内队列或BackgroundTasks当持久任务系统",
+            "status": "planned"
+          },
+          {
+            "id": "O01",
+            "title": "操作系统与服务运行基础",
+            "prerequisites": [
+              "A02"
+            ],
+            "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+            "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+            "boundary": "不先让初学者背Docker命令绕过OS基础",
+            "status": "planned"
+          },
+          {
+            "id": "O02",
+            "title": "容器与可部署应用",
+            "prerequisites": [
+              "O01",
+              "L08"
+            ],
+            "teach": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查",
+            "acceptance": "从干净环境构建运行并重启，确认数据和秘密边界",
+            "boundary": "不在镜像写密钥；不把容器健康等同于业务正确",
+            "status": "planned"
+          },
+          {
+            "id": "O03",
+            "title": "网络入口、HTTPS 与生产配置",
+            "prerequisites": [
+              "O02"
+            ],
+            "teach": "域名/DNS、反向代理、TLS终止、可信代理、生产错误与凭证/CORS/CSRF边界",
+            "acceptance": "验证HTTPS、错误响应、请求来源与凭证传递策略",
+            "boundary": "公开前需按实际认证方案检查CSRF等风险",
+            "status": "planned"
+          },
+          {
+            "id": "O04",
+            "title": "持续集成、发布与回退",
+            "prerequisites": [
+              "O03",
+              "D05",
+              "D06"
+            ],
+            "teach": "检查/测试流水线、环境分离、迁移执行时机、发布兼容与应用回退",
+            "acceptance": "完成一次成功发布和一次有数据的兼容回退演练",
+            "boundary": "不把危险数据库降级当作普通应用回退",
+            "status": "planned"
+          },
+          {
+            "id": "O05",
+            "title": "日志、监控与故障定位",
+            "prerequisites": [
+              "O04"
+            ],
+            "teach": "结构化日志、关联ID、错误和耗时、指标/告警、脱敏与容量观察",
+            "acceptance": "从一次错误请求追踪原因并证明日志不泄露凭证",
+            "boundary": "不是安装一个仪表盘就完成可观测性",
+            "status": "planned"
+          },
+          {
+            "id": "O06",
+            "title": "备份、恢复与受控上线",
+            "prerequisites": [
+              "O05"
+            ],
+            "teach": "备份范围、恢复目标、隔离恢复、数据验证、访问控制和操作手册",
+            "acceptance": "实际恢复数据库并验证数据后允许受邀用户使用",
+            "boundary": "只有备份文件不算通过；不直接扩展到开放注册",
+            "status": "planned"
+          },
+          {
+            "id": "G01",
+            "title": "独立需求与毕业验收",
+            "prerequisites": [
+              "O06"
+            ],
+            "teach": "仅给需求/验收/约束，不给实现步骤；设计、迁移、权限、测试、发布和维护",
+            "acceptance": "独立完成新功能并说明权衡、失败处理和恢复证据",
+            "boundary": "阅读完毕不等于毕业；以毕业项目规格的交付范围为准",
+            "status": "planned"
+          }
+        ]
+      },
+      "actual_english_lesson": "---\ntitle: \"Modules and the Standard Library\"\ndescription: \"Split understood functions into a few files. Follow import execution, name binding, entry points, working directories and regular packages, then independently build an import-safe task planner without a framework.\"\n---\n\nimport { getModuleExample } from '@/lib/js2py-examples'\n\n## 1. Reuse a function without accidentally running a program\n\nIn L05, parsing, reporting and demonstration data lived in one file. A second program now wants only the parser. Copying it gives two implementations to maintain; importing the whole file can unexpectedly run its demonstration. The next step is not a large directory architecture. It is understanding **how one file obtains another file's capabilities, and which code runs along the way**.\n\nA Python module is an object with its own namespace: a place where names refer to objects. In our first examples, a `.py` file supplies its code. A module can contain function definitions, constants and executable statements. Importing is therefore not simply pasting declarations or installing a dependency.\n\n### Chapter contract\n\n| Item | Agreement |\n| --- | --- |\n| Prerequisites | L00–L05: scripts, binding/sharing, containers, control flow, functions/scope, exceptions and traceback reading |\n| New capabilities | Imports and namespaces; import-time execution; explicit business entry points; current directory versus search paths; small regular packages |\n| Independent acceptance | Split task rules from reporting and entry code; demonstrate that import does not run the business entry; explain supported and failing commands |\n| Not required | Package publishing, dependency installation/configuration, import hooks, dynamic imports, classes, pytest, files/JSON, FastAPI or server architecture |\n\n### A multi-file lab, not a project scaffold\n\nDownload [L06 sources and reference answers](/learning-assets/js2py/u06-modules.zip). Extract it and open `u06-modules` in your editor and terminal. Continue using the environment introduced in [L00](/en/docs/js2py/module-00-python-introduction): **CPython 3.13; no third-party packages**. Commands were verified with 3.13.15 on 2026-09-24; that is a tested baseline, not a claim about the newest Python release.\n\n```bash\nuv run --no-project --python 3.13 python standard_library.py\n```\n\nUnless a section explicitly says `cd`, commands start in this extracted lab root. `--no-project` keeps these experiments independent of a surrounding project's configuration. Keep every group's files together. **The 37 Python files are not 37 standalone entry points:** helpers and package modules are imported; run the entry commands actually shown. Several failures are intentional and labelled.\n\nThe browser cannot reproduce your local directories and import context. This chapter is verified in a terminal, not by successively running fragments in one browser interpreter. `solutions/` contains answers; leave it closed until you have attempted the exercises.\n\n## 2. Builtins, standard-library modules, local modules and third-party packages\n\nYou already call `print`, `len`, `int` and `sum` without imports: they are builtins. Python also ships a standard library. Many of its capabilities live in modules that must be imported before their names are available. A local file you write is another possible module; a third-party distribution must first exist in the selected environment. **`import` locates and loads; it does not download or install.** Installation and isolation belong to L08.\n\nThis comparison is static (`canRun={false}`); the local command below is the verification path:\n\n<PythonEditor title=\"A builtin namespace versus an imported module\" compare={true} canRun={false}>\n```javascript case=ceil-comparison\nconsole.log(Math.ceil(2.1));\n```\n\n```python case=ceil-comparison\nimport math\n\nprint(math.ceil(2.1))\n```\n</PythonEditor>\n\nBoth print 3. JavaScript's `Math` is a builtin object; Python's `math` is a standard-library module. The dot selects an attribute after the left-hand name has been resolved. It does not mean that `math` is a class, or that every JavaScript builtin has the same Python packaging.\n\nFile: `standard_library.py`.\n\n<Code language=\"python\">{getModuleExample('standard_library.py')}</Code>\n\nExpected standard output:\n\n```text\nRounded up: 3\nAverage: 25\nEmpty input has no average\n```\n\n`ceil` rounds upward to an integer; `mean` computes an arithmetic mean. An empty list has no mean, so `statistics.mean([])` raises `statistics.StatisticsError`. The handler is deliberately specific, using L05's rule rather than turning an undefined average into zero. Standard-library functions still have input contracts and failure behavior. Learn to consult those contracts, not memorize every module.\n\n## 3. The first two files: execution and namespace are separate questions\n\nKeep these neighboring files in `first_import/`:\n\n```text\nfirst_import/\n  task_rules.py\n  report.py\n```\n\n`task_rules.py` deliberately prints an initialization marker. This is an observation tool, not a recommendation that reusable modules should print during import.\n\n<Code language=\"python\">{getModuleExample('first_import/task_rules.py')}</Code>\n\n`report.py`:\n\n<Code language=\"python\">{getModuleExample('first_import/report.py')}</Code>\n\nRun from the lab root:\n\n```bash\nuv run --no-project --python 3.13 python first_import/report.py\n```\n\n```text\ntask_rules initialized\nDefault: 20\nBuffered: 25\n```\n\nTrace this in order:\n\n1. Python begins executing `report.py`. It encounters `import task_rules`.\n2. For this fresh process, it finds the neighboring `task_rules.py`, creates a module object and executes its top-level code. The marker prints; the constant is bound; `def` creates the function. The function body has not been called.\n3. The import binds the name `task_rules` in the caller to that module object.\n4. `task_rules.DEFAULT_MINUTES` looks up an attribute in the module's namespace. `task_rules.add_buffer(20)` retrieves and then calls its function.\n\nThe modules do not merge their globals. A global in `task_rules.py` belongs to that module, not to every file in the process. This is organization rather than secrecy: public attributes can still be accessed through the module object. The namespace is not an access-control boundary.\n\nA filename such as `task_rules.py` becomes the import name `task_rules`, without `.py`. Use clear identifier-like names, not `task-rules.py`, and avoid names of modules you intend to use. We will diagnose collisions in section 10.\n\n## 4. Import forms: exactly which name is introduced?\n\nFile: `first_import/import_styles.py`.\n\n<Code language=\"python\">{getModuleExample('first_import/import_styles.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python first_import/import_styles.py\n```\n\n```text\ntask_rules initialized\nAlias: 20\nDirect names: 20 25\n```\n\n| Statement | Name bound in this caller | How to use it |\n| --- | --- | --- |\n| `import task_rules` | `task_rules`, a module | `task_rules.add_buffer(20)` |\n| `import task_rules as rules` | `rules`, the same kind of module reference | `rules.add_buffer(20)` |\n| `from task_rules import DEFAULT_MINUTES` | `DEFAULT_MINUTES`, the retrieved object | `DEFAULT_MINUTES` |\n| `from task_rules import add_buffer as buffered` | `buffered`, the retrieved function | `buffered(20)` |\n\n`from` does not avoid loading the module or select only a few source lines to execute. It changes the final name binding. An alias changes the caller's spelling, not the module file or original function's implementation. Keep the origin visible when several modules have similar names; avoid wildcard imports that make origins hard to trace.\n\nNow intentionally run `first_import/missing_name.py`:\n\n<Code language=\"python\">{getModuleExample('first_import/missing_name.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python first_import/missing_name.py\n```\n\nIt prints the marker and 25, then raises `NameError` at `task_rules.DEFAULT_MINUTES`. The module was loaded, but **the caller bound only `add_buffer`, not the name `task_rules`**. Fix the binding you actually need: use `import task_rules` with qualified access, or explicitly import the constant. Installing anything cannot repair this name error.\n\n## 5. Reuse within a process, and why from is not an ESM live binding\n\nFile: `first_import/import_twice.py`.\n\n<Code language=\"python\">{getModuleExample('first_import/import_twice.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python first_import/import_twice.py\n```\n\n```text\ntask_rules initialized\nSame module: True\nBuffered: 25\n```\n\nUnder ordinary importing in this one interpreter, the same module name is reused from an in-memory cache (`sys.modules`). Both aliases refer to the same object and initialization occurs once. Run the command again and a new process prints the marker again. Editing a source file does not automatically re-execute an already imported module in an existing process; for these lessons, end that process and start another.\n\nThis is **not** a guarantee that a physical file can never run twice. Executing code as `__main__` and later importing it under another name are different identities; reload and manual cache manipulation are additional cases outside this lesson. Do not construct business guarantees around “imports always happen only once.”\n\n### Rebinding and mutation still follow L01 and L02\n\n`bindings/settings.py`:\n\n<Code language=\"python\">{getModuleExample('bindings/settings.py')}</Code>\n\n`bindings/observe.py`:\n\n<Code language=\"python\">{getModuleExample('bindings/observe.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python bindings/observe.py\n```\n\n```text\nInitial: 20 20\nRebound: 20 40 40\nShared: ['python', 'modules'] ['python', 'modules']\nLocal tags: ['local'] ['python', 'modules']\n```\n\nDraw two namespaces. Initially the caller's `BUDGET` and `settings.BUDGET` both refer to 20. Assigning `settings.BUDGET = 40` changes the module's binding; the caller's independent name still refers to 20. `current_budget()` reads the globals of the module where the function was **defined**, so it sees 40, even though the function was imported directly.\n\nUppercase `BUDGET` is a naming convention, not enforced immutability.\n\nThe two `tags` bindings initially point to the same list. Appending through either reference mutates that list, so both observe it. Reassigning the caller's `tags` to a new list separates the bindings. **`from` does not deep-copy an object, and it does not create a live link to future rebindings.**\n\nJavaScript **ES modules** have live imported bindings: a change to an exported binding can be seen through its import, and the importer cannot assign to that imported binding. Python's directly imported name can be rebound locally. This comparison concerns ESM, not every CommonJS or bundler transformation. Transfer your understanding of references, not an assumption that similar `import` spellings have identical semantics.\n\n### Two caches, two different jobs\n\nYou may now see `__pycache__/` and `.pyc` files. CPython can cache compiled code on disk to avoid repeating compilation work. Those files are not your source and need not be copied into the exercise or download. They do not preserve the previous process's variables or bypass module initialization in a new process. In-memory module reuse and disk bytecode caching explain different observations.\n\n**Pause point A:** close the terminal, then predict the markers and binding outputs before rerunning. If “one module object” still means “one shared global namespace for every file” to you, repeat these experiments before packages.\n\n## 6. Top-level code versus an explicit business entry point\n\n`entry_points/noisy_report.py` defines a reusable function but also runs a report at the top level:\n\n<Code language=\"python\">{getModuleExample('entry_points/noisy_report.py')}</Code>\n\n`entry_points/use_noisy.py` only wanted that function:\n\n<Code language=\"python\">{getModuleExample('entry_points/use_noisy.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python entry_points/use_noisy.py\n```\n\n```text\nBusiness total: 55\nCaller total: 15\n```\n\nThe first line is an unintended business action from the caller's point of view. Import runs executable top-level statements. A function body runs only when called, but a top-level function call runs during import. Later, such a mistake could start network work or change stored data. We do not need either capability to observe the boundary now.\n\nMove demonstration data and the business call into `main`, then call it conditionally. File: `entry_points/quiet_report.py`.\n\n<Code language=\"python\">{getModuleExample('entry_points/quiet_report.py')}</Code>\n\nFile: `entry_points/use_quiet.py`.\n\n<Code language=\"python\">{getModuleExample('entry_points/use_quiet.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python entry_points/use_quiet.py\nuv run --no-project --python 3.13 python entry_points/quiet_report.py\n```\n\nFirst command:\n\n```text\nCaller total: 15\n```\n\nSecond command:\n\n```text\nBusiness total: 55\n```\n\n`__name__` is a string set by Python for each module. When imported here, the value is `\"quiet_report\"`; when executed as the program entry, it is `\"__main__\"`. The `if` uses the ordinary equality comparison and branching you already know. Defining a function named `main` has no automatic execution effect: the explicit `main()` call is essential.\n\nThe guard does **not** prevent imports, definitions or other unguarded top-level statements from executing. It protects only the code inside its branch. Hiding the final print while leaving data preparation at module level is an incomplete repair. A silent import is useful evidence, not proof that arbitrary modules have no side effects; inspect the placement of business calls as well.\n\n## 7. Three locations that are easy to confuse\n\nBefore packages, make execution context visible. File: `locations/show_context.py`.\n\n<Code language=\"python\">{getModuleExample('locations/show_context.py')}</Code>\n\n- `os.getcwd()` reports the process's **current working directory**. It is inherited from the launching terminal here.\n- `__file__` identifies this source file in these normal file-based examples.\n- `sys.path` is Python's list of module-search locations. `[0]` selects its first entry in the ordinary commands below. It is not the shell's `PATH`, which helps find executable commands.\n- `__name__` identifies the executing module; it is not a directory.\n\nWith no isolated/safe-path flags or custom path configuration, direct file execution puts the script's directory at the beginning of the search path. `-m` starts from the current directory to find the requested module. Other search locations include Python's library locations; built-in modules also have their own import handling. Do not reduce all import resolution to “always look beside the file containing the import.”\n\nFrom the lab root:\n\n```bash\nuv run --no-project --python 3.13 python locations/show_context.py\n```\n\nHere and only in the path displays, `<LAB>` means your real absolute extracted directory; it is **not text to type**:\n\n```text\nName: __main__\nCwd: <LAB>\nFile: <LAB>/locations/show_context.py\nFirst search: <LAB>/locations\n```\n\nNow explicitly change the terminal directory:\n\n```bash\ncd locations\nuv run --no-project --python 3.13 python show_context.py\nuv run --no-project --python 3.13 python -m show_context\ncd ..\n```\n\nBoth Python commands print:\n\n```text\nName: __main__\nCwd: <LAB>/locations\nFile: <LAB>/locations/show_context.py\nFirst search: <LAB>/locations\n```\n\n`-m` means “find this module by name, then run it as the entry point.” It takes `show_context`, **not** `show_context.py` or a filesystem path. Paths above use `/` for display; your operating system may format them differently. Running a script does not itself change the working directory to that script's directory. This will matter when L07 reads relative file paths.\n\nDo not “repair” confusion by appending paths to `sys.path` or setting `PYTHONPATH`. First record the actual current directory and exact command. These examples deliberately use normal local import behavior; an isolated `python -I` command removes the local search locations and is not interchangeable.\n\n## 8. A small regular package: name hierarchy and execution context\n\nA package groups modules under a qualified name. We will use a **regular package** with `__init__.py`. Python also supports namespace packages; those are a different mechanism, not needed here. Saying that every possible Python package must have this file would be too broad.\n\n```text\npackage_demo/\n  check_import.py\n  task_tools/\n    __init__.py\n    rules.py\n    report.py\n    app.py\n```\n\n`package_demo` is the directory we run from, not the package name. `task_tools` is the regular package. Its `__init__.py` contains only a docstring (a descriptive string), with no business calls:\n\n<Code language=\"python\">{getModuleExample('package_demo/task_tools/__init__.py')}</Code>\n\nThe package initializer executes when the package is first imported normally, before its submodule is loaded. Treat it as executable code, not an inert directory marker. It can be empty; this one documents its purpose.\n\n`task_tools/rules.py` contains only the calculation:\n\n<Code language=\"python\">{getModuleExample('package_demo/task_tools/rules.py')}</Code>\n\n`task_tools/report.py` depends on that rule:\n\n<Code language=\"python\">{getModuleExample('package_demo/task_tools/report.py')}</Code>\n\nThe dot in `from .rules import add_buffer` means **the current package**, not “the terminal's current folder.” Here it resolves to `task_tools.rules`. The absolute alternative is `from task_tools.rules import add_buffer`: absolute means a complete module name, not an absolute disk path. Use one clear style within this small package.\n\n`task_tools/app.py` owns demonstration data and the business entry:\n\n<Code language=\"python\">{getModuleExample('package_demo/task_tools/app.py')}</Code>\n\nChange to the directory containing the package and run the dotted module name:\n\n```bash\ncd package_demo\nuv run --no-project --python 3.13 python -m task_tools.app\n```\n\n```text\nPackage total: 65\n```\n\nThe two inputs receive a five-minute buffer each: 25 + 40 = 65. The import dependency direction is `app → report → rules`. Rules do not need to import the app. `-m` supplies package context for the relative import while executing the app as `__main__`, so its guard enters `main()`.\n\nNow prove that importing the app does not run that entry. `check_import.py`:\n\n<Code language=\"python\">{getModuleExample('package_demo/check_import.py')}</Code>\n\nStill inside `package_demo`:\n\n```bash\nuv run --no-project --python 3.13 python check_import.py\n```\n\n```text\nApp name: task_tools.app\nProbe total: 5\n```\n\nThere is no `Package total: 65`. `import task_tools.app` binds `task_tools` in the caller and makes the submodule accessible through it; it does not bind a bare name `app`. The probe then deliberately calls a reusable function with its own input. The package can offer useful behavior without executing its demonstration.\n\n**Pause point B:** run both commands again, drawing which namespaces contain `buffered_total` and `main`. Do not add an installation file or dependency manager to make this work; it works because the containing directory is a search location.\n\n## 9. Intentionally choose the wrong entry command\n\nStill in `package_demo`, run this **expected failure**:\n\n```bash\nuv run --no-project --python 3.13 python task_tools/app.py\n```\n\nThe final error identifies `ImportError: attempted relative import with no known parent package`. A disk path executed directly does not establish the `task_tools` package context used by `.report`. The guard cannot help: the import fails before Python reaches it. Adding `__init__.py` alone cannot change how a directly executed file was started.\n\nUse the supported `python -m task_tools.app` command from the containing directory, rather than deleting the dot or patching `sys.path`. Now return to the lab root and observe a second **expected failure**:\n\n```bash\ncd ..\nuv run --no-project --python 3.13 python -m task_tools.app\n```\n\nPython cannot find `task_tools` from this directory in the lab's normal environment: it lives inside `package_demo`. The error includes `ModuleNotFoundError`. The fix is the documented working directory, not installing an unrelated package with the same name. A reproducible instruction must specify **files + working directory + interpreter + command**, not just a final filename.\n\n## 10. Diagnose missing modules, missing names and shadowing\n\nWork from the lab root again. File: `missing_module.py` is deliberately invalid at runtime:\n\n<Code language=\"python\">{getModuleExample('missing_module.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python missing_module.py\n```\n\nIt raises `ModuleNotFoundError` for the deliberately nonexistent module. Ask whether the name should be a local file, a standard-library module or an installed dependency. Inspect spelling, file placement, selected interpreter and the actual failing import. A traceback can point to a *dependency inside* the imported module, not only the import you wrote. Do not respond to every import error by installing something.\n\n`first_import/missing_export.py` finds the module but asks for a name it does not define:\n\n<Code language=\"python\">{getModuleExample('first_import/missing_export.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python first_import/missing_export.py\n```\n\nIt prints the initialization marker, then raises `ImportError` for `remove_buffer`. Compare the earlier `NameError`: a loaded module, an attribute in it and a name in your caller are three different things to check.\n\n### A local file can hide the module you meant\n\n`shadowing/statistics.py` is intentionally badly named:\n\n<Code language=\"python\">{getModuleExample('shadowing/statistics.py')}</Code>\n\n`shadowing/show_source.py`:\n\n<Code language=\"python\">{getModuleExample('shadowing/show_source.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python shadowing/show_source.py\n```\n\nBefore `AttributeError` for the missing `mean`, standard output reveals the actual module:\n\n```text\nLoaded: <LAB>/shadowing/statistics.py\n```\n\nThis local file is found before the standard-library `statistics` in this command. The desired function was never loaded. In a **copy** of this example, rename the local file to `practice_statistics.py` in your editor and run `show_source.py` in a new process. Now `Loaded:` points into Python's standard library and the next line is `Average: 25`.\n\nA rename does not change an already cached module in a running interpreter. Inspect the source path and restart the process instead of repeatedly reinstalling packages or deleting unrelated files. `__file__` is helpful for these file-backed modules; not every module, such as a built-in module, has one.\n\n| Symptom | First question |\n| --- | --- |\n| ModuleNotFoundError | Which exact module is missing, and from which execution context? |\n| ImportError for a named import | Does the module have that name yet? Is initialization involved? |\n| NameError in caller | Did this import form bind the name being used? |\n| AttributeError on module | Which module object loaded, and does it have that attribute? |\n| Unexpected output during import | Which top-level business call executed? |\n\n## 11. One circular import, explained through execution order\n\nThese three files deliberately form a cycle. `cycles/run.py`:\n\n<Code language=\"python\">{getModuleExample('cycles/run.py')}</Code>\n\n`cycles/cycle_a.py`:\n\n<Code language=\"python\">{getModuleExample('cycles/cycle_a.py')}</Code>\n\n`cycles/cycle_b.py`:\n\n<Code language=\"python\">{getModuleExample('cycles/cycle_b.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python cycles/run.py\n```\n\nThis raises `ImportError` because `cycle_a` has not finished defining `total_minutes`. Here is a shortened traceback: source echoes, absolute paths and the trailing suggestion are omitted.\n\n```text\nTraceback (most recent call last):\n  File \".../cycles/run.py\", line 1, in <module>\n  File \".../cycles/cycle_a.py\", line 1, in <module>\n  File \".../cycles/cycle_b.py\", line 1, in <module>\nImportError: cannot import name 'total_minutes' from 'cycle_a' (...)\n```\n\nThe tested CPython 3.13.15 also appends a suggestion to consider renaming a file. Other versions may explicitly mention a partially initialized module or circular import. **A diagnostic suggestion is not a confirmed cause.** There is no intended standard-library module named `cycle_a` here; follow these three frames and the source before renaming anything. Trace the actual path: run starts importing A → A begins importing B before defining its functions → B tries to retrieve `total_minutes` from A → that definition has not executed yet. The file exists; the requested binding is not ready. The cache makes the in-progress module visible, but does not magically complete its initialization.\n\nThe failure is about this eager named access and execution order, not a claim that every circular relationship always raises the same error. For this lesson, fix the dependency direction rather than moving imports around until one execution order happens to pass.\n\nMove the shared calculation downward. `cycle_fixed/rules.py`:\n\n<Code language=\"python\">{getModuleExample('cycle_fixed/rules.py')}</Code>\n\n`cycle_fixed/formatting.py`:\n\n<Code language=\"python\">{getModuleExample('cycle_fixed/formatting.py')}</Code>\n\n`cycle_fixed/run.py`:\n\n<Code language=\"python\">{getModuleExample('cycle_fixed/run.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python cycle_fixed/run.py\n```\n\n```text\nTotal: 55\n```\n\nThe graph is now `run → formatting → rules`. The lowest-level rule knows nothing about presentation or the entry point. This is a small dependency decision, not a requirement to invent repository/service/controller layers before you understand servers.\n\n## 12. Three levels of practice\n\n### A. Predict before executing\n\nWithout running the files, write down:\n\n1. How many initialization markers `first_import/import_twice.py` prints, and what happens on a second terminal invocation.\n2. All four lines from `bindings/observe.py`; explain both the integer and list behavior.\n3. Why importing `entry_points/quiet_report.py` does not automatically call `main`, but directly running it does.\n4. Why the two package commands in section 9 fail differently.\n\n<details>\n<summary>Prediction checkpoint — open after writing your explanation</summary>\n\nOne marker per fresh invocation in this experiment; both imports within it refer to the same module. The binding experiment retains 20 in the caller while the module and its defined function see 40; list mutation is shared, local list rebinding is not. The explicit guarded call runs only under `__main__`. Direct file execution lacks parent-package context; running the dotted module from the lab root instead lacks the containing search location. These are not four versions of “Python cannot import.”\n\n</details>\n\n### B. Repair a guard that looks correct\n\nFiles: `exercises/noisy_rules.py` and `exercises/check_noisy.py`.\n\n<Code language=\"python\">{getModuleExample('exercises/noisy_rules.py')}</Code>\n\n<Code language=\"python\">{getModuleExample('exercises/check_noisy.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python exercises/check_noisy.py\n```\n\nThe defect prints:\n\n```text\nPreparing demo\nProbe: 5\n```\n\nRepair the source so the probe prints only `Probe: 5`, while directly running `noisy_rules.py` still prints `Preparing demo` and `Demo total: 55`. Keep both the function and its demonstration usable. Do not solve this by suppressing output, commenting out the demo forever, or leaving a global `prepared` value that a function secretly requires. Put preparation and business invocation inside the entry boundary.\n\n<details>\n<summary>Repair reference — compare responsibility placement, not just output</summary>\n\n`solutions/fix_entry.py` and `solutions/check_fixed_entry.py`:\n\n<Code language=\"python\">{getModuleExample('solutions/fix_entry.py')}</Code>\n\n<Code language=\"python\">{getModuleExample('solutions/check_fixed_entry.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python solutions/check_fixed_entry.py\nuv run --no-project --python 3.13 python solutions/fix_entry.py\n```\n\nFirst command:\n\n```text\nProbe: 5\n```\n\nSecond command:\n\n```text\nPreparing demo\nDemo total: 55\n```\n\n`prepare_demo` remains a callable function. Calling it now happens inside `main`; `prepared` is local to that call. The import still defines functions, but performs neither preparation nor reporting.\n\n</details>\n\n### C. Independent multi-file task planner\n\nCreate a genuinely empty directory **outside the downloaded lab**, then create this layout yourself. Do not start by copying the reference package. No project metadata or third-party dependency is needed.\n\n```text\nmy_plan/\n  check_import.py\n  study_plan/\n    __init__.py\n    rules.py\n    summary.py\n    app.py\n```\n\nChoose responsibilities before writing imports:\n\n- `rules.py`: `parse_minutes(raw)`. Reuse L05's strict text contract: non-string input raises TypeError; invalid integer text raises ValueError with the original conversion exception as its cause; negative integers raise ValueError; whitespace and zero are valid. Use the messages in the expected output below.\n- `summary.py`: `build_plan(rows, budget=20)`. Budget must be an ordinary nonnegative integer: reject bool and nonintegers with TypeError, negative integers with ValueError. Validate it even for empty rows.\n- A valid task is selected **individually** when its minutes are at most budget. This is a per-task threshold, not a shared budget to consume. Valid but over-budget tasks are filtered, not malformed-input rejections.\n- Read required `title` and `minutes` fields outside the recoverable conversion handler. Record known malformed text/negative minutes as rejected entries, retaining original one-based row numbers. Keep missing fields, wrong minutes types and unknown failures visible. This exercise assumes titles are strings; it does not introduce a general schema validator. Recovery recognizes ValueError from the agreed parser boundary, not the origin of every possible ValueError: a defect inside a replacement parser can violate that assumption.\n- Return `accepted`, `rejected` and `total_minutes`. Do not mutate source rows or accumulate data in module globals. Each call owns fresh result lists and item dictionaries; preserve source order.\n- `app.py`: put demo data, the call and display inside `main`, with the explicit guard. `__init__.py` must not run the demo. Dependencies point from app to summary to rules, never backwards.\n- `check_import.py`: import app and summary, then print only `Imported: study_plan.app study_plan.summary`. No demonstration output should precede it.\n\nUse the five input rows from L05: Read / `\" 20 \"`, Typo / `\"twenty\"`, Zero / `\"0\"`, Negative / `\"-5\"`, Practice / `\"35\"`. From **inside your own `my_plan` directory**, run:\n\n```bash\nuv run --no-project --python 3.13 python check_import.py\nuv run --no-project --python 3.13 python -m study_plan.app\n```\n\nProbe output:\n\n```text\nImported: study_plan.app study_plan.summary\n```\n\nDefault entry output:\n\n```text\nAccepted: [{'title': 'Read', 'minutes': 20}, {'title': 'Zero', 'minutes': 0}]\nRejected: [{'row': 2, 'title': 'Typo', 'reason': 'minutes must be an integer'}, {'row': 4, 'title': 'Negative', 'reason': 'minutes must be non-negative'}]\nTotal: 20\nSource first: {'title': 'Read', 'minutes': ' 20 '}\n```\n\nDo not stop at matching the default run. Add temporary calls in your own probe using `from study_plan.summary import build_plan`; print and compare the results. You already know the required loops, function calls and exception handling. Automated tests are a later lesson, not an unexplained prerequisite here.\n\n| Variation | Acceptance |\n| --- | --- |\n| Budget 40 | Read, Zero, Practice selected; total 55, not 20 or 40; two malformed rows remain rejected |\n| Budget 0 | Only Zero selected; total zero; valid positive tasks are not rejections |\n| Budget 20 with Read changed to `\"21\"` | Only Zero selected; total zero; no new malformed rejection |\n| Empty / all malformed input | Complete result structure; zero total; no fabricated accepted items |\n| Exact threshold / reversed order | Include the threshold; preserve relative order and correct rejection row numbers |\n| Missing title/minutes; minutes is None or integer | KeyError/TypeError propagates; no fake successful plan |\n| Budget True, `20.0`, `\"20\"`, None / -1 | TypeError / ValueError even when rows is empty |\n| Two calls; modify first result's item and lists | Second result and original input stay unchanged |\n| Import app in a new process | No preparation or business call; only the explicit probe marker |\n| Directly run `study_plan/app.py` | Expected relative-import error; explain and restore `-m` command |\n\n<details>\n<summary>Independent reference package — open after your own implementation</summary>\n\n`solutions/independent/study_plan/__init__.py`:\n\n<Code language=\"python\">{getModuleExample('solutions/independent/study_plan/__init__.py')}</Code>\n\n`rules.py`:\n\n<Code language=\"python\">{getModuleExample('solutions/independent/study_plan/rules.py')}</Code>\n\n`summary.py`:\n\n<Code language=\"python\">{getModuleExample('solutions/independent/study_plan/summary.py')}</Code>\n\n`app.py`:\n\n<Code language=\"python\">{getModuleExample('solutions/independent/study_plan/app.py')}</Code>\n\n`solutions/independent/check_import.py`:\n\n<Code language=\"python\">{getModuleExample('solutions/independent/check_import.py')}</Code>\n\nFrom the downloaded lab root, run the reference with its correct containing directory:\n\n```bash\ncd solutions/independent\nuv run --no-project --python 3.13 python check_import.py\nuv run --no-project --python 3.13 python -m study_plan.app\ncd ../..\n```\n\nThe module split did not weaken L05's failure policy: only the parser's known ValueError is recovered; successful processing remains in `else`. Functions are reused through imports, while app data and invocation are deliberately not import-time behavior. A return value is still ordinary in-memory data, not a file or HTTP response.\n\n</details>\n\n## 13. Exit gate and a restart record\n\nYou are ready to continue when you can independently:\n\n- Draw module namespaces and distinguish importing a module from binding one of its attributes.\n- Predict rebindings, mutations, repeated imports and fresh-process execution.\n- Identify every top-level statement that runs during import; explain exactly what the main guard protects.\n- Reconstruct your package from an empty directory and run both the import probe and the business entry.\n- Diagnose missing module/name/attribute, shadowing, wrong package context and the demonstrated cycle without arbitrary installation or path hacks.\n- Verify the planner's boundary inputs and input/result isolation rather than accepting a copied happy-path screenshot.\n\nFor an interrupted schedule, record **the last completed section, your current directory, exact command, observed output/error, your dependency sketch, and the next unverified input**. Resume by predicting and rerunning one small experiment, not by rebuilding an entire development environment. Pause A and B are good stopping places; there is no weekly deadline.\n\nNext is **L07: files, JSON and resource use**. We will distinguish text from Python objects, resolve paths, explain encoding, handle missing/damaged files and use `with` for cleanup. The historical next page has not yet been rewritten to that contract. Environments/lock files, testing and an independent reproducible application remain L08–L10; FastAPI waits for its own prerequisites.\n\n## 14. Sources and limits\n\nTechnical references checked on 2026-09-24 against the Python 3.13 baseline:\n\n- [Modules tutorial](https://docs.python.org/3.13/tutorial/modules.html): module namespaces, import forms, execution and packages.\n- [Import system](https://docs.python.org/3.13/reference/import.html) and [import statements](https://docs.python.org/3.13/reference/simple_stmts.html#the-import-statement): module caching, regular/namespace packages and binding.\n- [Top-level environment](https://docs.python.org/3.13/library/__main__.html): main guards and entry behavior.\n- [Search-path initialization](https://docs.python.org/3.13/library/sys_path_init.html) and [command-line options](https://docs.python.org/3.13/using/cmdline.html#cmdoption-m): file, module and isolated execution contexts.\n- [math.ceil](https://docs.python.org/3.13/library/math.html#math.ceil), [statistics.mean](https://docs.python.org/3.13/library/statistics.html#statistics.mean) and [os.getcwd](https://docs.python.org/3.13/library/os.html#os.getcwd): the small standard-library surface actually used.\n- [MDN import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import): ES module live bindings and the limits of the Python analogy.\n\nImport hooks, reload, namespace-package construction, publishing, `__all__`, executable-package `__main__.py`, command-line argument parsing and framework layering are deliberately deferred. This chapter proves a small multi-file boundary; it does not claim a deployed service or a complete environment-reconstruction workflow.\n",
+      "actual_shared_python_sources": {
+        "standard_library.py": "import math\nimport statistics\n\nprint(\"Rounded up:\", math.ceil(2.1))\nprint(\"Average:\", statistics.mean([20, 30]))\ntry:\n    statistics.mean([])\nexcept statistics.StatisticsError:\n    print(\"Empty input has no average\")\n",
+        "missing_module.py": "import missing_js2py_l06_module\n\nprint(missing_js2py_l06_module)\n",
+        "first_import/task_rules.py": "print(\"task_rules initialized\")\n\nDEFAULT_MINUTES = 20\n\n\ndef add_buffer(minutes):\n    return minutes + 5\n",
+        "first_import/report.py": "import task_rules\n\nprint(\"Default:\", task_rules.DEFAULT_MINUTES)\nprint(\"Buffered:\", task_rules.add_buffer(20))\n",
+        "first_import/import_styles.py": "import task_rules as rules\nfrom task_rules import DEFAULT_MINUTES\nfrom task_rules import add_buffer as buffered\n\nprint(\"Alias:\", rules.DEFAULT_MINUTES)\nprint(\"Direct names:\", DEFAULT_MINUTES, buffered(20))\n",
+        "first_import/import_twice.py": "import task_rules as first\nimport task_rules as second\n\nprint(\"Same module:\", first is second)\nprint(\"Buffered:\", second.add_buffer(20))\n",
+        "first_import/missing_name.py": "from task_rules import add_buffer\n\nprint(add_buffer(20))\nprint(task_rules.DEFAULT_MINUTES)\n",
+        "first_import/missing_export.py": "from task_rules import remove_buffer\n\nprint(remove_buffer(20))\n",
+        "bindings/settings.py": "BUDGET = 20\ntags = [\"python\"]\n\n\ndef current_budget():\n    return BUDGET\n",
+        "bindings/observe.py": "import settings\nfrom settings import BUDGET, current_budget, tags\n\nprint(\"Initial:\", BUDGET, settings.BUDGET)\nsettings.BUDGET = 40\nprint(\"Rebound:\", BUDGET, settings.BUDGET, current_budget())\nsettings.tags.append(\"modules\")\nprint(\"Shared:\", tags, settings.tags)\ntags = [\"local\"]\nprint(\"Local tags:\", tags, settings.tags)\n",
+        "entry_points/noisy_report.py": "def build_total(minutes):\n    return sum(minutes)\n\n\nprint(\"Business total:\", build_total([20, 35]))\n",
+        "entry_points/use_noisy.py": "import noisy_report\n\nprint(\"Caller total:\", noisy_report.build_total([5, 10]))\n",
+        "entry_points/quiet_report.py": "def build_total(minutes):\n    return sum(minutes)\n\n\ndef main():\n    minutes = [20, 35]\n    print(\"Business total:\", build_total(minutes))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "entry_points/use_quiet.py": "import quiet_report\n\nprint(\"Caller total:\", quiet_report.build_total([5, 10]))\n",
+        "locations/show_context.py": "import os\nimport sys\n\nprint(\"Name:\", __name__)\nprint(\"Cwd:\", os.getcwd())\nprint(\"File:\", __file__)\nprint(\"First search:\", sys.path[0])\n",
+        "package_demo/task_tools/__init__.py": "\"\"\"Small regular package for the guided L06 example.\"\"\"\n",
+        "package_demo/task_tools/rules.py": "def add_buffer(minutes):\n    return minutes + 5\n",
+        "package_demo/task_tools/report.py": "from .rules import add_buffer\n\n\ndef buffered_total(minutes):\n    total = 0\n    for value in minutes:\n        total = total + add_buffer(value)\n    return total\n",
+        "package_demo/task_tools/app.py": "from .report import buffered_total\n\n\ndef main():\n    minutes = [20, 35]\n    print(\"Package total:\", buffered_total(minutes))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "package_demo/check_import.py": "import task_tools.app\nfrom task_tools.report import buffered_total\n\nprint(\"App name:\", task_tools.app.__name__)\nprint(\"Probe total:\", buffered_total([0]))\n",
+        "shadowing/statistics.py": "LABEL = \"local practice file\"\n",
+        "shadowing/show_source.py": "import statistics\n\nprint(\"Loaded:\", statistics.__file__)\nprint(\"Average:\", statistics.mean([20, 30]))\n",
+        "cycles/cycle_a.py": "from cycle_b import format_total\n\n\ndef total_minutes():\n    return 55\n\n\ndef report():\n    return format_total()\n",
+        "cycles/cycle_b.py": "from cycle_a import total_minutes\n\n\ndef format_total():\n    return f\"Total: {total_minutes()}\"\n",
+        "cycles/run.py": "from cycle_a import report\n\nprint(report())\n",
+        "cycle_fixed/rules.py": "def total_minutes():\n    return 55\n",
+        "cycle_fixed/formatting.py": "from rules import total_minutes\n\n\ndef format_total():\n    return f\"Total: {total_minutes()}\"\n",
+        "cycle_fixed/run.py": "from formatting import format_total\n\nprint(format_total())\n",
+        "exercises/noisy_rules.py": "def add_buffer(minutes):\n    return minutes + 5\n\n\ndef prepare_demo():\n    print(\"Preparing demo\")\n    return [20, 35]\n\n\ndef main():\n    print(\"Demo total:\", sum(prepared))\n\n\nprepared = prepare_demo()\nif __name__ == \"__main__\":\n    main()\n",
+        "exercises/check_noisy.py": "import noisy_rules\n\nprint(\"Probe:\", noisy_rules.add_buffer(0))\n",
+        "solutions/fix_entry.py": "def add_buffer(minutes):\n    return minutes + 5\n\n\ndef prepare_demo():\n    print(\"Preparing demo\")\n    return [20, 35]\n\n\ndef main():\n    prepared = prepare_demo()\n    print(\"Demo total:\", sum(prepared))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "solutions/check_fixed_entry.py": "import fix_entry\n\nprint(\"Probe:\", fix_entry.add_buffer(0))\n",
+        "solutions/independent/study_plan/__init__.py": "\"\"\"Task selection rules and an explicit demonstration entry point.\"\"\"\n",
+        "solutions/independent/study_plan/rules.py": "def parse_minutes(raw):\n    if type(raw) is not str:\n        raise TypeError(\"minutes must be text\")\n    try:\n        minutes = int(raw)\n    except ValueError as error:\n        raise ValueError(\"minutes must be an integer\") from error\n    if minutes < 0:\n        raise ValueError(\"minutes must be non-negative\")\n    return minutes\n",
+        "solutions/independent/study_plan/summary.py": "from .rules import parse_minutes\n\n\ndef build_plan(rows, budget=20):\n    if type(budget) is not int:\n        raise TypeError(\"budget must be an integer\")\n    if budget < 0:\n        raise ValueError(\"budget must be non-negative\")\n    accepted = []\n    rejected = []\n    total_minutes = 0\n    for number, row in enumerate(rows, start=1):\n        title = row[\"title\"]\n        raw = row[\"minutes\"]\n        try:\n            minutes = parse_minutes(raw)\n        except ValueError as error:\n            rejected.append({\"row\": number, \"title\": title, \"reason\": str(error)})\n        else:\n            if minutes <= budget:\n                accepted.append({\"title\": title, \"minutes\": minutes})\n                total_minutes = total_minutes + minutes\n    return {\n        \"accepted\": accepted,\n        \"rejected\": rejected,\n        \"total_minutes\": total_minutes,\n    }\n",
+        "solutions/independent/study_plan/app.py": "from .summary import build_plan\n\n\ndef main():\n    rows = [\n        {\"title\": \"Read\", \"minutes\": \" 20 \"},\n        {\"title\": \"Typo\", \"minutes\": \"twenty\"},\n        {\"title\": \"Zero\", \"minutes\": \"0\"},\n        {\"title\": \"Negative\", \"minutes\": \"-5\"},\n        {\"title\": \"Practice\", \"minutes\": \"35\"},\n    ]\n    plan = build_plan(rows)\n    print(\"Accepted:\", plan[\"accepted\"])\n    print(\"Rejected:\", plan[\"rejected\"])\n    print(\"Total:\", plan[\"total_minutes\"])\n    print(\"Source first:\", rows[0])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "solutions/independent/check_import.py": "import study_plan.app\nimport study_plan.summary\n\nprint(\"Imported:\", study_plan.app.__name__, study_plan.summary.__name__)\n"
+      },
+      "download_readme": "# L06 — 模块与标准库 / Modules and the standard library / 模塊與標準庫\n\n## 简体中文\n\n前置 L00—L05；本实验只使用 CPython 3.13 标准库和本地模块，没有第三方依赖，不需要项目配置、文件读写或 pytest。2026-09-24 使用 3.13.15 验证。37 份 Python 文件是多文件实验组，不是每份都能直接执行：不要拆散文件，也不要把包内模块逐个当脚本启动。\n\n解压后在 `u06-modules` 目录打开终端。先按正文逐组预测、运行、解释，再查看 `solutions/`。命令中的 `--no-project` 排除外层项目配置；保持普通本地搜索语义，不添加 `-I`、PYTHONPATH 或 sys.path 补丁。\n\n```bash\nuv run --no-project --python 3.13 python standard_library.py\nuv run --no-project --python 3.13 python first_import/report.py\nuv run --no-project --python 3.13 python first_import/import_styles.py\nuv run --no-project --python 3.13 python first_import/import_twice.py\nuv run --no-project --python 3.13 python bindings/observe.py\nuv run --no-project --python 3.13 python entry_points/use_noisy.py\nuv run --no-project --python 3.13 python entry_points/use_quiet.py\nuv run --no-project --python 3.13 python entry_points/quiet_report.py\nuv run --no-project --python 3.13 python locations/show_context.py\ncd locations\nuv run --no-project --python 3.13 python show_context.py\nuv run --no-project --python 3.13 python -m show_context\ncd ..\ncd package_demo\nuv run --no-project --python 3.13 python -m task_tools.app\nuv run --no-project --python 3.13 python check_import.py\ncd ..\nuv run --no-project --python 3.13 python cycle_fixed/run.py\n```\n\n下面都是**预期失败**，不表示安装失败。每条从实验根目录单独执行；不要因一次命令失败就删除整个环境。\n\n| 命令最后的 Python 参数 | 预期类别与原因 |\n| --- | --- |\n| `first_import/missing_name.py` | NameError：调用方没有绑定 task_rules |\n| `first_import/missing_export.py` | ImportError：模块没有 remove_buffer |\n| `missing_module.py` | ModuleNotFoundError：刻意不存在的名称 |\n| `shadowing/show_source.py` | AttributeError：本地 statistics 遮蔽标准库；先打印实际路径 |\n| `cycles/run.py` | ImportError：A 尚未定义函数，B 就要求取出该名称 |\n| `-m task_tools.app` | ModuleNotFoundError：当前目录不包含该包 |\n\n每行前加 `uv run --no-project --python 3.13 python`。另一个预期失败需先 `cd package_demo`，再运行 `uv run --no-project --python 3.13 python task_tools/app.py`：相对导入缺少父包上下文；正确形式为 `-m task_tools.app`，执行后 `cd ..` 回实验根目录。\n\n同名遮蔽的修复只在副本里进行：将 `shadowing/statistics.py` 改名为 `practice_statistics.py`，重新启动进程检查实际来源与 `Average: 25`。`__pycache__`/`.pyc` 可以由普通导入生成；它们不保存跨进程的变量，不是源码，也不应加入提交或下载包。\n\n```bash\nuv run --no-project --python 3.13 python exercises/check_noisy.py\nuv run --no-project --python 3.13 python solutions/check_fixed_entry.py\nuv run --no-project --python 3.13 python solutions/fix_entry.py\ncd solutions/independent\nuv run --no-project --python 3.13 python check_import.py\nuv run --no-project --python 3.13 python -m study_plan.app\ncd ../..\n```\n\n练习先预测输出，再修复入口泄漏，最后从实验外的空目录独立建立 study_plan 包。验收每项阈值而非累积预算、零值/空输入、坏文本行号、未知错误传播、结果与输入隔离；分别验证导入探针和 `-m` 业务入口。完整机制、逐条输出、边界输入及暂停点见三语正文。本批不是文件持久化、依赖工程或 FastAPI 后端。\n\n## English\n\nComplete L00–L05 first. This is a standard-library-only CPython 3.13 multi-file lab (verified with 3.13.15 on 2026-09-24), not a project scaffold. Keep each group intact: 37 source files include helpers, so run the supported entry commands above rather than each file independently. Start in the extracted lab root except for explicit `cd` steps; do not add isolated mode or search-path workarounds.\n\nThe table lists intentional NameError, ImportError, ModuleNotFoundError and AttributeError cases. Directly running `task_tools/app.py` from `package_demo` is also an expected relative-import failure; `python -m task_tools.app` from that containing directory is the supported entry. In a copy, rename local `statistics.py` and use a fresh process to verify the shadowing repair. Bytecode caches may appear: they are not source files or cross-process application state.\n\nPredict first, repair the leaking entry second, and build your own study_plan package from an empty directory outside this download third. Verify individual thresholds (not cumulative budget consumption), empty/zero/bad inputs, rejection row numbers, unknown-error propagation, input/result isolation and both import and entry behavior. The complete explanations, outputs and pause/resume points are in the English lesson. No pytest or dependency-configuration knowledge is required from the learner.\n\n## 繁體中文\n\n先完成 L00—L05。這是只依賴 CPython 3.13 標準庫與本地模塊的多檔案實驗，於 2026-09-24 使用 3.13.15 驗證，不是專案腳手架。37 份源碼含輔助模塊，不能逐份直接啟動；保持各組完整，依上方命令與明確的 cd 步驟執行，不加隔離模式或搜索路徑補丁。\n\n表中是刻意安排的名稱、導入、模塊缺失與屬性錯誤。在 package_demo 直接執行 task_tools/app.py 也應失敗，正確入口是從該目錄以 -m task_tools.app 啟動。同名遮蔽只在副本中改名，並用新進程核對來源。普通導入可產生位元組碼快取，它不是源碼或跨進程狀態。\n\n先預測，再修復入口洩漏，最後從下載實驗外的空目錄獨立建立 study_plan 包。驗收逐項閾值而非累積預算、空值/零/壞輸入、拒絕行號、未知故障傳播、輸入與結果隔離，以及導入和業務入口的差異。完整機制、輸出、暫停與恢復方式見繁體正文；不把 pytest、依賴工程或框架當作前置知識。\n\n## Maintainer verification (not learner prerequisites)\n\nFrom the repository root:\n\n```bash\npython3 scripts/build-js2py-lab.py --lab u06-modules --check\npython3 scripts/test-js2py-modules.py\n```\n\nTests run entry commands in fresh processes with controlled working directories and local import paths preserved. They verify outputs/errors, dependency direction, import safety with a failing-entry sentinel, independent-package behavior, empty-directory reconstruction and exact allowlisted ZIP bytes. Cache files are allowed only under expected `__pycache__` directories; source bytes and surrounding incompatible project files must not change. Maintainer tooling is not added to the learner download.\n",
+      "validation_and_limits": "Completed: 28 real uv/CPython 3.13.15 entry scenarios (8 expected failures), 18 L06 unittest checks, 340 planner combinations +24 permutations, import-entry sentinel, shadowing repair, source and bounded-cache verification, incompatible parent-project isolation, empty-directory reconstruction and input variation; 102 Python unit tests, 7 Node tests (real ESM binding experiment), three-locale code/output parity, deterministic ZIP checks, whole-site MDX check, TypeScript and ESLint. Production build, preceding-chapter integration and three-locale browser QA are still pending; all must actually pass before action. Tests are maintainer gates, not learner prerequisites. No real learner outcomes have been measured.",
+      "revision_reason": "A real CPython 3.13.15 run showed the circular-import error includes a suggestion to rename a file, rather than necessarily saying partially initialized. Section 11 now shows an abbreviated verified three-frame traceback and teaches not to confuse a heuristic suggestion with a confirmed cause. This is a material evidence-driven clarification, not a retry for better scores. Full actual revised files are supplied."
+    },
+    "questions": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "instructions": "Does mandatory independent L06 work require an essential concept not learned in L00-L05 and not explained before its required use in this actual lesson? Do not count explicitly deferred topics or maintainer verification as prerequisites."
+      },
+      "depth": {
+        "type": "choice",
+        "instructions": "Assess actual explanatory teaching depth: motivation, mechanism, traces, failures, graduated practice and independent acceptance, not mere length.",
+        "criteria": {
+          "SUBSTANTIVE": "A usable conceptual model and concrete practice, not an API inventory.",
+          "PARTIAL": "Important mechanisms or learner guidance remain thin.",
+          "API_CATALOGUE": "Mostly names and syntax without meaningful explanation.",
+          "INSUFFICIENT_EVIDENCE": "Cannot judge from supplied actual material."
+        }
+      },
+      "import_binding": {
+        "type": "choice",
+        "instructions": "Assess import execution, caller/module namespaces, from binding versus ESM live bindings, shared mutations, function defining-module globals, and per-interpreter module cache versus disk bytecode cache in the actual source and prose.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Correct mechanisms with relevant limits.",
+          "MISLEADING": "Substantive false claim or generalization.",
+          "MECHANISM_GAP": "Correct statements but a necessary mechanism missing.",
+          "UNCERTAIN": "Evidence insufficient for a firm judgment."
+        }
+      },
+      "entry_and_context": {
+        "type": "choice",
+        "instructions": "Assess main guard, import side effects, cwd/script location/search path, -m, regular package __init__, relative imports, missing attributes, shadowing and the concrete circular import. Does the chapter explain their different mechanisms without path hacks or universal once-only claims?",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Examples and explanations establish accurate limited mechanisms.",
+          "MISLEADING": "A material claim or command is wrong or overgeneralized.",
+          "MECHANISM_GAP": "Necessary execution or context explanation missing.",
+          "UNCERTAIN": "Evidence insufficient."
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "instructions": "Do the independent study_plan instructions, reference source, expected results and edge cases agree about per-task threshold versus cumulative budget, strict parsing and budget types, known-error handling limits, source/result isolation and import-safe entry?",
+        "criteria": {
+          "COHERENT_AND_TESTABLE": "Precise consistent bounded requirements and meaningful transfer.",
+          "CONTRADICTORY": "An implementation, output or requirement materially contradicts another.",
+          "UNDERSPECIFIED": "A necessary responsibility or input policy is left ambiguous.",
+          "UNCERTAIN": "Evidence insufficient."
+        }
+      },
+      "scope": {
+        "type": "choice",
+        "instructions": "Is this scope appropriate after L05 and before files/JSON for a slow thorough learner? Judge progression and stopping points, not assuming one sitting or one week.",
+        "criteria": {
+          "BOUNDED": "Coherent modules chapter with useful stopping points and no essential new earlier chapter.",
+          "PREREQUISITE_SPLIT_REQUIRED": "A necessary capability needs earlier teaching first.",
+          "TOO_SHALLOW": "Cannot support independent small multi-file development.",
+          "TARGETED_REVIEW": "A specific uncertainty makes unqualified progression premature."
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "instructions": "Does the three-level practice require independent explanation, repair and reconstruction from an empty directory with boundary input changes, rather than copying fixed output?"
+      },
+      "next_action": {
+        "type": "choice",
+        "instructions": "Assuming all described deterministic checks actually pass, choose the next defensible curriculum action based on the supplied actual L06 lesson/source. This does not certify perfection or learner effectiveness.",
+        "criteria": {
+          "PROCEED_L07": "L06 is sufficiently complete and bounded to proceed to files/JSON/resource use.",
+          "REVISE_L06": "A substantive defect or missing mechanism requires revising L06.",
+          "TARGETED_REVIEW": "Evidence uncertainty needs focused review before progression."
+        }
+      },
+      "diagnostic_variants": {
+        "type": "choice",
+        "instructions": "Does revised section 11 accurately distinguish the actual execution-order cause from version-dependent exception wording and renaming suggestions, using the given trace and source rather than equating all import failures?",
+        "criteria": {
+          "ACCURATE_AND_ACTIONABLE": "Correct distinction supported by trace and code; reader can diagnose rather than obey a misleading suggestion.",
+          "MISLEADING": "Conflates suggestion with cause or supplies inconsistent trace/code.",
+          "MECHANISM_GAP": "Important diagnostic reasoning still missing.",
+          "UNCERTAIN": "Evidence insufficient."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "noul": 0.17
+      },
+      "depth": {
+        "type": "choice",
+        "choice": "SUBSTANTIVE",
+        "confidence": 1.0,
+        "probabilities": {
+          "PARTIAL": 0.0,
+          "SUBSTANTIVE": 1.0,
+          "INSUFFICIENT_EVIDENCE": 0.0,
+          "API_CATALOGUE": 0.0
+        }
+      },
+      "import_binding": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 0.99,
+        "probabilities": {
+          "ACCURATE_AND_BOUNDED": 1.0,
+          "UNCERTAIN": 0.0,
+          "MECHANISM_GAP": 0.0,
+          "MISLEADING": 0.0
+        }
+      },
+      "entry_and_context": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 1.0,
+        "probabilities": {
+          "ACCURATE_AND_BOUNDED": 1.0,
+          "UNCERTAIN": 0.0,
+          "MECHANISM_GAP": 0.0,
+          "MISLEADING": 0.0
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "choice": "COHERENT_AND_TESTABLE",
+        "confidence": 0.98,
+        "probabilities": {
+          "COHERENT_AND_TESTABLE": 0.99,
+          "UNCERTAIN": 0.0,
+          "UNDERSPECIFIED": 0.0,
+          "CONTRADICTORY": 0.01
+        }
+      },
+      "scope": {
+        "type": "choice",
+        "choice": "BOUNDED",
+        "confidence": 0.99,
+        "probabilities": {
+          "TARGETED_REVIEW": 0.01,
+          "TOO_SHALLOW": 0.0,
+          "BOUNDED": 0.99,
+          "PREREQUISITE_SPLIT_REQUIRED": 0.0
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "next_action": {
+        "type": "choice",
+        "choice": "PROCEED_L07",
+        "confidence": 0.75,
+        "probabilities": {
+          "PROCEED_L07": 0.83,
+          "TARGETED_REVIEW": 0.12,
+          "REVISE_L06": 0.05
+        }
+      },
+      "diagnostic_variants": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_ACTIONABLE",
+        "confidence": 0.99,
+        "probabilities": {
+          "ACCURATE_AND_ACTIONABLE": 1.0,
+          "UNCERTAIN": 0.0,
+          "MECHANISM_GAP": 0.0,
+          "MISLEADING": 0.0
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 20696,
+      "output_tokens": 482
+    }
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev; not a gpt-6-astra subagent. No subagents were started.",
+    "decision_rule": "Use the selected semantic next-action as conditional curriculum advice only. Deterministic runtime, source parity, archive, site and browser checks remain required; nonzero prerequisite/targeted-review probabilities require explicit local material audit, not a retry for higher confidence.",
+    "limitations": "Noul supplies P(yes), no separate confidence. Choice confidence describes model distribution, not correctness probability, perfection or learner effectiveness. Translation parity and execution checks are separate from the English semantic review.",
+    "revision_reason": "Actual CPython 3.13.15 circular-import error wording includes a renaming suggestion; final section 11 teaches execution-order diagnosis through a verified three-frame trace instead of promising one diagnostic phrase.",
+    "source_hash_scope": "Reviewed English and source bytes must match final files; other hashes bind deterministic tested repository artifacts, not additional content that the semantic service read."
+  },
+  "source_sha256": {
+    "content/docs/js2py/module-06-web-development.mdx": "5b5ff3d7f5bb927be39e530adfb19a73788b63b862c218114c76e4da996135aa",
+    "examples/js2py/u06-modules/README.md": "32643b7548c43f829521c4f5a8daa1a5067087e4fd41a2c8e651e643b0b763b7",
+    "examples/js2py/u06-modules/standard_library.py": "b700446fe3079a0a5cc026533777df195f2ab8058b0acb3fa63fa6d2cac3ace5",
+    "examples/js2py/u06-modules/missing_module.py": "a4686a894eaaf58dfb582c7113ad9a8f3b33d30252592774f1af87dbff8ba530",
+    "examples/js2py/u06-modules/first_import/task_rules.py": "16483fb1b12ef0c5d42062cfe072b91ab38dddd13ec2e768fef14dcf249ae7c4",
+    "examples/js2py/u06-modules/first_import/report.py": "07cec2cb0cf1c69e5b20abdce8c377946b31bd23a0ff464fc32503582d7a9018",
+    "examples/js2py/u06-modules/first_import/import_styles.py": "39cc0cc7e5f8c5ad3ea58240d0349424ad4fa9f07048630725c99a91814041aa",
+    "examples/js2py/u06-modules/first_import/import_twice.py": "00bcc2b27564727c3032e2ce0c9f02583730a5664da285bdf9d5f10008a2abb6",
+    "examples/js2py/u06-modules/first_import/missing_name.py": "26005e3879effb6d8442e8fe5f641d0d0724887318a915296925cfcfb29c432e",
+    "examples/js2py/u06-modules/first_import/missing_export.py": "b655b87d278a02949d6628769609c19e95d6f1332d36d503fef1fad7883b37da",
+    "examples/js2py/u06-modules/bindings/settings.py": "6f2c4595a6e51046802806632abe9e170fd2b867276d3c0a3b6176973187a017",
+    "examples/js2py/u06-modules/bindings/observe.py": "0391004212e0af15adc9792498e3f56223ba049ab551e39887d4deeaf1e15443",
+    "examples/js2py/u06-modules/entry_points/noisy_report.py": "4a3ea5d262bff0e6ac8de7493c806dde02e8661cb96f00a4c1406d8c1ca3ba49",
+    "examples/js2py/u06-modules/entry_points/use_noisy.py": "1a8ebad56b2ae94f19fea6e8cfed7735083414a275209badcd49e1a2a94db884",
+    "examples/js2py/u06-modules/entry_points/quiet_report.py": "4b683ee3a9c48cdae1904854ec2d56e1aa00c64010ff60a902bad8faaf25afdf",
+    "examples/js2py/u06-modules/entry_points/use_quiet.py": "f279a14d345ca0209431ccbb7701549e3fba9a306dc44d3ffa37f1d4fef01237",
+    "examples/js2py/u06-modules/locations/show_context.py": "864440880e863b6af560467c67a419c4e3572a3440182b499a5fa526ae7cd9e2",
+    "examples/js2py/u06-modules/package_demo/task_tools/__init__.py": "27141ed18378f1bee5ebfa80b608ebe519ded7ccccfdc9a04ade63b260df9d84",
+    "examples/js2py/u06-modules/package_demo/task_tools/rules.py": "1f37de1f9f854d23736ebc7a15511d61274d8740ca74c7640d9743feb0c4975a",
+    "examples/js2py/u06-modules/package_demo/task_tools/report.py": "2bd9faaaac3b11b6db1bfca0217c146b393a6e4ee34772aa2aa4145f413f2772",
+    "examples/js2py/u06-modules/package_demo/task_tools/app.py": "7e3e39eb4de3ca251b71560ca2ea976da1581a0b2a3a9ed5752093d7be5e846a",
+    "examples/js2py/u06-modules/package_demo/check_import.py": "b8784e1b0c5a23e8f84a5d8f35f34a644d4c40f438a33fb339def79d6761fe99",
+    "examples/js2py/u06-modules/shadowing/statistics.py": "1a5e497d858dd3c560b300353cbbf3ef065017ae192f4bd7809fbfeb58cdbfaa",
+    "examples/js2py/u06-modules/shadowing/show_source.py": "5ec0f7b993417cf59daa52673453745b7a4edb5cf7318cae5565e2f88c7de130",
+    "examples/js2py/u06-modules/cycles/cycle_a.py": "799b4f3aa977f14b66967b4c60635daf9934608aa6c1691b9970a6881b2ae0ec",
+    "examples/js2py/u06-modules/cycles/cycle_b.py": "e34a455ec928a8eafc85f81294511f72ed90fbb2cf1a24d81b4e222235629bea",
+    "examples/js2py/u06-modules/cycles/run.py": "a5a8f2a157f3f902053096d04b5c91ed535a7380e241146466fd60d5c3e710b4",
+    "examples/js2py/u06-modules/cycle_fixed/rules.py": "5535b0f4fe95ed04dc51c48620adffa540ed4485321feac3b84022f99a9cbd4c",
+    "examples/js2py/u06-modules/cycle_fixed/formatting.py": "e9fa28c65c38cdd07daa1b01b82446df6906bcb62627fd461d86007d4cd08912",
+    "examples/js2py/u06-modules/cycle_fixed/run.py": "d0fa04467455366782235f9982f7013040b9b3ef57f709e717333cbfad6095ff",
+    "examples/js2py/u06-modules/exercises/noisy_rules.py": "b6230492222b98bfea56186e16db61a5d044778e4184a4595dd438ccab0c1aa7",
+    "examples/js2py/u06-modules/exercises/check_noisy.py": "619b9280862010e2611635c9a3ae896b0431eccb9c1f3d2a0e7f58af79683ca0",
+    "examples/js2py/u06-modules/solutions/fix_entry.py": "4b1f8f1a561c09534df25941567d50a21ab0ace0bf63ffd24e7411e001af75e1",
+    "examples/js2py/u06-modules/solutions/check_fixed_entry.py": "b97c63ce2f445509a6c54839f45df5fbd6f173b78686a7ac53f4a8bd40c8544d",
+    "examples/js2py/u06-modules/solutions/independent/study_plan/__init__.py": "803c5dc2e8c627f3a20d2b9274768472d159ed194a745c2111db96be80af81cd",
+    "examples/js2py/u06-modules/solutions/independent/study_plan/rules.py": "3776e4e02a43991f01a99e4086ebcc10983946e06f28e708f3a3fe9c57861c36",
+    "examples/js2py/u06-modules/solutions/independent/study_plan/summary.py": "93f210ad8b46c95d21da646a565ed1ca9a1963eccd8c960b1af2feccee324715",
+    "examples/js2py/u06-modules/solutions/independent/study_plan/app.py": "937f8a3c25e35303a0531eee1caa570314ff9d9eb2766883b10c6bc06b42f378",
+    "examples/js2py/u06-modules/solutions/independent/check_import.py": "777f1c42284168060264dd4c6b6e8c9035ed738c1ed43c1f93b70b9372f91b78",
+    "content/docs/js2py/module-06-web-development.zh-cn.mdx": "a4c6a3c9b944d5169f94fb897e4c68e5de4bd865b4ca936b96fbb3217fe63c32",
+    "content/docs/js2py/module-06-web-development.zh-tw.mdx": "b1bbd18efe44dcde8f21f94b6852d1c44a1f91d2d1d29eca42f52d2d70002d52",
+    "examples/js2py/u06-modules-files.json": "adf0406f99c97e54896d18267d58fa24ed31d4b51d6e68b84ca7c60cb635c0c6",
+    "public/learning-assets/js2py/u06-modules.zip": "6e4193b33ed884e72af3c00ef72b5dc41d5affa4d559e4d9514e1f593d954eb8",
+    "scripts/tests/test_js2py_modules.py": "0d9460ca9b2ec677a57d9df8b737030e3f7a05fcffdcfb4cb55f081291334be7",
+    "scripts/tests/fixtures/js2py-modules.json": "01174ba1ff943d021a733352bc1486b7999375c8a35b30d8348f080fd9cd5fa6",
+    "scripts/tests/js2py-module-binding.test.mjs": "9ce8bb3c08061ac3f1a61d969d09cdfe13d28ff44829ffb27276bda2e0eda4f1",
+    "scripts/test-js2py-modules.py": "9b045830e48950d19d449f84568c1ad9b341173e6dce4b3aaa8bdedad322f6ed",
+    "scripts/build-js2py-lab.py": "df328ee57b5d3efa12923ef0e0719b0019d4e4a9fe56c5e06833103958980c32",
+    "scripts/check-js2py-content.py": "a82f848ea9660e7b4dd12e6aa181dedce7c0811ff0d5b5d61bb55d042341a3d4",
+    "lib/js2py-examples.ts": "8d793147b679761d52e0fefdd880760d05d7d2625ce0aa3268c85d9844c3d057",
+    "docs/js2py-chapter-contracts.json": "3e5e22f97dbdcbef092a717bbf2ef003d6522c4106526d3d8635de8221c62b7d",
+    "docs/js2py-learning-path.zh-cn.md": "829eacb5cf1da40e0ea8c82dd31840e44f9c007b53475d4685f08655cefb2d3f",
+    "package.json": "23ba932a2d3cd9b10b0e22cd3910d67f73cdc10a03a4a42147e64c5e30a59e0b",
+    "content/docs/js2py/index.mdx": "245848c3c7e2ec80ac3ba41ab1c082f797b509ab76c22f78a71217b3f14883d0",
+    "content/docs/js2py/index.zh-tw.mdx": "a022081730711a40839906db18b9bd1779c33387a1981bcc5887b7a22bd7ce4e",
+    "content/docs/js2py/index.zh-cn.mdx": "74ba4e9e7585b0296928f697a6b5fbc8d8b1db609205f3f875f28f0499e6d955",
+    "content/docs/js2py/module-05-quality-testing-typing.zh-cn.mdx": "45be0e2857b79561ab307c6d526f1e6718232ac57da13f11b75d1d5aa2a551b5",
+    "content/docs/js2py/module-05-quality-testing-typing.zh-tw.mdx": "d76c315f649e5198d9d989bf2d9296e521765897aa7039bb0c75dc805db4704f",
+    "content/docs/js2py/module-05-quality-testing-typing.mdx": "3767894a74910775ae9daf9cb246a4dd290566966fa94f1eed6bd4d51363d787",
+    "docs/archive/js2py-u06-fastapi/module-06-web-development.mdx": "918b85583c9ace129e11da3388c1da7bb0d3b17b0c42ab958743dc6300a22473",
+    "docs/archive/js2py-u06-fastapi/module-06-web-development.zh-cn.mdx": "7ce7474704af6812e2403d9db29d68a5dba8ccb85917c40e03943c72caa64c53",
+    "docs/archive/js2py-u06-fastapi/sha256.json": "bcf78de66622494c69ee82604a9ca7e8057ec9c6c1a3295424f84d616d89b28e",
+    "docs/archive/js2py-u06-fastapi/module-06-web-development.zh-tw.mdx": "9def40351ab478c125280f20d4a655c11af43b8d0c7b006510b7fc7961d91e8e",
+    "docs/archive/js2py-u06-fastapi/README.md": "2428532dda9ee449f349014701f5419e51b06740a387cb26b99fe05496cdfc54"
+  },
+  "credential_persisted": false,
+  "revision": {
+    "initial_review": "js2py-u06-initial-review-2026-09-24.json",
+    "material_change": "Verified traceback and explicit version-dependent diagnostic guidance; no attempt to improve scores by resampling unchanged material."
+  }
+}

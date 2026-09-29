@@ -1,0 +1,245 @@
+---
+title: 外部服务与异步资源生命周期：让可选依赖真的可选
+description: 从 L14 的 yield/finally 推导 asynccontextmanager 与 FastAPI lifespan，复用 HTTPX 客户端，用本地故障服务、真实 TCP 与取消清理验证边界。
+---
+
+import { getExternalServiceExample } from '@/lib/js2py-examples'
+
+## 1. 外部提示可以失败，保存任务不能陪它失败
+
+场景是为任务提供可选的优先级提示。把远端请求直接塞进创建任务的事务，外部服务一变慢，就可能让连接、事务与请求一起长时间占住。更危险的是，客户端超时并不证明远端没发生效果；盲目重试可能重复发送通知或创建账单。
+
+本章先设计责任边界：**核心 CRUD 自己完成；可选提示单独查询；一个应用生命周期拥有一个外部客户端；一个请求只借用它**。我们不真实联系第三方，不上传用户任务正文，也不需要凭证。
+
+| 本章契约 | 范围 |
+| --- | --- |
+| 前置 | A01 的 coroutine/Task、取消与预算；L14 的上下文管理器和 yield/finally；H05 的服务生命周期；位置在 S03 之后 |
+| 新能力 | asynccontextmanager、lifespan、HTTPX 客户端复用与关闭、阶段超时与总预算、有限重试、边界校验 |
+| 独立验收 | 外部失败或悬停时 CRUD 仍工作；正常、异常、取消均验证真实资源释放；解释幂等变式 |
+| 不声称完成 | capstone、持久化 SQL、认证授权、生产队列、负载/部署验收、任意第三方服务适配 |
+
+这里故意用内存字典代替已经学过的 SQL：避免依赖其他章节尚未稳定的源码，把注意力留给外部依赖。重启丢数据、没有身份与对象权限，只能在本地用合成数据；不能把这份缩小实验当作先前可靠业务的替代实现。
+
+## 2. 完整工程、锁定版本与第一次实跑
+
+[下载独立实验](/learning-assets/js2py/a02-external-services.zip)。解压后进入 `a02-external-services`；仓库位置为 `examples/js2py/a02-external-services`。所有代码、命令与预期输出由同一实验目录读取，翻译不维护另外一份实现。本章是本地 API、多文件与真实 socket 实验，不提供浏览器执行按钮。
+
+核验日期 **2026-09-28**：CPython **3.13.15**、uv **0.12.13**、pytest **8.4.2**、FastAPI **0.135.1**、HTTPX **0.28.1**、AnyIO **4.12.1**、Uvicorn **0.42.0**、Pydantic **2.12.5**；完整传递依赖解析与哈希见 public-PyPI `uv.lock`。框架基线与 H03–H06 对齐；所用 API 无需升级 FastAPI/Uvicorn/Pydantic，因此不无声迁移框架。AnyIO 4.12.1 与 Starlette 0.52.1 也沿用 H05–H06 的生命周期/测试基线并显式锁定，避免传递依赖漂移。这是已实测组合，不是“永远最新”的承诺。
+
+<Code language="toml">{getExternalServiceExample('pyproject.toml')}</Code>
+
+已经具备指定 uv 后，从实验根运行。socket_lab 自动选空闲回环端口，自己启动/停止自己的两个服务，不抢固定端口、不结束其他进程。
+
+<Code language="bash">{getExternalServiceExample('commands.sh')}</Code>
+
+主测试应为 **32 passed**，独立答案 **4 passed**。主测试含五项真实 socket 测试，并非把所有网络都 Mock 掉。C0 检查点：保存工作目录、版本、最后成功命令、首次 socket 输出；不要为了看见网页而跳过测试。
+
+## 3. 先沿着一条请求追踪谁拥有什么
+
+浏览器/调用者 → 本地 FastAPI → 提示服务对象 → 共享 HTTPX 客户端及其连接池 → 本地故障服务。响应反向回流时，必须重新验证外部数据，最后只返回允许的状态与枚举。
+
+- 应用拥有客户端、连接池和整个依赖的 semaphore；每次请求只是借用。
+- 一次尝试拥有 response stream，在任何退出路径上关闭它。关闭响应不等于关闭共享客户端；连接可能回到池中复用。
+- 一次提示操作拥有排队、重试、退避的总预算；核心 CRUD 不进入这条调用链。
+- 服务停机时 lifespan 释放应用级客户端，而不是在某次请求后误关其他请求正在借用的对象。
+
+这与前端复用一个 API 客户端有相似处，但服务器要并发借用、明确关池并处理停机取消。模块 import 就创建客户端，会让所有权、运行循环与测试隔离变得含糊。每个请求都 `async with AsyncClient()` 又会不断重建池，失去跨请求的连接复用。
+
+## 4. 从 L14 的 with 到 async with：先讲协议，再看装饰器
+
+L14 中 `@contextmanager` 把普通生成器适配成 with 的进入/退出协议。这里只有一个必要变化：获取或释放可能需要 await，因此协议需要等待 `__aenter__` 与 `__aexit__`。`async with` 不会让任意同步 close 自动非阻塞；被调用的实现必须提供相应异步行为。
+
+`managed_client` 是带 yield 的 async def，因此是**异步生成器函数**，不是 A01 中直接 await 得到结果的普通 coroutine function。`@asynccontextmanager` 把它适配成异步上下文管理器工厂，使用方式是 async with，而不是直接 await 这个管理器。
+
+<Code language="python">{getExternalServiceExample('lifecycle.py')}</Code>
+
+按顺序读一次：
+
+1. validate_origin 在获取资源前验证配置。失败时没有客户端，没有进入块，也没有“等退出再补救”的机会。
+2. 构造 AsyncClient 配置连接池；通常尚未建立实际网络连接，连接会按请求需要创建。
+3. 执行到唯一的 yield，把客户端借给 async with 块；此时管理器暂停，资源仍属于它。
+4. 块正常结束则恢复 yield 后的代码；块抛异常/取消则在暂停点恢复相应异常路径。无论哪种，finally 负责关闭。
+5. `await client.aclose()` 完成后才结束退出阶段。清理不是业务回滚，已经到达远端的副作用不会因此消失。
+
+装饰器协议要求恰好 yield 一次；不 yield 或 yield 两次都是协议错误。获取多个资源时应逐个建立管理边界，不能先获取所有资源，赌最后一个 finally 能处理前面任何失败。对照 L14 可以看到：异步化改变的是可等待的进入/退出，不是资源所有权原则。
+
+## 5. finally 里也可能等待：取消清理为何有一个小保护区
+
+FastAPI/Starlette 的并发基础会使用 AnyIO。这里不用它堆出另一套 Task API，只解释清理需要的 cancel scope。AnyIO 的取消作用域可让已取消区域在每个等待点继续触发取消；于是终于进入 finally，并不意味着 finally 里的 await 自动安全。
+
+`with anyio.move_on_after(2, shield=True)` 建立一个**有时间上限的同步上下文取消作用域**，所以使用 with 而非 async with。shield 暂时屏蔽外层 AnyIO 作用域的取消，让 aclose 有机会完成；自己的两秒清理预算仍有效。如果预算触发，cancel_called 为真，我们抛清楚的清理失败，而不是对外谎称成功关闭。
+
+这不是给整个请求“不可取消”待遇。范围仅包住释放；请求本身的取消仍应传播。也不要把 AnyIO shield 理解为可防任意重复的原始 Task.cancel、进程强杀或系统崩溃。实测覆盖 asyncio 后端的一次 Task 取消和一个已取消的 AnyIO scope；其他后端与强制退出未证明。
+
+`client.is_closed` 是必要但不充分的证据：实现可能先标记关闭再尝试释放底层资源。因此后面的测试还让真实 TCP 对端看到 EOF，并验证关闭后的客户端拒绝使用，而不只检查属性或日志。
+
+<details>
+<summary>解释性检查答案：一个请求失败，应该关闭谁？</summary>
+
+先关这个请求拥有的 response stream，释放许可并传播取消/返回设计好的降级；不关闭应用共享的 AsyncClient。应用退出才关客户端。一个正常、一个失败、一个取消的拥有者作用域都要经过释放；asynccontextmanager 的 yield 是把借用交给调用者的边界，不是把所有权永久送出去。关闭连接也不等于撤销外部效果。
+
+</details>
+
+## 6. lifespan：一进一出，不是每请求初始化
+
+<Code language="python">{getExternalServiceExample('app.py')}</Code>
+
+create_app 只是应用工厂。其内部 lifespan 在应用启动时执行到 yield：进入 managed_client，保存客户端和 HintService，准备实验字典。应用随后处理多个请求；退出时继续执行，离开 managed_client 关闭客户端。每个 worker 进程各有自己的生命周期，不是跨进程共享一个池。
+
+这里启动不探测可选远端，健康接口也不调用它。否则可选依赖坏了就会让核心服务启动失败，与你声称的可选相矛盾。生产 readiness 应验证真正关键的依赖，例如数据库，而不是一概包含所有推荐/提示 API。
+
+CRUD 路由没有远端调用，纯 require_task 仍是同步函数。本实验路由中的小段字典读写没有 await，运行在同一 loop，适合观察隔离关系；不能把这个条件外推成多 worker 下的持久或并发一致性。真实 SQL 的事务和驱动边界沿用已经学过的方案，不在这里机械改成 async。FastAPI 普通 def 路由会由框架放在线程池；这不表示你在 async 路由里直接调用任何同步库都被自动搬走。
+
+测试用 HTTPX ASGITransport 时框架生命周期不会自动启动，因此测试显式 `async with app.router.lifespan_context(app)`。真实 Uvicorn 的测试则让服务器负责启动/退出。若 app.state.hints 不存在，首先检查生命周期有没有进入，不要临时在模块顶层塞一个全局客户端。
+
+## 7. 四个阶段的超时，与整件事的 deadline
+
+HTTPX 的 connect 控制建立连接等待，read 控制等待下一批响应数据，write 控制发送数据等待，pool 控制等连接池许可。不是“四个值相加就是总耗时”，更不是 `Timeout(0.2)` 保证整个请求 0.2 秒内绝对结束。远端若持续在 read 空闲窗口内送来少量数据，完整响应可以持续更久。
+
+生命周期配置故意把四个值都写出，避免误读单位或默认值。连接数上限限制 transport 连接，HintService 的 semaphore 限制整个逻辑操作；一个操作可能含两次连接尝试和一次退避，两者不是同一个对象。
+
+外层 `asyncio.timeout(self.deadline)` 包住**等待 semaphore → 获取池连接 → 网络 → 有限重试 → 退避**。若把 timeout 只放在 _once 内，排队与退避就能悄悄耗尽你的用户体验预算。测试把许可全部占住，确认到期前一次远端请求都没发；另一个测试让退避超过剩余预算，确认不会启动第二次尝试。它们验证预算范围，不比较不稳定的毫秒耗时。
+
+这些数值是教学用的小预算。超时依然协作式：阻塞事件循环或缓慢清理会推迟实际退出。真实系统根据依赖 SLO、负载、调用链剩余预算和失败行为设参数，不照抄 0.2 或 0.7。
+
+## 8. 完整适配器：小范围重试、不信任响应、取消不降级
+
+**先理解接下来读取正文的 async for。** `response.aiter_raw()` 提供异步字节块迭代器，不是已经下载好的列表。`async for` 向它逐次请求下一块，并 await 这次取得结果的操作：得到一块才执行循环体，处理完才取下一块。等待尚未到达的数据时可以让出事件循环；如果数据已经就绪，一次 await 不保证必然切换任务。它不会为每块建立 Task，也不是并行下载。
+
+普通 `for` 使用同步迭代协议，不能直接遍历这里只提供异步协议的对象；给普通 for 的循环体加 await 也不会替它异步取得下一块。异步迭代器以 `StopAsyncIteration` 表示「没有下一块」，async for 会处理这个结束信号，继续执行循环后的语句；它不是坏 JSON，也不是要重试的网络错误。取消和其他异常则不是正常迭代结束。
+
+下面的 `_once` 用 `bytearray` 保存可累加的字节。每块先比较「已保留长度 + 新块长度」与 1024，再决定是否 `extend`。假设依次收到 700 和 400 字节：第一块留下 700 字节，第二块在追加前被拒绝，缓冲不会增至 1100。1024 是字节数而非字符数；块也不是一条完整 JSON 消息，字符或 JSON 片段可能跨块，所以正常读完后才用 `bytes(body)` 交给模型验证。限额只约束这里保留的正文，不保证底层网络栈从未分配过更大的块。
+
+等待下一块时若收到取消，异常沿着循环退出；async for 本身不负责关闭响应或共享客户端。包住读取过程的 `async with client.stream(...)` 负责在离开其范围时退出这次响应，外层许可范围再归还 semaphore；应用 lifespan 仍拥有共享 client，直到应用退出才关闭整个池。取消不应被改成 `StopAsyncIteration` 或成功降级，异步退出也不能被理解为抵御强杀的保证。
+
+读源码前先口述：700 + 400 为什么拒绝、保留多少？若正等第二块时取消，哪些范围退出，为什么不关闭其他请求正在借用的 client？再沿下面的嵌套范围核对答案。
+
+<Code language="python">{getExternalServiceExample('service.py')}</Code>
+
+先从 hint 外层读到 _once 内层。hint 在总预算内取得共享许可，用 active/peak 观察已准入操作，finally 减计数；async with 在各种退出时归还许可。_once 在 response stream 范围内处理状态和正文；正常、无效或瞬时故障离开时都关闭这次响应。
+
+本实验最多两次尝试，只为只读 GET 重试 502/503/504，以及特定 ConnectError/ConnectTimeout/ReadTimeout。第一次失败后让出控制并短暂退避，第二次仍失败就 unavailable。401 是凭证/授权问题，不用重试刷请求；429 需要限流与 Retry-After 政策，本例不擅自立刻重试；pool 超时代表本地容量压力，不扩大风暴。生产还需综合抖动、限流、跨请求重试预算等，不能无脑增加次数。
+
+外部 200 也不自动可信：要求 JSON 类型；不跟随重定向；只接受未压缩响应；按 raw 字节累计限制为 1024；通过严格 Pydantic 模型，仅允许 low/normal/high，拒绝未知字段。边界限制了**应用保留的正文**，不是对整个网络栈峰值分配的安全承诺。无效 JSON、错误枚举、HTML、超大体积都转成同一小型降级结果，不回传原始远端正文、URL或异常消息。
+
+`InvalidHint` 是不可盲目重试的数据边界错误；`TransientFailure` 是本例明确允许重试的窄范围。它们不是所有异常的大垃圾桶。TimeoutError/HTTPX RequestError 可以在业务边界转成 unavailable，但 CancelledError 不在这个捕获集合中。拥有者取消要及时停止，不应偷偷重试或返回“成功降级”。
+
+## 9. 本地可控故障，不碰付费服务或用户数据
+
+<Code language="python">{getExternalServiceExample('faults.py')}</Code>
+
+故障替身提供正常、始终 503、先错后对、坏 JSON、错误字段、超大正文、慢响应和门闩挂起。`/control` 只为本地实验切换场景；绝不能挂进生产 API。hold 的进入与释放 Event 让测试看到“外部请求已被接收但尚未返回”，不是靠睡一秒推测网络状态。
+
+上游 origin 的 allowlist 只允许明确的 `http://127.0.0.1:<port>`，连 localhost、用户信息、路径与 query 都拒绝，避免在这个实验中引入名称解析、远端地址与凭证。`trust_env=False` 禁止 HTTPX 从环境继承代理配置，`follow_redirects=False` 防止被带去另一个站点。配置失败信息省略输入值。请求只发送固定 `/hint`，不带任务正文、用户身份或 Authorization。
+
+如果你单独手动操作，用两个终端从同一实验根启动；只对这两个终端按 Ctrl-C 结束，不使用 pkill 或按端口盲杀。下面端口只是手动模式，自动 socket_lab 会自行选择空闲端口。
+
+```bash
+uv run --locked uvicorn faults:create_fault_app --factory --host 127.0.0.1 --port 8766
+```
+
+```bash
+uv run --locked uvicorn app:create_app --factory --host 127.0.0.1 --port 8765
+```
+
+第三个终端发合成请求：
+
+```bash
+curl --noproxy '*' -sS -X POST http://127.0.0.1:8765/tasks -H 'Content-Type: application/json' -d '{"title":"Synthetic task"}'
+curl --noproxy '*' -sS -X POST http://127.0.0.1:8766/control -H 'Content-Type: application/json' -d '{"mode":"unavailable"}'
+curl --noproxy '*' -sS http://127.0.0.1:8765/tasks/1/hint
+curl --noproxy '*' -sS http://127.0.0.1:8765/tasks/1
+```
+
+在全新手动进程中，依次得到任务 id 1、mode unavailable、提示 state unavailable/priority null，最后仍读取同一任务。若 id 已经递增，使用创建响应里的 id；不要把每次必为 1 当成接口承诺。
+
+## 10. 不是 mock 的服务证明，以及它没有证明什么
+
+<Code language="python">{getExternalServiceExample('socket_lab.py')}</Code>
+
+serve 只绑定 127.0.0.1 的临时端口，持有自己创建的 socket 和 Server Task，finally 请求自己的 server 退出并等待。启动/退出的五秒是防挂死保护，不是性能合格线。输出只保留稳定事实，不比较端口、耗时或调度噪声。
+
+<Code language="text">{getExternalServiceExample('expected-socket-output.txt')}</Code>
+
+前两次提示让故障服务观察到同一个对端端口，说明在该真实 HTTP/1.1 场景下复用了连接，不只是 Python 变量 id 没变。逐一切换坏数据/慢响应验证明确降级。hold 场景临时放宽测试预算，观察上游 entered 之后、release 之前，创建/修改/读取/删除都能完成；不以“核心请求小于 50 ms”冒充隔离证明。这里通过拆开的调用链与可让出的 I/O 建立隔离，不是做了压力容量认证。
+
+下列真实 TCP 测试另外观察资源，而非只观察 HTTP 业务响应。
+
+<Code language="python">{getExternalServiceExample('tests/test_socket.py')}</Code>
+
+正常退出、块内 LookupError、Task 被取消时，对端都必须读到 EOF，客户端必须为 closed，后续请求必须拒绝。另一个测试只取消一次提示调用，验证该连接结束、active 回零，但应用级 client 尚未关闭且能发下一次成功请求。**关闭一次借用和关闭整个池不是同一件事。**
+
+本章不承诺客户端断开就必然让 FastAPI handler 自动取消；测试明确取消拥有者 Task。没有测试 TLS、真实 DNS、HTTP/2、写入背压、多 worker、强杀、生产负载，不能把这些 socket 结果扩大成通用网络认证。
+
+## 11. 替身测试检查政策，真实 socket 检查连接
+
+<Code language="python">{getExternalServiceExample('tests/test_service.py')}</Code>
+
+MockTransport 可精确制造 401、429、连接错误或池超时，适合验证“重试几次、返回什么、有没有传敏感数据”。它不经过真正的 TCP 或 HTTPX 网络超时计时，不能拿它声称真实 connect/write/pool 场景已测。ASGITransport 则直接调用应用，适合检查路径和生命周期，但同样不是服务端 socket 验证。
+
+主测试共 32 项：27 项政策/ASGI/诊断测试，加 5 项真实 TCP 测试。受限并发测试使用三个请求、两个许可，观察第三个尚未进入；取消第一个后第三个才准入，最后 active 为零。AnyIO 测试使 aclose 内真的 await，证明被取消的作用域下仍完成释放，避免只有同步假 close 的测试蒙混过关。
+
+带提示修改：把 HintService 默认并发改成 1，把两次尝试改为仅一次。验收 unavailable 仍明确、取消仍传播、active 归零、core CRUD 不变；同时修改反映**新政策**的计数断言，不能为了全绿把所有次数断言删除。
+
+<details>
+<summary>引导修改答案与复核路径</summary>
+
+把默认 concurrency 设为 1；把 range(2) 改为 range(1)，终止尝试的 attempt 判断改为 0。需要第二次才能成功的 flaky 场景现在应 unavailable，503/connect/read 的 attempts 变为 1；ASGI 中两次提示共发 2 次而不是 4 次。显式 concurrency=2 的容量机制测试仍可以保留，因为它检验参数可配置，而不是默认值。运行主测试与 socket_lab；故障服务支持 flaky，但减少尝试后不应靠修改它来伪造成功。
+
+</details>
+
+## 12. 真失败诊断：分清启动、验证和运行时降级
+
+运行 `uv run --locked python -m errors.config`：应用创建时非零退出，最后异常信息说明只接受回环 origin 且 `value omitted`。输入带有明确假的凭证形状；不能把“最后一行已脱敏”等同于整个 traceback 安全，因为 Python traceback 可能打印含配置的源码行。生产公共响应与日志不得直接输出原始 traceback/请求 URL。
+
+<Code language="python">{getExternalServiceExample('errors/config.py')}</Code>
+
+运行 `uv run --locked python -m errors.untrusted`：JSON 能被解析，但 priority 不在契约内且多了字段，得到 ValidationError。这发生在数据验证阶段，不是网络连不通；修复方法不是对同一坏正文多重试几次。主服务把此错误变成受控 unavailable，而不是把 Pydantic 的原始错误正文给用户。
+
+<Code language="python">{getExternalServiceExample('errors/untrusted.py')}</Code>
+
+手动模式停掉故障服务再请求 hint，会触发受限连接失败并降级；读写任务仍应独立成功。若启动报 address already in use，先检查自己开的终端，或改用自动临时端口模式，不终止不认识的进程。若主测试能过但手动 app.state 缺失，检查是否禁用了 lifespan；若 after-close 错误出现在正常请求，查是否在请求 finally 中误关了共享 client。
+
+C1：生命周期借用图与首个成功 socket 输出；C2：本地故障→提示降级→核心仍可用；C3：三种退出的 EOF 断言。恢复时记录“哪个场景、哪一步、最后成功命令、下一次只跑哪个测试”，不把重新安装一切当作排错。
+
+## 13. 独立变式：回复丢了，如何避免重复副作用
+
+暂不打开答案。设计一个纯本地“创建回执”客户端与假提供者。提供者第一次已经产生效果并保存回执，却抛 ReadTimeout 模拟回复丢失。客户端允许最多两次尝试，同一逻辑操作必须复用同一 Idempotency-Key 和正文；相同 key 不同正文返回 409；新 key 是新操作。
+
+验收：同一 key 的丢回复重试与再次查询只产生一次效果；改变正文不能复用旧 key；取消不重试；换 key 会产生新效果。再重建一个空提供者，证明内存账本丢失后重复效果仍可能发生。必须解释为什么“客户端加一个 key 头”本身不能保证幂等，以及为什么普通 POST 不能照搬前面的 GET 重试。
+
+<details>
+<summary>独立变式完整参考实现与测试</summary>
+
+<Code language="python">{getExternalServiceExample('solutions/receipts.py')}</Code>
+
+<Code language="python">{getExternalServiceExample('solutions/test_receipts.py')}</Code>
+
+运行 `uv run --locked python -m pytest -q solutions`，应为 4 passed。此处 provider 是 MockTransport 中的单进程内存替身，不是另一个生产服务；它故意用“效果已发生，回复丢失”戳穿超时意味着失败的假设。真实提供者需要将幂等键、调用者范围、请求摘要、业务效果与可重放结果持久且原子地关联，并定义并发冲突和保留期限。示例的无 await 字典段不提供崩溃安全；重启测试正是它不持久的反证。
+
+</details>
+
+## 14. 不要把后台执行误称可靠交付
+
+FastAPI BackgroundTasks 可以把工作安排到发送响应之后，但仍在进程内；进程退出、任务失败或重启可能丢失工作。内存 asyncio.Queue 也不会因为名字叫 queue 就自动持久化。它们都不是具有持久记录、确认、重试、去重和恢复语义的可靠任务系统。
+
+本实验因此不在保存任务后暗中发“必须送达”的通知，也不展示一个永远无人观察的 create_task。将来若通知成为业务要求，应单独设计数据库提交与任务记录的一致性、持久投递和可恢复消费者；不是在这份客户端适配器后加一行后台调用便完成。
+
+## 15. 出口验收、恢复卡与下载边界
+
+不用参考答案，解释并演示一次新故障：说明在哪一层拒绝、是否重试、谁清理，以及 CRUD 为何不受调用链影响。能区分阶段 timeout 与整个操作预算，能指出真实 TCP 和 Mock 各自证明什么，能区分 response、池和远端副作用。保存**版本、当前文件、32+4 哪组通过、最后成功命令、未解决问题和下次第一步**。
+
+下载 allowlist 只含完整源、配置、真实 lock、测试、参考答案、三语 README 与稳定输出，不含 .venv、缓存、凭证或真实业务数据。只允许回环合成流量，不读取秘密，不联系收费或第三方 API。ZIP 路径由站点整合步骤打包发布；本实验的干净提取验证不冒充站点导航、TypeSafe 或全站构建已完成。
+
+## 16. 官方依据与核验日期
+
+核验 **2026-09-28**；具体版本由实验锁文件记录。以下机制与实验参数分开维护；库升级后重跑政策与真实 socket 两层验收。
+
+- [Python 3.13：contextlib.asynccontextmanager](https://docs.python.org/3.13/library/contextlib.html#contextlib.asynccontextmanager)及[async with](https://docs.python.org/3.13/reference/compound_stmts.html#the-async-with-statement)：L14 协议如何进入异步资源管理。
+- [FastAPI：lifespan](https://fastapi.tiangolo.com/advanced/events/)及[async 技术细节](https://fastapi.tiangolo.com/async/#technical-details)：启动/退出、同步与异步路由边界。
+- [HTTPX：Async support](https://www.python-httpx.org/async/)及[Clients](https://www.python-httpx.org/advanced/clients/)：客户端池复用、响应与客户端关闭。
+- [HTTPX：Timeouts](https://www.python-httpx.org/advanced/timeouts/)、[Resource limits](https://www.python-httpx.org/advanced/resource-limits/)和[Transports](https://www.python-httpx.org/advanced/transports/)：阶段预算、容量、Mock/ASGI 及 lifespan 边界。
+- [AnyIO：Cancellation and timeouts](https://anyio.readthedocs.io/en/stable/cancellation.html)：level cancellation、有界 shield 与 finally。
+- [FastAPI：BackgroundTasks caveat](https://fastapi.tiangolo.com/tutorial/background-tasks/#caveat)：进程内后台机制的适用边界。
+- [Pydantic：Models](https://docs.pydantic.dev/latest/concepts/models/)与[严格模式](https://docs.pydantic.dev/latest/concepts/strict_mode/)：外部数据的结构验证。
+- [Uvicorn：Server behavior](https://uvicorn.dev/server-behavior/)及[settings](https://uvicorn.dev/settings/)：本地服务生命周期与绑定设置。

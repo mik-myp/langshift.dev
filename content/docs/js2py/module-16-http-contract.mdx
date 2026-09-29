@@ -1,0 +1,313 @@
+---
+title: "HTTP and API contracts: agree on observable behavior before implementation"
+description: Specify fields, requests, errors, pagination, and retries consistently with H04–H06, distinguishing the core contract from optional hardening and real HTTP observations.
+---
+
+import { getHttpContractExample } from '@/lib/js2py-examples'
+
+## 1. Why is a list of endpoints not enough for integration?
+
+Suppose the backend says only “task creation is supported.” You still do not know how blank titles are handled, where to read a created task, whether a timeout permits retrying, or whether to parse JSON after deletion. The frontend should not have to guess. A **contract describes observable behavior both sides can rely on**: inputs, outputs, failures, side effects, and relationships between exchanges. A method and URL provide only the entry point.
+
+We first specify the learning API that H04–H06 will progressively implement: `/tasks`, with `id/title/minutes/done/note`. Titles retain their original spelling rather than being silently trimmed; minutes is a strict nonnegative integer; done is a strict boolean; note is nullable. The model must not silently change as you read onward. Projects, members, identity, and database relationships belong to the later D/S stages. Those extensions must explicitly revise the contract and migrate callers, not become hidden requirements for this chapter.
+
+**H02 still implements no CRUD.** The running service is H01's static server, serving example files. A proposed 201 inside a sample is different from the real 200 received when downloading it. The maintainer additionally compared samples against an isolated copy of the current H04 implementation. That cross-chapter check does not mean the H02 download contains a FastAPI service.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisite | H01 requests, processes, ports, loopback, and trust boundaries |
+| New capabilities | Resources and methods, fields and nullability, responses and errors, pagination and retries, CORS boundaries |
+| Independent acceptance | Deliver H04-aligned normal/failure exchanges; distinguish proposals, real static HTTP, and unimplemented hardening |
+| Not required yet | FastAPI route code, schema implementation, databases, authentication/authorization, idempotency storage, or deployment |
+
+Download the [complete H02 lab](/learning-assets/js2py/h02-http-contract.zip). This chapter requires only CPython 3.13.15, uv 0.12.13, and pytest 8.4.2; it was tested on macOS with curl 8.7.1 on **2026-09-28**, not through a browser Python run button. The later alignment baseline is FastAPI 0.135.1, Uvicorn 0.42.0, and Pydantic 2.12.5, but these are not H02 runtime dependencies. Windows and real browser cross-origin integration are unverified.
+
+## 2. An HTTP exchange: a JSON property is not the protocol status
+
+A request contains a method, target, headers, and possibly a body. The method expresses action semantics; the target identifies a resource and may include a query; headers describe the message and negotiation; the body carries data. A response has a status, headers, and possibly a body. Putting `{"status": 201}` inside a 200 response does not change the HTTP status to 201. See [RFC 9110 §6](https://www.rfc-editor.org/rfc/rfc9110.html#section-6).
+
+These are **readable excerpts of proposed messages**, omitting transport details such as Date and Content-Length. LF line endings aid reading; this is neither a packet capture nor a complete HTTP encoder. Let curl frame actual messages, and never mistake character counts for UTF-8 byte lengths.
+
+<Code language="http">{getHttpContractExample('wire/create.request.http')}</Code>
+
+<Code language="http">{getHttpContractExample('wire/create.response.http')}</Code>
+
+`Content-Type: application/json` describes how to interpret the body, not whether it is valid. `Accept` requests JSON without granting permission. A blank line separates headers and body. After creation, construct `/tasks/1` from the returned id rather than guessing that the last list item is yours. HTTP allows a creation response to identify the resource through Location, but **current H04 does not send Location, so it is not a promised field here**. Add it later only with corresponding tests and client documentation.
+
+Client input is not trustworthy merely because it matches a frontend TypeScript type. JSON can parse successfully yet have incorrect field types, or have correct types yet violate business rules. Models will enforce validation later. First establish what must be accepted or rejected without requiring framework internals.
+
+## 3. Resources and methods: HTTP semantics are not automatic framework behavior
+
+`/tasks` identifies the collection and `/tasks/1` identifies an item. A resource is neither a local file nor a direct database-table address. H02's static server maps paths to files; later routes dispatch them to business handlers. The same HTTP interface can connect different implementations.
+
+| Method | Meaning and current scope |
+| --- | --- |
+| GET | Read a collection or item; do not create or delete tasks through a read operation |
+| POST | Submit creation to a collection; the service assigns id; repetition may create two items |
+| PATCH | Modify explicitly supplied fields; this contract uses absolute assignments, not full replacement |
+| DELETE | Remove a task; repeated statuses may differ while the intended effect remains absence |
+| HEAD | HTTP defines a GET-like exchange without response content; **not among H04's implemented methods** |
+| PUT | Usually replaces the target resource's state; unsupported here, not a PATCH alias |
+
+“Safe” for GET means the caller requests no business-state change. It does not forbid access logs or eliminate security risks. Safe methods, PUT, and DELETE have HTTP-defined idempotent semantics; POST has no general idempotency guarantee. Whether PATCH can be safely repeated depends on the patch's meaning. See [RFC 9110 §9](https://www.rfc-editor.org/rfc/rfc9110.html#section-9) and [RFC 5789](https://www.rfc-editor.org/rfc/rfc5789.html).
+
+The standard defines HEAD, but that does not mean every framework automatically registers HEAD when you declare GET. H01's static tool returns 200 for HEAD, while current H04 returned 405 for HEAD on `/tasks`. This is not permission to ignore HTTP. It is a reason to check “what the protocol means” separately from “what this application supports.”
+
+## 4. Core fields: preservation, strict types, defaults, and output boundaries
+
+This version is `h02-task-contract-v2-h04-aligned`. Complete offline copies are in `CONTRACT.md`, `CONTRACT.zh-cn.md`, and `CONTRACT.zh-tw.md`. The following input/output agreement matches current H04 models without prematurely adding multi-user fields.
+
+| Field | POST creation | PATCH modification | Successful output and constraints |
+| --- | --- | --- | --- |
+| `title` | Required string | May be omitted; cannot be null when supplied | Original length 1–120; reject all-whitespace text; inspect a stripped copy for validation but **store and return original spelling and surrounding spaces** |
+| `minutes` | Required ordinary integer | May be omitted; cannot be null when supplied | At least 0; reject true, numeric strings, and floats rather than coercing them |
+| `done` | Optional, default false | May be omitted; cannot be null when supplied | Strict boolean: JSON true/false only, not 0/1 or strings |
+| `note` | Optional, default null | Omission preserves; null clears; string replaces | Null or a string of at most 1000 characters; an empty string is valid |
+| `id` | Client must not supply it | Client must not supply it | Service-assigned positive integer; no promise of uniqueness across restarts or globally |
+
+String lengths count Python string code points, not UTF-8 bytes or visible graphemes. `"  Ship the draft  "` is valid and retains its spaces; `"   "` is invalid. Changing “not entirely blank” into “trim before saving” changes user data. Frontend and backend cannot independently guess different rules.
+
+POST/PATCH bodies are JSON objects. Unknown fields yield 422, including client-supplied id or internal fields. Successful tasks contain only `id/title/minutes/done/note`. H04 deliberately stores an `internal_tag`, but it must not appear in HTTP output. The output model allowlists public fields instead of exposing the entire storage object.
+
+Strict body types and URL parsing are different concerns. JSON carries number and boolean types; query and path values arrive as text. Strict minutes does not imply an identical literal-validation policy for every query parameter. See [Pydantic strict mode](https://github.com/pydantic/pydantic/blob/v2.12.5/docs/concepts/strict_mode.md) and [FastAPI response models](https://fastapi.tiangolo.com/tutorial/response-model/).
+
+## 5. PATCH is about supplied keys, not merely optional fields
+
+Suppose an existing task's note is `keep me`. Sending only `{"done": true}` modifies completion while preserving note. Sending `{"note": null}` explicitly clears it. `{"note": ""}` is a third meaningful input: store an empty string. A single “remove empty values” operation must not collapse these distinct instructions.
+
+Likewise, minutes 0 and done false are valid explicit changes. Do not use JavaScript's `if (value)` or Python truthiness to decide whether a change applies. Ask **whether the key was supplied**. H04 will use `exclude_unset=True` to extract supplied fields. Establish the semantics first rather than memorizing model APIs.
+
+**An empty PATCH object `{}` is a valid no-change update, returning 200 and the original task.** Model defaults do not mean omitted fields should reset storage. Internal placeholder defaults for minutes/title cannot overwrite existing values; note's default null cannot clear an omitted field. Only note accepts explicit null. Null title/minutes/done yield 422.
+
+Validate all modifications before replacing the learning implementation's in-memory record. A failed PATCH must not leave a changed title alongside rejected minutes. This describes one handler operation, not a guarantee about multiple processes, concurrent read-modify-write, or database transactions. H04's single-process dictionary is a teaching implementation and loses data on restart. Persistence and concurrency boundaries come later. See [FastAPI partial updates](https://fastapi.tiangolo.com/tutorial/body-updates/).
+
+## 6. Requests and responses: explicitly supported interactions
+
+| Request | Normal result | Failures and limitations |
+| --- | --- | --- |
+| `GET /health` | 200, `{"status":"ok"}` | Only shows that this handler can respond; not task correctness, database readiness, or permission |
+| `POST /tasks` | 201, complete public task | Missing fields, wrong types, blank titles, and extra fields yield 422; titles need not be unique |
+| `GET /tasks` | 200, `items/limit/offset/total` | Invalid pagination yields 422; an empty collection still succeeds |
+| `GET /tasks/{task_id}` | 200, complete public task | id must exceed 0; invalid id yields 422, valid but missing id yields 404 |
+| `PATCH /tasks/{task_id}` | 200, complete updated task | Preserve/replace as in section 5; missing task 404, invalid input 422 |
+| `DELETE /tasks/{task_id}` | 204, no body | Repetition yields 404; do not parse JSON after successful deletion |
+
+Documented canonical paths have no trailing slash. **H02 does not additionally promise that a trailing slash always returns 404 or never redirects**; framework behavior needs separate checking. Nor do we add an unimplemented JavaScript-safe-integer bound or a prohibition on leading zeros in IDs.
+
+404 for a missing resource is not a connection failure from a stopped service. Unsupported methods generally yield 405 with Allow describing methods reported by the router. The current combination of route declarations does not guarantee that Allow is the complete union of this table. Do not fabricate a header snapshot from the table. Samples preserve observed results, and clients must not treat Allow as authorization.
+
+There is no login, project membership, or task ownership yet. An id is not proof of permission, and guessing a number should not grant access in a future secure system. But **this learning API currently implements no such checks**. Do not call it secure or require an undefined identity field from current clients.
+
+## 7. Errors: keep detail while explaining distinct failure modes
+
+This version follows FastAPI's error shapes: a missing task gives `{"detail":"Task not found"}`; request validation gives `{"detail":[...]}`. A custom `error/code/message/fields` envelope is not described as something the later implementation will automatically provide.
+
+<Code language="json">{getHttpContractExample('public/exchanges/blank-title.json')}</Code>
+
+The outer `kind/precondition/request/response` is the **teaching wrapper**. The online API sends only response.body. precondition describes the starting tasks assumed by an independent case, not a new network field. Within validation details, `loc` identifies body/query/path and the field, `type` identifies the error category, and `msg` explains it. input/ctx may also appear. Clients can highlight fields by location without relying on an English phrase, array ordering, or every auxiliary key always being present.
+
+| Observation | Interpretation |
+| --- | --- |
+| 201 + public task | Creation succeeded; keep id; do not assume Location exists |
+| 204 + zero body bytes | Deletion succeeded; skip JSON parsing |
+| 404 + text detail | No task corresponds to a valid id; not a broken network |
+| 422 + detail array | Parameter or body validation failed; correct the request using loc/type |
+| Malformed JSON also yields 422 | Current FastAPI uses json_invalid; do not substitute a preferred 400 for actual behavior |
+| 405 + text detail | No matching method handler at this path; not an unauthenticated response |
+| Unexpected 500 | Server failure, not automatically safe to retry; no promise of the validation error's JSON shape |
+
+HTTP statuses 400, 401, 403, 409, 413, and 415 have useful meanings: request error, identity, permission, business conflict, excessive content, and unsupported media. But **knowing a status does not mean this stage implements its policy**. There is no authentication or uniqueness conflict rule here, so duplicate titles do not magically require 409. See [RFC 9110 §15](https://www.rfc-editor.org/rfc/rfc9110.html#section-15).
+
+Default validation errors can echo input. That is useful with invented teaching data, not a production-redaction guarantee. Do not submit real credentials and then paste the error into logs or tickets. A later uniform envelope or redaction policy requires an explicit version/compatibility plan, not merely edited textbook examples. See [FastAPI error handling](https://fastapi.tiangolo.com/tutorial/handling-errors/).
+
+## 8. Pagination: separate ordering, counts, and the next request
+
+For `GET /tasks`, limit defaults to 20 and ranges from 1 to 100; offset defaults to 0 and must be nonnegative. Order all current tasks by id ascending, then slice. total is the count before slicing, not the current page length. The framework parses query values. We add neither a new strict string grammar nor a promise to automatically reject unknown or duplicate parameters.
+
+<Code language="json">{getHttpContractExample('public/exchanges/list-first.json')}</Code>
+
+<Code language="json">{getHttpContractExample('public/exchanges/list-last.json')}</Code>
+
+The first page uses offset=0 and limit=2, returning ids 1 and 2 with total=3. The second uses offset=2 and returns id 3. The response **has no next_offset**. A client can use `offset + items.length < total` to determine whether this observation indicates more data, then request offset+limit. Offset 99 returns 200, empty items, and total=3 rather than 404. Collection existence and item existence are different questions.
+
+There is currently no done/status filter. Adding `done=true` to a URL does not create filtering behavior; current H04 ignores that unknown parameter. To add filtering, revise the contract and then implement parsing, filtering, counting, and tests. Do not let a frontend believe filtering already happened.
+
+Stable ordering only determines order for one dataset, not a snapshot spanning requests. Deleting an earlier task after page one can make the next offset skip an item; concurrent changes can make total stale. We accept this limitation without promising that combined pages represent one instant, or smuggling in database isolation and cursor implementation.
+
+<Code language="python">{getHttpContractExample('contract_examples.py')}</Code>
+
+preview_page sorts and paginates **already parsed Python values**. check_example checks only its listed sample invariants. Neither is an HTTP parser, complete Pydantic substitute, or CRUD state machine. Passing these checks does not mean a backend has been implemented.
+
+## 9. Idempotency: compare intended effects, not identical statuses
+
+If the first DELETE succeeds but its response is lost, a second DELETE returning 404 does not violate the intended effect that the task is absent. Idempotency concerns the effect of repeated identical requests, not identical bytes or statuses, and does not forbid extra log entries. Current IDs can be reused after process restart, however, so indefinitely retrying an old number is not necessarily operating on the same resource.
+
+POST may create successfully before a response is lost; repeating the same title can create another item. A timeout means the client did not receive a result in time, not that the server did nothing. Disabling a button only reduces mistakes in that UI, not network retries, multiple devices, or reopening a page.
+
+Current PATCH assigns absolute values, such as `{"done": true}`, rather than toggling state. If the same target still exists, no other writer intervenes, and no extra side effect occurs, repeating the assignment leaves the same field state. Not every PATCH is therefore idempotent. Adding increments, notifications, or concurrency versions requires renewed analysis. See [RFC 5789 §2](https://www.rfc-editor.org/rfc/rfc5789.html#section-2).
+
+There is no Idempotency-Key store, transaction, or deduplicated-response cache here. Adding a header cannot grant exactly-once semantics. Do not automatically retry POST. Keep a timed-out write marked “outcome unknown; needs confirmation,” rather than claiming creation definitely failed. S03 will address reliable retries, including key ownership, expiry, changed requests using the same key, and concurrency.
+
+**Explanation exercise:** Which side is responsible for a JSON parsing error after 204? Why does a repeated DELETE's 404 not necessarily violate idempotency? Why cannot a three-second timeout prove that POST created nothing? Also distinguish omitted note from explicit null in PATCH.
+
+<details>
+<summary>Explanation answer: separate status, business effect, and information limits</summary>
+
+204 already declares success without content; forcing JSON parsing is a client mistake. Repeated DELETE responses can differ while the intended effect remains absence, but ID reuse after restart or concurrency changes the context and cannot be ignored. A timeout may occur before a change or after completion but before response delivery. It cannot distinguish those cases. Omitting note means leave it unchanged; explicit null clears it. One truthiness filter must not drop null, 0, and false together.
+
+</details>
+
+## 10. Optional hardening and present gaps: wishes are not implemented promises
+
+These are actual observations against an isolated copy of current H04 on 2026-09-28, not new core requirements. `gaps/h04-observations.json` records them with source hashes so later changes can be identified.
+
+| Optional policy | Current observation/limit | Work needed if adopted |
+| --- | --- | --- |
+| Automatically support HEAD | HEAD /tasks returned 405, unlike H01's static tool | Explicit method support and bodyless success/error tests |
+| Reject unknown query parameters | `done=true` was ignored; the list remained unfiltered | Parameter model, rejection rules, caller migration |
+| Standardize media errors as 415 | text/plain and missing Content-Type experiments both returned 422 | Entry checks, allowed media/charset policy, consistent errors |
+| Limit the whole body to 64 KiB with 413 | 70000 spaces plus valid short JSON returned 201 | Byte-based limits before fully reading input; verify proxy and application layers |
+| Custom uniform errors without echoed input | Default detail can include input | Exception mapping, redaction, client compatibility, negative tests |
+
+A note-length constraint is not a byte limit on the entire request. A healthy response does not prove these policies exist. Observations apply to the recorded baseline; “no configured limit” is not a promise that a platform accepts infinite input. Give each hardening policy its own requirement and acceptance rather than sending learners after nonexistent H04 promises.
+
+## 11. Run offline checks without starting a task API
+
+Repository users start at the root. Download users enter `h02-http-contract` and begin with uv sync:
+
+```bash
+cd examples/js2py/h02-http-contract
+pwd
+uv sync --locked --default-index https://pypi.org/simple
+uv run --locked python --version
+uv run --locked python contract_examples.py
+uv run --locked python -m pytest -q
+```
+
+<Code language="toml">{getHttpContractExample('pyproject.toml')}</Code>
+
+Each sample output starts with PROPOSED and ends with:
+
+```text
+checked 24 proposed exchanges; no CRUD requests executed
+```
+
+The standard suite has **47 tests**: 43 sample/pure-calculation checks and 4 actual loopback HTTP checks. They cover body types, public fields, title preservation, detail shapes, pagination, empty PATCH, null/0/false, and the difference between a static server and the proposed API. Each example states its starting conditions and is independent. Reading a deletion example does not actually remove the next reading example.
+
+Expose only nonsecret teaching files in public, never the project root, home directory, `.env`, or symbolic links. gaps contains maintainer observations, not routes; fixtures contains offline data; requests contains bodies read from the client's current directory.
+
+## 12. Real HTTP: downloading examples is not invoking task routes
+
+From the lab root in terminal A:
+
+```bash
+uv run --locked python -m http.server 8767 --bind 127.0.0.1 --directory public
+```
+
+Enter the same lab root in terminal B:
+
+```bash
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8767/exchanges/create-ok.json'
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8767/tasks'
+curl --noproxy '*' --max-time 3 --include --header 'Content-Type: application/json' --data-binary @requests/create.json 'http://127.0.0.1:8767/tasks'
+```
+
+curl is a client. `--include` displays response headers; `--max-time 3` bounds the whole transfer; `--noproxy '*'` bypasses proxies, with quotes preventing shell expansion. `--header` adds a request header. `--data-binary @requests/create.json` reads the body relative to **B's working directory**, sends it as-is, and defaults to POST; repeating `--request POST` is unnecessary. See the [curl manual](https://curl.se/docs/manpage.html).
+
+Actual statuses are **200, 404, 501**. The first downloads a sample whose response.status proposes 201. The second has no corresponding static file. The third reaches a static service without POST support. Its HTML error page is neither H04's detail nor evidence of task creation.
+
+```bash
+curl --noproxy '*' --max-time 3 --include --fail-with-body 'http://127.0.0.1:8767/tasks'
+echo $?
+```
+
+curl may exit zero after an HTTP error by default. `--fail-with-body` preserves the error body while producing a nonzero exit. Here HTTP status is 404 and curl exits 22, not HTTP 422 or a connection failure. The failed request does not stop terminal A's service.
+
+## 13. CORS: browser response sharing is not authentication
+
+An origin consists of scheme, host, and port, not path. `http://127.0.0.1:5173` differs from `http://127.0.0.1:8767`. curl and Python clients do not enforce browser same-origin reading restrictions. Supplying an Origin header does not prove identity.
+
+```bash
+curl --noproxy '*' --max-time 3 --include --header 'Origin: https://untrusted.invalid' 'http://127.0.0.1:8767/exchanges/create-ok.json'
+curl --noproxy '*' --max-time 3 --include --request OPTIONS --header 'Origin: http://127.0.0.1:5173' --header 'Access-Control-Request-Method: POST' --header 'Access-Control-Request-Headers: content-type' 'http://127.0.0.1:8767/tasks'
+```
+
+The first returns 200 without Access-Control-Allow-Origin. We do not visit untrusted.invalid; it is header text sent to loopback. The second uses `--request OPTIONS` to imitate a preflight message and receives 501, not a successful preflight. Cross-origin JSON writes generally need preflight. Some requests require none and may already have been sent when a browser withholds the response from JavaScript. A CORS error therefore does not prove the server received nothing.
+
+CORS is not login, object authorization, or complete CSRF protection. Allowing a frontend origin must not replace checking identity and permission for each request. `mode: 'no-cors'` is not a shortcut to readable JSON; a response can be opaque. See [WHATWG Fetch §3.3](https://fetch.spec.whatwg.org/#http-cors-protocol).
+
+H06 will introduce browser integration for explicit local origins; security chapters establish real identity. H02 has no real browser cross-origin acceptance, and curl success cannot replace it.
+
+<Code language="python">{getHttpContractExample('inspect_transport.py')}</Code>
+
+```bash
+uv run --locked python inspect_transport.py
+```
+
+```text
+real GET example: HTTP 200; proposed POST: 201
+real GET tasks: HTTP 404
+real POST tasks: HTTP 501; no CRUD implemented
+real HEAD example: HTTP 200; body bytes=0
+real GET with Origin: HTTP 200; allow-origin=False
+service_alive=True
+owned_service_stopped=True
+```
+
+Automation starts the standard-library CLI on an allocated loopback port and cleans up only its own child; it implements no task routes. You still own manual A: return there, press Ctrl+C, and confirm the prompt returns. If a port is occupied, choose another local port and update clients; never kill unknown listeners.
+
+## 14. Guided exercise: make a misconception fail for real
+
+Predict the failure, then run the assertion below. It is outside the default tests directory so intentional failure does not contaminate the normal suite.
+
+<Code language="python">{getHttpContractExample('errors/test_wrong_contract.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q errors/test_wrong_contract.py
+```
+
+This is an **expected assertion failure**, exit 1, not HTTP 500 or a syntax error. Do not change a correct 204 example to 200 to make the test green. Go further: serializing None as JSON null still does not produce a zero-byte response.
+
+<details>
+<summary>Guided answer: fix the assertion and client branch, not the correct contract</summary>
+
+Assert status 204 and None for the wrapper's body. Here None means no transmitted body, not transmission of the four characters null. Skip JSON parsing in the client's 204 branch. A normal test deliberately inserts an object into a 204 example and verifies rejection. Fix your exercise copy and rerun it; the download retains the wrong version for reproduction and does not claim it passes unchanged.
+
+</details>
+
+## 15. Independent variation: pagination, omission, and explicit null
+
+Without reading the answer, provide four complete exchanges: the second page with offset=1 and limit=1; a page beyond the end with offset=99 and limit=2; modifying only task 1's title while omitting note; and explicitly setting note to null. Use fixtures/tasks.json as the initial state, with note initially keep me. Add two negative cases: minutes=null and limit=101. Specify status, response fields, and error loc/type without inventing next_offset, filtering, or a custom error envelope.
+
+Also explain empty PATCH versus `{"minutes":0,"done":false}`: the former changes nothing; the latter makes explicit assignments that truthiness must not discard. A pure function can check expectations, but is neither request validation nor a deployed API.
+
+<details>
+<summary>Independent reference: five tests and six complete exchanges</summary>
+
+The second page contains only id 2 with total=3. Beyond the end, items is empty and total remains 3; both return 200. Changing title alone preserves note; explicit null clears it. minutes=null yields 422 with body/minutes and int_type. limit=101 yields 422 with query/limit and less_than_equal.
+
+<Code language="python">{getHttpContractExample('solutions/review_cases.py')}</Code>
+
+<Code language="python">{getHttpContractExample('solutions/test_review_cases.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_review_cases.py
+```
+
+Five tests cover ordering/slicing, empty pages, note preservation, explicit null/0/false, and consistency of six complete examples. `solutions/exchanges.json` includes preconditions, requests, statuses, headers, and bodies. The reference function illustrates merging only after assuming input was validated. Do not substitute it for H04 models or persistence.
+
+</details>
+
+## 16. Pause/resume and cross-chapter acceptance
+
+Record the contract version, modified examples, working directory, last successful command, 47+5 test results, the intentionally failing command, and actual HTTP observations. Stop your foreground service first. Resume with offline checks and inspect_transport, then confirm manual paths. Do not infer stored tasks from “I think I created one last time” in a static server.
+
+At H04, check this contract item by item: original titles, strict minutes/done, omitted versus null note, service id, public fields, detail errors, limit/offset/total, and bodyless deletion. Resolve discrepancies in the explanation or implementation rather than forcing learners to guess a new model. HEAD, query rejection, 413/415, and custom errors remain on an explicitly separate hardening-gap list.
+
+D/S will add project membership, real identity, database relationships, and richer states. Changes to fields, permissions, URLs, or errors then need explicit evolution notes. We currently deliver reviewable design materials, not an already-deployed collaboration backend.
+
+## 17. Primary sources and the actual verification scope
+
+Checked 2026-09-28: [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html), [RFC 5789](https://www.rfc-editor.org/rfc/rfc5789.html), [Pydantic strict mode](https://github.com/pydantic/pydantic/blob/v2.12.5/docs/concepts/strict_mode.md), [FastAPI response models](https://fastapi.tiangolo.com/tutorial/response-model/), [partial updates](https://fastapi.tiangolo.com/tutorial/body-updates/), [error handling](https://fastapi.tiangolo.com/tutorial/handling-errors/), [WHATWG Fetch/CORS](https://fetch.spec.whatwg.org/#http-cors-protocol), [Python static serving](https://docs.python.org/3.13/library/http.server.html), [HTTP client](https://docs.python.org/3.13/library/http.client.html), and the [curl manual](https://curl.se/docs/manpage.html).
+
+Verification covers current samples, pure pagination, the independent variation, intentional failure, and loopback static transport. The maintainer checked 24 core exchanges and 5 hardening-gap observations against an isolated copy of current H04 and retained source hashes. This does not mean H02 implements CRUD, complete validation, permissions, persistence, browser preflight success, concurrent idempotency, or public deployment. Shared loader/download registration and final page acceptance remain separate mainline integration work.

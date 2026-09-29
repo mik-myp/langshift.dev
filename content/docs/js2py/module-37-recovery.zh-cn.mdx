@@ -1,0 +1,208 @@
+---
+title: 备份、恢复与受控上线：文件存在不等于数据可用
+description: 在全新隔离目标实际 pg_restore，验证数据、约束、序列与权限，处理恢复导致旧凭证复活的风险，测量恢复窗口并建立受邀上线与恢复手册。
+---
+
+import { getRecoveryExample } from '@/lib/js2py-examples'
+
+## 1. 备份的价值在于你能恢复什么
+
+“每天有一个 .dump 文件”没有回答它属于哪个数据库、是否包含必要表、能否被读取、谁能访问、恢复要多久，以及恢复后的用户是否仍然安全。一个空文件也可以有正确名字；一个能列目录的归档也可能在执行恢复时失败。
+
+本章把验收终点放在**隔离恢复后的可用性与权限**：实际 pg_restore → 数据指纹相同 → 约束仍拒绝坏数据 → 序列能继续写入 → 运行角色不是所有者 → 老凭证失效 → 合法用户只能访问自己的项目。最后才讨论是否满足受邀试用的上线门槛。
+
+| 本章契约 | 范围 |
+| --- | --- |
+| 前置 | O05 故障观测、O04 发布/回退、D05/D06 迁移/真实 DB、S01—S03 凭证与权限 |
+| 新能力 | 备份范围、custom archive、独占恢复目标、完整性与业务校验、会话隔离、RPO/RTO、恢复手册 |
+| 独立验收 | 实际恢复且验收数据/约束/权限；拒绝损坏和错误目标；实现备份清单前置检查 |
+| 不承诺 | 已部署定时/异地备份、PITR、灾难跨机恢复、生产 RPO/RTO、已向真实用户开放 |
+
+下载 [O06 独立实验](/learning-assets/js2py/o06-recovery.zip)，进入 `o06-recovery`。数据全部由脚本合成；只创建自有 mkdtemp 集群和全新 source/restored/damaged 数据库。没有读取用户现有库、真实用户备份或生产凭证。
+
+## 2. 先明确备份范围，再选择工具
+
+pg_dump 针对一个数据库生成一致性快照。本实验使用 custom 格式，交给 pg_restore 恢复；不是把 SQL 文本重定向给 psql。users、projects、project_members、tasks、auth_sessions、task_operations 和 alembic_version 全部纳入，包括一条真实非空的合成幂等回执，不能只备任务标题就声称业务完整。
+
+单库 pg_dump 不包含集群级角色和表空间，也不替你保存服务配置、部署制品、加密密钥、对象存储文件、日志与外部安全变更记录。这里显式使用 no-owner/no-privileges，角色由私有集群工具重新准备，权限通过审查的 grants.sql 恢复，而不是盲目复制旧环境的超级用户身份。
+
+<Code language="sql">{getRecoveryExample('sql/grants.sql')}</Code>
+
+真实恢复计划要列清每类资产、权威来源、保留时间、加密与访问控制，以及相互一致性要求。备份文件里有密码哈希、会话摘要和业务数据，即使没有原始 token 也仍然敏感。本实验用 0700 目录和 0600 文件保护合成数据，并在退出时删除；这不是生产备份加密、异地容灾或长期保留策略的替代。
+
+## 3. RPO 与 RTO：先给定义，再量一次
+
+RPO 是业务可接受的最大数据损失时间窗口；RTO 是业务可接受的恢复服务时间目标。它们是目标，不会因为写在 README 里就成为保证。每天一次备份也不自然满足“最多丢一天”：任务失败、备份不可读、复制延迟、发现故障较晚都可能扩大实际风险。
+
+本实验在快照后再提交一条任务，恢复后明确观察它不在目标库中；因此已知损失是一条 post-snapshot 记录。还测量从开始恢复到完成数据、安全和真实 API 验证的时间，输出 restore_and_validation_seconds。snapshot_age_seconds 记录这份小快照在检查时的年龄，不把它等同于生产实际 RPO。
+
+本机小数据、同版本工具、同一宿主、无远程传输的亚秒或数秒结果，不能外推到大库、故障网络或跨机恢复。真实演练还要把发现、决策、取回归档、解密、容量准备、验证和批准开放的时间纳入约定范围。
+
+<details>
+<summary>解释题答案：为什么“pg_restore 只花一秒”不等于 RTO 一秒？</summary>
+
+服务还可能没有正确角色、凭证、DNS/代理入口或兼容应用；恢复数据也可能缺了表、违反预期权限，或把已撤销的会话复活。计时只覆盖数据库导入会漏掉这些必要步骤。应先声明 RTO 的起止事件，再从一次完整、代表性的演练记录各阶段耗时，并保留不确定性。
+
+</details>
+
+## 4. 不允许凭一个外部 URL 选择恢复目标
+
+覆盖错误数据库是比恢复失败更糟的事故。工具从不接受现有 DATABASE_URL，只能创建允许名字中的**新**数据库；名字已经创建过就拒绝，不提供 --clean 覆盖捷径。目录也必须是本次进程拥有的私有路径，并核对 UID、模式、标记与非符号链接条件。
+
+<details>
+<summary>完整独占集群与真实应用进程工具</summary>
+
+<Code language="python">{getRecoveryExample('ops/cluster.py')}</Code>
+
+<Code language="python">{getRecoveryExample('ops/server.py')}</Code>
+
+</details>
+
+数据库只用私有 Unix socket，不占用用户的 TCP 5432；恢复源和目标是同一自有集群里的不同数据库。这个隔离足以避免改写源数据，但**不是异机灾难恢复验证**。应用子进程只监听 127.0.0.1 动态端口；finally 停自己的进程、关闭端口、删除自己的目录，绝不扫描并停止其他 PostgreSQL 服务。
+
+恢复目标创建时撤销 PUBLIC 的 CONNECT；数据、约束和安全处理尚未通过之前，不授予运行角色连接权限。单纯“不告诉别人地址”不如明确的权限隔离，尤其是同集群数据库里角色是全局对象。
+
+传入私有 socket 的 host 还不够：libpq 仍可能从 `PGHOSTADDR`、`PGSERVICE`、`PGSERVICEFILE` 等环境变量取得另一个连接默认值。`reject_connection_environment` 在创建临时目录之前，以及每次直接连接、迁移和服务启动之前，拒绝继承的全部 `PG*` 变量，唯一例外是只定位可执行文件的 `PG_BIN`。错误只列变量名，不打印值，也不修改调用者环境。Python 连接、SQLAlchemy 的连接创建器和 PG 子命令都使用自有目录内的空白 0600 `empty.pgpass`，不读取用户的默认密码文件。直接运行 `demo.py` 或 `ci.py` 也执行这些防护，不依赖仓库总 runner 先替它清理。
+
+启动 API 不再先探测空闲端口、关闭探测 socket，再要求另一个进程抢占同一号码。Uvicorn 自己用 `--port 0` 完成绑定；控制器从**该子进程自己的私有启动日志**读取实际端口，再请求 readiness。`--no-access-log` 不关闭 info 级启动 banner；控制器固定无颜色日志和单 worker。两个同版本服务也使用不同日志文件。测试实际同时启动两个服务，核对两个不同端口、各自 banner、真实请求和退出清理。这消除了选端口后释放再绑定的窗口，不是对任意并发故障的保证；未来 Uvicorn 改变 banner 格式时会超时拒绝，不猜测端口。
+
+## 5. 真备份、清单与恢复控制器
+
+固定核验日期 2026-09-28；基线 CPython 3.13.15、uv 0.12.13、pytest 8.4.2、FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、HTTPX 0.28.1、SQLAlchemy 2.0.54、Alembic 1.20.0、psycopg 3.3.6、PostgreSQL 工具 18.6。
+
+<Code language="toml">{getRecoveryExample('pyproject.toml')}</Code>
+
+<Code language="python">{getRecoveryExample('ops/backup.py')}</Code>
+
+backup 先记录各表的行数与稳定内容摘要，再调用真实 pg_dump，计算归档哈希与字节数，最后 pg_restore --list 检查目录。**目录可列出只通过了一小道门，不是恢复成功。** restore 先检查自己的路径与校验和，再创建全新目标，使用 exit-on-error/single-transaction 执行真实 pg_restore，最后逐表比对。
+
+归档哈希可发现意外损坏，不证明它来自可信发布者；恶意或未知来源的 PostgreSQL dump 可能包含会执行的代码。不要恢复来历不明的文件。生产需要可信来源、签名/访问控制和安全审查，而不仅是“算出了一个 SHA-256”。
+
+实验计算指纹期间没有并发写入，因此源检查与 dump 的一致边界可解释。真实忙碌数据库不能先随便查几次行数、稍后 dump，就要求它们完全相等；需要协调快照或设计对恢复结果有效的业务不变量。此处不偷教 WAL/PITR 或承诺零数据损失。
+
+## 6. 恢复认证表会带回什么风险？
+
+S 合同里的 opaque token 是否有效取决于数据库状态。备份后用户退出全部会话、被停用或成员关系被移除；如果把较早的 users/auth_sessions/project_members 恢复回来，旧 token 可能再次符合当时的 auth_version/expiry，旧成员关系也可能重新出现。恢复“每行都一样”本身就可能重新引入权限风险。
+
+因此目标库仍隔离时，quarantine_sessions 先停用所有恢复用户、递增 auth_version、删除恢复出的会话。之后必须根据**备份之外的可信安全变更记录**核对账号和成员关系，再明确批准启用。本实验的合成变更记录是 Bob 已被移出 Alice 项目；参考过程重放这条变更，批准两个合成账户，操作员生成新的测试会话。
+
+这不是“恢复时自动给所有用户重新登录”。如果真实环境没有可信的较新权限记录，就保持隔离或账户停用，交由授权操作员人工审核；不能用陈旧备份证明“应该还是这些成员”。密码修改后的旧密码哈希也是需要核对的资产，实际系统可能需要强制重置、另行保留撤销记录或其他恢复政策。
+
+<Code language="python">{getRecoveryExample('ops/app.py')}</Code>
+
+服务只做这次运维切片的项目读写与会话检查，没有公开登录或重新激活账户的后门。项目不可访问时仍返回 404。运行角色对 users/auth_sessions 只有读取权限，不能通过本实验应用自己恢复管理权限。
+
+<details>
+<summary>安全检查答案：只删除 auth_sessions，不核对 project_members，够不够？</summary>
+
+不够。旧 token 虽然失效，但用户后来通过合法登录取得新 token 后，仍可能凭恢复出的过时成员关系访问已经被撤销的项目。会话失效和对象权限恢复是两件事。需要先隔离、处理凭证状态，再核对账号与成员权限，最后批准开放；没有权威记录时应失败关闭，而不是猜测。
+
+</details>
+
+## 7. 实际恢复：数据、约束、权限、真实请求
+
+<Code language="python">{getRecoveryExample('ops/recover.py')}</Code>
+
+仓库总 runner 为子进程重建环境：丢弃继承的 `UV_*`、虚拟环境选择与 Python 注入设置，再固定课程 cache/Python 安装目录、public PyPI 和 `UV_NO_CONFIG=1`；`PG*` 也只保留 `PG_BIN`。实测使用自己创建的“外部虚拟环境”诱饵、错误解释器路径和无效用户 uv 配置，确认安装只发生在当前干净副本的 `.venv`，诱饵目录内容不变。不要把这些防护误解为能修复已经在脚本启动前运行的外层 uv：手动执行下方 uv 命令前，应退出其他虚拟环境并使用干净终端；清除 `VIRTUAL_ENV`、`UV_PROJECT_ENVIRONMENT`、`UV_ACTIVE`、`UV_PYTHON`、`UV_CONFIG_FILE` 等覆盖项，并设置 `UV_NO_CONFIG=1`。若直接 Python 入口拒绝 PG 变量，只在本次实验环境中移除它报告的名字，不修改生产配置、更不打印其值。
+
+```bash
+uv sync --locked
+uv run --locked python ci.py
+uv run --locked python demo.py
+```
+
+ci.py 已运行一次演练；单独 demo 是可重复重放。关键稳定输出：
+
+```text
+PASS backup: custom archive and inventory created privately; restore still required
+PASS restore: actual pg_restore, all table fingerprints match; corrupt restore rejected
+PASS security: stale/expired tokens denied; reviewed memberships; cross-user 404; app cannot DROP
+CLEANUP PASS: source/targets/archive/private logs and owned processes removed
+```
+
+程序还输出 MEASURED JSON，真实耗时每次不同。不能把计时值写死来“稳定测试”。流程先故意损坏一份副本，验证校验和拒绝，并且让 pg_restore 本身实际读损坏归档而失败；坏目标保持没有用户表。随后恢复完整归档，逐表指纹通过后验证：
+
+- 重复 login、缺失父项目、负 minutes、第二个 owner 都被真实约束拒绝；失败事务退出后还能查数据。
+- 观察旧 Alice token 在尚未开放的恢复库里原本会复活，再执行账户/会话隔离与权限核对。
+- 通过真实 Uvicorn 请求，旧 token、过期 token 和无效 token 返回 401；新 Alice 能读自己的项目，读 Bob 项目是 404；新 Bob 不能读 Alice 项目。
+- 恢复后的 identity 序列能生成新项目 ID，不与旧数据冲突；应用角色 DROP TABLE 被拒绝。
+- source 中快照后新增的第三条任务仍在，restored 只有快照中的两条；恢复没有改写源库。
+
+这比“pg_dump 返回 0”多了哪些证据，应能逐条解释。恢复不是把文件拷贝到 data 目录；逻辑归档也不是物理数据目录备份。
+
+## 8. 正常测试与故意失败后的恢复
+
+<Code language="python">{getRecoveryExample('tests/test_recovery.py')}</Code>
+
+恢复专项三项都实际创建 PG：完整恢复与约束、损坏归档不创建目标、已有目标不可覆盖。不要用 SQLite 模拟 pg_restore；这里需要验证 PostgreSQL 工具与服务器的真实语义。
+
+| 失败 | 正确处置 | 不能做的“快捷修复” |
+| --- | --- | --- |
+| 校验和不符 | 保持目标未创建，重新获取可信归档 | 改清单中的哈希让坏文件通过 |
+| pg_restore 非零 | 保持坏目标隔离，诊断工具/归档/角色，重新建全新目标 | 忽略 exit code 就开放应用 |
+| 指纹/业务约束不符 | 标记恢复未通过，检查备份范围和一致边界 | 删除失败断言或只比行数 |
+| 旧 token 能访问 | 停止开放，处理会话及账号/成员恢复政策 | 把它当“兼容性好” |
+| app 能 DROP 表 | 审查 owner/ACL 和身份分离 | 用同一个超级用户跑应用 |
+
+<details>
+<summary>带提示恢复答案：校验和检查和真实损坏恢复为什么都要做？</summary>
+
+校验和门禁可以在创建目标前快速拒绝意外损坏；真实 pg_restore 失败路径则证明工具错误退出不会被忽略，且失败目标不会被误当健康服务。二者验证不同责任。本实验只对自己生成的截断副本做破坏，不对真实备份试验，更不对源数据库使用 --clean。
+
+</details>
+
+## 9. 独立变式：恢复前检查清单范围与年龄
+
+先不看答案。实现 verify_manifest：拒绝未来快照、超过允许年龄、空归档，以及缺少任一必要表的清单，尤其不能遗漏 auth_sessions、task_operations 和 alembic_version。边界刚好等于最大年龄可以接受；未知表集合也要求重新审查，而不是默默扩大范围。
+
+<details>
+<summary>独立参考实现与测试</summary>
+
+<Code language="python">{getRecoveryExample('solutions/check_manifest.py')}</Code>
+
+<Code language="python">{getRecoveryExample('solutions/test_manifest.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions
+```
+
+```text
+1 passed
+```
+
+这是恢复前的规则，不是证明归档包含真实数据。即使清单通过，仍必须执行校验和、pg_restore、指纹、约束和权限验收。也不能把允许年龄参数当作自动测得的生产 RPO。
+
+</details>
+
+## 10. 一份能执行的恢复手册
+
+在真实环境之前，用本实验的顺序写明操作责任人和证据位置：
+
+1. 宣布事件范围，暂停危险写入或入口；不要先覆盖现有数据再询问。
+2. 选择可信、可解密且有明确时间点的备份，核对版本、范围和保留策略。
+3. 准备容量足够的全新隔离目标、角色与私密目录，禁止普通客户端连接。
+4. 执行恢复，记录工具退出码与耗时；任何失败都不开放服务。
+5. 核对数据指纹/业务样本、约束、序列、迁移版本、应用兼容性和最小权限。
+6. 处理账号、密码/会话状态、成员权限及其他备份后安全变更；批准前保持停用。
+7. 用新凭证和两个用户跑成功/拒绝场景，检查日志脱敏，再由授权人员批准入口切换。
+8. 观察错误、延迟与数据差异，保留原环境作为调查证据，按审查过的保留政策清理。
+
+不要在手册里写真实 token、密码或完整连接秘密。把能恢复的时间点、已知损失、实际耗时与未解决风险报告给使用者；不是只报告“服务绿了”。本实验只完成本地部分，不能伪造生产操作者审批或公网切换结果。
+
+## 11. 受邀上线门槛，不是开放注册
+
+进入 V4 前，必须把前面各阶段证据合起来：完整 S01—S03 功能与对象权限；HTTPS/代理/CORS/认证方案相关风险；已运行 CI、版本化迁移和回退；真实备份计划与隔离恢复；日志/指标/通知链路；秘密与账户权限；受控容量/配额；受邀用户反馈和维护责任人。
+
+当前没有容器、Linux systemd、云主机、域名、生产密钥、真实通知渠道或受邀试用环境。这些必须标 pending；不要为了“完成课程”购买/发布资源或编造地址。本章也不增加公共注册、忘记密码邮件、开放支付或其他首版排除项。
+
+对备份频率、加密、异地保存、保留期限、访问审计与恢复演练频率给出业务批准的政策，再实际测量；不能把本实验退出即删除的短命归档当成已经落地的生产备份系统。
+
+## 12. 暂停检查点与官方资料
+
+暂停记录数据库/归档身份的非秘密标识、快照时间、目标是否全新隔离、最后完成阶段、损坏实验是否故意、数据/约束/权限结果、会话失效政策、已知丢失窗口、实际计时、进程与临时目录清理、尚未具备的外部环境。脚本退出会清理自有目录；恢复学习时重新运行，不寻找被删除的凭证文件。
+
+2026-09-28 核对 [PostgreSQL 18 备份概览](https://www.postgresql.org/docs/18/backup.html)、[pg_dump](https://www.postgresql.org/docs/18/app-pgdump.html)、[pg_restore](https://www.postgresql.org/docs/18/app-pgrestore.html)、[SQL dump 的恢复](https://www.postgresql.org/docs/18/backup-dump.html)、[pg_dumpall 与全局对象](https://www.postgresql.org/docs/18/app-pg-dumpall.html)、[数据库权限](https://www.postgresql.org/docs/18/ddl-priv.html)。实际使用 18.6 工具，同版本小规模本地恢复通过，不推断跨大版本、扩展或其他平台已兼容。
+
+三项真实 PG 测试、一项独立清单测试，以及真实归档/恢复/坏归档/权限/API验证已执行。这里没有生产数据、数据库密码、归档文件或日志进入源码与下载 allowlist；关闭自己进程的证据与局限一起交付，不以文件存在或语法通过冒充恢复和公网上线。
+
+环境补充验收：`tests/test_environment.py` 增加两项隔离规则检查和一项真实 PG/双服务端口检查；正常套件共 6 项，独立清单题仍为 1 项。与恢复专项和真实恢复演练分开记录，不混算测试数。

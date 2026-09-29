@@ -1,0 +1,8 @@
+socket: normal hint available; upstream connection reused
+socket: unavailable -> unavailable; core read ok
+socket: malformed -> unavailable; core read ok
+socket: wrongshape -> unavailable; core read ok
+socket: oversized -> unavailable; core read ok
+socket: slow -> unavailable; core read ok
+socket: core create/update/read/delete finished while upstream held
+socket: lifespan client closed

@@ -1,0 +1,42 @@
+{
+  "services": {
+    "smoke": {
+      "build": {
+        "context": "."
+      },
+      "user": "10001:10001",
+      "ports": [
+        "127.0.0.1:8033:8000"
+      ],
+      "environment": {
+        "OPS_DATA_DIR": "/data"
+      },
+      "volumes": [
+        "data:/data"
+      ],
+      "read_only": true,
+      "tmpfs": [
+        "/tmp:rw,noexec,nosuid,size=16777216"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "init": true,
+      "stop_grace_period": "10s",
+      "restart": "no",
+      "labels": {
+        "langshift.lab": "o02-health-only"
+      }
+    }
+  },
+  "volumes": {
+    "data": {
+      "labels": {
+        "langshift.lab": "o02-disposable-data"
+      }
+    }
+  }
+}

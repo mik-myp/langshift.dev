@@ -1,0 +1,93 @@
+{
+  "spec_version": "g01-comments-v1",
+  "checked_at": "2026-09-28",
+  "kind": "requirements-not-implementation",
+  "prerequisite": "O06 with independently verified evidence; chapter availability does not satisfy this prerequisite",
+  "scope": "Task comments added to the invited-user collaborative task API. This is an equivalent controlled alternative to the capstone label exercise, not a relaxation of its delivery gates.",
+  "not_required": [
+    "microservices",
+    "public registration",
+    "real-time delivery",
+    "attachments",
+    "rich HTML",
+    "comment threads",
+    "search infrastructure",
+    "new authentication protocol"
+  ],
+  "logical_facts": [
+    "comment identity",
+    "task/project ownership",
+    "immutable server-derived author",
+    "plain text",
+    "creation time",
+    "last successful revision",
+    "redaction state",
+    "redacting actor and time"
+  ],
+  "content": {
+    "minimum_code_points": 1,
+    "maximum_code_points": 1000,
+    "whitespace_only": "reject",
+    "null": "reject",
+    "rich_text": "not supported",
+    "server_owned_fields": "cannot be forged or moved by request payload"
+  },
+  "permissions": {
+    "active_project_member": "read/list/create; edit or redact own visible comments",
+    "project_owner": "member rights plus redact any comment in that project; cannot rewrite another author",
+    "former_member": "no read/list/create/edit/redact, even with an old unexpired credential or old authorship",
+    "outsider": "no access; cannot infer private object content through changed parent IDs",
+    "disabled_or_unauthenticated": "no access",
+    "historical_author": "removing membership does not remove the author attribution of old comments"
+  },
+  "redaction": {
+    "normal_reads": "tombstone metadata only; original text must not leak through list/detail/history/export/logs",
+    "edit_after_redaction": "reject; no resurrection",
+    "internal_retention": "student chooses and explains retention/deletion plus backup implications; no promise of retroactive erasure from old backups"
+  },
+  "concurrency": {
+    "editing": "a request identifies its base revision; two competing edits from that revision cannot both silently overwrite; stale request is rejected",
+    "redact_versus_edit": "committed redaction cannot be reversed by a delayed edit; report actual order and visible final state",
+    "membership_removal": "requests started after removal commits must be denied; define and test the policy for already in-flight operations"
+  },
+  "repeated_create": {
+    "scope": [
+      "authenticated_actor",
+      "task",
+      "request_identity"
+    ],
+    "minimum_retention_hours": 24,
+    "same_payload": "within the window, concurrent/repeated requests represent one logical comment and return the same identity when still authorized",
+    "changed_payload": "same scoped request identity with different text is a conflict; original remains unchanged",
+    "authorization": "replays must re-check current permission and must not leak an earlier response after membership revocation",
+    "after_window": "student documents and tests a bounded expiry policy; exactly-once delivery forever is not required",
+    "failed_or_uncertain_response": "no partial accepted comment; retry can resolve the same logical outcome without a duplicate"
+  },
+  "listing": {
+    "page_size_min": 1,
+    "page_size_max": 100,
+    "stable_order": "deterministic tie-breaker for equal timestamps; unchanged-dataset pagination has no skips/duplicates",
+    "concurrent_change_policy": "document and test, do not silently promise snapshot consistency"
+  },
+  "compatibility": {
+    "existing_rows": "preserve old users/projects/members/tasks, identifiers and allowed operations after migration; old tasks start with zero comments",
+    "task_deletion": "task with any comment, including a tombstone, cannot be physically deleted in this extension; document the conflict without changing deletion of uncommented tasks",
+    "parent_project_deletion": "must not silently erase comments through project deletion; choose a documented policy consistent with the task-deletion rule",
+    "release_rollback": "state which old application revision can run against which schema; preserve accepted new comments or explicitly freeze safely; no blind destructive downgrade"
+  },
+  "operations": {
+    "restore": "actually restore into an owned isolated target and verify relationships, permissions, revisions, tombstones and replay behavior; a backup file alone is insufficient",
+    "pilot": "2..5 explicitly invited testers after O06 and safety gates, with non-sensitive data, budget/account/target approval and one traceable feedback iteration",
+    "no_environment": "record blocked, do not claim public deployment or waive O06",
+    "evidence_redaction": "no credentials, bearer tokens, private keys, raw connection passwords or sensitive comment bodies in shared evidence"
+  },
+  "student_owned_decisions": [
+    "physical schema and migration design",
+    "API routes and conflict representation",
+    "transaction/concurrency mechanism",
+    "request identity transport/storage",
+    "retention limits",
+    "deployment topology",
+    "rollback compatibility and operating budget"
+  ]
+}

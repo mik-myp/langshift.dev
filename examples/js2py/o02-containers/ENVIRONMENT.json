@@ -1,0 +1,33 @@
+{
+  "standard_tests": 14,
+  "independent_tests": 3,
+  "actually_run": [
+    "selected Dockerfile/.dockerignore/Compose text and JSON invariants",
+    "real owned loopback Uvicorn HTTP200/503/recovery/404",
+    "nonroot host permission failure",
+    "fictional0600 secret marker without value output",
+    "single-writer file lifecycle and independent empty-directory restore",
+    "unopted container runner exits77 environment_pending"
+  ],
+  "unavailable_here": [
+    "Docker/OrbStack/Podman/Apple container/nerdctl/Colima/Lima CLI, common apps/sockets not found",
+    "no controlled Linux container engine"
+  ],
+  "user_must_supply": [
+    "controlled local Linux Docker Engine>=28",
+    "explicit verified local UNIX engine socket; no remote context",
+    "permission/network/storage for registry base-image download and build"
+  ],
+  "pending_acceptance": [
+    "base-image tag availability, digest, target architecture and build",
+    "real Compose parser",
+    "container uid10001/read-only root and host loopback publication",
+    "named-volume ownership, health and stop/start/removal/recreation",
+    "container_probe real-engine branch and scoped cleanup",
+    "full capstone/auth/DB integration; this is health-only"
+  ],
+  "verified_date": "2026-09-28",
+  "implementation_status": "implemented",
+  "environment_status": "environment_pending",
+  "claims_do_not_include": "documentation completion is not deployment/environment acceptance"
+}

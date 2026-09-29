@@ -1,1436 +1,736 @@
 ---
-title: "Python Object-Oriented & Functional Programming"
-description: "Learn Python's object-oriented programming, functional programming features, and decorators from a JavaScript developer's perspective."
+title: "Conditions, Loops, and Traversal"
+description: "Move from manually handling two records to processing changing task collections: understand indentation, branches and truth values, learn ordinary loops and boundaries, then express familiar operations with simple comprehensions."
 ---
 
-## 1. Introduction
+import { getControlFlowExample } from '@/lib/js2py-examples'
 
-### Why Learn Object-Oriented and Functional Programming?
+## 1. From two records to data whose size can change
 
-As a JavaScript developer, you are likely familiar with ES6 class syntax and functional programming concepts. Python has its own unique implementations of these paradigms. Mastering these features will enable you to:
+L02 used two study plans, so accessing `plans[0]` and `plans[1]` directly was manageable. Now imagine three changes: there are no plans today, five tomorrow, and some are finished while others have no time estimate. Hard-coded indexes do more than repeat work: a change in data size can become a program failure.
 
--   Write more elegant and maintainable code
--   Understand Python's design philosophy
--   Leverage Python's powerful metaprogramming capabilities
--   Build more complex applications
+This chapter answers two questions: **which statements should run, and for which data should the same operations repeat?** This is control flow. Your JavaScript experience helps, but Python has its own rules for indentation, container truth values, traversal, and name binding. Replacing braces with colons is not enough.
 
-> 💡 **Learning Strategy**: Think of Python's OOP and functional features as "enhanced versions" of JavaScript concepts.
+### Chapter contract
 
-## 2. Object-Oriented Programming (OOP)
+| Item | Agreement |
+| --- | --- |
+| Prerequisites | L00–L02: running independent scripts; names and scalar values; comparisons, None and formatting; containers, indexes, dictionary fields, mutation and references |
+| New capabilities | Indentation and branches; truth values and short circuits; ordinary for and while; range, unpacking, enumerate and dictionary traversal; break/continue; simple list comprehensions |
+| Independent acceptance | Classify, accumulate and filter different numbers of tasks; handle empty lists; explicitly distinguish 0, None, missing values and negative numbers; explain loop termination |
+| Not required yet | Function definitions, imports, exception handlers, classes, annotations, generators, asynchronous iteration, file access, databases or web services |
 
-### 2.1 Basic Class Concepts
+We call existing built-in functions without requiring you to define one. Unpacking and keyword arguments are explained before use. We will not skip ordinary loops through unexplained `map`, `filter`, `lambda`, or `sum` expressions.
 
-Python's class system has many similarities to JavaScript's, but also some important differences.
+### Files and commands
 
-<PythonEditor title="Basic Class Definition Comparison" compare={true}>
-```javascript !! js
-// JavaScript class definition
-class Person {
-    constructor(name, age) {
-        this.name = name;
-        this.age = age;
-    }
-    
-    // Instance method
-    sayHello() {
-        return `Hello, I am ${this.name}, and I am ${this.age} years old`;
-    }
-    
-    // Static method
-    static create(name, age) {
-        return new Person(name, age);
-    }
-    
-    // Getter
-    get info() {
-        return `${this.name} (${this.age})`;
-    }
-    
-    // Setter
-    set info(value) {
-        const [name, age] = value.split(' ');
-        this.name = name;
-        this.age = parseInt(age);
-    }
-}
+Download [L03 standalone examples and reference answers](/learning-assets/js2py/u03-control-flow.zip), or type the files yourself. Open the extracted `u03-control-flow` folder in your editor and terminal. Each file runs independently, without variables left by a previous execution.
 
-// Using the class
-const person = new Person("John Doe", 25);
-console.log(person.sayHello());
-console.log(person.info);
-person.info = "Jane Doe 30";
-console.log(person.name); // "Jane Doe"
+```bash
+uv run --no-project --python 3.13 python branches.py
 ```
 
-```python !! py
-# Python class definition
-class Person:
-    """Person class"""
-    
-    def __init__(self, name, age):
-        """Constructor (similar to JavaScript's constructor)"""
-        self.name = name
-        self.age = age
-    
-    def say_hello(self):
-        """Instance method (similar to JavaScript's instance method)"""
-        return f"Hello, I am {self.name}, and I am {self.age} years old"
-    
-    @staticmethod
-    def a_static_method():
-        """Static method, cannot access class or instance"""
-        return "This is a static method"
-    
-    @classmethod
-    def create(cls, name, age):
-        """Class method (similar to JavaScript's static method)"""
-        return cls(name, age)
-    
-    @property
-    def info(self):
-        """Property decorator (similar to JavaScript's getter)"""
-        return f"{self.name} ({self.age})"
-    
-    @info.setter
-    def info(self, value):
-        """Property setter (similar to JavaScript's setter)"""
-        name, age = value.split(' ')
-        self.name = name
-        self.age = int(age)
-    
-    def __str__(self):
-        """String representation (similar to JavaScript's toString)"""
-        return f"Person({self.name}, {self.age})"
+For later examples, replace only the final filename. We still use CPython 3.13, no third-party Python packages, and no project configuration. Return to [L00](/en/docs/js2py/module-00-python-introduction) for environment problems. Maintainer test scripts are not learner prerequisites.
 
-# Using the class
-person = Person("John Doe", 25)
-print(person.say_hello())
-print(person.info)
-person.info = "Jane Doe 30"
-print(person.name)  # "Jane Doe"
-print(person)  # Person(Jane Doe, 30)
-```
-</PythonEditor>
+`errors/` contains three expected runtime failures; `pitfalls/` contains an experiment that **finishes without an exception but produces the wrong result**; `solutions/` contains the collapsed answers. Do not run every answer before attempting its task.
 
-### 2.2 Class Variables vs. Instance Variables
+## 2. Branches: colons and indentation determine which statements belong together
 
-The concepts of class variables and instance variables in Python are similar to static properties and instance properties in JavaScript.
+### 2.1 Read the execution path before memorizing syntax
 
-<PythonEditor title="Class Variables vs. Instance Variables" compare={true}>
-```javascript !! js
-// JavaScript class variables and instance variables
-class Counter {
-    // Class variable (static property)
-    static totalCount = 0;
-    static instances = [];
-    
-    constructor() {
-        // Instance variable
-        this.count = 0;
-        Counter.totalCount++;
-        Counter.instances.push(this);
-    }
-    
-    increment() {
-        this.count++;
-        Counter.totalCount++;
-    }
-    
-    static getTotalCount() {
-        return Counter.totalCount;
-    }
-    
-    static getAllInstances() {
-        return Counter.instances;
-    }
-}
+Start by classifying one task by estimated minutes. The input here is an integer; arbitrary external text is outside this section's contract.
 
-const counter1 = new Counter();
-const counter2 = new Counter();
+File: `branches.py`.
 
-counter1.increment();
-counter2.increment();
-counter2.increment();
+<Code language="python">{getControlFlowExample('branches.py')}</Code>
 
-console.log(counter1.count);           // 1
-console.log(counter2.count);           // 2
-console.log(Counter.getTotalCount());  // 3
-console.log(Counter.getAllInstances().length); // 2
+Expected:
+
+```text
+Short session
+Checked
 ```
 
-```python !! py
-# Python class variables and instance variables
-class Counter:
-    """Counter class"""
-    
-    # Class variable (similar to JavaScript's static property)
-    total_count = 0
-    instances = []
-    
-    def __init__(self):
-        """Constructor"""
-        # Instance variable
-        self.count = 0
-        Counter.total_count += 1
-        Counter.instances.append(self)
-    
-    def increment(self):
-        """Increment the count"""
-        self.count += 1
-        Counter.total_count += 1
-    
-    @classmethod
-    def get_total_count(cls):
-        """Get the total count (class method)"""
-        return cls.total_count
-    
-    @classmethod
-    def get_all_instances(cls):
-        """Get all instances (class method)"""
-        return cls.instances
+Read it in execution order:
 
-# Create instances
-counter1 = Counter()
-counter2 = Counter()
+1. Bind 25 to `minutes`.
+2. `if` checks the first condition. If it is False, move to `elif`, meaning “otherwise, if.”
+3. At the first true condition, execute that indented block only. Later conditions in the same chain are not checked.
+4. Enter `else` only if no earlier condition matched. There is no condition after else.
+5. `print("Checked")` returns to the outer indentation level, so normal execution reaches it regardless of the selected branch.
 
-counter1.increment()
-counter2.increment()
-counter2.increment()
+The `if`, `elif`, and `else` headers end with a colon. Unlike JavaScript, conditions do not require surrounding parentheses, though parentheses remain useful for grouping. Use four spaces per indentation level. Four spaces are a convention; **consistent indentation within a block** is a syntax requirement. Do not mix tabs and spaces.
 
-print(counter1.count)                    # 1
-print(counter2.count)                    # 2
-print(Counter.get_total_count())         # 3
-print(len(Counter.get_all_instances()))  # 2
+This is not merely visual layout. Indenting the last line inside else changes its meaning to “print Checked only for a long task.” The program may still run, but its behavior has changed.
+
+Predict first, then change only the initial input:
+
+| minutes | Classification output | Reason |
+| --- | --- | --- |
+| -1 | Invalid estimate | Reject a negative value before considering later branches |
+| 0 | No time required | Handle zero separately rather than absorbing it into the short category |
+| 1, 25 | Short session | The upper boundary includes 25 |
+| 26 | Long session | None of the first three conditions matched |
+
+Every case should also print `Checked`. If `minutes <= 25` appeared before the negative and zero checks, those values would match it first. Branch order expresses business priority, not an arbitrary arrangement of labels.
+
+### 2.2 Separate if statements are not an if/elif chain
+
+This is a complete, independent comparison:
+
+```python case=separate_if
+minutes = 0
+if minutes == 0:
+    print("Zero")
+if minutes <= 25:
+    print("Short")
+else:
+    print("Long")
+```
+
+Expected:
+
+```text
+Zero
+Short
+```
+
+Both if statements perform their own checks. The else belongs to the immediately preceding second if at the same indentation level, not the first. Use one chain for mutually exclusive categories. Separate if statements may be exactly right when multiple conditions can apply. Do not delete a branch mechanically just because you see an extra line of output.
+
+### 2.3 First failure: missing indentation does not print a partial result
+
+This is an **expected syntax failure**, not a finished script. Save it separately as `missing_indent.py` if you want to reproduce it:
+
+```python expected-error=SyntaxError case=missing_indent
+if True:
+print("Inside")
+print("After")
+```
+
+Before executing any statement, Python reports `IndentationError`, a kind of syntax error. It points to the second line that needs indentation; there is no standard output. Add four spaces to the second line and leave the third at the outer level: execution then prints `Inside` followed by `After`.
+
+A missing colon typically produces SyntaxError; inconsistent tabs and spaces can produce TabError. Check the colon, the block's start, and where indentation returns before debugging the business condition. **Successful parsing does not prove correct logic.** Input variations remain necessary.
+
+## 3. Truth values and logical operations: an empty container is not a JS empty object
+
+### 3.1 A condition does not have to contain a bool value
+
+Python tests the truth value of an object in a condition. `bool(value)` displays that result explicitly as True or False. It is a conversion, not a parser for English words stored in strings.
+
+The false values relevant here include `None`, `False`, numeric zero, empty strings, and empty lists, tuples, dictionaries and sets. A nonempty container is true even if its only entry is False. The nonempty strings `"False"` and `"0"` are also true.
+
+File: `truthiness.py`.
+
+<Code language="python">{getControlFlowExample('truthiness.py')}</Code>
+
+Expected:
+
+```text
+False
+False
+False
+False
+False
+False
+True
+True
+No tasks
+```
+
+Here, `if tasks` means “does this list contain any entries?”, not “is every task valid?” The true value of `bool([False])` makes the distinction visible: container nonemptiness and the truth of its entries are different questions.
+
+This is a static syntax comparison. Acceptance uses local scripts rather than the browser runner:
+
+<PythonEditor title="Truth values of empty containers" compare={true} canRun={false}>
+```javascript case=truth_comparison
+console.log(Boolean([]));
+console.log(Boolean({}));
+console.log(Boolean("False"));
+```
+
+```python case=truth_comparison
+print(bool([]))
+print(bool({}))
+print(bool("False"))
 ```
 </PythonEditor>
 
-### 2.3 Inheritance and Polymorphism
+Python output:
 
-Python's inheritance system is more intuitive and powerful than JavaScript's.
-
-<PythonEditor title="Inheritance and Polymorphism" compare={true}>
-```javascript !! js
-// JavaScript inheritance
-class Animal {
-    constructor(name) {
-        this.name = name;
-    }
-    
-    speak() {
-        return `${this.name} makes a sound`;
-    }
-    
-    move() {
-        return `${this.name} is moving`;
-    }
-}
-
-class Dog extends Animal {
-    constructor(name, breed) {
-        super(name);
-        this.breed = breed;
-    }
-    
-    speak() {
-        return `${this.name} barks`;
-    }
-    
-    fetch() {
-        return `${this.name} is fetching`;
-    }
-}
-
-class Cat extends Animal {
-    constructor(name, color) {
-        super(name);
-        this.color = color;
-    }
-    
-    speak() {
-        return `${this.name} meows`;
-    }
-    
-    climb() {
-        return `${this.name} is climbing`;
-    }
-}
-
-// Polymorphism example
-const animals = [
-    new Dog("Buddy", "Golden Retriever"),
-    new Cat("Mimi", "Orange")
-];
-
-animals.forEach(animal => {
-    console.log(animal.speak());
-    console.log(animal.move());
-});
+```text
+False
+False
+True
 ```
 
-```python !! py
-# Python inheritance
-class Animal:
-    """Animal base class"""
-    
-    def __init__(self, name):
-        self.name = name
-    
-    def speak(self):
-        """Make a sound"""
-        return f"{self.name} makes a sound"
-    
-    def move(self):
-        """Move"""
-        return f"{self.name} is moving"
+JavaScript output:
 
-class Dog(Animal):
-    """Dog class"""
-    
-    def __init__(self, name, breed):
-        super().__init__(name)  # Call the parent class constructor
-        self.breed = breed
-    
-    def speak(self):
-        """Override the parent class method"""
-        return f"{self.name} barks"
-    
-    def fetch(self):
-        """Dog-specific method"""
-        return f"{self.name} is fetching"
+```text
+true
+true
+true
+```
 
-class Cat(Animal):
-    """Cat class"""
-    
-    def __init__(self, name, color):
-        super().__init__(name)
-        self.color = color
-    
-    def speak(self):
-        """Override the parent class method"""
-        return f"{self.name} meows"
-    
-    def climb(self):
-        """Cat-specific method"""
-        return f"{self.name} is climbing"
+Do not transfer the meaning of frontend `if (items)` unchanged. With a JS array you would usually need to check `.length`; a Python empty list itself is false. See [Python truth value testing](https://docs.python.org/3.13/library/stdtypes.html#truth-value-testing) and [MDN Truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy).
 
-# Polymorphism example
-animals = [
-    Dog("Buddy", "Golden Retriever"),
-    Cat("Mimi", "Orange")
+### 3.2 and/or short-circuit and may return non-bool values
+
+| Operation | Evaluation | Result |
+| --- | --- | --- |
+| `x and y` | Test x first; if x is false, do not evaluate y | The false x, or the evaluated y |
+| `x or y` | Test x first; if x is true, do not evaluate y | The true x, or the evaluated y |
+| `not x` | Test x and negate its truth value | Always a bool |
+
+These resemble JavaScript's `&&`, `||`, and `!`, but use Python's truth rules. Short-circuiting means the right side **might never execute**, not merely that the final result is unchanged.
+
+File: `logical.py`.
+
+<Code language="python">{getControlFlowExample('logical.py')}</Code>
+
+Expected:
+
+```text
+False
+Untitled
+Ready
+True
+25
+0
+```
+
+- An empty list stops `titles and ...` on the left, so `titles[0]` is never evaluated and no IndexError occurs. The outer bool converts the returned empty list to False. Reversing the operands removes that protection.
+- `"" or "Untitled"` returns a string, not True; `"Read" and "Ready"` also returns an operand.
+- `minutes or 25` replaces a valid zero with 25. If the policy is “default only for None,” write `if minutes is None` explicitly. This is not another spelling of JS `??`.
+- A missing field and an existing None still differ. Use L02's key membership check when that difference matters, rather than guessing from truthiness.
+
+`not` binds more tightly than `and`, which binds more tightly than `or`; comparisons normally bind before all three. Make your intention explicit while learning, for example `(minutes >= 0) and (minutes <= 25)`. This chapter does not use dense operator combinations as a memory test.
+
+**Checkpoint A:** run the branch boundary table, explain the empty list and `"False"`, and repair one indentation failure. Record the last input, predicted branch, and actual output. Resume from your prediction rather than reinstalling the environment.
+
+## 4. Ordinary for: bind one entry, then execute the same block
+
+### 4.1 A loop does not first copy all its statements many times
+
+For a variable number of tasks, prepare accumulators before processing, handle one entry per round, and print the combined result afterward.
+
+File: `for_tasks.py`.
+
+<Code language="python">{getControlFlowExample('for_tasks.py')}</Code>
+
+Expected:
+
+```text
+Tasks: 3; total: 55 minutes
+Pending: 2
+```
+
+`for task in tasks:` obtains entries from the list in order. Each time, it binds `task` to the current dictionary and executes the entire indented block. The nested if adds one indentation level. Both final print calls return to the outer level and execute only once.
+
+`total = total + task["minutes"]` calculates a value using the old total, then rebinds the name. It is not a mathematical equation. We use full assignment here to keep the state change visible instead of introducing shorthand.
+
+| Point | Current minutes / done | total | pending |
+| --- | --- | --- | --- |
+| Before the loop | No current entry yet | 0 | 0 |
+| After round one | 20 / True | 20 | 0 |
+| After round two | 35 / False | 55 | 1 |
+| After round three | 0 / False | 55 | 2 |
+
+Replace tasks with an empty list. The loop body executes zero times; total minutes and the pending count both remain zero. Initialization happened before the loop, so a valid result still exists. Move total's initialization inside the loop and it resets every round; with empty input the assignment never executes at all.
+
+For now, every record must contain these three fields, minutes must be a nonnegative integer, and done must be a bool. A for loop does not validate record structure automatically. Missing keys can still cause KeyError. This is not an arbitrary external-input validator.
+
+### 4.2 The current entry is a binding, not an automatic copy
+
+File: `loop_binding.py`.
+
+<Code language="python">{getControlFlowExample('loop_binding.py')}</Code>
+
+Expected:
+
+```text
+Read
+Practice
+Practice
+['Read', 'Practice']
+True
+```
+
+Three details are easy to misread through JavaScript habits:
+
+1. Ordinary for and if statements do not create a JS `let`-style block scope. This loop runs at least once, so title remains bound to the last string afterward.
+2. `title = "Changed"` only rebinds a name; it does not replace slots in titles, so the original list is unchanged.
+3. `task["done"] = True` mutates the shared dictionary obtained by the loop, so the task in the list changes too. This follows L02's reference relationships; for does not add a copying mechanism.
+
+The first point does not mean “a loop variable always exists afterward.” File: `errors/empty_loop.py`.
+
+<Code language="python">{getControlFlowExample('errors/empty_loop.py')}</Code>
+
+In a fresh process, line four raises NameError with no standard output. Empty input never binds the loop target. Do not let a coincidentally surviving interactive variable hide this failure. Initialize meaningful accumulators in advance, and do not confuse “the last entry” with “the processing result.”
+
+## 5. range: make the start, stop and step explicit
+
+Use range when you need a certain number of repetitions or a sequence of integer positions. There is no need to turn every list traversal into index manipulation. The simplest `range(stop)` starts at zero with a step of one and **excludes stop**.
+
+The three-argument form is `range(start, stop, step)`. A negative step moves downward; a zero step is invalid. The `list(...)` call introduced here collects successive items into a list for inspection. You do not have to perform this conversion before every loop.
+
+File: `ranges.py`.
+
+<Code language="python">{getControlFlowExample('ranges.py')}</Code>
+
+Expected:
+
+```text
+range(0, 3)
+[0, 1, 2]
+[1, 3, 5]
+[3, 2, 1]
+[]
+[]
+1
+2
+3
+```
+
+The final `range(1, 4)` produces 1, 2 and 3. `range(3, 0)` uses the default positive step, but its start is already past its stop, so it is empty. Counting downward requires an explicit negative step.
+
+A range is a repeatably iterable integer sequence object, not an expanded list and not a generator. For now, “iterable” means that for can obtain successive items until there are none left. A range does not store the whole integer list in advance. Only our display-oriented list conversion collects those entries. Do not expand an enormous range just to print it.
+
+File: `errors/zero_step.py`.
+
+<Code language="python">{getControlFlowExample('errors/zero_step.py')}</Code>
+
+Line one raises ValueError, so print is never reached. Fix this by selecting a nonzero step with the intended direction, not by changing indentation. Next replace `range(1, 4)` with `range(1, 1)`: explain why zero iterations are correct before running it.
+
+## 6. Learn unpacking before numbering entries
+
+### 6.1 Two positions, two names
+
+L02 introduced tuples. We can now retrieve their two positions without writing two index expressions. Two comma-separated assignment targets receive the two entries on the right. This is **unpacking**, not JS object destructuring by property name.
+
+File: `unpacking.py`.
+
+<Code language="python">{getControlFlowExample('unpacking.py')}</Code>
+
+Expected:
+
+```text
+1
+Read
+```
+
+Assignment follows position; it does not search for dictionary keys named number or title. Lists also support this fixed-size unpacking. We only introduce exactly matching numbers of entries and targets, not starred collection targets.
+
+File: `errors/unpack_pair.py`.
+
+<Code language="python">{getControlFlowExample('errors/unpack_pair.py')}</Code>
+
+Line two raises ValueError because three entries cannot be assigned to two targets. This is not IndexError or an unfinished loop. One entry also cannot satisfy two targets. Check the data's shape, then adjust the target count or select the required positions explicitly.
+
+### 6.2 enumerate provides a count alongside each entry
+
+When you need “which item number + the current item,” use enumerate instead of maintaining a separate counter that can drift. It provides pairs of count and entry. The two for targets unpack a pair each round.
+
+File: `numbered_tasks.py`.
+
+<Code language="python">{getControlFlowExample('numbered_tasks.py')}</Code>
+
+Expected:
+
+```text
+1. Read
+2. Practice
+Read
+```
+
+In `enumerate(titles, start=1)`, start=1 is a **keyword argument**: it sets this call's start parameter to 1 rather than creating a variable called start outside the call. If omitted, counting starts at zero. L04 covers parameters fully; for now, understand this particular call.
+
+Starting display numbers at one does not change list indexing. The final if first checks for nonempty input, then retrieves the first entry with `titles[0]`. Empty input generates neither numbered lines nor that index lookup. The iterator returned by enumerate is consumed by traversal; call enumerate again when you need another pass. Unlike range, it is not a repeatably iterable sequence. The underlying iterator protocol comes later.
+
+## 7. Dictionary traversal: keys by default, not key-value pairs
+
+File: `dict_iteration.py`.
+
+<Code language="python">{getControlFlowExample('dict_iteration.py')}</Code>
+
+Expected:
+
+```text
+title
+minutes
+title: Read
+minutes: 20
+```
+
+`for key in task` retrieves a key each round. `task.items()` returns a view of the dictionary's entries, from which `(key, value)` pairs can be obtained. The second loop therefore uses two unpacking targets. This view is neither a frozen snapshot nor a list. We do not modify the dictionary while reading it here.
+
+`for key, value in task` is not a shortcut for that second loop. It tries to unpack each key itself instead of looking up its value. A string key of exactly two characters might even unpack without an error, silently yielding two characters. Choosing items explicitly states that both keys and values are needed.
+
+Dictionaries iterate in insertion order, not automatic key-sorted order. Sets do not offer that ordering guarantee. Adding or removing dictionary keys during iteration may raise RuntimeError or fail to visit entries; this chapter does not depend on such behavior. Different containers expose different items: changing a variable name does not make their traversal semantics identical.
+
+**Checkpoint B:** change three tasks to zero and one, and verify accumulators. Number your own titles with enumerate and explain what dictionary iteration retrieves. Save a “before / current entry / after” state table; use it to retell the process next time.
+
+## 8. while: explain progress toward termination, not just the condition
+
+For fits “perform these operations for each entry.” While fits “perform another round as long as this condition holds.” A while condition is checked before each round, so an initially false condition executes no body statements.
+
+Split a nonnegative integer duration into blocks of at most 20 minutes. This uses existing integers only: no user-input waiting and no server access.
+
+File: `while_budget.py`.
+
+<Code language="python">{getControlFlowExample('while_budget.py')}</Code>
+
+Expected:
+
+```text
+Block: 20 minutes
+Block: 20 minutes
+Block: 10 minutes
+Blocks: 3; remaining: 0
+```
+
+| Round | Initial remaining | used | Updated remaining |
+| --- | --- | --- | --- |
+| 1 | 50 | 20 | 30 |
+| 2 | 30 | 20 | 10 |
+| 3 | 10 | 10 | 0 |
+| Next check | 0 | Do not enter | Finished |
+
+At each round's start, remaining is positive. Used is either 20 or the smaller positive remainder, so remaining decreases without becoming negative. **Explain both progress per round and the stopping condition.** Writing `while remaining > 0` alone does not guarantee termination.
+
+Test inputs 0, 1, 20 and 21. They should produce 0, 1, 1 and 2 blocks respectively, always ending with remaining zero. Negative numbers are outside this example's contract: they skip the loop but remain negative. That is not validation or automatic data repair.
+
+Deleting the update to remaining would make the current positive input print forever. Do not deliberately leave it running. If your terminal repeats continuously, interrupt with Ctrl+C, then check the update's position and numerical direction. You may see KeyboardInterrupt; interruption does not fix the loop. Exception handling is not required yet.
+
+## 9. continue and break: skipping one round is not ending all processing
+
+After ordinary traversal is clear, introduce two concrete needs: skip completed tasks, and stop searching once the first pending task that fits the budget is found.
+
+File: `loop_controls.py`.
+
+<Code language="python">{getControlFlowExample('loop_controls.py')}</Code>
+
+Expected:
+
+```text
+Check: Finished
+Check: Long practice
+Check: Zero estimate
+First match: Zero estimate
+```
+
+- Continue skips **the rest of the current round** and proceeds to the next. Finished therefore does not participate in the budget comparison.
+- Long practice fails to match and naturally proceeds to the next round. You do not need continue at the end of every iteration.
+- Break exits **the nearest enclosing loop**, then execution resumes outside it. It does not end the script or automatically exit every surrounding loop.
+- `found = None` records “nothing found yet” before the loop. A match makes found refer to the current dictionary without copying it. An explicit is None check distinguishes the two cases afterward.
+- The Check lines are diagnostic output showing which entries were actually visited. Read is never visited, demonstrating the early exit.
+
+Here, fields exist, minutes are nonnegative, and budget is also a nonnegative integer. A zero-minute task is a valid candidate; `if task["minutes"]` would wrongly exclude it. Inside an f-string, `task['title']` remains an ordinary dictionary lookup. Different inner and outer quote styles make it easier to read.
+
+Empty input or all-completed input should produce No match. With budget zero, Zero estimate should still match. When using continue inside while, make sure it does not bypass the progress update and leave the loop stuck in the same state. We defer loop else clauses and nested searches so that basic flow remains visible.
+
+## 10. A logic failure: why deleting during traversal skips an entry
+
+File: `pitfalls/mutation_skip.py`. This is an executable **wrong approach**: lack of an exception does not imply a correct result.
+
+<Code language="python">{getControlFlowExample('pitfalls/mutation_skip.py')}</Code>
+
+Actual output:
+
+```text
+[{'title': 'Second', 'done': True}, {'title': 'Third', 'done': False}]
+```
+
+The intention is to remove every completed task, but Second remains:
+
+1. The first round reads First at position zero and removes it.
+2. Second shifts left to position zero; Third shifts to position one.
+3. List traversal moves to the next position, one, and reads Third. Second is never checked.
+
+Enumerate supplies a counter; it does not freeze the list. Distinguish mutating a field in the current dictionary from changing the length of the list being traversed. The former changes a record; the latter shifts positions that traversal will read later.
+
+Read the original list while building a new list instead. File: `safe_filter.py`.
+
+<Code language="python">{getControlFlowExample('safe_filter.py')}</Code>
+
+Expected:
+
+```text
+[{'title': 'Third', 'done': False}]
+3
+False
+```
+
+The source still contains three tasks, while the new list contains only the pending one. False shows that the outer lists are different objects; filtering has not removed source data.
+
+However, **a new result list is not a deep copy**. Inspect inner sharing with this separate one-item experiment, rather than hard-coding an index at the end of the general filtering script:
+
+```python case=filtered_sharing
+task = {"title": "Read", "done": False}
+tasks = [task]
+pending_tasks = []
+for current in tasks:
+    if not current["done"]:
+        pending_tasks.append(current)
+print(pending_tasks[0] is tasks[0])
+pending_tasks[0]["title"] = "Changed"
+print(tasks[0]["title"])
+```
+
+Expected:
+
+```text
+True
+Changed
+```
+
+Append stores a reference to the original dictionary. Mutating that dictionary through the result also changes the source task. Revisit L02's mutable layers when independent editing is needed.
+
+Use two consecutive completed entries to expose the bug, then test all completed, all pending and empty input. Testing only one task can easily miss this defect.
+
+## 11. List comprehensions come last: shorten a loop you already understand
+
+A list comprehension suits “traverse → optionally filter → compute one result → collect.” It is not an advanced replacement required for every for loop.
+
+File: `comprehensions.py`.
+
+<Code language="python">{getControlFlowExample('comprehensions.py')}</Code>
+
+Expected:
+
+```text
+['Practice', 'Review']
+['Practice', 'Review']
+True
+False
+```
+
+Read it as follows: obtain each task from tasks; keep entries for which `not task["done"]` holds; put task's title into a new list. The syntax places the collected expression first, but understanding can start with the for in the middle.
+
+Without filtering, omit the final if clause. The result preserves relative traversal order; empty input produces an empty list. These two lists have equal contents but different identities. Here we collect strings; collecting task instead would share dictionaries again. Comprehensions do not automatically copy task objects.
+
+One important difference from ordinary for remains: a comprehension's target name does not leak outside it.
+
+```python case=comprehension_binding
+title = "Outside"
+labels = [title for title in ["Read", "Practice"]]
+print(title)
+print(labels)
+```
+
+Expected:
+
+```text
+Outside
+['Read', 'Practice']
+```
+
+The claim is therefore “equivalent generated list contents,” not “identical effects on every surrounding name.” L04 expands the scope model. Avoid multiple for clauses, print side effects, assignment tricks and dense conditions just to fit one line. Keep ordinary loops when accumulating several states, breaking early, or making error categories explicit.
+
+**Checkpoint C:** explain while termination and break versus continue, reproduce the deletion bug, and convert one ordinary filter into a simple comprehension. If you cannot explain intermediate state, keep the longer form. That is not a step backward.
+
+## 12. Put it together: a task summary without a hard-coded size
+
+Combine branches, accumulation, empty input and numbering rather than adding another API list. Input contract: tasks is a list; each entry contains a string title, a bool done and a nonnegative integer minutes.
+
+File: `task_summary.py`.
+
+<Code language="python">{getControlFlowExample('task_summary.py')}</Code>
+
+Expected:
+
+```text
+Tasks: 3
+Done: 1; pending: 2
+Remaining: 35 minutes
+Pending average: 17.5 minutes
+1. Practice loops
+2. Check boundaries
+```
+
+Why organize it this way?
+
+- Counters, accumulated time and result lists are initialized before the loop, making zero rounds a complete execution path.
+- Each entry goes into either the completed or pending branch, never both. Completed and pending counts should add up to the input count.
+- Only pending durations contribute to remaining. A zero-minute task is still pending and participates in the average's denominator.
+- Divide only after checking that pending_count is positive. No pending tasks means no average; n/a expresses that absence instead of inventing a meaningful numeric zero.
+- The `:.1f` format displays one decimal place without changing average's internal value. Finally, enumerate numbers the collected titles.
+
+Change input only, keeping the summary logic unchanged:
+
+| Input variation | Required observation |
+| --- | --- |
+| Empty tasks list | Tasks: 0; done, pending and remaining are zero; average n/a; no numbered lines |
+| Every done becomes True | Pending zero and average n/a; no division by zero |
+| Only one zero-minute pending task | Pending one, average 0.0, and one numbered title |
+| Add one five-minute pending task | Original pending count becomes three, remaining 40, and displayed average 13.3 |
+
+A missing minutes field may still fail: exception handling has not disguised the field contract. The independent exercise adds an explicit “unknown estimate” policy rather than pretending input is always perfect.
+
+## 13. Three exercise levels: predict, repair, transfer independently
+
+### Exercise A: predict where each round stops before running
+
+```python case=exercise_predict
+minutes_list = [0, 10, 30, 5]
+selected = []
+for minutes in minutes_list:
+    if minutes > 20:
+        break
+    if minutes == 0:
+        continue
+    selected.append(minutes)
+print(selected)
+print(minutes)
+```
+
+Write down both outputs and explain why five is not processed. What changes if the first break becomes continue? Then use an empty list and explain whether the final line can still work in a fresh execution.
+
+<details>
+<summary>Open after predicting and testing the input variations</summary>
+
+Original output:
+
+```text
+[10]
+30
+```
+
+Zero skips the append, ten is collected, and thirty ends the loop. Binding already occurred, so minutes remains thirty afterward. Changing break to continue also collects five, yielding `[10, 5]` and `5`. Empty input prints `[]` then raises NameError on the last line. Remove an unnecessary post-loop target lookup rather than assuming at least one iteration.
+
+</details>
+
+### Exercise B: repair a program that exits successfully but calculates incorrectly
+
+This is a complete faulty starting point, not the reference implementation:
+
+```python case=exercise_reset
+minutes_list = [20, 35, 0]
+for minutes in minutes_list:
+    total = 0
+    total = total + minutes
+print(total)
+```
+
+Actual output:
+
+```text
+0
+```
+
+Print the sum of every duration without hard-coding 55. Trace total after each round, decide how many times initialization should happen, and repair the script independently. Check `[20, 35, 5]` for 60, an empty list for zero, and `[0]` for zero.
+
+Hint: handling three entries is not enough. A defined result must exist even if the loop body never executes.
+
+<details>
+<summary>Open after repairing and checking all three input variations</summary>
+
+File: `solutions/fix_total.py`.
+
+<Code language="python">{getControlFlowExample('solutions/fix_total.py')}</Code>
+
+Expected for the original input:
+
+```text
+55
+```
+
+Initialization belongs at the beginning of the whole calculation, not at the beginning of each entry. The reference moves it before the loop without introducing functions or automatic summation to bypass the state change.
+
+</details>
+
+### Exercise C: build a study-queue report from an empty file
+
+Create study_queue.py with this input. Apart from setting up the input, do not copy the chapter's summary script. First turn the rules into your own processing order.
+
+```python case=exercise_data
+tasks = [
+    {"title": "Read branches", "minutes": 20, "done": False},
+    {"title": "Review loops", "minutes": 30, "done": True},
+    {"title": "Try empty input", "minutes": 0, "done": False},
+    {"title": "Estimate later", "minutes": None, "done": False},
+    {"title": "Missing estimate", "done": False},
+    {"title": "Repair estimate", "minutes": -5, "done": False},
 ]
-
-for animal in animals:
-    print(animal.speak())
-    print(animal.move())
-```
-</PythonEditor>
-
-### 2.4 Special Methods (Magic Methods)
-
-Python's special methods are a powerful feature of its object-oriented programming, similar to Symbol methods in JavaScript.
-
-<PythonEditor title="Special Method Example" compare={true}>
-```javascript !! js
-// JavaScript special methods (using Symbol)
-class Vector {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    
-    // Addition operation
-    add(other) {
-        return new Vector(this.x + other.x, this.y + other.y);
-    }
-    
-    // String representation
-    toString() {
-        return `Vector(${this.x}, ${this.y})`;
-    }
-    
-    // Equality comparison
-    equals(other) {
-        return this.x === other.x && this.y === other.y;
-    }
-    
-    // Array destructuring
-    [Symbol.iterator]() {
-        return [this.x, this.y][Symbol.iterator]();
-    }
-}
-
-const v1 = new Vector(1, 2);
-const v2 = new Vector(3, 4);
-const v3 = v1.add(v2);
-
-console.log(v1.toString());  // "Vector(1, 2)"
-console.log(v3.toString());  // "Vector(4, 6)"
-console.log(v1.equals(v2));  // false
-
-// Destructuring assignment
-const [x, y] = v1;
-console.log(x, y);  // 1, 2
+budget = 20
 ```
 
-```python !! py
-# Python special methods
-class Vector:
-    """Vector class"""
-    
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-    
-    def __add__(self, other):
-        """Addition operation (+ operator)"""
-        return Vector(self.x + other.x, self.y + other.y)
-    
-    def __sub__(self, other):
-        """Subtraction operation (- operator)"""
-        return Vector(self.x - other.x, self.y - other.y)
-    
-    def __mul__(self, scalar):
-        """Multiplication operation (* operator)"""
-        return Vector(self.x * scalar, self.y * scalar)
-    
-    def __eq__(self, other):
-        """Equality comparison (== operator)"""
-        return self.x == other.x and self.y == other.y
-    
-    def __str__(self):
-        """String representation (str() function)"""
-        return f"Vector({self.x}, {self.y})"
-    
-    def __repr__(self):
-        """Detailed string representation (repr() function)"""
-        return f"Vector({self.x}, {self.y})"
-    
-    def __len__(self):
-        """Length (len() function)"""
-        return 2
-    
-    def __getitem__(self, index):
-        """Index access ([] operator)"""
-        if index == 0:
-            return self.x
-        elif index == 1:
-            return self.y
-        else:
-            raise IndexError("Vector has only two components")
-    
-    def __iter__(self):
-        """Iterator (for loop)"""
-        return iter([self.x, self.y])
+Input boundary: each entry has a string title and a bool done; minutes may be absent, None, or an integer; budget is a nonnegative integer. Text such as `"20"`, False as a duration, and nondictionary entries are outside this exercise. This is not comprehensive validation of public input.
 
-# Using special methods
-v1 = Vector(1, 2)
-v2 = Vector(3, 4)
+Requirements:
 
-print(v1)                    # Vector(1, 2)
-print(v1 + v2)              # Vector(4, 6)
-print(v2 - v1)              # Vector(2, 2)
-print(v1 * 3)               # Vector(3, 6)
-print(v1 == v2)             # False
-print(len(v1))              # 2
-print(v1[0], v1[1])         # 1, 2
+1. Print total and pending task counts. Completed tasks do not participate in duration classification, accumulation or candidate selection.
+2. For pending tasks, classify both absent minutes and explicit None as unknown. They are not identical language concepts; this exercise deliberately gives them the same treatment.
+3. Classify negative durations as invalid, excluding them from accumulation and candidates. Do not silently change them to zero. Zero is a valid known duration.
+4. Accumulate minutes for **all pending tasks with valid known estimates**, not just candidates within the budget.
+5. Collect valid pending titles whose individual durations do not exceed budget. Preserve source order and number them from one. Compare **each task separately**; do not decrement a shared total budget. This is not a knapsack or scheduling algorithm.
+6. Do not modify the source tasks or hard-code counts, totals or titles. Use an ordinary loop so the multiple classification states remain readable.
 
-# Iteration
-for component in v1:
-    print(component)         # 1, 2
-```
-</PythonEditor>
+The original input should produce:
 
-
-### 2.5 Data Classes
-
-In JavaScript, we often use object literals or interfaces (TypeScript) to store data. In Python 3.7+, `dataclasses` provide a similar and type-safe way to define data-holding classes without writing boilerplate `__init__` methods.
-
-<PythonEditor title="Data Classes Comparison" compare={true}>
-```javascript !! js
-// JavaScript / TypeScript
-// Define data structure
-class User {
-    constructor(id, name, email) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-    }
-}
-
-const user = new User(1, "John Doe", "john@example.com");
-console.log(user);
+```text
+Tasks: 6; pending: 5
+Known pending time: 20 minutes
+Unknown: 2; invalid: 1
+Ready within 20 minutes each: 2
+1. Read branches
+2. Try empty input
 ```
 
-```python !! py
-# Python Data Classes (Python 3.7+)
-from dataclasses import dataclass
+Run your own file:
 
-@dataclass
-class User:
-    id: int
-    name: str
-    email: str
-
-# Automatically generates __init__, __repr__, __eq__, etc.
-user = User(1, "John Doe", "john@example.com")
-print(user)
-# Output: User(id=1, name='John Doe', email='john@example.com')
-
-# Comparison
-user2 = User(1, "John Doe", "john@example.com")
-print(user == user2)  # True (Value comparison is implemented automatically)
-```
-</PythonEditor>
-
-> 💡 **Tip**: `dataclass` is the modern Pythonic way to handle structured data. It is more concise than regular classes and safer than dictionaries (supports type hints).
-
-## 3. Functional Programming Features
-
-
-### 3.1 Higher-Order Functions
-
-Python supports higher-order functions, similar to functional programming concepts in JavaScript.
-
-<PythonEditor title="Higher-Order Function Example" compare={true}>
-```javascript !! js
-// JavaScript higher-order functions
-const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-// map - transform an array
-const doubled = numbers.map(x => x * 2);
-console.log(doubled); // [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-
-// filter - filter an array
-const evens = numbers.filter(x => x % 2 === 0);
-console.log(evens); // [2, 4, 6, 8, 10]
-
-// reduce - reduce an array
-const sum = numbers.reduce((acc, x) => acc + x, 0);
-console.log(sum); // 55
-
-// Chaining
-const result = numbers
-    .filter(x => x % 2 === 0)
-    .map(x => x * 2)
-    .reduce((acc, x) => acc + x, 0);
-console.log(result); // 60
-
-// Function as an argument
-function applyOperation(numbers, operation) {
-    return numbers.map(operation);
-}
-
-const squared = applyOperation(numbers, x => x ** 2);
-console.log(squared); // [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+```bash
+uv run --no-project --python 3.13 python study_queue.py
 ```
 
-```python !! py
-# Python higher-order functions
-numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Continue with these variations. Restore the original input before changing the indicated part each time:
 
-# map - transform a sequence
-doubled = list(map(lambda x: x * 2, numbers))
-print(doubled)  # [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+| Variation | Acceptance focus |
+| --- | --- |
+| Empty list | All counts and minutes zero; zero candidates; no numbered lines or errors |
+| Every task completed | Total still six; all other counts and minutes zero, even with absent or negative estimates |
+| Budget becomes zero | Total pending minutes still 20; only Try empty input qualifies |
+| Read branches takes 21 minutes | Total becomes 21 but that task no longer qualifies; the boundary is at most budget |
+| Add minutes = 5 to Missing estimate | Unknown decreases from two to one, total becomes 25, and three candidates retain source order |
+| Append a pending 60-minute task | Seven total, six pending, 80 minutes; still two candidates |
 
-# filter - filter a sequence
-evens = list(filter(lambda x: x % 2 == 0, numbers))
-print(evens)  # [2, 4, 6, 8, 10]
+Finally explain: why would `minutes or 0` erase the meaning of unknown data? Why exclude completed entries before examining minutes? Why does testing the original six records not establish that empty input works?
 
-# reduce - reduce a sequence
-from functools import reduce
-sum_result = reduce(lambda acc, x: acc + x, numbers, 0)
-print(sum_result)  # 55
+<details>
+<summary>Open after independent implementation and all input variations</summary>
 
-# Chaining
-result = reduce(
-    lambda acc, x: acc + x,
-    map(lambda x: x * 2, filter(lambda x: x % 2 == 0, numbers)),
-    0
-)
-print(result)  # 60
+File: `solutions/study_queue.py`.
 
-# Function as an argument
-def apply_operation(numbers, operation):
-    """Apply an operation to a list of numbers"""
-    return list(map(operation, numbers))
+<Code language="python">{getControlFlowExample('solutions/study_queue.py')}</Code>
 
-squared = apply_operation(numbers, lambda x: x ** 2)
-print(squared)  # [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
-```
-</PythonEditor>
+The reference excludes completed entries before classifying pending ones. Absent values, None and negatives therefore do not enter addition or budget comparison incorrectly. Get combines missing and None according to an explicit policy here, not because their difference was forgotten.
 
-### 3.2 Lambda Functions
+A pending task belongs to exactly one of unknown, invalid or valid-known. Only the last category can become a candidate. Candidates can be fewer than valid-known tasks, so known_minutes must not be accumulated only when a candidate is appended. Different correct implementations are acceptable: acceptance targets behavior and explanations, not copying every character of the answer.
 
-Python's lambda functions are similar to JavaScript's arrow functions, but more limited in functionality.
+</details>
 
-<PythonEditor title="Lambda Function Comparison" compare={true}>
-```javascript !! js
-// JavaScript arrow functions
-const add = (a, b) => a + b;
-const square = x => x * x;
-const isEven = x => x % 2 === 0;
+## 14. What should you be able to demonstrate independently?
 
-// Multi-line arrow function
-const processNumber = x => {
-    const squared = x * x;
-    return squared > 10 ? squared : 0;
-};
+- Explain indentation and branch order through execution paths, not only syntax.
+- Predict empty-container and nonempty-string truth values, and/or results and short circuits without replacing a valid zero through truthiness defaults.
+- Initialize results before loops, trace each round, and handle zero, one and many iterations.
+- Explain an excluded range endpoint, display numbering versus indexing, unpacking counts and dictionary iteration defaults.
+- Explain while progress and termination, and the control boundaries of continue and break, without relying on accidental post-loop bindings.
+- Reproduce and repair skipped entries during deletion, while identifying sharing between result lists and their dictionaries.
+- Write ordinary loops first, using simple comprehensions only when appropriate rather than sacrificing clarity for one line.
+- Build the queue report from an empty file, pass every input variation, and explain counts, durations, unknown estimates and no-match results.
 
-// Immediately invoked function
-const result = ((x, y) => x + y)(5, 3);
-console.log(result); // 8
+**Pause/resume record:** save the filename, last input/output, verified boundaries, unexplained state, and the next first step. Use the three checkpoints and independent exercise as separate sessions whenever your schedule permits. There is no one-week deadline. Resume by running the last successful file, then predict a new input.
 
-// Using in array methods
-const numbers = [1, 2, 3, 4, 5];
-const doubled = numbers.map(x => x * 2);
-const evens = numbers.filter(x => x % 2 === 0);
-const sum = numbers.reduce((acc, x) => acc + x, 0);
+Next is [L04: Functions, Parameters, and Scope](/en/docs/js2py/module-04-async-programming). Once the complete flow is understandable, extract repeated rules into callable units. L00–L04 currently implement the new contracts. Later historical pages still need rewriting; old module 05 does not automatically equal new L05. The original module 03 object/function material is archived for prerequisite-aware reorganization, not deleted.
 
-console.log(doubled); // [2, 4, 6, 8, 10]
-console.log(evens);   // [2, 4]
-console.log(sum);     // 15
-```
+## 15. Official references and chapter boundaries
 
-```python !! py
-from functools import reduce
-# Python lambda functions
-add = lambda a, b: a + b
-square = lambda x: x * x
-is_even = lambda x: x % 2 == 0
+CPython 3.13 is the teaching baseline, not a claim about the latest release. These primary sources were checked on 2026-09-23. Use them for further reading rather than as substitutes for experiments:
 
-# Lambda functions can only contain a single expression
-# Cannot contain multi-line code or complex logic
+- [Control flow tutorial](https://docs.python.org/3.13/tutorial/controlflow.html): if, for, range, break and continue. Later portions cover functions not yet introduced; reading the whole page is not required now.
+- [Compound statements](https://docs.python.org/3.13/reference/compound_stmts.html): suites, while condition checks, for target binding and empty traversal.
+- [Boolean operations](https://docs.python.org/3.13/library/stdtypes.html#boolean-operations-and-or-not): short circuits and returned operands rather than exclusively bool results.
+- [Looping techniques](https://docs.python.org/3.13/tutorial/datastructures.html#looping-techniques) and [enumerate](https://docs.python.org/3.13/library/functions.html#enumerate): numbering, unpacking and dictionary entries.
+- [List comprehensions](https://docs.python.org/3.13/tutorial/datastructures.html#list-comprehensions) and [comprehension name boundaries](https://docs.python.org/3.13/reference/expressions.html#displays-for-lists-sets-and-dictionaries): generating results without leaking target names.
 
-# Immediately invoked function
-result = (lambda x, y: x + y)(5, 3)
-print(result)  # 8
-
-# Using in functional programming
-numbers = [1, 2, 3, 4, 5]
-doubled = list(map(lambda x: x * 2, numbers))
-evens = list(filter(lambda x: x % 2 == 0, numbers))
-sum_result = reduce(lambda acc, x: acc + x, numbers, 0)
-
-print(doubled)    # [2, 4, 6, 8, 10]
-print(evens)      # [2, 4]
-print(sum_result) # 15
-
-# Limitations of lambda functions
-# Cannot contain assignment statements
-# Cannot contain conditional statements (but can use ternary operators)
-process_number = lambda x: x * x if x > 2 else 0
-```
-</PythonEditor>
-
-### 3.3 List Comprehensions
-
-List comprehensions are a feature of Python, similar to a combination of map and filter in JavaScript.
-
-<PythonEditor title="List Comprehension Comparison" compare={true}>
-```javascript !! js
-// JavaScript array methods
-const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-// Basic mapping
-const doubled = numbers.map(x => x * 2);
-
-// Conditional filtering
-const evens = numbers.filter(x => x % 2 === 0);
-
-// Combined operation
-const result = numbers
-    .filter(x => x % 2 === 0)
-    .map(x => x * 2);
-
-// Nested array processing
-const matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
-const flattened = matrix.flat();
-const doubledMatrix = matrix.map(row => row.map(x => x * 2));
-
-console.log(doubled);      // [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-console.log(evens);        // [2, 4, 6, 8, 10]
-console.log(result);       // [4, 8, 12, 16, 20]
-console.log(flattened);    // [1, 2, 3, 4, 5, 6, 7, 8, 9]
-console.log(doubledMatrix); // [[2, 4, 6], [8, 10, 12], [14, 16, 18]]
-```
-
-```python !! py
-# Python list comprehensions
-numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
-# Basic mapping
-doubled = [x * 2 for x in numbers]
-
-# Conditional filtering
-evens = [x for x in numbers if x % 2 == 0]
-
-# Combined operation (filtering + mapping)
-result = [x * 2 for x in numbers if x % 2 == 0]
-
-# Nested list processing
-matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-flattened = [x for row in matrix for x in row]
-doubled_matrix = [[x * 2 for x in row] for row in matrix]
-
-print(doubled)        # [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-print(evens)          # [2, 4, 6, 8, 10]
-print(result)         # [4, 8, 12, 16, 20]
-print(flattened)      # [1, 2, 3, 4, 5, 6, 7, 8, 9]
-print(doubled_matrix) # [[2, 4, 6], [8, 10, 12], [14, 16, 18]]
-
-# Dictionary comprehensions
-squares = {x: x ** 2 for x in range(5)}
-print(squares)  # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
-
-# Set comprehensions
-unique_squares = {x ** 2 for x in [1, 2, 2, 3, 3, 4]}
-print(unique_squares)  # {1, 4, 9, 16}
-```
-</PythonEditor>
-
-## 4. Decorators
-
-Decorators are a unique feature of Python, similar to higher-order components or middleware in JavaScript.
-
-### 4.1 Basic Decorators
-
-<PythonEditor title="Basic Decorator Example" compare={true}>
-```javascript !! js
-// JavaScript higher-order function (similar to a decorator)
-function logFunction(func) {
-    return function(...args) {
-        console.log(`Calling function: ${func.name}`);
-        console.log(`Arguments:`, args);
-        const result = func(...args);
-        console.log(`Result:`, result);
-        return result;
-    };
-}
-
-function add(a, b) {
-    return a + b;
-}
-
-function multiply(a, b) {
-    return a * b;
-}
-
-// Apply the decorator
-const loggedAdd = logFunction(add);
-const loggedMultiply = logFunction(multiply);
-
-loggedAdd(5, 3);
-loggedMultiply(4, 2);
-
-// Using decorator syntax (requires Babel plugin)
-// @logFunction
-// function add(a, b) {
-//     return a + b;
-// }
-```
-
-```python !! py
-# Python decorator
-def log_function(func):
-    """Logging decorator"""
-    def wrapper(*args, **kwargs):
-        print(f"Calling function: {func.__name__}")
-        print(f"Arguments: {args}, {kwargs}")
-        result = func(*args, **kwargs)
-        print(f"Result: {result}")
-        return result
-    return wrapper
-
-# Using decorator syntax
-@log_function
-def add(a, b):
-    """Addition function"""
-    return a + b
-
-@log_function
-def multiply(a, b):
-    """Multiplication function"""
-    return a * b
-
-# Call the function
-add(5, 3)
-multiply(4, 2)
-
-# Equivalent to:
-# add = log_function(add)
-# multiply = log_function(multiply)
-```
-</PythonEditor>
-
-### 4.2 Decorators with Arguments
-
-<PythonEditor title="Decorators with Arguments" compare={true}>
-```javascript !! js
-// JavaScript higher-order function with arguments
-function retry(maxAttempts = 3, delay = 1000) {
-    return function(func) {
-        return function(...args) {
-            let lastError;
-            
-            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-                try {
-                    console.log(`Attempt ${attempt}`);
-                    return func(...args);
-                } catch (error) {
-                    lastError = error;
-                    console.log(`Attempt ${attempt} failed:`, error.message);
-                    
-                    if (attempt < maxAttempts) {
-                        console.log(`Retrying after ${delay}ms...`);
-                        // Use setTimeout in a real environment
-                    }
-                }
-            }
-            
-            throw lastError;
-        };
-    };
-}
-
-function unreliableFunction() {
-    if (Math.random() < 0.7) {
-        throw new Error("Random failure");
-    }
-    return "Success!";
-}
-
-// Apply the decorator
-const retryFunction = retry(3, 1000)(unreliableFunction);
-// retryFunction();
-```
-
-```python !! py
-# Python decorator with arguments
-import time
-import random
-
-def retry(max_attempts=3, delay=1):
-    """Retry decorator"""
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            last_error = None
-            
-            for attempt in range(1, max_attempts + 1):
-                try:
-                    print(f"Attempt {attempt}")
-                    return func(*args, **kwargs)
-                except Exception as error:
-                    last_error = error
-                    print(f"Attempt {attempt} failed: {error}")
-                    
-                    if attempt < max_attempts:
-                        print(f"Retrying after {delay} second(s)...")
-                        time.sleep(delay)
-            
-            raise last_error
-        return wrapper
-    return decorator
-
-@retry(max_attempts=3, delay=1)
-def unreliable_function():
-    """Unreliable function"""
-    if random.random() < 0.7:
-        raise ValueError("Random failure")
-    return "Success!"
-
-# Call the function
-try:
-    result = unreliable_function()
-    print(f"Final result: {result}")
-except Exception as e:
-    print(f"All attempts failed: {e}")
-```
-</PythonEditor>
-
-### 4.3 Class Decorators
-
-<PythonEditor title="Class Decorator Example" compare={true}>
-```javascript !! js
-// JavaScript class decorator (conceptual)
-function singleton(Class) {
-    let instance = null;
-    
-    return class extends Class {
-        constructor(...args) {
-            if (instance) {
-                return instance;
-            }
-            super(...args);
-            instance = this;
-        }
-    };
-}
-
-// Using the decorator
-// @singleton
-// class Database {
-//     constructor() {
-//         this.connection = "Database connection";
-//     }
-// }
-
-// Manual application
-class Database {
-    constructor() {
-        this.connection = "Database connection";
-    }
-}
-
-const SingletonDatabase = singleton(Database);
-const db1 = new SingletonDatabase();
-const db2 = new SingletonDatabase();
-console.log(db1 === db2); // true
-```
-
-```python !! py
-# Python class decorator
-def singleton(cls):
-    """Singleton decorator"""
-    instances = {}
-    
-    def get_instance(*args, **kwargs):
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
-    
-    return get_instance
-
-@singleton
-class Database:
-    """Database class"""
-    
-    def __init__(self):
-        self.connection = "Database connection"
-        print("Creating database connection")
-    
-    def query(self, sql):
-        return f"Executing query: {sql}"
-
-# Test singleton
-db1 = Database()
-db2 = Database()
-print(db1 is db2)  # True
-
-print(db1.query("SELECT * FROM users"))
-print(db2.query("SELECT * FROM products"))
-```
-</PythonEditor>
-
-## 5. Practical Project Example
-
-### 5.1 Data Validator
-
-Let's create a data validator that combines object-oriented and functional programming.
-
-<PythonEditor title="Data Validator Example" compare={true}>
-```javascript !! js
-// JavaScript data validator
-class Validator {
-    constructor() {
-        this.rules = [];
-    }
-    
-    addRule(rule) {
-        this.rules.push(rule);
-        return this;
-    }
-    
-    validate(data) {
-        const errors = [];
-        
-        for (const rule of this.rules) {
-            try {
-                rule(data);
-            } catch (error) {
-                errors.push(error.message);
-            }
-        }
-        
-        return {
-            isValid: errors.length === 0,
-            errors
-        };
-    }
-}
-
-// Validation rules
-const isString = (data) => {
-    if (typeof data !== 'string') {
-        throw new Error('Must be a string');
-    }
-};
-
-const minLength = (min) => (data) => {
-    if (data.length < min) {
-        throw new Error(`Length cannot be less than ${min} characters`);
-    }
-};
-
-const maxLength = (max) => (data) => {
-    if (data.length > max) {
-        throw new Error(`Length cannot be more than ${max} characters`);
-    }
-};
-
-const pattern = (regex) => (data) => {
-    if (!regex.test(data)) {
-        throw new Error('Invalid format');
-    }
-};
-
-// Using the validator
-const userValidator = new Validator()
-    .addRule(isString)
-    .addRule(minLength(3))
-    .addRule(maxLength(20))
-    .addRule(pattern(/^[a-zA-Z0-9_]+$/));
-
-const result = userValidator.validate("john_doe");
-console.log(result);
-```
-
-```python !! py
-# Python data validator
-from typing import Callable, List, Dict, Any
-import re
-
-class Validator:
-    """Data validator class"""
-    
-    def __init__(self):
-        self.rules: List[Callable] = []
-    
-    def add_rule(self, rule: Callable) -> 'Validator':
-        """Add a validation rule"""
-        self.rules.append(rule)
-        return self
-    
-    def validate(self, data: Any) -> Dict[str, Any]:
-        """Validate data"""
-        errors = []
-        
-        for rule in self.rules:
-            try:
-                rule(data)
-            except ValueError as error:
-                errors.append(str(error))
-        
-        return {
-            'is_valid': len(errors) == 0,
-            'errors': errors
-        }
-
-# Validation rules (functional style)
-def is_string(data: Any) -> None:
-    """Check if it is a string"""
-    if not isinstance(data, str):
-        raise ValueError('Must be a string')
-
-def min_length(min_len: int) -> Callable:
-    """Minimum length validator"""
-    def validator(data: str) -> None:
-        if len(data) < min_len:
-            raise ValueError(f'Length cannot be less than {min_len} characters')
-    return validator
-
-def max_length(max_len: int) -> Callable:
-    """Maximum length validator"""
-    def validator(data: str) -> None:
-        if len(data) > max_len:
-            raise ValueError(f'Length cannot be more than {max_len} characters')
-    return validator
-
-def pattern(regex: str) -> Callable:
-    """Regular expression validator"""
-    def validator(data: str) -> None:
-        if not re.match(regex, data):
-            raise ValueError('Invalid format')
-    return validator
-
-# Using the validator
-user_validator = (Validator()
-    .add_rule(is_string)
-    .add_rule(min_length(3))
-    .add_rule(max_length(20))
-    .add_rule(pattern(r'^[a-zA-Z0-9_]+$')))
-
-result = user_validator.validate("john_doe")
-print(result)
-
-# Test invalid data
-invalid_result = user_validator.validate("ab")
-print(invalid_result)
-```
-</PythonEditor>
-
-### 5.2 Cache Decorator
-
-<PythonEditor title="Cache Decorator Example" compare={true}>
-```javascript !! js
-// JavaScript cache decorator
-function memoize(func) {
-    const cache = new Map();
-    
-    return function(...args) {
-        const key = JSON.stringify(args);
-        
-        if (cache.has(key)) {
-            console.log('Getting result from cache');
-            return cache.get(key);
-        }
-        
-        console.log('Calculating new result');
-        const result = func(...args);
-        cache.set(key, result);
-        return result;
-    };
-}
-
-// Using the cache decorator
-const expensiveFunction = memoize(function(n) {
-    console.log(`Calculating factorial of ${n}...`);
-    let result = 1;
-    for (let i = 2; i <= n; i++) {
-        result *= i;
-    }
-    return result;
-});
-
-console.log(expensiveFunction(5));  // Calculating new result
-console.log(expensiveFunction(5));  // Getting result from cache
-console.log(expensiveFunction(6));  // Calculating new result
-```
-
-```python !! py
-# Python cache decorator
-from functools import wraps
-import json
-from typing import Any, Dict
-
-def memoize(func):
-    """Cache decorator"""
-    cache: Dict[str, Any] = {}
-    
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        # Create a cache key
-        key = json.dumps((args, sorted(kwargs.items())))
-        
-        if key in cache:
-            print('Getting result from cache')
-            return cache[key]
-        
-        print('Calculating new result')
-        result = func(*args, **kwargs)
-        cache[key] = result
-        return result
-    
-    return wrapper
-
-@memoize
-def expensive_function(n: int) -> int:
-    """Expensive function to calculate factorial"""
-    print(f'Calculating factorial of {n}...')
-    result = 1
-    for i in range(2, n + 1):
-        result *= i
-    return result
-
-# Test the cache
-print(expensive_function(5))  # Calculating new result
-print(expensive_function(5))  # Getting result from cache
-print(expensive_function(6))  # Calculating new result
-
-# Using the built-in lru_cache
-from functools import lru_cache
-
-@lru_cache(maxsize=128)
-def fibonacci(n: int) -> int:
-    """Fibonacci sequence (with cache)"""
-    if n < 2:
-        return n
-    return fibonacci(n - 1) + fibonacci(n - 2)
-
-print(fibonacci(10))  # Fast calculation, uses cache
-```
-</PythonEditor>
-
-## 6. Exercises
-
-### Exercise 1: Create a Student Management System
-
-<PythonEditor title="Exercise 1: Student Management System" compare={true}>
-```javascript !! js
-// Create a student management system
-class Student {
-    constructor(id, name, age, grades = []) {
-        this.id = id;
-        this.name = name;
-        this.age = age;
-        this.grades = grades;
-    }
-    
-    addGrade(grade) {
-        this.grades.push(grade);
-    }
-    
-    getAverage() {
-        if (this.grades.length === 0) return 0;
-        return this.grades.reduce((sum, grade) => sum + grade, 0) / this.grades.length;
-    }
-    
-    toString() {
-        return `Student(${this.id}, ${this.name}, ${this.age})`;
-    }
-}
-
-class StudentManager {
-    constructor() {
-        this.students = new Map();
-    }
-    
-    addStudent(student) {
-        this.students.set(student.id, student);
-    }
-    
-    getStudent(id) {
-        return this.students.get(id);
-    }
-    
-    getAllStudents() {
-        return Array.from(this.students.values());
-    }
-    
-    getTopStudents(limit = 3) {
-        return this.getAllStudents()
-            .sort((a, b) => b.getAverage() - a.getAverage())
-            .slice(0, limit);
-    }
-    
-    getStudentsByAgeRange(minAge, maxAge) {
-        return this.getAllStudents()
-            .filter(student => student.age >= minAge && student.age <= maxAge);
-    }
-}
-
-// Example usage
-const manager = new StudentManager();
-
-const student1 = new Student(1, "John Doe", 20);
-student1.addGrade(85);
-student1.addGrade(90);
-
-const student2 = new Student(2, "Jane Doe", 19);
-student2.addGrade(92);
-student2.addGrade(88);
-
-manager.addStudent(student1);
-manager.addStudent(student2);
-
-console.log("All students:", manager.getAllStudents());
-console.log("Top students:", manager.getTopStudents(2));
-```
-
-```python !! py
-# Create a student management system
-from typing import List, Dict, Optional
-from dataclasses import dataclass, field
-
-@dataclass
-class Student:
-    """Student class (using dataclass to automatically generate __init__, __repr__, etc.)"""
-    id: int
-    name: str
-    age: int
-    grades: List[float] = field(default_factory=list)
-    
-    def add_grade(self, grade: float) -> None:
-        """Add a grade"""
-        self.grades.append(grade)
-    
-    def get_average(self) -> float:
-        """Calculate the average grade"""
-        if not self.grades:
-            return 0.0
-        return sum(self.grades) / len(self.grades)
-    
-    def __str__(self) -> str:
-        return f"Student({self.id}, {self.name}, {self.age})"
-
-class StudentManager:
-    """Student manager"""
-    
-    def __init__(self):
-        self.students: Dict[int, Student] = {}
-    
-    def add_student(self, student: Student) -> None:
-        """Add a student"""
-        self.students[student.id] = student
-    
-    def get_student(self, student_id: int) -> Optional[Student]:
-        """Get a student"""
-        return self.students.get(student_id)
-    
-    def get_all_students(self) -> List[Student]:
-        """Get all students"""
-        return list(self.students.values())
-    
-    def get_top_students(self, limit: int = 3) -> List[Student]:
-        """Get top students"""
-        return sorted(
-            self.get_all_students(),
-            key=lambda s: s.get_average(),
-            reverse=True
-        )[:limit]
-    
-    def get_students_by_age_range(self, min_age: int, max_age: int) -> List[Student]:
-        """Get students by age range"""
-        return [
-            student for student in self.get_all_students()
-            if min_age <= student.age <= max_age
-        ]
-
-# Example usage
-manager = StudentManager()
-
-student1 = Student(1, "John Doe", 20)
-student1.add_grade(85)
-student1.add_grade(90)
-
-student2 = Student(2, "Jane Doe", 19)
-student2.add_grade(92)
-student2.add_grade(88)
-
-manager.add_student(student1)
-manager.add_student(student2)
-
-print("All students:", manager.get_all_students())
-print("Top students:", manager.get_top_students(2))
-```
-</PythonEditor>
-
-### Exercise 2: Functional Programming Exercise
-
-<PythonEditor title="Exercise 2: Functional Programming" compare={true}>
-```javascript !! js
-// Functional programming exercise
-const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-// 1. Find the squares of all even numbers
-const evenSquares = numbers
-    .filter(x => x % 2 === 0)
-    .map(x => x * x);
-
-// 2. Calculate the sum of all odd numbers
-const oddSum = numbers
-    .filter(x => x % 2 === 1)
-    .reduce((sum, x) => sum + x, 0);
-
-// 3. Find the cubes of all numbers greater than 5
-const largeCubes = numbers
-    .filter(x => x > 5)
-    .map(x => x ** 3);
-
-console.log("Squares of even numbers:", evenSquares);
-console.log("Sum of odd numbers:", oddSum);
-console.log("Cubes of numbers greater than 5:", largeCubes);
-```
-
-```python !! py
-# Functional programming exercise
-numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
-# 1. Find the squares of all even numbers
-even_squares = [x ** 2 for x in numbers if x % 2 == 0]
-
-# 2. Calculate the sum of all odd numbers
-odd_sum = sum(x for x in numbers if x % 2 == 1)
-
-# 3. Find the cubes of all numbers greater than 5
-large_cubes = [x ** 3 for x in numbers if x > 5]
-
-print("Squares of even numbers:", even_squares)
-print("Sum of odd numbers:", odd_sum)
-print("Cubes of numbers greater than 5:", large_cubes)
-
-# Using functional methods
-from functools import reduce
-
-even_squares_func = list(map(lambda x: x ** 2, filter(lambda x: x % 2 == 0, numbers)))
-odd_sum_func = reduce(lambda acc, x: acc + x, filter(lambda x: x % 2 == 1, numbers), 0)
-large_cubes_func = list(map(lambda x: x ** 3, filter(lambda x: x > 5, numbers)))
-
-print("Functional method - Squares of even numbers:", even_squares_func)
-print("Functional method - Sum of odd numbers:", odd_sum_func)
-print("Functional method - Cubes of numbers greater than 5:", large_cubes_func)
-```
-</PythonEditor>
-
-## 7. Summary
-
-### Key Concept Review
-
-1.  **Object-Oriented Programming**
-    -   Class definition and instantiation
-    -   Inheritance and polymorphism
-    -   Special methods (magic methods)
-    -   Class variables and instance variables
-
-2.  **Functional Programming**
-    -   Higher-order functions (map, filter, reduce)
-    -   Lambda functions
-    -   List comprehensions
-    -   Functions as arguments and return values
-
-3.  **Decorators**
-    -   Basic decorators
-    -   Decorators with arguments
-    -   Class decorators
-    -   Practical use cases
-
-### JavaScript vs. Python Comparison Summary
-
-| Concept | JavaScript | Python | Description |
-|---|---|---|---|
-| **Class Definition** | `class ClassName` | `class ClassName:` | Python uses a colon. |
-| **Constructor** | `constructor()` | `__init__(self)` | Python requires the `self` parameter. |
-| **Inheritance** | `extends` | `(ParentClass)` | Python uses parenthesis syntax. |
-| **Special Methods** | Symbol methods | `__method__` | Python has more extensive special methods. |
-| **Higher-Order Functions** | Built-in methods | `map`, `filter`, `reduce` | Same concept, different syntax. |
-| **Anonymous Functions** | Arrow functions | `lambda` | Python's lambda is more limited. |
-| **Decorators** | Higher-order functions | `@decorator` | Python has syntax sugar support. |
-
-### Best Practices
-
-1.  **Object-Oriented Programming**
-    -   Use `@dataclass` to simplify data classes
-    -   Use inheritance and composition appropriately
-    -   Implement appropriate special methods
-    -   Follow the single responsibility principle
-
-2.  **Functional Programming**
-    -   Prefer list comprehensions
-    -   Use lambda functions appropriately
-    -   Avoid excessive nesting
-    -   Maintain function purity
-
-3.  **Decorators**
-    -   Use `@wraps` to preserve function metadata
-    -   Design decorator arguments appropriately
-    -   Be aware of the execution order of decorators
-    -   Avoid overusing decorators
-
-### Next Steps
-
-In the next module, we will learn about:
-- Python asynchronous programming (async/await)
-- Event loop mechanism
-- Asynchronous web development
-- Basics of concurrent programming
-
-These concepts will help you build high-performance Python applications, especially in web development and data processing.
+There is no general input validation, persistence, concurrency control or server here. The while example is not a production retry strategy. Understanding how each record moves through control flow is a foundation for functions, files and backend rules, not evidence of deployment readiness.

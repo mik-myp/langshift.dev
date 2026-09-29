@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "spec_version": "g01-comments-v1",
+  "project_revision": null,
+  "environment": {
+    "label": "not_recorded",
+    "isolation": "not_recorded",
+    "baseline": null
+  },
+  "claims": {
+    "course_content": {
+      "status": "not_assessed",
+      "evidence_refs": []
+    },
+    "author_reference_validation": {
+      "status": "not_assessed",
+      "evidence_refs": []
+    },
+    "student_graduation": {
+      "status": "not_assessed",
+      "evidence_refs": []
+    },
+    "public_operation": {
+      "status": "not_assessed",
+      "evidence_refs": []
+    }
+  },
+  "scenarios": [
+    {
+      "id": "S01",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S02",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S03",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S04",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S05",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S06",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S07",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S08",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S09",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S10",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S11",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S12",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S13",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S14",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S15",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S16",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S17",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S18",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S19",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S20",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S21",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S22",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S23",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    },
+    {
+      "id": "S24",
+      "status": "not_run",
+      "observed_at": null,
+      "evidence_refs": [],
+      "notes": ""
+    }
+  ],
+  "artifacts": [],
+  "decisions": [],
+  "operations": {
+    "release_revision": null,
+    "schema_revision": null,
+    "rollback_result": "not_run",
+    "restore_result": "not_run",
+    "measured_rto_seconds": null,
+    "measured_rpo_seconds": null,
+    "pilot_status": "not_run",
+    "invited_testers": 0
+  },
+  "checkpoint": {
+    "last_verified_fact": "not_started",
+    "unresolved": [],
+    "next_evidence_to_collect": "",
+    "stopped_resources": []
+  }
+}

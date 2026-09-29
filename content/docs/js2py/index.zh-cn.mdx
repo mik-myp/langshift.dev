@@ -1,113 +1,124 @@
 ---
-title: JavaScript 到 Python 学习模块
-description: 专为有 JavaScript 背景的开发者设计的 Python 学习模块，通过对比学习方法快速掌握 Python 编程。
+title: JavaScript 到 Python：从前端工程走向后端开发
+description: 面向有成熟前端工程经验、没有后端实践的开发者，系统学习 Python 语言差异，并逐步补齐 API、数据库、权限、测试与上线维护能力。
 ---
 
-## 📖 模块概述
+## 这套教材为谁编写？
 
-本模块专为有 JavaScript 背景的开发者设计。通过对比学习方法，帮助您快速掌握 Python 编程，充分利用您现有的 JavaScript 知识。我们采用"从已知到未知"的学习方法，将 JavaScript 概念映射到 Python 对应概念。
+你能够独立搭建前端项目，做过接口联调，熟悉 Promise 与 async/await，了解 TypeScript 基础类型，但还没有亲自实现后端或数据库。这就是本教材的读者起点。
 
-## 🎯 学习方法
+我们不要求你先学 Express，也不把复杂类型体操作为门槛。已有工程经验会帮助你理解项目组织、测试和协作，但不能替代第一次设计表结构、事务、权限与部署流程的实践。教材会把这些陌生职责逐步讲清，而不是用一张库名和 API 表格代替教学。
 
-### 核心方法论
-- **对比学习**：通过 JavaScript 概念理解 Python
-- **概念映射**：将熟悉的 JavaScript 模式映射到 Python 对应概念
-- **实践导向**：通过动手编码示例学习
-- **性能意识**：理解语言特定的性能特征
+## 学习目标：能交付，而不只是能看懂
 
-### 关键学习原则
-1. **利用现有知识**：基于您的 JavaScript 基础
-2. **关注差异**：强调 Python 的独特之处
-3. **实践驱动**：通过交互式代码示例学习
-4. **实际应用**：将概念应用到实际项目中
+最终目标是：允许查阅文档，能够根据需求独立实现、测试、部署和维护一个可供受邀用户使用的中小型后端，并完成一次没有逐步实现教程的新需求。
 
-## 🔄 语言对比概述
+“读完所有页面”不是完成标准。每个阶段都需要实际产物、成功与失败场景、验收步骤，以及对设计的解释。后续开放公共注册等功能还需要额外的安全与运维验收，不能把演示程序直接当成完整产品。
 
-### 语法哲学
-- **JavaScript**：C 风格语法，灵活且动态
-- **Python**：简洁、可读的语法，使用缩进
+> **改造状态（2026-09-28）：** 39 章均已提供英文、简体、繁体完整正文与配套材料。验收记录区分本机实际运行的实验，以及需要受控 Linux、容器、HTTPS 或托管交付环境的待验证项目。教材内容完成不自动代表公网上线成功，也不代表读者已经毕业。
 
-### 核心概念映射
-- **变量**：`let/const` → 直接赋值
-- **函数**：`function` → `def` 带显式 `self`
-- **类**：`class` → `class` 带 `__init__`
-- **模块**：`import/export` → `import/from`
-- **异步**：`Promise/async-await` → `async/await`
+## 怎样使用本教材？
 
-### 执行模型
-- **JavaScript**：事件驱动，单线程异步
-- **Python**：多线程带 GIL，异步使用 asyncio
+一个知识点通常沿着这样的过程展开：
 
-## 📚 模块结构
+1. 先提出一个真实问题，解释为什么需要这个知识。
+2. 借用你熟悉的前端经验建立联系，同时说明类比失效的边界。
+3. 解释概念与运行机制，再给出必要的语法和 API。
+4. 运行完整例子，预测并解释输入、输出及失败行为。
+5. 完成带提示的修改，然后独立完成变式需求。
+6. 用测试或明确操作验收，之后再查看分开放置的参考答案。
 
-学习路径组织为 **12 个渐进式模块**：
+不是所有例子都适合在网页运行。纯语法可以使用浏览器实验；多文件、依赖、数据库和 Web 服务应在明确的本地环境中执行。配置文件、故意错误的例子和服务程序不能仅因有一个编辑器，就被称为“点击即可运行”。
 
-1. **基础**：Python 介绍和学习方法论
-2. **语法**：核心语法对比和映射
-3. **模块化**：包管理和项目组织
-4. **面向对象与函数式**：面向对象和函数式编程
-5. **异步**：异步编程模式
-6. **质量**：测试、类型和代码质量
-7. **Web 开发**：Web 开发框架和实践
-8. **数据处理与自动化**：数据处理和自动化
-9. **项目实战**：真实项目实现
-10. **高级主题**：元编程和高级特性
-11. **Pythonic 风格**：Python 特定最佳实践
-12. **类型系统**：类型注解和静态分析
+## 分阶段的能力路线
 
-## 🛠️ 开发环境
+| 阶段 | 需要形成的能力 | 产物 |
+| --- | --- | --- |
+| Python 基础 | 语言差异、函数、类型、模块、异常、资源与测试 | 可复现的本地任务程序 |
+| HTTP 与 FastAPI | 接口契约、验证、响应、路由、依赖与配置 | 可联调的 API |
+| 数据库 | SQL、关系、约束、事务、ORM 与迁移 | 不靠内存保存状态的服务 |
+| 多用户 | 身份、密码、凭证失效、对象级权限 | 不会跨用户泄露数据的应用 |
+| 可靠性 | API/数据库测试、异步边界、超时与故障处理 | 可以解释和验证失败行为的项目 |
+| 交付与维护 | 部署、日志、备份恢复、迭代与回退 | 受控真实上线与独立新功能 |
 
-### 必备工具
-- **IDE**：带 Python 扩展的 VS Code 或 PyCharm
-- **包管理器**：pip 或 poetry
-- **虚拟环境**：venv 用于隔离
-- **代码质量**：flake8、black、mypy
-- **测试**：pytest 框架
+先把同步后端的基本行为做正确，再学习有具体用途的异步。数据分析、复杂元类、高级泛型和分布式任务等内容可以作为选修，不阻断第一个项目的交付。这个顺序不是压缩基础，而是避免让不必要的复杂度抢在必要知识之前。
 
-### 快速设置
+## 先后顺序比一次学多少更重要
 
-<Code language="bash">{`# 创建并激活虚拟环境
-python -m venv langshift-env
-source langshift-env/bin/activate  # macOS/Linux
-# langshift-env\\Scripts\\activate   # Windows
+新的 Python 主线按小步骤展开：**第一次运行 → 名称与值 → 容器 → 控制流 → 函数 → 异常 → 模块 → 文件/JSON → 环境与依赖 → 基础测试 → 第一个独立可复现项目**。随后再补齐类型、类、装饰器和资源生命周期，进入服务端与 FastAPI。
 
-# 安装开发工具
-pip install black flake8 mypy pytest
-`}</Code>
+每一步都有当前知识足以解释的小程序，不是先读完整本语法书才实践，也不是先搭工程再长期欠下解释。各章按前置能力验收，不按固定周数推进。按目录逐章通过能力验收，而不是读过标题就算掌握。环境准备、凭证处理、迁移安全和恢复都有自己的教学与证据；后续章节不会无声地把本地演示升级成生产服务。
 
-## 🎯 学习成果
+## 当前内容目录
 
-完成本模块后，您将能够：
+全书共 **39 个循序渐进的章节（00—38）**。L/H/D/S/A/O/G 是能力阶段编号，页面编号是实际阅读顺序。已有页面 URL 保持稳定，因此部分旧 slug 与新正文标题不同。页面和下载包存在，不代表环境门槛、毕业验收或真实上线已经通过。
 
-- **掌握 Python 语法**：理解 Python 的独特语法和惯用法
-- **应用 JavaScript 知识**：利用您的 JS 背景加速学习
-- **编写 Pythonic 代码**：遵循 Python 最佳实践和约定
-- **构建真实项目**：使用 Python 创建实际应用
-- **理解性能特征**：知道何时以及为什么使用 Python vs JavaScript
+### Python 语言与本地工程 · L00—L14
 
-## 🚀 开始学习
+- **00 · L00** — [认识 Python：读懂并运行第一份脚本](/zh-cn/docs/js2py/module-00-python-introduction)
+- **01 · L01** — [名称、值与基本运算](/zh-cn/docs/js2py/module-01-syntax-comparison)
+- **02 · L02** — [容器、引用与修改](/zh-cn/docs/js2py/module-02-module-system)
+- **03 · L03** — [条件、循环与遍历](/zh-cn/docs/js2py/module-03-oop-functional)
+- **04 · L04** — [函数、参数与作用域](/zh-cn/docs/js2py/module-04-async-programming)
+- **05 · L05** — [异常与调试](/zh-cn/docs/js2py/module-05-quality-testing-typing)
+- **06 · L06** — [模块与标准库](/zh-cn/docs/js2py/module-06-web-development)
+- **07 · L07** — [文件、JSON 与资源使用](/zh-cn/docs/js2py/module-07-data-automation)
+- **08 · L08** — [环境与依赖管理](/zh-cn/docs/js2py/module-08-projects)
+- **09 · L09** — [基础自动化测试](/zh-cn/docs/js2py/module-09-advanced-topics)
+- **10 · L10** — [第一个独立可复现项目](/zh-cn/docs/js2py/module-10-common-pitfalls)
+- **11 · L11** — [基础类型注解：契约、检查与输入边界](/zh-cn/docs/js2py/module-11-pythonic-code)
+- **12 · L12** — [类与数据模型：实例、状态归属与显式校验](/zh-cn/docs/js2py/module-12-type-annotations)
+- **13 · L13** — [装饰器与声明式接口：先展开，再使用](/zh-cn/docs/js2py/module-13-decorators)
+- **14 · L14** — [生成器与资源生命周期：暂停、恢复与可靠释放](/zh-cn/docs/js2py/module-14-resources)
 
-1. **设置环境**：使用推荐的工具
-2. **从模块 0 开始**：Python 介绍和方法论
-3. **使用交互式代码编辑器**：练习概念
-4. **完成练习**：巩固学习内容
-5. **构建项目**：应用您的知识
+### 服务进程、HTTP 与 FastAPI · H01—H06
 
-## 🔗 相关资源
+- **15 · H01** — [从客户端到持续运行的服务：进程、端口与边界](/zh-cn/docs/js2py/module-15-service-process)
+- **16 · H02** — [HTTP 与接口契约：先约定可观察行为，再实现服务](/zh-cn/docs/js2py/module-16-http-contract)
+- **17 · H03** — [第一个同步 FastAPI 服务：从导入到真实响应](/zh-cn/docs/js2py/module-17-first-fastapi)
+- **18 · H04** — [Pydantic 输入输出边界：严格验证与不会误清空的 PATCH](/zh-cn/docs/js2py/module-18-validation)
+- **19 · H05** — [应用组织、配置与依赖：让创建、使用、清理各有主人](/zh-cn/docs/js2py/module-19-application-dependencies)
+- **20 · H06** — [API 测试与前后端联调：从普通断言到真实浏览器](/zh-cn/docs/js2py/module-20-api-testing)
 
-- [Python 官方文档](https://docs.python.org/)
-- [PEP 8 风格指南](https://www.python.org/dev/peps/pep-0008/)
-- [Real Python 教程](https://realpython.com/)
-- [Python 包索引](https://pypi.org/)
+### 真实数据库 · D01—D06
 
-## 🤝 贡献指南
+- **21 · D01** — [关系模型与 PostgreSQL：先认识数据，再连接服务器](/zh-cn/docs/js2py/module-21-relational-data)
+- **22 · D02** — [SQL 与参数化查询：从结果推导查询，而不是拼字符串](/zh-cn/docs/js2py/module-22-sql)
+- **23 · D03** — [事务、连接与并发：失败后数据库究竟剩下什么](/zh-cn/docs/js2py/module-23-transactions)
+- **24 · D04** — [同步 SQLAlchemy：把数据库资源和业务事务交给明确的主人](/zh-cn/docs/js2py/module-24-sqlalchemy)
+- **25 · D05** — [Alembic 迁移：改变结构，不能丢掉用户已经写入的事实](/zh-cn/docs/js2py/module-25-migrations)
+- **26 · D06** — [数据库测试与查询诊断：用隔离 PostgreSQL 证明失败、恢复和改进](/zh-cn/docs/js2py/module-26-database-testing)
 
-我们欢迎贡献！请确保：
-- 代码示例可在我们的编辑器中运行
-- 提供 JavaScript 和 Python 实现
-- 包含性能考虑
-- 遵循我们的文档标准
+### 身份、授权与可靠业务 · S01—S03
 
----
+- **27 · S01** — [身份与凭证生命周期：密码不是会话，登录不是授权](/zh-cn/docs/js2py/module-27-identity)
+- **28 · S02** — [对象级授权：知道别人的 ID，也不能操作别人的项目](/zh-cn/docs/js2py/module-28-authorization)
+- **29 · S03** — [可靠业务操作：事务、幂等回执与真实竞争](/zh-cn/docs/js2py/module-29-reliable-operations)
 
-**将您的 JavaScript 技能转化为 Python 精通！** 🐍 
+### 异步与外部服务 · A01—A02
+
+- **30 · A01** — [Python 异步执行模型：先拥有，再调度，再等待](/zh-cn/docs/js2py/module-30-async-model)
+- **31 · A02** — [外部服务与异步资源生命周期：让可选依赖真的可选](/zh-cn/docs/js2py/module-31-external-services)
+
+### 交付与维护 · O01—O06
+
+- **32 · O01** — [操作系统与服务：知道进程在谁的目录里、以谁的权限活着](/zh-cn/docs/js2py/module-32-operating-system)
+- **33 · O02** — [容器与可部署应用：镜像不是数据，健康也不是业务正确](/zh-cn/docs/js2py/module-33-containers)
+- **34 · O03** — [网络入口与 HTTPS：验证连接，也验证你信任了谁](/zh-cn/docs/js2py/module-34-https-production)
+- **35 · O04** — [持续集成、发布与回退：先证明兼容，再切换代码](/zh-cn/docs/js2py/module-35-release)
+- **36 · O05** — [日志、监控与故障定位：让一次失败留下安全证据](/zh-cn/docs/js2py/module-36-observability)
+- **37 · O06** — [备份、恢复与受控上线：文件存在不等于数据可用](/zh-cn/docs/js2py/module-37-recovery)
+
+### 独立毕业项目 · G01
+
+- **38 · G01** — [毕业验收：独立交付任务评论，而不是再跟一次教程](/zh-cn/docs/js2py/module-38-graduation)
+
+**始终分开四种结论：** 教材正文完成、参考实验实跑通过、你独立具备交付能力、服务真正受控上线。每章都要处理正常输入和失败输入；独立练习先完成自己的尝试，再展开答案。格式检查变绿、存在备份文件或能访问一次页面，都不能替代行为验收、真实恢复和维护证据。
+
+## 从哪里开始？
+
+从[第 00 章：读懂并运行第一份脚本](/zh-cn/docs/js2py/module-00-python-introduction)开始。本章只用 uv 准备和选择 CPython 3.13，不教学整套工程配置；虚拟环境、锁文件和 pytest 在具备语言与模块基础之后再系统学习。
+
+普通 Python 函数使用 `def`，并不需要 `self`；实例方法才会涉及显式的实例参数。Python 的 async/await 与 JS 表面相似，也不表示调度和执行行为完全一样。我们会通过可验证的例子建立准确联系，不用一句“对应关系”抹平差异。
+
+学习时间可以不固定。每次结束时记录当前代码状态、通过的测试、仍不理解的问题和下次第一步。按能力验收推进，而不是按周数赶进度。

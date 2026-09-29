@@ -1,0 +1,21 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "delete-again",
+  "precondition": {
+    "seed_tasks": []
+  },
+  "request": {
+    "method": "DELETE",
+    "target": "/tasks/1",
+    "headers": {}
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "detail": "Task not found"
+    }
+  }
+}

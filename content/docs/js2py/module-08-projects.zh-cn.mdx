@@ -1,248 +1,319 @@
 ---
-title: "Python 实战项目"
-description: "通过构建真实世界的项目，巩固你的 Python 技能，并将所学知识融会贯通。"
+title: 环境与依赖管理
+description: 从“这份代码为什么只在我的机器上能运行”出发，理解解释器、虚拟环境、依赖声明与锁文件；定位真实安装失败，并从干净目录恢复一个小应用。
 ---
 
-## 1. 引言
+import { getEnvironmentExample } from '@/lib/js2py-examples'
 
-### 从理论到实践
+## 1. 现在才建立工程环境，解决的是哪个问题？
 
-你已经学习了 Python 的基础语法、Web 开发、数据处理等核心知识。现在，是时候将这些知识应用到真实世界的项目中了。通过动手实践，你将更深刻地理解 Python 的强大之处，并获得宝贵的开发经验。
+L00—L07 已经让你独立运行、拆分、排错和保存一个 Python 程序。直到这里，我们才引入完整的环境声明：你现在能够区分“业务程序写错了”和“运行程序的解释器缺少依赖”，也知道配置文件本身不会替你执行代码。
 
-本模块将提供几个不同领域的实战项目，每个项目都将综合运用前面模块学到的技能，并提供与 JavaScript/Node.js 实现的对比思路。
+想象你给同事发了一个可以运行的目录。同事的 Python 版本不同，或者你的电脑曾经全局装过一个包，而源码没有说明。**相同源码不等于相同运行条件。** 环境管理要把这些隐含条件变成可检查的文件和重建步骤，而不是让别人猜你的终端历史。
 
-> 💡 **学习策略**：选择一个你最感兴趣的项目开始。尝试独立完成它，遇到问题时，回顾前面的模块或查阅官方文档。关键在于“做”而不是“看”。
+本章使用一个极小的第三方功能：把 1536 字节显示为 `1.5 KiB`。它不是为了介绍所有格式化 API，而是让“缺少依赖、选错解释器、从声明恢复”产生看得见的结果。
 
-## 2. 项目一：URL 缩短服务
+| 契约 | 本章要求 |
+| --- | --- |
+| 前置 | L06 的导入、模块搜索与入口；L07 的文件与路径 |
+| 新能力 | 解释器定位、隔离环境、声明、解析、安装、锁定与重建 |
+| 独立验收 | 从空目录构建小应用，恢复依赖，定位至少一次依赖失败 |
+| 暂不要求 | 发布包、构建后端、多个包管理器、pytest、容器和 FastAPI |
 
-### 项目描述
+下载 [L08 实验与参考答案](/learning-assets/js2py/u08-environments.zip)，完整解压到 `u08-environments`，在此目录打开终端。**本章命令不再使用 `--no-project`**：前面的开关是为了不依赖外层工程，这一章正要使用自己的工程声明。
 
-构建一个功能齐全的 URL 缩短服务，类似于 `bit.ly`。用户可以提交一个长 URL，服务会返回一个短 URL。当访问短 URL 时，应重定向到原始的长 URL。
+实际验收基线：**2026-09-28，CPython 3.13.15、uv 0.12.13、humanize 4.13.0**。这是可核对的组合，不是“最新版”或永久安全承诺。首次恢复需要取得对应解释器和发行包，可能联网；锁文件不是离线安装文件。
 
-**核心功能**
+## 2. 先区分四个参与者
 
-*   使用 FastAPI 构建 API 端点。
-*   使用 Pydantic 进行数据验证。
-*   使用 SQLite 或其他数据库存储 URL 映射。
-*   生成唯一的短 URL 标识符。
-*   实现重定向逻辑。
+**Python 解释器**读取并执行 Python 代码。**uv** 是管理解释器、解析依赖和运行项目命令的工具，本身不是 Python 解释器。**虚拟环境**是某个项目使用的解释器入口与安装目录。**项目源码**才定义业务行为。四者不能因为终端里都出现一个命令而混为一谈。
 
-<PythonEditor title="URL 缩短服务：FastAPI 实现思路" compare={true} canRun={false} height={900}>
-```javascript !! js
-// JavaScript (Express + nanoid)
-const express = require('express');
-const { nanoid } = require('nanoid');
+你在前端熟悉的“源码 + package.json + 锁文件 + node_modules”可以帮助建立类比：声明和安装结果不是同一种文件。但不要直接把 `.venv` 当成纯粹换名的 `node_modules`：Python 环境还有自己的解释器入口、前缀和包搜索路径；运行哪一个 Python，决定了它能够导入哪些安装内容。
 
-const app = express();
-app.use(express.json());
+在未激活环境的终端里，裸写 `python` 或 `python3`，Shell 会按自己的 PATH 找程序。编辑器运行按钮也可能选另一个解释器。不能凭“我刚装过 humanize”推断当前进程一定能导入它。
 
-const urlDatabase = {}; // 简单内存存储
+先检查工具，而不是先安装一堆东西：
 
-app.post('/shorten', (req, res) => {
-  const { longUrl } = req.body;
-  const shortId = nanoid(7);
-  urlDatabase[shortId] = longUrl;
-  res.json({ shortUrl: `http://localhost:3000/${shortId}` });
-});
-
-app.get('/:shortId', (req, res) => {
-  const longUrl = urlDatabase[req.params.shortId];
-  if (longUrl) {
-    res.redirect(longUrl);
-  } else {
-    res.status(404).send('Not Found');
-  }
-});
-
-app.listen(3000);
+```bash
+uv --version
 ```
 
-```python !! py
-# Python (FastAPI + SQLite)
-import secrets
-import sqlite3
-from fastapi import FastAPI, HTTPException, Depends
-from pydantic import BaseModel
-from starlette.responses import RedirectResponse
+如果连这个命令都找不到，Python 源码尚未运行。回到 L00 的安装与终端 PATH 检查；重新打开终端或核对工具位置，不要把业务文件改成能够绕过工具缺失的样子。
 
-# -- 数据库设置 --
-DATABASE_URL = "urls.db"
+## 3. 一个目录里，哪些是输入，哪些是结果？
 
-def get_db():
-    conn = sqlite3.connect(DATABASE_URL)
-    try:
-        yield conn
-    finally:
-        conn.close()
+实验根目录的重要部分如下；练习和答案目录各自另有声明，先不要进入它们：
 
-# -- Pydantic 模型 --
-class URLBase(BaseModel):
-    target_url: str
-
-class URLInfo(URLBase):
-    is_active: bool
-    clicks: int
-
-# -- FastAPI 应用 --
-app = FastAPI()
-
-@app.post("/shorten")
-def create_url(url: URLBase, db: sqlite3.Connection = Depends(get_db)):
-    short_id = secrets.token_urlsafe(5)
-    # ... (将 short_id 和 url.target_url 存入数据库)
-    return {"short_url": f"http://localhost:8000/{short_id}"}
-
-@app.get("/{short_id}")
-def forward_to_target_url(short_id: str, db: sqlite3.Connection = Depends(get_db)):
-    # ... (从数据库中查找 long_url)
-    # ... (更新点击次数)
-    # return RedirectResponse(long_url)
-    pass
-```
-</PythonEditor>
-
-## 3. 项目二：命令行天气应用
-
-### 项目描述
-
-创建一个命令行工具，用户可以输入城市名称，程序将从天气 API (如 OpenWeatherMap) 获取并显示当前的天气信息。
-
-**核心功能**
-
-*   使用 `argparse` 或 `typer` 解析命令行参数。
-*   使用 `httpx` 或 `requests` 调用第三方 API。
-*   处理 API 响应 (JSON)。
-*   在终端中格式化并显示天气信息。
-
-<PythonEditor title="命令行天气应用：Python 实现思路" compare={true} canRun={false} height={900}>
-```javascript !! js
-// JavaScript (Node.js + axios + yargs)
-const axios = require('axios');
-const yargs = require('yargs/yargs');
-const { hideBin } = require('yargs/helpers');
-
-const argv = yargs(hideBin(process.argv)).argv;
-
-async function getWeather(city) {
-  try {
-    const apiKey = 'YOUR_API_KEY';
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
-    const response = await axios.get(url);
-    console.log(`Weather in ${city}:`);
-    console.log(`- Temp: ${response.data.main.temp}°K`);
-    console.log(`- Description: ${response.data.weather[0].description}`);
-  } catch (error) {
-    console.error('Error fetching weather data');
-  }
-}
-
-if (argv.city) {
-  getWeather(argv.city);
-}
+```text
+u08-environments/
+  .python-version
+  pyproject.toml
+  uv.lock
+  app.py
+  probe.py
+  .venv/              # created locally; not in the download
 ```
 
-```python !! py
-# Python (Typer + httpx)
-import typer
-import httpx
+| 文件或目录 | 谁负责 | 它解决什么问题 | 它不保证什么 |
+| --- | --- | --- | --- |
+| `.python-version` | 作者选择，uv 读取 | 本项目请求哪一个 Python 版本 | 不安装第三方依赖，也不替代兼容范围 |
+| `pyproject.toml` | 作者维护 | 项目元数据、Python 兼容范围与直接依赖 | 一个允许范围不等于已经选定的整棵依赖图 |
+| `uv.lock` | uv 解析生成，作者审查 | 记录选定版本、来源、文件哈希和相关解析信息 | 不携带包内容、不证明包安全、不锁住全部操作系统条件 |
+| `.venv/` | uv 创建/同步 | 本机实际安装结果 | 不适合复制到不同目录/机器，不是应提交的项目源码 |
+| 应用与测试源码 | 作者维护 | 业务逻辑及其验收 | 不能单独说明解释器和外部包条件 |
 
-API_KEY = "YOUR_API_KEY"
+提交到版本控制的是源码、声明、版本选择与锁文件；不要提交 `.venv`、缓存或真实秘密。共享项目也不能依赖你已经激活的某个环境。这里的示例没有私有包源、密钥或 `.env`。
 
-def main(city: str):
-    """获取并显示指定城市的天气信息"""
-    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}"
-    try:
-        with httpx.Client() as client:
-            response = client.get(url)
-            response.raise_for_status()
-            data = response.json()
-            print(f"Weather in {city}:")
-            print(f"- Temp: {data['main']['temp']}°K")
-            print(f"- Description: {data['weather'][0]['description']}")
-    except httpx.HTTPStatusError as e:
-        print(f"Error: Unable to fetch weather data for {city}. {e.response.status_code}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+## 4. 读懂声明，而不是复制完就跳过
 
-if __name__ == "__main__":
-    typer.run(main)
+`.python-version` 的完整内容：
 
-# 运行: python weather_app.py London
-```
-</PythonEditor>
+<Code language="text">{getEnvironmentExample('.python-version')}</Code>
 
-## 4. 项目三：数据分析与可视化报告
+我们为了复现实验选择补丁版本 3.13.15。生产应用仍需有计划地更新并重新验证；把版本固定下来不是拒绝安全更新的理由。
 
-### 项目描述
+`pyproject.toml`：
 
-从一个 CSV 数据集（例如，关于销售、电影或任何你感兴趣的主题）中提取、分析数据，并生成一个简单的 HTML 报告，其中包含关键指标和图表。
+<Code language="toml">{getEnvironmentExample('pyproject.toml')}</Code>
 
-**核心功能**
+这不是 Python 或 JSON，而是 TOML。`[project]` 打开一个配置表，后面的 `key = value` 属于该表；双引号是字符串，方括号中的逗号分隔项是数组。`[tool.uv]` 是 uv 专属配置。你需要读懂本例用到的几种形式，不需要先背完整 TOML 规范。
 
-*   使用 `pandas` 读取和清洗 CSV 数据。
-*   进行数据聚合和分析（例如，计算平均值、总和、分组）。
-*   使用 `matplotlib` 或 `seaborn` 创建图表（如条形图、折线图）。
-*   将图表保存为图片。
-*   使用 `jinja2` 模板引擎生成 HTML 报告。
+- `name` 是项目元数据的名称，不是让 Python 自动生成一个同名模块。`version` 是这个项目自身的版本，不是解释器版本。
+- `requires-python = ">=3.13,<3.14"` 说明接受 3.13 系列。它是范围；具体选择由版本文件和工具共同确定。两者互相矛盾时应修复声明，而不是忽略错误。
+- `dependencies` 是程序运行时需要的**发行包**。`humanize==4.13.0` 在本次课程中精确选择版本；它不是在执行 `import`。
+- `package = false` 明确本例是无需安装自身的本地应用。我们从项目目录运行文件；暂时不制作可发布发行包，不需要提前引入构建系统。
 
-<PythonEditor title="数据分析报告：Python 实现思路" compare={true} canRun={false} height={900}>
-```javascript !! js
-// JavaScript (Node.js + danfo.js + chart.js)
-// 这个过程在 Node.js 中相对繁琐，通常需要多个库的配合，
-// 并且图表生成通常在客户端完成。
-// 伪代码思路：
-// 1. 使用 danfo.js 或类似库读取 CSV。
-// 2. 进行数据操作。
-// 3. 将数据传递给一个模板引擎 (e.g., EJS)。
-// 4. 在模板中，使用 Chart.js 的脚本来渲染图表。
+发行包名是安装工具识别的名称，导入名是 Python 寻找模块的名称，两者不保证相同。本例恰好都叫 humanize；不要看到一个陌生 import 就去网络上猜同名包安装。先查该库的官方安装说明，也不要把标准库 `json`、`pathlib` 当成缺失的第三方依赖。
+
+## 5. 第一次同步：从文件到可以运行的环境
+
+确认终端位于实验根目录，运行：
+
+```bash
+uv sync --locked
+uv run --locked python probe.py
+uv run --locked python app.py
 ```
 
-```python !! py
-# Python (Pandas + Matplotlib + Jinja2)
-import pandas as pd
-import matplotlib.pyplot as plt
-from jinja2 import Environment, FileSystemLoader
+第一条读取本项目声明与锁文件，检查它们相容，选择解释器，并创建/同步本地 `.venv`。第二条在项目环境内启动 Python，再由这个 Python 执行探针。第三条执行真正的业务入口。你没有先激活环境，这是有意的：命令自身清楚表达“使用本项目”。
 
-# 1. 数据分析
-df = pd.read_csv("sales_data.csv")
-total_sales = df["sales"].sum()
-top_products = df.groupby("product")["sales"].sum().nlargest(5)
+`probe.py`：
 
-# 2. 创建图表
-plt.figure()
-top_products.plot(kind="bar")
-plt.title("Top 5 Products by Sales")
-plt.savefig("top_products.png")
+<Code language="python">{getEnvironmentExample('probe.py')}</Code>
 
-# 3. 生成 HTML 报告
-env = Environment(loader=FileSystemLoader('.'))
-template = env.get_template("report_template.html")
+`sys.executable` 是**当前进程真正使用的可执行文件路径**；`sys.prefix` 与 `sys.base_prefix` 不同，表明正在普通虚拟环境中运行。`importlib.metadata.version` 读取已安装发行包的元数据；`humanize.__file__` 则指出实际导入的模块文件。包已安装和导入到了谁，是相关但不相同的两个问题。
 
-html_content = template.render(
-    total_sales=total_sales,
-    top_products_table=top_products.to_html()
-)
+路径因你的解压位置和操作系统不同而变化，其他关键值应为：
 
-with open("report.html", "w") as f:
-    f.write(html_content)
-
-# report_template.html (Jinja2 模板)
-# <!DOCTYPE html>
-# <html>
-# <head><title>Sales Report</title></head>
-# <body>
-#   <h1>Sales Report</h1>
-#   <p>Total Sales: {{ total_sales }}</p>
-#   <h2>Top Products</h2>
-#   {{ top_products_table|safe }}
-#   <img src="top_products.png">
-# </body>
-# </html>
+```text
+Python: 3.13.15
+Executable: <your project environment Python>
+Isolated: True
+Distribution: 4.13.0
+Imported from: <your environment>/site-packages/humanize/__init__.py
+Size: 1.5 KiB
 ```
-</PythonEditor>
 
-## 5. 总结
+尖括号只是这里说明机器差异的占位，不是让你创建那样的路径，也不是完整逐字输出断言。macOS/Linux 通常使用 `.venv/bin/python`，Windows 通常使用 `.venv/Scripts/python.exe`。确认编辑器使用这个环境中的解释器；不要靠终端成功推断编辑器也已选对。
 
-完成这些项目后，你将不仅仅是一个“知道”Python 的人，而是一个能够“使用”Python 解决实际问题的人。你的技能将得到极大的提升，并且你将对 Python 生态系统有更深入的了解。
+`app.py`：
 
-不要止步于此！尝试扩展这些项目，添加新功能，或者寻找你自己的项目想法。编程学习的最好方式就是不断地创造和实践。
+<Code language="python">{getEnvironmentExample('app.py')}</Code>
+
+```text
+Files: 3
+Bytes: 1536
+Readable: 1.5 KiB
+```
+
+业务流程仍然只是 L03—L04 已学过的累加和函数调用。`humanize.naturalsize(..., binary=True)` 只负责把总字节数转换成二进制单位的可读文本，不参与计算总和。保留原始字节数输出，避免用展示字符串反过来充当计算数据。
+
+## 6. 声明、解析、锁定、同步不是同一个动作
+
+创建一个没有锁文件的新项目时，`uv lock` 根据声明解析出具体版本并生成锁文件；`uv sync` 再使环境满足选定依赖。日常 `uv run` 也会检查项目，并按需要锁定和同步后再运行命令。
+
+关键不是背命令数量，而是理解**谁会改变哪个状态**：
+
+| 命令 | 主要用途 | 本章需要观察的变化 |
+| --- | --- | --- |
+| `uv add "humanize==4.13.0"` | 有意增加直接运行依赖 | 声明、锁文件与环境通常一起更新 |
+| `uv lock` | 从声明解析或更新锁 | 不等于安装，也不等于强制升级所有包 |
+| `uv sync --locked` | 按相容锁文件恢复环境 | 不允许悄悄修改锁；默认精确同步会移除多余安装包 |
+| `uv run --locked python app.py` | 检查锁并在项目环境运行 | uv run 默认非精确同步，不能据此证明多余包不存在 |
+| `uv remove humanize` | 有意移除直接依赖 | 更新声明/锁/环境，但不会替你删除源码里的 import |
+
+**`--locked` 不是 `--frozen`。** 前者要求锁与声明相容，否则失败；后者使用已有锁而不检查它是否仍符合声明。这里用 `--locked` 是为了暴露陈旧锁，不建议遇到错误就换 `--frozen` 隐藏矛盾。`--no-sync` 也不是修复命令，它会跳过你本来需要检查的环境同步。
+
+对于验证“只有声明过的依赖也能运行”，先执行 `uv sync --locked`，再运行程序，比单独看到一次 `uv run` 成功更有证据。不要把工具默认保留的额外安装误当作程序已经可复现。
+
+## 7. 锁文件为什么需要保留，又为什么不能神化？
+
+实验的完整 `uv.lock`：
+
+<Code language="toml">{getEnvironmentExample('uv.lock')}</Code>
+
+先找到两个 package 条目：一个是 humanize 发行包，一个是本地虚拟项目。前者包含版本、公共来源、可用发行文件及其哈希；后者连接本项目的依赖要求。当前依赖很小，所以图很简单。后续一个直接依赖可能再依赖多个包，锁文件会记录解析结果，不能只抄顶层版本就称作完整恢复。
+
+你无需手写这些长 URL 或哈希。**声明表达意图，解析器生成锁，作者审查变化。** 不要为了让检查变绿手改锁中的版本号，因为来源、文件哈希和依赖关系可能已经不相符。
+
+锁文件不能代替 Python 选择、操作系统说明、数据库版本、秘密配置、数据备份或测试。哈希帮助核对取得的发行文件，不证明其中的代码没有漏洞。跨平台的锁信息也不保证所有本地扩展和系统库都能在每台机器上编译。
+
+本例只使用公共 PyPI，选择纯 Python 依赖减少第一轮环境实践中的系统构建噪声。这是教学边界，不是以后只会遇到纯 Python 包的承诺。
+
+## 8. 亲手制造陈旧锁，而不是只读“应该提交锁文件”
+
+先复制整个下载到一个**新的实验目录，但不要复制 `.venv` 和缓存**。在副本中，把根声明的 humanize 版本从 4.13.0 改为 4.12.0，保留旧锁文件：
+
+```bash
+uv run --locked python app.py
+```
+
+预期是 **uv 在启动 Python 之前拒绝陈旧锁**。4.13.0 已经不满足新的精确要求；这不是业务 traceback，也不是 app 的求和错误。不要改业务文件来修环境。
+
+若目的是回到教材原样，恢复原来的声明，再执行同步与运行。若你确实打算变更依赖，则有意更新声明与锁，检查变更，恢复环境，再验证程序行为。二者都是合理动作，但表达了不同意图。
+
+仅改变一个仍然允许当前锁定版本的范围，不一定导致锁失效，因此本实验用**排除旧版本的精确要求**。我们验证的是相容关系，不是“文件有改动就必须报错”的错误模型。
+
+## 9. 三种“包的问题”，不能用同一个重装命令解决
+
+### 缺少声明
+
+进入独立练习目录。它自己的声明没有 humanize：
+
+<Code language="toml">{getEnvironmentExample('exercises/missing-declaration/pyproject.toml')}</Code>
+
+<Code language="python">{getEnvironmentExample('exercises/missing-declaration/app.py')}</Code>
+
+```bash
+cd exercises/missing-declaration
+uv sync --locked
+uv run --locked python app.py
+```
+
+这里应出现 **ModuleNotFoundError**。先确认 cwd 与本项目环境，再把实际运行依赖加入声明：
+
+```bash
+uv add "humanize==4.13.0"
+uv run --locked python app.py
+cd ../..
+```
+
+修复后输出 `2.0 KiB`。检查两个文件：声明新增了依赖，锁中也出现了对应解析。只在某个环境里临时安装成功、却不修改声明，不算修好独立重建能力。
+
+### 安装成功，但导入了本地同名文件
+
+根目录的已安装包不缺失，下面仍然会失败：
+
+<Code language="python">{getEnvironmentExample('errors/humanize.py')}</Code>
+
+<Code language="python">{getEnvironmentExample('errors/show_shadow.py')}</Code>
+
+```bash
+uv run --locked python errors/show_shadow.py
+```
+
+先打印的是 `errors/humanize.py` 的实际路径，再出现 **AttributeError**：这个本地模块没有 `naturalsize`。L06 的模块搜索规则没有因为建立 `.venv` 就失效。重装发行包不会改变本地命名冲突。在副本中将这个本地文件改名，再启动一个新进程观察实际来源；不要修改 site-packages。
+
+### 下载失败，还没轮到 import
+
+DNS、网络、包源认证、TLS 或没有对应发行文件，都可能让同步失败。离线且冷缓存的机器不能凭 `uv.lock` 生成包内容。此时应阅读 uv 的下载/解析诊断，不要给 app 添加 except，也不要关闭证书校验或把真实私有源凭据粘贴进教材和日志。
+
+按顺序问：**工具能否启动 → 项目与解释器选对了吗 → 声明和锁相容吗 → 安装完成了吗 → 实际导入来源是什么 → 业务运行是否正确？**
+
+## 10. 激活不是必须，也不是在复制一个环境
+
+激活主要改变当前 Shell 的命令搜索与环境，使你直接写 `python` 更容易选中 `.venv`。它没有把依赖装进源码，也不会永久修改所有终端。不同 Shell 的激活命令不同，所以本书的主路径统一使用 `uv run`，减少隐藏会话状态。
+
+不要把其他项目已激活的环境带入本项目并假设工具一定按你的意图选择。若工具提示 VIRTUAL_ENV 与项目环境不一致，先确认你要操作的是哪个项目，不要随意加“使用当前活动环境”的开关。
+
+恢复验证的方法不是复制 `.venv`，而是准备另一个干净目录，复制**源码、声明、版本文件与锁**，执行：
+
+```bash
+uv sync --locked
+uv run --locked python app.py
+```
+
+这比删除唯一工作环境再祈祷能恢复更安全，也会暴露漏提交的依赖。原始数据、秘密与其他外部服务不在这份环境恢复证据里，未来要分别验收。
+
+## 11. 三层练习：解释、修复、独立恢复
+
+### A. 先预测，再运行
+
+1. 锁文件存在，是否代表 `.venv` 已经安装？
+2. `uv run --locked` 成功，是否代表没有额外包？
+3. ModuleNotFoundError、陈旧锁拒绝、同名遮蔽 AttributeError 分别发生在哪一层？
+4. 安装了某个发行包，为什么仍要查看 `__file__`？
+
+<details>
+<summary>解释核对——先写自己的依据</summary>
+
+锁只是解析信息，不是安装目录。uv run 默认非精确同步，不能证明没有额外包；需要受控的精确同步或干净恢复。陈旧锁在启动业务前由工具拒绝；缺少模块在 Python 导入时失败；本地同名文件则可能成功导入错误模块，再访问不存在的属性。发行元数据与实际模块来源需要分别观察。
+
+</details>
+
+### B. 修复但不掩盖
+
+在下载副本中完成缺声明和同名遮蔽两个实验。保留失败命令、退出是否非零、报错层次、修改了哪些文件，以及新进程的成功输出。不要把原本应失败的命令包装成忽略错误，也不要删掉 import 让“功能不再存在”充当修复。
+
+<details>
+<summary>修复核对——为什么这些改动才解决根因？</summary>
+
+缺声明：在练习自己的项目目录中 `uv add "humanize==4.13.0"`，审查声明和锁，再运行。遮蔽：在副本将 `errors/humanize.py` 改成非冲突名称，再运行原入口；安装包仍保持原样。两者都应在没有原环境的干净目录再次验收，才能排除终端历史留下的偶然条件。
+
+</details>
+
+### C. 独立字节统计应用
+
+在下载之外新建空目录。只按以下需求实现，不从参考目录复制 `.venv`：
+
+- 声明 CPython 3.13 系列，选择 3.13.15，运行依赖 humanize 4.13.0，作为不发布的本地应用。
+- `total_bytes(sizes)` 接受 list；每项必须是普通非负 int，拒绝 bool、负数、float 和数字字符串。空列表合法，原输入不能被修改。
+- `report.py` 的受保护入口统计 `[1024, 512, 0]`，分别打印数量、原始字节数和二进制可读大小；导入不打印、不执行业务入口。
+- 根据自己的声明生成锁，再同步与运行。从第二个空目录复制声明、锁、版本文件和源码恢复，不能借用第一个环境。
+- 将输入改为 `[1024, 1024]`，结果应变为 2 个文件、2048 字节、`2.0 KiB`；空数组应为 0、0、`0 Bytes`。解释无效输入为什么在格式化前拒绝。
+
+<details>
+<summary>独立参考答案——实现并恢复后再展开</summary>
+
+`solutions/size-report/pyproject.toml`：
+
+<Code language="toml">{getEnvironmentExample('solutions/size-report/pyproject.toml')}</Code>
+
+`solutions/size-report/.python-version`：
+
+<Code language="text">{getEnvironmentExample('solutions/size-report/.python-version')}</Code>
+
+`solutions/size-report/report.py`：
+
+<Code language="python">{getEnvironmentExample('solutions/size-report/report.py')}</Code>
+
+参考锁文件包含在下载中，它来自该目录声明的实际解析，不要求手抄。从参考目录执行：
+
+```bash
+cd solutions/size-report
+uv sync --locked
+uv run --locked python report.py
+cd ../..
+```
+
+参考答案也不能代替独立的第二目录恢复。若它能运行而你的工程不能运行，对比所使用的解释器、声明、锁和导入来源，而不是直接整目录覆盖掉自己的实验记录。
+
+</details>
+
+## 12. 退出与暂停恢复
+
+能够解释四个参与者和四种文件的职责，重建环境，区分三类失败，并完成两目录独立验收之后，再继续 L09 基础自动化测试。下一章才系统引入 pytest，测试工具不会被偷偷放进这一章的作业门槛。
+
+暂停时记录：项目绝对路径、当前目录、uv/Python 版本、最后成功命令、是否已同步、声明与锁是否一致、下一步需要重现的失败。回来先运行探针核实解释器，不要第一步就删除环境、升级所有依赖或更换包源。
+
+## 13. 一手资料与边界
+
+资料于 2026-09-28 核对，命令行为以本章实测版本为基线：
+
+- [uv 项目指南](https://docs.astral.sh/uv/guides/projects/)与[依赖管理](https://docs.astral.sh/uv/concepts/projects/dependencies/)：声明、项目目录和有意的依赖变化。
+- [锁定与同步](https://docs.astral.sh/uv/concepts/projects/sync/)：locked/frozen、默认精确与非精确同步、依赖组。
+- [Python 版本选择](https://docs.astral.sh/uv/concepts/python-versions/)与[Python venv](https://docs.python.org/3.13/library/venv.html)：解释器选择、前缀与不可直接搬运的环境。
+- [发行包与导入包](https://packaging.python.org/en/latest/discussions/distribution-package-vs-import-package/)：两个命名空间不是一回事。
+- [humanize filesize](https://humanize.readthedocs.io/en/stable/filesize/)：本章只借用大小展示，计算与业务校验仍由自己的代码负责。
+
+本章没有证明生产部署、原生扩展的跨平台构建或依赖安全审计完成。锁文件、环境恢复和业务测试相互补充，任何一个都不能取代另外两个。

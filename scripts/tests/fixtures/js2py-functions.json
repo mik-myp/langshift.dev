@@ -1,0 +1,121 @@
+{
+  "files": {
+    "definition_and_call.py": {
+      "stdout": "Before definition\nAfter definition\nInside call\n25\n"
+    },
+    "errors/before_definition.py": {
+      "stdout": "",
+      "error": "NameError",
+      "error_line": 1
+    },
+    "arguments.py": {
+      "stdout": "25\n45\n20\n40\n"
+    },
+    "errors/missing_argument.py": {
+      "stdout": "",
+      "error": "TypeError",
+      "error_line": 6
+    },
+    "errors/duplicate_argument.py": {
+      "stdout": "",
+      "error": "TypeError",
+      "error_line": 6
+    },
+    "errors/unknown_keyword.py": {
+      "stdout": "",
+      "error": "TypeError",
+      "error_line": 6
+    },
+    "keyword_only.py": {
+      "stdout": "[todo] Read\n[done] Read\n"
+    },
+    "errors/positional_option.py": {
+      "stdout": "",
+      "error": "TypeError",
+      "error_line": 8
+    },
+    "return_paths.py": {
+      "stdout": "done\nunknown\npending\nReady: Read\nNone\nNone\n"
+    },
+    "errors/printed_result.py": {
+      "stdout": "25\n",
+      "error": "TypeError",
+      "error_line": 6
+    },
+    "default_values.py": {
+      "stdout": "20\n0\nNone\n35\n"
+    },
+    "pitfalls/shared_default.py": {
+      "stdout": "['python']\n['python', 'functions']\n['python', 'functions']\nTrue\n"
+    },
+    "fresh_defaults.py": {
+      "stdout": "['python']\n[]\nFalse\n['python']\n['python', 'copy']\nFalse\n"
+    },
+    "argument_binding.py": {
+      "stdout": "Read\nLocal\nFalse\nNone\n['python', 'functions']\n"
+    },
+    "local_scope.py": {
+      "stdout": "local: Read\nmodule\n20\n35\n"
+    },
+    "errors/local_before_binding.py": {
+      "stdout": "",
+      "error": "UnboundLocalError",
+      "error_line": 5
+    },
+    "function_values.py": {
+      "stdout": "True\nTrue\n['Practice']\nFalse\n"
+    },
+    "errors/not_callable.py": {
+      "stdout": "",
+      "error": "TypeError",
+      "error_line": 7
+    },
+    "closure_factory.py": {
+      "stdout": "False\nTrue\nTrue\nFalse\n"
+    },
+    "closure_binding.py": {
+      "stdout": "True\n"
+    },
+    "task_rules.py": {
+      "stdout": "Pending: 4\nKnown: 20 minutes\nUnknown: 1; invalid: 1\n['Read', 'Zero']\n0\n[]\n['Read', 'Zero']\n"
+    },
+    "solutions/fix_return.py": {
+      "stdout": "25\n0\n"
+    },
+    "solutions/study_rules.py": {
+      "stdout": "['python']\n['python', 'review']\n['python']\nFalse\nWithin 20: ['Read', 'Zero']\nWithin 40: ['Read', 'Practice', 'Zero']\nFalse\nSource tasks: 6\n"
+    }
+  },
+  "fences": {
+    "tuple_result": {
+      "stdout": "2\n15\n"
+    },
+    "positional_after_keyword": {
+      "stdout": "",
+      "error": "SyntaxError",
+      "error_line": 5
+    },
+    "default_comparison": {
+      "stdout": "1\n2\n"
+    },
+    "local_unavailable": {
+      "stdout": "Task: Read\n",
+      "error": "NameError",
+      "error_line": 7
+    },
+    "scope_repair": {
+      "stdout": "20\n25\n"
+    },
+    "exercise_alias": {
+      "stdout": "['Read', 'Review']\n['Local']\nFalse\n"
+    },
+    "exercise_missing_return": {
+      "stdout": "None\nNone\n"
+    }
+  },
+  "javascript": {
+    "default_comparison": {
+      "stdout": "1\n1\n"
+    }
+  }
+}

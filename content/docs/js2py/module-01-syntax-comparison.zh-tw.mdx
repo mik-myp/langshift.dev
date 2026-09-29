@@ -1,1102 +1,582 @@
 ---
-title: "JavaScript vs Python 語法對比"
-description: "從 JavaScript 開發者視角深入對比兩種語言的語法差異，快速掌握 Python 語法"
+title: "名稱、值與基本運算"
+description: "在第一份腳本之後，講透 Python 的名稱綁定、基本值、運算、None、字符串與顯式轉換，以預測、排錯和獨立計算腳本建立語言基礎，不提前混入函數、容器與工程配置。"
 ---
 
-## 1. 引言
+import { getScalarExample } from '@/lib/js2py-examples'
 
-### 為什麼需要語法對比？
+## 1. 從「能運行」走到「能解釋計算」
 
-作為 JavaScript 開發者，學習 Python 最大的挑戰之一就是適應不同的語法風格。通過系統性的語法對比，我們可以：
+上一章你已經親手保存並運行了 `.py` 文件，知道引號裡的文本與不帶引號的名稱不是一回事，也能根據報錯找到有問題的代碼。現在我們要讓腳本真正處理一點數據：給出一項任務的標題和預計分鐘數，把它變成清楚的時間說明。
 
-- 快速理解 Python 的語法規則
-- 避免常見的語法錯誤
-- 建立兩種語言之間的概念映射
-- 提高學習效率
+這個需求看起來很小，卻會暴露幾個不能直接套用 JS 的問題：`"95"` 能直接參加加法嗎？整數相除一定得到整數嗎？把名稱賦給另一個名稱，是建立響應式關聯還是保存當前綁定？沒有負責人應該寫成什麼？
 
-> 💡 **學習策略**：將 Python 語法視為 JavaScript 的"方言"，而不是完全陌生的語言
+本章逐個解決這些問題，不以一張語法對照表代替解釋。你不需要一次讀完；每個停靠點都能留下一個已理解、可運行的小成果。
 
-## 2. 基礎語法對比
+### 本章契約
 
-### 2.1 變量聲明和賦值
+| 項目 | 約定 |
+| --- | --- |
+| 前置能力 | 完成 L00：會保存並運行腳本，解釋名稱、字面量、賦值、`print` 和從上到下執行 |
+| 新能力 | 追蹤名稱綁定；區分基本值；計算、比較、轉換與格式化；識別兩類輸入相關錯誤 |
+| 獨立驗收 | 先預測再運行；解釋重新賦值為何不改變舊輸出；不看答案寫一個計算閱讀時間的小腳本，並通過輸入變式 |
+| 本章不要求 | 容器、循環、分支、自定義函數、作用域、類型註解、異常捕獲、模塊、環境配置、測試框架或 Web 服務 |
 
-<PythonEditor title="變量聲明和賦值對比" compare={true} height={400}>
-```javascript !! js
-// 變量聲明需要關鍵字
-let name = "張三";
-const age = 25;
-var oldWay = "不推薦";
+**調用內置函數不等於現在就要學會定義函數；觀察報錯也不等於現在就要學 `try/except`。** 我們只引入當前小問題確實需要的能力。
 
-// 解構賦值
-const [first, second] = [1, 2];
-const { name: userName, age: userAge } = { name: "李四", age: 30 };
+### 文件與運行方式
 
-// 模板字符串
-const message = `你好，${name}！你今年${age}歲。`;
-console.log(message);
+你可以逐段手寫，也可以下載 [L01 示例與獨立答案](/learning-assets/js2py/u01-scalars.zip)。解壓後用編輯器打開 `u01-scalars` 文件夾，並讓終端位於這個文件夾。頁面標出的每個 `.py` 都是獨立腳本，不需要先運行前一個文件。
+
+沿用 L00 已經驗證過的命令；下面以第一個文件為例：
+
+```bash
+uv run --no-project --python 3.13 python bindings.py
 ```
 
-```python !! py
-# 直接賦值，無需聲明關鍵字
-name = "張三"
-age = 25
+學到其他文件時，只替換末尾文件名，例如 `numbers.py`。本章使用 CPython 3.13，無第三方 Python 包；不創建項目、不安裝測試工具。若 `uv` 尚未可用，回到 [L00 的本地運行步驟](/zh-tw/docs/js2py/module-00-python-introduction)，不要同時開啟另一套安裝流程。
 
-# 解構賦值（Python 3.6+）
-first, second = 1, 2
-user_info = {"name": "李四", "age": 30}
-user_name, user_age = user_info["name"], user_info["age"] #模擬解構賦值（非自動解析）
+下載包的 `errors` 目錄是**故意報錯**的實驗，`solutions` 是先獨立嘗試後再看的答案。文件不是一個要一起啟動的服務。
 
-# 更優雅的解構方式
-user_info = {"name": "李四", "age": 30}
-user_name, user_age = user_info.values()
+## 2. 名稱綁定：不是給變量裝上一個固定類型的盒子
 
-# f-string（Python 3.6+）
-message = f"你好，{name}！你今年{age}歲。"
-print(message)
-```
-</PythonEditor>
+### 2.1 先預測三個輸出
 
-**關鍵差異對比**
+文件：`bindings.py`。
 
-| 特性 | JavaScript | Python | 說明 |
-|------|------------|--------|------|
-| **聲明方式** | `let/const/var` | 直接賦值 | Python 無需聲明關鍵字 |
-| **變量名** | camelCase | snake_case | Python 推薦下劃線命名 |
-| **常量** | `const` | 約定俗成（全大寫） | Python 沒有真正的常量 |
-| **字符串格式化** | 模板字符串 | f-string | 兩者都支持插值 |
+<Code language="python">{getScalarExample('bindings.py')}</Code>
 
-### 2.2 數據類型對比
+預期：
 
-**基本數據類型**
-
-<PythonEditor title="基本數據類型對比" compare={true}>
-```javascript !! js
-// JavaScript 基本類型
-let string = "文本";
-let number = 42;
-let boolean = true;
-let nullValue = null;
-let undefinedValue = undefined;
-let symbol = Symbol("unique");
-
-// 引用類型
-let array = [1, 2, 3];
-let object = { key: "value" };
-let functionName = () => {};
-
-console.log(typeof string);
-console.log(typeof number);
-console.log(typeof boolean);
-console.log(typeof nullValue);
-console.log(typeof undefinedValue);
-console.log(typeof symbol);
-console.log(typeof array);
-console.log(typeof object);
-console.log(typeof functionName);
+```text
+30
+45
+30
 ```
 
-```python !! py
-# Python 基本類型
-string = "文本"
-number = 42
-boolean = True  # 注意大寫
-none_value = None  # 相當於 JavaScript 的 null
-complex_number = 3 + 4j  # 複數類型
+賦值可以分兩步看：先求右邊的值，再把左邊的名稱綁定到那個值所對應的對象。這裡說「對象」只是說明運行時的值有自己的類型和行為，不要求你已經學會編寫類。
 
-# 引用類型
-array = [1, 2, 3]  # 列表（可變）
-tuple_data = (1, 2, 3)  # 元組（不可變）
-dictionary = {"key": "value"}  # 字典
-set_data = {1, 2, 3}  # 集合
+| 執行語句 | `minutes` 此時綁定 | `saved_minutes` 此時綁定 | 新輸出 |
+| --- | --- | --- | --- |
+| `minutes = 30` | 整數 `30` | 尚未綁定 | 無 |
+| `saved_minutes = minutes` | 整數 `30` | 同一個整數值對象 | 無 |
+| `print(minutes)` | 整數 `30` | 整數 `30` | `30` |
+| `minutes = 45` | 整數 `45` | 仍是整數 `30` | 無 |
+| 後兩次輸出 | 整數 `45` | 整數 `30` | `45`，然後 `30` |
 
-print(type(string))
-print(type(number))
-print(type(boolean))
-print(type(none_value))
-print(type(complex_number))
-```
-</PythonEditor>
+`minutes = 45` 改的是名稱的綁定，不是把原來的整數 `30` 原地修改成 `45`。`saved_minutes` 也不是一條「以後持續讀取 minutes」的公式。它在賦值發生時讀取了一次右邊的值。
 
-**類型檢查對比**
+這裡也**不能反推「Python 賦值會自動複製數據」**。兩個名稱可以指向同一個對象；本例之所以沒有連帶修改，是因為我們重新綁定名稱，而整數本身不可變。容器的共享引用與修改在 L02 用另一組實驗講解；現在不用記憶地址、`id()` 或緩存規則來解釋這個程序。
 
-<PythonEditor title="類型檢查對比" compare={true}>
-```javascript !! js
-// JavaScript 類型檢查
-console.log(typeof "hello");        // "string"
-console.log(typeof 42);             // "number"
-console.log(typeof true);           // "boolean"
-console.log(typeof null);           // "object" (JavaScript 的著名 bug)
-console.log(typeof undefined);      // "undefined"
-console.log(Array.isArray([1,2,3])); // true
+終端已經打印的第一行同樣不會變成 `45`。`print` 是當時發生的一次輸出，不是訂閱名稱變化的 UI。
+
+### 2.2 與前端經驗的連接，以及類比的邊界
+
+你可以把本例的重新賦值與 JS 的 `let` 類比，但 Python 的普通賦值前沒有 `let`/`const` 聲明詞，也沒有因此獲得 JS `const` 的綁定限制。下面是命名慣例，不是語法保護：
+
+```python case=constant_convention
+MINUTES_PER_SESSION = 25
+MINUTES_PER_SESSION = 30
+print(MINUTES_PER_SESSION)
 ```
 
-```python !! py
-# Python 類型檢查
-print(type("hello"))        # <class 'str'>
-print(type(42))             # <class 'int'>
-print(type(True))           # <class 'bool'>
-print(type(None))           # <class 'NoneType'>
-print(isinstance([1,2,3], list))  # True
-```
-</PythonEditor>
+輸出：
 
-### 2.3 作用域對比
-
-作用域是編程中非常重要的概念，它決定了變量在代碼中的可見性和生命週期。JavaScript 和 Python 在作用域處理上有一些重要差異。
-
-#### 2.3.1 變量作用域
-
-<PythonEditor title="作用域示例" compare={true}>
-```javascript !! js
-// 全局作用域
-let globalVar = "我是全局變量";
-
-function testScope() {
-    // 函數作用域
-    let functionVar = "我是函數內變量";
-    
-    if (true) {
-        // 塊級作用域（ES6+）
-        let blockVar = "我是塊級變量";
-        console.log("塊內訪問:", blockVar);
-        console.log("塊內訪問函數變量:", functionVar);
-        console.log("塊內訪問全局變量:", globalVar);
-    }
-    
-    // 塊外無法訪問塊級變量
-    // console.log(blockVar); // 錯誤！
-    console.log("函數內訪問函數變量:", functionVar);
-    console.log("函數內訪問全局變量:", globalVar);
-}
-
-testScope();
-console.log("全局訪問全局變量:", globalVar);
-// console.log(functionVar); // 錯誤！
+```text
+30
 ```
 
-```python !! py
-# 全局作用域
-global_var = "我是全局變量"
+全大寫表示「作者希望把它當常量」，解釋器不會阻止上面的重新賦值。不要把團隊約定當作運行時約束。
 
-def test_scope():
-    # 函數作用域
-    function_var = "我是函數內變量"
-    
-    if True:
-        # Python 沒有塊級作用域！
-        block_var = "我是塊級變量"
-        print("塊內訪問:", block_var)
-        print("塊內訪問函數變量:", function_var)
-        print("塊內訪問全局變量:", global_var)
-    
-    # 塊外仍然可以訪問塊級變量
-    print("函數內訪問塊級變量:", block_var)
-    print("函數內訪問函數變量:", function_var)
-    print("函數內訪問全局變量:", global_var)
+本書普通名稱採用 `snake_case`，例如 `saved_minutes`。名稱大小寫敏感，`minutes` 與 `Minutes` 不同；不能以數字開頭，不能佔用 `class` 等關鍵字。也不要把 `print`、`str`、`int` 當自己的變量名，否則會遮住後面要調用的內置功能。局部作用域規則留到函數章節。
 
-test_scope()
-print("全局訪問全局變量:", global_var)
-# print(function_var)  # 錯誤！
-```
-</PythonEditor>
+**停靠點 A：** 不運行，解釋把第一行的 `30` 改成 `20` 後哪幾行輸出會變。若還覺得 `saved_minutes` 應該自動變成 `45`，先畫上述綁定表，而不是繼續背運算符。
 
-#### 2.3.2 全局變量修改
+## 3. 值有類型，名稱可以重新綁定
 
-<PythonEditor title="全局變量修改對比" compare={true}>
-```javascript !! js
-// JavaScript 全局變量修改
-let counter = 0;
+### 3.1 同樣的外觀，不同的值
 
-function increment() {
-    counter++; // 直接修改全局變量
-    console.log("計數器:", counter);
-}
+| 寫法 | 類型名 | 此處表達的含義 |
+| --- | --- | --- |
+| `30` | `int` | 整數，可以參與整數計算 |
+| `30.0` | `float` | 浮點數，用有限精度近似表示數值 |
+| `"30"` | `str` | 兩個字符組成的文本，不會因為像數字就自動變成整數 |
+| `True`、`False` | `bool` | 布爾值，首字母大寫 |
+| `None` | `NoneType` | 專門表示「此處沒有值」的對象，含義由業務約定 |
 
-function incrementLocal() {
-    let counter = 0; // 創建局部變量
-    counter++;
-    console.log("局部計數器:", counter);
-}
+我們把這些稱作本章的基本單值，便於與下一章的容器區別；這不是一種新的 Python 聲明語法。字符串也有序列行為，後面再展開。
 
-increment();
-increment();
-incrementLocal();
-console.log("全局計數器:", counter);
+`type(value)` 可以觀察當前值的類型。這裡先學會調用它，不需要研究元類。文件：`scalar_types.py`。
+
+<Code language="python">{getScalarExample('scalar_types.py')}</Code>
+
+預期：
+
+```text
+<class 'int'>
+<class 'float'>
+<class 'str'>
+<class 'bool'>
+<class 'NoneType'>
+<class 'int'>
+<class 'str'>
 ```
 
-```python !! py
-# Python 全局變量修改
-counter = 0
+`print(type(30))` 先調用內層 `type` 得到類型，再把結果交給外層 `print`。輸出裡的 `class` 是類型的顯示形式，不是提示你必須先寫一個類。
 
-def increment():
-    global counter  # 聲明使用全局變量
-    counter += 1
-    print("計數器:", counter)
+末尾的名稱 `minutes` 先綁定整數，後來綁定字符串；語言允許這樣做。但「允許重新綁定不同類型」不意味著「不同類型可以混著做所有運算」。程序越長，同一個名稱承擔互相沖突的含義就越難理解，因此真實代碼通常會用 `raw_minutes` 保存原始文本，用 `minutes` 保存轉換後的整數。
 
-def increment_local():
-    counter = 0  # 創建局部變量
-    counter += 1
-    print("局部計數器:", counter)
+### 3.2 表達式、結果與輸出是三件事
 
-increment()
-increment()
-increment_local()
-print("全局計數器:", counter)
+`30 + 15` 是會求出一個值的表達式。`total = 30 + 15` 保存它的結果；`print(total)` 才把結果寫到終端。僅把 `30 + 15` 寫在腳本一行上，不會像某些交互控制檯那樣自動回顯。
+
+後面的每個輸出示例都保留了 `print`，不是因為運算必須依賴它，而是為了讓你觀察計算結果。
+
+## 4. 數值運算：重點不是符號，而是結果規則
+
+### 4.1 先看正數，再檢查類型
+
+文件：`numbers.py`。先只預測前七行，再看後面三個邊界。
+
+<Code language="python">{getScalarExample('numbers.py')}</Code>
+
+完整輸出：
+
+```text
+9
+5
+14
+3.5
+3
+1
+49
+3.0
+-4
+1
+```
+
+| 表達式 | 結果 | 原因 |
+| --- | --- | --- |
+| `7 + 2`、`7 - 2`、`7 * 2` | `9`、`5`、`14` | 加、減、乘 |
+| `7 / 2` | `3.5` | 真除法；兩個整數使用 `/` 也得到浮點結果 |
+| `7 // 2` | `3` | 向下取整的除法，不是保留小數部分 |
+| `7 % 2` | `1` | 與整除結果配對的餘數 |
+| `7 ** 2` | `49` | 冪運算；不要用 `^` 代替乘方 |
+| `7.0 // 2` | `3.0` | 結果向下取整，但有浮點操作數時結果仍是 `float` |
+
+同樣，`8 / 2` 是 `4.0`，不是 `4`。`//` 的「整」指取整規則，不能簡單記作「返回 int 的除號」。這些規則來自 Python 的[數值類型定義](https://docs.python.org/3.13/library/stdtypes.html#numeric-types-int-float-complex)。
+
+乘除比加減優先；有意圖不清的組合就寫括號，不靠讀者猜：
+
+```python case=precedence
+print(2 + 3 * 4)
+print((2 + 3) * 4)
+print(-(3 ** 2))
+print((-3) ** 2)
+```
+
+輸出：
+
+```text
+14
+20
+-9
+9
+```
+
+最後兩行分別是「平方後取負」與「負數整體平方」。現在先用括號表達清楚意圖，不需要背完全部運算符優先級。除數為零會報 `ZeroDivisionError`，不是得到 JavaScript Number 的 `Infinity`；本章不要把零作為時間換算的除數。
+
+### 4.2 負數會揭穿「去掉小數」的誤解
+
+`-7 / 2` 是 `-3.5`；向下取整是走向更小的整數，所以 `-7 // 2` 是 `-4`，不是 `-3`。與它配對的餘數是 `1`，因為：
+
+```text
+-7 = (-4) * 2 + 1
+```
+
+對整數且除數不為零，商和餘數滿足 `a == (a // b) * b + a % b`。在非零餘數的情況下，Python 整數 `%` 的結果與除數同號。JS 的 `%` 使用餘數規則，不是同一套負數行為；例如 JS 的 `-7 % 2` 是 `-1`。需要核對時查看 [Python 表達式參考](https://docs.python.org/3.13/reference/expressions.html#binary-arithmetic-operations)和 [JS remainder 說明](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder)。
+
+本章產物用正分鐘數，不需要依賴負數取餘做業務功能；這裡的實驗是為了防止把 `//` 錯記成「砍掉小數」。
+
+### 4.3 大整數和小數：兩種不同的精度問題
+
+下面的靜態對照展示兩種語言的邊界；本章以本地 CPython 的運行結果驗收，不依賴網頁運行器。
+
+<PythonEditor title="Python int 與 JavaScript Number" compare={true} canRun={false}>
+```javascript case=integer_precision
+console.log(2 ** 53);
+console.log(2 ** 53 + 1);
+```
+
+```python case=integer_precision
+print(2 ** 53)
+print(2 ** 53 + 1)
 ```
 </PythonEditor>
 
-#### 2.3.3 閉包對比
+Python 輸出：
 
-**JavaScript 閉包**
-
-<PythonEditor title="閉包對比" compare={true}>
-```javascript !! js
-// JavaScript 閉包
-function createCounter() {
-    let count = 0;
-    
-    return {
-        increment: function() {
-            count++;
-            return count;
-        },
-        getCount: function() {
-            return count;
-        }
-    };
-}
-
-const counter1 = createCounter();
-const counter2 = createCounter();
-
-console.log(counter1.increment()); // 1
-console.log(counter1.increment()); // 2
-console.log(counter2.increment()); // 1
-console.log(counter1.getCount());  // 2
-console.log(counter2.getCount());  // 1
+```text
+9007199254740992
+9007199254740993
 ```
 
-```python !! py
-# Python 閉包
-def create_counter():
-    count = 0
-    
-    def increment():
-        nonlocal count  # 聲明使用外層變量
-        count += 1
-        return count
-    
-    def get_count():
-        return count
-    
-    return {
-        'increment': increment,
-        'get_count': get_count
-    }
+JS Number 兩行都輸出 `9007199254740992`。Python `int` 不受 JS Number 的安全整數範圍約束，會在可用資源範圍內保持整數精度；這不代表計算和內存無限。JS 的 `BigInt` 是另一種類型，不能把這裡的對照擴展成「JS 無法處理大整數」。詳見 [Number.MAX_SAFE_INTEGER](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER)。
 
-counter1 = create_counter()
-counter2 = create_counter()
+`float` 則不能精確存儲所有十進制小數：
 
-print(counter1['increment']())  # 1
-print(counter1['increment']())  # 2
-print(counter2['increment']())  # 1
-print(counter1['get_count']())  # 2
-print(counter2['get_count']())  # 1
-```
-</PythonEditor>
-
-**作用域關鍵差異總結**
-
-| 特性 | JavaScript | Python | 說明 |
-|------|------------|--------|------|
-| **塊級作用域** | ES6+ 支持 | 不支持 | Python 的 if/for 不創建新作用域 |
-| **全局變量聲明** | 直接修改 | 需要 `global` 關鍵字 | Python 更嚴格 |
-| **閉包變量** | 自動捕獲 | 需要 `nonlocal` 關鍵字 | Python 需要顯式聲明 |
-| **變量提升** | 存在 | 不存在 | Python 更直觀 |
-
-擴展閱讀：[Nonlocal vs global](https://chatgpt.com/s/t_6881a0c964508191b8c4a2c2218d3ba2)
-
-### 2.4 控制流語句
-
-#### 2.4.1 條件語句
-
-<PythonEditor title="條件語句對比" compare={true}>
-```javascript !! js
-// if-else 語句
-let age = 18;
-if (age >= 18) {
-    console.log("成年人");
-} else if (age >= 12) {
-    console.log("青少年");
-} else {
-    console.log("兒童");
-}
-
-// 三元運算符
-let status = age >= 18 ? "成年人" : "未成年人";
-console.log(status);
-
-// switch 語句
-let day = "Monday";
-switch (day) {
-    case "Monday":
-        console.log("星期一");
-        break;
-    case "Tuesday":
-        console.log("星期二");
-        break;
-    default:
-        console.log("其他日子");
-}
+```python case=float_precision
+print(0.1 + 0.2)
+print(0.1 + 0.2 == 0.3)
 ```
 
-```python !! py
-# if-elif-else 語句
-age = 18
-if age >= 18:
-    print("成年人")
-elif age >= 12:
-    print("青少年")
-else:
-    print("兒童")
+輸出：
 
-# 三元運算符（條件表達式）
-status = "成年人" if age >= 18 else "未成年人" # 語法順序為： 值 if 條件 else 否則的值
-print(status)
-
-# match 語句（Python 3.10+）
-day = "Monday"
-match day:
-    case "Monday":
-        print("星期一")
-    case "Tuesday":
-        print("星期二")
-    case _:
-        print("其他日子")
-```
-</PythonEditor>
-
-#### 2.4.2 循環語句
-
-<PythonEditor title="循環語句對比" compare={true}>
-```javascript !! js
-// for 循環
-for (let i = 0; i < 5; i++) {
-    console.log(i);
-}
-
-// for...of 循環（遍歷可迭代對象）
-const numbers = [1, 2, 3, 4, 5];
-for (const num of numbers) {
-    console.log(num);
-}
-
-// for...in 循環（遍歷對象屬性）
-const person = { name: "張三", age: 25 };
-for (const key in person) {
-    console.log(`${key}: ${person[key]}`);
-}
-
-// while 循環
-let count = 0;
-while (count < 5) {
-    console.log(count);
-    count++;
-}
-
-// forEach 方法
-numbers.forEach(num => console.log(num));
+```text
+0.30000000000000004
+False
 ```
 
-```python !! py
-# for 循環（類似 JavaScript 的 for...of）
-for i in range(5):
-    print(i)
+比較符號 `==` 表示比較值是否相等，下一節正式展開。這個結果不是 Python 隨機算錯，而是二進制浮點近似經過運算後可見的誤差。不要用「只顯示兩位」冒充「已經精確計算」；本章用時間估算而不是金額結算來練習，精確十進制方案等有前置基礎後再教。官方[浮點教程](https://docs.python.org/3.13/tutorial/floatingpoint.html)解釋了這一限制。
 
-# 遍歷列表
-numbers = [1, 2, 3, 4, 5]
-for num in numbers:
-    print(num)
+**停靠點 B：** 現在應該能獨立說明 `95 // 60` 與 `95 % 60` 各代表什麼，以及 `7.0 // 2` 為什麼帶 `.0`。如果只記住輸出，還沒能解釋規則，先用紙筆換一組數。
 
-# 遍歷字典
-person = {"name": "張三", "age": 25}
-for key, value in person.items():
-    print(f"{key}: {value}")
+## 5. 比較、布爾值和「沒有值」
 
-# 只遍歷鍵
-for key in person:
-    print(key)
+### 5.1 `=` 保存綁定，`==` 比較值
 
-# 只遍歷值
-for value in person.values():
-    print(value)
+`minutes = 30` 是賦值；`minutes == 30` 會產生一個布爾值，並不修改名稱。Python 沒有 `===`。但也不能把 Python 的 `==` 整體叫作 JS 的寬鬆相等或嚴格相等：它不會把 `"30"` 自動轉成整數來比較，同時數值類型之間又允許數值相等。
 
-# while 循環
-count = 0
-while count < 5:
-    print(count)
-    count += 1
+下面把比較與缺失值放在一個獨立腳本里。文件：`boolean_none.py`。
 
-# 列表推導式（Python 特色）
-squares = [x**2 for x in range(5)]  # [0, 1, 4, 9, 16]
-print(squares)
-```
-</PythonEditor>
+<Code language="python">{getScalarExample('boolean_none.py')}</Code>
 
-## 3. 函數定義和調用
+預期：
 
-### 3.1 函數聲明對比
-
-<PythonEditor title="函數聲明對比" compare={true}>
-```javascript !! js
-// 函數聲明
-function greet(name) {
-    return `你好，${name}！`;
-}
-
-// 函數表達式
-const greet2 = function(name) {
-    return `你好，${name}！`;
-};
-
-// 箭頭函數
-const greet3 = (name) => {
-    return `你好，${name}！`;
-};
-
-// 簡寫箭頭函數
-const greet4 = name => `你好，${name}！`;
-
-// 默認參數
-function greet5(name = "世界") {
-    return `你好，${name}！`;
-}
-
-// 解構參數
-function greet6({ name, age }) {
-    return `你好，${name}！你今年${age}歲。`;
-}
-
-console.log(greet("張三"));
-console.log(greet5());
-console.log(greet6({ name: "李四", age: 25 }));
+```text
+True
+False
+True
+True
+True
+False
+None
+True
+False
 ```
 
-```python !! py
-# 函數定義
-def greet(name):
-    return f"你好，{name}！"
+逐項解釋：
 
-# 默認參數
-def greet2(name="世界"):
-    return f"你好，{name}！"
+- `30 == 30.0` 為 `True`：類型不同，但數值相等。
+- `"30" == 30` 為 `False`：數字文本不會在這裡自動轉成整數。
+- `True == 1` 為 `True`：`bool` 是 `int` 的子類型，布爾值在數值比較中與 `1`、`0` 有關係。知道這個邊界即可，業務上仍然應把「是否完成」和「數量」當作不同含義處理，不鼓勵靠它省略數據檢查。
+- `!=` 表示不相等；`<`、`<=`、`>`、`>=` 分別表示小於、小於等於、大於、大於等於。它們產生布爾結果，不會自動輸出文字結論或改變程序走向。
 
-# 類型註解（Python 3.5+）
-def greet3(name: str) -> str:
-    return f"你好，{name}！"
+現在只是觀察布爾值，還沒有教 `if`、`and`、`or` 或通用真值規則；不要求提前用條件語句處理這些結果，也不要自行把 `bool("False")` 當成文本解析方案。
 
-# 多參數
-def greet4(name, age):
-    return f"你好，{name}！你今年{age}歲。"
+### 5.2 `None` 與「名稱不存在」不是一回事
 
-# 關鍵字參數
-def greet5(name, age=None):
-    if age:
-        return f"你好，{name}！你今年{age}歲。"
-    return f"你好，{name}！"
+在這個例子中，我們約定 `assignee = None` 表示「尚未指定負責人」。這條賦值已經綁定了名稱，讀取 `assignee` 合法，並得到 `None`。
 
-# 解構參數（使用字典）
-def greet6(person):
-    name = person["name"]
-    age = person["age"]
-    return f"你好，{name}！你今年{age}歲。"
+以下幾種狀態必須分開：
 
-print(greet("張三"))
-print(greet2())
-print(greet6({"name": "李四", "age": 25}))
-```
-</PythonEditor>
+| 狀態 | 本例中如何解釋 |
+| --- | --- |
+| `assignee = None` | 有這個名稱，約定它暫時沒有負責人 |
+| `assignee = ""` | 有這個名稱，值是空字符串；是否允許空名字要另定規則 |
+| `assignee = "None"` | 四個字母組成的普通文本，不是缺失值對象 |
+| 從未給 `assignee` 賦值就讀取 | 名稱沒有綁定，按 L00 的實驗會得到 `NameError` |
 
-### 3.2 函數調用對比
+`0` 和 `False` 也各有自己的值，不能當作 `None` 的同義寫法。
 
-<PythonEditor title="函數調用對比" compare={true}>
-```javascript !! js
-// 基本調用
-function greet(name, age) {
-    return `你好，${name}！你今年${age}歲。`;
-}
+本章把 `value is None` 學成一個邊界明確的檢查：看值是不是那個專用的 `None` 對象。它不是字符串匹配，也不會把空字符串視為 `None`。`is` 一般討論對象身份，不是另一個嚴格相等符號；**不要拿 `is` 比較數字和字符串內容**。其他身份問題等容器與引用章節再展開。參考 [None 常量](https://docs.python.org/3.13/library/constants.html#None)和 [PEP 8 的 None 比較建議](https://peps.python.org/pep-0008/#programming-recommendations)。
 
-console.log(greet("張三", 25));
+## 6. 字符串：清理文本不等於修改原值
 
-// 解構調用
-function greetPerson({ name, age }) {
-    return `你好，${name}！你今年${age}歲。`;
-}
+任務標題可能帶著首尾空格。我們希望顯示清理後的標題，同時保留原始值用於核對。
 
-console.log(greetPerson({ name: "李四", age: 25 }));
+Python 單引號和雙引號都可以表示普通字符串；引號用於界定文本，輸出時不會自動帶上這些界定符。在 JS 中常見的反引號模板寫法不能原樣搬過來，下一節後的 f-string 才是本章的插值工具。
 
-// 方法調用
-const obj = {
-    name: "王五",
-    greet() {
-        return `你好，${this.name}！`;
-    }
-};
-console.log(obj.greet());
+先讀懂 `raw_title.strip()`：點號後面是字符串提供的 `strip` 方法，圓括號表示現在調用。這裡不傳參數，它返回去掉首尾空白的字符串，不會刪除中間的空格，也不會原地修改 `raw_title`。調用已有方法不要求現在定義類或方法。
+
+文件：`strings.py`。
+
+<Code language="python">{getScalarExample('strings.py')}</Code>
+
+預期：
+
+```text
+[  Read Python basics  ]
+[Read Python basics]
+18
+Python basics
+It is "Python".
+first
+second
 ```
 
-```python !! py
-# 基本調用
-def greet(name, age):
-    return f"你好，{name}！你今年{age}歲。"
+前兩行故意在文本外拼接方括號，讓空格不再「看不見」。這個例子裡的方括號是引號內的普通字符，**不是列表語法**。
 
-print(greet("張三", 25))
+`title` 得到了清理後的結果，原來的 `raw_title` 仍保留兩側空格。字符串不可變；方法可以返回處理後的字符串，你需要接收或使用返回值。只寫 `raw_title.strip()` 然後再次輸出 `raw_title`，並不會清理這個名稱後來讀到的內容。
 
-# 關鍵字參數調用
-print(greet(name="李四", age=25))
-print(greet(age=25, name="李四"))  # 參數順序可以調換
+`+` 在兩側都是字符串時連接文本，Python 不會替你在中間補空格。`len(title)` 返回長度；這裡用的都是 ASCII 字符，`Read Python basics` 共 18 個，空格也計數。Python `str` 的長度按 Unicode 碼點計，不保證等於屏幕上視覺字符數；JS 的 `String.length` 按 UTF-16 碼元計。本章不把 Unicode 字符計數當作驗收條件，但不能把這個簡單例子推廣成所有 emoji 或排版寬度都相同。
 
-# 字典解包
-person = {"name": "王五", "age": 30}
-print(greet(**person))
+`'It is "Python".'` 用外層單引號包住含雙引號的文本；也可以在雙引號字符串裡寫 `\"`。`\n` 表示一個換行，所以最後一個 `print` 產生兩行文字。若希望文本里真有一個反斜槓，需要寫 `\\`。參考[字符串入門](https://docs.python.org/3.13/tutorial/introduction.html#text)與[字符串方法](https://docs.python.org/3.13/library/stdtypes.html#string-methods)。
 
-# 方法調用
-class Person:
-    def __init__(self, name):
-        self.name = name
-    
-    def greet(self):
-        return f"你好，{self.name}！"
+本章只掌握清理首尾、拼接和觀察長度，不列舉幾十個方法，也不提前講索引與切片。
 
-person = Person("趙六")
-print(person.greet())
-```
-</PythonEditor>
+## 7. 顯式轉換：輸入看起來像數字，不代表已經是數字
 
-## 4. 數據結構對比
+### 7.1 先決定要計算，還是要連接文本
 
-### 4.1 數組 vs 列表
+`"30" + "15"` 是 `"3015"`，`30 + 15` 是 `45`。它們都合法，但解決的是不同問題。`"30" + 15` 則不能直接運算；Python 不會在這裡替你決定把哪一邊轉換成什麼。
 
-<PythonEditor title="數組 vs 列表對比" compare={true}>
-```javascript !! js
-// 創建數組
-const arr = [1, 2, 3, 4, 5];
+內置的 `int`、`float`、`str` 在本章分別用於取得整數、浮點數與文本表示。文件：`conversions.py`。
 
-// 添加元素
-arr.push(6);           // 末尾添加
-arr.unshift(0);        // 開頭添加
-arr.splice(2, 0, 2.5); // 中間插入
+<Code language="python">{getScalarExample('conversions.py')}</Code>
 
-// 刪除元素
-arr.pop();             // 刪除末尾
-arr.shift();           // 刪除開頭
-arr.splice(2, 1);      // 刪除指定位置
+預期：
 
-// 查找元素
-const index = arr.indexOf(3);
-const found = arr.find(x => x > 3);
-
-// 數組方法
-const doubled = arr.map(x => x * 2);
-const filtered = arr.filter(x => x > 2);
-const sum = arr.reduce((acc, x) => acc + x, 0);
-
-console.log("原數組:", arr);
-console.log("翻倍:", doubled);
-console.log("過濾:", filtered);
-console.log("求和:", sum);
+```text
+45
+3.5
+3
+-3
+Minutes: 30
 ```
 
-```python !! py
-# 創建列表
-arr = [1, 2, 3, 4, 5]
+`int(raw_minutes)` 讀取 `"30"` 並返回整數 `30`；原始字符串沒有變成整數，`minutes` 綁定的是轉換結果。後續加法因此是數值加法。最後一行先把整數轉換成文本，再與文本連接。
 
-# 添加元素
-arr.append(6)          # 末尾添加
-arr.insert(0, 0)       # 開頭添加
-arr.insert(2, 2.5)     # 中間插入
+`int(3.9)` 與 `int(-3.9)` 去掉小數部分，向零截斷，不是四捨五入，也不是前面 `//` 的向下取整。負數能幫助你區分兩條規則：`int(-3.9)` 是 `-3`，而 `-7 // 2` 是 `-4`。
 
-# 刪除元素
-arr.pop()              # 刪除末尾
-arr.pop(0)             # 刪除指定位置
-del arr[2]             # 刪除指定位置
-arr.remove(3)          # 刪除指定值
-arr.insert(2, 3)       # 中間插入
+### 7.2 兩種失敗，要診斷而不是掩蓋
 
-# 查找元素
-index = arr.index(3)   # 查找索引
-found = next((x for x in arr if x > 3), None)
+第一次實驗的文件：`errors/text_plus_number.py`。
 
-# 列表推導式
-doubled = [x * 2 for x in arr]
-filtered = [x for x in arr if x > 2]
-sum_result = sum(arr)
+<Code language="python">{getScalarExample('errors/text_plus_number.py')}</Code>
 
-print("原列表:", arr)
-print("翻倍:", doubled)
-print("過濾:", filtered)
-print("求和:", sum_result)
-```
-</PythonEditor>
+在當前示例中沒有正常輸出；錯誤最後一行類似：
 
-擴展閱讀：[next 函數](https://docs.python.org/3/library/functions.html#next)
-
-### 4.2 對象 vs 字典
-
-<PythonEditor title="對象 vs 字典對比" compare={true}>
-```javascript !! js
-// 創建對象
-const person = {
-    name: "張三",
-    age: 25,
-    greet() {
-        return `你好，${this.name}！`;
-    }
-};
-
-// 訪問屬性
-console.log(person.name);
-console.log(person["name"]);
-
-// 添加/修改屬性
-person.city = "北京";
-person["job"] = "程序員";
-
-// 刪除屬性
-delete person.age;
-
-// 遍歷對象
-for (const key in person) {
-    console.log(`${key}: ${person[key]}`);
-}
-
-Object.keys(person).forEach(key => {
-    console.log(`${key}: ${person[key]}`);
-});
-
-console.log(person.greet());
+```text
+TypeError: can only concatenate str (not "int") to str
 ```
 
-```python !! py
-# 創建字典
-person = {
-    "name": "張三",
-    "age": 25
-}
+看第 2 行：傳給 `print` 的表達式必須先求值，加法已經失敗，所以連 `print` 都沒有拿到結果。後面的 `finished` 也不會出現。錯誤說明類型組合不支持這項操作，而不是 `print` 本身不能輸出數字。
 
-# 訪問屬性
-print(person["name"])
-print(person.get("name"))  # 安全訪問
-print(person.get("city", "未知"))  # 默認值
+修復前先問需求：要的是 45 分鐘還是文本 `3015`？本例要計算分鐘數，因此應把原始文本轉換為整數，而不是為了消除報錯把 `15` 轉成文本。第 10 節會把這個修復作為練習。
 
-# 添加/修改屬性
-person["city"] = "北京"
-person["job"] = "程序員"
+第二次實驗的文件：`errors/invalid_integer.py`。
 
-# 刪除屬性
-del person["age"]
-person.pop("age", None)  # 安全刪除
+<Code language="python">{getScalarExample('errors/invalid_integer.py')}</Code>
 
-# 遍歷字典
-for key, value in person.items():
-    print(f"{key}: {value}")
+同樣沒有正常輸出；最後一行類似：
 
-for key in person.keys():
-    print(f"{key}: {person[key]}")
-
-for value in person.values():
-    print(value)
-```
-</PythonEditor>
-
-### 4.3 集合對比
-
-<PythonEditor title="集合對比" compare={true}>
-```javascript !! js
-// 創建集合
-const set = new Set([1, 2, 3, 3, 4]); // 自動去重
-
-// 添加元素
-set.add(5);
-
-// 刪除元素
-set.delete(3);
-
-// 檢查元素
-console.log(set.has(2));
-
-// 集合操作
-const set1 = new Set([1, 2, 3]);
-const set2 = new Set([3, 4, 5]);
-
-// 並集
-const union = new Set([...set1, ...set2]);
-
-// 交集
-const intersection = new Set([...set1].filter(x => set2.has(x)));
-
-// 差集
-const difference = new Set([...set1].filter(x => !set2.has(x)));
-
-console.log("並集:", Array.from(union));
-console.log("交集:", Array.from(intersection));
-console.log("差集:", Array.from(difference));
+```text
+ValueError: invalid literal for int() with base 10: '3.5'
 ```
 
-```python !! py
-# 創建集合
-set_data = {1, 2, 3, 3, 4}  # 自動去重
+`int` 能處理表示整數的字符串，但 `"3.5"` 不是這種字符串。它與 `int(3.5)` 不同：後者收到的已經是一個浮點數，可以按上一小節的規則截斷。
 
-# 添加元素
-set_data.add(5)
+不要為了讓報錯消失就悄悄改成 `int(float(raw_sessions))`。如果這裡代表學習次數，3.5 次是否有效是需求問題；先轉浮點再截斷會丟掉用戶意圖。合理的處理可能是要求重新輸入整數，或明確支持小數，但完整輸入校驗與錯誤響應要在有分支、異常和服務端基礎之後學習。
 
-# 刪除元素
-set_data.remove(3)  # 如果不存在會報錯
-set_data.discard(3)  # 推薦使用，元素不存在時不會報錯
+現在的任務是記錄：錯誤類型、源碼行、實際值的類型、想要的結果。我們故意不包 `try/except`。依據見 [`int`、`float` 等內置函數](https://docs.python.org/3.13/library/functions.html#int)及 [TypeError / ValueError](https://docs.python.org/3.13/library/exceptions.html#ValueError)。
 
-# 檢查元素
-print(2 in set_data)
+**轉換成功也不等於業務合法。** `int("-5")` 可以得到整數 `-5`，但任務預計時長是否允許負數是另一層規則。接下來只處理我們在源碼中親自寫下的可信輸入，不聲稱這就是可以接收公眾請求的後端。
 
-# 集合操作
-set1 = {1, 2, 3}
-set2 = {3, 4, 5}
+**停靠點 C：** 不運行，解釋 `int("3.5")`、`int(3.5)`、`"3" + "5"` 的差別。如果出錯，能說明是哪一步失敗，而不僅是抄最後一行報錯。
 
-# 並集
-union = set1 | set2
-union = set1.union(set2)
+## 8. f-string：把值做成文字，不是建立響應式視圖
 
-# 交集
-intersection = set1 & set2
-intersection = set1.intersection(set2)
+手動寫 `"Minutes: " + str(minutes)` 可以工作，但隨著信息增多容易漏空格、漏轉換。f-string 在引號前加 `f`，在文本中的花括號內寫表達式；Python 在執行到這一行時求值，把格式化結果放入一段新字符串。
 
-# 差集
-difference = set1 - set2
-difference = set1.difference(set2)
+文件：`formatting.py`。
 
-print("並集:", union)
-print("交集:", intersection)
-print("差集:", difference)
-```
-</PythonEditor>
+<Code language="python">{getScalarExample('formatting.py')}</Code>
 
-## 5. 錯誤處理對比
+預期：
 
-### 5.1 異常處理
-
-<PythonEditor title="異常處理對比" compare={true}>
-```javascript !! js
-// 基本錯誤處理
-try {
-    const result = 10 / 0;
-    console.log(result);
-} catch (error) {
-    console.error("發生錯誤:", error.message);
-} finally {
-    console.log("總是執行");
-}
-
-// 自定義錯誤
-class CustomError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "CustomError";
-    }
-}
-
-// 拋出錯誤
-function divide(a, b) {
-    if (b === 0) {
-        throw new CustomError("除數不能為零");
-    }
-    return a / b;
-}
-
-try {
-    console.log(divide(10, 0));
-} catch (error) {
-    console.error("除法錯誤:", error.message);
-}
+```text
+Estimate: 95 minutes
+Estimate: 95 minutes
+Estimate: 120 minutes
+Decimal hours: 1.58
+1.5833333333333333
 ```
 
-```python !! py
-# 基本錯誤處理
-try:
-    result = 10 / 0
-    print(result)
-except ZeroDivisionError as e:
-    print(f"發生錯誤: {e}")
-except Exception as e:
-    print(f"其他錯誤: {e}")
-else:
-    print("沒有異常時執行")
-finally:
-    print("總是執行")
+`report` 在 `minutes` 等於 `95` 時就構造好了。後來把 `minutes` 改成 `120`，不會回頭改寫已經生成的字符串。最後一次直接構造新的 f-string，才會讀到新的分鐘數。這和 JS 模板字符串求值後的普通字符串一樣，不是 Vue 的計算屬性或 React 的下一次渲染。
 
-# 自定義異常
-class CustomError(Exception):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+`{hours:.2f}` 中，冒號前的 `hours` 是要格式化的值，後面的 `.2f` 要求固定小數格式、顯示兩位小數。它改變生成的文字，不修改 `hours`；最後一行還會顯示原來的浮點結果。格式化不是精確金額計算或業務舍入策略。
 
-# 拋出異常
-def divide(a, b):
-    if b == 0:
-        raise CustomError("除數不能為零")
-    return a / b
+若忘記開頭的 `f`，花括號只是普通文本，不會插入變量。f-string 與格式說明的權威說明分別在[輸出教程](https://docs.python.org/3.13/tutorial/inputoutput.html#formatted-string-literals)和[格式規範](https://docs.python.org/3.13/library/string.html#format-specification-mini-language)中；本章不要求掌握整個格式語言。
 
-try:
-    print(divide(10, 0))
-except CustomError as e:
-    print(f"除法錯誤: {e.message}")
-```
-</PythonEditor>
+## 9. 把知識連起來：任務時長說明腳本
 
-## 6. 模塊和導入對比
+現在才把幾種操作放進同一個完整文件。輸入直接寫在源碼裡，沒有表單、HTTP 請求、文件讀取或數據庫。
 
-### 6.1 模塊系統
+文件：`task_estimate.py`。
 
-<PythonEditor title="模塊系統對比" compare={true} canRun={false}>
-```javascript !! js
-// math.js
-export const add = (a, b) => a + b;
-export const subtract = (a, b) => a - b;
+<Code language="python">{getScalarExample('task_estimate.py')}</Code>
 
-export default class Calculator {
-    constructor() {
-        this.result = 0;
-    }
-    
-    add(x) {
-        this.result += x;
-        return this;
-    }
-}
+在該文件所在目錄運行：
 
-// main.js
-import Calculator, { add, subtract } from './math.js';
-import * as math from './math.js';
-
-const calc = new Calculator();
-console.log(add(5, 3));
-console.log(math.subtract(10, 4));
+```bash
+uv run --no-project --python 3.13 python task_estimate.py
 ```
 
-```python !! py
-# math_utils.py
-def add(a, b):
-    return a + b
+預期：
 
-def subtract(a, b):
-    return a - b
-
-class Calculator:
-    def __init__(self):
-        self.result = 0
-    
-    def add(self, x):
-        self.result += x
-        return self
-
-# main.py
-from math_utils import add, subtract, Calculator
-import math_utils as math
-
-calc = Calculator()
-print(add(5, 3))
-print(math.subtract(10, 4))
-```
-</PythonEditor>
-
-## 7. 練習題
-
-### 練習 1：數據類型轉換
-
-將以下 JavaScript 代碼轉換為 Python：
-
-<PythonEditor title="JavaScript 代碼轉換為 Python" compare={true}>
-```javascript !! js
-// JavaScript 版本
-const numbers = [1, 2, 3, 4, 5];
-const doubled = numbers.map(x => x * 2);
-const evenNumbers = doubled.filter(x => x % 2 === 0);
-const sum = evenNumbers.reduce((acc, x) => acc + x, 0);
-console.log(sum);
+```text
+Task: Read Python basics
+Estimate: 1h 35m
+Decimal hours: 1.58
 ```
 
-```python !! py
-# Python 版本
+### 數據怎樣流動
+
+| 步驟 | 輸入 | 得到的值 | 負責解決什麼問題 |
+| --- | --- | --- | --- |
+| 讀取源碼常量 | 帶空格的標題、`"95"` | 兩個 `str` | 保留原始樣子 |
+| 清理 | `raw_title` | `"Read Python basics"` | 去掉兩側空白，不刪中間空格 |
+| 轉換 | `raw_minutes` | 整數 `95` | 允許後面做數值運算 |
+| 分解 | `95`、`60` | 小時 `1`、剩餘分鐘 `35` | 用商和餘數表達時間 |
+| 顯示 | 標題、小時、分鐘及除法結果 | 三行文本 | 格式化，不改變計算過的值 |
+
+`hours` 是整小時部分，`minutes` 是餘下的分鐘；不是把原輸入直接當作餘數。十進制小時 `1.58` 是約數，不等於「1 小時 58 分鐘」。這也是必須解釋單位、不能只看輸出像數字就算正確的原因。
+
+### 自己修改兩次，而不是隻運行下載文件
+
+1. 把 `raw_minutes` 改成 `"125"`。先預測，再確認輸出是 `2h 5m` 和 `2.08` 十進制小時。
+2. 改為 `"60"`，應當是 `1h 0m` 和 `1.00`。不能因為餘數為零就把整行硬編碼成某個固定文本。
+
+最後恢復 `"95"`。本章腳本不檢查空標題、負時長或超大數，也不從網絡接收數據。它是已解釋清楚的語言練習，不是完成了服務端輸入校驗的產品。
+
+**停靠點 D：** 合上正文，按「原始文本 → 轉換後的值 → 計算 → 顯示」重述每一步。不能解釋某一行，就回到對應一節，不必一次背下全部代碼。
+
+## 10. 分級練習：先預測、再排錯、最後獨立寫
+
+答案默認摺疊。看懂答案不能替代自己完成，尤其不要把下面的輸出字符串當作程序直接打印來「通過」。
+
+### 練習 A：預測綁定與字符串快照
+
+```python case=exercise_snapshot
+minutes = 30
+saved_minutes = minutes
+label = f"Plan: {minutes}"
+minutes = minutes + 15
+print(saved_minutes)
+print(minutes)
+print(label)
 ```
-</PythonEditor>
+
+先在紙上寫出三行結果，並解釋 `minutes = minutes + 15` 為什麼不是一個數學等式。然後保存為 `prediction.py`，使用相同運行命令驗證。
 
 <details>
-<summary>查看答案</summary>
+<summary>完成預測後查看解釋</summary>
 
-```python
-# Python 版本
-numbers = [1, 2, 3, 4, 5]
-doubled = [x * 2 for x in numbers]
-even_numbers = [x for x in doubled if x % 2 == 0]
-sum_result = sum(even_numbers)
-print(sum_result)
+```text
+30
+45
+Plan: 30
 ```
+
+右邊先讀取舊值 `30`、計算 `45`，再把左邊的名稱重新綁定；不是要求舊值和新值同時相等。`saved_minutes` 仍綁定舊整數，`label` 仍是之前構造好的字符串。三個名稱都不是自動聯動的狀態管理系統。
 
 </details>
 
-### 練習 2：函數定義
+### 練習 B：按需求修復，而不只是消除異常
 
-將以下 Python 函數轉換為 JavaScript：
+重新打開 `errors/text_plus_number.py`。要求打印整數 `45`，然後打印 `finished`；保留原始 `raw_minutes = "30"`，增加一個保存轉換結果的名稱。不允許硬編碼 `45`，也不要把 `15` 改成字符串。
 
-<PythonEditor title="Python 函數轉換為 JavaScript" compare={true}>
-```python !! py
-# Python 版本
-def process_data(data, callback=None):
-    result = []
-    for item in data:
-        if callback:
-            processed = callback(item)
-        else:
-            processed = item * 2
-        result.append(processed)
-    return result
-
-# 使用示例
-numbers = [1, 2, 3, 4, 5]
-result = process_data(numbers, lambda x: x ** 2)
-print(result)
-```
-
-```javascript !! js
-// JavaScript 版本
-```
-</PythonEditor>
-
+修改後把輸入換成 `"50"`，應該得到 `65`，而不是 `5015` 或原來的 `45`。
 
 <details>
-<summary>查看答案</summary>
+<summary>獨立修復並做變式後查看參考</summary>
 
-```javascript
-// JavaScript 版本
-function processData(data, callback = null) {
-    const result = [];
-    for (const item of data) {
-        let processed;
-        if (callback) {
-            processed = callback(item);
-        } else {
-            processed = item * 2;
-        }
-        result.push(processed);
-    }
-    return result;
-}
+文件：`solutions/fix_minutes.py`。
 
-// 使用示例
-const numbers = [1, 2, 3, 4, 5];
-const result = processData(numbers, x => x ** 2);
-console.log(result);
+<Code language="python">{getScalarExample('solutions/fix_minutes.py')}</Code>
+
+原輸入的預期輸出：
+
+```text
+45
+finished
 ```
+
+轉換在加法之前完成，因此既修復了類型組合，又符合「計算分鐘數」的意圖。如果輸入變成 `"later"`，轉換仍會失敗；本題沒有要求你提前編寫異常恢復邏輯。
 
 </details>
 
-### 練習 3：作用域理解
+### 練習 C：從空文件獨立完成閱讀計劃
 
-分析以下代碼的輸出結果：
+自己創建 `reading_plan.py`，先只輸入這三個已知值：
 
-<PythonEditor title="作用域練習" compare={true}>
-```javascript !! js
-// JavaScript 作用域練習
-let x = 10;
-
-function outer() {
-    let x = 20;
-    
-    function inner() {
-        let x = 30;
-        console.log("inner x:", x);
-    }
-    
-    inner();
-    console.log("outer x:", x);
-}
-
-outer();
-console.log("global x:", x);
+```python case=exercise_inputs
+raw_topic = "  Python names  "
+raw_sessions = "4"
+minutes_per_session = 25
 ```
 
-```python !! py
-# Python 作用域練習
-x = 10
+完成這些要求：
 
-def outer():
-    x = 20
-    
-    def inner():
-        x = 30
-        print("inner x:", x)
-    
-    inner()
-    print("outer x:", x)
+1. 保留原始輸入，清理主題的兩側空白，轉換學習次數。
+2. 根據次數與每次分鐘數計算總時長，而不是手寫結果。
+3. 把總時長拆成小時和剩餘分鐘。
+4. 生成下面三行輸出；只使用本章和 L00 學過的知識。
 
-outer()
-print("global x:", x)
+```text
+Topic: Python names
+Sessions: 4
+Total: 100 minutes (1h 40m)
 ```
-</PythonEditor>
+
+從自己創建的文件運行，不運行答案文件來代替驗收：
+
+```bash
+uv run --no-project --python 3.13 python reading_plan.py
+```
+
+再做變式：將次數改為 `"5"`，預期總時長為 `125 minutes (2h 5m)`；把主題改為 `"  Read slowly  "`，預期標題是 `Read slowly`。除了輸入，不應修改其他計算代碼。
+
+最後製造一次失敗：把次數寫成 `"many"`，預測錯誤類型，並定位轉換那一行。你只需解釋為什麼無法轉換，不需要捕獲異常；診斷後恢復合法輸入。
 
 <details>
-<summary>查看答案</summary>
+<summary>獨立完成、驗證變式後查看參考答案</summary>
 
-**JavaScript 輸出：**
-```
-inner x: 30
-outer x: 20
-global x: 10
-```
+文件：`solutions/reading_plan.py`。
 
-**Python 輸出：**
-```
-inner x: 30
-outer x: 20
-global x: 10
-```
+<Code language="python">{getScalarExample('solutions/reading_plan.py')}</Code>
 
-**解釋：**
-- 兩個語言都遵循詞法作用域規則
-- 內層函數可以訪問外層變量，但同名變量會創建新的局部變量
-- 使用 `global`（Python）或直接修改（JavaScript）可以修改全局變量
+這裡的空行只用於區分輸入、處理與輸出，不引入新的執行機制。`sessions` 保存整數，`total_minutes` 來自乘法，小時和餘數又由它計算，所以輸入變更會沿著下一次執行的數據流反映出來。
+
+如果你用了不同名稱但滿足這些要求，同樣可以通過。對照答案主要查「為什麼」，不是檢查拼寫是否逐字一致。
+
 </details>
 
-## 8. 總結
+## 11. 離開本章的證據，而不是打卡
 
-### 關鍵差異總結
+只有下面這些事情能自己完成，才算建立了後面章節所需的基礎：
 
-| 方面 | JavaScript | Python | 學習建議 |
-|------|------------|--------|----------|
-| **語法風格** | 大括號 + 分號 | 縮進敏感 | 注意 Python 的縮進規則 |
-| **變量聲明** | 需要關鍵字 | 直接賦值 | 適應 Python 的簡潔性 |
-| **命名規範** | camelCase | snake_case | 遵循 Python 的命名約定 |
-| **字符串格式化** | 模板字符串 | f-string | 兩者都很直觀 |
-| **循環語法** | for/while | for/while | Python 的 for 更簡潔 |
-| **函數定義** | function/箭頭函數 | def | 語法差異較大 |
-| **錯誤處理** | try-catch | try-except | 概念相似，語法不同 |
-| **作用域** | 塊級作用域 | 函數作用域 | 注意 Python 的全局變量聲明 |
+- 不運行，預測重新賦值前後、另一個已綁定名稱和已生成字符串各自的結果。
+- 解釋 `30`、`30.0`、`"30"`、`False`、`None`；不把名稱未綁定與 `None` 混為一談。
+- 區分 `/`、`//`、`%`，解釋負數取整和浮點近似；不把兩位小數顯示當作精確計算。
+- 依據需求選擇字符串連接或數值運算，能解釋 `TypeError` 與 `ValueError` 的實驗差別。
+- 從空文件寫出閱讀計劃，通過輸入變式，指出它尚未實現公眾輸入校驗。
 
-### 學習建議
+哪一項還需要答案，就回到對應實驗。不要求你背所有異常類型、字符串方法或運算優先級。
 
-1. **從相似點開始**：先學習兩種語言相似的概念
-2. **對比學習**：同時編寫兩種語言的代碼
-3. **實踐為主**：多做練習題和項目
-4. **注意細節**：關注語法細節的差異
-5. **建立映射**：在心中建立兩種語言的對應關係
-6. **理解作用域**：深入理解變量作用域的概念和差異
+### 中斷後怎樣回來
 
-### 下一步學習
+離開前記錄三件事：最後運行成功的文件與輸出、還不能解釋的一行、回來後要改的一個輸入。恢復學習時先預測這個修改會帶來什麼，再運行；不必重裝環境，也不必重讀整章。
 
-在掌握了基礎語法對比後，建議繼續學習：
+下一步進入 [L02「容器、引用與修改」](/zh-tw/docs/js2py/module-02-module-system)，把單個值組合成任務資料，並認真討論共享引用與修改。第 00—02 章已按新契約重編；原模組系統內容歸檔保留，將在具備先修後進入 L06。後續頁面仍在逐章遷移，不要把舊網站編號誤當成已經落實的新路線。
 
-- 面向對象編程對比
-- 異步編程模式
-- 包管理和依賴管理
-- 測試框架對比
-- 實際項目開發
+## 12. 進一步查證的官方資料
 
-記住：語法只是工具，重要的是理解編程思想和解決問題的方法。Python 和 JavaScript 都是優秀的語言，各有特色，掌握兩者會讓你成為更全面的開發者。 
+查資料是為了回答一個具體問題，不是用「自行讀文檔」替代本章解釋。正文已經在相關位置連接了數值、字符串、異常與格式化的參考；另外保留：
+
+- [Python 賦值語句](https://docs.python.org/3.13/reference/simple_stmts.html#assignment-statements)：核對右邊求值、名稱綁定與可變對象之間的區別。
+- [Python 數據模型](https://docs.python.org/3.13/reference/datamodel.html#objects-values-and-types)：核對對象的類型、值與不可變性；本章不要求提前通讀。
+- [Python 比較規則](https://docs.python.org/3.13/reference/expressions.html#comparisons)：核對數值相等與對象身份為何不是一個問題。
+
+本章使用 CPython 3.13 作為教學基線，不聲稱它是最新版本；對應下載源碼、正文示例與維護者運行檢查一起維護。

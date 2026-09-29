@@ -1,0 +1,382 @@
+{
+  "date": "2026-09-28",
+  "selection": "SQLAlchemy 2.0 maintenance; 2.1.1 existed. Web pins and Starlette/AnyIO match H03-H06/H05-H06, not a latest-Web policy. Python3.13.15+PostgreSQL18.6 compatibility executed, not inferred only from metadata.",
+  "official_document_fetches": [
+    {
+      "key": "session",
+      "url": "https://docs.sqlalchemy.org/en/20/orm/session_basics.html",
+      "date": "2026-09-28",
+      "sha256": "4a87e409471a5ce4c64f9bcf390362ab16cab50a2ad36f45ca04ac573168de62",
+      "bytes": 162352
+    },
+    {
+      "key": "pool",
+      "url": "https://docs.sqlalchemy.org/en/20/core/pooling.html",
+      "date": "2026-09-28",
+      "sha256": "1c424c8db23abbb9b09348801edd64766e3b12a19853a97567d0e1f7a9a74c92",
+      "bytes": 270108
+    },
+    {
+      "key": "pg-dialect",
+      "url": "https://docs.sqlalchemy.org/en/20/dialects/postgresql.html",
+      "date": "2026-09-28",
+      "sha256": "4f1445e3a18e0f6432bc5766c55a6ef6daeb50ac4ba13a279d8b0368f052cb90",
+      "bytes": 873864
+    },
+    {
+      "key": "sqlalchemy-changes",
+      "url": "https://docs.sqlalchemy.org/en/20/changelog/changelog_20.html",
+      "date": "2026-09-28",
+      "sha256": "2454d8b0aa44f81d83547eddc065f81c6313f542d21331b7352ee2fd27638697",
+      "bytes": 1255781
+    },
+    {
+      "key": "alembic-tutorial",
+      "url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html",
+      "date": "2026-09-28",
+      "sha256": "17936ae69d700e435ed18747c924f4f329f59cbc601cdd40caf79d0ea935ee50",
+      "bytes": 111411
+    },
+    {
+      "key": "alembic-autogenerate",
+      "url": "https://alembic.sqlalchemy.org/en/latest/autogenerate.html",
+      "date": "2026-09-28",
+      "sha256": "eeaeb9e64d9061ccd06105360da85280031084c7b21fb9ff1721954886c0e410",
+      "bytes": 130097
+    },
+    {
+      "key": "alembic-cookbook",
+      "url": "https://alembic.sqlalchemy.org/en/latest/cookbook.html",
+      "date": "2026-09-28",
+      "sha256": "082f30bf68bb7951c196733ee01f4133f7ba83f0be0ace4619dbfd1ebcad7d01",
+      "bytes": 208349
+    },
+    {
+      "key": "alembic-changes",
+      "url": "https://alembic.sqlalchemy.org/en/latest/changelog.html",
+      "date": "2026-09-28",
+      "sha256": "6f4f0f0a6e2424b066577c6a31c50ff9dabaa708b1866c4bc8977e579a5611c4",
+      "bytes": 751007
+    },
+    {
+      "key": "psycopg-install",
+      "url": "https://www.psycopg.org/psycopg3/docs/basic/install.html",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "key": "psycopg-transactions",
+      "url": "https://www.psycopg.org/psycopg3/docs/basic/transactions.html",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "key": "pg-explain",
+      "url": "https://www.postgresql.org/docs/18/using-explain.html",
+      "date": "2026-09-28",
+      "sha256": "9d5aeeab0e8a3392e9a4b389be79c17410a1bc71625f0bf3d35fb2b625066090",
+      "bytes": 70035
+    },
+    {
+      "key": "pg-initdb",
+      "url": "https://www.postgresql.org/docs/18/app-initdb.html",
+      "date": "2026-09-28",
+      "sha256": "b6bc09ab7c8ee2a93295b16db5c7a2273800b799365a6a17f1dc4fcef74ef522",
+      "bytes": 43767
+    },
+    {
+      "key": "pg-pgctl",
+      "url": "https://www.postgresql.org/docs/18/app-pg-ctl.html",
+      "date": "2026-09-28",
+      "sha256": "69ebc131b6d403e5c8793d2e385962bb77c190285384337424f727ba1bbacb2b",
+      "bytes": 39814
+    },
+    {
+      "key": "pg-constraints",
+      "url": "https://www.postgresql.org/docs/18/ddl-constraints.html",
+      "date": "2026-09-28",
+      "sha256": "81832fdd23386f9f7aaef0b6e259ac2c90befc716a4e072f2633c9001922b2bc",
+      "bytes": 46645
+    },
+    {
+      "key": "pg-release",
+      "url": "https://www.postgresql.org/docs/18/release-18-6.html",
+      "date": "2026-09-28",
+      "sha256": "250b71ed0bee39cb18e86e8eae56434d77b022632ea93e4ca6b1768232f713d3",
+      "bytes": 86256
+    },
+    {
+      "key": "pytest-fixtures",
+      "url": "https://docs.pytest.org/en/stable/how-to/fixtures.html",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "key": "fastapi-deps",
+      "url": "https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "key": "uv-install",
+      "url": "https://docs.astral.sh/uv/getting-started/installation/",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "key": "postgres-install",
+      "url": "https://www.postgresql.org/download/",
+      "date": "2026-09-28",
+      "sha256": "7fd5ed573fb6422c91ead47ae9e564848cd8999e4278bbe653431933cdf90992",
+      "bytes": 9383
+    },
+    {
+      "key": "psycopg-install-tag",
+      "url": "https://raw.githubusercontent.com/psycopg/psycopg/3.3.6/docs/basic/install.rst",
+      "date": "2026-09-28",
+      "sha256": "77c3f15d9c496e49ae14fd2383ad1e0199024c6400dddcb6864c9b79458816ed",
+      "bytes": 8930
+    },
+    {
+      "key": "psycopg-transactions-tag",
+      "url": "https://raw.githubusercontent.com/psycopg/psycopg/3.3.6/docs/basic/transactions.rst",
+      "date": "2026-09-28",
+      "sha256": "f6645715bc3c3c65619ef1ea3f40fe77ef5e8e4821a806d01563034ba05eaa85",
+      "bytes": 17292
+    },
+    {
+      "key": "pytest-fixtures-tag",
+      "url": "https://raw.githubusercontent.com/pytest-dev/pytest/8.4.2/doc/en/how-to/fixtures.rst",
+      "date": "2026-09-28",
+      "sha256": "bc4c92211d4ae8851361226898b84df3d1079082f0ec0fbbd594c03a21dc64d0",
+      "bytes": 62114
+    }
+  ],
+  "public_pypi_pins": {
+    "SQLAlchemy": {
+      "version": "2.0.54",
+      "requires_python": ">=3.7",
+      "requires_dist": [
+        "importlib-metadata; python_version < \"3.8\"",
+        "greenlet>=1; platform_machine == \"aarch64\" or (platform_machine == \"ppc64le\" or (platform_machine == \"x86_64\" or (platform_machine == \"amd64\" or (platform_machine == \"AMD64\" or (platform_machine == \"win32\" or platform_machine == \"WIN32\")))))",
+        "typing-extensions>=4.6.0",
+        "greenlet>=1; extra == \"asyncio\"",
+        "mypy>=0.910; extra == \"mypy\"",
+        "pyodbc; extra == \"mssql\"",
+        "pymssql; extra == \"mssql-pymssql\"",
+        "pyodbc; extra == \"mssql-pyodbc\"",
+        "mysqlclient>=1.4.0; extra == \"mysql\"",
+        "mysql-connector-python; extra == \"mysql-connector\"",
+        "mariadb!=1.1.10,!=1.1.2,!=1.1.5,>=1.0.1; extra == \"mariadb-connector\"",
+        "cx_oracle>=8; extra == \"oracle\"",
+        "oracledb>=1.0.1; extra == \"oracle-oracledb\"",
+        "psycopg2>=2.7; extra == \"postgresql\"",
+        "pg8000>=1.29.1; extra == \"postgresql-pg8000\"",
+        "greenlet>=1; extra == \"postgresql-asyncpg\"",
+        "asyncpg; extra == \"postgresql-asyncpg\"",
+        "psycopg2-binary; extra == \"postgresql-psycopg2binary\"",
+        "psycopg2cffi; extra == \"postgresql-psycopg2cffi\"",
+        "psycopg>=3.0.7; extra == \"postgresql-psycopg\"",
+        "psycopg[binary]>=3.0.7; extra == \"postgresql-psycopgbinary\"",
+        "pymysql; extra == \"pymysql\"",
+        "greenlet>=1; extra == \"aiomysql\"",
+        "aiomysql>=0.2.0; extra == \"aiomysql\"",
+        "greenlet>=1; extra == \"aioodbc\"",
+        "aioodbc; extra == \"aioodbc\"",
+        "greenlet>=1; extra == \"asyncmy\"",
+        "asyncmy>=0.2.12; extra == \"asyncmy\"",
+        "greenlet>=1; extra == \"aiosqlite\"",
+        "aiosqlite; extra == \"aiosqlite\"",
+        "typing_extensions!=3.10.0.1; extra == \"aiosqlite\"",
+        "sqlcipher3_binary; extra == \"sqlcipher\""
+      ],
+      "first_upload": "2026-09-15T21:06:57.337617Z",
+      "source": "https://pypi.org/pypi/SQLAlchemy/2.0.54/json"
+    },
+    "alembic": {
+      "version": "1.20.0",
+      "requires_python": ">=3.10",
+      "requires_dist": [
+        "SQLAlchemy>=2.0",
+        "Mako",
+        "typing-extensions>=4.12",
+        "tomli; python_version < \"3.11\"",
+        "tzdata; extra == \"tz\""
+      ],
+      "first_upload": "2026-09-11T19:09:11.126570Z",
+      "source": "https://pypi.org/pypi/alembic/1.20.0/json"
+    },
+    "psycopg": {
+      "version": "3.3.6",
+      "requires_python": ">=3.10",
+      "requires_dist": [
+        "typing-extensions>=4.6; python_version < \"3.13\"",
+        "tzdata; sys_platform == \"win32\"",
+        "psycopg-c==3.3.6; implementation_name != \"pypy\" and extra == \"c\"",
+        "psycopg-binary==3.3.6; implementation_name != \"pypy\" and extra == \"binary\"",
+        "psycopg-pool; extra == \"pool\"",
+        "anyio>=4.0; extra == \"test\"",
+        "mypy>=2.1.0; implementation_name != \"pypy\" and extra == \"test\"",
+        "pproxy>=2.7; extra == \"test\"",
+        "pytest>=6.2.5; extra == \"test\"",
+        "pytest-cov>=3.0; extra == \"test\"",
+        "pytest-randomly>=3.5; extra == \"test\"",
+        "ast-comments>=1.1.2; extra == \"dev\"",
+        "black>=26.1.0; extra == \"dev\"",
+        "codespell>=2.2; extra == \"dev\"",
+        "cython-lint>=0.21; extra == \"dev\"",
+        "dnspython>=2.1; extra == \"dev\"",
+        "flake8>=4.0; extra == \"dev\"",
+        "isort[colors]>=6.0; extra == \"dev\"",
+        "isort-psycopg>=0.0.3; extra == \"dev\"",
+        "mypy>=2.1.0; extra == \"dev\"",
+        "pre-commit>=4.0.1; extra == \"dev\"",
+        "types-setuptools>=57.4; extra == \"dev\"",
+        "types-shapely>=2.0; extra == \"dev\"",
+        "wheel>=0.37; extra == \"dev\"",
+        "Sphinx>=9.1; extra == \"docs\"",
+        "furo==2025.12.19; extra == \"docs\"",
+        "sphinx-autobuild>=2025.8.25; extra == \"docs\"",
+        "sphinx-autodoc-typehints>=3.10.2; extra == \"docs\""
+      ],
+      "first_upload": "2026-09-18T13:15:29.374570Z",
+      "source": "https://pypi.org/pypi/psycopg/3.3.6/json"
+    },
+    "fastapi": {
+      "version": "0.135.1",
+      "requires_python": ">=3.10",
+      "requires_dist": [
+        "starlette>=0.46.0",
+        "pydantic>=2.7.0",
+        "typing-extensions>=4.8.0",
+        "typing-inspection>=0.4.2",
+        "annotated-doc>=0.0.2",
+        "fastapi-cli[standard]>=0.0.8; extra == \"standard\"",
+        "httpx<1.0.0,>=0.23.0; extra == \"standard\"",
+        "jinja2>=3.1.5; extra == \"standard\"",
+        "python-multipart>=0.0.18; extra == \"standard\"",
+        "email-validator>=2.0.0; extra == \"standard\"",
+        "uvicorn[standard]>=0.12.0; extra == \"standard\"",
+        "pydantic-settings>=2.0.0; extra == \"standard\"",
+        "pydantic-extra-types>=2.0.0; extra == \"standard\"",
+        "fastapi-cli[standard-no-fastapi-cloud-cli]>=0.0.8; extra == \"standard-no-fastapi-cloud-cli\"",
+        "httpx<1.0.0,>=0.23.0; extra == \"standard-no-fastapi-cloud-cli\"",
+        "jinja2>=3.1.5; extra == \"standard-no-fastapi-cloud-cli\"",
+        "python-multipart>=0.0.18; extra == \"standard-no-fastapi-cloud-cli\"",
+        "email-validator>=2.0.0; extra == \"standard-no-fastapi-cloud-cli\"",
+        "uvicorn[standard]>=0.12.0; extra == \"standard-no-fastapi-cloud-cli\"",
+        "pydantic-settings>=2.0.0; extra == \"standard-no-fastapi-cloud-cli\"",
+        "pydantic-extra-types>=2.0.0; extra == \"standard-no-fastapi-cloud-cli\"",
+        "fastapi-cli[standard]>=0.0.8; extra == \"all\"",
+        "httpx<1.0.0,>=0.23.0; extra == \"all\"",
+        "jinja2>=3.1.5; extra == \"all\"",
+        "python-multipart>=0.0.18; extra == \"all\"",
+        "itsdangerous>=1.1.0; extra == \"all\"",
+        "pyyaml>=5.3.1; extra == \"all\"",
+        "email-validator>=2.0.0; extra == \"all\"",
+        "uvicorn[standard]>=0.12.0; extra == \"all\"",
+        "pydantic-settings>=2.0.0; extra == \"all\"",
+        "pydantic-extra-types>=2.0.0; extra == \"all\""
+      ],
+      "first_upload": "2026-03-01T18:18:29.369969Z",
+      "source": "https://pypi.org/pypi/fastapi/0.135.1/json"
+    },
+    "uvicorn": {
+      "version": "0.42.0",
+      "requires_python": ">=3.10",
+      "requires_dist": [
+        "click>=7.0",
+        "h11>=0.8",
+        "typing-extensions>=4.0; python_version < \"3.11\"",
+        "colorama>=0.4; sys_platform == \"win32\" and extra == \"standard\"",
+        "httptools>=0.6.3; extra == \"standard\"",
+        "python-dotenv>=0.13; extra == \"standard\"",
+        "pyyaml>=5.1; extra == \"standard\"",
+        "uvloop>=0.15.1; (sys_platform != \"win32\" and (sys_platform != \"cygwin\" and platform_python_implementation != \"PyPy\")) and extra == \"standard\"",
+        "watchfiles>=0.20; extra == \"standard\"",
+        "websockets>=10.4; extra == \"standard\""
+      ],
+      "first_upload": "2026-03-16T06:19:48.325006Z",
+      "source": "https://pypi.org/pypi/uvicorn/0.42.0/json"
+    },
+    "pydantic": {
+      "version": "2.12.5",
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "annotated-types>=0.6.0",
+        "pydantic-core==2.41.5",
+        "typing-extensions>=4.14.1",
+        "typing-inspection>=0.4.2",
+        "email-validator>=2.0.0; extra == \"email\"",
+        "tzdata; (python_version >= \"3.9\" and platform_system == \"Windows\") and extra == \"timezone\""
+      ],
+      "first_upload": "2025-11-26T15:11:44.605145Z",
+      "source": "https://pypi.org/pypi/pydantic/2.12.5/json"
+    },
+    "httpx": {
+      "version": "0.28.1",
+      "requires_python": ">=3.8",
+      "requires_dist": [
+        "anyio",
+        "certifi",
+        "httpcore==1.*",
+        "idna",
+        "brotli; platform_python_implementation == \"CPython\" and extra == \"brotli\"",
+        "brotlicffi; platform_python_implementation != \"CPython\" and extra == \"brotli\"",
+        "click==8.*; extra == \"cli\"",
+        "pygments==2.*; extra == \"cli\"",
+        "rich<14,>=10; extra == \"cli\"",
+        "h2<5,>=3; extra == \"http2\"",
+        "socksio==1.*; extra == \"socks\"",
+        "zstandard>=0.18.0; extra == \"zstd\""
+      ],
+      "first_upload": "2024-12-06T15:37:21.509172Z",
+      "source": "https://pypi.org/pypi/httpx/0.28.1/json"
+    },
+    "starlette": {
+      "version": "0.52.1",
+      "requires_python": ">=3.10",
+      "requires_dist": [
+        "anyio<5,>=3.6.2",
+        "typing-extensions>=4.10.0; python_version < \"3.13\"",
+        "httpx<0.29.0,>=0.27.0; extra == \"full\"",
+        "itsdangerous; extra == \"full\"",
+        "jinja2; extra == \"full\"",
+        "python-multipart>=0.0.18; extra == \"full\"",
+        "pyyaml; extra == \"full\""
+      ],
+      "first_upload": "2026-01-18T13:34:09.188742Z",
+      "source": "https://pypi.org/pypi/starlette/0.52.1/json"
+    },
+    "anyio": {
+      "version": "4.12.1",
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "exceptiongroup>=1.0.2; python_version < \"3.11\"",
+        "idna>=2.8",
+        "typing_extensions>=4.5; python_version < \"3.13\"",
+        "trio>=0.32.0; python_version >= \"3.10\" and extra == \"trio\"",
+        "trio>=0.31.0; python_version < \"3.10\" and extra == \"trio\""
+      ],
+      "first_upload": "2026-01-06T11:45:19.497480Z",
+      "source": "https://pypi.org/pypi/anyio/4.12.1/json"
+    },
+    "pytest": {
+      "version": "8.4.2",
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "colorama>=0.4; sys_platform == \"win32\"",
+        "exceptiongroup>=1; python_version < \"3.11\"",
+        "iniconfig>=1",
+        "packaging>=20",
+        "pluggy<2,>=1.5",
+        "pygments>=2.7.2",
+        "tomli>=1; python_version < \"3.11\"",
+        "argcomplete; extra == \"dev\"",
+        "attrs>=19.2; extra == \"dev\"",
+        "hypothesis>=3.56; extra == \"dev\"",
+        "mock; extra == \"dev\"",
+        "requests; extra == \"dev\"",
+        "setuptools; extra == \"dev\"",
+        "xmlschema; extra == \"dev\""
+      ],
+      "first_upload": "2025-09-04T14:34:20.226862Z",
+      "source": "https://pypi.org/pypi/pytest/8.4.2/json"
+    }
+  }
+}

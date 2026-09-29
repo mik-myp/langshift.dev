@@ -1,0 +1,233 @@
+---
+title: 对象级授权：知道别人的 ID，也不能操作别人的项目
+description: 从数据库成员关系建立默认拒绝策略，完成项目与任务 CRUD、原子 owner 创建、跨项目校验、成员撤销和真实越权测试。
+---
+
+import { getAuthorizationExample } from '@/lib/js2py-examples'
+
+## 1. 认证给出 actor，授权才回答这个操作是否允许
+
+S01 已经能把有效会话变成一个服务验证过的用户。现在 Alice 把 URL 中的项目 ID 改成 Bob 的项目，会发生什么？若代码只判断“已登录”，数据库外键和响应模型都不会替你拒绝。**对象授权需要同时知道当前用户、目标对象及操作。** 它不是前端按钮是否显示，也不是 CORS 策略。
+
+| 本章契约 | 范围 |
+| --- | --- |
+| 前置 | S01 身份/撤销；D 系列关系、Session、事务、迁移和专用数据库测试 |
+| 新能力 | 数据库成员关系、角色与创建者规则、默认拒绝、作用域查询、父子校验、原子项目创建、成员即时失权 |
+| 独立验收 | Alice 知道 Bob 的项目/任务 ID 仍无法枚举、读取或修改；不能自授角色/创建者；失败事务不遗留半个项目 |
+| 暂不实现 | 所有权转移、公共邀请链接、组织管理员、数据库 RLS、生产部署及跨服务权限缓存 |
+
+下载 [S02 完整实验](/learning-assets/js2py/s02-authorization.zip)。它独立携带 S01 身份实现和完整迁移，没有导入另一个实验目录。为避免偷偷改变业务，继续使用 D 的任务字段：description、status、minutes、due_at、priority；不再接受 H 的 done/note 别名。id 由数据库产生，created_by 由已认证 actor 决定。
+
+## 2. 先把权限写成可证伪的表
+
+| 操作 | 未认证 | 非成员 | 普通成员 | 项目 owner |
+| --- | --- | --- | --- | --- |
+| 创建项目 | 401 | 登录用户可创建自己的项目 | 可 | 可 |
+| 项目列表 | 401 | 只列本人参与的项目 | 同左 | 同左 |
+| 读取项目/成员/任务 | 401 | 404 | 可 | 可 |
+| 创建任务 | 401 | 404 | 可，创建者为本人 | 可，创建者为本人 |
+| 修改/删除任务 | 401 | 404 | 仅本人创建的任务，否则 403 | 可操作项目内任务 |
+| 修改/删除项目、管理成员 | 401 | 404 | 403 | 可 |
+| 删除 owner 成员记录 | 401 | 404 | 403 | 409，明确禁止 |
+
+表中的身份/对象状态以格式合法的请求为前提；框架可能先用脱敏 422 拒绝非法结构，这不意味着允许读取对象。这里的 404 故意不告诉外人项目是不存在还是不可见；已经是成员但缺少操作权限时用 403。它是本实验一致的业务契约，不是所有产品必须采用的唯一策略。不要让不同路由随意泄露不同程度的信息。
+
+默认拒绝的含义是：没有一条明确允许规则，就停止。不是先取出完整对象返回给前端再“建议不要显示”。请求体不允许 owner_id、created_by 或 role 自授权。邀请成员时的 user_id 是**待加入的目标用户**，不是调用者身份，且服务固定写入 member。
+
+<details>
+<summary>解释性答案：有外键和无法猜测的 ID，为什么还需要授权？</summary>
+
+外键证明引用存在，不证明调用者有权使用它。随机或难猜的 ID 只能降低偶然发现概率，不能作为授权证据：URL、日志、分享内容都可能暴露 ID。验证必须在已知真实 ID 的情况下仍然正确，所以本章负向测试直接把 Bob 的真实 ID 交给 Alice，而不是只试一个不存在的数字。
+
+</details>
+
+## 3. 数据库增加“至多一个 owner”，但它不是整个业务规则
+
+基线于 **2026-09-28** 验证：Python 3.13.15、uv 0.12.13，Web 版本保持 FastAPI 0.135.1/Uvicorn 0.42.0/Pydantic 2.12.5；SQLAlchemy 2.0.54、Alembic 1.20.0、psycopg[binary] 3.3.6、PostgreSQL 18.6、argon2-cffi 25.1.0、pytest 8.4.2。公开 PyPI 锁文件包含实际间接依赖。
+
+<Code language="toml">{getAuthorizationExample('pyproject.toml')}</Code>
+
+迁移完整继承 001–004，再添加：
+
+<Code language="python">{getAuthorizationExample('migrations/versions/005_owner_guard.py')}</Code>
+
+部分唯一索引只覆盖 role='owner' 的行，所以同项目至多一位 owner，普通成员可以多位。它并不证明“每个项目至少有一位 owner”，也不证明 owner 是项目创建者。后两条由创建事务和禁止移除 owner 的服务规则维持。
+
+如果旧数据有两位 owner，迁移应失败并保留原数据，不能偷偷删一个。测试会建立这样的专用历史库，观察失败，然后对虚构数据作出明确修正决定，再升级。生产数据需要业务负责人审查，不能套用测试里的具体选择。
+
+## 4. 先限定对象作用域，再让处理函数继续
+
+<Code language="python">{getAuthorizationExample('authorization.py')}</Code>
+
+从 guard_project 开始读：按 URL 找项目并取得行锁，然后用 project_id 与 actor_id 查成员关系；任一步不存在都返回同一个 Project not found。返回的 member 来自数据库，不来自登录时缓存的角色，也不来自请求 JSON。
+
+为什么还有 find_task 的 project_id 条件？Alice 即使有自己的项目，也不能把 Bob 的 task_id 填在自己的父项目 URL 下。查询必须同时约束 task.id 与 task.project_id，不能“父项目验证通过，再按任意 task_id 读取”。这是对子资源的第二道边界。
+
+may_edit_task 只在已经验证项目成员、且任务属于该项目之后调用：owner 或真正的任务创建者才能写。这样相同函数不能被误读成“只要 created_by 相同就不必检查当前成员关系”。成员被移除以后，旧创建者也必须先在项目入口被拒绝。
+
+## 5. 为什么权限检查与写入要留在同一个事务里
+
+想象请求 A 查到 Alice 是成员，随后请求 B 删除 Alice 的成员关系，最后 A 才写入。仅仅“每个端点都检查过一次”还没说明两者如何排序。本实验约定进入具体项目的对象操作持项目共享锁，成员变更/项目删除持项目排他锁，直到事务结束。项目总列表使用带成员条件的 SQL 语句快照，不声称把已经开始的列表响应撤回，也不保证并发分页与 total 来自同一快照。移除成员必须等待已持锁操作结束；移除提交后的新请求查不到关系。
+
+这不是回收已经发送的数据，也不是强行终止正在执行的授权请求。它是一个明确可解释的串行顺序。所有相关写入者都必须遵循相同锁协议；绕过应用直接改库的管理员仍可破坏服务不变量。不要把它称为数据库 RLS 或任意 SQL 都安全。
+
+创建项目是另一个事务问题：先 INSERT project、flush 得到 id，再 INSERT owner，最后由调用层一起 commit。flush 只是发送 SQL、分配 id，不是落定业务成功。第二步失败，第一步也必须回滚；repository/helper 里不能提前 commit，把两步拆成不可恢复的半成品。
+
+<details>
+<summary>事务检查答案：为什么“先保存项目，再补 owner”不够？</summary>
+
+如果先提交项目，后面的 owner 插入因为外键、唯一约束或异常失败，会留下无人管理的项目。部分唯一索引只限制 owner 数量，不能补出缺失的 owner。本章测试让第二条 INSERT 真实触发外键错误，然后用新事务查询项目不存在；随后正常创建应成功，证明不是只捕获异常却保留坏 Session。
+
+</details>
+
+## 6. 完整输入与路由：不要把检查留给某个“调用约定”
+
+<Code language="python">{getAuthorizationExample('schemas.py')}</Code>
+
+ProjectInput 只允许 name；MemberInput 只允许目标 user_id；TaskInput 不包含服务拥有的 id/project_id/created_by。minutes 是严格非负 int，增加 PostgreSQL integer 上限；priority 0–2；status 只有 todo/doing/done。description 与 due_at 可以清空；部分更新仍根据 exclude_unset 区分遗漏和值。title 只验证非空白，不改变原字形。
+
+due_at 的字符串显式解析为带偏移的时间并转 UTC；没有时区的值被拒绝。它是一个有意声明的转换规则，不是把所有数字字符串都变宽松。下一章进一步解释 UTC、规范化与幂等摘要之间的关系。
+
+<Code language="python">{getAuthorizationExample('app.py')}</Code>
+
+每条对象路由都在自己的 Session.begin 中认证、取得作用域、检查操作规则、执行 SQL，结束事务后才返回。列表的 SQL join 本身按当前用户成员关系筛选，total 也按同一个作用域计数；不能先查全部记录再在页面里过滤。
+
+删除项目保留数据库 RESTRICT 外键，按任务、成员、项目的顺序显式删除，并在同一事务提交。此处的 owner 明确有权删除整个项目及其子数据，但 UI 确认、恢复和生产备份仍不是这段 SQL 自动提供的。没有软删除或所有权转移的隐藏实现。
+
+## 7. 从空环境准备两个人，不把密码写进教程
+
+进入 s02-authorization，用自己的隔离集群，不复用 S01 的 DATABASE_URL：
+
+```bash
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+unset VIRTUAL_ENV UV_PROJECT_ENVIRONMENT UV_ACTIVE UV_PYTHON UV_CONFIG_FILE
+export UV_NO_CONFIG=true
+uv sync --locked
+uv run --locked python labdb.py start
+```
+
+复制程序输出的 DATABASE_URL export 行。然后：
+
+```bash
+uv run --locked alembic upgrade head
+uv run --locked python admin.py create-user Alice
+uv run --locked python admin.py create-user Bob
+uv run --locked python serve.py --port 8062
+```
+
+密码只在 getpass 提示中输入。另一个终端进入本实验目录并登录两人：
+
+```bash
+uv run --locked python client.py --port 8062 --session .session-alice.json login Alice
+uv run --locked python client.py --port 8062 --session .session-bob.json login Bob
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /users/me
+uv run --locked python client.py --port 8062 --session .session-bob.json request GET /users/me
+```
+
+从响应确认用户 id。下面具体数字假设这是刚创建的空实验，Alice=1、Bob=2；若你的响应不同，应替换目标 id，而不是重置陌生数据库来凑数字。
+
+## 8. 让 Alice 直接拿到 Bob 的真实对象 ID，再试越权
+
+先由 Bob 创建第一个项目和任务；记录响应中的项目和任务 id。以下假设二者都是 1：
+
+```bash
+uv run --locked python client.py --port 8062 --session .session-bob.json request POST /projects --json '{"name":"Bob private"}'
+uv run --locked python client.py --port 8062 --session .session-bob.json request POST /projects/1/tasks --json '{"title":"Bob task","minutes":25}'
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /projects
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /projects/1
+uv run --locked python client.py --port 8062 --session .session-alice.json request PATCH /projects/1/tasks/1 --json '{"status":"done"}'
+```
+
+Bob 的两次创建为 201，Alice 的列表为 200 但没有 Bob 项目，直接读和改均为 404。随后 Bob 加 Alice 为普通成员，注意这个 user_id 是目标邀请人：
+
+```bash
+uv run --locked python client.py --port 8062 --session .session-bob.json request POST /projects/1/members --json '{"user_id":1}'
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /projects/1/tasks/1
+uv run --locked python client.py --port 8062 --session .session-alice.json request PATCH /projects/1/tasks/1 --json '{"status":"done"}'
+uv run --locked python client.py --port 8062 --session .session-alice.json request POST /projects/1/tasks --json '{"title":"Alice task","created_by":2}'
+```
+
+现在 Alice 可以读（200），但不能改 Bob 创建的任务（403），自报 created_by 被模型拒绝（422）。删掉伪造字段后由 Alice 正常创建，响应 created_by 必须是 Alice。不要只验证列表；直接对象 URL、子资源 URL、PATCH、DELETE 都需要负向测试。
+
+## 9. 撤成员不是撤身份，但必须立即撤掉对象权限
+
+```bash
+uv run --locked python client.py --port 8062 --session .session-bob.json request DELETE /projects/1/members/2
+uv run --locked python client.py --port 8062 --session .session-bob.json request DELETE /projects/1/members/1
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /users/me
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /projects/1
+```
+
+第一条试图删除 Bob 自己的 owner 成员记录，应为 409；第二条移除 Alice，应为 204。Alice 的凭证仍有效，所以 /users/me 为 200，但项目读取为 404。它不是等令牌过期才失权，因为角色和成员关系根本不缓存在令牌里。
+
+恢复实验可以由 Bob 重新邀请 Alice；不是让 Alice 提交 role="owner"，也不是关闭认证。重复邀请由数据库主键拒绝并转换为脱敏 409；事务结束后下一条合法请求仍应成功。失效 Session 不得留在全局继续使用。
+
+<details>
+<summary>边界答案：Alice 是任务创建者，移除后为什么仍不能修改？</summary>
+
+任务创建者规则是在当前项目成员的前提下增加允许条件，不是永久所有权通行证。入口先查当前成员关系，移除后在这里返回 404，根本不会继续调用 may_edit_task。仅凭历史 created_by 授权，会让已经离开项目的人保留写权限；认证仍有效也不能补足这个缺失关系。
+
+</details>
+
+## 10. 验收正常路径，更要覆盖允许规则的反面
+
+```bash
+uv run --locked python -m pytest -q
+```
+
+<Code language="python">{getAuthorizationExample('tests/test_authorization.py')}</Code>
+
+测试用已知真实 ID 构造读、列表、父子替换、写和删的越权；还验证普通成员不能管理成员/项目、创建者不可伪造、owner 不可删除、移除后旧有效凭证无对象权限、第二步失败回滚、唯一 owner 约束，以及项目删除的全部子记录。不要把一个 happy path 或“覆盖率高”当权限证明。
+
+<Code language="python">{getAuthorizationExample('tests/test_migrations.py')}</Code>
+
+历史迁移实验另建专用数据库，确认 priority 与旧任务保留、旧用户没有默认密码；多 owner 的旧数据会阻止升级而不是被自动修正。所有这些都运行在自建 PostgreSQL 18.6，而非 SQLite。fixture 负责应用和数据库进程的独占生命周期，记录的请求正文不会包含密码或令牌。
+
+不同真实连接还验证：项目写入持共享锁时移除成员必须等待，写入与移除依次提交后 Alice 身份仍有效但对象被拒绝。这是顺序保证，不是中断已授权请求的承诺。敏感 body/query/path 校验和真实数据库错误还会检查响应、应用及 PostgreSQL 日志泄露。
+
+## 11. 独立重建与带权限的统计变式
+
+**独立重建：** 从字段/路由/权限表出发，自己写项目、成员与任务服务。可以带本章的环境、身份模块和迁移文件，但不能导入参考 authorization.py 或对象路由。重建后先让 Alice 用 Bob 的真实 ID 验收，再检查正常 CRUD；证明 owner 创建的两个 INSERT 在一个事务内。
+
+**变式：** 添加 GET `/projects/{project_id}/summary`，只统计该项目未完成任务的 count/minutes。成员可读，外人 404；done 任务不计，0 分钟任务仍计数；列表分页不改变汇总范围。不能先算整个数据库再过滤结果。
+
+<details>
+<summary>独立变式参考答案</summary>
+
+<Code language="python">{getAuthorizationExample('solutions/project_summary.py')}</Code>
+
+它先认证并取得项目作用域，再把 project_id/status 条件放进 SQL 聚合。SUM 在没有行时可能为空，coalesce 明确转换成 0。先自己实现，再从本目录运行：
+
+```bash
+uv run --locked python serve.py --port 8062 --app solutions.project_summary:app
+uv run --locked python client.py --port 8062 --session .session-bob.json request GET /projects/1/summary
+```
+
+请求在另一终端执行。用 todo/0、doing/15、done/40 三项验收，应得 count=2、minutes=15；外人请求仍 404。测试真实运行这个扩展入口，并同时复验所有原路由。
+
+</details>
+
+## 12. 恢复记录、边界与一手依据
+
+```text
+checkpoint: S02 object authorization
+migration: 005_owner_guard
+last_success: Alice /users/me -> 200; removed membership /projects/1 -> 404
+failure_recovered: duplicate invitation -> 409; next valid request -> 200
+credential_values: not recorded
+api: stopped in owning terminal
+next: start API; verify owner still present; run negative matrix
+```
+
+先停止自己的 API，再决定 labdb.py restart 保留数据库，或 labdb.py stop 删除本实验临时数据。保存已验证角色矩阵、对象 id、最后失败/恢复步骤，不保存凭证。页面与 ZIP 只使用 allowlist，不包含会话文件、PG 数据、缓存、环境或日志。
+
+这不是任意复杂权限系统：没有所有权转移、跨服务缓存、管理员越权通道、RLS、安全审计或部署保证。同步处理仍可能并发；这里用具体数据库锁和约束处理已声明操作，不声称所有业务组合都无死锁。全局列表有快照边界，账号停用与邀请该账号并发也不构成已承诺的原子开通流程。S03 将单独处理重试、幂等和两连接竞争。
+
+官方资料于 2026-09-28 核验，完整记录在 SOURCES.md，实际请求与 case 见 VERIFICATION.md：
+
+- [OWASP Authorization](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)：默认拒绝、每次请求验证及对象级权限。
+- [PostgreSQL Constraints](https://www.postgresql.org/docs/18/ddl-constraints.html) 与 [Partial Indexes](https://www.postgresql.org/docs/18/indexes-partial.html)：外键和部分唯一索引的真实范围。
+- [PostgreSQL Explicit Locking](https://www.postgresql.org/docs/18/explicit-locking.html)：行锁兼容与等待。
+- [SQLAlchemy Session Transactions](https://docs.sqlalchemy.org/en/20/orm/session_transaction.html)：事务所有者、提交与回滚。

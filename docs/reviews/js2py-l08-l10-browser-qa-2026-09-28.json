@@ -1,0 +1,228 @@
+{
+  "date": "2026-09-28",
+  "results": [
+    {
+      "lab": "u08-environments",
+      "locale": "zh-cn",
+      "title": "环境与依赖管理",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 12,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 7037,
+      "zip_sha256": "d2f8f67655d0a3fe873ee902609a80249382e9ac9ea929a5fa665031f0b7ec02",
+      "screenshots": [
+        "u08-environments-zh-cn-top.png",
+        "u08-environments-zh-cn-answer.png"
+      ]
+    },
+    {
+      "lab": "u08-environments",
+      "locale": "en",
+      "title": "Environments and Dependencies",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 12,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 7037,
+      "zip_sha256": "d2f8f67655d0a3fe873ee902609a80249382e9ac9ea929a5fa665031f0b7ec02",
+      "screenshots": [
+        "u08-environments-en-top.png",
+        "u08-environments-en-answer.png"
+      ]
+    },
+    {
+      "lab": "u08-environments",
+      "locale": "zh-tw",
+      "title": "環境與依賴管理",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 12,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 7037,
+      "zip_sha256": "d2f8f67655d0a3fe873ee902609a80249382e9ac9ea929a5fa665031f0b7ec02",
+      "screenshots": [
+        "u08-environments-zh-tw-top.png",
+        "u08-environments-zh-tw-answer.png"
+      ]
+    },
+    {
+      "lab": "u09-testing",
+      "locale": "zh-cn",
+      "title": "基础自动化测试",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 13,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 10108,
+      "zip_sha256": "e817686062feead7dc1c75f528e3e5a8d0fb2865ee7302f98c6cfc071068229c",
+      "screenshots": [
+        "u09-testing-zh-cn-top.png",
+        "u09-testing-zh-cn-answer.png"
+      ]
+    },
+    {
+      "lab": "u09-testing",
+      "locale": "en",
+      "title": "Basic Automated Testing",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 13,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 10108,
+      "zip_sha256": "e817686062feead7dc1c75f528e3e5a8d0fb2865ee7302f98c6cfc071068229c",
+      "screenshots": [
+        "u09-testing-en-top.png",
+        "u09-testing-en-answer.png"
+      ]
+    },
+    {
+      "lab": "u09-testing",
+      "locale": "zh-tw",
+      "title": "基礎自動化測試",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 13,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 10108,
+      "zip_sha256": "e817686062feead7dc1c75f528e3e5a8d0fb2865ee7302f98c6cfc071068229c",
+      "screenshots": [
+        "u09-testing-zh-tw-top.png",
+        "u09-testing-zh-tw-answer.png"
+      ]
+    },
+    {
+      "lab": "u10-local-project",
+      "locale": "zh-cn",
+      "title": "第一个独立可复现项目",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 17,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 10507,
+      "zip_sha256": "b963e2f310168fdd8382f61bf846b55f47fe1d47c509633a651fa9f005dea5a2",
+      "screenshots": [
+        "u10-local-project-zh-cn-top.png",
+        "u10-local-project-zh-cn-answer.png"
+      ]
+    },
+    {
+      "lab": "u10-local-project",
+      "locale": "en",
+      "title": "Your First Independent Reproducible Project",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 17,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 10507,
+      "zip_sha256": "b963e2f310168fdd8382f61bf846b55f47fe1d47c509633a651fa9f005dea5a2",
+      "screenshots": [
+        "u10-local-project-en-top.png",
+        "u10-local-project-en-answer.png"
+      ]
+    },
+    {
+      "lab": "u10-local-project",
+      "locale": "zh-tw",
+      "title": "第一個獨立可復現項目",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 17,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 10507,
+      "zip_sha256": "b963e2f310168fdd8382f61bf846b55f47fe1d47c509633a651fa9f005dea5a2",
+      "screenshots": [
+        "u10-local-project-zh-tw-top.png",
+        "u10-local-project-zh-tw-answer.png"
+      ]
+    }
+  ],
+  "screenshots_captured": 18,
+  "screenshots_actually_viewed": [
+    "u08-environments-zh-cn-top.png",
+    "u08-environments-en-answer.png",
+    "u08-environments-zh-tw-top.png",
+    "u09-testing-zh-cn-top.png",
+    "u09-testing-en-answer.png",
+    "u09-testing-zh-tw-top.png",
+    "u10-local-project-zh-cn-top.png",
+    "u10-local-project-en-answer.png",
+    "u10-local-project-zh-tw-top.png"
+  ],
+  "screenshot_directory": "/tmp/langshift-remaining-20260928",
+  "screenshot_sha256": {
+    "u08-environments-zh-cn-top.png": "f9d0168ffee254d1674cc10c6e11d338d88f90191c7d4f7ae4feff4b1395bca1",
+    "u08-environments-zh-cn-answer.png": "b6642069b9d56ff77d98575ea0e18c987b7d2c37bdb105c3210b85b80737fe49",
+    "u08-environments-en-top.png": "d29c43ddb94f60722d8e2580ef2d9f1745c675217eec1bc2d05af79a6f2757da",
+    "u08-environments-en-answer.png": "d820d8f399dd6c8299564c4f3783086deb5708b729a74c3741667f368d97ef42",
+    "u08-environments-zh-tw-top.png": "8099908c02c3de26a7df63a99c3867a2edc6d567d2381b232bb068c6f77d1c8e",
+    "u08-environments-zh-tw-answer.png": "4fad5b1cf2e43421b00685311b89ca07ee644df794d16711faacf9fa95f30708",
+    "u09-testing-zh-cn-top.png": "0dd486054765cf56d95f068beb9c36c70ed58aae6a4580d32226b7b8daef56ef",
+    "u09-testing-zh-cn-answer.png": "a9f88d50f5dacd9c9e0ccab109469d7aaff6d972db46a60fd759bf6454804bce",
+    "u09-testing-en-top.png": "acf30318acd176c64bd0440481e45b64152865c0eabeb39c1c5c9dda99961aa8",
+    "u09-testing-en-answer.png": "c903b6f427814a86ba4cff61e22f499d96ef62c981c8523fefb1380d37a304eb",
+    "u09-testing-zh-tw-top.png": "60d2c9a5e7092e0a60ff1515130a2f9617c078fea6c23173d7cac9a93ac40046",
+    "u09-testing-zh-tw-answer.png": "252fa761bc81b0bba046cbb67f2bc1ab89f6e5272a1180af0aa5cfaf7329df49",
+    "u10-local-project-zh-cn-top.png": "8f6113a063edc8a70ff543e3608b90db886beff26427a2f0f7d0e18d34415e6a",
+    "u10-local-project-zh-cn-answer.png": "1b845614a423f892c3d6f43d4d76da4f85e2fd808842b5bd3b8ceade4dc07502",
+    "u10-local-project-en-top.png": "09a94fe52c5a9ab9631f15dd5a3d6e024fbf6c40144eabce1571244bf4b765b6",
+    "u10-local-project-en-answer.png": "0d8b54518ef8f7290683ad5105d4913944e5485880995759a5c0314834af9bc6",
+    "u10-local-project-zh-tw-top.png": "79dd558a4054eb03cb6af62dd5411b4e4833e515ad0872d7eb93ed9d3afe6acb",
+    "u10-local-project-zh-tw-answer.png": "6f7ad8c63b6891e4f0f880d6d26394e64ced1a308af0c2dfc0ecb1ea6ad15547"
+  },
+  "limitations": "Nine named pages, 1280x900 desktop, specified answer interactions and source/download equality. Nine of eighteen screenshots viewed as recorded; not mobile/all-site/zero-network certification."
+}

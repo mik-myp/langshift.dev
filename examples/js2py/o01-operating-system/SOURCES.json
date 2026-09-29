@@ -1,0 +1,56 @@
+[
+  {
+    "title": "Python subprocess",
+    "url": "https://docs.python.org/3.13/library/subprocess.html",
+    "scope": "Owned Popen handles, POSIX negative signal return codes, timeout and cwd/env",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.python.org/3.13/library/subprocess.html",
+    "sha256": "e222b64e7b5d77e78e196bc7936ff45427ec2937087ee8ec41e7b5d6ffab680c"
+  },
+  {
+    "title": "Python signal",
+    "url": "https://docs.python.org/3.13/library/signal.html",
+    "scope": "Main-thread handlers; SIGKILL cannot be caught",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.python.org/3.13/library/signal.html",
+    "sha256": "d6045065f0ac8c044098057519db965926372a930233ca3e79684574ef47d715"
+  },
+  {
+    "title": "Python os",
+    "url": "https://docs.python.org/3.13/library/os.html",
+    "scope": "Environment, umask, chmod, POSIX identifiers",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.python.org/3.13/library/os.html",
+    "sha256": "a5360ec4058c1f8fa627ae707daa85be34b28048c6c3dd1d280033392919eb2d"
+  },
+  {
+    "title": "Python socket",
+    "url": "https://docs.python.org/3.13/library/socket.html",
+    "scope": "bind/listen/close and address families",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.python.org/3.13/library/socket.html",
+    "sha256": "3e14dfd0b451c74cdb717ae7144f59a61e7e56f012dd85e0284dbbfbcabd5e0c"
+  },
+  {
+    "title": "systemd service",
+    "url": "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html",
+    "scope": "Restart, stop timeout, ExecStart; Linux runtime remains unverified",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html",
+    "sha256": "8b9e04d13a18329c395d9088ee32898fa3c27cc296d7bd84baa549f7344f5aea"
+  },
+  {
+    "title": "systemd execution environment",
+    "url": "https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html",
+    "scope": "User, WorkingDirectory, StateDirectory, filesystem restrictions",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html",
+    "sha256": "a1710bc7b196f3fbdb072661791503a4117f6d980036d9b6063ac11e1f952fe1"
+  }
+]

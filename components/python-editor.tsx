@@ -350,8 +350,9 @@ export default function PythonEditor(params: PythonEditorProps) {
   
   // 订阅 Pyodide 实例
   useEffect(() => {
-    if (!isClient) return
+    if (!isClient || !canRun) return
 
+    // Display-only examples must not download or initialize the Python runtime.
     // 订阅 Pyodide 实例变化
     const unsubscribe = pyodideManager.subscribe((pyodideInstance) => {
       setPyodide(pyodideInstance)
@@ -368,7 +369,7 @@ export default function PythonEditor(params: PythonEditorProps) {
     }
 
     return unsubscribe
-  }, [isClient])
+  }, [isClient, canRun, t.editor.executionFailed, t.editor.languages.python])
   
   // 解析代码块
   useEffect(() => {
@@ -389,7 +390,7 @@ export default function PythonEditor(params: PythonEditorProps) {
   
   // 运行 Python 代码
   const runPythonCode = async () => {
-    if (!pyodide || !pythonCode.trim()) return
+    if (!canRun || !pyodide || !pythonCode.trim()) return
     
     setIsRunning(true)
     setOutput('')
@@ -521,12 +522,12 @@ sys.stdout = sys.__stdout__
   
   // 运行 JavaScript 代码
   const runJavascriptCode = () => {
-    if (!javascriptCode.trim()) return
-    
+    if (!canRun || !javascriptCode.trim()) return
+
+    const originalLog = console.log
     try {
       // 创建一个新的 console.log 来捕获输出
       const logs: string[] = []
-      const originalLog = console.log
       console.log = (...args) => {
         // 正确处理数组和其他类型的输出
         const formattedArgs = args.map(arg => {
@@ -542,13 +543,12 @@ sys.stdout = sys.__stdout__
       // 执行代码
       eval(javascriptCode)
       
-      // 恢复 console.log
-      console.log = originalLog
-      
       setOutput(logs.join('\n'))
       setError('')
     } catch (err: any) {
       setError(err.message || t.editor.executionError)
+    } finally {
+      console.log = originalLog
     }
   }
   
@@ -579,7 +579,7 @@ sys.stdout = sys.__stdout__
           >
             {isLoading ? t.editor.loadingRuntime.replace('{language}', t.editor.languages.python) : isRunning ? t.editor.running : t.editor.run.replace('{language}', t.editor.languages.python)}
           </button>
-          {compare && (javascriptCode || typescriptCode) && (
+          {compare && javascriptCode.trim() && (
             <button
               onClick={runJavascriptCode}
               disabled={isRunning}
@@ -684,7 +684,7 @@ sys.stdout = sys.__stdout__
                     >
                       {isLoading ? t.editor.loadingRuntime.replace('{language}', t.editor.languages.python) : isRunning ? t.editor.running : t.editor.run.replace('{language}', t.editor.languages.python)}
                     </button>
-                    {compare && (javascriptCode || typescriptCode) && (
+                    {compare && javascriptCode.trim() && (
                       <button
                         onClick={runJavascriptCode}
                         disabled={isRunning}

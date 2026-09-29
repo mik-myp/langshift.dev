@@ -1,0 +1,1 @@
+UPDATE tasks SET priority=0 WHERE priority IS NULL; ALTER TABLE tasks ALTER COLUMN priority SET DEFAULT 0, ALTER COLUMN priority SET NOT NULL; ALTER TABLE tasks ADD CONSTRAINT tasks_priority_valid CHECK(priority BETWEEN 0 AND 2);

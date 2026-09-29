@@ -1,0 +1,125 @@
+{
+  "files": {
+    "errors/traceback_chain.py": {
+      "stdout": "Starting report\n",
+      "error": "ValueError",
+      "error_line": 2
+    },
+    "errors/debug_observation.py": {
+      "stdout": "raw: '25m'\ntype: <class 'str'>\n",
+      "error": "ValueError",
+      "error_line": 4
+    },
+    "debug_fixed.py": {
+      "stdout": "raw: ' 25 '\ntype: <class 'str'>\nminutes: 25\n"
+    },
+    "debug_logic.py": {
+      "stdout": "10\n0\n"
+    },
+    "recover_value.py": {
+      "stdout": "Input: '25'\nConverted: 25\nNext item\nInput: 'bad'\nRejected: invalid literal for int() with base 10: 'bad'\nNext item\nInput: '0'\nConverted: 0\nNext item\n"
+    },
+    "errors/unexpected_type.py": {
+      "stdout": "",
+      "error": "TypeError",
+      "error_line": 3
+    },
+    "validate_minutes.py": {
+      "stdout": "Accepted: 25\nAccepted: 0\nRejected: minutes must be non-negative\n"
+    },
+    "errors/negative_minutes.py": {
+      "stdout": "",
+      "error": "ValueError",
+      "error_line": 6
+    },
+    "handler_order.py": {
+      "stdout": "Broad handler ran\nSpecific handler ran\n"
+    },
+    "pitfalls/wide_try.py": {
+      "stdout": "Bad input\n"
+    },
+    "errors/narrow_try.py": {
+      "stdout": "",
+      "error": "ValueError",
+      "error_line": 2
+    },
+    "errors/reraise.py": {
+      "stdout": "Context: parsing Read\n",
+      "error": "ValueError",
+      "error_line": 3
+    },
+    "errors/chained_error.py": {
+      "stdout": "",
+      "error": "ValueError",
+      "error_line": 7
+    },
+    "finally_paths.py": {
+      "stdout": "else\nfinally\nResult: 0\nexcept\nfinally\nResult: None\n"
+    },
+    "errors/finally_unhandled.py": {
+      "stdout": "finally before propagation\n",
+      "error": "TypeError",
+      "error_line": 2
+    },
+    "pitfalls/finally_return.py": {
+      "stdout": "Overridden: 0\nHidden: 0\n"
+    },
+    "pitfalls/partial_mutation.py": {
+      "stdout": "Rejected\n{'title': 'Read', 'minutes': 20, 'changes': ['estimate changed']}\n"
+    },
+    "apply_estimate.py": {
+      "stdout": "Rejected: minutes must be non-negative\n{'title': 'Read', 'minutes': 20, 'changes': []}\n{'title': 'Read', 'minutes': 0, 'changes': ['estimate changed']}\n"
+    },
+    "assert_invariant.py": {
+      "stdout": "30\n"
+    },
+    "pitfalls/assert_validation.py": {
+      "stdout": "",
+      "error": "AssertionError",
+      "error_line": 3
+    },
+    "solutions/fix_boundary.py": {
+      "stdout": "20\nNone\n0\n"
+    },
+    "solutions/import_report.py": {
+      "stdout": "Accepted: [{'title': 'Read', 'minutes': 20}, {'title': 'Zero', 'minutes': 0}, {'title': 'Practice', 'minutes': 35}]\nRejected: [{'row': 2, 'title': 'Typo', 'reason': 'minutes must be an integer'}, {'row': 4, 'title': 'Negative', 'reason': 'minutes must be non-negative'}]\nTotal: 55\nSource first: {'title': 'Read', 'minutes': ' 20 '}\n"
+    }
+  },
+  "fences": {
+    "syntax-error": {
+      "stdout": "",
+      "error": "SyntaxError",
+      "error_line": 2
+    },
+    "raise-comparison": {
+      "stdout": "minutes must be non-negative\n"
+    },
+    "prediction": {
+      "stdout": "start\nexcept\nfinally\nend\n"
+    },
+    "bad-boundary": {
+      "stdout": "0\n0\n"
+    },
+    "exercise-input": {
+      "stdout": "Rows: 5\n"
+    }
+  },
+  "javascript": {
+    "raise-comparison": {
+      "stdout": "minutes must be non-negative\n"
+    }
+  },
+  "optimized": {
+    "pitfalls/assert_validation.py": {
+      "stdout": "-5\n"
+    },
+    "errors/negative_minutes.py": {
+      "stdout": "",
+      "error": "ValueError",
+      "error_line": 6
+    },
+    "assert_invariant.py": {
+      "stdout": "30\n"
+    }
+  }
+}

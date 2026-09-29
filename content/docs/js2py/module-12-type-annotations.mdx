@@ -1,944 +1,202 @@
 ---
-title: "Detailed Guide to Python Type Annotations: A TypeScript Developer's Perspective"
-description: "Gain a deep understanding of Python's type annotation system, master the parallels with TypeScript, and enhance code quality and development experience."
+title: Classes and Data Models — Instances, Ownership, and Explicit Validation
+description: Move from dictionaries and functions to small object models; understand self, initialization, composition, simple inheritance, and dataclasses through real ownership and validation failures.
 ---
 
-## 1. Introduction
+import { getModelExample } from '@/lib/js2py-examples'
 
-### Why are Type Annotations Necessary?
+## 1. When should data and behavior live together?
 
-As a TypeScript developer, you're well aware of the importance of a type system in large-scale projects. Type annotations not only enable IDEs to provide better autocompletion but also help catch potential errors at compile time, improving code maintainability.
+Using dictionaries for tasks and functions for operations was not wrong, and does not become obsolete when class syntax appears. When several functions depend on the same fields and rules, an object can make relevant operations easier to find. It does not automatically provide a database, authorization, or unbreakable constraints.
 
-Python introduced Type Hints in version 3.5 and has been continuously refining them in subsequent versions. Although Python is a dynamically typed language, type annotations offer a development experience similar to that of TypeScript.
+We will build a small, traceable model of task completion. Understand what each object contains, which names refer to the same instance, and who can modify state. Do not convert every dictionary into a class merely because the syntax is available.
 
-**Core Concept Mapping**
+| Contract | Scope |
+| --- | --- |
+| Prerequisites | L04 functions, L06 modules, L11 basic annotations, plus containers and basic tests |
+| New capabilities | Classes/instances, self, initialization, composition, simple inheritance, dataclasses |
+| Acceptance | Build a small model, explain sharing/copying, compare a dictionary alternative, prove annotations are not validation |
+| Excluded | Metaclasses, deep inheritance, descriptors, property decorators, ORMs, framework internals |
 
-| TypeScript Concept | Python Concept | Description |
-| --- | --- | --- |
-| `string`, `number`, `boolean` | `str`, `int`, `bool` | Basic Types |
-| `string[]`, `Array<string>` | `List[str]`, `list[str]` | List Types |
-| `{key: string}` | `Dict[str, Any]`, `dict[str, Any]` | Dictionary Types |
-| `interface` | `TypedDict`, `Protocol` | Interface Definitions |
-| `type` | `TypeAlias` | Type Aliases |
-| `generic<T>` | `TypeVar('T')` | Generics |
-| `union` | `Union`, `|` | Union Types |
-| `optional` | `Optional`, `| None` | Optional Types |
+Download the [complete L12 lab](/learning-assets/js2py/u12-models.zip) and enter u12-models. This remains local Python, without networking or a database.
 
-> 💡 **Learning Strategy**: Think of Python's type annotations as the "Python version" of TypeScript. While the syntax differs, the core concepts and mindset are consistent.
+## 2. Compare an existing dictionary design before learning labels
 
-## 2. Basic Type Annotations
+A task has title, minutes, and done. The dictionary version can call mark_done(task), inspect done, update it if necessary, and return whether anything changed. The object version calls task.mark_done(). The benefit is not prettier punctuation but a clearer connection between state and relevant behavior. Whether it prevents mistakes depends on rules and tests.
 
-### 2.1 Variable Type Annotations
+A class describes how to construct and operate on a kind of object; an instance is a particular constructed object. Creating Task("Read", 30) twice creates distinct instances. Binding another name to an existing task does not copy it. Equal field contents and identical object identity are separate questions.
 
-In TypeScript, it's standard practice to declare types for variables. Python supports a similar syntax.
+A Python class is not a TypeScript interface: classes and instances exist at runtime. Nor should you simply equate a Python class with a JavaScript prototype object. Start with observable construction, attributes, and methods, without assuming any backend framework experience.
 
-<PythonEditor title="Variable Type Annotation Comparison" compare={true}>
-```typescript !! ts
-// TypeScript
-let name: string = "Alice";
-let age: number = 25;
-let isActive: boolean = true;
-let scores: number[] = [85, 92, 78];
-let user: { name: string; age: number } = { name: "Bob", age: 30 };
+## 3. self receives the instance; it is not hidden global state
 
-// Using const to declare constants
-const PI: number = 3.14159;
-const API_URL: string = "https://api.example.com";
+This is a complete, independent example:
+
+```python
+class Counter:
+    def __init__(self, start: int = 0) -> None:
+        self.value = start
+
+    def increase(self) -> int:
+        self.value += 1
+        return self.value
+
+
+first = Counter()
+second = Counter(10)
+print(first.increase(), second.value)
+print(Counter.increase(first))
 ```
 
-```python !! py
-# Python
-from typing import List, Dict, Any
-
-# Variable type annotations
-name: str = "Alice"
-age: int = 25
-is_active: bool = True
-scores: list[int] = [85, 92, 78]  # Python 3.9+
-# Or use typing.List (Python 3.8 and below)
-# scores: List[int] = [85, 92, 78]
-
-user: dict[str, Any] = {"name": "Bob", "age": 30}
-
-# Python has no const, but uppercase can be used to indicate constants
-PI: float = 3.14159
-API_URL: str = "https://api.example.com"
-```
-</PythonEditor>
-
-### 2.2 Function Type Annotations
-
-Functions are one of the most important use cases for type annotations. Python's function type annotation syntax is very similar to TypeScript's.
-
-<PythonEditor title="Function Type Annotation Comparison" compare={true}>
-```typescript !! ts
-// TypeScript
-function greet(name: string, age: number): string {
-  return `Hello, ${name}. You are ${age} years old.`;
-}
-
-function calculateArea(width: number, height: number): number {
-  return width * height;
-}
-
-function getUserInfo(id: number): { name: string; email: string } | null {
-  // Simulate fetching user info from a database
-  if (id === 1) {
-    return { name: "Alice", email: "alice@example.com" };
-  }
-  return null;
-}
-
-// Arrow function
-const multiply = (a: number, b: number): number => a * b;
+```text
+1 10
+2
 ```
 
-```python !! py
-# Python
-from typing import Optional, Dict, Any
+Ordinary instance-method access binds the instance as the first argument. Here first.increase() and Counter.increase(first) perform the same operation. self is a conventional name, not a keyword. Unlike relying on JavaScript this binding, you explicitly declare the receiving parameter but omit it when calling through an instance.
 
-def greet(name: str, age: int) -> str:
-    return f"Hello, {name}. You are {age} years old."
+`self.value = start` sets an attribute on this instance; a local variable named value is a different storage location. __init__ initializes a newly created instance and should not return a business object. Implementing low-level allocation is outside this chapter.
 
-def calculate_area(width: float, height: float) -> float:
-    return width * height
+<details>
+<summary>Explanation answer: what changes after second = first?</summary>
 
-def get_user_info(user_id: int) -> Optional[dict[str, str]]:
-    # Simulate fetching user info from a database
-    if user_id == 1:
-        return {"name": "Alice", "email": "alice@example.com"}
-    return None
+Both names refer to one instance. Calling increase through either changes the same value. Constructing Counter(first.value) creates a different counter instead. Equal initial numbers do not make these operations equivalent copies.
 
-# Lambda function (Python's version of an arrow function)
-multiply = lambda a: float, b: float: a * b
-```
-</PythonEditor>
+</details>
 
-## 3. Complex Type Annotations
+## 4. Constructor checks establish a starting point, not a permanent seal
 
-### 3.1 List and Array Types
+Task initialization checks a non-blank title, ordinary non-negative integer minutes, and strictly boolean done. Validated values are stored on the instance. If construction fails, the caller does not receive a normally initialized Task. Silently substituting zero would conceal the failure.
 
-Python's list type annotations are very similar to TypeScript's array types.
+mark_done reports whether a transition occurred, so repeated completion is not counted twice. remaining_minutes derives its result from current done instead of storing another total that might become stale. Many state errors come from redundant information, not from insufficient inheritance layers.
 
-<PythonEditor title="List Type Annotation Comparison" compare={true}>
-```typescript !! ts
-// TypeScript
-let numbers: number[] = [1, 2, 3, 4, 5];
-let names: string[] = ["Alice", "Bob", "Charlie"];
-let mixed: (string | number)[] = ["hello", 42, "world", 100];
+Task attributes are still publicly writable. After valid construction, assigning -1 to task.minutes does not automatically rerun validation. Using the methods is a convention, not a security sandbox. Service inputs, database constraints, and business operations will each have responsibilities later; naming something a model does not remove those obligations.
 
-// Two-dimensional array
-let matrix: number[][] = [
-  [1, 2, 3],
-  [4, 5, 6],
-  [7, 8, 9]
-];
+## 5. Composition starts with ownership and sharing
 
-// Using the Array generic
-let scores: Array<number> = [85, 92, 78];
-let users: Array<{ name: string; age: number }> = [
-  { name: "Alice", age: 25 },
-  { name: "Bob", age: 30 }
-];
-```
+Plan contains a task list: it has Tasks rather than being a Task. It copies the outer input list, so a caller clearing its own list does not empty the plan. The contained Task instances are intentionally shared: completing read changes the remaining minutes observed by the plan.
 
-```python !! py
-# Python
-from typing import List, Union
+This is not a deep copy or a frozen snapshot. Draw the references: the original list points to task; Plan.tasks points to the same task; the two lists themselves differ. An independent snapshot needs an explicit policy about copied state and later updates, not merely list(...).
 
-# Basic list types
-numbers: list[int] = [1, 2, 3, 4, 5]  # Python 3.9+
-names: list[str] = ["Alice", "Bob", "Charlie"]
-mixed: list[Union[str, int]] = ["hello", 42, "world", 100]
-# Or use the | operator (Python 3.10+)
-# mixed: list[str | int] = ["hello", 42, "world", 100]
+The implementation uses an ordinary for loop to avoid requiring generator expressions before L14. Plan is also not a public converter for arbitrary input: it expects a list of Tasks and does not validate every possible foreign object.
 
-# Two-dimensional array
-matrix: list[list[int]] = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9]
-]
+## 6. Complete models: read ordinary classes before dataclasses
 
-# Using typing.List (Python 3.8 and below)
-scores: List[int] = [85, 92, 78]
-users: List[dict[str, Union[str, int]]] = [
-    {"name": "Alice", "age": 25},
-    {"name": "Bob", "age": 30}
-]
-```
-</PythonEditor>
+<Code language="python">{getModelExample('models.py')}</Code>
 
-### 3.2 Dictionary and Object Types
+First trace checked_title, checked_minutes, Task, and Plan. The validation functions accept object and return a more specific value after runtime checks. Task reuses them during initialization. Plan totals each instance's current remaining_minutes without depending on global state.
 
-Python's dictionary type annotations correspond to TypeScript's object types.
+Then inspect UrgentTask. It is a Task that retains completion and minutes behavior while changing its display label. Because it does not redefine __init__, it inherits initialization. Its overridden label uses super().label() to reuse the parent implementation. In this simple inheritance relationship, super continues lookup; it does not create a second parent object. The method still operates on the same instance.
 
-<PythonEditor title="Dictionary Type Annotation Comparison" compare={true}>
-```typescript !! ts
-// TypeScript
-interface User {
-  name: string;
-  age: number;
-  email?: string;  // Optional property
-}
+Use composition when a plan contains tasks. If a proposed subtype cannot preserve the parent's essential behavior, do not force inheritance merely to reuse a few lines. Multiple inheritance lookup and framework base-class design are excluded.
 
-let user: User = { name: "Alice", age: 25 };
-let userWithEmail: User = { name: "Bob", age: 30, email: "bob@example.com" };
+## 7. Explain the @ line before using dataclass
 
-// Generic dictionary type
-let config: Record<string, any> = {
-  apiUrl: "https://api.example.com",
-  timeout: 5000,
-  debug: true
-};
+`@dataclass` above a class passes the created class through dataclass and binds the result back to the class name. For this simple use, think of writing the class and then `Estimate = dataclass(Estimate)`. It is not magic rerun whenever a field is read. L13 fully explains decorator evaluation, wrapping, and registration; this local explanation is enough to use the library now.
 
-// Index signature
-let scores: { [key: string]: number } = {
-  "Alice": 85,
-  "Bob": 92,
-  "Charlie": 78
-};
+A dataclass derives common methods, including initialization, representation, and field comparison, from declared fields. RawEstimate deliberately has no validation: text can enter minutes despite its int annotation. Estimate explicitly checks values in __post_init__, called by its generated initializer. Those rules come from our code, not from annotations.
+
+`field(default_factory=list)` supplies a function for creating defaults. When tags is omitted, each instance calls list separately and gets its own empty list. Pass list, not list(). If the caller explicitly supplies a list, the factory does not copy it; __post_init__ therefore validates text elements and copies the outer list itself.
+
+Do not use a shared tags = [] as an instance default. This dataclass rejects that common mutable default declaration, while an ordinary class attribute can silently share state, as we will observe next. __post_init__ also protects only initialization; later appending a non-text value can still violate the convention.
+
+## 8. Build the environment and trace a complete run
+
+<Code language="toml">{getModelExample('pyproject.toml')}</Code>
+
+<Code language="python">{getModelExample('app.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python app.py
+uv run --locked python -m pytest -q
 ```
 
-```python !! py
-# Python
-from typing import Dict, Any, Optional, TypedDict
-
-# Using TypedDict to define a structured dictionary (similar to TypeScript's interface)
-class User(TypedDict, total=False):  # total=False means all fields are optional
-    name: str
-    age: int
-    email: Optional[str]  # Optional field
-
-user: User = {"name": "Alice", "age": 25}
-user_with_email: User = {"name": "Bob", "age": 30, "email": "bob@example.com"}
-
-# Generic dictionary type
-config: dict[str, Any] = {
-    "api_url": "https://api.example.com",
-    "timeout": 5000,
-    "debug": True
-}
-
-# Index signature (using Dict)
-scores: Dict[str, int] = {
-    "Alice": 85,
-    "Bob": 92,
-    "Charlie": 78
-}
-```
-</PythonEditor>
-
-### 3.3 Union and Optional Types
-
-Python's union types correspond to TypeScript's union types, used to indicate that a value can be one of several types.
-
-<PythonEditor title="Union Type Comparison" compare={true}>
-```typescript !! ts
-// TypeScript
-type Status = "pending" | "success" | "error";
-type ID = string | number;
-type Result<T> = T | null | undefined;
-
-function processStatus(status: Status): string {
-  switch (status) {
-    case "pending": return "Processing...";
-    case "success": return "Success";
-    case "error": return "Error";
-  }
-}
-
-function findUser(id: ID): User | null {
-  // Find user by ID
-  return null;
-}
-
-// Optional parameters
-function greet(name: string, title?: string): string {
-  return title ? `Hello, ${title} ${name}` : `Hello, ${name}`;
-}
+```text
+45
+True False
+15
+! Write
+True False
+['python'] []
 ```
 
-```python !! py
-# Python
-from typing import Union, Optional, Literal
+The baseline is CPython 3.13.15, uv 0.12.13, and pytest 8.4.2. The first total is 45. Completing one task twice reports a change and then no change. Plan shares task instances, so the remaining total becomes 15. The Estimates have equal fields, making == true, but are different objects, making is false. Their default tag lists are independent.
 
-# Literal union type (Python 3.8+)
-Status = Literal["pending", "success", "error"]
-ID = Union[str, int]  # Or use str | int (Python 3.10+)
-Result = Union[str, None]  # Or use str | None
+Ordinary Task does not define field-based equality, so do not assume dataclass equality applies to it. Persistent record identity will involve database IDs later. Here we are reasoning about in-memory objects, not claiming to solve entity identity generally.
 
-def process_status(status: Status) -> str:
-    if status == "pending":
-        return "Processing..."
-    elif status == "success":
-        return "Success"
-    elif status == "error":
-        return "Error"
-    else:
-        raise ValueError(f"Unknown status: {status}")
+## 9. Three failures at different stages
 
-def find_user(user_id: ID) -> Optional[dict[str, Any]]:
-    # Find user by ID
-    return None
+<Code language="python">{getModelExample('errors/shared_state.py')}</Code>
 
-# Optional parameters
-def greet(name: str, title: Optional[str] = None) -> str:
-    if title:
-        return f"Hello, {title} {name}"
-    return f"Hello, {name}"
-```
-</PythonEditor>
-
-## 4. Advanced Type Annotations
-
-### 4.1 Generics
-
-Python's generic system is very similar to the concept of generics in TypeScript, both allowing the creation of reusable type templates.
-
-<PythonEditor title="Generic Comparison" compare={true}>
-```typescript !! ts
-// TypeScript
-interface Box<T> {
-  value: T;
-  getValue(): T;
-  setValue(value: T): void;
-}
-
-class NumberBox implements Box<number> {
-  constructor(private _value: number) {}
-  
-  get value(): number { return this._value; }
-  getValue(): number { return this._value; }
-  setValue(value: number): void { this._value = value; }
-}
-
-// Generic function
-function identity<T>(arg: T): T {
-  return arg;
-}
-
-function first<T>(array: T[]): T | undefined {
-  return array[0];
-}
-
-// Constraining generics
-interface Lengthwise {
-  length: number;
-}
-
-function logLength<T extends Lengthwise>(arg: T): T {
-  console.log(arg.length);
-  return arg;
-}
+```bash
+uv run --locked python errors/shared_state.py
 ```
 
-```python !! py
-# Python
-from typing import TypeVar, Generic, Protocol
+It prints ['Read'] without raising. The class definition created one entries list; neither instance overrides that attribute, so both access it. Incorrect behavior can exit successfully. Tests must check isolation rather than merely process status.
 
-# Define type variables
-T = TypeVar('T')
-U = TypeVar('U')
+<Code language="python">{getModelExample('errors/missing_self.py')}</Code>
 
-# Generic class
-class Box(Generic[T]):
-    def __init__(self, value: T):
-        self._value = value
-    
-    @property
-    def value(self) -> T:
-        return self._value
-    
-    def get_value(self) -> T:
-        return self._value
-    
-    def set_value(self, value: T) -> None:
-        self._value = value
-
-class NumberBox(Box[int]):
-    pass
-
-# Generic function
-def identity(arg: T) -> T:
-    return arg
-
-def first(array: list[T]) -> T | None:
-    return array[0] if array else None
-
-# Constraining generics (using Protocol)
-class Lengthwise(Protocol):
-    def __len__(self) -> int: ...
-
-def log_length(arg: T) -> T:
-    print(len(arg))
-    return arg
-```
-</PythonEditor>
-
-### 4.2 Type Aliases and Interfaces
-
-Python uses `TypeAlias` and `Protocol` to achieve functionality similar to TypeScript's `type` and `interface`.
-
-<PythonEditor title="Type Alias and Interface Comparison" compare={true}>
-```typescript !! ts
-// TypeScript
-// Type alias
-type Point = {
-  x: number;
-  y: number;
-};
-
-type Coordinates = Point;
-type UserID = string;
-type Status = "active" | "inactive" | "pending";
-
-// Interface
-interface User {
-  id: UserID;
-  name: string;
-  email: string;
-  status: Status;
-}
-
-interface AdminUser extends User {
-  permissions: string[];
-  canDelete: boolean;
-}
-
-// Function type
-type Handler = (event: string, data: any) => void;
-type AsyncHandler = (event: string, data: any) => Promise<void>;
+```bash
+uv run --locked python errors/missing_self.py
 ```
 
-```python !! py
-# Python
-from typing import TypeAlias, Protocol, Callable, Any, Literal
-from typing_extensions import TypedDict
+This fails during invocation with TypeError because the bound instance has no receiving parameter. Do not respond by turning every method into a stateless global function. First reconcile the method definition with its call.
 
-# Type alias (Python 3.10+)
-Point: TypeAlias = dict[str, float]
-Coordinates: TypeAlias = Point
-UserID: TypeAlias = str
-Status: TypeAlias = Literal["active", "inactive", "pending"]
+<Code language="python">{getModelExample('errors/no_validation.py')}</Code>
 
-# Using TypedDict to define an interface
-class User(TypedDict):
-    id: UserID
-    name: str
-    email: str
-    status: Status
-
-class AdminUser(User):
-    permissions: list[str]
-    can_delete: bool
-
-# Function type
-Handler: TypeAlias = Callable[[str, Any], None]
-AsyncHandler: TypeAlias = Callable[[str, Any], Any]  # Return type is Any because Python has no Promise type
-```
-</PythonEditor>
-
-### 4.3 Callback Functions and Async Types
-
-Python's asynchronous programming model differs from TypeScript's, but the concepts of type annotation are similar.
-
-<PythonEditor title="Callback and Async Type Comparison" compare={true}>
-```typescript !! ts
-// TypeScript
-// Callback function type
-type Callback<T> = (error: Error | null, result: T) => void;
-type EventHandler = (event: Event) => void;
-
-// Async function
-async function fetchUser(id: number): Promise<User> {
-  const response = await fetch(`/api/users/${id}`);
-  return response.json();
-}
-
-// Async callback
-function processData(data: string[], callback: Callback<string[]>) {
-  setTimeout(() => {
-    const processed = data.map(item => item.toUpperCase());
-    callback(null, processed);
-  }, 1000);
-}
-
-// Event handling
-function handleClick(event: Event): void {
-  console.log('Button clicked');
-}
+```bash
+uv run --locked python -m errors.no_validation
 ```
 
-```python !! py
-# Python
-import asyncio
-from typing import Callable, Any, Awaitable
-from typing_extensions import TypedDict
+It prints str. The dataclass generated initialization, not runtime field-type validation. Unlike the method-binding error, invalid data enters successfully. An explicit boundary rule is needed.
 
-# Callback function type
-Callback = Callable[[Exception | None, Any], None]
-EventHandler = Callable[[Any], None]
+## 10. Read the state policy through tests, then repair a defect
 
-# Async function
-async def fetch_user(user_id: int) -> dict[str, Any]:
-    # Simulate async request
-    await asyncio.sleep(0.1)
-    return {"id": user_id, "name": "Alice", "email": "alice@example.com"}
+<Code language="python">{getModelExample('tests/test_models.py')}</Code>
 
-# Async callback (using asyncio)
-async def process_data(data: list[str], callback: Callable[[list[str]], None]) -> None:
-    await asyncio.sleep(1)
-    processed = [item.upper() for item in data]
-    callback(processed)
+The nine normal tests cover binding, repeated transitions, constructor rejection, shallow copying and sharing, inheritance, equality/identity, explicit tag-list copying, and public-attribute bypass. The last test documents a guarantee the implementation does not provide; it is not a recommendation to corrupt state.
 
-# Event handling
-def handle_click(event: Any) -> None:
-    print("Button clicked")
-```
-</PythonEditor>
+Repair WrongNotebook so instances have independent lists. Then accept an optional initial list and prove that later edits to the caller's list do not affect the instance. Explain why sharing Tasks in Plan is intentional while sharing notebook entries is wrong.
 
-## 5. Practical Application Scenarios
+<details>
+<summary>Guided repair checks</summary>
 
-### 5.1 API Response Type Definition
+Create self.entries in __init__. Use None as the omitted-input default, then create or copy a list inside initialization rather than using a mutable default argument. Sharing follows the contract, not a universal deep-copy rule. Plan observes one task's changing state; each notebook owns its records container. Change the source list, instance list, and contained objects separately to know which layer of isolation you have proved.
 
-In real-world projects, we often need to define types for API responses.
+</details>
 
-<PythonEditor title="API Response Type Definition Comparison" compare={true}>
-```typescript !! ts
-// TypeScript
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message: string;
-  timestamp: string;
-}
+## 11. Independent variation: an owned WorkLog
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  createdAt: string;
-}
+Without opening the answer, build WorkLog with a non-blank title and an optional list of non-negative integers. It owns its outer list. add accepts ordinary non-negative integers and appends nothing on rejection. total_minutes returns the current sum. Two default instances are independent; editing a supplied source list does not change an existing log. Write requirement tests first, then implement the class and explain whether dictionaries plus functions could also work.
 
-interface UserListResponse extends ApiResponse<User[]> {
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-  };
-}
+Do not add abstract bases, property decorators, storage connections, or an inheritance tree to make the object look enterprise-ready. The evidence needed here concerns state policy and failure paths, not directory count.
 
-// Usage example
-async function fetchUsers(page: number = 1): Promise<UserListResponse> {
-  const response = await fetch(`/api/users?page=${page}`);
-  return response.json();
-}
+<details>
+<summary>Independent reference implementation and tests</summary>
 
-// Error handling
-interface ApiError {
-  code: string;
-  message: string;
-  details?: any;
-}
+<Code language="python">{getModelExample('solutions/work_log.py')}</Code>
+
+<Code language="python">{getModelExample('solutions/test_work_log.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_work_log.py
 ```
 
-```python !! py
-# Python
-from typing import TypeVar, Generic, Any
-from typing_extensions import TypedDict
-from datetime import datetime
-import asyncio
+Construction reuses add so there is one validation rule. Appending occurs after validation, leaving records unchanged on failure. Attributes remain public: this is neither permanently immutable nor a thread-safe container. A future undo requirement first needs a record-identification and failure policy, not arbitrary new mutation entry points.
 
-# Define a generic API response
-T = TypeVar('T')
+</details>
 
-class ApiResponse(TypedDict, Generic[T]):
-    success: bool
-    data: T
-    message: str
-    timestamp: str
+## 12. Acceptance, a checkpoint, and what comes next
 
-class User(TypedDict):
-    id: int
-    name: str
-    email: str
-    created_at: str
+Explain an instance's creation, validation, references, and state changes. Draw Plan's shallow copy, repair shared state, distinguish == from is, prove RawEstimate does not validate, and complete WorkLog. Introduce a shared-default defect and require a test to catch it. Finally answer whether this model has solved persistence or authorization: it has not.
 
-class Pagination(TypedDict):
-    page: int
-    limit: int
-    total: int
+Before pausing, record model contracts, container ownership, the last successful command/test count, known writable bypasses, and the next step. Resume with isolation and failure tests, not only the familiar app output.
 
-class UserListResponse(ApiResponse[list[User]]):
-    pagination: Pagination
+The next chapter expands decorators into ordinary function calls, explains registration and wrapping timing, then introduces pytest parametrization. Memorizing a route decorator will not replace that explanation.
 
-# Usage example
-async def fetch_users(page: int = 1) -> UserListResponse:
-    # Simulate an async request
-    await asyncio.sleep(0.1)
-    return {
-        "success": True,
-        "data": [
-            {"id": 1, "name": "Alice", "email": "alice@example.com", "created_at": "2024-01-01"}
-        ],
-        "message": "Users fetched successfully",
-        "timestamp": datetime.now().isoformat(),
-        "pagination": {"page": page, "limit": 10, "total": 100}
-    }
+## 13. Primary references and scope
 
-# Error handling
-class ApiError(TypedDict):
-    code: str
-    message: str
-    details: dict[str, Any] | None
-```
-</PythonEditor>
+Checked on September 28, 2026: the [Python classes tutorial](https://docs.python.org/3.13/tutorial/classes.html) and [dataclasses documentation](https://docs.python.org/3.13/library/dataclasses.html). This chapter uses mutable instances, shallow copies, single inheritance, and basic dataclasses without turning every optional parameter or special method into a prerequisite.
 
-### 5.2 Configuration Management
-
-Type annotations are particularly useful in configuration management to ensure the type safety of configuration objects.
-
-<PythonEditor title="Configuration Management Type Definition Comparison" compare={true}>
-```typescript !! ts
-// TypeScript
-interface DatabaseConfig {
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  database: string;
-  ssl: boolean;
-}
-
-interface RedisConfig {
-  host: string;
-  port: number;
-  password?: string;
-  db: number;
-}
-
-interface AppConfig {
-  env: 'development' | 'production' | 'test';
-  port: number;
-  database: DatabaseConfig;
-  redis: RedisConfig;
-  cors: {
-    origin: string[];
-    credentials: boolean;
-  };
-}
-
-// Configuration validation function
-function validateConfig(config: any): config is AppConfig {
-  return (
-    typeof config.env === 'string' &&
-    typeof config.port === 'number' &&
-    config.database &&
-    config.redis
-  );
-}
-```
-
-```python !! py
-# Python
-from typing import Literal, Any
-from typing_extensions import TypedDict
-
-class DatabaseConfig(TypedDict):
-    host: str
-    port: int
-    username: str
-    password: str
-    database: str
-    ssl: bool
-
-class RedisConfig(TypedDict, total=False):
-    host: str
-    port: int
-    password: str | None
-    db: int
-
-class CorsConfig(TypedDict):
-    origin: list[str]
-    credentials: bool
-
-class AppConfig(TypedDict):
-    env: Literal["development", "production", "test"]
-    port: int
-    database: DatabaseConfig
-    redis: RedisConfig
-    cors: CorsConfig
-
-# Configuration validation function
-def validate_config(config: dict[str, Any]) -> bool:
-    required_fields = ["env", "port", "database", "redis", "cors"]
-    return all(field in config for field in required_fields)
-
-# Type-safe configuration retrieval
-def get_database_config(config: AppConfig) -> DatabaseConfig:
-    return config["database"]
-```
-</PythonEditor>
-
-## 6. Type Checking Tools
-
-### 6.1 Mypy Configuration and Usage
-
-Mypy is Python's most popular static type checker, similar to TypeScript's `tsc`.
-
-```json
-// TypeScript tsconfig.json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "rootDir": "./src"
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
-}
-```
-
-```ini
-# Python mypy.ini
-[mypy]
-python_version = 3.9
-warn_return_any = True
-warn_unused_configs = True
-disallow_untyped_defs = True
-disallow_incomplete_defs = True
-check_untyped_defs = True
-disallow_untyped_decorators = True
-no_implicit_optional = True
-warn_redundant_casts = True
-warn_unused_ignores = True
-warn_no_return = True
-warn_unreachable = True
-strict_equality = True
-
-[mypy.plugins.numpy.*]
-ignore_missing_imports = True
-
-[mypy-pandas.*]
-ignore_missing_imports = True
-```
-
-### 6.2 Common Type Errors and Solutions
-
-<PythonEditor title="Common Type Error Examples" compare={true}>
-```typescript !! ts
-// TypeScript Common Errors
-function processUser(user: User) {
-  // Error: Property 'age' does not exist on type 'User'
-  console.log(user.age);
-  
-  // Error: Type 'string' is not assignable to type 'number'
-  const id: number = "123";
-  
-  // Error: Argument of type 'string' is not assignable to parameter of type 'number'
-  function add(a: number, b: number): number {
-    return a + b;
-  }
-  add("1", 2);
-}
-```
-
-```python !! py
-# Python Common Type Errors
-from typing import TypedDict, Any
-
-class User(TypedDict):
-    name: str
-    email: str
-
-def process_user(user: User) -> None:
-    # Error: TypedDict "User" has no key 'age'
-    print(user["age"])  # mypy will report an error
-    
-    # Error: Incompatible types in assignment
-    user_id: int = "123"  # mypy will report an error
-    
-    # Error: Argument 1 to "add" has incompatible type "str"
-    def add(a: int, b: int) -> int:
-        return a + b
-    
-    add("1", 2)  # mypy will report an error
-
-# Solution: Use type assertions or type checking
-def safe_process_user(user: User) -> None:
-    # Use the get method to avoid KeyError
-    age = user.get("age", 0)
-    print(f"Age: {age}")
-    
-    # Type conversion
-    user_id: int = int("123")
-    
-    # Runtime type checking
-    def safe_add(a: Any, b: Any) -> int:
-        if isinstance(a, int) and isinstance(b, int):
-            return a + b
-        raise TypeError("Both arguments must be integers")
-```
-</PythonEditor>
-
-## 7. Best Practices
-
-### 7.1 Progressive Type Annotation
-
-Similar to TypeScript, Python supports progressive typing, allowing you to gradually add type information to your code.
-
-<PythonEditor title="Progressive Type Annotation Example" compare={true}>
-```typescript !! ts
-// TypeScript Progressive Typing
-// 1. Start with any
-function processData(data: any): any {
-  return data.map(item => item.toUpperCase());
-}
-
-// 2. Add basic types
-function processData(data: any[]): string[] {
-  return data.map(item => item.toUpperCase());
-}
-
-// 3. Refine type definitions
-interface DataItem {
-  name: string;
-  value: number;
-}
-
-function processData(data: DataItem[]): string[] {
-  return data.map(item => item.name.toUpperCase());
-}
-```
-
-```python !! py
-# Python Progressive Typing
-from typing import Any, List
-from typing_extensions import TypedDict
-
-# 1. Start with Any
-def process_data(data: Any) -> Any:
-    return [item.upper() for item in data]
-
-# 2. Add basic types
-def process_data(data: list[Any]) -> list[str]:
-    return [item.upper() for item in data]
-
-# 3. Refine type definitions
-class DataItem(TypedDict):
-    name: str
-    value: int
-
-def process_data(data: list[DataItem]) -> list[str]:
-    return [item["name"].upper() for item in data]
-```
-</PythonEditor>
-
-### 7.2 Best Practices for Type Annotation
-
-<PythonEditor title="Type Annotation Best Practices" compare={true}>
-```typescript !! ts
-// TypeScript Best Practices
-
-// ✅ Good Practice
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-
-function createUser(name: string, email: string): User {
-  return {
-    id: Date.now(),
-    name,
-    email
-  };
-}
-
-// ❌ Avoid
-function processUser(user: any): any {
-  return user.someProperty;
-}
-
-// ✅ Use Generics
-function identity<T>(arg: T): T {
-  return arg;
-}
-
-// ✅ Use Union Types
-type Status = "active" | "inactive";
-```
-
-```python !! py
-# Python Type Annotation Best Practices
-from typing import Any, TypeVar, Literal, Optional
-from typing_extensions import TypedDict
-from datetime import datetime
-
-# ✅ Good Practice
-class User(TypedDict):
-    id: int
-    name: str
-    email: str
-
-def create_user(name: str, email: str) -> User:
-    return {
-        "id": int(datetime.now().timestamp()),
-        "name": name,
-        "email": email
-    }
-
-# ❌ Avoid
-def process_user(user: Any) -> Any:
-    return user["some_property"]
-
-# ✅ Use Generics
-T = TypeVar('T')
-
-def identity(arg: T) -> T:
-    return arg
-
-# ✅ Use Literal Union Types
-Status = Literal["active", "inactive"]
-
-# ✅ Use Optional instead of Union[Type, None]
-def get_user(user_id: int) -> Optional[User]:
-    # Implementation...
-    pass
-```
-</PythonEditor>
-
-## 8. Conclusion
-
-Congratulations! You now have a deep understanding of the parallels between Python's type annotation system and TypeScript's.
-
-### Key Takeaways
-
-1.  **Basic Type Mapping**: Python's `str`, `int`, `bool` correspond to TypeScript's `string`, `number`, `boolean`.
-2.  **Container Types**: Python's `list[T]`, `dict[K, V]` correspond to TypeScript's `T[]`, `Record<K, V>`.
-3.  **Union Types**: Python's `Union[T, U]` or `T | U` corresponds to TypeScript's `T | U`.
-4.  **Generics**: Python's `TypeVar` and `Generic` correspond to TypeScript's generic syntax.
-5.  **Interfaces**: Python's `TypedDict` and `Protocol` correspond to TypeScript's `interface`.
-
-### Practical Advice
-
-1.  **Adopt Progressively**: Start by adding type annotations to critical functions and gradually expand to the entire project.
-2.  **Use Mypy**: Configure Mypy for static type checking and integrate it into your CI/CD pipeline.
-3.  **Maintain Consistency**: Establish team-wide conventions for type annotations to maintain a consistent code style.
-4.  **Document with Types**: Use type annotations as a form of documentation to improve code readability.
-
-### Next Steps for Learning
-
--   Dive deeper into advanced Python typing features (like `Protocol`, `Literal`, `Annotated`).
--   Explore type annotation support in third-party libraries.
--   Learn how to introduce type annotations into existing projects gradually.
--   Understand the performance implications and best practices of Python type annotations.
-
-Remember, type annotations are a powerful tool for improving code quality and the development experience. Although Python is a dynamically typed language, type annotations can provide you with a development experience similar to TypeScript, helping you write more robust and maintainable code.
-
+Classes can organize responsibility, but clear data flow, explicit validation, and behavior tests remain essential. A clear dictionary/function design is preferable to an elaborate inheritance hierarchy with ambiguous state ownership.

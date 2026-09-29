@@ -1,0 +1,40 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "blank-title",
+  "precondition": {
+    "seed_tasks": []
+  },
+  "request": {
+    "method": "POST",
+    "target": "/tasks",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "title": "   ",
+      "minutes": 15
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "detail": [
+        {
+          "type": "value_error",
+          "loc": [
+            "body",
+            "title"
+          ],
+          "msg": "Value error, title must not be blank",
+          "input": "   ",
+          "ctx": {
+            "error": {}
+          }
+        }
+      ]
+    }
+  }
+}

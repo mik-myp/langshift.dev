@@ -1,0 +1,32 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "get-task",
+  "precondition": {
+    "seed_tasks": [
+      {
+        "title": "  Read HTTP  ",
+        "minutes": 25,
+        "done": false,
+        "note": "keep me"
+      }
+    ]
+  },
+  "request": {
+    "method": "GET",
+    "target": "/tasks/1",
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "id": 1,
+      "title": "  Read HTTP  ",
+      "minutes": 25,
+      "done": false,
+      "note": "keep me"
+    }
+  }
+}

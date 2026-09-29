@@ -1,1088 +1,582 @@
 ---
-title: "JavaScript vs Python Syntax Comparison"
-description: "An in-depth comparison of the syntax differences between the two languages from a JavaScript developer's perspective, to quickly master Python syntax."
+title: "Names, Values, and Basic Operations"
+description: "Move beyond your first script by understanding Python name binding, basic values, arithmetic, None, strings, and explicit conversion. Practice prediction, diagnosis, and an independent calculation script without premature project setup."
 ---
 
-## 1. Introduction
+import { getScalarExample } from '@/lib/js2py-examples'
 
-### Why is a Syntax Comparison Necessary?
+## 1. From running a script to explaining a calculation
 
-As a JavaScript developer, one of the biggest challenges in learning Python is adapting to a different syntax style. Through a systematic syntax comparison, we can:
+In L00, you saved and ran a `.py` file, distinguished a quoted string from an unquoted name, and located a problem using an error message. Now we will process a little data: turn a task title and an estimated number of minutes into a readable time estimate.
 
--   Quickly understand Python's syntax rules
--   Avoid common syntax errors
--   Establish a conceptual mapping between the two languages
--   Improve learning efficiency
+Even this small requirement exposes differences that cannot simply be borrowed from JS. Can `"95"` participate in addition directly? Does dividing integers produce an integer? Does assigning one name to another establish a reactive relationship? What should represent an unassigned task owner?
 
-> 💡 **Learning Strategy**: Think of Python syntax as a "dialect" of JavaScript, not a completely foreign language.
+This chapter answers these questions one at a time rather than substituting a syntax table for explanation. You do not have to finish in one sitting. Each checkpoint leaves you with a small, understood, runnable result.
 
-## 2. Basic Syntax Comparison
+### Chapter contract
 
-### 2.1 Variable Declaration and Assignment
+| Item | Agreement |
+| --- | --- |
+| Prerequisite | Complete L00: save and run a script; explain names, literals, assignment, `print`, and sequential execution |
+| New capabilities | Trace name bindings; distinguish basic values; calculate, compare, convert, and format; diagnose two input-related errors |
+| Independent exit task | Predict before running; explain why reassignment does not change past output; write a reading-time script without the answer and verify changed inputs |
+| Not required here | Containers, loops, branches, function definitions, scope, annotations, exception handling, modules, environment configuration, test frameworks, or web services |
 
-<PythonEditor title="Variable Declaration and Assignment Comparison" compare={true} height={400}>
-```javascript !! js
-// Variable declaration requires a keyword
-let name = "John Doe";
-const age = 25;
-var oldWay = "not recommended";
+**Calling a built-in function does not require learning to define functions yet. Observing an error does not require learning `try/except`.** We introduce only what the current problem needs.
 
-// Destructuring assignment
-const [first, second] = [1, 2];
-const { name: userName, age: userAge } = { name: "Jane Doe", age: 30 };
+### Files and execution
 
-// Template literals
-const message = `Hello, ${name}! You are ${age} years old.`;
-console.log(message);
+Type the examples yourself, or download the [L01 examples and separate answers](/learning-assets/js2py/u01-scalars.zip). Extract the archive, open the `u01-scalars` folder in your editor, and place your terminal in that folder. Each named `.py` file is an independent script; it does not require a previous file to have run.
+
+Reuse the command already verified in L00. For the first file:
+
+```bash
+uv run --no-project --python 3.13 python bindings.py
 ```
 
-```python !! py
-# Direct assignment, no keyword needed
-name = "John Doe"
-age = 25
+Replace only the final filename as you reach other examples, such as `numbers.py`. This chapter uses CPython 3.13 without third-party Python packages. You do not create a project or install test tools. If `uv` is not available, return to the [L00 local execution steps](/en/docs/js2py/module-00-python-introduction) rather than starting a second installation approach.
 
-# Destructuring assignment (Python 3.6+)
-first, second = 1, 2
-user_info = {"name": "Jane Doe", "age": 30}
-user_name, user_age = user_info["name"], user_info["age"] # Simulating destructuring (not automatic parsing)
+Files under `errors` **fail intentionally**; `solutions` contains answers to open after your own attempt. These files are not a service that must be started together.
 
-# A more elegant way to destructure
-user_info = {"name": "Jane Doe", "age": 30}
-user_name, user_age = user_info.values()
+## 2. Name binding is not a fixed-type storage box
 
-# f-string (Python 3.6+)
-message = f"Hello, {name}! You are {age} years old."
-print(message)
-```
-</PythonEditor>
+### 2.1 Predict the three lines first
 
-**Key Difference Comparison**
+File: `bindings.py`.
 
-| Feature | JavaScript | Python | Description |
-|---|---|---|---|
-| **Declaration** | `let/const/var` | Direct assignment | Python requires no declaration keyword. |
-| **Variable Naming** | camelCase | snake_case | Python recommends snake_case. |
-| **Constants** | `const` | Convention (all caps) | Python has no true constants. |
-| **String Formatting**| Template literals | f-string | Both support interpolation. |
+<Code language="python">{getScalarExample('bindings.py')}</Code>
 
-### 2.2 Data Type Comparison
+Expected:
 
-**Basic Data Types**
-
-<PythonEditor title="Basic Data Type Comparison" compare={true}>
-```javascript !! js
-// JavaScript primitive types
-let string = "text";
-let number = 42;
-let boolean = true;
-let nullValue = null;
-let undefinedValue = undefined;
-let symbol = Symbol("unique");
-
-// Reference types
-let array = [1, 2, 3];
-let object = { key: "value" };
-let functionName = () => {};
-
-console.log(typeof string);
-console.log(typeof number);
-console.log(typeof boolean);
-console.log(typeof nullValue);
-console.log(typeof undefinedValue);
-console.log(typeof symbol);
-console.log(typeof array);
-console.log(typeof object);
-console.log(typeof functionName);
+```text
+30
+45
+30
 ```
 
-```python !! py
-# Python basic types
-string = "text"
-number = 42
-boolean = True  # Note the capitalization
-none_value = None  # Equivalent to JavaScript's null
-complex_number = 3 + 4j  # Complex number type
+Read assignment in two steps: evaluate the right-hand side, then bind the name on the left to the resulting object. Here, “object” means a runtime value with its own type and behavior; it does not assume you can write a class.
 
-# Reference types
-array = [1, 2, 3]  # List (mutable)
-tuple_data = (1, 2, 3)  # Tuple (immutable)
-dictionary = {"key": "value"}  # Dictionary
-set_data = {1, 2, 3}  # Set
+| Statement executed | Current binding of `minutes` | Current binding of `saved_minutes` | New output |
+| --- | --- | --- | --- |
+| `minutes = 30` | Integer `30` | Not yet bound | None |
+| `saved_minutes = minutes` | Integer `30` | The same integer object | None |
+| `print(minutes)` | Integer `30` | Integer `30` | `30` |
+| `minutes = 45` | Integer `45` | Still integer `30` | None |
+| The last two prints | Integer `45` | Integer `30` | `45`, then `30` |
 
-print(type(string))
-print(type(number))
-print(type(boolean))
-print(type(none_value))
-print(type(complex_number))
-```
-</PythonEditor>
+`minutes = 45` changes the name's binding. It does not mutate the original integer `30` into `45`. Nor is `saved_minutes` a formula that keeps reading `minutes`. It reads the right-hand side once when that assignment executes.
 
-**Type Checking Comparison**
+Do **not** infer that “Python assignment automatically copies data.” Two names can refer to the same object. This example has no change propagating to the other name because we rebind a name, and integers themselves are immutable. L02 will explore shared references and container mutation separately. You do not need memory addresses, `id()`, or caching rules to explain this program.
 
-<PythonEditor title="Type Checking Comparison" compare={true}>
-```javascript !! js
-// JavaScript type checking
-console.log(typeof "hello");        // "string"
-console.log(typeof 42);             // "number"
-console.log(typeof true);           // "boolean"
-console.log(typeof null);           // "object" (a famous JavaScript bug)
-console.log(typeof undefined);      // "undefined"
-console.log(Array.isArray([1,2,3])); // true
+The first line already printed in the terminal will not become `45` either. `print` performs an output action at that moment; it is not a UI subscription to a changing name.
+
+### 2.2 Use your frontend experience without overextending the analogy
+
+Reassignment here can be compared with JS `let`. However, ordinary Python assignment has no `let`/`const` declaration keyword, and it does not acquire JS `const` binding restrictions. This is a naming convention, not syntax enforcement:
+
+```python case=constant_convention
+MINUTES_PER_SESSION = 25
+MINUTES_PER_SESSION = 30
+print(MINUTES_PER_SESSION)
 ```
 
-```python !! py
-# Python type checking
-print(type("hello"))        # <class 'str'>
-print(type(42))             # <class 'int'>
-print(type(True))           # <class 'bool'>
-print(type(None))           # <class 'NoneType'>
-print(isinstance([1,2,3], list))  # True
-```
-</PythonEditor>
+Output:
 
-### 2.3 Scope Comparison
-
-Scope is a very important concept in programming, as it determines the visibility and lifecycle of variables in code. JavaScript and Python have some important differences in how they handle scope.
-
-#### 2.3.1 Variable Scope
-
-**JavaScript Scope**
-
-<PythonEditor title="JavaScript Scope Example" compare={true}>
-```javascript !! js
-// Global scope
-let globalVar = "I am a global variable";
-
-function testScope() {
-    // Function scope
-    let functionVar = "I am a function-level variable";
-    
-    if (true) {
-        // Block scope (ES6+)
-        let blockVar = "I am a block-level variable";
-        console.log("Inside block:", blockVar);
-        console.log("Accessing function variable from block:", functionVar);
-        console.log("Accessing global variable from block:", globalVar);
-    }
-    
-    // Cannot access block-level variable outside the block
-    // console.log(blockVar); // Error!
-    console.log("Accessing function variable from function:", functionVar);
-    console.log("Accessing global variable from function:", globalVar);
-}
-
-testScope();
-console.log("Accessing global variable from global scope:", globalVar);
-// console.log(functionVar); // Error!
+```text
+30
 ```
 
-```python !! py
-# Global scope
-global_var = "I am a global variable"
+Uppercase communicates that the author intends a constant. The interpreter does not prevent the reassignment above. Team conventions are not runtime guarantees.
 
-def test_scope():
-    # Function scope
-    function_var = "I am a function-level variable"
-    
-    if True:
-        # Python has no block scope!
-        block_var = "I am a block-level variable"
-        print("Inside block:", block_var)
-        print("Accessing function variable from block:", function_var)
-        print("Accessing global variable from block:", global_var)
-    
-    # Can still access block-level variable outside the block
-    print("Accessing block variable from function:", block_var)
-    print("Accessing function variable from function:", function_var)
-    print("Accessing global variable from function:", global_var)
+This course uses `snake_case` for ordinary names, such as `saved_minutes`. Names are case-sensitive: `minutes` and `Minutes` differ. They cannot begin with a digit or use a reserved keyword such as `class`. Avoid using `print`, `str`, or `int` for your own variables, because that shadows the built-in functionality you will call later. Local scope belongs in the functions chapter.
 
-test_scope()
-print("Accessing global variable from global scope:", global_var)
-# print(function_var)  # Error!
-```
-</PythonEditor>
+**Checkpoint A:** Without running, explain which outputs change if the first `30` becomes `20`. If you still expect `saved_minutes` to become `45` automatically, reconstruct the binding table before moving on to operators.
 
-#### 2.3.2 Modifying Global Variables
+## 3. Values have types; names can be rebound
 
-**JavaScript Global Variable Modification**
+### 3.1 Similar appearance, different values
 
-<PythonEditor title="Global Variable Modification Comparison" compare={true}>
-```javascript !! js
-// JavaScript global variable modification
-let counter = 0;
+| Expression | Type name | Meaning here |
+| --- | --- | --- |
+| `30` | `int` | An integer used in integer calculations |
+| `30.0` | `float` | A floating-point number with finite precision |
+| `"30"` | `str` | Two characters of text; looking numeric does not make it an integer |
+| `True`, `False` | `bool` | Boolean values, with capitalized first letters |
+| `None` | `NoneType` | The dedicated object used for absence, with meaning assigned by your application |
 
-function increment() {
-    counter++; // Directly modify the global variable
-    console.log("Counter:", counter);
-}
+Calling these “basic single values” distinguishes this chapter from the next chapter's containers; it is not new Python declaration syntax. Strings also have sequence behavior, which we will study later.
 
-function incrementLocal() {
-    let counter = 0; // Create a local variable
-    counter++;
-    console.log("Local counter:", counter);
-}
+`type(value)` lets you inspect the current value's type. Learn to call it here; metaclasses are not a prerequisite. File: `scalar_types.py`.
 
-increment();
-increment();
-incrementLocal();
-console.log("Global counter:", counter);
+<Code language="python">{getScalarExample('scalar_types.py')}</Code>
+
+Expected:
+
+```text
+<class 'int'>
+<class 'float'>
+<class 'str'>
+<class 'bool'>
+<class 'NoneType'>
+<class 'int'>
+<class 'str'>
 ```
 
-```python !! py
-# Python global variable modification
-counter = 0
+`print(type(30))` calls the inner `type` first, then passes its result to the outer `print`. The word `class` in the output is how the type is displayed, not an instruction to define a class first.
 
-def increment():
-    global counter  # Declare that we are using the global variable
-    counter += 1
-    print("Counter:", counter)
+At the end, `minutes` first refers to an integer and then to a string. The language permits this. But permission to rebind a name to another type does not make all mixed-type operations valid. As a program grows, one name carrying conflicting meanings becomes harder to understand. Real code often uses `raw_minutes` for the original text and `minutes` for the converted integer.
 
-def increment_local():
-    counter = 0  # Create a local variable
-    counter += 1
-    print("Local counter:", counter)
+### 3.2 An expression, its result, and output are different things
 
-increment()
-increment()
-increment_local()
-print("Global counter:", counter)
+`30 + 15` is an expression that evaluates to a value. `total = 30 + 15` keeps its result; `print(total)` writes the result to the terminal. Writing `30 + 15` on a script line does not automatically echo it as some interactive consoles would.
+
+The examples retain `print` so you can observe results, not because calculations need it to work.
+
+## 4. Arithmetic: learn the result rules, not just the symbols
+
+### 4.1 Start with positive numbers, then inspect the type
+
+File: `numbers.py`. Predict the first seven lines before considering the final three edge cases.
+
+<Code language="python">{getScalarExample('numbers.py')}</Code>
+
+Complete output:
+
+```text
+9
+5
+14
+3.5
+3
+1
+49
+3.0
+-4
+1
+```
+
+| Expression | Result | Explanation |
+| --- | --- | --- |
+| `7 + 2`, `7 - 2`, `7 * 2` | `9`, `5`, `14` | Addition, subtraction, multiplication |
+| `7 / 2` | `3.5` | True division; `/` returns a floating-point result even with two integers |
+| `7 // 2` | `3` | Floor division, not retaining the fractional part |
+| `7 % 2` | `1` | The remainder paired with floor division |
+| `7 ** 2` | `49` | Exponentiation; do not substitute `^` |
+| `7.0 // 2` | `3.0` | A floored result, but a floating-point operand keeps the result a `float` |
+
+Similarly, `8 / 2` is `4.0`, not `4`. The important part of `//` is the floor rule; do not memorize it as “division that returns an int.” These rules are documented in Python's [numeric types](https://docs.python.org/3.13/library/stdtypes.html#numeric-types-int-float-complex).
+
+Multiplication and division bind more tightly than addition and subtraction. Use parentheses when intent could be unclear:
+
+```python case=precedence
+print(2 + 3 * 4)
+print((2 + 3) * 4)
+print(-(3 ** 2))
+print((-3) ** 2)
+```
+
+Output:
+
+```text
+14
+20
+-9
+9
+```
+
+The final two lines mean “square, then negate” and “square the whole negative number.” Express your intent with parentheses rather than memorizing the full precedence table now. Division by zero raises `ZeroDivisionError` instead of producing JavaScript Number's `Infinity`. Do not use zero as the divisor in our time conversion.
+
+### 4.2 Negative numbers expose the “remove the decimal part” misconception
+
+`-7 / 2` is `-3.5`. Flooring moves toward the smaller integer, so `-7 // 2` is `-4`, not `-3`. Its paired remainder is `1`, because:
+
+```text
+-7 = (-4) * 2 + 1
+```
+
+For integers with a nonzero divisor, quotient and remainder satisfy `a == (a // b) * b + a % b`. A nonzero Python integer remainder has the divisor's sign. JS `%` uses a different negative-number remainder rule: JS `-7 % 2` is `-1`. Check the [Python expression reference](https://docs.python.org/3.13/reference/expressions.html#binary-arithmetic-operations) and [JS remainder documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder) when you need to distinguish them.
+
+Our deliverable uses positive minutes. You do not need negative modulo to implement the task; the experiment prevents the incorrect rule that `//` merely cuts off fractional digits.
+
+### 4.3 Large integers and fractions: different precision issues
+
+This static comparison illustrates the language boundary. This chapter's acceptance uses local CPython rather than the webpage runner.
+
+<PythonEditor title="Python int and JavaScript Number" compare={true} canRun={false}>
+```javascript case=integer_precision
+console.log(2 ** 53);
+console.log(2 ** 53 + 1);
+```
+
+```python case=integer_precision
+print(2 ** 53)
+print(2 ** 53 + 1)
 ```
 </PythonEditor>
 
-#### 2.3.3 Closure Comparison
+Python output:
 
-**JavaScript Closure**
-
-<PythonEditor title="Closure Comparison" compare={true}>
-```javascript !! js
-// JavaScript closure
-function createCounter() {
-    let count = 0;
-    
-    return {
-        increment: function() {
-            count++;
-            return count;
-        },
-        getCount: function() {
-            return count;
-        }
-    };
-}
-
-const counter1 = createCounter();
-const counter2 = createCounter();
-
-console.log(counter1.increment()); // 1
-console.log(counter1.increment()); // 2
-console.log(counter2.increment()); // 1
-console.log(counter1.getCount());  // 2
-console.log(counter2.getCount());  // 1
+```text
+9007199254740992
+9007199254740993
 ```
 
-```python !! py
-# Python closure
-def create_counter():
-    count = 0
-    
-    def increment():
-        nonlocal count  # Declare that we are using the outer variable
-        count += 1
-        return count
-    
-    def get_count():
-        return count
-    
-    return {
-        'increment': increment,
-        'get_count': get_count
-    }
+JS Number prints `9007199254740992` twice. Python `int` is not constrained by JS Number's safe-integer range; it preserves integer precision within available resources. This does not imply unlimited computation or memory. JS also has a separate `BigInt` type, so this comparison does not mean JS cannot handle large integers. See [Number.MAX_SAFE_INTEGER](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER).
 
-counter1 = create_counter()
-counter2 = create_counter()
+A `float` cannot represent every decimal fraction exactly:
 
-print(counter1['increment']())  # 1
-print(counter1['increment']())  # 2
-print(counter2['increment']())  # 1
-print(counter1['get_count']())  # 2
-print(counter2['get_count']())  # 1
-```
-</PythonEditor>
-
-**Scope Key Difference Summary**
-
-| Feature | JavaScript | Python | Description |
-|---|---|---|---|
-| **Block Scope** | ES6+ supports | Not supported | Python's if/for do not create a new scope. |
-| **Global Variable Declaration** | Direct modification | Requires `global` keyword | Python is stricter. |
-| **Closure Variable** | Automatic capture | Requires `nonlocal` keyword | Python requires explicit declaration. |
-| **Variable Hoisting** | Exists | Does not exist | Python is more intuitive. |
-
-### 2.4 Control Flow Statements
-
-#### 2.4.1 Conditional Statements
-
-<PythonEditor title="Conditional Statement Comparison" compare={true}>
-```javascript !! js
-// if-else statement
-let age = 18;
-if (age >= 18) {
-    console.log("Adult");
-} else if (age >= 12) {
-    console.log("Teenager");
-} else {
-    console.log("Child");
-}
-
-// Ternary operator
-let status = age >= 18 ? "Adult" : "Minor";
-console.log(status);
-
-// switch statement
-let day = "Monday";
-switch (day) {
-    case "Monday":
-        console.log("Monday");
-        break;
-    case "Tuesday":
-        console.log("Tuesday");
-        break;
-    default:
-        console.log("Other day");
-}
+```python case=float_precision
+print(0.1 + 0.2)
+print(0.1 + 0.2 == 0.3)
 ```
 
-```python !! py
-# if-elif-else statement
-age = 18
-if age >= 18:
-    print("Adult")
-elif age >= 12:
-    print("Teenager")
-else:
-    print("Child")
+Output:
 
-# Ternary operator (conditional expression)
-status = "Adult" if age >= 18 else "Minor" # Syntax order: value if condition else other_value
-print(status)
-
-# match statement (Python 3.10+)
-day = "Monday"
-match day:
-    case "Monday":
-        print("Monday")
-    case "Tuesday":
-        print("Tuesday")
-    case _:
-        print("Other day")
-```
-</PythonEditor>
-
-#### 2.4.2 Loop Statements
-
-<PythonEditor title="Loop Statement Comparison" compare={true}>
-```javascript !! js
-// for loop
-for (let i = 0; i < 5; i++) {
-    console.log(i);
-}
-
-// for...of loop (iterating over iterable objects)
-const numbers = [1, 2, 3, 4, 5];
-for (const num of numbers) {
-    console.log(num);
-}
-
-// for...in loop (iterating over object properties)
-const person = { name: "John Doe", age: 25 };
-for (const key in person) {
-    console.log(`${key}: ${person[key]}`);
-}
-
-// while loop
-let count = 0;
-while (count < 5) {
-    console.log(count);
-    count++;
-}
-
-// forEach method
-numbers.forEach(num => console.log(num));
+```text
+0.30000000000000004
+False
 ```
 
-```python !! py
-# for loop (similar to JavaScript's for...of)
-for i in range(5):
-    print(i)
+`==` compares values for equality; the next section introduces it more fully. This is not a random calculation failure: binary floating-point approximations produce an observable difference. Displaying two decimal places does not make the arithmetic exact. We use time estimates rather than financial settlement for practice; exact-decimal approaches come after their prerequisites. The official [floating-point tutorial](https://docs.python.org/3.13/tutorial/floatingpoint.html) explains the limitation.
 
-# Iterating over a list
-numbers = [1, 2, 3, 4, 5]
-for num in numbers:
-    print(num)
+**Checkpoint B:** Explain what `95 // 60` and `95 % 60` represent and why `7.0 // 2` includes `.0`. If you remember only the outputs rather than the rules, try another pair of numbers on paper.
 
-# Iterating over a dictionary
-person = {"name": "John Doe", "age": 25}
-for key, value in person.items():
-    print(f"{key}: {value}")
+## 5. Comparisons, Boolean values, and absence
 
-# Iterating over keys only
-for key in person:
-    print(key)
+### 5.1 `=` binds; `==` compares values
 
-# Iterating over values only
-for value in person.values():
-    print(value)
+`minutes = 30` is assignment. `minutes == 30` produces a Boolean without changing the name. Python has no `===`. However, Python `==` is not simply JS loose equality or JS strict equality: it does not turn `"30"` into an integer here, yet different numeric types can compare equal.
 
-# while loop
-count = 0
-while count < 5:
-    print(count)
-    count += 1
+This independent script combines comparisons and absence checks. File: `boolean_none.py`.
 
-# List comprehension (Python feature)
-squares = [x**2 for x in range(5)]  # [0, 1, 4, 9, 16]
-print(squares)
-```
-</PythonEditor>
+<Code language="python">{getScalarExample('boolean_none.py')}</Code>
 
-## 3. Function Definition and Invocation
+Expected:
 
-### 3.1 Function Declaration Comparison
-
-<PythonEditor title="Function Declaration Comparison" compare={true}>
-```javascript !! js
-// Function declaration
-function greet(name) {
-    return `Hello, ${name}!`;
-}
-
-// Function expression
-const greet2 = function(name) {
-    return `Hello, ${name}!`;
-};
-
-// Arrow function
-const greet3 = (name) => {
-    return `Hello, ${name}!`;
-};
-
-// Shorthand arrow function
-const greet4 = name => `Hello, ${name}!`;
-
-// Default parameters
-function greet5(name = "World") {
-    return `Hello, ${name}!`;
-}
-
-// Destructuring parameters
-function greet6({ name, age }) {
-    return `Hello, ${name}! You are ${age} years old.`;
-}
-
-console.log(greet("John Doe"));
-console.log(greet5());
-console.log(greet6({ name: "Jane Doe", age: 25 }));
+```text
+True
+False
+True
+True
+True
+False
+None
+True
+False
 ```
 
-```python !! py
-# Function definition
-def greet(name):
-    return f"Hello, {name}!"
+Read the results individually:
 
-# Default parameters
-def greet2(name="World"):
-    return f"Hello, {name}!"
+- `30 == 30.0` is `True`: different types, equal numeric values.
+- `"30" == 30` is `False`: numeric-looking text is not automatically converted for this comparison.
+- `True == 1` is `True`: `bool` is a subtype of `int`, so Boolean values are related to `1` and `0` in numeric comparisons. Know the boundary, but keep concepts such as “completed” and “quantity” distinct in application code. Do not use this relationship as an excuse to skip data checks.
+- `!=` means not equal; `<`, `<=`, `>`, and `>=` mean less than, less than or equal, greater than, and greater than or equal. These produce Boolean results. They do not automatically print a conclusion or redirect execution.
 
-# Type hints (Python 3.5+)
-def greet3(name: str) -> str:
-    return f"Hello, {name}!"
+For now, observe Boolean values. `if`, `and`, `or`, and general truthiness are not yet taught. You do not need conditional statements to handle these results, and should not assume that `bool("False")` parses Boolean text.
 
-# Multiple parameters
-def greet4(name, age):
-    return f"Hello, {name}! You are {age} years old."
+### 5.2 `None` is different from a name that does not exist
 
-# Keyword arguments
-def greet5(name, age=None):
-    if age:
-        return f"Hello, {name}! You are {age} years old."
-    return f"Hello, {name}!"
+Here we agree that `assignee = None` means “no assignee yet.” The assignment has bound the name; reading `assignee` is valid and returns `None`.
 
-# Destructuring parameters (using a dictionary)
-def greet6(person):
-    name = person["name"]
-    age = person["age"]
-    return f"Hello, {name}! You are {age} years old."
+Keep these states separate:
 
-print(greet("John Doe"))
-print(greet2())
-print(greet6({"name": "Jane Doe", "age": 25}))
-```
-</PythonEditor>
+| State | Interpretation in this example |
+| --- | --- |
+| `assignee = None` | The name exists; our convention says there is no assignee yet |
+| `assignee = ""` | The name exists and holds an empty string; whether an empty name is allowed needs another rule |
+| `assignee = "None"` | Four letters of ordinary text, not the absence object |
+| Reading `assignee` without ever binding it | An unbound name, producing the `NameError` explored in L00 |
 
-### 3.2 Function Invocation Comparison
+`0` and `False` have their own meanings too; they are not alternative spellings of `None`.
 
-<PythonEditor title="Function Invocation Comparison" compare={true}>
-```javascript !! js
-// Basic invocation
-function greet(name, age) {
-    return `Hello, ${name}! You are ${age} years old.`;
-}
+Treat `value is None` here as a narrowly defined check: is this value the dedicated `None` object? It is not string matching, and it does not treat an empty string as `None`. More generally, `is` concerns object identity, not another strict-equality operator. **Do not use `is` to compare numeric or string contents.** Further identity questions belong with containers and references. See the [None constant](https://docs.python.org/3.13/library/constants.html#None) and [PEP 8's comparison recommendation](https://peps.python.org/pep-0008/#programming-recommendations).
 
-console.log(greet("John Doe", 25));
+## 6. Strings: cleaning text does not mutate the original
 
-// Destructuring invocation
-function greetPerson({ name, age }) {
-    return `Hello, ${name}! You are ${age} years old.`;
-}
+A task title may contain leading and trailing spaces. We want a cleaned title for display while retaining the original for comparison.
 
-console.log(greetPerson({ name: "Jane Doe", age: 25 }));
+Single and double quotes both delimit ordinary Python strings; these delimiter characters are not automatically included in the output. JS backtick templates cannot be copied unchanged. The f-string introduced later is our interpolation tool here.
 
-// Method invocation
-const obj = {
-    name: "John Smith",
-    greet() {
-        return `Hello, ${this.name}!`;
-    }
-};
-console.log(obj.greet());
+First understand `raw_title.strip()`: the name after the dot is a string method, and the parentheses call it now. With no arguments here, it returns a string without leading and trailing whitespace. It does not delete internal spaces or mutate `raw_title`. Calling an existing method does not require defining classes or methods first.
+
+File: `strings.py`.
+
+<Code language="python">{getScalarExample('strings.py')}</Code>
+
+Expected:
+
+```text
+[  Read Python basics  ]
+[Read Python basics]
+18
+Python basics
+It is "Python".
+first
+second
 ```
 
-```python !! py
-# Basic invocation
-def greet(name, age):
-    return f"Hello, {name}! You are {age} years old."
+The first two lines concatenate square brackets around the text to make spaces visible. Those brackets are ordinary characters inside quotes, **not list syntax**.
 
-print(greet("John Doe", 25))
+`title` receives the cleaned result; `raw_title` still retains spaces on both sides. Strings are immutable. A method can return processed text, and you must use or keep that result. Writing only `raw_title.strip()` and then printing `raw_title` does not change what the name subsequently refers to.
 
-# Keyword argument invocation
-print(greet(name="Jane Doe", age=25))
-print(greet(age=25, name="Jane Doe"))  # Argument order can be changed
+`+` joins text when both operands are strings; it does not add a separating space for you. `len(title)` returns the length. All characters in this example are ASCII, and `Read Python basics` has 18, including spaces. Python `str` length counts Unicode code points, not necessarily visible characters; JS `String.length` counts UTF-16 code units. Unicode character counting is not an exit requirement here, but this simple example must not be generalized to all emoji or display widths.
 
-# Dictionary unpacking
-person = {"name": "John Smith", "age": 30}
-print(greet(**person))
+`'It is "Python".'` uses outer single quotes around text containing double quotes. Inside a double-quoted string, `\"` is another way to include a double quote. `\n` represents a newline, so the final `print` produces two lines of text. To include a literal backslash, write `\\`. See the [text introduction](https://docs.python.org/3.13/tutorial/introduction.html#text) and [string methods](https://docs.python.org/3.13/library/stdtypes.html#string-methods).
 
-# Method invocation
-class Person:
-    def __init__(self, name):
-        self.name = name
-    
-    def greet(self):
-        return f"Hello, {self.name}!"
+Learn boundary cleanup, concatenation, and length here. A catalogue of dozens of methods, indexing, and slicing can wait.
 
-person = Person("Jane Smith")
-print(person.greet())
-```
-</PythonEditor>
+## 7. Explicit conversion: looking numeric is not being numeric
 
-## 4. Data Structure Comparison
+### 7.1 Decide whether you want arithmetic or concatenation
 
-### 4.1 Array vs. List
+`"30" + "15"` is `"3015"`; `30 + 15` is `45`. Both are valid, but solve different problems. `"30" + 15` does not work directly: Python will not choose which side to convert for you.
 
-<PythonEditor title="Array vs. List Comparison" compare={true}>
-```javascript !! js
-// Creating an array
-const arr = [1, 2, 3, 4, 5];
+In this chapter, the built-ins `int`, `float`, and `str` obtain an integer, a floating-point number, and a text representation respectively. File: `conversions.py`.
 
-// Adding elements
-arr.push(6);           // Add to the end
-arr.unshift(0);        // Add to the beginning
-arr.splice(2, 0, 2.5); // Insert in the middle
+<Code language="python">{getScalarExample('conversions.py')}</Code>
 
-// Removing elements
-arr.pop();             // Remove from the end
-arr.shift();           // Remove from the beginning
-arr.splice(2, 1);      // Remove at a specific position
+Expected:
 
-// Finding elements
-const index = arr.indexOf(3);
-const found = arr.find(x => x > 3);
-
-// Array methods
-const doubled = arr.map(x => x * 2);
-const filtered = arr.filter(x => x > 2);
-const sum = arr.reduce((acc, x) => acc + x, 0);
-
-console.log("Original array:", arr);
-console.log("Doubled:", doubled);
-console.log("Filtered:", filtered);
-console.log("Sum:", sum);
+```text
+45
+3.5
+3
+-3
+Minutes: 30
 ```
 
-```python !! py
-# Creating a list
-arr = [1, 2, 3, 4, 5]
+`int(raw_minutes)` reads `"30"` and returns integer `30`. It does not transform the original string in place; `minutes` binds to the conversion result. The following addition therefore performs arithmetic. The final line converts the integer to text before concatenating text.
 
-# Adding elements
-arr.append(6)          # Add to the end
-arr.insert(0, 0)       # Add to the beginning
-arr.insert(2, 2.5)     # Insert in the middle
+`int(3.9)` and `int(-3.9)` discard the fractional part, truncating toward zero. This is neither rounding to the nearest integer nor the floor rule used by `//`. Negative numbers distinguish them: `int(-3.9)` is `-3`, whereas `-7 // 2` is `-4`.
 
-# Removing elements
-arr.pop()              # Remove from the end
-arr.pop(0)             # Remove at a specific position
-del arr[2]             # Remove at a specific position
-arr.remove(3)          # Remove a specific value
+### 7.2 Diagnose two failures instead of hiding them
 
-# Finding elements
-index = arr.index(3)   # Find the index
-found = next((x for x in arr if x > 3), None)
+First experiment: `errors/text_plus_number.py`.
 
-# List comprehensions
-doubled = [x * 2 for x in arr]
-filtered = [x for x in arr if x > 2]
-sum_result = sum(arr)
+<Code language="python">{getScalarExample('errors/text_plus_number.py')}</Code>
 
-print("Original list:", arr)
-print("Doubled:", doubled)
-print("Filtered:", filtered)
-print("Sum:", sum_result)
-```
-</PythonEditor>
+There is no normal output. The final error line resembles:
 
-### 4.2 Object vs. Dictionary
-
-<PythonEditor title="Object vs. Dictionary Comparison" compare={true}>
-```javascript !! js
-// Creating an object
-const person = {
-    name: "John Doe",
-    age: 25,
-    greet() {
-        return `Hello, ${this.name}!`;
-    }
-};
-
-// Accessing properties
-console.log(person.name);
-console.log(person["name"]);
-
-// Adding/modifying properties
-person.city = "New York";
-person["job"] = "Programmer";
-
-// Deleting properties
-delete person.age;
-
-// Iterating over an object
-for (const key in person) {
-    console.log(`${key}: ${person[key]}`);
-}
-
-Object.keys(person).forEach(key => {
-    console.log(`${key}: ${person[key]}`);
-});
-
-console.log(person.greet());
+```text
+TypeError: can only concatenate str (not "int") to str
 ```
 
-```python !! py
-# Creating a dictionary
-person = {
-    "name": "John Doe",
-    "age": 25
-}
+Inspect line 2. The argument expression must be evaluated before `print` receives it. Addition fails first, so `print` never receives a result. The later `finished` line does not appear either. The error is an unsupported combination of types for this operation, not an inability of `print` to display numbers.
 
-# Accessing properties
-print(person["name"])
-print(person.get("name"))  # Safe access
-print(person.get("city", "Unknown"))  # Default value
+Before fixing it, ask what is required: 45 minutes or the text `3015`? Here we need arithmetic, so convert the original text to an integer rather than converting `15` to text just to suppress an error. Section 10 makes this repair an exercise.
 
-# Adding/modifying properties
-person["city"] = "New York"
-person["job"] = "Programmer"
+Second experiment: `errors/invalid_integer.py`.
 
-# Deleting properties
-del person["age"]
-person.pop("age", None)  # Safe deletion
+<Code language="python">{getScalarExample('errors/invalid_integer.py')}</Code>
 
-# Iterating over a dictionary
-for key, value in person.items():
-    print(f"{key}: {value}")
+Again, there is no normal output. The final line resembles:
 
-for key in person.keys():
-    print(f"{key}: {person[key]}")
-
-for value in person.values():
-    print(value)
-```
-</PythonEditor>
-
-### 4.3 Set Comparison
-
-<PythonEditor title="Set Comparison" compare={true}>
-```javascript !! js
-// Creating a set
-const set = new Set([1, 2, 3, 3, 4]); // Automatically deduplicates
-
-// Adding elements
-set.add(5);
-
-// Deleting elements
-set.delete(3);
-
-// Checking for elements
-console.log(set.has(2));
-
-// Set operations
-const set1 = new Set([1, 2, 3]);
-const set2 = new Set([3, 4, 5]);
-
-// Union
-const union = new Set([...set1, ...set2]);
-
-// Intersection
-const intersection = new Set([...set1].filter(x => set2.has(x)));
-
-// Difference
-const difference = new Set([...set1].filter(x => !set2.has(x)));
-
-console.log("Union:", Array.from(union));
-console.log("Intersection:", Array.from(intersection));
-console.log("Difference:", Array.from(difference));
+```text
+ValueError: invalid literal for int() with base 10: '3.5'
 ```
 
-```python !! py
-# Creating a set
-set_data = {1, 2, 3, 3, 4}  # Automatically deduplicates
+`int` can process a string representing an integer, but `"3.5"` is not such a string. This differs from `int(3.5)`, which already receives a floating-point number and can truncate it using the rule above.
 
-# Adding elements
-set_data.add(5)
+Do not silently replace this with `int(float(raw_sessions))` just to make the error disappear. If the value represents study sessions, whether 3.5 sessions is meaningful is a requirements question. Converting to float and truncating can discard the user's intent. You might require another integer input or explicitly support fractions; complete validation and error responses belong after branches, exceptions, and server fundamentals.
 
-# Deleting elements
-set_data.remove(3)  # Raises an error if the element does not exist
-set_data.discard(3)  # Recommended, does not raise an error if the element does not exist
+Your task now is to record the error type, source line, actual value type, and intended result. We deliberately do not wrap the code in `try/except`. See the [built-ins including `int` and `float`](https://docs.python.org/3.13/library/functions.html#int) and [TypeError / ValueError](https://docs.python.org/3.13/library/exceptions.html#ValueError).
 
-# Checking for elements
-print(2 in set_data)
+**Successful conversion is not complete business validation.** `int("-5")` produces integer `-5`, but whether an estimated duration may be negative is a separate rule. The following script handles trusted values we write into its source. It is not a backend ready for arbitrary public requests.
 
-# Set operations
-set1 = {1, 2, 3}
-set2 = {3, 4, 5}
+**Checkpoint C:** Without running, distinguish `int("3.5")`, `int(3.5)`, and `"3" + "5"`. For a failure, explain which step fails instead of merely copying the last error line.
 
-# Union
-union = set1 | set2
-union = set1.union(set2)
+## 8. f-strings produce text, not reactive views
 
-# Intersection
-intersection = set1 & set2
-intersection = set1.intersection(set2)
+`"Minutes: " + str(minutes)` works, but repeated manual concatenation makes it easy to omit a space or conversion. An f-string prefixes the quoted string with `f` and embeds expressions inside braces. Python evaluates them when that line executes and places their formatted results into a new string.
 
-# Difference
-difference = set1 - set2
-difference = set1.difference(set2)
+File: `formatting.py`.
 
-print("Union:", union)
-print("Intersection:", intersection)
-print("Difference:", difference)
-```
-</PythonEditor>
+<Code language="python">{getScalarExample('formatting.py')}</Code>
 
-## 5. Error Handling Comparison
+Expected:
 
-### 5.1 Exception Handling
-
-<PythonEditor title="Exception Handling Comparison" compare={true}>
-```javascript !! js
-// Basic error handling
-try {
-    const result = 10 / 0;
-    console.log(result);
-} catch (error) {
-    console.error("An error occurred:", error.message);
-} finally {
-    console.log("Always executed");
-}
-
-// Custom error
-class CustomError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "CustomError";
-    }
-}
-
-// Throwing an error
-function divide(a, b) {
-    if (b === 0) {
-        throw new CustomError("Divisor cannot be zero");
-    }
-    return a / b;
-}
-
-try {
-    console.log(divide(10, 0));
-} catch (error) {
-    console.error("Division error:", error.message);
-}
+```text
+Estimate: 95 minutes
+Estimate: 95 minutes
+Estimate: 120 minutes
+Decimal hours: 1.58
+1.5833333333333333
 ```
 
-```python !! py
-# Basic error handling
-try:
-    result = 10 / 0
-    print(result)
-except ZeroDivisionError as e:
-    print(f"An error occurred: {e}")
-except Exception as e:
-    print(f"Other error: {e}")
-else:
-    print("Executed when there is no exception")
-finally:
-    print("Always executed")
+`report` was constructed when `minutes` was `95`. Rebinding `minutes` to `120` does not rewrite an existing string. Constructing a new f-string in a later print reads the new value. This resembles an ordinary string already produced by a JS template literal, not a Vue computed property or a subsequent React render.
 
-# Custom exception
-class CustomError(Exception):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+In `{hours:.2f}`, `hours` before the colon is the value; `.2f` requests fixed-point formatting with two decimal places. It changes the generated text, not `hours`. The final line still displays the original floating-point result. Formatting is not exact financial arithmetic or a business rounding policy.
 
-# Raising an exception
-def divide(a, b):
-    if b == 0:
-        raise CustomError("Divisor cannot be zero")
-    return a / b
+If you omit the opening `f`, braces remain literal text instead of interpolating a name. See the [output tutorial](https://docs.python.org/3.13/tutorial/inputoutput.html#formatted-string-literals) and [format specification](https://docs.python.org/3.13/library/string.html#format-specification-mini-language). Mastering the entire formatting language is not required here.
 
-try:
-    print(divide(10, 0))
-except CustomError as e:
-    print(f"Division error: {e.message}")
-```
-</PythonEditor>
+## 9. Connect the pieces: a task estimate script
 
-## 6. Module and Import Comparison
+Only now do we combine several operations in a complete file. Inputs are written directly in the source: no form, HTTP request, file reading, or database.
 
-### 6.1 Module System
+File: `task_estimate.py`.
 
-<PythonEditor title="Module System Comparison" compare={true}>
-```javascript !! js
-// math.js
-export const add = (a, b) => a + b;
-export const subtract = (a, b) => a - b;
+<Code language="python">{getScalarExample('task_estimate.py')}</Code>
 
-export default class Calculator {
-    constructor() {
-        this.result = 0;
-    }
-    
-    add(x) {
-        this.result += x;
-        return this;
-    }
-}
+Run in the directory containing that file:
 
-// main.js
-import Calculator, { add, subtract } from './math.js';
-import * as math from './math.js';
-
-const calc = new Calculator();
-console.log(add(5, 3));
-console.log(math.subtract(10, 4));
+```bash
+uv run --no-project --python 3.13 python task_estimate.py
 ```
 
-```python !! py
-# math_utils.py
-def add(a, b):
-    return a + b
+Expected:
 
-def subtract(a, b):
-    return a - b
-
-class Calculator:
-    def __init__(self):
-        self.result = 0
-    
-    def add(self, x):
-        self.result += x
-        return self
-
-# main.py
-from math_utils import add, subtract, Calculator
-import math_utils as math
-
-calc = Calculator()
-print(add(5, 3))
-print(math.subtract(10, 4))
+```text
+Task: Read Python basics
+Estimate: 1h 35m
+Decimal hours: 1.58
 ```
-</PythonEditor>
 
-## 7. Exercises
+### Follow the data
 
-### Exercise 1: Data Type Conversion
+| Step | Input | Result | Responsibility |
+| --- | --- | --- | --- |
+| Read source constants | Padded title and `"95"` | Two strings | Preserve the original representation |
+| Clean | `raw_title` | `"Read Python basics"` | Remove surrounding whitespace, not internal spaces |
+| Convert | `raw_minutes` | Integer `95` | Enable numeric operations |
+| Decompose | `95` and `60` | Hours `1`, remaining minutes `35` | Express time using quotient and remainder |
+| Display | Title, hours, minutes, and division result | Three text lines | Format without changing calculated values |
 
-Convert the following JavaScript code to Python:
+`hours` is the whole-hour portion; `minutes` is what remains, not the original input reused as a remainder. Decimal hours `1.58` is an approximation, not “1 hour and 58 minutes.” This is why you must explain units rather than accept anything that looks numeric.
 
-```javascript
-// JavaScript version
-const numbers = [1, 2, 3, 4, 5];
-const doubled = numbers.map(x => x * 2);
-const evenNumbers = doubled.filter(x => x % 2 === 0);
-const sum = evenNumbers.reduce((acc, x) => acc + x, 0);
-console.log(sum);
+### Make two changes yourself
+
+1. Change `raw_minutes` to `"125"`. Predict first, then confirm `2h 5m` and `2.08` decimal hours.
+2. Change it to `"60"`. Expect `1h 0m` and `1.00`. A zero remainder is not a reason to hard-code the entire output line.
+
+Restore `"95"` afterward. This script does not check empty titles, negative durations, or enormous numbers, and it receives no network data. It is an explained language exercise, not a product with completed server-side input validation.
+
+**Checkpoint D:** Close the lesson and describe “original text → converted values → calculation → display.” Return to the relevant section for any line you cannot explain instead of memorizing the whole program at once.
+
+## 10. Graduated practice: predict, repair, then build independently
+
+Answers start collapsed. Understanding an answer is not a substitute for doing the work. In particular, printing the expected output as a hard-coded string does not satisfy a calculation task.
+
+### Exercise A: predict bindings and a string snapshot
+
+```python case=exercise_snapshot
+minutes = 30
+saved_minutes = minutes
+label = f"Plan: {minutes}"
+minutes = minutes + 15
+print(saved_minutes)
+print(minutes)
+print(label)
 ```
+
+Write the three expected lines on paper. Explain why `minutes = minutes + 15` is not a mathematical equation. Then save it as `prediction.py` and verify using the same execution command.
 
 <details>
-<summary>View Answer</summary>
+<summary>After predicting, reveal the explanation</summary>
 
-```python
-# Python version
-numbers = [1, 2, 3, 4, 5]
-doubled = [x * 2 for x in numbers]
-even_numbers = [x for x in doubled if x % 2 == 0]
-sum_result = sum(even_numbers)
-print(sum_result)
+```text
+30
+45
+Plan: 30
 ```
+
+The right-hand side reads the old value `30`, computes `45`, and then rebinds the name on the left. It does not require old and new values to be equal simultaneously. `saved_minutes` still refers to the old integer; `label` is the already constructed string. These names are not an automatically synchronized state-management system.
 
 </details>
 
-### Exercise 2: Function Definition
+### Exercise B: repair the requirement, not just the exception
 
-Convert the following Python function to JavaScript:
+Reopen `errors/text_plus_number.py`. It must print integer `45`, followed by `finished`. Keep the original `raw_minutes = "30"` and add a name for the converted value. Do not hard-code `45` or convert `15` into a string.
 
-```python
-# Python version
-def process_data(data, callback=None):
-    result = []
-    for item in data:
-        if callback:
-            processed = callback(item)
-        else:
-            processed = item * 2
-        result.append(processed)
-    return result
-
-# Example usage
-numbers = [1, 2, 3, 4, 5]
-result = process_data(numbers, lambda x: x ** 2)
-print(result)
-```
+After fixing it, change the input to `"50"`. Expect `65`, not `5015` or the original `45`.
 
 <details>
-<summary>View Answer</summary>
+<summary>After your repair and variation, reveal the reference</summary>
 
-```javascript
-// JavaScript version
-function processData(data, callback = null) {
-    const result = [];
-    for (const item of data) {
-        let processed;
-        if (callback) {
-            processed = callback(item);
-        } else {
-            processed = item * 2;
-        }
-        result.push(processed);
-    }
-    return result;
-}
+File: `solutions/fix_minutes.py`.
 
-// Example usage
-const numbers = [1, 2, 3, 4, 5];
-const result = processData(numbers, x => x ** 2);
-console.log(result);
+<Code language="python">{getScalarExample('solutions/fix_minutes.py')}</Code>
+
+Expected output for the original input:
+
+```text
+45
+finished
 ```
+
+Conversion occurs before addition, repairing the type combination while satisfying the goal of calculating minutes. If the input becomes `"later"`, conversion still fails. This exercise does not require premature exception recovery logic.
 
 </details>
 
-### Exercise 3: Scope Understanding
+### Exercise C: build a reading plan from an empty file
 
-Analyze the output of the following code:
+Create `reading_plan.py` yourself and start with just these known values:
 
-<PythonEditor title="Scope Exercise" compare={true}>
-```javascript !! js
-// JavaScript scope exercise
-let x = 10;
-
-function outer() {
-    let x = 20;
-    
-    function inner() {
-        let x = 30;
-        console.log("inner x:", x);
-    }
-    
-    inner();
-    console.log("outer x:", x);
-}
-
-outer();
-console.log("global x:", x);
+```python case=exercise_inputs
+raw_topic = "  Python names  "
+raw_sessions = "4"
+minutes_per_session = 25
 ```
 
-```python !! py
-# Python scope exercise
-x = 10
+Meet these requirements:
 
-def outer():
-    x = 20
-    
-    def inner():
-        x = 30
-        print("inner x:", x)
-    
-    inner()
-    print("outer x:", x)
+1. Keep the original inputs, remove surrounding whitespace from the topic, and convert the session count.
+2. Compute total duration from the count and minutes per session rather than writing the answer directly.
+3. Decompose the total into hours and remaining minutes.
+4. Produce the following three lines using only L00 and this chapter.
 
-outer()
-print("global x:", x)
+```text
+Topic: Python names
+Sessions: 4
+Total: 100 minutes (1h 40m)
 ```
-</PythonEditor>
+
+Run your own file, not the provided solution as a substitute for acceptance:
+
+```bash
+uv run --no-project --python 3.13 python reading_plan.py
+```
+
+Now vary the inputs. With `"5"` sessions, expect `125 minutes (2h 5m)`. With topic `"  Read slowly  "`, expect `Read slowly`. No calculation code should need to change.
+
+Finally introduce a failure: set the count to `"many"`, predict the error type, and locate the conversion line. Explain why conversion is impossible; you do not need to catch the exception. Restore valid input after diagnosis.
 
 <details>
-<summary>View Answer</summary>
+<summary>After independent completion and variations, reveal the solution</summary>
 
-**JavaScript Output:**
-```
-inner x: 30
-outer x: 20
-global x: 10
-```
+File: `solutions/reading_plan.py`.
 
-**Python Output:**
-```
-inner x: 30
-outer x: 20
-global x: 10
-```
+<Code language="python">{getScalarExample('solutions/reading_plan.py')}</Code>
 
-**Explanation:**
-- Both languages follow lexical scoping rules.
-- Inner functions can access outer variables, but same-named variables create new local variables.
-- Using `global` (Python) or direct modification (JavaScript) can modify global variables.
+The blank lines separate input, processing, and output for readability; they introduce no execution mechanism. `sessions` keeps the integer, multiplication produces `total_minutes`, and hours and remainder are calculated from it. A changed input therefore flows through the next execution.
+
+Different names are fine if the requirements are met. Compare your reasoning with the answer rather than demanding identical spelling.
+
 </details>
 
-## 8. Summary
+## 11. Evidence for moving on, not a completion checkbox
 
-### Key Difference Summary
+You are ready for the next chapter when you can independently:
 
-| Aspect | JavaScript | Python | Learning Suggestion |
-|---|---|---|---|
-| **Syntax Style** | Curly braces + semicolons | Indentation-sensitive | Pay attention to Python's indentation rules. |
-| **Variable Declaration** | Requires keyword | Direct assignment | Adapt to Python's conciseness. |
-| **Naming Convention** | camelCase | snake_case | Follow Python's naming conventions. |
-| **String Formatting**| Template literals | f-string | Both are very intuitive. |
-| **Loop Syntax** | for/while | for/while | Python's `for` is more concise. |
-| **Function Definition** | function/arrow function | def | Syntax difference is significant. |
-| **Error Handling** | try-catch | try-except | Similar concept, different syntax. |
-| **Scope** | Block scope | Function scope | Note Python's global variable declaration. |
+- Predict reassignment effects on the current name, another previously bound name, and an already generated string.
+- Explain `30`, `30.0`, `"30"`, `False`, and `None`, without confusing an unbound name with `None`.
+- Distinguish `/`, `//`, and `%`; explain negative flooring and floating-point approximation without treating two-decimal display as exact arithmetic.
+- Choose concatenation or arithmetic based on the requirement and explain the difference between the TypeError and ValueError experiments.
+- Write the reading plan from an empty file, pass input variations, and identify the lack of public-input validation.
 
-### Learning Suggestions
+For anything that still requires the answer, return to the corresponding experiment. You do not need to memorize every exception, string method, or precedence rule.
 
-1.  **Start with Similarities**: First, learn the concepts that are similar in both languages.
-2.  **Comparative Learning**: Write code in both languages simultaneously.
-3.  **Practice-Oriented**: Do more exercises and projects.
-4.  **Pay Attention to Details**: Focus on the differences in syntax details.
-5.  **Establish a Mapping**: Create a mental mapping between the two languages.
-6.  **Understand Scope**: Deeply understand the concept and differences of variable scope.
+### Returning after a break
 
-### Next Steps
+Before leaving, record the last successful file and output, one line you cannot yet explain, and one input to change next time. On returning, predict that change and run it. You do not need to reinstall the environment or reread the entire chapter.
 
-After mastering the basic syntax comparison, it is recommended to continue learning:
+Continue to [L02: Containers, References, and Mutation](/en/docs/js2py/module-02-module-system) to organize task data and examine shared references. Chapters 00–02 now follow the new contracts. The former module-system material is archived for L06 after its prerequisites; later pages are still being migrated, so historical website numbers do not imply completion of the new route.
 
--   Object-oriented programming comparison
--   Asynchronous programming models
--   Package management and dependency management
--   Testing framework comparison
--   Practical project development
+## 12. Official references for further checks
 
-Remember: Syntax is just a tool. What's important is understanding programming concepts and problem-solving methods. Both Python and JavaScript are excellent languages, each with its own characteristics. Mastering both will make you a more well-rounded developer.
+Use documentation to answer a specific question, not as a replacement for the lesson. The relevant sections already link numeric, string, exception, and formatting references. Also keep these available:
+
+- [Python assignment statements](https://docs.python.org/3.13/reference/simple_stmts.html#assignment-statements): right-hand evaluation, binding, and the distinction from mutation.
+- [Python data model](https://docs.python.org/3.13/reference/datamodel.html#objects-values-and-types): objects, types, values, and immutability; reading the whole reference is not required now.
+- [Python comparisons](https://docs.python.org/3.13/reference/expressions.html#comparisons): why numeric equality and object identity answer different questions.
+
+This chapter uses CPython 3.13 as a teaching baseline, not as a claim about the latest release. Downloaded source, displayed examples, and maintainer runtime checks are maintained together.

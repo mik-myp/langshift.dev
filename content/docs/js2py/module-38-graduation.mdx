@@ -1,0 +1,148 @@
+---
+title: Graduation assessment — independently deliver task comments, not another tutorial
+description: Business requirements, constraints, negative scenarios and review criteria only; demonstrate authorization, concurrency, upgrades, rollback, recovery and invited use with independent evidence.
+---
+
+import { getGraduationExample } from '@/lib/js2py-examples'
+
+## 1. An independent delivery, not a final implementation answer
+
+Understanding a backend tutorial does not establish that you can make maintainable choices without its reference implementation. This chapter supplies no physical schema, route design, migration commands, transaction algorithm or complete backend. Extend your own collaborative task API and explain why you chose a design, how you discovered mistakes, and how you recover.
+
+The prerequisite is **O06 capability and evidence**, not an accessible lesson page. Your existing project needs isolated restoration, access control and controlled-release foundations. If a preceding chapter lacks an environment, restoration or mainline acceptance, you may prepare G01 requirements, but G01 cannot mark that prerequisite verified. Mainline review controls chapter status.
+
+Task comments are an equivalent controlled alternative to the capstone's label extension: you do not need both, and delivery gates are not relaxed. New complexity comes from distinct author/owner permissions, concurrent revisions, redaction and repeated requests, all of which must survive upgrade, release rollback and restoration. Adding another CRUD table is not sufficient.
+
+Download the [G01 requirements and evidence package](/learning-assets/js2py/g01-graduation.zip) and enter `g01-graduation`. It contains a product contract, synthetic scenario data, evidence/reviewer templates, a rubric and a **material-format checker**, not a deployable reference backend. Every student scenario starts as `not_run`; no pilot data is fabricated.
+
+## 2. Four different claims need four different kinds of evidence
+
+| Claim | Who supplies which evidence | What cannot be inferred |
+| --- | --- | --- |
+| Course content complete | Author supplies text, resources, links and required mainline review | The learner has mastered it or every earlier environment was executed |
+| Author reference validation | Author actually executes owned examples/material checks in a stated environment | A student's different implementation is correct |
+| Student graduation | Independent project evidence, negative cases, restoration, an unseen change and human review | Unrestricted public operation is safe |
+| Real public operation | Identified host/domain/credential ownership, HTTPS, safe deployment, budget, monitoring and real-use evidence | Permanent safety, unlimited capacity or no maintenance obligation |
+
+The author of this chapter verified only its requirements package and format tool. Your project was not run, graduation was not awarded, and no host, domain or deployment credentials are available to prove a public release. Invited use is also different from public registration: audience, data risk and operational commitments differ. The template keeps these claims separate rather than collapsing them into `passed=true`.
+
+<details>
+<summary>Review check 1: why is a green CI screenshot insufficient for graduation?</summary>
+
+It may refer to a different revision, exercise only happy paths, bypass the real database, or run only the format checker. Review needs traceable revision, environment, input, outcome and persistent state, plus independent adaptation and restoration. A screenshot can help locate a record, but cannot replace reviewable primary evidence. Author, student and operational evidence must identify their separate provenance.
+
+</details>
+
+## 3. The new requirement: task comments with immutable authorship
+
+Logically a comment has identity, owning task/project, server-derived author, plain text, creation time, a revision after successful modification, and redaction state. Text contains 1–1000 Unicode code points, is not whitespace-only and cannot be NULL. Rich text, attachments, nested replies and real-time notifications are excluded. These are logical facts, not a prescribed physical table. Storage, interface representation and conflict responses are decisions you must defend.
+
+Current active project members can read/list/create and edit or redact their own visible comments. A project owner can redact any comment in that project, but **cannot rewrite another author's text**. A removed member cannot read or operate on that project's comments, even with an unexpired old credential or historical authorship. Current members still see the historical author attribution. Anonymous and disabled users receive no access merely because a membership row remains.
+
+Normal reads of a redacted comment expose tombstone metadata, not the original text. Lists, detail, history, exports and logs must not become bypasses. Editing after redaction fails; delayed requests cannot resurrect text. Choose and explain internal retention or deletion and its backup consequences. Do not claim retroactive erasure from every existing backup.
+
+<Code language="json">{getGraduationExample('requirements.json')}</Code>
+
+This is a machine-readable product contract shared by all three editions, not database DDL. Keep product requirements separate from your implementation constraints: preventing former-member access is required; choosing a particular framework is not a scoring item. Extra microservices, public registration or a new authentication protocol cannot substitute for required evidence.
+
+## 4. One Alice demo cannot establish data, role and failure boundaries
+
+Synthetic data includes two projects and owners, an ordinary member, a removed member, an outsider and a disabled user. The same person may remain authorized in another project. Logical IDs describe scenarios: supply a mapping into your own model rather than treating these labels as prescribed database key types, and never overwrite production users with them.
+
+<Code language="json">{getGraduationExample('fixtures/actors-and-data.json')}</Code>
+
+Especially revealing evidence uses someone who is correctly authenticated but does not own the object: combine a foreign comment ID with an owned project path, forge an author field, or replay an old request after removal. Testing only 401 establishes a login check, not every object boundary. After rejection, verify no mutation and no text disclosure rather than checking only an HTTP status.
+
+Input boundaries need more than an empty string: Unicode whitespace, NULL, maximum length, one code point beyond the maximum, and markup characters as plain text are all part of the contract. No elaborate new frontend is required. The API and necessary display contract can express plain-text semantics without interpreting comment text as executable rich HTML.
+
+## 5. Concurrency, repeated requests and uncertain outcomes differ
+
+Two edits based on the same old revision must not silently overwrite one another successfully. Declare conflict behavior and prove actual interleaving using independent requests. A committed redaction cannot be undone by a delayed edit. Requests beginning after membership removal commits must be denied; define and test a consistent policy for already in-flight work rather than selecting whichever run looks favorable afterward.
+
+The repeated-create contract is a retention window of at least 24 hours: the same authenticated actor, task, request identity and content represent one logical comment and return the same identity. Different text with the same scoped request identity conflicts without changing the original. Different actors or tasks must not receive each other's cached result. Choose a bounded, documented, tested expiry policy rather than promising exactly-once behavior forever.
+
+A replay must still satisfy current permission. Revocation cannot be bypassed by “this request previously succeeded.” A lost response also does not mean the database failed to commit. S16 specifically requires an accepted request whose response was not received to be retried without creating a duplicate. This is a product requirement, not an instruction to copy a particular idempotency middleware.
+
+Failure evidence identifies the stage, what should remain, what must not exist, and how a subsequent valid operation recovers. “Caught an exception” does not describe the database afterward. Final row counts alone can miss a success promised externally without a corresponding record. External outcomes and persistent state must explain each other.
+
+## 6. The scenario catalog is an acceptance contract, not a ready-made suite
+
+Twenty-four scenarios cover functionality, object authorization, concurrency, repeated requests, failures, queries, upgrade, rollback, recovery, operations, pilot use and independent ability. They contain no request implementation or database answer. Build reproducible evidence against your own interface contract.
+
+<Code language="json">{getGraduationExample('scenarios.json')}</Code>
+
+A convincing record identifies the application/migration revision, exclusive environment, relevant actors, redacted inputs, actual responses, subsequent database/service state and how to observe it again. Concurrency evidence must demonstrate overlap rather than labeling two sequential calls a race.
+
+A scenario marked pass is your assertion, still subject to review. Fail preserves a counterexample; blocked states what is missing and who can unblock it; not_run invents neither timestamps nor output. Test count, coverage percentage and screenshot volume cannot replace decisive negative cases. Stable pagination requires deterministic results for an unchanged dataset; insertion/deletion behavior must be explained rather than equating total ordering with a cross-request snapshot.
+
+<details>
+<summary>Review check 2: two successful creates leave one row — does that prove duplicate-request correctness?</summary>
+
+Not by itself. Verify matching scope/request identity, identical returned comment identity, no overwrite by a different payload, no response reuse across users, denial after revocation, and recovery from a lost response. One final row could result from cleanup or incorrect merging. A set of evidence must explain accepted outcomes and persistent state together. No implementation algorithm is supplied here.
+
+</details>
+
+## 7. Upgrade, rollback and restoration must include existing data
+
+Starting on an empty database does not prove upgrade safety. Existing users, projects, members and tasks retain their identities and permitted behavior; old tasks begin with zero comments, without invented default authors. A task with any comment, including a tombstone, cannot be physically deleted. Deletion of uncommented tasks retains its previous behavior. Project deletion must not bypass this rule; document and test a consistent project policy.
+
+Rollback evidence must identify which application revision is compatible with which schema revision. If an old application cannot understand new state, a declared safe freeze or controlled rollback condition is acceptable, but blindly downgrading and losing accepted comments is not successful recovery. Test compatibility and preservation against meaningful data, not an empty demonstration database.
+
+Restoration requires actually restoring a backup into a different, explicitly isolated target. Check relationships, revisions, redaction privacy and repeated-request behavior, and record recovery duration and acceptable/observed loss windows. Table counts can miss resurrected redacted text or missing replay state. An older backup can contain old content; explain retention and the restored data window rather than treating backups as merely a performance concern.
+
+Without an approved target, account, budget and O06 evidence, pilot use remains blocked. Once those conditions are met, limit it to 2–5 invited testers with nonsensitive data and at least one traceable anonymized feedback item followed by a verified adjustment. Never invent participants or describe a localhost URL as public HTTPS.
+
+## 8. A rubric needs gates: attractive documentation cannot offset unauthorized access
+
+<Code language="json">{getGraduationExample('rubric.json')}</Code>
+
+Six dimensions total 100 points, with a suggested minimum of 80. All 24 scenarios describe required behavior and need reviewed passing evidence; a false hard_gate flag is not a waiver. Hard-gate failures cannot be offset by points, and O06 must be independently confirmed. Unauthorized access, data loss, fabricated evidence, exposed credentials and inability to explain an independent change cannot be offset by a polished UI or higher coverage. The rubric is not an automatic graduation engine; a human reviewer owns the decision.
+
+Official documentation and assistance tools are allowed, with disclosure of assisted work. An unseen assessment change might tighten the limit for new comments while retaining readability of older long comments. Review concerns whether you can identify affected contracts, adjust validation and explain compatibility, not how much code you can type under pressure. Also defend a real problem you encountered: initial hypothesis, counterevidence, diagnostic material, repair result and remaining limits. Reciting someone else's conclusion is insufficient.
+
+<details>
+<summary>Review check 3: does a successful restore and score above 80 permit immediate public registration?</summary>
+
+No. Restoration may satisfy a graduation gate, but public operation brings audience, abuse, quotas, account recovery, budget and ongoing ownership obligations. This course's first scope is approved invited use. Graduation still leaves declared capacity and risk limits in place. Without host/domain/credentials and actual deployment evidence, record not run or blocked; the author cannot fill in “deployed” for you.
+
+</details>
+
+## 9. The format checker deliberately cannot graduate you
+
+The package has no external Python dependencies and needs no pytest, database, Docker or frontend build. Its optional checker uses the standard library and was tested with Python **3.13.15**. Reading JSON/Markdown does not require installing Python at all. Execute these commands inside the package, first checking the active interpreter.
+
+```bash
+python3 --version
+python3 check_evidence.py templates/evidence.json
+python3 -m unittest discover -s tests -v
+```
+
+```text
+{"artifact_files_verified": false, "backend_verified": false, "format_valid": true, "graduation_awarded": false, "public_operation_verified": false, "scenario_status_counts": {"blocked": 0, "fail": 0, "not_run": 24, "pass": 0}}
+```
+
+Exit 0 means the materials have an acceptable format: complete scenario IDs, separate claims, syntactically complete references, nonescaping paths and parseable fields such as times. It **does not open artifacts to verify hashes, authenticate claims, call a backend, scan every secret, award a score or confirm deployment**. A unit test deliberately constructs an in-memory fictional report that passes format checks while backend_verified stays false. That limitation test is not fabricated deployment evidence.
+
+The author ran 15 material unit tests: blank template, missing scenarios, duplicate IDs, pass without references, unsafe paths, false timestamps, blocked without a reason, dangling synthetic references and malformed JSON, among others. None of the student's 24 business scenarios was run. Do not combine those counts into “39 passing backend tests.”
+
+## 10. Pause around evidence, without prescribing implementation order
+
+You can pause at requirements understanding, design review, behavior observation, delivery/recovery evidence or independent defense. These are evidence-maturity states, not an instruction to create one table before a particular endpoint. Choose your development order, provided every commitment is eventually reviewable.
+
+<Code language="json">{getGraduationExample('templates/checkpoint.json')}</Code>
+
+At each pause record code/schema revisions, the owned target, last actual command, last established fact, unresolved questions, next evidence to collect and stopped resources. On resumption, confirm that reality still matches the record. “It probably passed last time” is not a checkpoint. Missing environments remain blocked with an owner; unexecuted scenarios remain not_run rather than receiving expected success values.
+
+Relative artifact paths and digests help reviewers locate evidence, but redact first. Do not share full environment dumps, tokens, connection passwords, real private comment text or private keys. Correlation IDs should help reconstruct incidents, not create another disclosure channel. The format checker is not a confidentiality audit; the submitter still reviews shared material manually.
+
+## 11. Delivery boundary and necessary references
+
+The student's deliverable is their own model/API decisions, reviewed migrations, implementation and regression tests, failure/concurrency records, release rollback and isolated restoration, invited feedback, operating costs/limits and independent diagnosis. The download only expresses these requirements; it does not supply those outcomes. Content completion, author material validation, student graduation and real public operation remain separately assessed claims.
+
+Verified **2026-09-28**. Only necessary official references clarify existing acceptance boundaries; they do not introduce a new architecture:
+
+- [OWASP API1 object-level authorization](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/): authentication alone does not establish permission for a particular object.
+- [PostgreSQL 18 SQL dump and restoration](https://www.postgresql.org/docs/18/backup-dump.html): producing a backup differs from performing and verifying restoration; this chapter supplies no restoration implementation steps.
+- [Idempotent methods in HTTP semantics](https://www.rfc-editor.org/rfc/rfc9110.html#name-idempotent-methods): repeated-request effects relate to method semantics; naming a comment-creation request POST does not automatically provide the product's deduplication contract.
+
+Not completed or claimed: a student backend, execution of student business scenarios, substituted O06 acceptance, graduation assessment, real invited use, public deployment or long-term operation. The inspectable artifact here is the requirements/material tooling; other statuses require actual evidence and mainline review.

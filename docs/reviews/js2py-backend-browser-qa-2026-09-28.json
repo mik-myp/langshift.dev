@@ -1,0 +1,1947 @@
+{
+  "date": "2026-09-28",
+  "backend_pages_checked": 72,
+  "scope": "Actual owned local Chromium on production static export. Every backend chapter in all3 locales; not a live classroom study or public deployment.",
+  "pages": [
+    {
+      "lab": "h01-service-process",
+      "locale": "zh-cn",
+      "title": "从客户端到持续运行的服务：进程、端口与边界",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 17652,
+      "zip_sha256": "7de92478c1793922434356487007cb38bfd802028f565b7ca06d03c1556b0378",
+      "screenshots": [
+        "h01-service-process-zh-cn-top.png",
+        "h01-service-process-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "h01-service-process",
+      "locale": "en",
+      "title": "From client to a long-running service: processes, ports, and boundaries",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 17652,
+      "zip_sha256": "7de92478c1793922434356487007cb38bfd802028f565b7ca06d03c1556b0378",
+      "screenshots": [
+        "h01-service-process-en-top.png",
+        "h01-service-process-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "h01-service-process",
+      "locale": "zh-tw",
+      "title": "從客戶端到持續運行的服務：進程、端口與邊界",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 17652,
+      "zip_sha256": "7de92478c1793922434356487007cb38bfd802028f565b7ca06d03c1556b0378",
+      "screenshots": [
+        "h01-service-process-zh-tw-top.png",
+        "h01-service-process-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "h02-http-contract",
+      "locale": "zh-cn",
+      "title": "HTTP 与接口契约：先约定可观察行为，再实现服务",
+      "sections": 17,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 11,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 66567,
+      "zip_sha256": "dac14bcdef423ed7cfd0cb33009994066b68c4775d38be8825ac501dea5cd299",
+      "screenshots": [
+        "h02-http-contract-zh-cn-top.png",
+        "h02-http-contract-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "h02-http-contract",
+      "locale": "en",
+      "title": "HTTP and API contracts: agree on observable behavior before implementation",
+      "sections": 17,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 11,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 66567,
+      "zip_sha256": "dac14bcdef423ed7cfd0cb33009994066b68c4775d38be8825ac501dea5cd299",
+      "screenshots": [
+        "h02-http-contract-en-top.png",
+        "h02-http-contract-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "h02-http-contract",
+      "locale": "zh-tw",
+      "title": "HTTP 與接口契約：先約定可觀察行為，再實現服務",
+      "sections": 17,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 11,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 66567,
+      "zip_sha256": "dac14bcdef423ed7cfd0cb33009994066b68c4775d38be8825ac501dea5cd299",
+      "screenshots": [
+        "h02-http-contract-zh-tw-top.png",
+        "h02-http-contract-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "h03-first-fastapi",
+      "locale": "zh-cn",
+      "title": "第一个同步 FastAPI 服务：从导入到真实响应",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 24284,
+      "zip_sha256": "5613a5a0e468dcc61af5e67a3baedc6bf89e13cdea968da8e4f09fd56a4557a0",
+      "screenshots": [
+        "h03-first-fastapi-zh-cn-top.png",
+        "h03-first-fastapi-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "h03-first-fastapi",
+      "locale": "en",
+      "title": "Your First Synchronous FastAPI Service — From Import to HTTP Response",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 24284,
+      "zip_sha256": "5613a5a0e468dcc61af5e67a3baedc6bf89e13cdea968da8e4f09fd56a4557a0",
+      "screenshots": [
+        "h03-first-fastapi-en-top.png",
+        "h03-first-fastapi-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "h03-first-fastapi",
+      "locale": "zh-tw",
+      "title": "第一個同步 FastAPI 服務：從導入到真實響應",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 24284,
+      "zip_sha256": "5613a5a0e468dcc61af5e67a3baedc6bf89e13cdea968da8e4f09fd56a4557a0",
+      "screenshots": [
+        "h03-first-fastapi-zh-tw-top.png",
+        "h03-first-fastapi-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "h04-validation",
+      "locale": "zh-cn",
+      "title": "Pydantic 输入输出边界：严格验证与不会误清空的 PATCH",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 7,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 30702,
+      "zip_sha256": "59e3a57a76a49974e8b9cc86ad18ece5b18a9212ccd646cc392b6df9ae1bef93",
+      "screenshots": [
+        "h04-validation-zh-cn-top.png",
+        "h04-validation-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "h04-validation",
+      "locale": "en",
+      "title": "Pydantic Input and Output Boundaries — Strict Validation and Correct PATCH",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 7,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 30702,
+      "zip_sha256": "59e3a57a76a49974e8b9cc86ad18ece5b18a9212ccd646cc392b6df9ae1bef93",
+      "screenshots": [
+        "h04-validation-en-top.png",
+        "h04-validation-en-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "h04-validation",
+      "locale": "zh-tw",
+      "title": "Pydantic 輸入輸出邊界：嚴格驗證與不會誤清空的 PATCH",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 7,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 30702,
+      "zip_sha256": "59e3a57a76a49974e8b9cc86ad18ece5b18a9212ccd646cc392b6df9ae1bef93",
+      "screenshots": [
+        "h04-validation-zh-tw-top.png",
+        "h04-validation-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "h05-dependencies",
+      "locale": "zh-cn",
+      "title": "应用组织、配置与依赖：让创建、使用、清理各有主人",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 12,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 30477,
+      "zip_sha256": "9485c5a9222f0b468aaf50597c60006f5686a4be7a091c889db191ddf564c69b",
+      "screenshots": [
+        "h05-dependencies-zh-cn-top.png",
+        "h05-dependencies-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "h05-dependencies",
+      "locale": "en",
+      "title": "Application Structure, Configuration, and Dependencies",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 12,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 30477,
+      "zip_sha256": "9485c5a9222f0b468aaf50597c60006f5686a4be7a091c889db191ddf564c69b",
+      "screenshots": [
+        "h05-dependencies-en-top.png",
+        "h05-dependencies-en-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "h05-dependencies",
+      "locale": "zh-tw",
+      "title": "應用組織、配置與依賴：讓創建、使用、清理各有主人",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 12,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 30477,
+      "zip_sha256": "9485c5a9222f0b468aaf50597c60006f5686a4be7a091c889db191ddf564c69b",
+      "screenshots": [
+        "h05-dependencies-zh-tw-top.png",
+        "h05-dependencies-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "h06-api-testing",
+      "locale": "zh-cn",
+      "title": "API 测试与前后端联调：从普通断言到真实浏览器",
+      "sections": 16,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 18,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 40748,
+      "zip_sha256": "0b6634c97cae59865654056907d4f19dfa9598efcba1b12cc0984828a6a3af3e",
+      "screenshots": [
+        "h06-api-testing-zh-cn-top.png",
+        "h06-api-testing-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "h06-api-testing",
+      "locale": "en",
+      "title": "API Testing and Frontend Integration: Assertions to a Real Browser",
+      "sections": 16,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 18,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 40748,
+      "zip_sha256": "0b6634c97cae59865654056907d4f19dfa9598efcba1b12cc0984828a6a3af3e",
+      "screenshots": [
+        "h06-api-testing-en-top.png",
+        "h06-api-testing-en-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "h06-api-testing",
+      "locale": "zh-tw",
+      "title": "API 測試與前後端聯調：從普通斷言到真實瀏覽器",
+      "sections": 16,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 18,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 40748,
+      "zip_sha256": "0b6634c97cae59865654056907d4f19dfa9598efcba1b12cc0984828a6a3af3e",
+      "screenshots": [
+        "h06-api-testing-zh-tw-top.png",
+        "h06-api-testing-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "d01-relational-data",
+      "locale": "zh-cn",
+      "title": "关系模型与 PostgreSQL：先认识数据，再连接服务器",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "source_display_modes": {
+        "pre": 5,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 36149,
+      "zip_sha256": "ba00c85c66d1bdd5d01fc74bda46e38ba943ea012eeb42b5aa442c1be6bb70b0",
+      "screenshots": [
+        "d01-relational-data-zh-cn-top.png",
+        "d01-relational-data-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "d01-relational-data",
+      "locale": "en",
+      "title": "Relational data and PostgreSQL — understand the model before connecting",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "source_display_modes": {
+        "pre": 5,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 36149,
+      "zip_sha256": "ba00c85c66d1bdd5d01fc74bda46e38ba943ea012eeb42b5aa442c1be6bb70b0",
+      "screenshots": [
+        "d01-relational-data-en-top.png",
+        "d01-relational-data-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "d01-relational-data",
+      "locale": "zh-tw",
+      "title": "關係模型與 PostgreSQL：先認識數據，再連接服務器",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "source_display_modes": {
+        "pre": 5,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 36149,
+      "zip_sha256": "ba00c85c66d1bdd5d01fc74bda46e38ba943ea012eeb42b5aa442c1be6bb70b0",
+      "screenshots": [
+        "d01-relational-data-zh-tw-top.png",
+        "d01-relational-data-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "d02-sql",
+      "locale": "zh-cn",
+      "title": "SQL 与参数化查询：从结果推导查询，而不是拼字符串",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 4,
+      "source_display_modes": {
+        "pre": 4,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 36876,
+      "zip_sha256": "0476aeb19c79c01535da978d10f28e511d4ce9f0adb956a2fa998772c2758aa2",
+      "screenshots": [
+        "d02-sql-zh-cn-top.png",
+        "d02-sql-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "d02-sql",
+      "locale": "en",
+      "title": "SQL and parameterized queries — derive results instead of building strings",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 4,
+      "source_display_modes": {
+        "pre": 4,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 36876,
+      "zip_sha256": "0476aeb19c79c01535da978d10f28e511d4ce9f0adb956a2fa998772c2758aa2",
+      "screenshots": [
+        "d02-sql-en-top.png",
+        "d02-sql-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "d02-sql",
+      "locale": "zh-tw",
+      "title": "SQL 與參數化查詢：從結果推導查詢，而不是拼字符串",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 4,
+      "source_display_modes": {
+        "pre": 4,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 36876,
+      "zip_sha256": "0476aeb19c79c01535da978d10f28e511d4ce9f0adb956a2fa998772c2758aa2",
+      "screenshots": [
+        "d02-sql-zh-tw-top.png",
+        "d02-sql-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "d03-transactions",
+      "locale": "zh-cn",
+      "title": "事务、连接与并发：失败后数据库究竟剩下什么",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "source_display_modes": {
+        "pre": 5,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 38282,
+      "zip_sha256": "b8be9fc18c46385e2fd95dfd7b53969791730fadcf7d530b1f6441fe0f328d61",
+      "screenshots": [
+        "d03-transactions-zh-cn-top.png",
+        "d03-transactions-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "d03-transactions",
+      "locale": "en",
+      "title": "Transactions, connections and concurrency — what remains after failure?",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "source_display_modes": {
+        "pre": 5,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 38282,
+      "zip_sha256": "b8be9fc18c46385e2fd95dfd7b53969791730fadcf7d530b1f6441fe0f328d61",
+      "screenshots": [
+        "d03-transactions-en-top.png",
+        "d03-transactions-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "d03-transactions",
+      "locale": "zh-tw",
+      "title": "事務、連接與併發：失敗後數據庫究竟剩下什麼",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "source_display_modes": {
+        "pre": 5,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 38282,
+      "zip_sha256": "b8be9fc18c46385e2fd95dfd7b53969791730fadcf7d530b1f6441fe0f328d61",
+      "screenshots": [
+        "d03-transactions-zh-tw-top.png",
+        "d03-transactions-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "d04-sqlalchemy",
+      "locale": "zh-cn",
+      "title": "同步 SQLAlchemy：把数据库资源和业务事务交给明确的主人",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 16,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 45126,
+      "zip_sha256": "5a09d7864b6f3929c7b564da59faa9934b48c84a010ebab5e8d986b8319c30e0",
+      "screenshots": [
+        "d04-sqlalchemy-zh-cn-top.png",
+        "d04-sqlalchemy-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "d04-sqlalchemy",
+      "locale": "en",
+      "title": "Synchronous SQLAlchemy — own the transaction, return the connection",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 16,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 45126,
+      "zip_sha256": "5a09d7864b6f3929c7b564da59faa9934b48c84a010ebab5e8d986b8319c30e0",
+      "screenshots": [
+        "d04-sqlalchemy-en-top.png",
+        "d04-sqlalchemy-en-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "d04-sqlalchemy",
+      "locale": "zh-tw",
+      "title": "同步 SQLAlchemy：把數據庫資源和業務事務交給明確的主人",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 16,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 45126,
+      "zip_sha256": "5a09d7864b6f3929c7b564da59faa9934b48c84a010ebab5e8d986b8319c30e0",
+      "screenshots": [
+        "d04-sqlalchemy-zh-tw-top.png",
+        "d04-sqlalchemy-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "d05-migrations",
+      "locale": "zh-cn",
+      "title": "Alembic 迁移：改变结构，不能丢掉用户已经写入的事实",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 19,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 45855,
+      "zip_sha256": "9120e8e21075e36b44876db83caa988de61de493526a0b7dc1a064503bc0c5b4",
+      "screenshots": [
+        "d05-migrations-zh-cn-top.png",
+        "d05-migrations-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "d05-migrations",
+      "locale": "en",
+      "title": "Alembic migrations — change the schema without erasing existing facts",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 19,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 45855,
+      "zip_sha256": "9120e8e21075e36b44876db83caa988de61de493526a0b7dc1a064503bc0c5b4",
+      "screenshots": [
+        "d05-migrations-en-top.png",
+        "d05-migrations-en-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "d05-migrations",
+      "locale": "zh-tw",
+      "title": "Alembic 遷移：改變結構，不能丟掉用戶已經寫入的事實",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 19,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 45855,
+      "zip_sha256": "9120e8e21075e36b44876db83caa988de61de493526a0b7dc1a064503bc0c5b4",
+      "screenshots": [
+        "d05-migrations-zh-tw-top.png",
+        "d05-migrations-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "d06-database-testing",
+      "locale": "zh-cn",
+      "title": "数据库测试与查询诊断：用隔离 PostgreSQL 证明失败、恢复和改进",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 24,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 51314,
+      "zip_sha256": "de73c041f7f44a3b414faacc6cc517b655cc022e16910a2db7de5fb7161f6a58",
+      "screenshots": [
+        "d06-database-testing-zh-cn-top.png",
+        "d06-database-testing-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 6,
+      "disclosures_clicked_open": 6
+    },
+    {
+      "lab": "d06-database-testing",
+      "locale": "en",
+      "title": "Database tests and query diagnosis — prove failure, recovery and improvement",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 24,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 51314,
+      "zip_sha256": "de73c041f7f44a3b414faacc6cc517b655cc022e16910a2db7de5fb7161f6a58",
+      "screenshots": [
+        "d06-database-testing-en-top.png",
+        "d06-database-testing-en-answer.png"
+      ],
+      "disclosures_initially_closed": 6,
+      "disclosures_clicked_open": 6
+    },
+    {
+      "lab": "d06-database-testing",
+      "locale": "zh-tw",
+      "title": "數據庫測試與查詢診斷：用隔離 PostgreSQL 證明失敗、恢復和改進",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 24,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 51314,
+      "zip_sha256": "de73c041f7f44a3b414faacc6cc517b655cc022e16910a2db7de5fb7161f6a58",
+      "screenshots": [
+        "d06-database-testing-zh-tw-top.png",
+        "d06-database-testing-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 6,
+      "disclosures_clicked_open": 6
+    },
+    {
+      "lab": "s01-identity",
+      "locale": "zh-cn",
+      "title": "身份与凭证生命周期：密码不是会话，登录不是授权",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 12,
+      "source_display_modes": {
+        "pre": 12,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 68709,
+      "zip_sha256": "d25053606b19cbe5c146c5f535a1e72127bc45c4dcd9715ccef6fca79009a6c5",
+      "screenshots": [
+        "s01-identity-zh-cn-top.png",
+        "s01-identity-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "s01-identity",
+      "locale": "en",
+      "title": "Identity and credential lifecycles — a password is not a session",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 12,
+      "source_display_modes": {
+        "pre": 12,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 68709,
+      "zip_sha256": "d25053606b19cbe5c146c5f535a1e72127bc45c4dcd9715ccef6fca79009a6c5",
+      "screenshots": [
+        "s01-identity-en-top.png",
+        "s01-identity-en-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "s01-identity",
+      "locale": "zh-tw",
+      "title": "身份與憑證生命週期：密碼不是會話，登錄不是授權",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 12,
+      "source_display_modes": {
+        "pre": 12,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 68709,
+      "zip_sha256": "d25053606b19cbe5c146c5f535a1e72127bc45c4dcd9715ccef6fca79009a6c5",
+      "screenshots": [
+        "s01-identity-zh-tw-top.png",
+        "s01-identity-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "s02-authorization",
+      "locale": "zh-cn",
+      "title": "对象级授权：知道别人的 ID，也不能操作别人的项目",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 8,
+      "source_display_modes": {
+        "pre": 8,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 78815,
+      "zip_sha256": "e6fc9b204c10032fd7bd9c5b30f9eca499efc8836c0ac6b22025e63f6a0d80ad",
+      "screenshots": [
+        "s02-authorization-zh-cn-top.png",
+        "s02-authorization-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "s02-authorization",
+      "locale": "en",
+      "title": "Object authorization — knowing an ID does not grant access",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 8,
+      "source_display_modes": {
+        "pre": 8,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 78815,
+      "zip_sha256": "e6fc9b204c10032fd7bd9c5b30f9eca499efc8836c0ac6b22025e63f6a0d80ad",
+      "screenshots": [
+        "s02-authorization-en-top.png",
+        "s02-authorization-en-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "s02-authorization",
+      "locale": "zh-tw",
+      "title": "對象級授權：知道別人的 ID，也不能操作別人的項目",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 8,
+      "source_display_modes": {
+        "pre": 8,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 78815,
+      "zip_sha256": "e6fc9b204c10032fd7bd9c5b30f9eca499efc8836c0ac6b22025e63f6a0d80ad",
+      "screenshots": [
+        "s02-authorization-zh-tw-top.png",
+        "s02-authorization-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "s03-reliable-operations",
+      "locale": "zh-cn",
+      "title": "可靠业务操作：事务、幂等回执与真实竞争",
+      "sections": 14,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "source_display_modes": {
+        "pre": 10,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 89001,
+      "zip_sha256": "251b710a65b1032629c4651f5944b2aa9e9d323e349a6bc3e6cfcc50a35c3df0",
+      "screenshots": [
+        "s03-reliable-operations-zh-cn-top.png",
+        "s03-reliable-operations-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "s03-reliable-operations",
+      "locale": "en",
+      "title": "Reliable operations — transactions, idempotency receipts and real races",
+      "sections": 14,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "source_display_modes": {
+        "pre": 10,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 89001,
+      "zip_sha256": "251b710a65b1032629c4651f5944b2aa9e9d323e349a6bc3e6cfcc50a35c3df0",
+      "screenshots": [
+        "s03-reliable-operations-en-top.png",
+        "s03-reliable-operations-en-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "s03-reliable-operations",
+      "locale": "zh-tw",
+      "title": "可靠業務操作：事務、冪等回執與真實競爭",
+      "sections": 14,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "source_display_modes": {
+        "pre": 10,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 89001,
+      "zip_sha256": "251b710a65b1032629c4651f5944b2aa9e9d323e349a6bc3e6cfcc50a35c3df0",
+      "screenshots": [
+        "s03-reliable-operations-zh-tw-top.png",
+        "s03-reliable-operations-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "a01-async-model",
+      "locale": "zh-cn",
+      "title": "Python 异步执行模型：先拥有，再调度，再等待",
+      "sections": 14,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 17,
+      "source_display_modes": {
+        "pre": 15,
+        "read_only_comparison_editors": 2
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 21234,
+      "zip_sha256": "d7e0c036c3ae19928669917637a92962052db1a85f153206ce218dab3fad3149",
+      "screenshots": [
+        "a01-async-model-zh-cn-top.png",
+        "a01-async-model-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "a01-async-model",
+      "locale": "en",
+      "title": "Python async execution — own it, schedule it, then await it",
+      "sections": 14,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 17,
+      "source_display_modes": {
+        "pre": 15,
+        "read_only_comparison_editors": 2
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 21234,
+      "zip_sha256": "d7e0c036c3ae19928669917637a92962052db1a85f153206ce218dab3fad3149",
+      "screenshots": [
+        "a01-async-model-en-top.png",
+        "a01-async-model-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "a01-async-model",
+      "locale": "zh-tw",
+      "title": "Python 異步執行模型：先擁有，再調度，再等待",
+      "sections": 14,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 17,
+      "source_display_modes": {
+        "pre": 15,
+        "read_only_comparison_editors": 2
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 21234,
+      "zip_sha256": "d7e0c036c3ae19928669917637a92962052db1a85f153206ce218dab3fad3149",
+      "screenshots": [
+        "a01-async-model-zh-tw-top.png",
+        "a01-async-model-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "a02-external-services",
+      "locale": "zh-cn",
+      "title": "外部服务与异步资源生命周期：让可选依赖真的可选",
+      "sections": 16,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 14,
+      "source_display_modes": {
+        "pre": 14,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 32372,
+      "zip_sha256": "dff768b6b45e6e916654d30c38cf674c8ed7ab5b7e3482eaba1c79baa225c81c",
+      "screenshots": [
+        "a02-external-services-zh-cn-top.png",
+        "a02-external-services-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "a02-external-services",
+      "locale": "en",
+      "title": "External services and async resource lifetimes — keep optional dependencies optional",
+      "sections": 16,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 14,
+      "source_display_modes": {
+        "pre": 14,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 32372,
+      "zip_sha256": "dff768b6b45e6e916654d30c38cf674c8ed7ab5b7e3482eaba1c79baa225c81c",
+      "screenshots": [
+        "a02-external-services-en-top.png",
+        "a02-external-services-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "a02-external-services",
+      "locale": "zh-tw",
+      "title": "外部服務與異步資源生命週期：讓可選依賴真的可選",
+      "sections": 16,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 14,
+      "source_display_modes": {
+        "pre": 14,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 32372,
+      "zip_sha256": "dff768b6b45e6e916654d30c38cf674c8ed7ab5b7e3482eaba1c79baa225c81c",
+      "screenshots": [
+        "a02-external-services-zh-tw-top.png",
+        "a02-external-services-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "o01-operating-system",
+      "locale": "zh-cn",
+      "title": "操作系统与服务：知道进程在谁的目录里、以谁的权限活着",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "source_display_modes": {
+        "pre": 10,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 21403,
+      "zip_sha256": "d5bcba01f981d782e4977ce4eb4502b2d189750b6323b79f341dcf5b7a411eac",
+      "screenshots": [
+        "o01-operating-system-zh-cn-top.png",
+        "o01-operating-system-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "o01-operating-system",
+      "locale": "en",
+      "title": "Operating systems and services: whose process, directory, and permissions?",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "source_display_modes": {
+        "pre": 10,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 21403,
+      "zip_sha256": "d5bcba01f981d782e4977ce4eb4502b2d189750b6323b79f341dcf5b7a411eac",
+      "screenshots": [
+        "o01-operating-system-en-top.png",
+        "o01-operating-system-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "o01-operating-system",
+      "locale": "zh-tw",
+      "title": "操作系統與服務：知道進程在誰的目錄裡、以誰的權限活著",
+      "sections": 15,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "source_display_modes": {
+        "pre": 10,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 21403,
+      "zip_sha256": "d5bcba01f981d782e4977ce4eb4502b2d189750b6323b79f341dcf5b7a411eac",
+      "screenshots": [
+        "o01-operating-system-zh-tw-top.png",
+        "o01-operating-system-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "o02-containers",
+      "locale": "zh-cn",
+      "title": "容器与可部署应用：镜像不是数据，健康也不是业务正确",
+      "sections": 16,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 14,
+      "source_display_modes": {
+        "pre": 14,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 30912,
+      "zip_sha256": "73043bd47e2dcf01ca920d05738234b2f2db29c77f6d6b4c5bded276280c9191",
+      "screenshots": [
+        "o02-containers-zh-cn-top.png",
+        "o02-containers-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "o02-containers",
+      "locale": "en",
+      "title": "Containers and deployable applications: an image is not your data",
+      "sections": 16,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 14,
+      "source_display_modes": {
+        "pre": 14,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 30912,
+      "zip_sha256": "73043bd47e2dcf01ca920d05738234b2f2db29c77f6d6b4c5bded276280c9191",
+      "screenshots": [
+        "o02-containers-en-top.png",
+        "o02-containers-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "o02-containers",
+      "locale": "zh-tw",
+      "title": "容器與可部署應用：鏡像不是數據，健康也不是業務正確",
+      "sections": 16,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 14,
+      "source_display_modes": {
+        "pre": 14,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 30912,
+      "zip_sha256": "73043bd47e2dcf01ca920d05738234b2f2db29c77f6d6b4c5bded276280c9191",
+      "screenshots": [
+        "o02-containers-zh-tw-top.png",
+        "o02-containers-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "o03-https-production",
+      "locale": "zh-cn",
+      "title": "网络入口与 HTTPS：验证连接，也验证你信任了谁",
+      "sections": 18,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 9,
+      "source_display_modes": {
+        "pre": 9,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 35486,
+      "zip_sha256": "66aea7d89e6573503bea99bef7590fe9e9364602a5c5faea9333b26100d9df86",
+      "screenshots": [
+        "o03-https-production-zh-cn-top.png",
+        "o03-https-production-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "o03-https-production",
+      "locale": "en",
+      "title": "Network entry and HTTPS: verify the connection and whom you trust",
+      "sections": 18,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 9,
+      "source_display_modes": {
+        "pre": 9,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 35486,
+      "zip_sha256": "66aea7d89e6573503bea99bef7590fe9e9364602a5c5faea9333b26100d9df86",
+      "screenshots": [
+        "o03-https-production-en-top.png",
+        "o03-https-production-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "o03-https-production",
+      "locale": "zh-tw",
+      "title": "網絡入口與 HTTPS：驗證連接，也驗證你信任了誰",
+      "sections": 18,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 9,
+      "source_display_modes": {
+        "pre": 9,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 35486,
+      "zip_sha256": "66aea7d89e6573503bea99bef7590fe9e9364602a5c5faea9333b26100d9df86",
+      "screenshots": [
+        "o03-https-production-zh-tw-top.png",
+        "o03-https-production-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "o04-release",
+      "locale": "zh-cn",
+      "title": "持续集成、发布与回退：先证明兼容，再切换代码",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 15,
+      "source_display_modes": {
+        "pre": 15,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 55953,
+      "zip_sha256": "eb56a3ca2f92ec559a990f99c3e138081b15d085ab268f2b02eabb3057767a57",
+      "screenshots": [
+        "o04-release-zh-cn-top.png",
+        "o04-release-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "o04-release",
+      "locale": "en",
+      "title": "Continuous Integration, Releases, and Compatible Rollback",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 15,
+      "source_display_modes": {
+        "pre": 15,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 55953,
+      "zip_sha256": "eb56a3ca2f92ec559a990f99c3e138081b15d085ab268f2b02eabb3057767a57",
+      "screenshots": [
+        "o04-release-en-top.png",
+        "o04-release-en-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "o04-release",
+      "locale": "zh-tw",
+      "title": "持續集成、發佈與回退：先證明兼容，再切換代碼",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 15,
+      "source_display_modes": {
+        "pre": 15,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 55953,
+      "zip_sha256": "eb56a3ca2f92ec559a990f99c3e138081b15d085ab268f2b02eabb3057767a57",
+      "screenshots": [
+        "o04-release-zh-tw-top.png",
+        "o04-release-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "o05-observability",
+      "locale": "zh-cn",
+      "title": "日志、监控与故障定位：让一次失败留下安全证据",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 9,
+      "source_display_modes": {
+        "pre": 9,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 56504,
+      "zip_sha256": "99cead42eaacf0076be599cf46dde10a52dd092cd1a5afebbbea68a9dd6b2781",
+      "screenshots": [
+        "o05-observability-zh-cn-top.png",
+        "o05-observability-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "o05-observability",
+      "locale": "en",
+      "title": "Logs, Monitoring, and Diagnosis: Safe Evidence for a Real Failure",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 9,
+      "source_display_modes": {
+        "pre": 9,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 56504,
+      "zip_sha256": "99cead42eaacf0076be599cf46dde10a52dd092cd1a5afebbbea68a9dd6b2781",
+      "screenshots": [
+        "o05-observability-en-top.png",
+        "o05-observability-en-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "o05-observability",
+      "locale": "zh-tw",
+      "title": "日誌、監控與故障定位：讓一次失敗留下安全證據",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 9,
+      "source_display_modes": {
+        "pre": 9,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 56504,
+      "zip_sha256": "99cead42eaacf0076be599cf46dde10a52dd092cd1a5afebbbea68a9dd6b2781",
+      "screenshots": [
+        "o05-observability-zh-tw-top.png",
+        "o05-observability-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 4,
+      "disclosures_clicked_open": 4
+    },
+    {
+      "lab": "o06-recovery",
+      "locale": "zh-cn",
+      "title": "备份、恢复与受控上线：文件存在不等于数据可用",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "source_display_modes": {
+        "pre": 10,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 58220,
+      "zip_sha256": "98f9f119364adefede0ede0974d7a7522a934078598b1df99ec15c5bf6edea9c",
+      "screenshots": [
+        "o06-recovery-zh-cn-top.png",
+        "o06-recovery-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "o06-recovery",
+      "locale": "en",
+      "title": "Backups, Recovery, and a Controlled Launch",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "source_display_modes": {
+        "pre": 10,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 58220,
+      "zip_sha256": "98f9f119364adefede0ede0974d7a7522a934078598b1df99ec15c5bf6edea9c",
+      "screenshots": [
+        "o06-recovery-en-top.png",
+        "o06-recovery-en-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "o06-recovery",
+      "locale": "zh-tw",
+      "title": "備份、恢復與受控上線：文件存在不等於數據可用",
+      "sections": 12,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 10,
+      "source_display_modes": {
+        "pre": 10,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 58220,
+      "zip_sha256": "98f9f119364adefede0ede0974d7a7522a934078598b1df99ec15c5bf6edea9c",
+      "screenshots": [
+        "o06-recovery-zh-tw-top.png",
+        "o06-recovery-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 5,
+      "disclosures_clicked_open": 5
+    },
+    {
+      "lab": "g01-graduation",
+      "locale": "zh-cn",
+      "title": "毕业验收：独立交付任务评论，而不是再跟一次教程",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "source_display_modes": {
+        "pre": 5,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 26179,
+      "zip_sha256": "1cb62eed4582c07c733f4d3e2f79695238ad5850d5b74f1273d0898ff2c2605d",
+      "screenshots": [
+        "g01-graduation-zh-cn-top.png",
+        "g01-graduation-zh-cn-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "g01-graduation",
+      "locale": "en",
+      "title": "Graduation assessment — independently deliver task comments, not another tutorial",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "source_display_modes": {
+        "pre": 5,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 26179,
+      "zip_sha256": "1cb62eed4582c07c733f4d3e2f79695238ad5850d5b74f1273d0898ff2c2605d",
+      "screenshots": [
+        "g01-graduation-en-top.png",
+        "g01-graduation-en-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    },
+    {
+      "lab": "g01-graduation",
+      "locale": "zh-tw",
+      "title": "畢業驗收：獨立交付任務評論，而不是再跟一次教程",
+      "sections": 11,
+      "viewport": [
+        1280,
+        900
+      ],
+      "displayed_sources_exact": 5,
+      "source_display_modes": {
+        "pre": 5,
+        "read_only_comparison_editors": 0
+      },
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 26179,
+      "zip_sha256": "1cb62eed4582c07c733f4d3e2f79695238ad5850d5b74f1273d0898ff2c2605d",
+      "screenshots": [
+        "g01-graduation-zh-tw-top.png",
+        "g01-graduation-zh-tw-answer.png"
+      ],
+      "disclosures_initially_closed": 3,
+      "disclosures_clicked_open": 3
+    }
+  ],
+  "instrumentation_note": {
+    "observed_page": "en/module-35-release",
+    "observed_failure": "Physical find-text click left below-viewport disclosure closed; automatic scroll did not put its center inside visible area.",
+    "triage": "Native summary at y887.8..915.8 on900px viewport, remained closed after2s. Explicit scrollIntoView(center,instant) placed y435.8..463.8 and same real browser click opened it.",
+    "change": "Test harness centers each native summary before physical click and waits for open; never sets open programmatically. No lesson/component change.",
+    "evidence": [
+      "o04-english-summary-before.png",
+      "o04-english-summary-after.png"
+    ],
+    "original_failure_retained": "browser-main-final-SOD.log"
+  },
+  "screenshots_location": "/tmp/langshift-backend-20260928",
+  "visual_review": {
+    "contact_sheets": [
+      {
+        "sheet": "/tmp/langshift-backend-20260928/contact-h01-h03.png",
+        "images": [
+          "h01-service-process-zh-cn-top.png",
+          "h01-service-process-zh-cn-answer.png",
+          "h02-http-contract-zh-cn-top.png",
+          "h02-http-contract-zh-cn-answer.png",
+          "h03-first-fastapi-zh-cn-top.png",
+          "h03-first-fastapi-zh-cn-answer.png"
+        ],
+        "review_scope": "Chinese header and expanded-disclosure visual samples; some disclosures show supporting code. Every backend chapter appears once. Full exact-source and layout assertions separately ran in all3 locales.",
+        "sha256": "a3991ea660de1070ab09a4684fa9995c81f5f1bc9b9ce374633aedcd6c9043cc",
+        "visually_inspected": true
+      },
+      {
+        "sheet": "/tmp/langshift-backend-20260928/contact-h04-h06.png",
+        "images": [
+          "h04-validation-zh-cn-top.png",
+          "h04-validation-zh-cn-answer.png",
+          "h05-dependencies-zh-cn-top.png",
+          "h05-dependencies-zh-cn-answer.png",
+          "h06-api-testing-zh-cn-top.png",
+          "h06-api-testing-zh-cn-answer.png"
+        ],
+        "review_scope": "Chinese header and expanded-disclosure visual samples; some disclosures show supporting code. Every backend chapter appears once. Full exact-source and layout assertions separately ran in all3 locales.",
+        "sha256": "8590a384a82266e28dc7179c0ba9fb92e4fc9bf29815c9561e066801086da4ee",
+        "visually_inspected": true
+      },
+      {
+        "sheet": "/tmp/langshift-backend-20260928/contact-d01-d03.png",
+        "images": [
+          "d01-relational-data-zh-cn-top.png",
+          "d01-relational-data-zh-cn-answer.png",
+          "d02-sql-zh-cn-top.png",
+          "d02-sql-zh-cn-answer.png",
+          "d03-transactions-zh-cn-top.png",
+          "d03-transactions-zh-cn-answer.png"
+        ],
+        "review_scope": "Chinese header and expanded-disclosure visual samples; some disclosures show supporting code. Every backend chapter appears once. Full exact-source and layout assertions separately ran in all3 locales.",
+        "sha256": "d6edfc430c04e7c9c57850dece147cbd3b05359f27906f502d603e3c53de8f25",
+        "visually_inspected": true
+      },
+      {
+        "sheet": "/tmp/langshift-backend-20260928/contact-d04-d06.png",
+        "images": [
+          "d04-sqlalchemy-zh-cn-top.png",
+          "d04-sqlalchemy-zh-cn-answer.png",
+          "d05-migrations-zh-cn-top.png",
+          "d05-migrations-zh-cn-answer.png",
+          "d06-database-testing-zh-cn-top.png",
+          "d06-database-testing-zh-cn-answer.png"
+        ],
+        "review_scope": "Chinese header and expanded-disclosure visual samples; some disclosures show supporting code. Every backend chapter appears once. Full exact-source and layout assertions separately ran in all3 locales.",
+        "sha256": "172482630e553ad9bc1700479f819cc722215899d3357ab9595a1445de7dbdcd",
+        "visually_inspected": true
+      },
+      {
+        "sheet": "/tmp/langshift-backend-20260928/contact-s01-s03.png",
+        "images": [
+          "s01-identity-zh-cn-top.png",
+          "s01-identity-zh-cn-answer.png",
+          "s02-authorization-zh-cn-top.png",
+          "s02-authorization-zh-cn-answer.png",
+          "s03-reliable-operations-zh-cn-top.png",
+          "s03-reliable-operations-zh-cn-answer.png"
+        ],
+        "review_scope": "Chinese header and expanded-disclosure visual samples; some disclosures show supporting code. Every backend chapter appears once. Full exact-source and layout assertions separately ran in all3 locales.",
+        "sha256": "6424430982a40cb2666421a3084a1646bbb2aa9655f6642070fe4ab0399b3bee",
+        "visually_inspected": true
+      },
+      {
+        "sheet": "/tmp/langshift-backend-20260928/contact-a01-o01.png",
+        "images": [
+          "a01-async-model-zh-cn-top.png",
+          "a01-async-model-zh-cn-answer.png",
+          "a02-external-services-zh-cn-top.png",
+          "a02-external-services-zh-cn-answer.png",
+          "o01-operating-system-zh-cn-top.png",
+          "o01-operating-system-zh-cn-answer.png"
+        ],
+        "review_scope": "Chinese header and expanded-disclosure visual samples; some disclosures show supporting code. Every backend chapter appears once. Full exact-source and layout assertions separately ran in all3 locales.",
+        "sha256": "165075e9f3a888d191acc6c1d22249b4ac65a8d9a48c192f2684c9efd34e9a45",
+        "visually_inspected": true
+      },
+      {
+        "sheet": "/tmp/langshift-backend-20260928/contact-o02-o04.png",
+        "images": [
+          "o02-containers-zh-cn-top.png",
+          "o02-containers-zh-cn-answer.png",
+          "o03-https-production-zh-cn-top.png",
+          "o03-https-production-zh-cn-answer.png",
+          "o04-release-zh-cn-top.png",
+          "o04-release-zh-cn-answer.png"
+        ],
+        "review_scope": "Chinese header and expanded-disclosure visual samples; some disclosures show supporting code. Every backend chapter appears once. Full exact-source and layout assertions separately ran in all3 locales.",
+        "sha256": "b31cff215bf9057c2cf8ca6c50f4013c0b9d12556937e8895248d93556a744b1",
+        "visually_inspected": true
+      },
+      {
+        "sheet": "/tmp/langshift-backend-20260928/contact-o05-g01.png",
+        "images": [
+          "o05-observability-zh-cn-top.png",
+          "o05-observability-zh-cn-answer.png",
+          "o06-recovery-zh-cn-top.png",
+          "o06-recovery-zh-cn-answer.png",
+          "g01-graduation-zh-cn-top.png",
+          "g01-graduation-zh-cn-answer.png"
+        ],
+        "review_scope": "Chinese header and expanded-disclosure visual samples; some disclosures show supporting code. Every backend chapter appears once. Full exact-source and layout assertions separately ran in all3 locales.",
+        "sha256": "18ba7b63bacd39baf5ecdeeda5e636b602b1b9a5ed1668ee087a467486f8e6a2",
+        "visually_inspected": true
+      }
+    ],
+    "manual_full_size": [
+      "o04-english-summary-before.png",
+      "o04-english-summary-after.png",
+      "o05-privilege-final.png",
+      "index-zh-cn.png"
+    ],
+    "result": "Headers, body/table layout, code contrast, sidebar and expanded disclosure geometry show no blocking clipping or overlap at the sampled viewports. Long code lines scroll inside code areas. This is not a line-by-line proofreading claim.",
+    "all_images_directory": "/tmp/langshift-backend-20260928",
+    "extra_contact_sheets": [
+      {
+        "path": "/tmp/langshift-backend-20260928/contact-mobile.png",
+        "visually_inspected": true
+      },
+      {
+        "path": "/tmp/langshift-backend-20260928/contact-indexes.png",
+        "visually_inspected": true,
+        "finding": "Chinese indexes exposed literal emphasis markers around status; corrected closing-delimiter spacing, pending new build/browser check."
+      }
+    ],
+    "final_corrected_paragraph_viewed": true,
+    "final_Chinese_index_viewed": true
+  },
+  "disclosure_scope": "Every native details element was initially closed and physically clicked open; some disclose complete supporting source rather than an exercise answer. Counts describe UI disclosures, not a count of graded exercises.",
+  "extra_checks": {
+    "index": [
+      {
+        "locale": "zh-cn",
+        "visible_chapter_links": 39,
+        "targets_HTTP200": 39,
+        "page_overflow": false,
+        "screenshot": "index-zh-cn.png"
+      },
+      {
+        "locale": "en",
+        "visible_chapter_links": 39,
+        "targets_HTTP200": 39,
+        "page_overflow": false,
+        "screenshot": "index-en.png"
+      },
+      {
+        "locale": "zh-tw",
+        "visible_chapter_links": 39,
+        "targets_HTTP200": 39,
+        "page_overflow": false,
+        "screenshot": "index-zh-tw.png"
+      }
+    ],
+    "mobile": [
+      {
+        "slug": "module-17-first-fastapi",
+        "viewport": [
+          390,
+          844
+        ],
+        "page_overflow": false,
+        "real_answer_click": true,
+        "screenshots": [
+          "module-17-first-fastapi-mobile.png",
+          "module-17-first-fastapi-mobile-answer.png"
+        ]
+      },
+      {
+        "slug": "module-29-reliable-operations",
+        "viewport": [
+          390,
+          844
+        ],
+        "page_overflow": false,
+        "real_answer_click": true,
+        "screenshots": [
+          "module-29-reliable-operations-mobile.png",
+          "module-29-reliable-operations-mobile-answer.png"
+        ]
+      },
+      {
+        "slug": "module-33-containers",
+        "viewport": [
+          390,
+          844
+        ],
+        "page_overflow": false,
+        "real_answer_click": true,
+        "screenshots": [
+          "module-33-containers-mobile.png",
+          "module-33-containers-mobile-answer.png"
+        ]
+      }
+    ]
+  },
+  "index_format_correction": {
+    "two_initial_status_delimiters": "Fixed close-delimiter spacing before39.",
+    "two_four_outcomes_delimiters": "Fixed close-delimiter spacing before following Chinese text.",
+    "opening_emphasis": "Left intact; generic colon-adjacent replacement was rejected locally before write.",
+    "final_browser": "All3 index bodies contain no literal **; actual chapter links each39 return200.",
+    "failed_test_runs_retained": [
+      "browser-extra-after-fixes.log"
+    ],
+    "final_log": "browser-extra-final-stable.log"
+  },
+  "final_changed_chapter_refresh": {
+    "pages": 12,
+    "chapters": [
+      "D03",
+      "O04",
+      "O05",
+      "O06"
+    ],
+    "all_final_ZIP_hashes_match": true
+  },
+  "cleanup": {
+    "owned_browser_session": "langshift-backend-main-20260928",
+    "browser_closed": true,
+    "preview_receipt": {
+      "pid": 53275,
+      "port": 54524,
+      "directory": "/Users/mikmyp/Documents/code-projects/langshift.dev/out",
+      "closed": true
+    },
+    "preview_port_refused_after_stop": true
+  },
+  "preview_server_note": "The disposable Python static preview emitted BrokenPipeError tracebacks when browser connections were closed during navigation/prefetch. No zero-console/zero-transport-error claim is made. Required page/source/ZIP/interaction assertions passed; own preview shut down cleanly."
+}

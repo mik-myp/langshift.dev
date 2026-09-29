@@ -1,0 +1,35 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "wrong-method",
+  "precondition": {
+    "seed_tasks": [
+      {
+        "title": "  Read HTTP  ",
+        "minutes": 25,
+        "done": false,
+        "note": "keep me"
+      }
+    ]
+  },
+  "request": {
+    "method": "PUT",
+    "target": "/tasks/1",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "title": "Replace?",
+      "minutes": 15
+    }
+  },
+  "response": {
+    "status": 405,
+    "headers": {
+      "Allow": "GET",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "detail": "Method Not Allowed"
+    }
+  }
+}

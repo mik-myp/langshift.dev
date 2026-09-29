@@ -1,0 +1,1287 @@
+{
+  "schema_version": "langshift.operations-privilege-closure.v1",
+  "review_date": "2026-09-28",
+  "generated_at_utc": "2026-09-28T06:24:34.750503+00:00",
+  "workspace": "/Users/mikmyp/Documents/code-projects/langshift.dev",
+  "output": "/tmp/langshift-operations-privilege-closure.json",
+  "finding_id": "OPS-PED-P2-001",
+  "git_head": "00d453742c692ad065de91a5e2c7e678665e0157",
+  "scope": "仅快速复核原P2教学授权声明的12文件定点修补；不重审其他教学、环境或运行范围。",
+  "verdict": {
+    "status": "CLOSED_BY_FACTUAL_CLAIM_NARROWING",
+    "original_finding_closed": true,
+    "remaining_findings_in_this_patch_scope": [],
+    "summary": "修补满足原报告明确允许的“定点收窄声明”闭合路径。三语O05正文与九份README不再称现有角色仅持有所需权限，而是准确区分管理/运行身份分离、已有ALTER/DROP拒绝证据和尚未收敛的DML/序列权限。",
+    "least_privilege_dml_implemented_or_verified": false,
+    "production_or_deployment_accepted": false
+  },
+  "closure_checks": [
+    {
+      "check": "撤回过强的最小授权事实声明",
+      "result": "PASS",
+      "detail": "正文明确没有证明DML最小化；README原“切片所需”改为“当前实验权限，不代表已最小授权”。"
+    },
+    {
+      "check": "列明仍然存在的宽授权",
+      "result": "PASS",
+      "detail": "projects/project_members/tasks的SELECT/INSERT/UPDATE/DELETE，以及public全部序列USAGE/SELECT，与当前三份grants.sql一致。"
+    },
+    {
+      "check": "正确解释现有证据强度",
+      "result": "PASS",
+      "detail": "管理/运行身份分离与已测试ALTER/DROP拒绝不再被用来证明最小DML。ALTER证据位于O04测试，DROP证据位于O06恢复演练；本次仅阅读既有代码与原复核记录，没有新增执行。"
+    },
+    {
+      "check": "明确上线前操作权限矩阵及正反验收门槛",
+      "result": "PASS",
+      "detail": "要求逐路由/作业列出表操作，收窄表/序列权限，并验证必要操作成功、未使用UPDATE/DELETE等操作拒绝；没有把这项后续要求写成已完成。"
+    },
+    {
+      "check": "三语正文与九份README一致",
+      "result": "PASS",
+      "detail": "分别阅读英文/简中/繁中修补措辞；每种语言的三个README与O05正文对应权限段落完全相同，共9组。"
+    },
+    {
+      "check": "修复记录与最终文件字节身份",
+      "result": "PASS",
+      "detail": "12个before SHA-256均匹配原复核快照；12个after SHA-256均匹配本次读取的当前文件。"
+    },
+    {
+      "check": "未借文稿修补暗改运行行为",
+      "result": "PASS_HASH_IDENTITY",
+      "detail": "O04/O05/O06共103个allowlist运行源码/SQL/测试/配置/版本与锁文件哈希仍等于原复核快照；不是新一轮运行结果。"
+    }
+  ],
+  "original_finding": {
+    "id": "OPS-PED-P2-001",
+    "priority": "P2",
+    "claim": "运行角色只持有这份接口切片需要的表/序列权限。",
+    "accepted_closure_option": "二选一：将 grants 收敛到当前应用和明示验收实际所需操作，并增加多余写操作拒绝断言；或只定点收窄该句，明确当前证明的是管理/运行身份分离与 DDL 拒绝，尚未证明按切片操作收敛的最小 DML/序列授权。无需全文重写。"
+  },
+  "provenance": {
+    "original_review": {
+      "path": "/tmp/langshift-operations-pedagogy-closure.json",
+      "sha256": "15ddd673e567eb12f175a3e919e17c83a44c2b8e5547ab915bc984940efbf526",
+      "bytes": 243736
+    },
+    "repair_record": {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/docs/reviews/js2py-operations-privilege-claim-repair-2026-09-28.json",
+      "sha256": "15bd192b83d744068755e673080ea577a04429c6e92f695c7a8c3424038f1ee2",
+      "bytes": 3777
+    },
+    "original_report_preserved": true
+  },
+  "patch_final_hashes": [
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.mdx",
+      "sha256": "4c11f08aa7bd5635ea02456312da26d9083deb2352c52c4755f7754beb024a79",
+      "bytes": 18680,
+      "before_sha256": "2ac6782e515c44f522e9287526c72ce852c22a3ba9685105f2e00d7740b19d3f",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 89,
+        "end_line": 89,
+        "text": "This lab verifies separation of administrative and runtime identities and rejection of the tested ALTER/DROP operations; it does **not** prove least-privilege DML. The shared `sql/grants.sql` still gives SELECT/INSERT/UPDATE/DELETE on projects, project_members and tasks, plus USAGE/SELECT on all public sequences. Several grants exceed the current read/create-project routes. Before a real deployment, map each route and job to its table operation, narrow the table/sequence grants, and verify required actions succeed while unused UPDATE/DELETE and other unneeded actions are denied. Passing the existing DDL-denial tests cannot replace that audit.",
+        "utf8_sha256": "4940e6efcbcec300a97aedead905ce140fcf530804c1e13d84e56906ed5eee62"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-cn.mdx",
+      "sha256": "d348cd0962caa99297f615ac5a58e64a41b0ca60114f82a3e3f9771616cfd02f",
+      "bytes": 17131,
+      "before_sha256": "0e4efe4a2fa06728ae98a8796d550d36b866bc520ed38eb6c82e82d6f2dd8aab",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 89,
+        "end_line": 89,
+        "text": "本实验验证的是管理／运行身份分离，以及已测试的 ALTER/DROP 被拒绝；**没有证明 DML 已按最小权限收敛**。共用的 `sql/grants.sql` 仍对 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，并对 public 的全部序列授予 USAGE/SELECT；其中部分权限超过当前“读取／创建项目”路由的需要。真正部署前，须逐个列出路由和作业需要的表操作，收窄表／序列授权，再验证必要操作成功、未使用的 UPDATE/DELETE 等操作被拒绝。已有 DDL 拒绝测试不能代替这项审计。",
+        "utf8_sha256": "30e4434a9de27e88c1dd36a717425665b9421db0fed2d490023c5bab5c1b97bd"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-tw.mdx",
+      "sha256": "712efdd750c8b451b307d7d281e896d11793bd42e463ac62d242b16764cf06be",
+      "bytes": 17131,
+      "before_sha256": "715e8f0cc2f7bbfcc97a849d9eadb67fce60b166d9077bf9b90a066bfff662ca",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 89,
+        "end_line": 89,
+        "text": "本實驗驗證的是管理／運行身份分離，以及已測試的 ALTER/DROP 被拒絕；**沒有證明 DML 已按最小權限收斂**。共用的 `sql/grants.sql` 仍對 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，並對 public 的全部序列授予 USAGE/SELECT；其中部分權限超過當前「讀取／創建項目」路由的需要。真正部署前，須逐個列出路由和作業需要的表操作，收窄表／序列授權，再驗證必要操作成功、未使用的 UPDATE/DELETE 等操作被拒絕。已有 DDL 拒絕測試不能代替這項審計。",
+        "utf8_sha256": "ed5344b984c49d7f1b13527dbad2639d5e21c4bb0bc753032a7b797922d651cf"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/README.md",
+      "sha256": "51bc68fd844541bd7abd3ed87fe1f8f12f4fc76d52f2108263b54614deae29a2",
+      "bytes": 10738,
+      "before_sha256": "f85b95ce2b8ddfbd51df4dce07d714851196cccc13ae06146de6abe6d805f536",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 85,
+        "end_line": 85,
+        "text": "This lab verifies separation of administrative and runtime identities and rejection of the tested ALTER/DROP operations; it does **not** prove least-privilege DML. The shared `sql/grants.sql` still gives SELECT/INSERT/UPDATE/DELETE on projects, project_members and tasks, plus USAGE/SELECT on all public sequences. Several grants exceed the current read/create-project routes. Before a real deployment, map each route and job to its table operation, narrow the table/sequence grants, and verify required actions succeed while unused UPDATE/DELETE and other unneeded actions are denied. Passing the existing DDL-denial tests cannot replace that audit.",
+        "utf8_sha256": "4940e6efcbcec300a97aedead905ce140fcf530804c1e13d84e56906ed5eee62"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review",
+      "readme_claim_replacement": {
+        "start_line": 82,
+        "end_line": 82,
+        "text": "and runtime roles are separate; grants.sql lists the current lab privileges, not a proven minimal set."
+      }
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/README.zh-cn.md",
+      "sha256": "14d73f2d85e42987fc912013334a50b770106a80bd8ae7a8f23525eea238b69e",
+      "bytes": 9071,
+      "before_sha256": "9fa369c6b28a55bad24507575f006d81cf21c2192d6c04d6c7769ebdf7441aa5",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 72,
+        "end_line": 72,
+        "text": "本实验验证的是管理／运行身份分离，以及已测试的 ALTER/DROP 被拒绝；**没有证明 DML 已按最小权限收敛**。共用的 `sql/grants.sql` 仍对 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，并对 public 的全部序列授予 USAGE/SELECT；其中部分权限超过当前“读取／创建项目”路由的需要。真正部署前，须逐个列出路由和作业需要的表操作，收窄表／序列授权，再验证必要操作成功、未使用的 UPDATE/DELETE 等操作被拒绝。已有 DDL 拒绝测试不能代替这项审计。",
+        "utf8_sha256": "30e4434a9de27e88c1dd36a717425665b9421db0fed2d490023c5bab5c1b97bd"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review",
+      "readme_claim_replacement": {
+        "start_line": 69,
+        "end_line": 69,
+        "text": "绝不自动迁移。管理迁移与运行身份分离，grants.sql 列出当前实验权限，不代表已经最小授权。"
+      }
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/README.zh-tw.md",
+      "sha256": "f4c149fa3ad7a1fdcd73d521222d4738f8328026c7db300cf1ab5ad0e6185ea6",
+      "bytes": 9071,
+      "before_sha256": "8530a0af7d4ba20dd05d09ec6e341e82b008271a88283c15b8cf2edb4c9dbb78",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 72,
+        "end_line": 72,
+        "text": "本實驗驗證的是管理／運行身份分離，以及已測試的 ALTER/DROP 被拒絕；**沒有證明 DML 已按最小權限收斂**。共用的 `sql/grants.sql` 仍對 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，並對 public 的全部序列授予 USAGE/SELECT；其中部分權限超過當前「讀取／創建項目」路由的需要。真正部署前，須逐個列出路由和作業需要的表操作，收窄表／序列授權，再驗證必要操作成功、未使用的 UPDATE/DELETE 等操作被拒絕。已有 DDL 拒絕測試不能代替這項審計。",
+        "utf8_sha256": "ed5344b984c49d7f1b13527dbad2639d5e21c4bb0bc753032a7b797922d651cf"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review",
+      "readme_claim_replacement": {
+        "start_line": 69,
+        "end_line": 69,
+        "text": "絕不自動遷移。管理遷移與運行身份分離，grants.sql 列出當前實驗權限，不代表已經最小授權。"
+      }
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/README.md",
+      "sha256": "925eba762c22909c98dc748d15891271573ba1738dcae78b4ba4fb4590e09c61",
+      "bytes": 10884,
+      "before_sha256": "defdd8c3a6c586f64b7d2d3d19929a10d745f493f507b3656840ee14760266dc",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 86,
+        "end_line": 86,
+        "text": "This lab verifies separation of administrative and runtime identities and rejection of the tested ALTER/DROP operations; it does **not** prove least-privilege DML. The shared `sql/grants.sql` still gives SELECT/INSERT/UPDATE/DELETE on projects, project_members and tasks, plus USAGE/SELECT on all public sequences. Several grants exceed the current read/create-project routes. Before a real deployment, map each route and job to its table operation, narrow the table/sequence grants, and verify required actions succeed while unused UPDATE/DELETE and other unneeded actions are denied. Passing the existing DDL-denial tests cannot replace that audit.",
+        "utf8_sha256": "4940e6efcbcec300a97aedead905ce140fcf530804c1e13d84e56906ed5eee62"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review",
+      "readme_claim_replacement": {
+        "start_line": 83,
+        "end_line": 83,
+        "text": "and runtime roles are separate; grants.sql lists the current lab privileges, not a proven minimal set."
+      }
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/README.zh-cn.md",
+      "sha256": "b5b586823c8e0fd75f638caf66130d8c1846b5fbcb351758e68f976228c667d6",
+      "bytes": 9198,
+      "before_sha256": "b503014126bbe856627f77990a654744e01c7cb1c0fd1d86cef59827ead0f50a",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 73,
+        "end_line": 73,
+        "text": "本实验验证的是管理／运行身份分离，以及已测试的 ALTER/DROP 被拒绝；**没有证明 DML 已按最小权限收敛**。共用的 `sql/grants.sql` 仍对 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，并对 public 的全部序列授予 USAGE/SELECT；其中部分权限超过当前“读取／创建项目”路由的需要。真正部署前，须逐个列出路由和作业需要的表操作，收窄表／序列授权，再验证必要操作成功、未使用的 UPDATE/DELETE 等操作被拒绝。已有 DDL 拒绝测试不能代替这项审计。",
+        "utf8_sha256": "30e4434a9de27e88c1dd36a717425665b9421db0fed2d490023c5bab5c1b97bd"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review",
+      "readme_claim_replacement": {
+        "start_line": 70,
+        "end_line": 70,
+        "text": "绝不自动迁移。管理迁移与运行身份分离，grants.sql 列出当前实验权限，不代表已经最小授权。"
+      }
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/README.zh-tw.md",
+      "sha256": "fd1fd956272ead293047ee271240d877a43283ba339f909597b332217f09b92f",
+      "bytes": 9198,
+      "before_sha256": "d57d5734b324c7255cb54ef9225d1b267caa222674649539e9be6caf41afb03b",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 73,
+        "end_line": 73,
+        "text": "本實驗驗證的是管理／運行身份分離，以及已測試的 ALTER/DROP 被拒絕；**沒有證明 DML 已按最小權限收斂**。共用的 `sql/grants.sql` 仍對 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，並對 public 的全部序列授予 USAGE/SELECT；其中部分權限超過當前「讀取／創建項目」路由的需要。真正部署前，須逐個列出路由和作業需要的表操作，收窄表／序列授權，再驗證必要操作成功、未使用的 UPDATE/DELETE 等操作被拒絕。已有 DDL 拒絕測試不能代替這項審計。",
+        "utf8_sha256": "ed5344b984c49d7f1b13527dbad2639d5e21c4bb0bc753032a7b797922d651cf"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review",
+      "readme_claim_replacement": {
+        "start_line": 70,
+        "end_line": 70,
+        "text": "絕不自動遷移。管理遷移與運行身份分離，grants.sql 列出當前實驗權限，不代表已經最小授權。"
+      }
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/README.md",
+      "sha256": "208b9252d4b2faf39b9dc69e18e537d2bdde6f1a8d3fd406a0bc4e86bc85571d",
+      "bytes": 11202,
+      "before_sha256": "acddffbb2933d0f6757d64a4ba4482b8a49bd0166206b6ff02ab00ab364bb37d",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 90,
+        "end_line": 90,
+        "text": "This lab verifies separation of administrative and runtime identities and rejection of the tested ALTER/DROP operations; it does **not** prove least-privilege DML. The shared `sql/grants.sql` still gives SELECT/INSERT/UPDATE/DELETE on projects, project_members and tasks, plus USAGE/SELECT on all public sequences. Several grants exceed the current read/create-project routes. Before a real deployment, map each route and job to its table operation, narrow the table/sequence grants, and verify required actions succeed while unused UPDATE/DELETE and other unneeded actions are denied. Passing the existing DDL-denial tests cannot replace that audit.",
+        "utf8_sha256": "4940e6efcbcec300a97aedead905ce140fcf530804c1e13d84e56906ed5eee62"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review",
+      "readme_claim_replacement": {
+        "start_line": 87,
+        "end_line": 87,
+        "text": "and runtime roles are separate; grants.sql lists the current lab privileges, not a proven minimal set."
+      }
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/README.zh-cn.md",
+      "sha256": "72921fb6579af83dad9af049e72994bd14ece3d05a432edc814a05dad06b3aad",
+      "bytes": 9491,
+      "before_sha256": "14bcdfb2191d095d5c6ffde6871ac5e6a74378b6b847b98148883b5f1b167fbe",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 77,
+        "end_line": 77,
+        "text": "本实验验证的是管理／运行身份分离，以及已测试的 ALTER/DROP 被拒绝；**没有证明 DML 已按最小权限收敛**。共用的 `sql/grants.sql` 仍对 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，并对 public 的全部序列授予 USAGE/SELECT；其中部分权限超过当前“读取／创建项目”路由的需要。真正部署前，须逐个列出路由和作业需要的表操作，收窄表／序列授权，再验证必要操作成功、未使用的 UPDATE/DELETE 等操作被拒绝。已有 DDL 拒绝测试不能代替这项审计。",
+        "utf8_sha256": "30e4434a9de27e88c1dd36a717425665b9421db0fed2d490023c5bab5c1b97bd"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review",
+      "readme_claim_replacement": {
+        "start_line": 74,
+        "end_line": 74,
+        "text": "绝不自动迁移。管理迁移与运行身份分离，grants.sql 列出当前实验权限，不代表已经最小授权。"
+      }
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/README.zh-tw.md",
+      "sha256": "e0d9e69f858da4d070bb246bfff4a44ba7db0f9af497e6804d333af03a53c65a",
+      "bytes": 9491,
+      "before_sha256": "45a4f5ed964e8d985f6e4dcb56fa0f45ec39b6d03c0c27154b02625053a556a2",
+      "before_matches_original_review": true,
+      "after_matches_repair_record": true,
+      "reviewed_claim": {
+        "start_line": 77,
+        "end_line": 77,
+        "text": "本實驗驗證的是管理／運行身份分離，以及已測試的 ALTER/DROP 被拒絕；**沒有證明 DML 已按最小權限收斂**。共用的 `sql/grants.sql` 仍對 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，並對 public 的全部序列授予 USAGE/SELECT；其中部分權限超過當前「讀取／創建項目」路由的需要。真正部署前，須逐個列出路由和作業需要的表操作，收窄表／序列授權，再驗證必要操作成功、未使用的 UPDATE/DELETE 等操作被拒絕。已有 DDL 拒絕測試不能代替這項審計。",
+        "utf8_sha256": "ed5344b984c49d7f1b13527dbad2639d5e21c4bb0bc753032a7b797922d651cf"
+      },
+      "coverage": "targeted privilege-claim patch review; whole-file hash, not a new full-chapter review",
+      "readme_claim_replacement": {
+        "start_line": 74,
+        "end_line": 74,
+        "text": "絕不自動遷移。管理遷移與運行身份分離，grants.sql 列出當前實驗權限，不代表已經最小授權。"
+      }
+    }
+  ],
+  "locale_readme_consistency": [
+    {
+      "locale": "en",
+      "page": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.mdx",
+      "readme": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/README.md",
+      "same_privilege_paragraph": true,
+      "paragraph_sha256": "4940e6efcbcec300a97aedead905ce140fcf530804c1e13d84e56906ed5eee62"
+    },
+    {
+      "locale": "en",
+      "page": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.mdx",
+      "readme": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/README.md",
+      "same_privilege_paragraph": true,
+      "paragraph_sha256": "4940e6efcbcec300a97aedead905ce140fcf530804c1e13d84e56906ed5eee62"
+    },
+    {
+      "locale": "en",
+      "page": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.mdx",
+      "readme": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/README.md",
+      "same_privilege_paragraph": true,
+      "paragraph_sha256": "4940e6efcbcec300a97aedead905ce140fcf530804c1e13d84e56906ed5eee62"
+    },
+    {
+      "locale": "zh-cn",
+      "page": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-cn.mdx",
+      "readme": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/README.zh-cn.md",
+      "same_privilege_paragraph": true,
+      "paragraph_sha256": "30e4434a9de27e88c1dd36a717425665b9421db0fed2d490023c5bab5c1b97bd"
+    },
+    {
+      "locale": "zh-cn",
+      "page": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-cn.mdx",
+      "readme": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/README.zh-cn.md",
+      "same_privilege_paragraph": true,
+      "paragraph_sha256": "30e4434a9de27e88c1dd36a717425665b9421db0fed2d490023c5bab5c1b97bd"
+    },
+    {
+      "locale": "zh-cn",
+      "page": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-cn.mdx",
+      "readme": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/README.zh-cn.md",
+      "same_privilege_paragraph": true,
+      "paragraph_sha256": "30e4434a9de27e88c1dd36a717425665b9421db0fed2d490023c5bab5c1b97bd"
+    },
+    {
+      "locale": "zh-tw",
+      "page": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-tw.mdx",
+      "readme": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/README.zh-tw.md",
+      "same_privilege_paragraph": true,
+      "paragraph_sha256": "ed5344b984c49d7f1b13527dbad2639d5e21c4bb0bc753032a7b797922d651cf"
+    },
+    {
+      "locale": "zh-tw",
+      "page": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-tw.mdx",
+      "readme": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/README.zh-tw.md",
+      "same_privilege_paragraph": true,
+      "paragraph_sha256": "ed5344b984c49d7f1b13527dbad2639d5e21c4bb0bc753032a7b797922d651cf"
+    },
+    {
+      "locale": "zh-tw",
+      "page": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-tw.mdx",
+      "readme": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/README.zh-tw.md",
+      "same_privilege_paragraph": true,
+      "paragraph_sha256": "ed5344b984c49d7f1b13527dbad2639d5e21c4bb0bc753032a7b797922d651cf"
+    }
+  ],
+  "targeted_source_evidence": [
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/sql/grants.sql",
+      "sha256": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
+      "bytes": 411,
+      "reviewed_ranges": [
+        {
+          "start": 1,
+          "end": 7
+        }
+      ],
+      "purpose": "Actual broad table DML and all-public-sequence grants remain; new wording describes these accurately."
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/sql/grants.sql",
+      "sha256": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
+      "bytes": 411,
+      "reviewed_ranges": [
+        {
+          "start": 1,
+          "end": 7
+        }
+      ],
+      "purpose": "Actual broad table DML and all-public-sequence grants remain; new wording describes these accurately."
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/sql/grants.sql",
+      "sha256": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
+      "bytes": 411,
+      "reviewed_ranges": [
+        {
+          "start": 1,
+          "end": 7
+        }
+      ],
+      "purpose": "Actual broad table DML and all-public-sequence grants remain; new wording describes these accurately."
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/tests/test_release.py",
+      "sha256": "7f7e25bd7f8a449ca4bd894cfdb8ce6550fe61e4bac12af1932699cfbd7c95b1",
+      "bytes": 1490,
+      "reviewed_ranges": [
+        {
+          "start": 17,
+          "end": 22
+        }
+      ],
+      "purpose": "Existing tested ALTER/DROP rejection source; not executed again."
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/ops/recover.py",
+      "sha256": "b0d1fd5c3f0a733176ca6ab872cd856a0a0aebf231b15a9d71da503881300d18",
+      "bytes": 7025,
+      "reviewed_ranges": [
+        {
+          "start": 86,
+          "end": 92
+        }
+      ],
+      "purpose": "Existing tested ALTER/DROP rejection source; not executed again."
+    }
+  ],
+  "unchanged_runtime_hash_manifest": [
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/.github/workflows/check.yml",
+      "sha256": "122d5e1b2ee34b46177862eb91abe1cb6d5d1f5b1224ba2657e2a5d1dc3fbce0",
+      "bytes": 883,
+      "original_review_sha256": "122d5e1b2ee34b46177862eb91abe1cb6d5d1f5b1224ba2657e2a5d1dc3fbce0",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/.python-version",
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "bytes": 8,
+      "original_review_sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/alembic.ini",
+      "sha256": "d5bc114fe68813e83b863a6f45d816a6354fbfede50fb0597cdb41dfc2dedfd0",
+      "bytes": 48,
+      "original_review_sha256": "d5bc114fe68813e83b863a6f45d816a6354fbfede50fb0597cdb41dfc2dedfd0",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/ci.py",
+      "sha256": "0bf6ba01a428ef701572944d7d66a996d910b48a1f58063dfd74c4532d1d86fb",
+      "bytes": 799,
+      "original_review_sha256": "0bf6ba01a428ef701572944d7d66a996d910b48a1f58063dfd74c4532d1d86fb",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/demo.py",
+      "sha256": "f3dedb7b591cac7b0f5f772558970ee13e3d8761d8419b9a65dba82e7ca0b1ef",
+      "bytes": 70,
+      "original_review_sha256": "f3dedb7b591cac7b0f5f772558970ee13e3d8761d8419b9a65dba82e7ca0b1ef",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/migrations/env.py",
+      "sha256": "ab04cd92d191e59b5de50204bce600b4110110fcf3c2e8a83137e3a73442e0a0",
+      "bytes": 406,
+      "original_review_sha256": "ab04cd92d191e59b5de50204bce600b4110110fcf3c2e8a83137e3a73442e0a0",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/migrations/versions/001_base.py",
+      "sha256": "639534c45163ec1994f9e8fc84d9a1b863b86f1e54740e617d9ba863f2f7e994",
+      "bytes": 374,
+      "original_review_sha256": "639534c45163ec1994f9e8fc84d9a1b863b86f1e54740e617d9ba863f2f7e994",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/migrations/versions/002_expand.py",
+      "sha256": "c373a07ea893b6f3a33ac3b021a217d718dd2dd9a7cf04122b3591cdca69e189",
+      "bytes": 384,
+      "original_review_sha256": "c373a07ea893b6f3a33ac3b021a217d718dd2dd9a7cf04122b3591cdca69e189",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/migrations/versions/003_contract.py",
+      "sha256": "f076793828fc75a7c7fe67c091980659b7e3271fe4f88bccb482d85eb4211f13",
+      "bytes": 390,
+      "original_review_sha256": "f076793828fc75a7c7fe67c091980659b7e3271fe4f88bccb482d85eb4211f13",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/migrations/versions/004_identity.py",
+      "sha256": "9d53b60ffec2a29203dbc72902c0553647b4a5077491db686fc7e5d7a2302855",
+      "bytes": 392,
+      "original_review_sha256": "9d53b60ffec2a29203dbc72902c0553647b4a5077491db686fc7e5d7a2302855",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/migrations/versions/005_owner_guard.py",
+      "sha256": "072d922f49053dc5bdae0ed209b850c78ac78edbc5c1e0045080dee90a323553",
+      "bytes": 398,
+      "original_review_sha256": "072d922f49053dc5bdae0ed209b850c78ac78edbc5c1e0045080dee90a323553",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/migrations/versions/006_task_operations.py",
+      "sha256": "574113e59cb9f5ffa187a9df9d6b24ab05615e6a9083b75d6878515d75b57d52",
+      "bytes": 409,
+      "original_review_sha256": "574113e59cb9f5ffa187a9df9d6b24ab05615e6a9083b75d6878515d75b57d52",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/migrations/versions/007_project_description.py",
+      "sha256": "81eea8dbc9700eb02a6a6a84a442f627f1636edf3e5529abf26278824a98469f",
+      "bytes": 421,
+      "original_review_sha256": "81eea8dbc9700eb02a6a6a84a442f627f1636edf3e5529abf26278824a98469f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/ops/__init__.py",
+      "sha256": "47e6099850edb85b4e7f7814a345a0e8cdcc7d4d3b098741c1b6e3ec53400e29",
+      "bytes": 77,
+      "original_review_sha256": "47e6099850edb85b4e7f7814a345a0e8cdcc7d4d3b098741c1b6e3ec53400e29",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/ops/app.py",
+      "sha256": "3e9188cab64e2e359c870f640372e35c1d6aa3ef6f942c3af1110e07e5a1e6b2",
+      "bytes": 4582,
+      "original_review_sha256": "3e9188cab64e2e359c870f640372e35c1d6aa3ef6f942c3af1110e07e5a1e6b2",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/ops/cluster.py",
+      "sha256": "888c0b519d9ebbad7e3cfe96bab7bbc66e2fbef3f23c144e5a93ac2ce097ff49",
+      "bytes": 6622,
+      "original_review_sha256": "888c0b519d9ebbad7e3cfe96bab7bbc66e2fbef3f23c144e5a93ac2ce097ff49",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/ops/data.py",
+      "sha256": "3dc6b91999b7e4d550b7e0d441db42c3bf05062d915069d70e398e6d0ac211de",
+      "bytes": 2432,
+      "original_review_sha256": "3dc6b91999b7e4d550b7e0d441db42c3bf05062d915069d70e398e6d0ac211de",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/ops/migrate.py",
+      "sha256": "dabb4e76e094e6544cf5465b54ada13b3a516cf79324a383c64d8d6f54e3a98f",
+      "bytes": 1123,
+      "original_review_sha256": "dabb4e76e094e6544cf5465b54ada13b3a516cf79324a383c64d8d6f54e3a98f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/ops/release.py",
+      "sha256": "4c3144ef57ad63cd022c70aca2900e0293de13a393f1bfc2005f3c32d020be56",
+      "bytes": 3006,
+      "original_review_sha256": "4c3144ef57ad63cd022c70aca2900e0293de13a393f1bfc2005f3c32d020be56",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/ops/server.py",
+      "sha256": "1e57ad9d3e5213e19f2cb6fdf406834101b8297d2797aedf746e47ff9e3afd06",
+      "bytes": 3551,
+      "original_review_sha256": "1e57ad9d3e5213e19f2cb6fdf406834101b8297d2797aedf746e47ff9e3afd06",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/pyproject.toml",
+      "sha256": "a1ddf897f369b44223f0e3f785c9723f6e6e6a14b2e8c2b4fafd49ee3231e143",
+      "bytes": 524,
+      "original_review_sha256": "a1ddf897f369b44223f0e3f785c9723f6e6e6a14b2e8c2b4fafd49ee3231e143",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/solutions/check_matrix.py",
+      "sha256": "187ba0f491e6f3da1bd61effa475e5bfb9121720736504ab8c334fa78ee1a2cc",
+      "bytes": 203,
+      "original_review_sha256": "187ba0f491e6f3da1bd61effa475e5bfb9121720736504ab8c334fa78ee1a2cc",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/solutions/preflight.py",
+      "sha256": "b4c8a2afd71e1a583d20834027387ca4dfe838ceb1addfd4805b786ec2bb4c00",
+      "bytes": 435,
+      "original_review_sha256": "b4c8a2afd71e1a583d20834027387ca4dfe838ceb1addfd4805b786ec2bb4c00",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/solutions/test_matrix.py",
+      "sha256": "b4982720743b0f889dd32bc640de8ed1acf6e9487e833650180d343e72547f96",
+      "bytes": 1149,
+      "original_review_sha256": "b4982720743b0f889dd32bc640de8ed1acf6e9487e833650180d343e72547f96",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/sql/001_base.sql",
+      "sha256": "f741a3df2f3cf5fb597f74f1dba8321ff806c65f4035cb4efa00111f163eaab1",
+      "bytes": 1660,
+      "original_review_sha256": "f741a3df2f3cf5fb597f74f1dba8321ff806c65f4035cb4efa00111f163eaab1",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/sql/002_expand.sql",
+      "sha256": "27eb21f0b3d6e8bd2a23109de64d3dfb5df4fce582ab169f17e0ada9bf3e1d73",
+      "bytes": 52,
+      "original_review_sha256": "27eb21f0b3d6e8bd2a23109de64d3dfb5df4fce582ab169f17e0ada9bf3e1d73",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/sql/003_contract.sql",
+      "sha256": "85c822b16eeb850f8dceebba6a6e5fec11be7e119f948993fa9843c31b82b5c2",
+      "bytes": 230,
+      "original_review_sha256": "85c822b16eeb850f8dceebba6a6e5fec11be7e119f948993fa9843c31b82b5c2",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/sql/004_identity.sql",
+      "sha256": "8b32e238ac2f51c7d6b60af917603470fce3bfe44d42e3f88e8945548cded856",
+      "bytes": 1090,
+      "original_review_sha256": "8b32e238ac2f51c7d6b60af917603470fce3bfe44d42e3f88e8945548cded856",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/sql/005_owner_guard.sql",
+      "sha256": "14c6b2d9b556517a227bf8f0a47ce72488ee46d197c2bc8429998b898005a62f",
+      "bytes": 97,
+      "original_review_sha256": "14c6b2d9b556517a227bf8f0a47ce72488ee46d197c2bc8429998b898005a62f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/sql/006_task_operations.sql",
+      "sha256": "743ff8b6c7ed83867efa191484ec5ccd9155e6c87ae8a02ec01964e832cd805f",
+      "bytes": 783,
+      "original_review_sha256": "743ff8b6c7ed83867efa191484ec5ccd9155e6c87ae8a02ec01964e832cd805f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/sql/007_project_description.sql",
+      "sha256": "e41ad1a5ebf5974b3d7f140d661dfc04cb26128662c088991df7d24a7a896486",
+      "bytes": 63,
+      "original_review_sha256": "e41ad1a5ebf5974b3d7f140d661dfc04cb26128662c088991df7d24a7a896486",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/sql/grants.sql",
+      "sha256": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
+      "bytes": 411,
+      "original_review_sha256": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/tests/test_environment.py",
+      "sha256": "e97319497f8560f965ffdb11c1ca2159ae1d081bc395c22afa6be868afc704f6",
+      "bytes": 3582,
+      "original_review_sha256": "e97319497f8560f965ffdb11c1ca2159ae1d081bc395c22afa6be868afc704f6",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/tests/test_release.py",
+      "sha256": "7f7e25bd7f8a449ca4bd894cfdb8ce6550fe61e4bac12af1932699cfbd7c95b1",
+      "bytes": 1490,
+      "original_review_sha256": "7f7e25bd7f8a449ca4bd894cfdb8ce6550fe61e4bac12af1932699cfbd7c95b1",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o04-release/uv.lock",
+      "sha256": "c37455141179beca0252064735f9c0b6e7344466564f2bd5648e9c7209ef9838",
+      "bytes": 52945,
+      "original_review_sha256": "c37455141179beca0252064735f9c0b6e7344466564f2bd5648e9c7209ef9838",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/.python-version",
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "bytes": 8,
+      "original_review_sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/alembic.ini",
+      "sha256": "d5bc114fe68813e83b863a6f45d816a6354fbfede50fb0597cdb41dfc2dedfd0",
+      "bytes": 48,
+      "original_review_sha256": "d5bc114fe68813e83b863a6f45d816a6354fbfede50fb0597cdb41dfc2dedfd0",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/ci.py",
+      "sha256": "99d0578823f4c36b32e9aa29d2d331a234d26e29989513076d1146300ea04057",
+      "bytes": 810,
+      "original_review_sha256": "99d0578823f4c36b32e9aa29d2d331a234d26e29989513076d1146300ea04057",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/demo.py",
+      "sha256": "f20f559531e6787f73642ed9b8dada4cec125b119781f2e261f58db29f6349c4",
+      "bytes": 70,
+      "original_review_sha256": "f20f559531e6787f73642ed9b8dada4cec125b119781f2e261f58db29f6349c4",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/migrations/env.py",
+      "sha256": "ab04cd92d191e59b5de50204bce600b4110110fcf3c2e8a83137e3a73442e0a0",
+      "bytes": 406,
+      "original_review_sha256": "ab04cd92d191e59b5de50204bce600b4110110fcf3c2e8a83137e3a73442e0a0",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/migrations/versions/001_base.py",
+      "sha256": "639534c45163ec1994f9e8fc84d9a1b863b86f1e54740e617d9ba863f2f7e994",
+      "bytes": 374,
+      "original_review_sha256": "639534c45163ec1994f9e8fc84d9a1b863b86f1e54740e617d9ba863f2f7e994",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/migrations/versions/002_expand.py",
+      "sha256": "c373a07ea893b6f3a33ac3b021a217d718dd2dd9a7cf04122b3591cdca69e189",
+      "bytes": 384,
+      "original_review_sha256": "c373a07ea893b6f3a33ac3b021a217d718dd2dd9a7cf04122b3591cdca69e189",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/migrations/versions/003_contract.py",
+      "sha256": "f076793828fc75a7c7fe67c091980659b7e3271fe4f88bccb482d85eb4211f13",
+      "bytes": 390,
+      "original_review_sha256": "f076793828fc75a7c7fe67c091980659b7e3271fe4f88bccb482d85eb4211f13",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/migrations/versions/004_identity.py",
+      "sha256": "9d53b60ffec2a29203dbc72902c0553647b4a5077491db686fc7e5d7a2302855",
+      "bytes": 392,
+      "original_review_sha256": "9d53b60ffec2a29203dbc72902c0553647b4a5077491db686fc7e5d7a2302855",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/migrations/versions/005_owner_guard.py",
+      "sha256": "072d922f49053dc5bdae0ed209b850c78ac78edbc5c1e0045080dee90a323553",
+      "bytes": 398,
+      "original_review_sha256": "072d922f49053dc5bdae0ed209b850c78ac78edbc5c1e0045080dee90a323553",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/migrations/versions/006_task_operations.py",
+      "sha256": "574113e59cb9f5ffa187a9df9d6b24ab05615e6a9083b75d6878515d75b57d52",
+      "bytes": 409,
+      "original_review_sha256": "574113e59cb9f5ffa187a9df9d6b24ab05615e6a9083b75d6878515d75b57d52",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/migrations/versions/007_project_description.py",
+      "sha256": "81eea8dbc9700eb02a6a6a84a442f627f1636edf3e5529abf26278824a98469f",
+      "bytes": 421,
+      "original_review_sha256": "81eea8dbc9700eb02a6a6a84a442f627f1636edf3e5529abf26278824a98469f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/ops/__init__.py",
+      "sha256": "47e6099850edb85b4e7f7814a345a0e8cdcc7d4d3b098741c1b6e3ec53400e29",
+      "bytes": 77,
+      "original_review_sha256": "47e6099850edb85b4e7f7814a345a0e8cdcc7d4d3b098741c1b6e3ec53400e29",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/ops/app.py",
+      "sha256": "3e9188cab64e2e359c870f640372e35c1d6aa3ef6f942c3af1110e07e5a1e6b2",
+      "bytes": 4582,
+      "original_review_sha256": "3e9188cab64e2e359c870f640372e35c1d6aa3ef6f942c3af1110e07e5a1e6b2",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/ops/cluster.py",
+      "sha256": "888c0b519d9ebbad7e3cfe96bab7bbc66e2fbef3f23c144e5a93ac2ce097ff49",
+      "bytes": 6622,
+      "original_review_sha256": "888c0b519d9ebbad7e3cfe96bab7bbc66e2fbef3f23c144e5a93ac2ce097ff49",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/ops/data.py",
+      "sha256": "3dc6b91999b7e4d550b7e0d441db42c3bf05062d915069d70e398e6d0ac211de",
+      "bytes": 2432,
+      "original_review_sha256": "3dc6b91999b7e4d550b7e0d441db42c3bf05062d915069d70e398e6d0ac211de",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/ops/migrate.py",
+      "sha256": "dabb4e76e094e6544cf5465b54ada13b3a516cf79324a383c64d8d6f54e3a98f",
+      "bytes": 1123,
+      "original_review_sha256": "dabb4e76e094e6544cf5465b54ada13b3a516cf79324a383c64d8d6f54e3a98f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/ops/observe.py",
+      "sha256": "4b7a6190b1a839404aefaa89eafa7194c5a66f1930bf4a438e6cc332f773f2cc",
+      "bytes": 3408,
+      "original_review_sha256": "4b7a6190b1a839404aefaa89eafa7194c5a66f1930bf4a438e6cc332f773f2cc",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/ops/server.py",
+      "sha256": "1e57ad9d3e5213e19f2cb6fdf406834101b8297d2797aedf746e47ff9e3afd06",
+      "bytes": 3551,
+      "original_review_sha256": "1e57ad9d3e5213e19f2cb6fdf406834101b8297d2797aedf746e47ff9e3afd06",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/ops/telemetry.py",
+      "sha256": "e9522cd3a6f6422b6ddb6ddc14c8de980fc3f36057e5ac10419707cf41ea86a4",
+      "bytes": 2184,
+      "original_review_sha256": "e9522cd3a6f6422b6ddb6ddc14c8de980fc3f36057e5ac10419707cf41ea86a4",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/pyproject.toml",
+      "sha256": "68a4bdf877917b5ebd6b43c74ff7d8d1b5d6e09d38fe60f6277e68a45c374f69",
+      "bytes": 530,
+      "original_review_sha256": "68a4bdf877917b5ebd6b43c74ff7d8d1b5d6e09d38fe60f6277e68a45c374f69",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/solutions/consecutive.py",
+      "sha256": "61e3a35a3e31cd39532128fe04d233a096197584173f86d38e59e4aff5493de1",
+      "bytes": 324,
+      "original_review_sha256": "61e3a35a3e31cd39532128fe04d233a096197584173f86d38e59e4aff5493de1",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/solutions/test_consecutive.py",
+      "sha256": "2d3e100f57c56cb2989ae69cfd31c711aa0025fa263cf6da9eb673af73663200",
+      "bytes": 372,
+      "original_review_sha256": "2d3e100f57c56cb2989ae69cfd31c711aa0025fa263cf6da9eb673af73663200",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/sql/001_base.sql",
+      "sha256": "f741a3df2f3cf5fb597f74f1dba8321ff806c65f4035cb4efa00111f163eaab1",
+      "bytes": 1660,
+      "original_review_sha256": "f741a3df2f3cf5fb597f74f1dba8321ff806c65f4035cb4efa00111f163eaab1",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/sql/002_expand.sql",
+      "sha256": "27eb21f0b3d6e8bd2a23109de64d3dfb5df4fce582ab169f17e0ada9bf3e1d73",
+      "bytes": 52,
+      "original_review_sha256": "27eb21f0b3d6e8bd2a23109de64d3dfb5df4fce582ab169f17e0ada9bf3e1d73",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/sql/003_contract.sql",
+      "sha256": "85c822b16eeb850f8dceebba6a6e5fec11be7e119f948993fa9843c31b82b5c2",
+      "bytes": 230,
+      "original_review_sha256": "85c822b16eeb850f8dceebba6a6e5fec11be7e119f948993fa9843c31b82b5c2",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/sql/004_identity.sql",
+      "sha256": "8b32e238ac2f51c7d6b60af917603470fce3bfe44d42e3f88e8945548cded856",
+      "bytes": 1090,
+      "original_review_sha256": "8b32e238ac2f51c7d6b60af917603470fce3bfe44d42e3f88e8945548cded856",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/sql/005_owner_guard.sql",
+      "sha256": "14c6b2d9b556517a227bf8f0a47ce72488ee46d197c2bc8429998b898005a62f",
+      "bytes": 97,
+      "original_review_sha256": "14c6b2d9b556517a227bf8f0a47ce72488ee46d197c2bc8429998b898005a62f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/sql/006_task_operations.sql",
+      "sha256": "743ff8b6c7ed83867efa191484ec5ccd9155e6c87ae8a02ec01964e832cd805f",
+      "bytes": 783,
+      "original_review_sha256": "743ff8b6c7ed83867efa191484ec5ccd9155e6c87ae8a02ec01964e832cd805f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/sql/007_project_description.sql",
+      "sha256": "e41ad1a5ebf5974b3d7f140d661dfc04cb26128662c088991df7d24a7a896486",
+      "bytes": 63,
+      "original_review_sha256": "e41ad1a5ebf5974b3d7f140d661dfc04cb26128662c088991df7d24a7a896486",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/sql/grants.sql",
+      "sha256": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
+      "bytes": 411,
+      "original_review_sha256": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/tests/test_environment.py",
+      "sha256": "e97319497f8560f965ffdb11c1ca2159ae1d081bc395c22afa6be868afc704f6",
+      "bytes": 3582,
+      "original_review_sha256": "e97319497f8560f965ffdb11c1ca2159ae1d081bc395c22afa6be868afc704f6",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/tests/test_observability.py",
+      "sha256": "68e2fa66513bc598fcadf0e14a7814e2444073d3280c578953677bd77de280a9",
+      "bytes": 618,
+      "original_review_sha256": "68e2fa66513bc598fcadf0e14a7814e2444073d3280c578953677bd77de280a9",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o05-observability/uv.lock",
+      "sha256": "b626973e07c2cb85983b69d3e3bfafedca0af691fc6977fccf9a74bf05a517d9",
+      "bytes": 52951,
+      "original_review_sha256": "b626973e07c2cb85983b69d3e3bfafedca0af691fc6977fccf9a74bf05a517d9",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/.python-version",
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "bytes": 8,
+      "original_review_sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/alembic.ini",
+      "sha256": "d5bc114fe68813e83b863a6f45d816a6354fbfede50fb0597cdb41dfc2dedfd0",
+      "bytes": 48,
+      "original_review_sha256": "d5bc114fe68813e83b863a6f45d816a6354fbfede50fb0597cdb41dfc2dedfd0",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/ci.py",
+      "sha256": "0bf6ba01a428ef701572944d7d66a996d910b48a1f58063dfd74c4532d1d86fb",
+      "bytes": 799,
+      "original_review_sha256": "0bf6ba01a428ef701572944d7d66a996d910b48a1f58063dfd74c4532d1d86fb",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/demo.py",
+      "sha256": "866de248efbd061fd889ee213a20f77e132f204648e4689d116992891e3592e7",
+      "bytes": 70,
+      "original_review_sha256": "866de248efbd061fd889ee213a20f77e132f204648e4689d116992891e3592e7",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/migrations/env.py",
+      "sha256": "ab04cd92d191e59b5de50204bce600b4110110fcf3c2e8a83137e3a73442e0a0",
+      "bytes": 406,
+      "original_review_sha256": "ab04cd92d191e59b5de50204bce600b4110110fcf3c2e8a83137e3a73442e0a0",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/migrations/versions/001_base.py",
+      "sha256": "639534c45163ec1994f9e8fc84d9a1b863b86f1e54740e617d9ba863f2f7e994",
+      "bytes": 374,
+      "original_review_sha256": "639534c45163ec1994f9e8fc84d9a1b863b86f1e54740e617d9ba863f2f7e994",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/migrations/versions/002_expand.py",
+      "sha256": "c373a07ea893b6f3a33ac3b021a217d718dd2dd9a7cf04122b3591cdca69e189",
+      "bytes": 384,
+      "original_review_sha256": "c373a07ea893b6f3a33ac3b021a217d718dd2dd9a7cf04122b3591cdca69e189",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/migrations/versions/003_contract.py",
+      "sha256": "f076793828fc75a7c7fe67c091980659b7e3271fe4f88bccb482d85eb4211f13",
+      "bytes": 390,
+      "original_review_sha256": "f076793828fc75a7c7fe67c091980659b7e3271fe4f88bccb482d85eb4211f13",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/migrations/versions/004_identity.py",
+      "sha256": "9d53b60ffec2a29203dbc72902c0553647b4a5077491db686fc7e5d7a2302855",
+      "bytes": 392,
+      "original_review_sha256": "9d53b60ffec2a29203dbc72902c0553647b4a5077491db686fc7e5d7a2302855",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/migrations/versions/005_owner_guard.py",
+      "sha256": "072d922f49053dc5bdae0ed209b850c78ac78edbc5c1e0045080dee90a323553",
+      "bytes": 398,
+      "original_review_sha256": "072d922f49053dc5bdae0ed209b850c78ac78edbc5c1e0045080dee90a323553",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/migrations/versions/006_task_operations.py",
+      "sha256": "574113e59cb9f5ffa187a9df9d6b24ab05615e6a9083b75d6878515d75b57d52",
+      "bytes": 409,
+      "original_review_sha256": "574113e59cb9f5ffa187a9df9d6b24ab05615e6a9083b75d6878515d75b57d52",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/migrations/versions/007_project_description.py",
+      "sha256": "81eea8dbc9700eb02a6a6a84a442f627f1636edf3e5529abf26278824a98469f",
+      "bytes": 421,
+      "original_review_sha256": "81eea8dbc9700eb02a6a6a84a442f627f1636edf3e5529abf26278824a98469f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/ops/__init__.py",
+      "sha256": "47e6099850edb85b4e7f7814a345a0e8cdcc7d4d3b098741c1b6e3ec53400e29",
+      "bytes": 77,
+      "original_review_sha256": "47e6099850edb85b4e7f7814a345a0e8cdcc7d4d3b098741c1b6e3ec53400e29",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/ops/app.py",
+      "sha256": "3e9188cab64e2e359c870f640372e35c1d6aa3ef6f942c3af1110e07e5a1e6b2",
+      "bytes": 4582,
+      "original_review_sha256": "3e9188cab64e2e359c870f640372e35c1d6aa3ef6f942c3af1110e07e5a1e6b2",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/ops/backup.py",
+      "sha256": "ebaf0b4f3b199ad89299548c0e4c93e30a0cf62be66def6de78cba98aa3c5274",
+      "bytes": 3153,
+      "original_review_sha256": "ebaf0b4f3b199ad89299548c0e4c93e30a0cf62be66def6de78cba98aa3c5274",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/ops/cluster.py",
+      "sha256": "888c0b519d9ebbad7e3cfe96bab7bbc66e2fbef3f23c144e5a93ac2ce097ff49",
+      "bytes": 6622,
+      "original_review_sha256": "888c0b519d9ebbad7e3cfe96bab7bbc66e2fbef3f23c144e5a93ac2ce097ff49",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/ops/data.py",
+      "sha256": "3dc6b91999b7e4d550b7e0d441db42c3bf05062d915069d70e398e6d0ac211de",
+      "bytes": 2432,
+      "original_review_sha256": "3dc6b91999b7e4d550b7e0d441db42c3bf05062d915069d70e398e6d0ac211de",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/ops/migrate.py",
+      "sha256": "dabb4e76e094e6544cf5465b54ada13b3a516cf79324a383c64d8d6f54e3a98f",
+      "bytes": 1123,
+      "original_review_sha256": "dabb4e76e094e6544cf5465b54ada13b3a516cf79324a383c64d8d6f54e3a98f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/ops/recover.py",
+      "sha256": "b0d1fd5c3f0a733176ca6ab872cd856a0a0aebf231b15a9d71da503881300d18",
+      "bytes": 7025,
+      "original_review_sha256": "b0d1fd5c3f0a733176ca6ab872cd856a0a0aebf231b15a9d71da503881300d18",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/ops/server.py",
+      "sha256": "1e57ad9d3e5213e19f2cb6fdf406834101b8297d2797aedf746e47ff9e3afd06",
+      "bytes": 3551,
+      "original_review_sha256": "1e57ad9d3e5213e19f2cb6fdf406834101b8297d2797aedf746e47ff9e3afd06",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/pyproject.toml",
+      "sha256": "db75b456bb43f35230bc90f93775186d3ce79a5f3da81cd1ae6f0a0ba9a67111",
+      "bytes": 525,
+      "original_review_sha256": "db75b456bb43f35230bc90f93775186d3ce79a5f3da81cd1ae6f0a0ba9a67111",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/solutions/check_manifest.py",
+      "sha256": "f33005cfa7e10d170faa7893fc6acf208fb92916047559348222505e0bf4303e",
+      "bytes": 761,
+      "original_review_sha256": "f33005cfa7e10d170faa7893fc6acf208fb92916047559348222505e0bf4303e",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/solutions/test_manifest.py",
+      "sha256": "836ea605b12d18f7e550180ab1b6b59ed6ad15a49c77c7cd92e863b87fc61aa9",
+      "bytes": 653,
+      "original_review_sha256": "836ea605b12d18f7e550180ab1b6b59ed6ad15a49c77c7cd92e863b87fc61aa9",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/sql/001_base.sql",
+      "sha256": "f741a3df2f3cf5fb597f74f1dba8321ff806c65f4035cb4efa00111f163eaab1",
+      "bytes": 1660,
+      "original_review_sha256": "f741a3df2f3cf5fb597f74f1dba8321ff806c65f4035cb4efa00111f163eaab1",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/sql/002_expand.sql",
+      "sha256": "27eb21f0b3d6e8bd2a23109de64d3dfb5df4fce582ab169f17e0ada9bf3e1d73",
+      "bytes": 52,
+      "original_review_sha256": "27eb21f0b3d6e8bd2a23109de64d3dfb5df4fce582ab169f17e0ada9bf3e1d73",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/sql/003_contract.sql",
+      "sha256": "85c822b16eeb850f8dceebba6a6e5fec11be7e119f948993fa9843c31b82b5c2",
+      "bytes": 230,
+      "original_review_sha256": "85c822b16eeb850f8dceebba6a6e5fec11be7e119f948993fa9843c31b82b5c2",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/sql/004_identity.sql",
+      "sha256": "8b32e238ac2f51c7d6b60af917603470fce3bfe44d42e3f88e8945548cded856",
+      "bytes": 1090,
+      "original_review_sha256": "8b32e238ac2f51c7d6b60af917603470fce3bfe44d42e3f88e8945548cded856",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/sql/005_owner_guard.sql",
+      "sha256": "14c6b2d9b556517a227bf8f0a47ce72488ee46d197c2bc8429998b898005a62f",
+      "bytes": 97,
+      "original_review_sha256": "14c6b2d9b556517a227bf8f0a47ce72488ee46d197c2bc8429998b898005a62f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/sql/006_task_operations.sql",
+      "sha256": "743ff8b6c7ed83867efa191484ec5ccd9155e6c87ae8a02ec01964e832cd805f",
+      "bytes": 783,
+      "original_review_sha256": "743ff8b6c7ed83867efa191484ec5ccd9155e6c87ae8a02ec01964e832cd805f",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/sql/007_project_description.sql",
+      "sha256": "e41ad1a5ebf5974b3d7f140d661dfc04cb26128662c088991df7d24a7a896486",
+      "bytes": 63,
+      "original_review_sha256": "e41ad1a5ebf5974b3d7f140d661dfc04cb26128662c088991df7d24a7a896486",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/sql/grants.sql",
+      "sha256": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
+      "bytes": 411,
+      "original_review_sha256": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/tests/test_environment.py",
+      "sha256": "e97319497f8560f965ffdb11c1ca2159ae1d081bc395c22afa6be868afc704f6",
+      "bytes": 3582,
+      "original_review_sha256": "e97319497f8560f965ffdb11c1ca2159ae1d081bc395c22afa6be868afc704f6",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/tests/test_recovery.py",
+      "sha256": "e4d00e26dc95cda59844c75689e31a7eb35d208e334bd78ce95588ce8e841263",
+      "bytes": 1271,
+      "original_review_sha256": "e4d00e26dc95cda59844c75689e31a7eb35d208e334bd78ce95588ce8e841263",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/o06-recovery/uv.lock",
+      "sha256": "3aab1c03498825f8692f6be0c07a46270323acddcf22463a407f5328b749dd55",
+      "bytes": 52946,
+      "original_review_sha256": "3aab1c03498825f8692f6be0c07a46270323acddcf22463a407f5328b749dd55",
+      "unchanged": true,
+      "coverage": "hash comparison only; not expanded semantic review"
+    }
+  ],
+  "remaining_boundaries": [
+    {
+      "item": "实际最小DML/序列授权收敛及成功/拒绝测试",
+      "status": "NOT_RUN_NOT_IMPLEMENTED_BY_THIS_PATCH",
+      "note": "现有宽授权保留是已如实披露的边界；原措辞发现闭合不等于这项工程工作完成。"
+    },
+    {
+      "item": "重新打包ZIP及source/ZIP一致性",
+      "status": "PENDING_MAINLINE_NOT_VERIFIED_BY_THIS_REVIEW",
+      "note": "按用户说明由主线重建；本次未读取或验证重建后的ZIP，也不沿用旧报告的ZIP一致性结论覆盖新文稿。"
+    },
+    {
+      "item": "O实验复跑、建站、九页面浏览器验收",
+      "status": "PENDING_MAINLINE_NOT_RUN_BY_THIS_REVIEW",
+      "note": "本次没有运行测试、构建或浏览器，不报告这些检查已通过。"
+    },
+    {
+      "item": "原报告中的其他外部环境验收",
+      "status": "UNCHANGED_NOT_REVIEWED_AGAIN",
+      "note": "不改变原NOT_RUN/环境待验收状态；不把此项关闭解释为部署或公网验收。"
+    }
+  ],
+  "actions": {
+    "only_written_path": "/tmp/langshift-operations-privilege-closure.json",
+    "project_or_shared_files_modified": false,
+    "original_report_modified": false,
+    "experiments_tests_build_browser_or_deployment_run": false,
+    "database_or_services_started": false,
+    "typesafe_key_read_or_used": false,
+    "typesafe_resampled": false,
+    "external_research_needed": false
+  },
+  "hash_semantics": "SHA-256基于完整文件原始字节；段落哈希为所记录UTF-8文本（不附加换行）。最终hash只指本次稳定读取的工作树快照，不指将来重建制品。"
+}

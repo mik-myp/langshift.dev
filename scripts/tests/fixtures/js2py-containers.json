@@ -1,0 +1,93 @@
+{
+  "files": {
+    "lists.py": {
+      "stdout": "2\nRead names\nPractice values\n['Read names', 'Practice containers', 'Review']\nNone\nRead names\n['Practice containers', 'Review']\n['Practice containers']\nTrue\n"
+    },
+    "dictionaries.py": {
+      "stdout": "Read names\n{'title': 'Read names', 'minutes': 30, 'owner': None, 'done': False}\nNone\nFalse\n3\n"
+    },
+    "missing_values.py": {
+      "stdout": "True\nNone\nFalse\nNone\nNone\nunassigned\n[]\nFalse\n"
+    },
+    "aliases.py": {
+      "stdout": "True\n['todo', 'review']\n['todo', 'review']\n['done']\nFalse\n"
+    },
+    "list_copy.py": {
+      "stdout": "['read']\n['read', 'review']\nFalse\n"
+    },
+    "shallow_copy.py": {
+      "stdout": "False\nTrue\nRead\n['python', 'basics']\nPractice\n"
+    },
+    "isolated_copy.py": {
+      "stdout": "Read\n['python']\nPractice\n['python', 'basics']\nFalse\n"
+    },
+    "repeated_rows.py": {
+      "stdout": "True\n[['Read'], ['Read']]\n"
+    },
+    "tuples.py": {
+      "stdout": "2\n1\n<class 'str'>\n<class 'tuple'>\n('task-1', ['python', 'basics'])\n"
+    },
+    "sets.py": {
+      "stdout": "2\nTrue\n['basics', 'practice', 'python']\n['sql']\n['python']\n['basics', 'practice', 'python', 'sql']\n0\n"
+    },
+    "task_board.py": {
+      "stdout": "Tasks: 2\nRead names\n['python', 'basics']\n['python']\n['python']\nTrue\nMina\n40\n25\n"
+    },
+    "solutions/fix_draft.py": {
+      "stdout": "['python']\n['python', 'review']\nFalse\n"
+    },
+    "solutions/study_board.py": {
+      "stdout": "Plans: 2; total: 55 minutes\nRead lists\nPractice dictionaries\n['python']\n['python']\n['python', 'copy']\nTrue\nTrue\nFalse\nFalse\n"
+    },
+    "errors/list_index.py": {
+      "stdout": "",
+      "error": "IndexError",
+      "error_line": 2
+    },
+    "errors/missing_key.py": {
+      "stdout": "",
+      "error": "KeyError",
+      "error_line": 2
+    },
+    "errors/tuple_assignment.py": {
+      "stdout": "",
+      "error": "TypeError",
+      "error_line": 2
+    },
+    "errors/unhashable_member.py": {
+      "stdout": "",
+      "error": "TypeError",
+      "error_line": 2
+    },
+    "errors/append_rebind.py": {
+      "stdout": "None\n",
+      "error": "TypeError",
+      "error_line": 4
+    }
+  },
+  "fences": {
+    "empty_slice": {
+      "stdout": "[]\n"
+    },
+    "container_equality": {
+      "stdout": "True\nFalse\nTrue\n"
+    },
+    "independent_rows": {
+      "stdout": "False\n[['Read'], []]\n"
+    },
+    "exercise_alias": {
+      "stdout": "['read', 'review']\n['read']\nTrue\n"
+    },
+    "exercise_shared_tags": {
+      "stdout": "['python', 'review']\n['python', 'review']\n"
+    },
+    "exercise_template": {
+      "stdout": ""
+    }
+  },
+  "javascript": {
+    "container_equality": {
+      "stdout": "false\ntrue\n"
+    }
+  }
+}

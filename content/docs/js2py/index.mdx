@@ -1,114 +1,122 @@
 ---
-title: JavaScript to Python Learning Module
-description: A Python learning module designed for developers with a JavaScript background, enabling rapid mastery of Python programming through comparative learning.
+title: "JavaScript to Python: From Frontend Engineering to Backend Development"
+description: A learning path for experienced frontend engineers new to backend implementation, covering Python differences and progressing toward APIs, databases, authorization, tests, and deployment.
 ---
 
+## Who is this course for?
 
-## 📖 Module Overview
+You can structure frontend projects, integrate APIs, use Promises and async/await, and understand basic TypeScript types. You have not yet implemented a backend or database yourself. That is this course's starting point.
 
-This module is specially designed for developers with a JavaScript background. Through a comparative learning approach, it helps you quickly master Python programming by leveraging your existing JavaScript knowledge. We adopt a "from known to unknown" learning method, mapping JavaScript concepts to Python equivalents.
+You do not need to learn Express first, and advanced type-level programming is not a prerequisite. Engineering experience helps with organization, tests, and collaboration, but does not replace practice with schemas, transactions, authorization, and operations. These responsibilities need explanations and exercises, not just a table of library names and APIs.
 
-## 🎯 Learning Approach
+## The objective is delivery, not recognition
 
-### Core Methodology
-- **Comparative Learning**: Understand Python through JavaScript concepts
-- **Concept Mapping**: Map familiar JavaScript patterns to Python equivalents
-- **Practical Focus**: Learn through hands-on coding examples
-- **Performance Awareness**: Understand language-specific performance characteristics
+The target is to design, implement, test, deploy, and maintain a small-to-medium backend for invited users, consulting documentation as needed. You should also complete a new feature without a step-by-step implementation tutorial.
 
-### Key Learning Principles
-1. **Leverage Existing Knowledge**: Build on your JavaScript foundation
-2. **Focus on Differences**: Emphasize what makes Python unique
-3. **Practice-Driven**: Learn by doing with interactive code examples
-4. **Real-World Application**: Apply concepts to practical projects
+Reading every page is not sufficient evidence. Each stage needs a concrete deliverable, success and failure cases, acceptance checks, and an explanation of its decisions. Public self-registration and similar features require additional security and operational checks; a demo is not automatically a complete product.
 
-## 🔄 Language Comparison Overview
+> **Revision status — September 28, 2026:** All 39 chapters now have full English, Simplified Chinese, and Traditional Chinese manuscripts with their canonical materials. The verification matrix distinguishes locally executed experiments from environment-dependent Linux/container/HTTPS/hosted-delivery gates. Public deployment and learner graduation are not automatically claimed by content completion.
 
-### Syntax Philosophy
-- **JavaScript**: C-style syntax, flexible and dynamic
-- **Python**: Clean, readable syntax with significant whitespace
+## How to work through a topic
 
-### Core Concepts Mapping
-- **Variables**: `let/const` → direct assignment
-- **Functions**: `function` → `def` with explicit `self`
-- **Classes**: `class` → `class` with `__init__`
-- **Modules**: `import/export` → `import/from`
-- **Async**: `Promise/async-await` → `async/await`
+1. Start with a concrete problem and why the concept is needed.
+2. Connect it to frontend experience while identifying the analogy's limits.
+3. Explain the concept and execution mechanism before listing syntax and APIs.
+4. Run a complete example; predict and explain its inputs, outputs, and failures.
+5. Make a guided change, then implement a variation independently.
+6. Validate the result before opening a separately provided reference answer.
 
-### Execution Model
-- **JavaScript**: Event-driven, single-threaded with async
-- **Python**: Multi-threaded with GIL, async with asyncio
+Not every example belongs in a browser. Small language experiments may; multi-file applications, dependencies, databases, and servers need an explicitly described local environment. A configuration file, intentional error, or server program does not become browser-runnable merely by appearing in an editor.
 
-## 📚 Module Structure
+## Capability stages
 
-The learning path is organized into **12 progressive modules**:
+| Stage | Capability | Deliverable |
+| --- | --- | --- |
+| Python foundations | Semantics, functions, types, modules, errors, resources, and tests | A reproducible local task application |
+| HTTP and FastAPI | Contracts, validation, responses, routing, dependencies, and settings | An API that a frontend can integrate |
+| Databases | SQL, relationships, constraints, transactions, ORM, and migrations | Persistent data rather than process-local state |
+| Multiple users | Identity, password handling, credential invalidation, object-level authorization | User boundaries enforced by the server |
+| Reliability | API/database tests, async boundaries, timeouts, and failure handling | Behavior that remains explainable when something fails |
+| Delivery | Deployment, logs, backup recovery, iteration, and rollback | A controlled live release and an independently developed feature |
 
-1. **Foundation**: Python introduction and learning methodology
-2. **Syntax**: Core syntax comparison and mapping
-3. **Modularity**: Package management and project organization
-4. **OOP & FP**: Object-oriented and functional programming
-5. **Async**: Asynchronous programming patterns
-6. **Quality**: Testing, typing, and code quality
-7. **Web Dev**: Web development frameworks and practices
-8. **Data & Automation**: Data processing and automation
-9. **Projects**: Real-world project implementation
-10. **Advanced**: Metaprogramming and advanced features
-11. **Pythonic**: Python-specific best practices
-12. **Types**: Type annotations and static analysis
+Build correct synchronous behavior first, then introduce async for concrete use cases. Data analysis, metaclasses, advanced generics, and distributed tasks remain optional extensions rather than blockers. This is about ordering prerequisites, not making the foundational teaching shallow.
 
-## 🛠️ Development Environment
+## Sequence before volume
 
-### Essential Tools
-- **IDE**: VS Code with Python extension or PyCharm
-- **Package Manager**: pip or poetry
-- **Virtual Environment**: venv for isolation
-- **Code Quality**: flake8, black, mypy
-- **Testing**: pytest framework
+The new Python route progresses through **a first run → names and values → containers → control flow → functions → exceptions → modules → files/JSON → environments/dependencies → basic tests → a first independent reproducible application**. Types, classes, decorators, and resource lifecycles then prepare the transition to server development and FastAPI.
 
-### Quick Setup
+Each step includes a small program explainable with current knowledge, neither an unexplained full project nor a long theory-only delay. Advance by prerequisite-based acceptance, not a calendar. Advance in the listed order after demonstrating each chapter’s acceptance, not simply reading it. Setup, credential handling, migration safety, and recovery have their own lessons and evidence; later chapters do not silently turn a local demonstration into a production service.
 
-<Code language="bash">{`# Create and activate virtual environment
-python -m venv langshift-env
-source langshift-env/bin/activate  # macOS/Linux
-# langshift-env\\Scripts\\activate   # Windows
+## Current chapter inventory
 
-# Install development tools
-pip install black flake8 mypy pytest
-`}</Code>
+The course has **39 sequential chapters (00–38)**. The L/H/D/S/A/O/G labels identify capability stages; the page number identifies reading order. Old page URLs are retained even when their historical slug no longer names the new topic. A page or downloadable lab is not evidence that its environmental, graduation, or public-operation gates passed.
 
-## 🎯 Learning Outcomes
+### Python language and local engineering · L00–L14
 
-By completing this module, you will:
+- **00 · L00** — [Meet Python: understand and run your first script](/en/docs/js2py/module-00-python-introduction)
+- **01 · L01** — [Names, Values, and Basic Operations](/en/docs/js2py/module-01-syntax-comparison)
+- **02 · L02** — [Containers, References, and Mutation](/en/docs/js2py/module-02-module-system)
+- **03 · L03** — [Conditions, Loops, and Traversal](/en/docs/js2py/module-03-oop-functional)
+- **04 · L04** — [Functions, Parameters, and Scope](/en/docs/js2py/module-04-async-programming)
+- **05 · L05** — [Exceptions and Debugging](/en/docs/js2py/module-05-quality-testing-typing)
+- **06 · L06** — [Modules and the Standard Library](/en/docs/js2py/module-06-web-development)
+- **07 · L07** — [Files, JSON and Resource Use](/en/docs/js2py/module-07-data-automation)
+- **08 · L08** — [Environments and Dependencies](/en/docs/js2py/module-08-projects)
+- **09 · L09** — [Basic Automated Testing](/en/docs/js2py/module-09-advanced-topics)
+- **10 · L10** — [Your First Independent Reproducible Project](/en/docs/js2py/module-10-common-pitfalls)
+- **11 · L11** — [Basic Type Annotations — Contracts, Checking, and Input Boundaries](/en/docs/js2py/module-11-pythonic-code)
+- **12 · L12** — [Classes and Data Models — Instances, Ownership, and Explicit Validation](/en/docs/js2py/module-12-type-annotations)
+- **13 · L13** — [Decorators and Declarative Interfaces — Expand Before Using](/en/docs/js2py/module-13-decorators)
+- **14 · L14** — [Generators and Resource Lifecycles — Suspension, Resumption, and Release](/en/docs/js2py/module-14-resources)
 
-- **Master Python Syntax**: Understand Python's unique syntax and idioms
-- **Apply JavaScript Knowledge**: Leverage your JS background for faster learning
-- **Write Pythonic Code**: Follow Python best practices and conventions
-- **Build Real Projects**: Create practical applications using Python
-- **Understand Performance**: Know when and why to use Python vs JavaScript
+### Service processes, HTTP, and FastAPI · H01–H06
 
-## 🚀 Getting Started
+- **15 · H01** — [From client to a long-running service: processes, ports, and boundaries](/en/docs/js2py/module-15-service-process)
+- **16 · H02** — [HTTP and API contracts: agree on observable behavior before implementation](/en/docs/js2py/module-16-http-contract)
+- **17 · H03** — [Your First Synchronous FastAPI Service — From Import to HTTP Response](/en/docs/js2py/module-17-first-fastapi)
+- **18 · H04** — [Pydantic Input and Output Boundaries — Strict Validation and Correct PATCH](/en/docs/js2py/module-18-validation)
+- **19 · H05** — [Application Structure, Configuration, and Dependencies](/en/docs/js2py/module-19-application-dependencies)
+- **20 · H06** — [API Testing and Frontend Integration: Assertions to a Real Browser](/en/docs/js2py/module-20-api-testing)
 
-1. **Set up your environment** with the recommended tools
-2. **Start with Module 0** for Python introduction and methodology
-3. **Use the interactive code editor** to practice concepts
-4. **Complete exercises** to reinforce learning
-5. **Build projects** to apply your knowledge
+### Real databases · D01–D06
 
-## 🔗 Additional Resources
+- **21 · D01** — [Relational data and PostgreSQL — understand the model before connecting](/en/docs/js2py/module-21-relational-data)
+- **22 · D02** — [SQL and parameterized queries — derive results instead of building strings](/en/docs/js2py/module-22-sql)
+- **23 · D03** — [Transactions, connections and concurrency — what remains after failure?](/en/docs/js2py/module-23-transactions)
+- **24 · D04** — [Synchronous SQLAlchemy — own the transaction, return the connection](/en/docs/js2py/module-24-sqlalchemy)
+- **25 · D05** — [Alembic migrations — change the schema without erasing existing facts](/en/docs/js2py/module-25-migrations)
+- **26 · D06** — [Database tests and query diagnosis — prove failure, recovery and improvement](/en/docs/js2py/module-26-database-testing)
 
-- [Python Official Documentation](https://docs.python.org/)
-- [PEP 8 Style Guide](https://www.python.org/dev/peps/pep-0008/)
-- [Real Python Tutorials](https://realpython.com/)
-- [Python Package Index](https://pypi.org/)
+### Identity, authorization, and reliable operations · S01–S03
 
-## 🤝 Contributing
+- **27 · S01** — [Identity and credential lifecycles — a password is not a session](/en/docs/js2py/module-27-identity)
+- **28 · S02** — [Object authorization — knowing an ID does not grant access](/en/docs/js2py/module-28-authorization)
+- **29 · S03** — [Reliable operations — transactions, idempotency receipts and real races](/en/docs/js2py/module-29-reliable-operations)
 
-We welcome contributions! Please ensure:
-- Code examples are runnable in our editor
-- Provide both JavaScript and Python implementations
-- Include performance considerations
-- Follow our documentation standards
+### Async and external services · A01–A02
 
----
+- **30 · A01** — [Python async execution — own it, schedule it, then await it](/en/docs/js2py/module-30-async-model)
+- **31 · A02** — [External services and async resource lifetimes — keep optional dependencies optional](/en/docs/js2py/module-31-external-services)
 
-**Transform your JavaScript skills into Python mastery!** 🐍
+### Delivery and maintenance · O01–O06
+
+- **32 · O01** — [Operating systems and services: whose process, directory, and permissions?](/en/docs/js2py/module-32-operating-system)
+- **33 · O02** — [Containers and deployable applications: an image is not your data](/en/docs/js2py/module-33-containers)
+- **34 · O03** — [Network entry and HTTPS: verify the connection and whom you trust](/en/docs/js2py/module-34-https-production)
+- **35 · O04** — [Continuous Integration, Releases, and Compatible Rollback](/en/docs/js2py/module-35-release)
+- **36 · O05** — [Logs, Monitoring, and Diagnosis: Safe Evidence for a Real Failure](/en/docs/js2py/module-36-observability)
+- **37 · O06** — [Backups, Recovery, and a Controlled Launch](/en/docs/js2py/module-37-recovery)
+
+### Independent graduation · G01
+
+- **38 · G01** — [Graduation assessment — independently deliver task comments, not another tutorial](/en/docs/js2py/module-38-graduation)
+
+**Keep four claims separate:** textbook implementation; verified reference experiments; your independently demonstrated capability; actual controlled public operation. Work through required inputs and failure cases, keep answers folded until you have attempted the task, and never substitute a green format checker or backup file for real behavior or restoration.
+
+## Where to start
+
+Begin with [module 00: understand and run your first script](/en/docs/js2py/module-00-python-introduction). Here uv only obtains and selects CPython 3.13. Environments, lockfiles, and pytest receive their own instruction after the necessary language and module foundations.
+
+An ordinary Python function uses `def` and does not require `self`; an instance method introduces the explicit instance parameter. Python's async/await also cannot be equated with JavaScript's scheduling behavior merely because the syntax looks familiar. We establish useful connections through experiments without flattening important differences.
+
+Study time can be irregular. End each session with the current state, passing checks, unresolved questions, and the next concrete action. Progress is measured by capability, not weekly deadlines.

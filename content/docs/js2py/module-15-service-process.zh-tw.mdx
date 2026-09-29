@@ -1,0 +1,306 @@
+---
+title: 從客戶端到持續運行的服務：進程、端口與邊界
+description: 用只監聽本機的標準庫工具和兩個終端，追蹤一次請求，區分連接、請求與進程的生命週期，並實測路徑錯誤、端口衝突與安全停止。
+---
+
+import { getServiceProcessExample } from '@/lib/js2py-examples'
+
+## 1. 為什麼一次請求完成了，服務還在運行？
+
+寫前端時，你通常已經拿到一個 URL。現在需要反過來問：誰一直等在那裡？為什麼刷新頁面不需要重新啟動後端？關閉瀏覽器是否會把後端關掉？如果不能區分這些生命週期，很容易把“接口返回 404”誤診為“Python 沒啟動”，或者為解決端口衝突而誤停別人的程序。
+
+本章先認識運行中的服務，不先寫框架路由。我們使用 Python 已提供的靜態文件服務工具，讓請求路徑、操作系統中的進程和文件位置都能看見。它不是貫穿項目的任務 API，也不是生產服務器；你不需要先懂繼承 HTTP 處理器、套接字編程、線程或 ASGI。
+
+| 本章契約 | 範圍 |
+| --- | --- |
+| 前置 | L10 本地多文件工程；L14 獲取、使用與釋放資源 |
+| 新能力 | 分清程序與進程、地址與端口、請求與連接；沿路徑定位失敗；劃分可信邊界 |
+| 獨立驗收 | 畫出請求路徑；連續完成成功、失敗、成功請求；證明請求結束不等於進程結束；只停止自己的服務 |
+| 暫不要求 | FastAPI、數據庫、認證實現、異步、生產部署、服務器內部併發模型 |
+
+下載 [H01 完整實驗](/learning-assets/js2py/h01-service-process.zip)。本地運行，不使用瀏覽器 Python 編輯器：頁面裡的 Python 環境不能替你的操作系統監聽這裡的 TCP 端口。基線為 CPython 3.13.15、uv 0.12.13、pytest 8.4.2；維護者實際使用 macOS 與 curl 8.7.1，核驗日期為 **2026-09-28**。命令採用 macOS/Linux 的 shell；未驗收 Windows 命令與信號行為。
+
+## 2. 三個容易混成一個的生命週期
+
+**程序**是磁盤上的代碼；**進程**是操作系統啟動它之後的一個運行實例，擁有自己的運行狀態與資源。相同代碼可以啟動成兩個進程，兩個進程不會因為源文件相同就共享同一份 Python 列表。終端只是啟動和觀察它的入口，不等於進程本身。
+
+普通腳本可以完成一件事後退出。下面整個文件沒有循環或等待下一次輸入；兩次打印完成後，就沒有後續工作了。
+
+<Code language="python">{getServiceProcessExample('one_shot.py')}</Code>
+
+服務進程則保留接收後續請求的能力。**請求**是一輪“客戶端提出要求，服務端給出響應”的交互；**連接**是承載這輪交互的通信通道。一次請求完成後，連接可以關閉，也可以複用。無論哪一種，都不能由此推出整個服務進程應該退出。HTTP 的客戶端、服務端與連接角色見 [RFC 9110 §3.3](https://www.rfc-editor.org/rfc/rfc9110.html#section-3.3)。
+
+你熟悉的開發服務器可以幫助建立直覺：一次熱更新結束後，開發服務器沒有結束。但類比到此為止：後端還必須承擔數據驗證、權限與存儲等責任，不只是把前端構建結果送給瀏覽器。本章不以“會啟動 Vite”代替這些責任的教學。
+
+## 3. 地址找到機器，端口找到監聽入口
+
+本章 URL 是 `http://127.0.0.1:8765/hello.txt`。`http` 指定協議；`127.0.0.1` 是 IPv4 loopback 地址，指向發起連接的這臺機器自身；`8765` 是本實驗選擇的 TCP 端口；`/hello.txt` 是發給服務的請求路徑。端口不是文件夾，也不是 Python 函數名。[IANA 的特殊地址登記](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml)將 `127.0.0.0/8` 保留為 loopback 範圍。
+
+**監聽**表示進程請求操作系統在特定地址與端口接收連接。操作系統先把連接交到監聽入口，隨後 HTTP 服務才根據路徑作出響應。不能因為路徑叫 `/hello.txt` 就跳過端口去尋找本機文件，也不能僅憑一個 404 判斷端口沒監聽：收到 HTTP 404 已說明某個 HTTP 服務給出了響應。
+
+本實驗只綁定 `127.0.0.1`。不要省略綁定參數，也不要改成 `0.0.0.0`；後者是監聽所有 IPv4 接口的地址，不是“更好用的 localhost”。Python 工具默認會監聽所有接口，所以我們顯式收窄範圍。loopback 降低了網絡暴露範圍，**不是登錄或授權**：本機其他進程仍可能訪問。[Python CLI 文檔](https://docs.python.org/3.13/library/http.server.html#command-line-interface)說明了綁定行為。
+
+如果把同樣 URL 發給另一臺電腦，那裡 `127.0.0.1` 指向的是那臺電腦，不是你的電腦。先不改防火牆、不開放路由、不用隧道分享本實驗。`localhost` 名稱還可能解析到 IPv6 的 `::1`；為減少變量，本章統一使用字面量 `127.0.0.1`。
+
+## 4. 準備工程，明確兩個終端各在哪個目錄
+
+在倉庫根目錄打開終端 A，執行以下命令。下載包用戶應進入解壓後的 `h01-service-process` 文件夾，從 `uv sync` 開始；不要在解壓父目錄運行。`pwd` 用於核對當前工作目錄，`uv run --locked` 使用已鎖定工程環境，`python -m` 運行指定 Python 模塊，而不是運行一個叫 `http.server.py` 的本地文件。
+
+```bash
+cd examples/js2py/h01-service-process
+pwd
+uv sync --locked --default-index https://pypi.org/simple
+uv run --locked python --version
+uv run --locked python one_shot.py
+echo $?
+```
+
+```text
+Python 3.13.15
+script: started
+script: finished
+0
+```
+
+輸出省略了 uv 的安裝進度與 `pwd` 的機器相關路徑。`echo $?` 必須緊跟要觀察的命令：它打印上一條命令的退出狀態，零通常表示成功，不是 HTTP 狀態碼。一次腳本結束後終端提示符立即回來。
+
+<Code language="toml">{getServiceProcessExample('pyproject.toml')}</Code>
+
+運行時沒有第三方包；pytest 只用於驗證。`package = false` 表示這是實驗工程，不要求把它構建安裝成一個分發包。鎖文件已經生成，普通復現不要刪除它或重新選擇依賴版本。
+
+## 5. 啟動服務：先讀懂命令，再觀察它沒有退出
+
+服務目錄只放專用教學文件，不放 `.env`、憑證、用戶目錄、工程根目錄或符號鏈接。靜態工具可能生成目錄列表，也會跟隨符號鏈接；`--directory` 不是安全沙箱。這裡靠的是受控的無秘密文件與 loopback，而不是聲稱工具具備生產隔離保證。[安全範圍](https://docs.python.org/3.13/library/http.server.html#security-considerations)
+
+<Code language="text">{getServiceProcessExample('public/hello.txt')}</Code>
+
+在終端 A、仍然是實驗根目錄運行：
+
+```bash
+uv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory public
+```
+
+```text
+Serving HTTP on 127.0.0.1 port 8765 (http://127.0.0.1:8765/) ...
+```
+
+`8765` 是選擇的監聽端口；`--bind` 指定監聽地址；`--directory public` 指定公開文件根目錄，`public` 相對**啟動時工作目錄**解釋。命令沒有返回提示符是預期行為：這個前臺服務正在等待請求，不是“卡住了”。標準庫已實現等待與處理，本章不要求你重寫那部分。
+
+若啟動提示 `Address already in use`，此次啟動失敗，不是自動換了端口。不要用按端口殺進程或 `killall python` 的命令。先確認是否是自己另一個終端已經啟動的實例；確認不清就改用 `8766`，並同步修改所有客戶端命令。只有你自己啟動的前臺實例才能按本章方式停止。
+
+## 6. curl 是客戶端，不是另一個服務器
+
+打開終端 B，也進入實驗根目錄。終端 A 不動。執行：
+
+```bash
+curl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt'
+```
+
+curl 建立連接、發出請求、讀取響應，然後退出。`--noproxy '*'` 讓本實驗不經過代理；引號讓星號原樣傳給 curl，不被 shell 展開成文件名。`--max-time 3` 將這次傳輸的總等待限制為三秒。`--verbose` 顯示連接診斷和收發的頭部，診斷寫到標準錯誤、正文寫到標準輸出，所以複製日誌時順序可能交錯。[curl 手冊](https://curl.se/docs/manpage.html)
+
+只看以下**關鍵行摘錄**；真實日誌還包含動態時間、文件大小、工具版本等頭部，不能把這段當逐字快照：
+
+```text
+> GET /hello.txt HTTP/1.1
+> Host: 127.0.0.1:8765
+< HTTP/1.0 200 OK
+hello from the service
+```
+
+`>` 是 curl 標出的發送方向，`<` 是接收方向，不屬於 HTTP 報文本身。服務工具默認以 HTTP/1.0 響應，這不表示你的請求沒有發送成功，也不表示服務進程退出了。我們現在只觀察一輪交互，HTTP 版本差異和連接複用不作為獨立實現要求。
+
+立刻再執行一次。終端 A 出現第二條請求日誌，終端 B 又得到正文。客戶端第二次運行是另一個短命進程，服務仍是剛才那個持續運行的進程。**A 的日誌證明有請求到達，B 的響應證明有結果返回；只看到啟動橫幅不證明路徑正確。**
+
+## 7. 畫出路徑，而不是把 URL 當成本機文件路徑
+
+```text
+terminal B: curl (client)
+    -> TCP 127.0.0.1:8765
+    -> terminal A: Python process listening on that address
+    -> HTTP GET /hello.txt
+    -> serving directory public -> public/hello.txt
+    <- HTTP status + headers + body
+client exits; server waits for another request
+```
+
+映射到文件是本次工具的行為，不是 HTTP 的強制規定。後面的 `/projects/7/tasks/41` 可以標識由業務邏輯組成的資源，磁盤上不必有同名目錄或文件。請求路徑和工作目錄是不同層次：前者由客戶端發送，後者由進程啟動環境決定。
+
+下面 URL 的請求目標包含路徑和查詢，`#client-note` 是客戶端 fragment，不發送給 HTTP 服務。標準庫文件工具忽略查詢的業務含義，所以不會尋找名為 `hello.txt?attempt=2` 的文件；未來 API 才會按契約解釋查詢參數。[URL 結構](https://url.spec.whatwg.org/)、[Python 路徑處理說明](https://docs.python.org/3.13/library/http.server.html#http.server.SimpleHTTPRequestHandler)
+
+```bash
+curl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt?attempt=2#client-note'
+```
+
+```text
+> GET /hello.txt?attempt=2 HTTP/1.1
+hello from the service
+```
+
+這同樣是關鍵行摘錄。查詢不是本章新建的數據狀態；再刷新不會增加一個任務。
+
+## 8. 三種失敗，發生在三層不同的位置
+
+先在終端 B 請求不存在的路徑，再請求成功路徑：
+
+```bash
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/not-here.txt'
+echo $?
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/hello.txt'
+```
+
+`--include` 把響應頭連同正文顯示出來，不顯示 `--verbose` 那種完整連接診斷。第一條得到 HTTP 404 和 HTML 錯誤頁，第二條仍是 200。默認 curl 收到了完整的 HTTP 錯誤響應也可退出為零；HTTP 狀態和命令退出狀態不能互相替代。
+
+現在回到終端 A 按 **Ctrl+C**。這是發給當前前臺程序的中斷請求，標準庫工具退出，A 的提示符回來。再在 B 請求原 URL：
+
+```bash
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/hello.txt'
+echo $?
+```
+
+在本章無人接管端口的實測條件下，curl 連接失敗並退出 `7`，沒有 HTTP 狀態或正文；若本機安全工具阻斷，可能超時，不能硬把所有網絡失敗寫成 404。若得到成功響應，先懷疑另一個進程正在監聽，不要據此亂停程序。
+
+| 現象 | 發生階段 | 應檢查與恢復 |
+| --- | --- | --- |
+| 啟動報端口占用，提示符馬上回來 | 服務獲取監聽入口失敗 | 確認自己的實例；不能確認就選另一端口 |
+| 收到 HTTP 404，A 有請求日誌 | 連接與 HTTP 已完成，資源未找到 | 核對路徑、`pwd`、公開目錄；不是重裝 Python |
+| 連接被拒絕，沒有 HTTP 響應 | 請求尚未到達 HTTP 處理 | 確認地址、端口、自己的服務是否仍運行 |
+
+恢復時先在 A 重跑第 5 節命令，再在 B 驗證成功路徑。不要用 `&` 把初學實驗隨手放到後臺，更不要把“關閉一個終端窗口一定做了正確清理”當成跨環境保證。
+
+## 9. Python 也能當客戶端：釋放連接不等於停服
+
+<Code language="python">{getServiceProcessExample('client.py')}</Code>
+
+這個文件仍然不是服務端。`HTTPConnection` 指明要連接的地址與端口；`request` 發送 GET；`getresponse` 讀取狀態與頭部；`read` 讀取正文的字節；已知本實驗文件是 UTF-8，才進行解碼。`finally` 關閉本次客戶端連接，作用範圍沒有擴大到另一個進程。超時是客戶端避免無限等待的限制，不會自動取消服務端已經發生的業務變化。[客戶端文檔](https://docs.python.org/3.13/library/http.client.html)
+
+本文件硬編碼 loopback，只接收端口與路徑，不接收任意外部 URL。它也不是通用下載器：沒有重試、流式大文件或複雜編碼處理。HTTP 錯誤保留實際狀態，連接異常單獨輸出；退出碼 `2` 是這個腳本自己的約定，不是所有 Python 客戶端的慣例。
+
+```bash
+uv run --locked python client.py 8765 /hello.txt
+uv run --locked python client.py 8765 /not-here.txt
+echo $?
+```
+
+```text
+status=200
+hello from the service
+```
+
+上面的正文僅對應第一條命令。第二條打印 `status=404` 和 HTML 錯誤頁，最後退出碼是 `2`。它沒有關閉 A 的服務。
+
+## 10. 可信邊界：你寫的前端並不擁有全部請求
+
+瀏覽器表單限制標題長度，可以即時幫助用戶；但 curl 或另一份腳本根本不經過那個表單。服務端必須驗證輸入、確定真實身份、校驗對象權限，並只輸出允許公開的信息。不能相信請求裡的 `creator_id` 或 `role`，也不能因為請求來自本機就把它等同於已認證的用戶。這是我們進入 HTTP 契約之前必須建立的責任邊界。
+
+分工不是“前端所有校驗都刪掉”：前端負責體驗，服務端負責不能被客戶端繞過的規則，存儲層後續負責自己的持久化約束。不同層可能檢查同一件事，但提供的保證不同。此時還沒有數據庫，也沒有身份驗證；不要把靜態 `hello.txt` 的成功訪問稱為安全後端。
+
+**解釋題：** B 請求完文件並退出，為什麼 A 不退出？B 收到 404 時，能證明哪些層已工作？如果把標題輸入框改成只讀，能否阻止另一個客戶端修改任務？先寫出理由再展開。
+
+<details>
+<summary>解釋題答案：分別討論生命週期與信任來源</summary>
+
+B 只結束自身的一次客戶端運行；A 還持有監聽資源並等待後續連接。404 證明某個 HTTP 服務接收並回應了請求，不證明它是你預期的實例，也不證明資源存在；應聯合地址、端口和 A 的日誌確認。只讀輸入框只約束這份 UI，不能約束其他請求生成者。將來服務端必須獨立拒絕未經許可的修改，本章沒有實現那個權限系統。
+
+</details>
+
+## 11. 引導實驗：錯誤目錄能否與正常啟動同時出現？
+
+先停止你自己的 A。保持實驗根目錄不變，把公開目錄改為已有的 `solutions/public`，端口仍用 `8765`；請求 `/hello.txt`，再請求 `/health.txt`。提示：不要修改客戶端主機，也不要為得到 200 而公開整個工程。預測啟動是否成功、兩次狀態分別是什麼。
+
+<details>
+<summary>引導實驗答案：工作目錄與公開目錄不是同一個概念</summary>
+
+```bash
+uv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory solutions/public
+```
+
+另一個終端仍在實驗根目錄：
+
+```bash
+uv run --locked python client.py 8765 /hello.txt
+uv run --locked python client.py 8765 /health.txt
+```
+
+服務正常啟動，但第一條得到 404，第二條得到 200 與 `ready`。進程工作目錄未變，顯式公開根目錄變了，路徑映射也隨之變化。按 Ctrl+C 停止自己的變式實例，再用 `--directory public` 恢復原實驗。這是路徑定位練習，不是用換目錄來實現權限系統。
+
+</details>
+
+## 12. 自動驗證的用途與它不替你證明的事
+
+<Code language="python">{getServiceProcessExample('observe.py')}</Code>
+
+```bash
+uv run --locked python observe.py
+uv run --locked python -m pytest -q
+```
+
+```text
+200 hello from the service
+404 missing
+200 hello from the service
+request_done_process_alive=True
+process_stopped=True
+```
+
+標準套件 **13 個測試**。`observe.py` 使用 `tools/owned_server.py`，讓標準庫 CLI 以端口 `0` 啟動；這裡的 `0` 請操作系統分配空閒端口，客戶端使用啟動日誌裡的實際端口，不能拿 `0` 當瀏覽器訪問端口。工具記錄自己創建的子進程，超時有界，退出時只對這個子進程清理，不掃描或殺死其他監聽者。
+
+<Code language="python">{getServiceProcessExample('tests/test_service_process.py')}</Code>
+
+測試包含連續請求、404 後仍可用、查詢與文件名區別、HEAD 空正文、工程文件未公開、端口衝突、錯誤目錄、異常清理與自己子進程的中斷。進程 API 屬於**維護者測試工具**，不是 H01 必須獨立重建的服務器知識；需要審閱時看 [subprocess 文檔](https://docs.python.org/3.13/library/subprocess.html)。工具不會重新實現 HTTP。
+
+自動測試沒有證明任意機器的防火牆、外部網絡、生產負載與惡意請求都安全；一次存活檢查也不等於完整健康檢查。它證明的是本實驗明確列出的可觀察行為。
+
+## 13. 獨立變式：換一個公開目錄，保留完整證據鏈
+
+不看下面答案，創建僅含自寫 `health.txt` 與 `note.txt` 的教學目錄。使用另一個未佔用端口 `8766`，完成健康文件成功、缺失路徑失敗、說明文件成功三輪請求。記錄請求路徑如何落到文件、失敗後進程是否仍在、怎樣只停止自己的實例。不要複製一個 `while True` 假裝服務，也不要在新目錄放符號鏈接或真實數據。
+
+驗收還需要反證：舊目錄的 `/hello.txt` 不應因為你以前請求過就自動出現在新目錄。完成後可以對照提供的獨立參考文件與測試；若你更改了正文，自己的斷言也應使用自己選定的正文。
+
+<details>
+<summary>獨立變式參考答案與兩項驗證</summary>
+
+<Code language="text">{getServiceProcessExample('solutions/public/health.txt')}</Code>
+
+<Code language="text">{getServiceProcessExample('solutions/public/note.txt')}</Code>
+
+```bash
+uv run --locked python -m http.server 8766 --bind 127.0.0.1 --directory solutions/public
+```
+
+另一個終端：
+
+```bash
+uv run --locked python client.py 8766 /health.txt
+uv run --locked python client.py 8766 /not-here.txt
+uv run --locked python client.py 8766 /note.txt
+uv run --locked python client.py 8766 /hello.txt
+```
+
+依次為 200、404、200、404；成功正文分別是 `ready`、`a separate serving directory`。最後只在啟動它的終端按 Ctrl+C。以下自動參考採用隨機空閒 loopback 端口，不依賴你仍保留手動實例：
+
+<Code language="python">{getServiceProcessExample('solutions/observe_health.py')}</Code>
+
+<Code language="python">{getServiceProcessExample('solutions/test_health.py')}</Code>
+
+```bash
+uv run --locked python -m solutions.observe_health
+uv run --locked python -m pytest -q solutions/test_health.py
+```
+
+兩項參考測試證明新目錄兩份文件可訪問、原文件不自動共享、退出後自己的進程已結束。不要把自動參考的通過替代自己畫路徑和定位失敗。
+
+</details>
+
+## 14. 暫停、恢復和本章的終點
+
+暫停前記錄：當前實驗目錄、公開目錄、地址與端口、服務所在終端、最後一條成功命令、最後一次失敗在哪一層、標準測試與變式測試結果、下次第一步。若會離開電腦，先停止自己啟動的服務，不留下不明後臺實例。
+
+恢復時按順序：確認 CPython 版本與工作目錄；運行 `observe.py` 檢查獨立實驗；在 A 前臺啟動手動服務；在 B 重做成功、失敗、成功；核對日誌後停止。若端口占用，不從筆記中隨意拷貝一箇舊 PID 去殺進程，PID 可能已經屬於別的程序。
+
+驗收不是“看到一次 200”：你必須能不用框架術語解釋進程為什麼仍在、路徑由誰解釋、失敗屬於哪一層、哪些輸入不可信，以及誰擁有停止權。下一章 H02 才把這些交互寫成完整 API 契約，H03 才實現第一個同步 FastAPI 服務。
+
+## 15. 一手資料與驗證範圍
+
+2026-09-28 核對：[Python 3.13 http.server](https://docs.python.org/3.13/library/http.server.html)、[http.client](https://docs.python.org/3.13/library/http.client.html)、[subprocess](https://docs.python.org/3.13/library/subprocess.html)、[curl 官方手冊](https://curl.se/docs/manpage.html)、[RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)、[IANA loopback 登記](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml)、[WHATWG URL Standard](https://url.spec.whatwg.org/)。
+
+已驗證的是本機 loopback 上的成功、失敗、獨立變式與自有子進程清理。沒有驗證公網部署、瀏覽器跨源策略、TLS、數據庫或持久化；標準庫靜態服務的官方定位也不是生產應用服務器。下載與網頁展示由同一份顯式文件清單銜接，不包含虛擬環境、緩存、臨時日誌或憑證。

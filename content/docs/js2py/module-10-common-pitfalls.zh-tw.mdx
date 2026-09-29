@@ -1,284 +1,245 @@
 ---
-title: "模塊 10: 常見陷阱"
-description: "從 JavaScript 開發者視角，解析 Python 中常見的概念陷阱和易錯點。"
+title: 第一個獨立可復現項目
+description: 從需求獨立組合函數、模塊、文件、環境與測試；驗證首次運行、重啟讀回、拒絕覆蓋壞數據和乾淨目錄恢復，再完成一項沒有逐步實現提示的新需求。
 ---
 
-## 1. 引言
+import { getProjectExample } from '@/lib/js2py-examples'
 
-當你從一種語言切換到另一種時，最棘手的往往不是新語法，而是一些看似相同但行為卻截然不同的“陷阱”。這些細微的差異可能會導致難以察覺的 bug 和困惑。
+## 1. 這次不是再照著搭一個框架
 
-本模塊專門為你——從 JavaScript 過渡到 Python 的開發者——梳理了一些最常見的概念陷阱。
+到這裡，你已經學過值、容器、控制流、函數、異常、模塊、文件、環境和普通自動化測試。現在把這些能力組合起來：**先給需求與驗收，你獨立設計和實現，再用參考實現核對責任邊界。** 不要求一口氣從記憶寫出所有 API，允許查前面章節和官方文檔。
 
-> 💡 **學習策略**：不要死記硬背。理解每個陷阱背後的“為什麼”，並將其與 JavaScript 的行為進行對比，這樣你才能在實際編碼中自然而然地避開它們。
+產物是一個本地任務程序，不是 Web 後端，也不是生產級持久化系統。它足夠小，便於追蹤每一次數據變化，又包含真正工程中不能迴避的輸入契約、文件失敗、依賴恢復、測試和需求變更。數據庫、權限與上線仍需要後面的專門教學。
 
-## 2. 真值 (Truthy) 與假值 (Falsy)
+| 本章契約 | 範圍 |
+| --- | --- |
+| 前置 | L07 文件與 JSON、L08 環境、L09 普通測試，以及此前語言與模塊基礎 |
+| 產物 | 多文件本地應用、完整運行說明、聲明與鎖、成功與失敗測試 |
+| 獨立驗收 | 空目錄實現，第二目錄恢復，處理壞數據不覆蓋，完成未逐步指導的變式 |
+| 不引入 | Web、數據庫、類設計、裝飾器、異步、自定義上下文協議 |
 
-在 Python 中，空的集合類型（如列表、字典、元組）被認為是“假值”(Falsy)。這與 JavaScript 的行為有顯著不同，在 JS 中，空數組 `[]` 和空對象 `{}` 都是“真值”(Truthy)。
+下載 [L10 參考項目與輸入](/learning-assets/js2py/u10-local-project.zip)可用來比較，但**先在下載之外建立自己的空目錄**。參考答案摺疊在後文。實測基線為 2026-09-28：CPython 3.13.15、uv 0.12.13、pytest 8.4.2；業務運行只用標準庫。
 
-<PythonEditor title="真值與假值對比" compare={true}>
-```javascript !! js
-// JavaScript
-if ([]) {
-  console.log("空數組在 JS 中是 truthy"); // 會被打印
-}
+## 2. 先把數據與行為契約寫完整
 
-if ({}) {
-  console.log("空對象在 JS 中是 truthy"); // 會被打印
-}
+文件中是一份 JSON 數組，每項恰好有 title、minutes、done。title 是非空白 str，保持原拼寫；minutes 是普通非負 int，不接受 bool、float、數字字符串；done 只能是 bool。空數組、零分鐘與重複標題都合法，保持原順序。缺字段和多字段均拒絕。
 
-if ("") {
-  console.log("空字符串是 falsy"); // 不會被打印
-}
+首次運行僅在目標文件**缺失**時使用以下初始數據，已經存在的空數組不能被當成缺失：
 
-if (0) {
-  console.log("0 是 falsy"); // 不會被打印
-}
+<Code language="json">{getProjectExample('fixtures/initial.json')}</Code>
+
+每次正常運行，把標題精確等於 Read 的所有未完成項標為完成；已完成項不重複計入 changed。然後保存一次，報告變更數量、總任務數和仍未完成的分鐘數。標題不是唯一 ID，因此匹配重複標題時全部處理；本章不會暗中把“查找第一項”當成約定。
+
+讀取缺失與讀取損壞是不同事件。現有文件編碼錯誤、JSON 語法錯誤、業務形狀錯誤時，必須非零失敗並保留原字節，不得初始化、保存空數組或只警告後繼續。權限與未知 I/O 錯誤也不能變成“新用戶沒有任務”。
+
+## 3. 沿數據流分責任，而不是為了目錄多而分層
+
+畫出數據流：**路徑 → 打開的文件 → 文本解析 → 數據校驗 → 業務變化 → 彙總 → 序列化 → 保存 → 展示**。每個邊界回答兩個問題：輸入由誰保證？失敗由誰負責解釋或傳播？
+
+- validation：驗證數據並返回新列表、新字典。調用者修改返回值不得影響原輸入。
+- rules：標記完成與計算彙總；不打開文件、不打印、不創建目錄。它不依賴一個全局可變“任務數據庫”。
+- storage：讀取和保存文件，使用校驗；load 傳播缺失，不擅自決定是否初始化；save 在破壞性打開之前完成校驗與序列化。
+- app：選擇固定路徑、創建自己擁有的父目錄、決定何時初始化、安排調用順序，並在損壞輸入後停止。
+
+這些是普通模塊和函數，不是要求現在學習企業架構術語。可以選擇同樣清晰的文件名，但要能解釋職責。程序小不等於允許在導入時讀寫真實文件；文件多也不自動產生正確的邊界。
+
+寫下自己的模塊草圖和每個函數的輸入/輸出/錯誤，再打開答案。函數簽名暫時不要求註解，靜態類型在 L11 專門教學。
+
+## 4. 環境本身也需要能說明白
+
+可以使用以下項目聲明結構，項目名由你選擇；不要把參考包的已安裝環境搬進自己的目錄：
+
+<Code language="toml">{getProjectExample('pyproject.toml')}</Code>
+
+<Code language="text">{getProjectExample('.python-version')}</Code>
+
+```bash
+uv lock
+uv sync --locked
+uv run --locked python -m pytest -q
 ```
 
-```python !! py
-# Python
-if []:
-    print("空列表在 Python 中是 Falsy")  # 不會被打印
-else:
-    print("空列表為假")
+沒有第三方運行依賴是合理設計，不需要為了體現“生態”給標準庫夠用的程序硬加一個包。pytest 仍屬於 dev 組，鎖文件仍有測試工具及其依賴需要恢復。
 
-if {}:
-    print("空字典在 Python 中是 Falsy")  # 不會被打印
-else:
-    print("空字典為假")
+先為自己的聲明生成鎖，再以 locked 模式同步。最初還沒寫測試時，最後一條可能報告沒有測試；依照 L09，這不是通過。記錄這一事實，補上真實測試後再驗收。下載參考項目已經有鎖，恢復它時用 sync --locked，不先運行會改鎖的命令掩蓋不一致。
 
-if "":
-    print("空字符串是 Falsy")  # 不會被打印
-else:
-    print("空字符串為假")
+不要手工編輯 lock 內容。空目錄恢復要包含源碼、聲明、鎖、版本文件與需要的輸入素材；環境緩存、個人秘密和真實用戶數據有各自的責任邊界。
 
-if 0:
-    print("0 是 Falsy")  # 不會被打印
-else:
-    print("0 為假")
-```
-</PythonEditor>
+## 5. 在寫實現之前定義驗收表
 
-## 3. `this` vs `self`
+第一次和第二次運行的輸出應分別為：
 
-在 JavaScript 的類方法中，`this` 是一個關鍵字，其指向在函數調用時確定。而在 Python 的實例方法中，第一個參數（按照慣例命名為 `self`）顯式地代表實例本身，它不是一個關鍵字。
-
-<PythonEditor title="this vs. self 對比" compare={true}>
-```javascript !! js
-// JavaScript
-class Counter {
-  constructor() {
-    this.count = 0;
-  }
-
-  increment() {
-    this.count++;
-    console.log(this.count);
-  }
-}
-
-const counter = new Counter();
-counter.increment(); // 1
+```text
+Source: new file
+Changed: 1
+Tasks: 3
+Pending minutes: 35
 ```
 
-```python !! py
-# Python
-class Counter:
-    def __init__(self):
-        self.count = 0
-
-    def increment(self):  # `self` 必須作為第一個參數顯式傳遞
-        self.count += 1
-        print(self.count)
-
-counter = Counter()
-counter.increment()  # 1
-```
-</PythonEditor>
-
-## 4. 變量作用域
-
-JavaScript (ES6+) 擁有塊級作用域（由 `{}` 界定），而 Python 的作用域是基於函數（或類、模塊）的。在 `for` 循環等代碼塊中定義的變量，在 Python 中會“洩漏”到外部作用域。
-
-<PythonEditor title="作用域對比" compare={true}>
-```javascript !! js
-// JavaScript (塊級作用域)
-for (let i = 0; i < 3; i++) {
-  console.log(i);
-}
-// console.log(i); // ReferenceError: i is not defined
-
-if (true) {
-  const blockVar = 'hello';
-}
-// console.log(blockVar); // ReferenceError: blockVar is not defined
+```text
+Source: existing file
+Changed: 0
+Tasks: 3
+Pending minutes: 35
 ```
 
-```python !! py
-# Python (函數級作用域)
-for i in range(3):
-    print(i)
+這兩次必須是新的 Python 進程。不能只在同一進程裡保留列表，然後聲稱已經讀迴文件。第二次 changed 為零體現的是當前操作的業務約定，不是承諾所有程序都有“重複運行永遠無副作用”的性質。
 
-print(f"循環結束後，i 仍然存在: {i}") # 輸出: 循環結束後，i 仍然存在: 2
+還要驗收：
 
-if True:
-    block_var = 'hello'
+| 情況 | 應觀察到什麼 |
+| --- | --- |
+| 導入 app/storage | 僅導入探針輸出，無創建目錄/讀寫文件/業務入口 |
+| 已存空數組 | 保持空數組；計數、變更、未完成時間均為零 |
+| 多個 Read，其中部分已完成 | 全部匹配，但只統計這次新完成的數量 |
+| Practice 的分鐘數改為 36 | 新進程彙總必須變為 36，不硬編碼 35 |
+| 壞 JSON、錯誤編碼、錯誤業務形狀 | 失敗、原字節不變，沒有成功保存提示 |
+| 不存在的父目錄 | 由 app 創建自己指定的父目錄，不是 storage 偷偷創建任意目錄 |
+| 換 cwd | 入口仍訪問約定的項目數據位置，不能在調用者目錄意外創建另一份數據 |
 
-print(f"if 塊結束後，變量仍然存在: {block_var}") # 輸出: if 塊結束後，變量仍然存在: hello
-```
-</PythonEditor>
+保存前拒絕無效值必須保護舊文件；**寫入過程中斷仍可能損壞文件**。本章沿用 L07 的明確限制，不把 with、測試或單文檔格式誇大成數據庫事務。
 
-## 5. 可變默認參數
+## 6. 文件測試先獲得自己的可丟棄目錄
 
-這是一個 Python 中非常經典且臭名昭著的“陷阱”。如果函數的默認參數是一個可變對象（如列表或字典），那麼這個對象會在所有調用之間共享。這與 JavaScript 的行為完全不同。
+不能讓測試把你正在使用的任務文件改壞，也不能要求讀者先學 fixture。這裡補充一個小型標準庫工具：TemporaryDirectory 創建臨時目錄，with 結束時清理它擁有的目錄和內容，正常與異常退出都走清理路徑。
 
-<PythonEditor title="可變默認參數對比" compare={true}>
-```javascript !! js
-// JavaScript
-function append(item, arr = []) {
-  arr.push(item);
-  return arr;
-}
+<Code language="python">{getProjectExample('demo_resource.py')}</Code>
 
-console.log(append(1)); // [1]
-console.log(append(2)); // [2] (每次調用都創建一個新的空數組)
+```bash
+uv run --locked python demo_resource.py
 ```
 
-```python !! py
-# Python (錯誤的方式)
-def append_bad(item, arr=[]):
-    arr.append(item)
-    return arr
-
-print(append_bad(1))  # [1]
-print(append_bad(2))  # [1, 2] (列表被所有調用共享！)
-
-# 正確的方式
-def append_good(item, arr=None):
-    if arr is None:
-        arr = []
-    arr.append(item)
-    return arr
-
-print(append_good(1)) # [1]
-print(append_good(2)) # [2]
-```
-</PythonEditor>
-
-## 6. `null`/`undefined` vs `None`
-
-JavaScript 中有兩個表示“無”的值：`null`（表示“有意設置的空值”）和 `undefined`（表示“未定義”）。在 Python 中，只有一個對應的概念：`None`。
-
-<PythonEditor title="null/undefined vs. None" compare={true}>
-```javascript !! js
-// JavaScript
-let a; // undefined
-let b = null; // null
-
-function greet(name) {
-  // 如果不傳參數，name 是 undefined
-  console.log(name);
-}
+```text
+Inside: True
+After: False
 ```
 
-```python !! py
-# Python
-a = None  # 只有 None
+directory 是臨時目錄的字符串路徑；Path 把它變成你已經會使用的路徑對象。測試只能在這個目錄內創建自己的文件，不把真實用戶路徑傳進去。退出後 path 名稱仍存在，但資源位置已被清理；這沿用 L07“名稱存在不等於資源可用”的模型。
 
-def greet(name=None):
-    # 通常使用 None 作為默認值
-    print(name)
+測試採用同樣結構，每項自己創建目錄。一個讀取函數不必知道自己正在被測試；它只接受 Path。app 也可以把固定默認路徑的選擇與 main(path) 的調用邊界分開，讓測試傳入自己的目錄。這只是普通函數參數，不是提前引入框架依賴注入，也不是開放任意上傳路徑的安全承諾。
 
-# 檢查是否為 None
-if a is None:
-    print("a is None")
-```
-</PythonEditor>
+## 7. 分階段做，避免一次寫完再找幾十個原因
 
+建議按可驗證的最小步推進，但具體代碼由你決定：
 
-## 7. 循環變量捕獲 (Loop Variable Capture)
+1. 先寫純校驗與規則，用普通測試確認空、零、重複標題和不修改輸入。
+2. 加讀取和保存，在臨時目錄完成往返；寫入兩次後仍是一份合法文檔。
+3. 加 app 協調與固定路徑，驗證首次/再次/現有空數組。
+4. 複製壞輸入到自己的實驗目標，確認失敗前後字節相等；不要原地修 fixtures。
+5. 從另一個目錄使用外層入口運行，證明路徑錨點正確；用導入探針確認導入不啟動業務。
+6. 第二個乾淨目錄恢復環境並重跑整個驗收表，最後做獨立變式。
 
-這是 Python 作用域規則的一個副作用，常發生在閉包或 lambda 函數中。
+某一步紅了，先找到失敗層次，不要一口氣升級 Python、換包源、改 JSON、改斷言。每次最小修改後先跑相關測試，再跑全套，保留能解釋的進展。
 
-<PythonEditor title="循環變量捕獲" compare={true}>
-```javascript !! js
-// JavaScript (ES6 let)
-const funcs = [];
-for (let i = 0; i < 3; i++) {
-    funcs.push(() => console.log(i));
-}
+## 8. 參考實現：看責任，不只看答案
 
-funcs[0](); // 0
-funcs[1](); // 1
-funcs[2](); // 2
-// 因為 let 具有塊級作用域，每次迭代都會創建一個新的綁定
-```
+<details>
+<summary>完整應用參考——先提交自己的模塊草圖與首次驗收</summary>
 
-```python !! py
-# Python
-funcs = []
-for i in range(3):
-    funcs.append(lambda: print(i))
+以下依次為包初始化、validation、rules、storage、app、導入探針和外層運行入口。所有文件在下載中保持這個路徑結構，不能把包內文件任意單獨啟動：
 
-funcs[0]()  # 2
-funcs[1]()  # 2
-funcs[2]()  # 2
-# 為什麼？因為 lambda 函數捕獲的是變量 i 的引用，而不是值。
-# 當函數執行時，循環已經結束，i 的值是 2。
+<Code language="python">{getProjectExample('task_app/__init__.py')}</Code>
 
-# 修復方法：使用默認參數綁定當前值
-funcs_fixed = []
-for i in range(3):
-    funcs_fixed.append(lambda x=i: print(x))
+<Code language="python">{getProjectExample('task_app/validation.py')}</Code>
 
-funcs_fixed[0]()  # 0
-funcs_fixed[1]()  # 1
-funcs_fixed[2]()  # 2
-```
-</PythonEditor>
+<Code language="python">{getProjectExample('task_app/rules.py')}</Code>
 
-## 8. 賦值 vs 拷貝 (Assignment vs Copying)
+<Code language="python">{getProjectExample('task_app/storage.py')}</Code>
 
-在 Python 中，賦值語句 (`=`) 永遠不會複製對象，它只是創建了一個新的引用（別名）。這與 JavaScript 的對象賦值行為一致，但對於習慣了某些 C++ 行為的開發者來說可能是個陷阱。
+<Code language="python">{getProjectExample('task_app/app.py')}</Code>
 
-<PythonEditor title="賦值 vs 拷貝" compare={true}>
-```javascript !! js
-// JavaScript
-const list1 = [1, 2, 3];
-const list2 = list1; // 引用賦值
+<Code language="python">{getProjectExample('check_import.py')}</Code>
 
-list2.push(4);
-console.log(list1); // [1, 2, 3, 4] (也被修改了)
+<Code language="python">{getProjectExample('run_tasks.py')}</Code>
 
-// 淺拷貝
-const list3 = [...list1];
-list3.push(5);
-console.log(list1); // [1, 2, 3, 4] (不受影響)
+```bash
+uv sync --locked
+uv run --locked python check_import.py
+uv run --locked python -m task_app.app
+uv run --locked python -m task_app.app
 ```
 
-```python !! py
-# Python
-list1 = [1, 2, 3]
-list2 = list1  # 引用賦值
+main(path=None) 只在沒有傳入測試路徑時構建默認位置。創建父目錄是 app 的責任；文件缺失恢復也只屬於這個明確的場景。load_tasks 自身仍傳播缺失；校驗返回新數據，所以 rules 對結果的修改不汙染調用方。
 
-list2.append(4)
-print(list1)  # [1, 2, 3, 4] (也被修改了)
+完成標記之後先計算 summary，再保存，只有保存成功才打印成功計數。錯誤輸入會先失敗，文件寫入錯誤也不能被吞掉；原子性仍沒有被憑空補上。這裡的標題匹配操作不是通用 CRUD、用戶 ID 或權限系統。
 
-# 淺拷貝
-list3 = list1.copy()  # 或 list1[:]
-list3.append(5)
-print(list1)  # [1, 2, 3, 4] (不受影響)
+在下載參考項目的根目錄，運行下面三條命令：先進入它的父目錄，再明確選擇工程並運行外層入口，最後返回。`--project` 選擇工程而不把調用者工作目錄改成工程目錄；因此腳本路徑也寫成相對於父目錄的位置。輸出仍應為再次運行的結果，父目錄不得出現另一份 _output。獨立項目若改了目錄名，相應修改這兩處名字，不要改 sys.path。
 
-# 深拷貝 (對於嵌套對象)
-import copy
-nested1 = [[1, 2], [3, 4]]
-nested2 = copy.deepcopy(nested1)
-nested2[0][0] = 999
-print(nested1[0][0])  # 1 (不受影響)
+```bash
+cd ..
+uv run --project u10-local-project --locked python u10-local-project/run_tasks.py
+cd u10-local-project
 ```
-</PythonEditor>
 
-## 8. 總結
+</details>
 
+## 9. 參考測試：業務證據與文件證據分開
 
-理解並掌握這些差異，將幫助你更快地寫出健壯、無意外的 Python 代碼。當你遇到意料之外的行為時，不妨回過頭來看看這個列表，檢查是否踩中了其中的某個“陷阱”。
+<details>
+<summary>展開參考測試——先寫出自己的預期矩陣</summary>
+
+<Code language="python">{getProjectExample('tests/test_rules.py')}</Code>
+
+<Code language="python">{getProjectExample('tests/test_storage.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q
+uv run --locked python -m pytest --collect-only -q
+```
+
+參考完整套件是 **15 項**，不是加上 solutions 的 17 項。前者是現有需求，後者在獨立變式完成後明確選擇執行。測試將數據寫入臨時目錄，不接觸運行中的 _output/tasks.json；修改源碼或預期會影響證據，緩存不會替你保證結果。
+
+往返相等之外，還驗證讀回結果不共享修改、寫入不是追加第二份 JSON、保存前錯誤不截斷/不創建、壞輸入前後原字節相等。只斷言“出現異常”不足以證明舊數據未被提前破壞。
+
+main 的測試通過參數選擇測試路徑，無需 fixture/mocking。獨立進程與其他 cwd 的驗收仍需額外運行：同一測試進程的 main 調用不能單獨證明重啟後持久化。這兩類證據不能相互冒充。
+
+</details>
+
+## 10. 診斷一次壞數據，而不是刪除文件了事
+
+下載中的兩份壞輸入分別為：
+
+<Code language="text">{getProjectExample('fixtures/broken.json')}</Code>
+
+<Code language="json">{getProjectExample('fixtures/wrong-shape.json')}</Code>
+
+在項目副本中，先運行正常程序得到自己的輸出文件，保留其備份；再把壞輸入複製到這個副本的 _output/tasks.json。執行相同入口，觀察非零失敗，再用編輯器或已學過的 read_bytes 比較目標是否仍等於複製進去的壞字節。原始 fixtures 只作輸入，不被修改。
+
+第一份沒有合法 JSON，第二份能解析但根對象不符合業務數組要求。它們都不應觸發初始化。完成觀察後，有意識地恢復剛才備份的好數據，再運行；不能以“刪除壞文件後應用能啟動”聲稱已經處理損壞。恢復數據、修復程序與重新初始化是三種不同操作。
+
+同樣，不要把 PermissionError 恢復為空列表，不要為演示隨意放開系統目錄權限。未知錯誤應保留可診斷的失敗，而不是製造一個看似成功的新文件。
+
+## 11. 獨立需求變式：按預算選一份計劃
+
+不提供逐行步驟。增加一個純函數，輸入合法任務與普通非負 int 預算。按原順序只考慮未完成任務；如果當前任務放不下，跳過它但繼續看後面；恰好放下和零分鐘都允許。返回獨立的新任務記錄與已使用分鐘數，不修改輸入，不寫文件。
+
+這不是全局最優揹包算法，不允許為了“裝得更多”重排輸入。請先自行決定函數簽名，寫出能區分 break/continue、等號邊界、完成項、bool 預算與共享引用的測試，再實現。原應用的 15 項仍需保持通過。
+
+<details>
+<summary>變式參考——只在自己完成後核對</summary>
+
+<Code language="python">{getProjectExample('solutions/new_requirement.py')}</Code>
+
+<Code language="python">{getProjectExample('solutions/test_new_requirement.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_new_requirement.py
+```
+
+兩項參考測試包含多個相關邊界，只是起點；應按你的實現繼續補充錯誤輸入與選擇結果。關注 skip 後是否繼續、零是否被錯誤排除、修改結果是否汙染源數據。總分鐘數必須來自被選中的記錄，不能是原列表總和。
+
+</details>
+
+## 12. 畢業於這一階段，不等於已經能上線
+
+階段退出要求：能從需求解釋自己的模塊設計；空目錄建立代碼與環境；有意製造一個業務缺陷並讓測試抓住它；在新進程讀回；錯誤數據拒絕覆蓋；第二目錄恢復；獨立完成預算變式；明確陳述尚無併發、權限、事務和服務運行能力。
+
+給自己的 README 寫清命令的工作目錄、版本、首輪/重複輸出、刻意失敗、安全輸出目錄和恢復辦法。暫停記錄源碼版本/改動、最後測試命令與數量、當前數據是否損壞、備份位置、下一步要證明的行為。不要只記錄“今天學到第幾頁”。
+
+下一章 L11 才把類型註解加到已理解的函數與容器上，比較靜態檢查和運行時校驗。類型、模型、裝飾器和資源協議的基礎完成後，再進入 HTTP 與 FastAPI，不把工程綜合作業變成突然跨入服務端的捷徑。
+
+## 13. 資料與複用邊界
+
+2026-09-28 核對 [Python 臨時文件](https://docs.python.org/3.13/library/tempfile.html#tempfile.TemporaryDirectory)、[pathlib](https://docs.python.org/3.13/library/pathlib.html)、[JSON](https://docs.python.org/3.13/library/json.html)、[模塊與包](https://docs.python.org/3.13/tutorial/modules.html)、[pytest 斷言](https://docs.pytest.org/en/8.4.x/how-to/assert.html)和 [uv 同步](https://docs.astral.sh/uv/concepts/projects/sync/)。
+
+本章複用已解釋的機制，新增臨時目錄的安全使用，不偷用尚未教學的 fixture 或異步資源管理。庫能完成某個操作，不等於它替你承擔了數據恢復、輸入信任或上線責任。

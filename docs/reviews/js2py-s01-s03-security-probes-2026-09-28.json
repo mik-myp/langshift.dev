@@ -1,0 +1,52 @@
+{
+  "python": "3.13.15",
+  "probes": [
+    {
+      "name": "loopback_client_environment_proxy",
+      "proxy_receipts": [
+        {
+          "absolute_target": true,
+          "dummy_bearer_seen": true,
+          "dummy_password_seen": false
+        },
+        {
+          "absolute_target": true,
+          "dummy_bearer_seen": false,
+          "dummy_password_seen": true
+        }
+      ],
+      "intended_service_receipts": 0,
+      "confirmed": true
+    },
+    {
+      "name": "deferred_commit_failure_rolls_back_claim_and_task",
+      "failure_http": 409,
+      "failure_body": {
+        "detail": "Operation conflicts with stored data"
+      },
+      "after_failure": {
+        "tasks": 0,
+        "receipts": 0
+      },
+      "same_key_retry_http": 201,
+      "after_retry": {
+        "tasks": 1,
+        "receipts": 1
+      },
+      "passed": true
+    },
+    {
+      "name": "queued_receipt_replay_after_membership_removal",
+      "observed_distinct_waiter": true,
+      "queued_http": 404,
+      "subsequent_http": 404,
+      "receipt_disclosed": false,
+      "passed": true
+    }
+  ],
+  "owned_root": "/private/tmp/ls-sec-bf87mfb0",
+  "postgresql": "18.6 (Homebrew)",
+  "listen_addresses": "",
+  "credential_markers_absent_from_logs": true,
+  "owned_cluster_stopped_and_removed": true
+}

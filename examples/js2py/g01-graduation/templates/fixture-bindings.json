@@ -1,0 +1,6 @@
+{
+  "kind": "unfilled-student-mapping",
+  "student_revision": null,
+  "logical_to_actual_ids": {},
+  "note": "Map synthetic labels to your existing model without changing production data. No credentials."
+}

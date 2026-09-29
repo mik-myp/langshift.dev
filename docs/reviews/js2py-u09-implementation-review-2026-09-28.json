@@ -1,0 +1,405 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "u09-testing actual complete English lesson and all download files; not all remaining chapters, not production certification or measured learner outcomes.",
+  "metadata": {
+    "started_at_utc": "2026-09-28T03:04:50.284522+00:00",
+    "elapsed_seconds": 1.418,
+    "http_status": 200,
+    "endpoint": "https://api.typesafe.ai/v1/systemone",
+    "requested_model": "jev-latest",
+    "returned_model": "jev-1.13.0",
+    "questions": 7,
+    "request_sha256": "27b26908092fa961a6971bf486bb4c443579cfed7e386df5cd76b1dd13545eab",
+    "usage": {
+      "input_tokens": 14125,
+      "output_tokens": 341
+    },
+    "credential_persisted": false
+  },
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "reader": "Experienced enterprise frontend engineer, fluent JS async/await and basic TypeScript, originally no Python/backend/database/operations practice. Slow, interrupted learning. No subagents permitted.",
+      "chapter": "u09-testing",
+      "prior_and_current_contracts": [
+        {
+          "id": "L00",
+          "title": "认识 Python 与第一次运行",
+          "prerequisites": [],
+          "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+          "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+          "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+          "status": "implemented"
+        },
+        {
+          "id": "L01",
+          "title": "名称、值与基本运算",
+          "prerequisites": [
+            "L00"
+          ],
+          "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+          "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+          "boundary": "不引入复杂容器、作用域或类型体操",
+          "status": "implemented"
+        },
+        {
+          "id": "L02",
+          "title": "容器、引用与修改",
+          "prerequisites": [
+            "L01"
+          ],
+          "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+          "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+          "boundary": "不依赖循环或自定义函数完成首次容器实验",
+          "status": "implemented"
+        },
+        {
+          "id": "L03",
+          "title": "条件、循环与遍历",
+          "prerequisites": [
+            "L02"
+          ],
+          "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+          "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+          "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+          "status": "implemented"
+        },
+        {
+          "id": "L04",
+          "title": "函数、参数与作用域",
+          "prerequisites": [
+            "L03"
+          ],
+          "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+          "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+          "boundary": "不以装饰器或类封装作为练习要求",
+          "status": "implemented"
+        },
+        {
+          "id": "L05",
+          "title": "异常与调试",
+          "prerequisites": [
+            "L04"
+          ],
+          "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+          "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+          "boundary": "不把assert当作不可信输入的生产校验",
+          "status": "implemented"
+        },
+        {
+          "id": "L06",
+          "title": "模块与标准库",
+          "prerequisites": [
+            "L05"
+          ],
+          "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+          "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+          "boundary": "不先要求发布包、动态导入或框架架构",
+          "status": "implemented"
+        },
+        {
+          "id": "L07",
+          "title": "文件、JSON 与资源使用",
+          "prerequisites": [
+            "L06"
+          ],
+          "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+          "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+          "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+          "status": "implemented"
+        },
+        {
+          "id": "L08",
+          "title": "环境与依赖管理",
+          "prerequisites": [
+            "L06",
+            "L07"
+          ],
+          "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+          "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+          "boundary": "不在入门章考核；不同时比较所有包管理器",
+          "status": "planned"
+        },
+        {
+          "id": "L09",
+          "title": "基础自动化测试",
+          "prerequisites": [
+            "L04",
+            "L05",
+            "L06",
+            "L08"
+          ],
+          "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+          "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+          "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+          "status": "planned"
+        },
+        {
+          "id": "L10",
+          "title": "第一个独立可复现项目",
+          "prerequisites": [
+            "L07",
+            "L08",
+            "L09"
+          ],
+          "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+          "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+          "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+          "status": "planned"
+        },
+        {
+          "id": "L11",
+          "title": "基础类型注解",
+          "prerequisites": [
+            "L02",
+            "L04",
+            "L06",
+            "L10"
+          ],
+          "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+          "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+          "boundary": "不要求复杂泛型、协议或零Any指标",
+          "status": "planned"
+        }
+      ],
+      "actual_english_lesson": "---\ntitle: Basic Automated Testing\ndescription: Move from ordinary assertions to pytest discovery, execution and diagnosis; independently test normal, boundary and error cases without premature decorators or fixtures.\n---\n\nimport { getTestingExample } from '@/lib/js2py-examples'\n\n## 1. Turn “looks correct” into repeatable evidence\n\nYou have already observed real program output. After changing a branch, however, remembering to retry every input is unreliable. Automated tests do not invent requirements for you. They make **your stated expectations** executable, repeatable and diagnosable.\n\nOne attractive output cannot prove correct behavior for empty input, zero, wrong types or a repeated call. Conversely, a green run proves only its executed assertions. Undiscovered tests, an uncalled function or a wrong expected value can make green misleading.\n\n| Contract | Scope |\n| --- | --- |\n| Prerequisites | Functions, exceptions, modules, L07's with usage and L08 environments |\n| New capabilities | Plain test functions, assertions, discovery/collection, expected errors, input isolation and diagnosis |\n| Independent acceptance | Test normal, empty, boundary, invalid and repeated inputs; demonstrate that deliberate defects are detected |\n| Not required yet | Decorators, parametrization, fixture arguments, mocks, async or database testing |\n\nDownload [the complete L09 lab](/learning-assets/js2py/u09-testing.zip) and work from its extracted u09-testing directory. Verified on 2026-09-28 with CPython 3.13.15, uv 0.12.13 and pytest 8.4.2, not a permanent latest-version claim.\n\n## 2. A test starts as ordinary Python\n\nThe business contract is deliberately small: a list of dictionaries with exactly minutes and done; ordinary nonnegative int minutes and bool done. Sum unfinished items only. Empty input yields zero and input is not mutated. Read the function, then a check without a testing framework:\n\n<Code language=\"python\">{getTestingExample('study.py')}</Code>\n\n<Code language=\"python\">{getTestingExample('first_check.py')}</Code>\n\n```bash\nuv sync --locked\nuv run --locked python first_check.py\n```\n\n```text\nObserved: 20\nChecked\n```\n\nPrint makes a result visible; assert turns “must equal 20” into an executable condition. A true condition continues; a false one raises AssertionError. The success message itself performs no verification.\n\nL06 still applies: the checking script calls the function; merely importing the business module does not execute the check. Each test must supply its own data rather than rely on variables left in another terminal process.\n\n## 3. Observe a real failure first\n\n<Code language=\"python\">{getTestingExample('wrong_check.py')}</Code>\n\n```bash\nuv run --locked python wrong_check.py\n```\n\nExpect AssertionError, a nonzero exit and no Not reached message. The function calculated 20; the deliberately incorrect expectation demands 99. Repair the expectation rather than forcing correct business code to return 99. Requirements, not a preference for green, determine which side is wrong.\n\nAssertions are not production input validation. Optimized ordinary Python can remove asserts, and assertion semantics describe program assumptions rather than a user-input error contract. The business function keeps explicit if/raise ValueError validation. Do not use python -O for acceptance or hide required business side effects inside assertions.\n\n## 4. pytest discovers and reports; it does not design expectations\n\nManually calling every check becomes difficult to maintain. Pytest discovers conventionally named tests, executes them, reports failures and exposes exit statuses for later automation. It still cannot decide whether completed work should count toward your total; the contract must say so.\n\n<Code language=\"toml\">{getTestingExample('pyproject.toml')}</Code>\n\n```bash\nuv sync --locked\nuv run --locked python -m pytest --version\n```\n\nThe new dependency-groups dev table contains development dependencies. Pytest is not a runtime dependency of the business function, so project.dependencies stays empty. uv installs dev by default; a deliberately no-dev environment lacking pytest is not a defect in the business library.\n\nThe testpaths setting makes tests the default discovery directory, excluding intentional errors/exercises. Python -m pytest uses the selected project's interpreter and installed module; starting at the project root also permits ordinary local imports. Do not compensate with a globally installed pytest, sys.path patches or accidental editor working directories. The version command should report pytest 8.4.2.\n\n## 5. A complete basic test file\n\n<Code language=\"python\">{getTestingExample('tests/test_study.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest --collect-only -q\nuv run --locked python -m pytest -q tests/test_study.py::test_empty_input_is_zero\n```\n\nThe test_study.py filename and test_ function names satisfy discovery conventions. Ordinary def defines each function; do not manually call them at file end. Pytest invokes them after collection. Expect **6 passed** for the full command and **1 passed** for the selected empty case; durations, absolute paths and terminal decoration vary.\n\n-q reduces output, not requirements. --collect-only lists tests without executing their business assertions: six collected is not six passed. The file::function selector helps local diagnosis; rerun the whole suite after a fix.\n\nRead each case as arrange input, act, assert. The mixed completed/unfinished case distinguishes if done from if not done. An empty list alone cannot exercise that branch. Choose data that gives a plausible defect an opportunity to become visible.\n\n## 6. An expected exception can mean a passing test\n\nThe fifth case's with pytest.raises(ValueError) as caught requires that block to raise ValueError or a subclass. No exception fails the test; another exception type is not silently accepted. After the block, caught.value is the exception object, allowing a separate message assertion.\n\nThis uses a library-provided context behavior with L07 syntax. It is not a file resource and does not require implementing a custom context protocol. Put the specific expected-failing call inside, not unrelated operations whose ValueError could impersonate the intended failure.\n\nPytest.raises(Exception) is usually too broad: an accidental programming error might satisfy it. Assert exact message text only when it is a stable business contract. Interpreter diagnostics can change between versions. The minutes message is ours to define; we do not match an entire traceback. Regular-expression matching is not a prerequisite here.\n\n## 7. Why construct input inside each test?\n\nA mutable module-level list can be changed by one case and inherited by another, creating order dependence. A case that passes alone but fails in the suite may reveal pollution rather than randomness in pytest.\n\nEach case here builds its own small input. None assumes a previous test already created tasks. The repeated-call case checks results twice and verifies original data, distinguishing calculation from hidden accumulation or mutation.\n\nSeveral assertions can explain one coherent behavior. Avoid packing unrelated cases into one giant function: after its first failed assertion, later checks do not execute. Useful test names identify violated contracts rather than satisfying an arbitrary line-count rule. Networking, real user files and wall-clock time are not inputs to this function and should not become hidden dependencies of its unit tests.\n\n## 8. Green can still carry no evidence\n\nThis is an **intentionally bad test design**:\n\n<Code language=\"python\">{getTestingExample('errors/test_false_green.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q errors/test_false_green.py\n```\n\nIt reports one pass but merely checks the truthiness of a function object; the business function is never called. A nonsensical return value might leave this test green. That is not a framework bug: the assertion has no meaningful connection to the requirement.\n\nIn a disposable copy, reverse the correct not-done branch while leaving tests unchanged. The mixed-input case must fail; restore the implementation and rerun. Remove minute type validation and the bool-rejection test must fail. Do not leave mutations in canonical source or alter expectations to certify the defect.\n\nThis verifies sensitivity to particular faults, not universal fault detection. Coverage measures can reveal execution gaps but cannot supply correct business expectations either.\n\n## 9. Failure, collection error and no tests are different\n\n<Code language=\"python\">{getTestingExample('errors/test_wrong_expectation.py')}</Code>\n\n<Code language=\"python\">{getTestingExample('errors/not_discovered/check_totals.py')}</Code>\n\n<Code language=\"python\">{getTestingExample('errors/test_import_failure.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q errors/test_wrong_expectation.py\nuv run --locked python -m pytest -q errors/not_discovered\nuv run --locked python -m pytest -q errors/test_import_failure.py\n```\n\nAll three commands intentionally exit nonzero; inspect each separately. The first executes and fails an assertion, exit 1. The second discovers no matching test filename, exit 5. The third fails importing during collection, observed exit 2 in this baseline.\n\nThe import error occurs before a test function runs; changing an expected number cannot fix it. The second file contains test_empty, but its filename still fails directory discovery conventions. In a copy, rename it test_totals.py, check collection and then execute.\n\nStart diagnosis at the failed case and assertion, compare actual/expected values, revisit input and requirements, then inspect implementation. Red can mean a faulty test. No collected tests never means all required behavior passed. Automation must not turn every nonzero exit into a green continuation.\n\n## 10. Three levels of practice\n\n### A. Explain observations\n\nBefore running, explain why six collected tests are not six passed tests, why AssertionError and a missing module need different diagnosis, and why bool is rejected by the ordinary-int contract.\n\n<details>\n<summary>Explanation checkpoint — mechanisms rather than memorized flags</summary>\n\nCollection identifies functions; execution performs assertions. A missing module can prevent collection or startup rather than produce a wrong computed value. Bool has an inheritance relationship with int, but this contract explicitly requires an ordinary integer through an exact type check. Business validity and language executability are different layers.\n\n</details>\n\n### B. Use red to guide a repair\n\n<Code language=\"python\">{getTestingExample('exercises/broken_study.py')}</Code>\n\n<Code language=\"python\">{getTestingExample('exercises/test_broken_study.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q exercises/test_broken_study.py\n```\n\nBoth cases should fail. Repair the branch without changing expectations, then add failing tests for missing validation and complete the implementation. Retain red-to-green evidence rather than replacing the whole function and observing only the final green.\n\n<details>\n<summary>Repair checkpoint — a minimal fix is not the whole contract</summary>\n\nChanging the condition to not done repairs these two observations but leaves root, field, type and nonnegative validation missing. Add invalid-input tests, then restore the responsibilities illustrated by study.py. Two passes do not certify the entire contract. Do not coerce bool, strings or missing fields into successful business data.\n\n</details>\n\n### C. Implement remaining budget independently\n\nStart a separate empty project with pytest as a development dependency, budget.py and tests/test_budget.py. Remaining_budget(budget, spent) requires an ordinary nonnegative int budget and an ordinary list of ordinary nonnegative int spending items. Subtract total spending, clamp a negative remainder to zero and preserve input.\n\nWrite implementation and tests yourself. Cover 20/[5,8]→7, empty, exact exhaustion, overspending, zero, invalid budget, invalid root/items, repeated calls and unchanged input. Do not call the reference to manufacture expected values. Temporarily mutate the result to always zero; normal/empty-spending cases must detect it. Restore and rerun the whole suite.\n\n<details>\n<summary>Independent reference — implement behavior and expectations first</summary>\n\n<Code language=\"python\">{getTestingExample('solutions/budget/budget.py')}</Code>\n\n<Code language=\"python\">{getTestingExample('solutions/budget/tests/test_budget.py')}</Code>\n\n```bash\ncd solutions/budget\nuv sync --locked\nuv run --locked python -m pytest -q\ncd ../..\n```\n\nThe reference has nine plain-function tests without parametrization, fixtures, custom classes or mocks. Explain why the cases detect a defect rather than merely reproducing their names.\n\n</details>\n\n## 11. Exit gate, resume record and next step\n\nYou should independently write tests, distinguish validation from assertions, explain collection/execution/exit statuses, diagnose a red case, detect a deliberate mutation and recover the testing environment from declarations.\n\nRecord project directory, last full-suite command, collected/passed counts, any outstanding deliberate mutation, and the last failed case/cause. On return, check whether temporary defects were restored and run the full suite. An earlier green screenshot is not evidence about the current source.\n\nL10 next combines modules, files, environments and these ordinary tests into the first independently reproducible application. It is not yet Web development or proof of backend reliability.\n\n## 12. Sources and scope\n\nChecked on 2026-09-28: [pytest getting started](https://docs.pytest.org/en/8.4.x/getting-started.html), [assertions and expected errors](https://docs.pytest.org/en/8.4.x/how-to/assert.html), [discovery and project practices](https://docs.pytest.org/en/8.4.x/explanation/goodpractices.html), [import behavior](https://docs.pytest.org/en/8.4.x/explanation/pythonpath.html), [exit codes](https://docs.pytest.org/en/8.4.x/reference/exit-codes.html) and [uv dependency groups](https://docs.astral.sh/uv/concepts/projects/dependencies/).\n\nPlain functions are enough to begin building evidence. Decorators, fixtures and external fault substitutes will be explained when their concrete needs arise, not introduced now as a catalogue of testing tools.\n",
+      "actual_download_files": {
+        "pyproject.toml": "[project]\nname = \"js2py-u09-testing\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = []\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\"]\n\n[tool.uv]\npackage = false\n\n[tool.pytest.ini_options]\ntestpaths = [\"tests\"]\n",
+        ".python-version": "3.13.15\n",
+        "study.py": "def pending_minutes(tasks):\n    if type(tasks) is not list:\n        raise ValueError(\"tasks must be a list\")\n    total = 0\n    for task in tasks:\n        if type(task) is not dict or set(task) != {\"minutes\", \"done\"}:\n            raise ValueError(\"each task needs exactly minutes and done\")\n        minutes = task[\"minutes\"]\n        if type(minutes) is not int or minutes < 0:\n            raise ValueError(\"minutes must be a nonnegative int\")\n        if type(task[\"done\"]) is not bool:\n            raise ValueError(\"done must be bool\")\n        if not task[\"done\"]:\n            total = total + minutes\n    return total\n",
+        "first_check.py": "from study import pending_minutes\n\nresult = pending_minutes([{\"minutes\": 20, \"done\": False}])\nprint(\"Observed:\", result)\nassert result == 20\nprint(\"Checked\")\n",
+        "wrong_check.py": "from study import pending_minutes\n\nresult = pending_minutes([{\"minutes\": 20, \"done\": False}])\nassert result == 99\nprint(\"Not reached\")\n",
+        "errors/test_wrong_expectation.py": "from study import pending_minutes\n\n\ndef test_wrong_expectation():\n    result = pending_minutes([{\"minutes\": 20, \"done\": False}])\n    assert result == 99\n",
+        "errors/test_false_green.py": "from study import pending_minutes\n\n\ndef test_does_not_call_the_business_function():\n    assert pending_minutes\n",
+        "errors/not_discovered/check_totals.py": "from study import pending_minutes\n\n\ndef test_empty():\n    assert pending_minutes([]) == 0\n",
+        "errors/test_import_failure.py": "from module_that_does_not_exist_here import pending_minutes\n\n\ndef test_empty():\n    assert pending_minutes([]) == 0\n",
+        "exercises/broken_study.py": "def pending_minutes(tasks):\n    total = 0\n    for task in tasks:\n        if task[\"done\"]:\n            total = total + task[\"minutes\"]\n    return total\n",
+        "exercises/test_broken_study.py": "from exercises.broken_study import pending_minutes\n\n\ndef test_completed_task_is_excluded():\n    assert pending_minutes([{\"minutes\": 20, \"done\": True}]) == 0\n\n\ndef test_unfinished_task_is_included():\n    assert pending_minutes([{\"minutes\": 35, \"done\": False}]) == 35\n",
+        "exercises/__init__.py": "\"\"\"Deliberately broken exercise, excluded from the normal test path.\"\"\"\n",
+        "solutions/budget/pyproject.toml": "[project]\nname = \"js2py-u09-budget\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = []\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\"]\n\n[tool.uv]\npackage = false\n\n[tool.pytest.ini_options]\ntestpaths = [\"tests\"]\n",
+        "solutions/budget/.python-version": "3.13.15\n",
+        "solutions/budget/budget.py": "def remaining_budget(budget, spent):\n    if type(budget) is not int or budget < 0:\n        raise ValueError(\"budget must be a nonnegative int\")\n    if type(spent) is not list:\n        raise ValueError(\"spent must be a list\")\n    total = 0\n    for minutes in spent:\n        if type(minutes) is not int or minutes < 0:\n            raise ValueError(\"spent items must be nonnegative ints\")\n        total = total + minutes\n    remaining = budget - total\n    if remaining < 0:\n        return 0\n    return remaining\n",
+        "tests/test_study.py": "import pytest\nfrom study import pending_minutes\n\n\ndef test_only_unfinished_minutes_count():\n    tasks = [{\"minutes\": 20, \"done\": True}, {\"minutes\": 35, \"done\": False}]\n    assert pending_minutes(tasks) == 35\n\n\ndef test_empty_input_is_zero():\n    assert pending_minutes([]) == 0\n\n\ndef test_zero_is_a_valid_estimate():\n    assert pending_minutes([{\"minutes\": 0, \"done\": False}]) == 0\n\n\ndef test_input_and_repeated_calls_are_unchanged():\n    tasks = [{\"minutes\": 20, \"done\": False}]\n    assert pending_minutes(tasks) == 20\n    assert pending_minutes(tasks) == 20\n    assert tasks == [{\"minutes\": 20, \"done\": False}]\n\n\ndef test_bool_is_not_an_ordinary_minute_count():\n    with pytest.raises(ValueError) as caught:\n        pending_minutes([{\"minutes\": True, \"done\": False}])\n    assert str(caught.value) == \"minutes must be a nonnegative int\"\n\n\ndef test_numeric_text_is_not_accepted():\n    with pytest.raises(ValueError):\n        pending_minutes([{\"minutes\": \"20\", \"done\": False}])\n",
+        "solutions/budget/tests/test_budget.py": "import pytest\nfrom budget import remaining_budget\n\n\ndef test_normal_remaining():\n    assert remaining_budget(20, [5, 8]) == 7\n\n\ndef test_empty_spending():\n    assert remaining_budget(20, []) == 20\n\n\ndef test_exact_boundary():\n    assert remaining_budget(20, [5, 15]) == 0\n\n\ndef test_overspending_is_clamped():\n    assert remaining_budget(20, [30]) == 0\n\n\ndef test_zero_budget_and_zero_spending():\n    assert remaining_budget(0, [0]) == 0\n\n\ndef test_invalid_budget():\n    with pytest.raises(ValueError):\n        remaining_budget(True, [])\n    with pytest.raises(ValueError):\n        remaining_budget(-1, [])\n\n\ndef test_wrong_root():\n    with pytest.raises(ValueError):\n        remaining_budget(20, (5,))\n\n\ndef test_invalid_spending_items():\n    with pytest.raises(ValueError):\n        remaining_budget(20, [True])\n    with pytest.raises(ValueError):\n        remaining_budget(20, [\"5\"])\n    with pytest.raises(ValueError):\n        remaining_budget(20, [1.5])\n    with pytest.raises(ValueError):\n        remaining_budget(20, [-1])\n\n\ndef test_input_and_repeat_are_independent():\n    spent = [5, 8]\n    assert remaining_budget(20, spent) == 7\n    assert remaining_budget(20, spent) == 7\n    assert spent == [5, 8]\n",
+        "README.md": "# L09 — Basic automated testing / 基础自动化测试 / 基礎自動化測試\n\nVerified 2026-09-28: CPython 3.13.15, uv 0.12.13, pytest 8.4.2.\nExtract the full directory and work from `u09-testing`:\n\n```sh\nuv sync --locked\nuv run --locked python first_check.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest --collect-only -q\n```\n\nThe normal suite collects SIX tests in `tests/`; all six pass.\nThe printed-check script says `Observed: 20` and `Checked`.\nDurations and absolute paths vary. Use Python without -O.\n\n在实验根目录执行。pytest 是 dev 依赖，不是业务运行依赖。默认发现只进入 tests；\nerrors、exercises 是明确指定才运行的教学失败。不要把未收集到测试当成通过。\n在實驗根目錄執行。pytest 是 dev 依賴，不是業務執行依賴。預設發現只進入 tests；\nerrors、exercises 是明確指定才執行的教學失敗。不要把未收集到測試當成通過。\n\n## Deliberate outcomes / 刻意结果 / 刻意結果\n\n- `uv run --locked python wrong_check.py`: AssertionError, nonzero exit.\n- `uv run --locked python -m pytest -q errors/test_wrong_expectation.py`: one failure, exit 1.\n- `uv run --locked python -m pytest -q errors/test_false_green.py`: one pass, but no business call; deliberately worthless evidence.\n- `uv run --locked python -m pytest -q errors/not_discovered`: no tests, exit 5.\n- `uv run --locked python -m pytest -q errors/test_import_failure.py`: collection error, exit 2.\n- `uv run --locked python -m pytest -q exercises/test_broken_study.py`: two failing cases, exit 1.\n\nRepair the broken function in a DISPOSABLE copy; rerun the unchanged tests.\nThen add tests for missing/wrong fields and illegal input; two greens alone do not\nprove full contract validation. Do not alter expectations to agree with a bug.\n\n## Independent answer / 独立答案 / 獨立答案\n\nIn `solutions/budget`, synchronize and run `uv run --locked python -m pytest -q`.\nNine plain-function tests cover normal, empty, exact, over-budget, zero, invalid,\nand repeated calls with input preservation. No decorator, fixture parameter or\ncustom class is needed. Rebuild outside the download from requirements first.\n\n临时缓存与 .venv 不进 ZIP，测试不能访问真实用户数据。源码和锁文件是恢复输入。\n暫存快取與 .venv 不進 ZIP，測試不能存取真實使用者資料。原始碼與鎖定檔是恢復輸入。\n",
+        "uv.lock": "version = 1\nrevision = 3\nrequires-python = \"==3.13.*\"\n\n[[package]]\nname = \"colorama\"\nversion = \"0.4.6\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz\", hash = \"sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44\", size = 27697, upload-time = \"2022-10-25T02:36:22.414Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl\", hash = \"sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6\", size = 25335, upload-time = \"2022-10-25T02:36:20.889Z\" },\n]\n\n[[package]]\nname = \"iniconfig\"\nversion = \"2.3.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz\", hash = \"sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730\", size = 20503, upload-time = \"2025-10-18T21:55:43.219Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl\", hash = \"sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12\", size = 7484, upload-time = \"2025-10-18T21:55:41.639Z\" },\n]\n\n[[package]]\nname = \"js2py-u09-testing\"\nversion = \"0.1.0\"\nsource = { virtual = \".\" }\n\n[package.dev-dependencies]\ndev = [\n    { name = \"pytest\" },\n]\n\n[package.metadata]\n\n[package.metadata.requires-dev]\ndev = [{ name = \"pytest\", specifier = \"==8.4.2\" }]\n\n[[package]]\nname = \"packaging\"\nversion = \"26.3\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/7d/fa/3944b40b07da9ce895c0e6303a5ab7d53da063554f534556b134a54d6093/packaging-26.3.tar.gz\", hash = \"sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79\", size = 313412, upload-time = \"2026-08-04T18:15:28.737Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl\", hash = \"sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c\", size = 129956, upload-time = \"2026-08-04T18:15:27.159Z\" },\n]\n\n[[package]]\nname = \"pluggy\"\nversion = \"1.6.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz\", hash = \"sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3\", size = 69412, upload-time = \"2025-05-15T12:30:07.975Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl\", hash = \"sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746\", size = 20538, upload-time = \"2025-05-15T12:30:06.134Z\" },\n]\n\n[[package]]\nname = \"pygments\"\nversion = \"2.21.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/49/2e/ced460408999b33da6b31b0021b0f37d329e202d4169aeb164493778f25b/pygments-2.21.0.tar.gz\", hash = \"sha256:610ca751c9bc2492b38eb9a38a7fbc93edbbb2d7182edaf34e66ae493dee5c8c\", size = 5005329, upload-time = \"2026-08-17T08:02:48.824Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl\", hash = \"sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9\", size = 1250147, upload-time = \"2026-08-17T08:02:44.912Z\" },\n]\n\n[[package]]\nname = \"pytest\"\nversion = \"8.4.2\"\nsource = { registry = \"https://pypi.org/simple\" }\ndependencies = [\n    { name = \"colorama\", marker = \"sys_platform == 'win32'\" },\n    { name = \"iniconfig\" },\n    { name = \"packaging\" },\n    { name = \"pluggy\" },\n    { name = \"pygments\" },\n]\nsdist = { url = \"https://files.pythonhosted.org/packages/a3/5c/00a0e072241553e1a7496d638deababa67c5058571567b92a7eaa258397c/pytest-8.4.2.tar.gz\", hash = \"sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01\", size = 1519618, upload-time = \"2025-09-04T14:34:22.711Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl\", hash = \"sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79\", size = 365750, upload-time = \"2025-09-04T14:34:20.226Z\" },\n]\n",
+        "solutions/budget/uv.lock": "version = 1\nrevision = 3\nrequires-python = \"==3.13.*\"\n\n[[package]]\nname = \"colorama\"\nversion = \"0.4.6\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz\", hash = \"sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44\", size = 27697, upload-time = \"2022-10-25T02:36:22.414Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl\", hash = \"sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6\", size = 25335, upload-time = \"2022-10-25T02:36:20.889Z\" },\n]\n\n[[package]]\nname = \"iniconfig\"\nversion = \"2.3.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz\", hash = \"sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730\", size = 20503, upload-time = \"2025-10-18T21:55:43.219Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl\", hash = \"sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12\", size = 7484, upload-time = \"2025-10-18T21:55:41.639Z\" },\n]\n\n[[package]]\nname = \"js2py-u09-budget\"\nversion = \"0.1.0\"\nsource = { virtual = \".\" }\n\n[package.dev-dependencies]\ndev = [\n    { name = \"pytest\" },\n]\n\n[package.metadata]\n\n[package.metadata.requires-dev]\ndev = [{ name = \"pytest\", specifier = \"==8.4.2\" }]\n\n[[package]]\nname = \"packaging\"\nversion = \"26.3\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/7d/fa/3944b40b07da9ce895c0e6303a5ab7d53da063554f534556b134a54d6093/packaging-26.3.tar.gz\", hash = \"sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79\", size = 313412, upload-time = \"2026-08-04T18:15:28.737Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl\", hash = \"sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c\", size = 129956, upload-time = \"2026-08-04T18:15:27.159Z\" },\n]\n\n[[package]]\nname = \"pluggy\"\nversion = \"1.6.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz\", hash = \"sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3\", size = 69412, upload-time = \"2025-05-15T12:30:07.975Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl\", hash = \"sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746\", size = 20538, upload-time = \"2025-05-15T12:30:06.134Z\" },\n]\n\n[[package]]\nname = \"pygments\"\nversion = \"2.21.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/49/2e/ced460408999b33da6b31b0021b0f37d329e202d4169aeb164493778f25b/pygments-2.21.0.tar.gz\", hash = \"sha256:610ca751c9bc2492b38eb9a38a7fbc93edbbb2d7182edaf34e66ae493dee5c8c\", size = 5005329, upload-time = \"2026-08-17T08:02:48.824Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl\", hash = \"sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9\", size = 1250147, upload-time = \"2026-08-17T08:02:44.912Z\" },\n]\n\n[[package]]\nname = \"pytest\"\nversion = \"8.4.2\"\nsource = { registry = \"https://pypi.org/simple\" }\ndependencies = [\n    { name = \"colorama\", marker = \"sys_platform == 'win32'\" },\n    { name = \"iniconfig\" },\n    { name = \"packaging\" },\n    { name = \"pluggy\" },\n    { name = \"pygments\" },\n]\nsdist = { url = \"https://files.pythonhosted.org/packages/a3/5c/00a0e072241553e1a7496d638deababa67c5058571567b92a7eaa258397c/pytest-8.4.2.tar.gz\", hash = \"sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01\", size = 1519618, upload-time = \"2025-09-04T14:34:22.711Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl\", hash = \"sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79\", size = 365750, upload-time = \"2025-09-04T14:34:20.226Z\" },\n]\n"
+      },
+      "validation_status": "Actual CPython 3.13.15 and uv 0.12.13 integrations passed. L08 observed exact/inexact sync, extra removal, stale lock, missing declaration/shadow repair, cold-cache failure and two reconstructions. L09 observed 6+9 tests, exits 1/2/5, deliberate false green, repairs and three mutation detections. L10 observed 15+2 tests, real fresh-process first/repeated runs, changed/empty/corrupt input preservation, other cwd and clean reconstruction. Three-locale sources and fences match. Full cumulative site/build/browser checks remain pending; they must pass before completion. Maintainer tools are not learner prerequisites.",
+      "primary_reference_observations": "Official uv docs distinguish run inexact from sync exact defaults, locked compatibility from frozen. Python distinguishes interpreter/prefix and actual module origin from distribution metadata. Pytest distinguishes collection/execution, exit categories, and raises subclass behavior. TemporaryDirectory is library-provided with usage, not an implementation of context protocols. Review is semantic advice, not measured learner effectiveness or production readiness."
+    },
+    "questions": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "instructions": "Does required learner work use an essential capability neither previously taught nor explained before required use here? Exclude maintainer verification."
+      },
+      "depth": {
+        "type": "choice",
+        "instructions": "Assess actual mechanisms, motivation, diagnosis and independent work in the full material, not length.",
+        "criteria": {
+          "SUBSTANTIVE": "Concrete textbook explanations and transferable practice.",
+          "PARTIAL": "Important mechanisms abbreviated.",
+          "API_CATALOGUE": "Mainly names/syntax.",
+          "UNCERTAIN": "Insufficient evidence."
+        }
+      },
+      "technical_mechanisms": {
+        "type": "choice",
+        "instructions": "Check actual technical claims and supplied files: interpreter/project/lock/sync for L08; discovery/assertion/errors/isolation for L09; file/module/environment/test responsibilities and bounded persistence for L10.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Mechanism taught before required use, accurate and explicitly limited.",
+          "MATERIAL_ERROR": "Substantive false or unsafe claim.",
+          "NECESSARY_GAP": "Required explanation or evidence missing.",
+          "UNCERTAIN": "Evidence cannot settle the issue."
+        }
+      },
+      "failure_policy": {
+        "type": "choice",
+        "instructions": "Are deliberate failures identified, diagnosed by layer and repaired without hiding failures, with owned bounded side effects? Do not mistake explicitly intentional false-green tests/exercise defects for recommended implementations.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Mechanism taught before required use, accurate and explicitly limited.",
+          "MATERIAL_ERROR": "Substantive false or unsafe claim.",
+          "NECESSARY_GAP": "Required explanation or evidence missing.",
+          "UNCERTAIN": "Evidence cannot settle the issue."
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "instructions": "Do independent requirements, implementations, outputs, exact types, mutations/reconstruction and commands agree?",
+        "criteria": {
+          "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+          "CONTRADICTORY": "Material source/output/requirement conflict.",
+          "UNDERSPECIFIED": "Essential policy unclear.",
+          "UNCERTAIN": "Insufficient evidence."
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "instructions": "Does acceptance require explanation, diagnosis, changed input, reconstruction or exposing defects rather than copying a fixed success output?"
+      },
+      "next_action": {
+        "type": "choice",
+        "instructions": "Assuming remaining cumulative runtime/site/build/browser checks pass, choose the next action for THIS chapter, not all 31 remaining chapters.",
+        "criteria": {
+          "PROCEED": "Complete enough to advance in prerequisite order.",
+          "REVISE": "Material defect needs repair first.",
+          "TARGETED_REVIEW": "Uncertainty needs focused inspection first."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "noul": 0.33
+      },
+      "depth": {
+        "type": "choice",
+        "choice": "SUBSTANTIVE",
+        "confidence": 1.0,
+        "probabilities": {
+          "PARTIAL": 0.0,
+          "SUBSTANTIVE": 1.0,
+          "UNCERTAIN": 0.0,
+          "API_CATALOGUE": 0.0
+        }
+      },
+      "technical_mechanisms": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 0.74,
+        "probabilities": {
+          "ACCURATE_AND_BOUNDED": 0.81,
+          "UNCERTAIN": 0.02,
+          "MATERIAL_ERROR": 0.03,
+          "NECESSARY_GAP": 0.14
+        }
+      },
+      "failure_policy": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 1.0,
+        "probabilities": {
+          "ACCURATE_AND_BOUNDED": 1.0,
+          "UNCERTAIN": 0.0,
+          "NECESSARY_GAP": 0.0,
+          "MATERIAL_ERROR": 0.0
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "choice": "COHERENT_AND_TESTABLE",
+        "confidence": 0.96,
+        "probabilities": {
+          "CONTRADICTORY": 0.02,
+          "UNCERTAIN": 0.0,
+          "COHERENT_AND_TESTABLE": 0.98,
+          "UNDERSPECIFIED": 0.0
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "next_action": {
+        "type": "choice",
+        "choice": "PROCEED",
+        "confidence": 0.86,
+        "probabilities": {
+          "REVISE": 0.03,
+          "PROCEED": 0.91,
+          "TARGETED_REVIEW": 0.06
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 14125,
+      "output_tokens": 341
+    }
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev. No subagents started. Not gpt-6-astra.",
+    "decision": "Conditional PROCEED adopted only after actual integration, full regression, source/ZIP parity, build and three-locale browser checks. Nonzero unfavorable probabilities were retained and audited locally, not resampled for confidence.",
+    "limits": "Noul has no additional confidence; Choice confidence is distribution concentration, not correctness or teaching-effectiveness probability. Translation and runtime verification are separate from the English semantic review.",
+    "timing": "Original submission honestly recorded pending site/browser checks; it has not been rewritten to pretend later checks had already happened.",
+    "source_scope": "Reviewed snapshots must match final bytes. Other hashes bind deterministically tested artifacts, not extra content read by the semantic service. Earlier L07 review is historical after its transition paragraph update."
+  },
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-09-advanced-topics.mdx",
+    "examples/js2py/u09-testing/pyproject.toml",
+    "examples/js2py/u09-testing/.python-version",
+    "examples/js2py/u09-testing/study.py",
+    "examples/js2py/u09-testing/first_check.py",
+    "examples/js2py/u09-testing/wrong_check.py",
+    "examples/js2py/u09-testing/errors/test_wrong_expectation.py",
+    "examples/js2py/u09-testing/errors/test_false_green.py",
+    "examples/js2py/u09-testing/errors/not_discovered/check_totals.py",
+    "examples/js2py/u09-testing/errors/test_import_failure.py",
+    "examples/js2py/u09-testing/exercises/broken_study.py",
+    "examples/js2py/u09-testing/exercises/test_broken_study.py",
+    "examples/js2py/u09-testing/exercises/__init__.py",
+    "examples/js2py/u09-testing/solutions/budget/pyproject.toml",
+    "examples/js2py/u09-testing/solutions/budget/.python-version",
+    "examples/js2py/u09-testing/solutions/budget/budget.py",
+    "examples/js2py/u09-testing/tests/test_study.py",
+    "examples/js2py/u09-testing/solutions/budget/tests/test_budget.py",
+    "examples/js2py/u09-testing/README.md",
+    "examples/js2py/u09-testing/uv.lock",
+    "examples/js2py/u09-testing/solutions/budget/uv.lock"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-09-advanced-topics.mdx": "295db75d1034d2a7c1d3daa9d8f0b56804f47d8eb2232d2628c3504321549f8c",
+    "examples/js2py/u09-testing/pyproject.toml": "91457c8552caa21437041a450dfe06b261468291c7e97b0538ef216736cbe1fd",
+    "examples/js2py/u09-testing/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/u09-testing/study.py": "08e7b55fb2786b5dca40193e400165c0e7e6ed6d0e3280415bc8e3d5da895df7",
+    "examples/js2py/u09-testing/first_check.py": "83b1f22d93f8cfb9c2d944df2d9ad8dbb6c17dc74d5091f96202d1f1a776743e",
+    "examples/js2py/u09-testing/wrong_check.py": "4a2f7d923f6276053bd560320828632760be677564818cfecaf76e94396d7ee5",
+    "examples/js2py/u09-testing/errors/test_wrong_expectation.py": "60e28cc22e09bea17f259b41893e4fdfa10bf361f391a3a00b76d10b2fd68f6f",
+    "examples/js2py/u09-testing/errors/test_false_green.py": "07b7dabf2fe5fd1fa6d910980d5fe4669aaa3346c53879a2d3dfe538b7c0e5cb",
+    "examples/js2py/u09-testing/errors/not_discovered/check_totals.py": "b7cb23c70a03b93a900a2223b12533fb0d614ef0030d66f997b92c1daab01c34",
+    "examples/js2py/u09-testing/errors/test_import_failure.py": "b5b7bea3c3d80b0255fe5efe8979d0d2638422ee8a120310426f9763bfd3b8c1",
+    "examples/js2py/u09-testing/exercises/broken_study.py": "1d3e42f23883ab5d65439c81b3187c0a1ab196e9be363cbadfac62f26c120bc2",
+    "examples/js2py/u09-testing/exercises/test_broken_study.py": "520d5b798c5929d0256f2e547bcf16446c07c2a4ba070c2ff9f03f6ed60e5e51",
+    "examples/js2py/u09-testing/exercises/__init__.py": "6b649d4ca8b29636266735f8e3fde269804d27bf00d181fb69ecb423d60a914f",
+    "examples/js2py/u09-testing/solutions/budget/pyproject.toml": "598b6125e4dc33a3dabcdfac93d1adc7a133d0bb2b4049f5e37c9be889c35cbf",
+    "examples/js2py/u09-testing/solutions/budget/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/u09-testing/solutions/budget/budget.py": "718ee92ca881b0ce83f9a4e1aa3112628d5b062aa8e3979e592b1b9dbfe09876",
+    "examples/js2py/u09-testing/tests/test_study.py": "17d60ec139b7852b4ac03f64618ad036b6b0873efb2051085034066129e405f5",
+    "examples/js2py/u09-testing/solutions/budget/tests/test_budget.py": "61d8dcec5479296a5d0b64546a2b9d1abfdfd12bb89108995e5c153582b036ae",
+    "examples/js2py/u09-testing/README.md": "057dc63f1e50c612d0bcf6a31b105281d193f84148efb5dea00c3803335ce0e2",
+    "examples/js2py/u09-testing/uv.lock": "945dab20d7421650199414fb054f4add3687803fcf65fef180c049a7ba769289",
+    "examples/js2py/u09-testing/solutions/budget/uv.lock": "cdccdf3a0bdd5fa4380af691810423f242b594034c729da9a7b0b2578d6461d4",
+    ".gitignore": "548f7df99918daa5a502e022be29ea33d2d56737f3aef760f78368b273cea942",
+    "package.json": "2dce4007747052428d890c0a3daff00e499a674e1082b1b8d5e9d87bdabdc27c",
+    "lib/js2py-examples.ts": "a9c4aab256d3c6458324adb45103192cc0dd71150c001daf57aedef3a7fc5b9f",
+    "scripts/build-js2py-lab.py": "dbd1cd976317a20d73e806cbeb18ef1eb1654244a373c5d7be5d90bc044eaead",
+    "scripts/check-js2py-content.py": "7f853a4873c5273f0e15bd39c8e78e04af7580c5e32c0be3c486b6b82fd953e5",
+    "scripts/js2py-project-checks.py": "f844f44745d3f8701ff16fa0a0d78bdb713dcbe7e07983352a80f8c1df489362",
+    "scripts/tests/test_js2py_foundation_projects.py": "54d57ea09b2823b3280415d7f60c6e0f91b6c58c100ea452c0bbe476621f07a2",
+    "scripts/tests/fixtures/js2py-foundation-projects.json": "80003e4bad1e07febe16dcbd2a469b4795827112a43bd544ec11e8438f7d6218",
+    "scripts/tests/test_js2py_first_script.py": "2b16d227540b03a5f4f9fb822638db2afeaeb7770340458c7abb200dbc531018",
+    "docs/js2py-chapter-contracts.json": "dd531f00ab07ebbfd6f375f06d35aeaf46dd27161434fc47a871ddbd6ee57035",
+    "docs/js2py-learning-path.zh-cn.md": "9a569864b61dcdfe801596afc6aeffa6954c5f9ac2b21bc284b8c97d9f445c29",
+    "docs/reviews/js2py-l08-l10-source-check-2026-09-28.md": "e2983f711e22b5c9fce45152c7af84919f008d659b4c4f5829d3617f2fcedfb9",
+    "content/docs/js2py/index.mdx": "dd9945f373dd203f0ae075ec2e143d392301e79da9cc839a407332102b54cb21",
+    "content/docs/js2py/index.zh-tw.mdx": "00475c74a168dcc458fdd37cca5595750ee2bae3b245ef2d06403a0739ddb29a",
+    "content/docs/js2py/index.zh-cn.mdx": "867244ab8be10d60a22b968764bf8598a002c4aeffd6fb6edd358015b455a76b",
+    "content/docs/js2py/module-07-data-automation.zh-tw.mdx": "443bcb46090bbcec4ce7a08ae31616c7839e890d4df9efa983cfa387fa890967",
+    "content/docs/js2py/module-07-data-automation.zh-cn.mdx": "cedf03a84e03d6f5fa1c37ededebabf0a0756a3d43ee851c71cc74c6376b1fe5",
+    "content/docs/js2py/module-07-data-automation.mdx": "4d2cc0a06f16f3ce30b0b82a6ca693686bdd1f008abd847fe25451df0f80a42a",
+    "content/docs/js2py/module-09-advanced-topics.zh-cn.mdx": "ea63fa543726bd0244126a4353f4e5ec010b4eec1f122d4391639cfb75e93275",
+    "content/docs/js2py/module-09-advanced-topics.zh-tw.mdx": "25a7114de884e76a822f2ae76ccfce94cec005ce1b2258838cd7a5f58f821528",
+    "docs/archive/js2py-u09-advanced/sha256.json": "2b25a24c21c8e159ce42015b7a0eade01c934330c8513949d69bbe860aa23778",
+    "docs/archive/js2py-u09-advanced/module-09-advanced-topics.mdx": "df5dd1e0ef8915789aae48e8e5ae524780bc6b6f149c81955d43864cda97a1f5",
+    "docs/archive/js2py-u09-advanced/README.md": "48d5d74f5b343e8a356dea57acc15859327f24867a7f55370c2bddb19ab0936c",
+    "docs/archive/js2py-u09-advanced/module-09-advanced-topics.zh-cn.mdx": "85d3364c7eda724aeaf60b2357ea728b81f958f323bd251469b42b75ba2ad4b8",
+    "docs/archive/js2py-u09-advanced/module-09-advanced-topics.zh-tw.mdx": "b08d2d611e805045f6184f2586981c4493407f8ba7e52b54444be4a3b1b95333",
+    "examples/js2py/u09-testing-files.json": "60510c6c9088aadbaab1c6c875908bdb9a9ad7a75c94c6179a3990b6196e50d5",
+    "public/learning-assets/js2py/u09-testing.zip": "e817686062feead7dc1c75f528e3e5a8d0fb2865ee7302f98c6cfc071068229c",
+    "scripts/test-js2py-testing.py": "ded2b1c70002799fcf83893829fe4c9599293cc3373f7fcffdea261d2574af5e"
+  },
+  "verification_report": "js2py-l08-l10-source-check-2026-09-28.md",
+  "credential_persisted": false
+}

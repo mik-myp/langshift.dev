@@ -1,0 +1,226 @@
+---
+title: "Containers and deployable applications: an image is not your data"
+description: "Explain images, build context, non-root execution, networks, volumes and health boundaries; run local HTTP and static checks without pretending a container engine was available."
+---
+
+import { getContainerOpsExample } from '@/lib/js2py-examples'
+
+## 1. Why a container does not let you skip the operating system
+
+You can now explain cwd, environments, permissions, ports, and signals. Containers organize those conditions into repeatable boundaries; they do not abolish them. A wrong directory still loses files, a non-root account may still lack volume permissions, and the process receiving a stop signal must handle it correctly. Copying a Dockerfile without identifying state ownership can make removing and recreating an instance delete your only data.
+
+Prerequisites are O01 and L08. You will distinguish images from instances, constrain build inputs, choose users and configuration, explain network namespaces, and verify data lifecycles and health signals. Independent acceptance includes a clean build, execution, and restart/recreation. **No container engine exists on this verification host, so that acceptance stays pending** rather than becoming “files exist, therefore passed.”
+
+[Download the complete O02 lab](/learning-assets/js2py/o02-containers.zip). It deploys only two health endpoints, with no tasks, accounts, authorization, or database. It cannot serve real users or replace the complete S03 application. This chapter requires no cloud purchase, heavy installation, or acceptance of vendor terms. Explicitly select an existing controlled engine only when you have one.
+
+## 2. Separate image, container, host, and engine
+
+An image consists of filesystem layers and startup metadata, serving as a common starting point for multiple instances. A container is an instance created from that image, with process/network isolation and a writable layer. It is not a complete second computer; it normally shares its Linux host’s kernel. macOS commonly needs a Linux VM to host these containers. Having Python, Homebrew, or a Docker CLI does not establish an available Linux engine.
+
+The Docker CLI sends requests to an engine. Its context or DOCKER_HOST can point remotely, so a local command can affect somebody else’s server. This lab never uses the default context, lists all user containers, or prunes resources. Its runner requires an explicit local UNIX socket and controlled-engine confirmation, and uses an empty temporary Docker configuration rather than reading credential helpers. Engine-socket access is powerful and does not belong inside an ordinary business container.
+
+An image tag is a movable name, not a content checksum. Pinning a Python version is clearer than latest, but without resolving and recording the actual digest we cannot claim byte-identical image reproduction or completed supply-chain review.
+
+## 3. Restore the local lab without assuming Docker exists
+
+Run from the repository root; ZIP users enter the extracted lab root directly. uv/Python/pytest match O01. The web baseline is FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, and HTTPX 0.28.1, with Starlette 0.52.1 and AnyIO 4.12.1 pinned as well. Dependencies are restored in a Python virtual environment; no frontend dependency is added.
+
+```bash
+cd examples/js2py/o02-containers
+uv sync --locked
+uv run --locked python -m pytest -q
+uv run --locked python check_config.py
+uv run --locked python local_probe.py
+```
+
+<Code language="toml">{getContainerOpsExample('pyproject.toml')}</Code>
+
+Restore the existing lock with `uv sync --locked`. The maintainer actually generated it with `uv lock --default-index https://pypi.org/simple`. Resolving again can change the dependency snapshot and is not synonymous with routine restoration. Executed case counts and environment gaps are reported separately at the end.
+
+## 4. Build context: secrets should not be sent even if not copied
+
+In `docker build .`, the final dot identifies the build context, normally the current directory. COPY source paths come from that context. Using a repository root, home directory, or cache directory can submit unrelated files, .env values, credentials, and large caches to the builder. A few selective COPY statements are not the entire boundary: minimize the submitted inputs too.
+
+Our `.dockerignore` ignores everything first, then explicitly permits nine files. It excludes `.venv`, test caches, real configuration, READMEs, and paths outside this source root. The `!` prefix re-includes a named file. The Dockerfile also uses explicit COPY statements rather than `COPY . .`. These two reviewable restrictions are useful, but a text checker is not Docker’s full pattern parser. Actual engine validation remains necessary.
+
+<Code language="text">{getContainerOpsExample('.dockerignore')}</Code>
+
+<Code language="dockerfile">{getContainerOpsExample('Dockerfile')}</Code>
+
+The build stage restores production dependencies with pinned uv and omits the dev group. The runtime stage receives only the environment and four application files, not the entire builder and tests. Matching base images keep interpreter paths in /opt/venv meaningful. Image retrieval, base-tag availability, target architecture, and real build caching are **unverified**. Dockerfile text does not prove a successful build. A release must also review the base-image digest and update policy.
+
+## 5. Non-root and a read-only root: permit only necessary writes
+
+Building an image commonly requires privilege to create directories and users, but running it should not retain that authority. The Dockerfile creates numeric UID/GID 10001, owning /data but not application source. `USER` selects the default identity; Compose declares the same identity for review. Numeric ownership affects volume access: an account named app inside a container does not automatically make a host directory writable.
+
+Compose’s read_only restricts the container root filesystem. The /data named volume is the declared persistent write location; /tmp is a size-bounded temporary memory filesystem. cap_drop ALL removes additional Linux capabilities and no-new-privileges constrains privilege gain through execution. These reduce risk, not all kernel vulnerabilities, and do not implement authorization. Disabling Python bytecode writes avoids unnecessary attempts to modify read-only source directories.
+
+<Code language="json">{getContainerOpsExample('compose.json')}</Code>
+
+We deliberately use JSON for the Compose file. Compose accepts this YAML subset, but select it explicitly with `-f compose.json` rather than assuming automatic discovery. `init: true` adds a small init for orphan reaping and signal forwarding; exec-form CMD does not interpose a shell. stop_grace_period allows normal stopping, while restart=no keeps failures observable without automatic restart. All of these still need execution on your controlled engine.
+
+## 6. Configuration and secrets: export is not a vault
+
+OPS_DATA_DIR is non-secret path configuration and can appear openly in Compose. Database passwords and Bearer tokens are different: do not put them in Dockerfile ENV/ARG, image layers, build logs, command-line arguments, or the example ZIP. Deleting a file in a later image layer does not prove it is absent from earlier layers. Ignoring .env reduces build exposure; it does not secure the file’s contents.
+
+A controlled platform can mount a secret read-only into the authorized service or inject it using a reviewed secret manager. Compose secrets provide per-service file mounting, not automatic host-file protection, backup, rotation, or revocation. The next experiment handles only a fixed fictional marker and prints observations, not its contents. It neither connects to a database nor reads existing credentials.
+
+<Code language="python">{getContainerOpsExample('secret_demo.py')}</Code>
+
+```bash
+uv run --locked python secret_demo.py
+```
+
+```text
+file_mode=0o600
+fictional_value_loaded=True
+value_is_not_printed=True
+```
+
+## 7. Network namespaces: do not confuse two loopbacks
+
+Host 127.0.0.1 refers to the host network, while a container’s 127.0.0.1 refers to its own network. If an application binds only container loopback, connections forwarded from outside that namespace generally cannot reach it. The Dockerfile therefore listens on **container-internal** 0.0.0.0:8000, while Compose publishes only **host-side** 127.0.0.1:8033:8000. This is not an instruction to listen publicly on the host; both boundaries matter.
+
+EXPOSE 8000 is metadata, not a host-port publication. Another container also cannot find this service at its own 127.0.0.1; controlled container networking and a service name are normally needed. This lab has no database container and never connects to the user’s PostgreSQL. Real deployment must also verify host firewalls, IPv6, and VM forwarding rather than inferring all network safety from one ports line.
+
+Docker documents a localhost-publication exception for same-L2 hosts with engines older than 28.0.0. The runner therefore requires Linux Engine >=28. Checking that version addresses this known gate, not a complete security audit.
+
+## 8. Volumes and writable layers: restart is not recreation
+
+“Containers lose their data whenever restarted” is an incorrect slogan. **Stopping and starting the same container normally preserves its writable layer**. Removing it and creating a new container from the image does not automatically transfer that layer. A named volume has an independent lifecycle and can be reattached to a new instance, but it can still be explicitly deleted or lost with host storage. A persistent volume is not a backup.
+
+volume_probe maintains a disposable counter in an explicit directory. Separate processes reading the same path can preserve it, which alone does not verify Docker volumes. The real runner checks three cases: a named volume retains 1 after recreation; a writable layer retains 1 after stop/start of the same container; a newly created unmounted container begins at 0. File replacement provides neither concurrent transactions nor power-loss guarantees. Do not apply this copying method to a live PostgreSQL data directory.
+
+<Code language="python">{getContainerOpsExample('volume_probe.py')}</Code>
+
+## 9. Health: alive, ready, and business-correct are three claims
+
+`/health/live` returning 200 proves only that its handler answers. `/health/ready` attempts a temporary write in the data directory and returns 503 on failure. Its dependency is a writable teaching directory, not a database connection. S03 needs its own DB-backed readiness; migration, permissions, and business tests remain separate. A service leaking Bob’s data to Alice can stay healthy indefinitely.
+
+Docker HEALTHCHECK periodically executes healthcheck.py and uses its exit status as health information. Ordinary Docker does not automatically restart this container merely because it becomes unhealthy. Restart policies primarily respond to process exits; scheduling and traffic decisions depend on other platform rules. Avoid amplifying a short DB failure by repeatedly killing processes through an inappropriate liveness check. Health responses must not expose connection strings or secrets.
+
+<Code language="python">{getContainerOpsExample('app.py')}</Code>
+
+<Code language="python">{getContainerOpsExample('healthcheck.py')}</Code>
+
+The real host HTTP experiment launches Uvicorn using an owned loopback socket, checks normal endpoints, then makes **its own temporary directory** unwritable. It verifies live=200 while ready=503, restores permissions, and observes ready=200 again. /tasks=404 explicitly confirms this is not the business application. It has finite timeouts and cleans up only its own child. Running it without Docker is useful but does not accept the container environment.
+
+<Code language="python">{getContainerOpsExample('local_probe.py')}</Code>
+
+```bash
+uv run --locked python local_probe.py
+```
+
+```text
+host_http_live=200
+host_http_ready=200
+unwritable_live=200
+unwritable_ready=503
+restored_ready=200
+tasks_not_implemented=404
+container_runtime=NOT_VERIFIED
+```
+
+## 10. Static review and a real container experiment have different jobs
+
+<Code language="python">{getContainerOpsExample('check_config.py')}</Code>
+
+```bash
+uv run --locked python check_config.py
+uv run --locked python container_probe.py
+```
+
+The first command checks selected reviewable invariants: explicit context, loopback publication, UID, and read-only root. It still ends with container_runtime=NOT_VERIFIED. Without an explicit socket and confirmation, the second command exits **77** with environment_pending. This neither hides a failure nor reports container success. The runner accompanies the runnable configuration, but its real Docker branch was not executed here.
+
+If you have a controlled local Linux Docker Engine >=28, read the runner first. Confirm the socket, image-download network/disk costs, and cleanup scope before using the following **unexecuted command template**. Replace the placeholder with your verified UNIX socket, never a remote TCP/SSH endpoint. The runner uses unique names and removes only the containers, volume, and image it created. Base images and build cache may remain; it never prunes a shared engine to make everything look clean.
+
+```bash
+uv run --locked python container_probe.py --socket /path/to/controlled/docker.sock --confirm-controlled-engine
+```
+
+<Code language="python">{getContainerOpsExample('container_probe.py')}</Code>
+
+Record the engine/OS/CPU architecture, resolved image digest, build log, container UID, host binding, stop result, three state-lifecycle observations, and cleanup result yourself. Do not copy an expected outcome as an observation. If a step differs, preserve evidence before inspecting permissions, volume ownership, engine selection, and image resolution.
+
+## 11. Failure diagnosis: locate the boundary before granting power
+
+| Failure | Likely boundary | Next step |
+| --- | --- | --- |
+| CLI/socket absent | No local runtime | Record environment_pending; do not silently install or connect remotely |
+| Image/dependency download fails | Tag, architecture, network, or index | Inspect the build stage; switching to latest does not prove reproduction |
+| Application cannot write /data | UID and volume ownership mismatch | Inspect the dedicated volume, not permissions on real user directories |
+| Host connection fails while process lives | Internal binding and host publication | Inspect both boundaries instead of exposing the service publicly |
+| healthy but /tasks=404 | Only the smoke app was deployed | Not a CORS fault; the authorized business app is not integrated |
+| Counter lost after recreation | Writable layer or wrong/new volume | Compare restart and reattachment before deleting volumes to retry |
+
+Do not replace the image, volume, and application version simultaneously and guess what fixed it. Change one boundary at a time and retain the last successful observation. Real databases require the later backup/recovery material, not this disposable-file exercise dressed up as recovery.
+
+## 12. Explanation checkpoint: reject three convenient inferences
+
+Explain why stop/start can retain data without a volume while recreation does not, why container-internal 0.0.0.0 does not necessarily publish the host publicly, and why healthy cannot prove an Alice/Bob authorization test passed. Name the boundary instead of answering “because Docker.”
+
+<details>
+<summary>Answer and explanation</summary>
+
+The same instance retains its writable layer; a new one begins from its image and explicitly mounted state, without inheriting the old layer. Internal listening belongs to the container network namespace; host publication depends separately on ports, engine behavior, and firewall rules. A health script checks declared technical dependencies, not two users’ identities and resource permissions. Each false inference substitutes success at one layer for a guarantee at another.
+
+</details>
+
+## 13. Guided exercise: make ready fail while live still succeeds
+
+Predict which endpoint local_probe’s permission change affects. Keep the process running, change only the owned temporary data directory, observe 200/503, and restore it. Do not simulate unwritability by stopping the server, or chmod your home directory. Then explain why a file probe is insufficient when business readiness depends on a database.
+
+<details>
+<summary>Guided answer and automatic checks</summary>
+
+live never accesses the data directory and stays at 200. ready catches the write failure and returns 503; restoring write access returns it to 200. Real DB readiness needs its appropriate connection/query and bounded timeout, not “writable disk implies usable DB.” This failure is reproducible as an ordinary local account; root may bypass it and is explicitly rejected.
+
+<Code language="python">{getContainerOpsExample('tests/test_container_foundations.py')}</Code>
+
+</details>
+
+## 14. Independent variation: restore into a new directory
+
+Requirements only: a source directory holds a quiescent teaching counter. Restore it into a new empty directory and read the same value. Reject a nonempty destination; never silently reset corrupt source data to zero or change the original file. Write the function and tests, then explain why this is **not a backup procedure for live PostgreSQL**. If a container engine is available, also run the runner’s recreation tests; neither evidence replaces the other.
+
+<details>
+<summary>Independent reference implementation</summary>
+
+<Code language="python">{getContainerOpsExample('solutions/restore_copy.py')}</Code>
+
+<Code language="python">{getContainerOpsExample('solutions/test_restore_copy.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_restore_copy.py
+```
+
+Validating the source and writing only a new destination reduces accidental overwrite, but supplies no database snapshot consistency during writes. Real recovery must follow a database backup protocol in an isolated environment and verify business records; the later release/recovery chapters own that boundary.
+
+</details>
+
+## 15. Environment matrix and delivery conclusion
+
+| State | Evidence or gate |
+| --- | --- |
+| Actually executed | Ordinary macOS user; 14 standard and 3 independent tests; real loopback HTTP 200/503/recovery/404, selected configuration invariants, fictional secret file, ordinary-file restoration |
+| Unavailable on this host | No discovered Docker/OrbStack/Podman/Apple container CLI, common application installation, or socket; no controlled Linux container engine |
+| User-provided environment | Controlled local Linux Docker Engine >=28, explicit UNIX socket, permission/network/storage for image downloads; real build, non-root identity, publication, read-only root, health, stop/recreation/volume tests |
+| Additional acceptance | Base-image tag/digest/architecture, real Compose parsing, volume ownership, actual engine branch, business integration, DB backup |
+
+Text, source, selected static checks, and the local HTTP slice are implemented. **The container build/runtime environment remains environment_pending.** No remote context, global prune, existing-user-container operation, system-software installation, or cloud purchase occurred.
+
+## 16. Sources, dates, and a resumable record
+
+Primary sources checked **2026-09-28**. `SOURCES.json` records URLs, dates, and retrieval summaries; it does not promise that documentation will never change. The three READMEs distinguish observations from environment gaps. The existence of configuration is not deployment acceptance.
+
+- [Docker build context](https://docs.docker.com/build/concepts/context/)
+- [Dockerfile reference](https://docs.docker.com/reference/dockerfile/)
+- [Docker volumes](https://docs.docker.com/engine/storage/volumes/)
+- [Docker port publishing](https://docs.docker.com/engine/network/port-publishing/)
+- [Docker Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/)
+- [Docker daemon attack surface](https://docs.docker.com/engine/security/)
+- [Docker Compose service reference](https://docs.docker.com/reference/compose-file/services/)
+- [uv lock and sync](https://docs.astral.sh/uv/concepts/projects/sync/)
+
+A resume record includes source/lock hashes, cwd, last successful command, the 14+3 local result, whether an engine exists and how it was verified, observed versus expected image/volume behavior, unresolved failures, and the next action. Do not copy credentials, tokens, or Docker configuration into it. Resume by restoring the lock and running local_probe. Acquiring an engine starts a new acceptance record; it does not rename an old static pass into a container pass.
+

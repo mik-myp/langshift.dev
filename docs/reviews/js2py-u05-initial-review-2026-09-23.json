@@ -1,0 +1,304 @@
+{
+  "review_date": "2026-09-23",
+  "scope": "L05 complete actual English counterpart and all 22 shared Python files. Three-locale executable/display parity, runtime and browser checks are separately verified, not inferred from this semantic review.",
+  "metadata": {
+    "started_at_utc": "2026-09-23T15:31:38.707575+00:00",
+    "elapsed_seconds": 1.086,
+    "http_status": 200,
+    "endpoint": "https://api.typesafe.ai/v1/systemone",
+    "requested_model": "jev-latest",
+    "returned_model": "jev-1.13.0",
+    "questions": 8,
+    "request_sha256": "497f580793809c6ae2623e79795051cd601429d17eebc9a2e518245619cf9919",
+    "usage": {
+      "input_tokens": 12382,
+      "output_tokens": 425
+    },
+    "credential_persisted": false
+  },
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "reader": "Experienced enterprise frontend engineer, comfortable with JavaScript, Promises/async-await and basic TypeScript, initially no Python/backend/database/operations practice. Irregular study time; wants slow, thorough prerequisite-ordered learning leading to an independently deployed backend.",
+      "prior_learning": "L00 independent script and interpreter; L01 values, type(), strings and conversions; L02 containers, identity, copying and mutation; L03 branches, loops, enumerate, control transfers, simple comprehensions; L04 functions, arguments, defaults, call chain, return, ordinary scope and simple closures. No required prior imports, classes, files, pytest, framework or backend knowledge.",
+      "chapter_contracts": [
+        {
+          "id": "L04",
+          "title": "函数、参数与作用域",
+          "prerequisites": [
+            "L03"
+          ],
+          "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+          "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+          "boundary": "不以装饰器或类封装作为练习要求",
+          "status": "implemented"
+        },
+        {
+          "id": "L05",
+          "title": "异常与调试",
+          "prerequisites": [
+            "L04"
+          ],
+          "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+          "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+          "boundary": "不把assert当作不可信输入的生产校验",
+          "status": "implemented"
+        },
+        {
+          "id": "L06",
+          "title": "模块与标准库",
+          "prerequisites": [
+            "L05"
+          ],
+          "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+          "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+          "boundary": "不先要求发布包、动态导入或框架架构",
+          "status": "planned"
+        },
+        {
+          "id": "L07",
+          "title": "文件、JSON 与资源使用",
+          "prerequisites": [
+            "L06"
+          ],
+          "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+          "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+          "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+          "status": "planned"
+        },
+        {
+          "id": "L09",
+          "title": "基础自动化测试",
+          "prerequisites": [
+            "L04",
+            "L05",
+            "L06",
+            "L08"
+          ],
+          "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+          "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+          "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+          "status": "planned"
+        }
+      ],
+      "actual_english_lesson": "---\ntitle: \"Exceptions and Debugging\"\ndescription: \"Learn to read tracebacks and locate failures before handling them. Understand specific exceptions, raise, try/except/else/finally and assertion boundaries, then build an independent task-import report without disguising every error as success.\"\n---\n\nimport { getExceptionExample } from '@/lib/js2py-examples'\n\n## 1. From seeing an error to knowing who should handle it\n\nL04 deliberately exposed NameError, TypeError and UnboundLocalError so you could observe the mechanisms. Now task estimates arrive as strings resembling form values: `\"20\"` converts, `\"twenty\"` does not, and `\"-5\"` converts successfully but violates the business rule.\n\nStopping an entire batch at the first known malformed value can be unhelpful. Replacing every failure with zero is not a solution either: it misreports “no valid estimate obtained” as “a valid zero-minute task.” Worse, a programming defect may be disguised as a user mistake.\n\n**The goal is not to remove red text. It is to establish explainable failure paths: where an operation failed, who can recover, and what must propagate.** Debugging finds causes; exception handling implements an explicit recovery policy. Neither replaces the other.\n\n### Chapter contract\n\n| Item | Agreement |\n| --- | --- |\n| Prerequisites | L00–L04: independent scripts, values/types, containers/sharing, control flow, function calls and returns |\n| New capabilities | Tracebacks, reproduction and reduction, specific exceptions, raise, re-raising and cause chains, try/except/else/finally, assertion boundaries |\n| Independent acceptance | Record and skip known malformed text; keep missing fields, wrong types and unknown internal failures visible; explain each execution path |\n| Not required | Classes/custom exceptions, imports, file I/O, pytest, debugger commands, logging frameworks, HTTP exceptions or server architecture |\n\n“Task import” here means **processing a list already in memory**, not reading CSV, writing a database or serving an HTTP endpoint. The business name must not smuggle in additional prerequisites.\n\n### Files and commands\n\nDownload [L05 independent examples and reference answers](/learning-assets/js2py/u05-exceptions.zip), extract it and open `u05-exceptions` in your editor and terminal. Each file runs independently, without names left over from another program.\n\n```bash\nuv run --no-project --python 3.13 python errors/traceback_chain.py\n```\n\nThis command **is supposed to fail**. Replace only the final filename for later examples. Continue using CPython 3.13 without third-party packages or project configuration; see [L00](/en/docs/js2py/module-00-python-introduction) for environment setup.\n\nOf the 22 Python files, the eight in `errors/` and `pitfalls/assert_validation.py` intentionally exit with an exception in ordinary mode. Other counterexamples may exit successfully while behaving incorrectly. Directory names alone are not acceptance criteria: read each explanation. Leave `solutions/` until after attempting the exercises.\n\n## 2. Three kinds of problem: except is not the answer to all of them\n\n| Problem | When it occurs | Direction of repair |\n| --- | --- | --- |\n| Invalid syntax | Before the current file starts executing | Repair the colon, indentation or structure; do not swallow a runtime exception |\n| An operation fails | While evaluating an expression or call | Inspect the exception and call chain, then choose recovery or propagation |\n| Normal termination, wrong result | Every statement may be valid | Compare requirements and boundary inputs; trace state and control flow |\n\nThis is an **intentional syntax error**. Save it separately as `syntax_error.py`:\n\n```python expected-error=SyntaxError case=syntax-error\nprint(\"Before\")\nif True\n    print(\"Inside\")\n```\n\nParsing detects the missing colon on line 2. Even though the first line looks valid, Before is not printed. Wrapping invalid syntax in a try in that same, unparseable file cannot make it executable. SyntaxError produced by later dynamic compilation or importing is a different scenario, not combined with this one.\n\nCompare L04's runtime errors: earlier prints may already have happened, but statements after an unhandled exception do not execute. **No exception does not prove a correct business result.** Section 4 reproduces an early-return defect.\n\n## 3. Reading a traceback: locate the failure, then trace its input\n\nFile: `errors/traceback_chain.py`.\n\n<Code language=\"python\">{getExceptionExample('errors/traceback_chain.py')}</Code>\n\nStandard output contains only:\n\n```text\nStarting report\n```\n\nThe essential error-stream structure is shown below. Absolute paths are normalized, and repeated source lines and position markers are omitted; the full output on your machine is longer:\n\n```text\nTraceback (most recent call last):\n  File \".../errors/traceback_chain.py\", line 17, in <module>\n  File \".../errors/traceback_chain.py\", line 12, in build_total\n  File \".../errors/traceback_chain.py\", line 6, in task_minutes\n  File \".../errors/traceback_chain.py\", line 2, in parse_minutes\nValueError: invalid literal for int() with base 10: '25m'\n```\n\nRead it in two passes rather than treating the whole traceback as an opaque string:\n\n1. **Start with the last line.** ValueError is the exception category; its message identifies `'25m'` as invalid input for this int conversion. Categories select handlers; messages help diagnosis. Do not implement recovery by matching English error wording.\n2. **Find the final relevant source location.** `int(raw)` on line 2 failed; print and for are not themselves the defective operations.\n3. **Work back through callers.** task_minutes supplies the minutes field; build_total is traversing tasks; the top-level call supplies a list containing `\"25m\"`. Each frame represents a function call that has not completed.\n4. **Separate a triggering location from its cause.** The input violates the conversion contract. Seeing line 2 does not justify replacing int with a function that always returns zero.\n\n“Most recent call last” places the most recent call near the bottom. The exception looks outward for a matching handler: parse_minutes → task_minutes → build_total → top level. There is none, so the process ends with an error. These calls do not successfully return their pending results, and Done is not printed.\n\nA terminal often displays standard output and the error stream together. Buffering can affect their visible interleaving, so they are presented separately here. Absolute paths, arrows and combined ordering are not required to match byte for byte across environments.\n\n## 4. Debugging is an experiment, not adding try everywhere\n\n### 4.1 Observe the actual input first\n\nFile: `errors/debug_observation.py`.\n\n<Code language=\"python\">{getExceptionExample('errors/debug_observation.py')}</Code>\n\nOutput before the exception:\n\n```text\nraw: '25m'\ntype: <class 'str'>\n```\n\n`repr(raw)` returns a diagnostic representation: here it reveals quotation marks and whitespace inside a string. `print(raw)` shows its content, making subtle details easier to overlook. repr neither modifies raw nor protects secrets. Do not use real passwords, tokens or sensitive user data as diagnostic samples.\n\nThe evidence is “a string containing an m,” not the assumption that a frontend numeric field must have produced a number. `type(raw)` answers the type question; `repr(raw)` answers the value question.\n\nFile: `debug_fixed.py`.\n\n<Code language=\"python\">{getExceptionExample('debug_fixed.py')}</Code>\n\nExpected:\n\n```text\nraw: ' 25 '\ntype: <class 'str'>\nminutes: 25\n```\n\nThe test input now satisfies the current contract, verifying that int accepts surrounding whitespace. **This is not a claim that a developer can manually repair every real invalid input.** Later sections implement rejection. If the product should accept `25m`, define a unit grammar before implementing and testing it. Blindly removing the last character could corrupt a valid `25`.\n\n### 4.2 Without a traceback, still follow execution\n\nFile: `debug_logic.py`, with a deliberately misplaced return.\n\n<Code language=\"python\">{getExceptionExample('debug_logic.py')}</Code>\n\nActual output:\n\n```text\n10\n0\n```\n\nTen plus twenty should be thirty, but the result is ten. Use L04's execution model: the first iteration accumulates ten → return ends the whole call → the second value is never processed. The list has not lost data, and Python addition has not changed.\n\nRemove the return inside the loop and keep the return after it. Run `[]`, `[0]`, `[10, 20]` and `[5, 7, 9]` separately; expect 0, 0, 30 and 21. Producing thirty for the original input alone does not establish empty-input correctness.\n\n### 4.3 A reusable debugging record\n\n| Step | What to record here |\n| --- | --- |\n| Reproduce | Filename, complete command, input, and “expected 30, observed 10” |\n| Reduce | Remove irrelevant task fields; retain two numbers that reproduce it |\n| Hypothesize | return ends the call during the first iteration |\n| Test | Move only that statement; do not simultaneously rewrite the algorithm and all names |\n| Regress | Repeat the original, empty, single-zero and multiple-item cases |\n\nA breakpoint debugger can later pause and inspect the same state. Establish the reasoning process first; IDE plugins, pdb commands and framework logging are not prerequisites for this chapter.\n\n**Checkpoint A:** keep the before/after files and last successful command. Explain both the four traceback frames and the silent early return before continuing.\n\n## 5. try/except: recover only from failures you can explain\n\nFile: `recover_value.py`.\n\n<Code language=\"python\">{getExceptionExample('recover_value.py')}</Code>\n\nExpected:\n\n```text\nInput: '25'\nConverted: 25\nNext item\nInput: 'bad'\nRejected: invalid literal for int() with base 10: 'bad'\nNext item\nInput: '0'\nConverted: 0\nNext item\n```\n\n`try:` does not inspect code in advance to see whether it is erroneous. It executes the statements normally and sets a handling boundary for **exceptions propagating during that execution**. There are two paths:\n\n- Success: int returns an integer → Converted prints → except is skipped → Next item prints.\n- Known failure: int raises ValueError → the remaining try statements are skipped → the matching except runs → Next item prints → for starts the next item.\n\nHandling the exception **does not automatically retry the failed int line**. This example also avoids using minutes left over from a previous iteration. An unconditional print after try would be unsafe: the current assignment may never have completed.\n\n`except ValueError as error:` temporarily binds the exception object to error. `print(error)` displays its explanation, and `str(error)` produces a message string. That binding is cleared when the handler ends; it is not long-term result storage. Explicitly save a message or structured rejection record when needed.\n\n### 5.1 ValueError does not match every exception\n\nFile: `errors/unexpected_type.py`.\n\n<Code language=\"python\">{getExceptionExample('errors/unexpected_type.py')}</Code>\n\nLine 3 raises TypeError. Neither Rejected text nor After conversion prints. `None` is not numeric text supported here. A handler matches its declared category and subclasses, not every failure merely because it is nearby.\n\nOur policy is “report malformed strings and continue.” Unexpected None exposes a contract error upstream. This is not a rule that every application must reject None; **this chapter has not defined it as blank input or zero**.\n\n## 6. raise: explicitly report that an operation cannot fulfill its contract\n\n`int(\"-5\")` succeeds, but a task estimate must not be negative. The interpreter cannot infer that business rule for you.\n\nFile: `validate_minutes.py`.\n\n<Code language=\"python\">{getExceptionExample('validate_minutes.py')}</Code>\n\nExpected:\n\n```text\nAccepted: 25\nAccepted: 0\nRejected: minutes must be non-negative\n```\n\n`raise ValueError(\"minutes must be non-negative\")` creates an exception object with a message, then interrupts normal execution. It neither returns a ValueError nor merely prints an error and continues. An outer caller can recover from ValueError; without a matching handler, the exception propagates.\n\n`type(raw) is not str` checks for the ordinary built-in string required by this contract. Besides the conversion learned in L01, str names that built-in type; is not negates is. This deliberately narrow contract avoids accepting numeric objects and silently truncating floating-point values through int. It does not claim support for custom string subclasses or arbitrary objects.\n\n| Input or issue | This chapter's agreement |\n| --- | --- |\n| `\"20\"`, `\" 20 \"`, `\"0\"` | Return integers; zero is not missing |\n| `\"bad\"`, `\"\"`, `\"2.5\"` | Text cannot convert to an integer: ValueError |\n| `\"-5\"` | Conversion succeeds but violates the nonnegative rule: ValueError |\n| None, 20, 2.5 | Violates the ordinary-string contract: TypeError, not known malformed text |\n\nThe conversion grammar is int's grammar. **We have not implemented an “ASCII digits only” form validator.** Signs and some other integer spellings may also be valid. Stricter product rules must be defined separately rather than inferred from this example.\n\nFile: `errors/negative_minutes.py`, with no outer recovery:\n\n<Code language=\"python\">{getExceptionExample('errors/negative_minutes.py')}</Code>\n\nLine 6 raises ValueError with `minutes must be non-negative` and no standard output. Section 12 reruns this actual failure under optimization.\n\n### Where does the JavaScript analogy stop?\n\nBoth languages can interrupt a path and let the caller decide how to respond. This independent comparison is display-only; Python behavior is verified locally rather than relying on a browser run button.\n\n<PythonEditor title=\"Explicitly reject an invalid estimate\" compare={true} canRun={false} height={430}>\n```javascript !! js case=raise-comparison\ntry {\n  throw new RangeError(\"minutes must be non-negative\");\n} catch (error) {\n  console.log(error.message);\n}\n```\n\n```python !! python case=raise-comparison\ntry:\n    raise ValueError(\"minutes must be non-negative\")\nexcept ValueError as error:\n    print(error)\n```\n</PythonEditor>\n\nBoth produce:\n\n```text\nminutes must be non-negative\n```\n\nA JavaScript catch normally receives the thrown value before your code inspects it; Python can specify a category directly after except. JavaScript allows ordinary thrown values, while Python raise requires an exception class or instance. Do not translate `throw \"bad\"` into `raise \"bad\"`. We use built-in exceptions without requiring you to define class inheritance first.\n\n## 7. Matching order: specific first does not mean catch everything\n\nFile: `handler_order.py`. The first half intentionally demonstrates shadowing; the second reverses the order.\n\n<Code language=\"python\">{getExceptionExample('handler_order.py')}</Code>\n\nExpected:\n\n```text\nBroad handler ran\nSpecific handler ran\n```\n\nHandlers are inspected in order, and **the first matching one** runs. A single exception does not execute every matching handler. ValueError belongs to the larger Exception category, so a preceding `except Exception` receives it first.\n\nLearn only the relationships currently needed, not how to define exception classes:\n\n```text\nBaseException\n├── Exception\n│   ├── ValueError\n│   ├── TypeError\n│   └── LookupError\n│       └── KeyError\n├── KeyboardInterrupt\n└── SystemExit\n```\n\nThis is an excerpt, not the whole hierarchy. KeyboardInterrupt often comes from Ctrl+C; SystemExit represents exiting. Neither belongs to Exception. Bare `except:` has a broader reach than `except Exception` and can catch those exit intentions too. We do not use it here.\n\nSeveral known failures with the same recovery policy can be grouped as `except (ValueError, TypeError):`; the parentheses form the tuple learned in L02. **Syntactic grouping does not justify grouping their business meaning.** Our import report deliberately distinguishes wrong types from malformed strings.\n\nThe second half is not a template requiring an Exception fallback in every function. Most functions can raise or naturally propagate. Only a boundary that owns a real recovery responsibility should handle the failure.\n\n## 8. Narrow the try and separate successful follow-up work with else\n\nReplacing `except Exception` with `except ValueError` can still hide bugs: unrelated code may raise the very same category.\n\nFile: `pitfalls/wide_try.py`. The raise in display_minutes is **fault injection**: an explicit failure stands in for a potentially broken display rule so we can observe the boundary. It is not a complete display implementation.\n\n<Code language=\"python\">{getExceptionExample('pitfalls/wide_try.py')}</Code>\n\nActual output:\n\n```text\nBad input\n```\n\nThe input is valid `\"25\"`, yet Bad input is reported. The try covers conversion and display, so the handler cannot distinguish their ValueErrors. An exception category is not a label for its business origin.\n\nFile: `errors/narrow_try.py`.\n\n<Code language=\"python\">{getExceptionExample('errors/narrow_try.py')}</Code>\n\nAfter int succeeds, else runs. ValueError from display_minutes **is not caught by the except attached to this same try**. The program fails on line 2, retaining `display rule is broken`, without Bad input or After display.\n\nelse requires try to complete normally. If try already transfers control through return, break or continue, this else does not run. It is neither an except fallback nor a block that always runs after all branches.\n\nThe responsibility is explicit: only conversion-format failures are treated as invalid input; display failures stay visible. Successful follow-up work can be organized in other clear ways, but unknown errors must not silently become apparently successful return values.\n\n## 9. Preserve failures: propagate, re-raise, or attach a cause\n\n### 9.1 With no recovery responsibility, do not catch\n\nparse_minutes cannot decide whether a batch should stop or skip an item. It returns legal minutes or raises a defined exception. The report builder owns the per-row policy. Printing and returning None arbitrarily in a lower-level function leaves every caller guessing what None means.\n\n### 9.2 If you need an observation before propagation, use bare raise\n\nFile: `errors/reraise.py`.\n\n<Code language=\"python\">{getExceptionExample('errors/reraise.py')}</Code>\n\nStandard output:\n\n```text\nContext: parsing Read\n```\n\nThe process still ends with ValueError, with the original int on line 3 present in the traceback. `raise` without an object in the handler re-raises the active exception. It is neither another conversion nor successful recovery. Bare raise cannot be placed arbitrarily outside an active exception-handling context.\n\nThe printed context here is fixed teaching text. Later server chapters cover structured logs and sensitive information; this is not permission to send every input or traceback to end users. Catching merely to re-raise adds nothing by itself, so do not wrap every function layer this way.\n\n### 9.3 When replacing a message, retain its original cause\n\nFile: `errors/chained_error.py`.\n\n<Code language=\"python\">{getExceptionExample('errors/chained_error.py')}</Code>\n\n`except ValueError as error` protects only int. `raise ... from error` then supplies a stable domain message and explicitly identifies the original exception as its cause. The traceback shows the failed conversion, followed by a connection and the new failure:\n\n```text\nThe above exception was the direct cause of the following exception:\n...\nValueError: minutes must be an integer\n```\n\nThe `...` here is **an omission marker in a traceback excerpt**, not Python implementation for you to copy. These are two distinct ValueError objects linked by causation. That chain is also different from the multiple call frames for one exception in section 3.\n\nWe do not hide the cause with `from None` or translate every NameError, TypeError and other defect into ValueError. Unknown failures retain their original categories.\n\n**Checkpoint B:** run the wide/narrow try, re-raising and cause-chain files. Record where handling occurs, where failure continues, and whether the original location survives. A zero exit status is not the sole definition of correctness.\n\n## 10. finally: run before leaving the protected statement, not proof of recovery\n\nFile: `finally_paths.py`.\n\n<Code language=\"python\">{getExceptionExample('finally_paths.py')}</Code>\n\nExpected:\n\n```text\nelse\nfinally\nResult: 0\nexcept\nfinally\nResult: None\n```\n\nBoth paths execute finally before delivering the previously prepared return value. finally neither changes None into zero nor decides whether conversion succeeded.\n\n| Way of leaving | except | else | Destination after finally |\n| --- | --- | --- | --- |\n| try completes normally | Skipped | Runs | Continue afterward, or complete a return in else |\n| Matching, recovered exception | Matching handler runs | Skipped | Continue afterward, or complete a return in except |\n| Unmatched exception | Skipped | Skipped | Continue propagating after cleanup |\n| return inside try | Skipped | Skipped | Complete the prepared return; finally runs first |\n\nFile: `errors/finally_unhandled.py`.\n\n<Code language=\"python\">{getExceptionExample('errors/finally_unhandled.py')}</Code>\n\nStandard output:\n\n```text\nfinally before propagation\n```\n\nTypeError from line 2 still follows; After is not printed. “Cleanup executed” does not mean “the exception was handled.” except, else and finally can themselves fail. A new failure in finally can replace the currently propagating exception; cleanup is not an error-proof zone.\n\n### 10.1 Do not sneak a return into finally\n\nFile: `pitfalls/finally_return.py`, explicitly a counterexample:\n\n<Code language=\"python\">{getExceptionExample('pitfalls/finally_return.py')}</Code>\n\nActual output:\n\n```text\nOverridden: 0\nHidden: 0\n```\n\nA valid 25 is overwritten, and the invalid input's ValueError is hidden. Returning in finally to “guarantee a result” breaks both success and failure contracts. This Python 3.13 experiment demonstrates behavior, not recommended practice; correct implementations in this chapter avoid it.\n\nL07 introduces with for actual file-resource use, and later chapters cover client lifecycles. The prints here make paths visible; **they do not implement resource management**. finally describes ordinary interpreter control flow, not a guarantee under forced process termination or power failure, nor a promise of a committed database transaction.\n\n## 11. Catching an exception does not undo earlier mutations\n\nFile: `pitfalls/partial_mutation.py`.\n\n<Code language=\"python\">{getExceptionExample('pitfalls/partial_mutation.py')}</Code>\n\nActual output:\n\n```text\nRejected\n{'title': 'Read', 'minutes': 20, 'changes': ['estimate changed']}\n```\n\nappend has already changed changes when int fails. Assignment to minutes never happens because its right-hand side does not finish evaluating. except changes subsequent control flow; it does not replay the program backward to undo previous mutations.\n\nFile: `apply_estimate.py`, which computes and validates before mutation:\n\n<Code language=\"python\">{getExceptionExample('apply_estimate.py')}</Code>\n\nExpected:\n\n```text\nRejected: minutes must be non-negative\n{'title': 'Read', 'minutes': 20, 'changes': []}\n{'title': 'Read', 'minutes': 0, 'changes': ['estimate changed']}\n```\n\nInvalid minutes fail before touching the task, preserving both minutes and changes. A valid zero really updates the value and records one change. replace_estimate has no explicit return; returning None is the ordinary behavior established in L04. Its contract is to mutate a task of the known shape.\n\n**The fix is bounded.** It guarantees no mutation before parsing/validation succeeds, not arbitrary rollback. A malformed dictionary missing changes can still fail partway through mutation. Do not call this ordering strategy a transaction: structural validation, shared state, file atomicity and database transactions require later knowledge.\n\n## 12. assert: development self-checks, not production input validation\n\nFile: `assert_invariant.py`.\n\n<Code language=\"python\">{getExceptionExample('assert_invariant.py')}</Code>\n\nExpected:\n\n```text\n30\n```\n\n`assert condition, message` expresses something the developer expects to hold. A false condition raises AssertionError. Here it checks a result for known test data; changing addition to subtraction would reveal a defect, not repair it. L09 introduces systematic automated testing.\n\nFile: `pitfalls/assert_validation.py`, deliberately misusing assert for untrusted input validation:\n\n<Code language=\"python\">{getExceptionExample('pitfalls/assert_validation.py')}</Code>\n\nRun ordinary mode, then optimized mode:\n\n```bash\nuv run --no-project --python 3.13 python pitfalls/assert_validation.py\nuv run --no-project --python 3.13 python -O pitfalls/assert_validation.py\n```\n\nOrdinary mode raises AssertionError on line 3 without standard output. The uppercase-letter `-O` option belongs to Python and removes asserts; the second command instead prints:\n\n```text\n-5\n```\n\nRepeat the experiment with section 6's explicit raise:\n\n```bash\nuv run --no-project --python 3.13 python -O errors/negative_minutes.py\n```\n\nIt still rejects -5 with ValueError. **Enforce input contracts with explicit if/raise, not assertions that can be disabled.** Necessary side effects must not live in assertion expressions either: an operation such as saving data might never execute after optimization.\n\n-O is not prescribed as a daily development option here, nor claimed to improve this small program's performance. It is used to verify the assertion boundary.\n\n**Checkpoint C:** record four try paths, evidence that state was not rolled back, and ordinary/optimized behavior. On returning, rerun this final group before starting independent practice.\n\n## 13. Three exercise levels: explain, repair, build a rejection report\n\n### 13.1 Predict paths before running\n\nIndependent file `predict_paths.py`:\n\n```python case=prediction\nprint(\"start\")\ntry:\n    int(\"bad\")\n    print(\"after conversion\")\nexcept ValueError:\n    print(\"except\")\nelse:\n    print(\"else\")\nfinally:\n    print(\"finally\")\nprint(\"end\")\n```\n\nWrite the output, then change `\"bad\"` to `\"0\"`, and then to None. For each version, explain whether else runs, whether end is reachable and whether finally swallowed an exception.\n\n<details>\n<summary>Open after predicting the execution paths</summary>\n\nOriginal output:\n\n```text\nstart\nexcept\nfinally\nend\n```\n\nWith `\"0\"`, output is start, after conversion, else, finally, end. With None, only start and finally print before TypeError; end does not run. “finally executed” and “subsequent code is reachable” are separate questions.\n\n</details>\n\n### 13.2 Guided repair: missing fields and bad text are not both zero\n\nThis is a **complete, intentionally incorrect program**:\n\n```python case=bad-boundary\ndef read_minutes(task):\n    try:\n        return int(task[\"minutes\"])\n    except (KeyError, ValueError):\n        return 0\n\n\nprint(read_minutes({}))\nprint(read_minutes({\"minutes\": \"bad\"}))\n```\n\nActual output:\n\n```text\n0\n0\n```\n\nFor this exercise only, define a narrow contract: valid integer strings return integers; malformed text returns None; missing required minutes preserves KeyError; wrong types preserve TypeError. Zero is a legitimate value, not an error sentinel. This exercise adds no nonnegative rule and is not the complete final parser.\n\nHint: retrieve the required dictionary field first, then protect only conversion. Do not match message wording or wrap the whole function in Exception.\n\n<details>\n<summary>Open after trying to narrow the handling boundary</summary>\n\nFile: `solutions/fix_boundary.py`.\n\n<Code language=\"python\">{getExceptionExample('solutions/fix_boundary.py')}</Code>\n\nExpected:\n\n```text\n20\nNone\n0\n```\n\nIndependently call `read_minutes({})` or `read_minutes({\"minutes\": None})`; expect KeyError and TypeError respectively. The reference does not hide them. None means only the malformed text explicitly recognized by this narrow contract.\n\n</details>\n\n### 13.3 Build a task-import report from an empty file\n\nCreate `import_report.py` without copying the reference functions. Implement two functions with the mechanisms already explained:\n\n| Function | Required contract |\n| --- | --- |\n| `parse_minutes(raw)` | Accept ordinary str only; use int, require nonnegative values and allow zero; translate format failure into ValueError with `minutes must be an integer` while retaining its cause; use `minutes must be non-negative` for negatives and TypeError for wrong types |\n| `build_report(rows)` | Preserve input order for known-shape task dictionaries; record known ValueError in rejected and continue; do not swallow missing fields, TypeError or unknown failures; do not mutate the input |\n\nrows is a list of items with a string title and ordinary-string minutes. Only the specified minute checks are implemented here; this is not full validation of the list, titles or every possible shape. Missing required fields stay visible; get must not silently supply zero.\n\nThe returned dictionary has accepted, rejected and total_minutes keys. accepted contains **newly created** title/minutes dictionaries; rejected records one-based row, title and reason. The total includes accepted records only; rejected records are not zero-minute tasks.\n\nFirst run the following input preparation on its own and confirm five rows. Then implement the functions in the same file and replace the final row-count print with your result display:\n\n```python case=exercise-input\nrows = [\n    {\"title\": \"Read\", \"minutes\": \" 20 \"},\n    {\"title\": \"Typo\", \"minutes\": \"twenty\"},\n    {\"title\": \"Zero\", \"minutes\": \"0\"},\n    {\"title\": \"Negative\", \"minutes\": \"-5\"},\n    {\"title\": \"Practice\", \"minutes\": \"35\"},\n]\nprint(\"Rows:\", len(rows))\n```\n\nPreparation output:\n\n```text\nRows: 5\n```\n\nThe completed result display should be:\n\n```text\nAccepted: [{'title': 'Read', 'minutes': 20}, {'title': 'Zero', 'minutes': 0}, {'title': 'Practice', 'minutes': 35}]\nRejected: [{'row': 2, 'title': 'Typo', 'reason': 'minutes must be an integer'}, {'row': 4, 'title': 'Negative', 'reason': 'minutes must be non-negative'}]\nTotal: 55\nSource first: {'title': 'Read', 'minutes': ' 20 '}\n```\n\nRun your own file locally:\n\n```bash\nuv run --no-project --python 3.13 python import_report.py\n```\n\nDo not stop at matching these four lines. Verify each behavior:\n\n| Change or observation | Requirement |\n| --- | --- |\n| Empty list | All three keys remain; both lists are empty and total is zero |\n| All malformed text/negative values | No accepted items; a reason for each row; total zero |\n| Only `\"0\"` | One accepted item, not an empty result or rejection |\n| Change Read to `\"21\"` | Total becomes 56 without changing calculation code |\n| Reorder inputs | Both results keep relative source order; rejection row numbers follow the new positions |\n| An item lacks minutes or title | KeyError propagates; no fabricated success report |\n| minutes is None or integer 20 | TypeError propagates; not a malformed-text rejection |\n| Call twice and mutate the first result list | The second remains unchanged; empty reports are independent too |\n| Change minutes on the first accepted item | The corresponding source dictionary remains unchanged |\n| Inject the same ValueError category into accepted-result processing | It propagates rather than being misclassified as input failure |\n\nFor the final check, follow section 8's fault injection: temporarily put `raise ValueError(\"report bug\")` in the accepted branch, observe failure, then remove it. Do not leave injected failures in the final implementation.\n\nOn an unknown error, build_report does not return a partial-success report: the call fails. Results accumulated only in local lists have not been delivered to the caller. This is not a database transaction and cannot undo prints or external mutations you separately performed.\n\n<details>\n<summary>Open after independent implementation and failure acceptance</summary>\n\nFile: `solutions/import_report.py`.\n\n<Code language=\"python\">{getExceptionExample('solutions/import_report.py')}</Code>\n\nThe reference reads required fields outside try, constructs accepted results and updates the total in else, and limits try to the parser call. `str(error)` stores a known rejection message without relying on the handler's temporary binding afterward.\n\nExplaining why ValueError is caught while TypeError/KeyError are not matters more than memorizing this indentation. Replacing the parser with one containing unrelated ValueErrors requires re-examining the boundary. A category never proves origin forever; this example relies on a known, tested parser contract.\n\n</details>\n\n## 14. Leave evidence you can resume from\n\nWithout looking at the reference, be able to explain and demonstrate:\n\n- Read a four-frame traceback, identify the failed expression and its input origin, and explain which later statements did not run.\n- Locate a silent logic defect, record a hypothesis and minimal change, and regress empty/single/multiple inputs.\n- Explain where execution resumes after except and why neither retry nor rollback happens automatically.\n- Demonstrate valid input, recoverable bad text, explicit rejection of negatives and unexpected TypeError/KeyError.\n- Preserve the original location with bare raise and the causal connection with `raise ... from error`, rather than reducing everything to a context-free string.\n- Distinguish else and finally, and explain how return in finally can mask a failure.\n- Verify explicit input validation in ordinary mode and with `-O`.\n- Rebuild the report from an empty file and pass the variations, unknown-error propagation and result-isolation checks in section 13.\n\nFor an irregular study schedule, save a short record:\n\n```text\nCurrent file:\nLast command and Python version:\nLast successful result:\nVerified success/rejection/unknown-error paths:\nUnexplained traceback or output:\nFirst command on resuming:\n```\n\nThe new standard is implemented through L05, not throughout all later historical pages. **L06, Modules and the Standard Library**, introduces splitting functions across files, import, top-level execution, working directories and entry points. Do not add a framework now merely to make this script look like a project.\n\n## 15. References and boundaries\n\nThese primary sources were checked on 2026-09-23; language experiments use the CPython 3.13 baseline:\n\n- [Python errors and exceptions tutorial](https://docs.python.org/3.13/tutorial/errors.html): syntax, handling, raising, chaining and cleanup.\n- [try statement reference](https://docs.python.org/3.13/reference/compound_stmts.html#the-try-statement): matching order and else/finally control flow.\n- [raise reference](https://docs.python.org/3.13/reference/simple_stmts.html#the-raise-statement): re-raising and explicit causes.\n- [Built-in exceptions](https://docs.python.org/3.13/library/exceptions.html): relationships and meanings rather than treating messages as categories.\n- [assert](https://docs.python.org/3.13/reference/simple_stmts.html#the-assert-statement) and [Python's -O option](https://docs.python.org/3.13/using/cmdline.html#cmdoption-O): assertions can be removed.\n- [MDN try...catch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/try...catch) and [throw](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/throw): boundaries of the JavaScript comparison.\n\nThis chapter does not implement custom exception hierarchies, ExceptionGroup, async cancellation, HTTP error responses, automatic retries, transactions, persistence or actual resource cleanup. Frontend experience is not used as a reason to skip those backend topics. Each will receive its own prerequisites and full teaching later.\n",
+      "actual_shared_python_sources": {
+        "errors/traceback_chain.py": "def parse_minutes(raw):\n    return int(raw)\n\n\ndef task_minutes(task):\n    return parse_minutes(task[\"minutes\"])\n\n\ndef build_total(tasks):\n    total = 0\n    for task in tasks:\n        total = total + task_minutes(task)\n    return total\n\n\nprint(\"Starting report\")\nprint(build_total([{\"title\": \"Read\", \"minutes\": \"25m\"}]))\nprint(\"Done\")\n",
+        "errors/debug_observation.py": "raw = \"25m\"\nprint(\"raw:\", repr(raw))\nprint(\"type:\", type(raw))\nminutes = int(raw)\nprint(\"minutes:\", minutes)\n",
+        "debug_fixed.py": "raw = \" 25 \"\nprint(\"raw:\", repr(raw))\nprint(\"type:\", type(raw))\nminutes = int(raw)\nprint(\"minutes:\", minutes)\n",
+        "debug_logic.py": "def total_minutes(values):\n    total = 0\n    for minutes in values:\n        total = total + minutes\n        return total\n    return total\n\n\nprint(total_minutes([10, 20]))\nprint(total_minutes([]))\n",
+        "recover_value.py": "for raw in [\"25\", \"bad\", \"0\"]:\n    print(\"Input:\", repr(raw))\n    try:\n        minutes = int(raw)\n        print(\"Converted:\", minutes)\n    except ValueError as error:\n        print(\"Rejected:\", error)\n    print(\"Next item\")\n",
+        "errors/unexpected_type.py": "raw = None\ntry:\n    minutes = int(raw)\nexcept ValueError:\n    print(\"Rejected text\")\nprint(\"After conversion\")\n",
+        "validate_minutes.py": "def parse_minutes(raw):\n    if type(raw) is not str:\n        raise TypeError(\"minutes must be text\")\n    minutes = int(raw)\n    if minutes < 0:\n        raise ValueError(\"minutes must be non-negative\")\n    return minutes\n\n\nfor raw in [\"25\", \"0\", \"-5\"]:\n    try:\n        minutes = parse_minutes(raw)\n        print(\"Accepted:\", minutes)\n    except ValueError as error:\n        print(\"Rejected:\", error)\n",
+        "errors/negative_minutes.py": "def parse_minutes(raw):\n    if type(raw) is not str:\n        raise TypeError(\"minutes must be text\")\n    minutes = int(raw)\n    if minutes < 0:\n        raise ValueError(\"minutes must be non-negative\")\n    return minutes\n\n\nprint(parse_minutes(\"-5\"))\n",
+        "handler_order.py": "try:\n    int(\"bad\")\nexcept Exception:\n    print(\"Broad handler ran\")\nexcept ValueError:\n    print(\"Specific handler ran\")\n\ntry:\n    int(\"bad\")\nexcept ValueError:\n    print(\"Specific handler ran\")\nexcept Exception:\n    print(\"Broad handler ran\")\n",
+        "pitfalls/wide_try.py": "def display_minutes(minutes):\n    raise ValueError(\"display rule is broken\")\n\n\nraw = \"25\"\ntry:\n    minutes = int(raw)\n    display_minutes(minutes)\nexcept ValueError:\n    print(\"Bad input\")\n",
+        "errors/narrow_try.py": "def display_minutes(minutes):\n    raise ValueError(\"display rule is broken\")\n\n\nraw = \"25\"\ntry:\n    minutes = int(raw)\nexcept ValueError:\n    print(\"Bad input\")\nelse:\n    display_minutes(minutes)\nprint(\"After display\")\n",
+        "errors/reraise.py": "def read_minutes(raw):\n    try:\n        return int(raw)\n    except ValueError:\n        print(\"Context: parsing Read\")\n        raise\n\n\nprint(read_minutes(\"bad\"))\n",
+        "errors/chained_error.py": "def parse_minutes(raw):\n    if type(raw) is not str:\n        raise TypeError(\"minutes must be text\")\n    try:\n        minutes = int(raw)\n    except ValueError as error:\n        raise ValueError(\"minutes must be an integer\") from error\n    if minutes < 0:\n        raise ValueError(\"minutes must be non-negative\")\n    return minutes\n\n\nprint(parse_minutes(\"bad\"))\n",
+        "finally_paths.py": "def convert(raw):\n    try:\n        minutes = int(raw)\n    except ValueError:\n        print(\"except\")\n        return None\n    else:\n        print(\"else\")\n        return minutes\n    finally:\n        print(\"finally\")\n\n\nprint(\"Result:\", convert(\"0\"))\nprint(\"Result:\", convert(\"bad\"))\n",
+        "errors/finally_unhandled.py": "try:\n    int(None)\nexcept ValueError:\n    print(\"except\")\nfinally:\n    print(\"finally before propagation\")\nprint(\"After\")\n",
+        "pitfalls/finally_return.py": "def convert(raw):\n    try:\n        return int(raw)\n    finally:\n        return 0\n\n\nprint(\"Overridden:\", convert(\"25\"))\nprint(\"Hidden:\", convert(\"bad\"))\n",
+        "pitfalls/partial_mutation.py": "task = {\"title\": \"Read\", \"minutes\": 20, \"changes\": []}\ntry:\n    task[\"changes\"].append(\"estimate changed\")\n    task[\"minutes\"] = int(\"bad\")\nexcept ValueError:\n    print(\"Rejected\")\nprint(task)\n",
+        "apply_estimate.py": "def parse_minutes(raw):\n    if type(raw) is not str:\n        raise TypeError(\"minutes must be text\")\n    minutes = int(raw)\n    if minutes < 0:\n        raise ValueError(\"minutes must be non-negative\")\n    return minutes\n\n\ndef replace_estimate(task, raw):\n    minutes = parse_minutes(raw)\n    task[\"minutes\"] = minutes\n    task[\"changes\"].append(\"estimate changed\")\n\n\ntask = {\"title\": \"Read\", \"minutes\": 20, \"changes\": []}\ntry:\n    replace_estimate(task, \"-5\")\nexcept ValueError as error:\n    print(\"Rejected:\", error)\nprint(task)\nreplace_estimate(task, \"0\")\nprint(task)\n",
+        "assert_invariant.py": "values = [10, 20]\ntotal = 0\nfor minutes in values:\n    total = total + minutes\nassert total == 30, \"the known fixture must total 30\"\nprint(total)\n",
+        "pitfalls/assert_validation.py": "def parse_minutes(raw):\n    minutes = int(raw)\n    assert minutes >= 0, \"minutes must be non-negative\"\n    return minutes\n\n\nprint(parse_minutes(\"-5\"))\n",
+        "solutions/fix_boundary.py": "def read_minutes(task):\n    raw = task[\"minutes\"]\n    try:\n        return int(raw)\n    except ValueError:\n        return None\n\n\nprint(read_minutes({\"minutes\": \"20\"}))\nprint(read_minutes({\"minutes\": \"bad\"}))\nprint(read_minutes({\"minutes\": \"0\"}))\n",
+        "solutions/import_report.py": "def parse_minutes(raw):\n    if type(raw) is not str:\n        raise TypeError(\"minutes must be text\")\n    try:\n        minutes = int(raw)\n    except ValueError as error:\n        raise ValueError(\"minutes must be an integer\") from error\n    if minutes < 0:\n        raise ValueError(\"minutes must be non-negative\")\n    return minutes\n\n\ndef build_report(rows):\n    accepted = []\n    rejected = []\n    total_minutes = 0\n    for number, row in enumerate(rows, start=1):\n        title = row[\"title\"]\n        raw = row[\"minutes\"]\n        try:\n            minutes = parse_minutes(raw)\n        except ValueError as error:\n            rejected.append({\"row\": number, \"title\": title, \"reason\": str(error)})\n        else:\n            accepted.append({\"title\": title, \"minutes\": minutes})\n            total_minutes = total_minutes + minutes\n    return {\n        \"accepted\": accepted,\n        \"rejected\": rejected,\n        \"total_minutes\": total_minutes,\n    }\n\n\nrows = [\n    {\"title\": \"Read\", \"minutes\": \" 20 \"},\n    {\"title\": \"Typo\", \"minutes\": \"twenty\"},\n    {\"title\": \"Zero\", \"minutes\": \"0\"},\n    {\"title\": \"Negative\", \"minutes\": \"-5\"},\n    {\"title\": \"Practice\", \"minutes\": \"35\"},\n]\nreport = build_report(rows)\nprint(\"Accepted:\", report[\"accepted\"])\nprint(\"Rejected:\", report[\"rejected\"])\nprint(\"Total:\", report[\"total_minutes\"])\nprint(\"Source first:\", rows[0])\n"
+      },
+      "validation_and_limits": "Twenty maintainer tests currently pass: actual outputs and expected failures, all three locales' code fences, JS comparison, strict AST boundary, four trace frames, input variants, cause/identity preservation, finally paths, ordinary/optimized assert checks, 85 short input patterns, 24 permutations, unknown-error propagation, fresh result identities. Translated explanatory prose has not been independently learner-tested. Browser and build checks still required. Judge the material, not guessed future chapters or teaching effectiveness from real students."
+    },
+    "questions": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "instructions": "Considering the actual lesson and all shared sources in state, does required independent work depend on a necessary concept not previously learned and not explained before required use? Do not count clearly excluded later topics or maintainer tests as prerequisites."
+      },
+      "depth": {
+        "type": "choice",
+        "instructions": "Assess explanatory depth for the stated reader: mechanisms, motivation, failure diagnosis, full examples, explicit boundaries and independent acceptance, not mere length.",
+        "criteria": {
+          "SUBSTANTIVE": "Explanations establish a usable model and concrete practice rather than API inventory.",
+          "PARTIAL": "Significant mechanisms or reader guidance are thin.",
+          "API_CATALOGUE": "Primarily names/syntax without sufficient mechanisms or practice.",
+          "INSUFFICIENT_EVIDENCE": "The supplied actual material is insufficient to assess."
+        }
+      },
+      "exception_control_flow": {
+        "type": "choice",
+        "instructions": "Assess technical accuracy and clear limits of traceback reading, matching, handler scope, else/finally, bare re-raise and explicit causes in the actual lesson and sources.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Correct and sufficiently qualified for ordinary synchronous Python 3.13 examples.",
+          "MISLEADING": "Contains a substantive false claim or misleading generalization.",
+          "MECHANISM_GAP": "Essential control-flow mechanism is insufficiently explained.",
+          "UNCERTAIN": "Evidence does not support a firm technical judgment."
+        }
+      },
+      "recovery_boundary": {
+        "type": "choice",
+        "instructions": "Assess whether the report and explanation meaningfully distinguish recoverable malformed text from missing fields, wrong types and internal defects, including a same-ValueError failure outside the parser, without promising to identify every ValueError origin.",
+        "criteria": {
+          "EXPLICIT_AND_TESTABLE": "Policy and narrow boundaries are explicit, exercisable, and their limits acknowledged.",
+          "SWALLOWS_UNKNOWN_FAILURES": "Required implementation hides unknown failures or reports false success.",
+          "UNCLEAR_RESPONSIBILITY": "Who should catch and why is not taught clearly.",
+          "UNCERTAIN": "Evidence insufficient."
+        }
+      },
+      "mutation_and_asserts": {
+        "type": "choice",
+        "instructions": "Assess the accuracy and teaching adequacy of no automatic rollback, limited validate-before-mutate guarantees, finally not being transaction/resource implementation, and assert not being production validation.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Both mechanisms and limitations are clearly and correctly taught.",
+          "MISLEADING": "An example or claim implies universal rollback, guaranteed cleanup, or safe assert-based input validation.",
+          "MECHANISM_GAP": "Statements are correct but necessary mechanisms are missing.",
+          "UNCERTAIN": "Evidence insufficient."
+        }
+      },
+      "scope": {
+        "type": "choice",
+        "instructions": "Assess whether the L05 scope is appropriate after L04 and before L06 for a slow, thorough learner; assess required capability progression rather than assuming one sitting or one week.",
+        "criteria": {
+          "BOUNDED": "A coherent exceptions/debugging chapter with stopping points; no necessary split.",
+          "PREREQUISITE_SPLIT_REQUIRED": "Mandatory concepts need an earlier chapter first.",
+          "TOO_SHALLOW": "Cannot support the intended independent capability.",
+          "TARGETED_REVIEW": "Specific uncertainty makes unqualified progression premature."
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "instructions": "Does the actual three-level practice and empty-file report acceptance require meaningful independent transfer, including boundary changes and unknown-error propagation, rather than just copying fixed printed output?"
+      },
+      "next_action": {
+        "type": "choice",
+        "instructions": "Assuming the described deterministic execution, build, download and browser checks all pass, choose the defensible next curriculum action based on the actual L05 material. This does not certify perfection or real learner outcomes.",
+        "criteria": {
+          "PROCEED_L06": "L05 is sufficiently complete and bounded to proceed to modules/standard library.",
+          "REVISE_L05": "A substantive defect or missing mechanism requires revising L05 before progression.",
+          "TARGETED_REVIEW": "Evidence uncertainty needs a targeted review before selecting progression."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "noul": 0.24
+      },
+      "depth": {
+        "type": "choice",
+        "choice": "SUBSTANTIVE",
+        "confidence": 1.0,
+        "probabilities": {
+          "SUBSTANTIVE": 1.0,
+          "PARTIAL": 0.0,
+          "INSUFFICIENT_EVIDENCE": 0.0,
+          "API_CATALOGUE": 0.0
+        }
+      },
+      "exception_control_flow": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 0.89,
+        "probabilities": {
+          "UNCERTAIN": 0.0,
+          "MISLEADING": 0.08,
+          "ACCURATE_AND_BOUNDED": 0.92,
+          "MECHANISM_GAP": 0.0
+        }
+      },
+      "recovery_boundary": {
+        "type": "choice",
+        "choice": "EXPLICIT_AND_TESTABLE",
+        "confidence": 1.0,
+        "probabilities": {
+          "SWALLOWS_UNKNOWN_FAILURES": 0.0,
+          "EXPLICIT_AND_TESTABLE": 1.0,
+          "UNCLEAR_RESPONSIBILITY": 0.0,
+          "UNCERTAIN": 0.0
+        }
+      },
+      "mutation_and_asserts": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 1.0,
+        "probabilities": {
+          "UNCERTAIN": 0.0,
+          "MISLEADING": 0.0,
+          "ACCURATE_AND_BOUNDED": 1.0,
+          "MECHANISM_GAP": 0.0
+        }
+      },
+      "scope": {
+        "type": "choice",
+        "choice": "BOUNDED",
+        "confidence": 0.98,
+        "probabilities": {
+          "TOO_SHALLOW": 0.0,
+          "PREREQUISITE_SPLIT_REQUIRED": 0.01,
+          "BOUNDED": 0.98,
+          "TARGETED_REVIEW": 0.01
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "next_action": {
+        "type": "choice",
+        "choice": "PROCEED_L06",
+        "confidence": 0.7,
+        "probabilities": {
+          "PROCEED_L06": 0.8,
+          "TARGETED_REVIEW": 0.12,
+          "REVISE_L05": 0.08
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 12382,
+      "output_tokens": 425
+    }
+  },
+  "interpretation": {
+    "action": "PROCEED_L06 is conditional on deterministic execution, regression, download and browser verification; it does not implement L06 in this batch.",
+    "limits": [
+      "Hidden-prerequisite P(yes)=0.24 remains nonzero. Actual first-use explanations for repr, exact type checking, handler binding, exception taxonomy, cause chains and optimization were checked locally; no claim of zero omissions.",
+      "Next-action confidence 0.70 describes concentration among options, not learner effectiveness or certification. No threshold copied from a cookbook is treated as universal.",
+      "English review does not certify all translated prose; code/output parity and rendered pages are checked independently.",
+      "No real learner study. A typed result and high probability do not guarantee a perfect textbook.",
+      "No subagents were started; returned Jev is not represented as gpt-6-astra.",
+      "L04 only received progression/navigation edits; its earlier review remains a historical snapshot rather than a fabricated new evaluation."
+    ]
+  },
+  "source_sha256": {
+    "content/docs/js2py/module-05-quality-testing-typing.mdx": "07be7dd3fbf124914a425921e1e14d0e8b5c153134f9e038ceb66a4643d5573c",
+    "content/docs/js2py/module-05-quality-testing-typing.zh-cn.mdx": "665e89deac17614be90d5749069eaa92bfa78bbbe91e32febc9e0e3a358c4ac1",
+    "content/docs/js2py/module-05-quality-testing-typing.zh-tw.mdx": "5189c15332f28eaea8f67ce5971e98ae72fdac466f377ae2ab67382a1be3df22",
+    "examples/js2py/u05-exceptions/errors/traceback_chain.py": "2d341c04e4b581d0281bc67ac13b261ff80a485f43aac2a9b2b703f59e30ec10",
+    "examples/js2py/u05-exceptions/errors/debug_observation.py": "87703bc9d208ff1ebce398ae95afa7c16c7a7356acd156cfee8755697d40043a",
+    "examples/js2py/u05-exceptions/debug_fixed.py": "c7c035a929515e4aaf7f21a7d9a2ebe380713016f1df4bfb5e60bd543d269a23",
+    "examples/js2py/u05-exceptions/debug_logic.py": "0be4f8f53f0ed20c41467db87677c18aa45756aaed70192fdfd20f8ce73d68d0",
+    "examples/js2py/u05-exceptions/recover_value.py": "6d2fd188d2c0fd26803043ae2967a6e15453a7f58a858f7d9c32f86fc0fa9fcb",
+    "examples/js2py/u05-exceptions/errors/unexpected_type.py": "07165dd92131ae4234d9d869b4293f06b2a1bbf452d86a87188fb50723c686ef",
+    "examples/js2py/u05-exceptions/validate_minutes.py": "d6a0e0cbf8e619c69190eb36bbbbc7b5f771bba3c3ff2e3ea961d7f3be81ea79",
+    "examples/js2py/u05-exceptions/errors/negative_minutes.py": "5b87ce1515028f7de6713f6aaeebdfd1d05f886b5b1deb2fb8157baf94f5d84e",
+    "examples/js2py/u05-exceptions/handler_order.py": "1eee1e125a6efe4ece97d3d8fd0b41a63fab52179b63ee789fe863c759388ae8",
+    "examples/js2py/u05-exceptions/pitfalls/wide_try.py": "8d08bf07fc44cdb601e6de8953254b00e8139666389a75f4190a7ca106ef9297",
+    "examples/js2py/u05-exceptions/errors/narrow_try.py": "18702c7c1040e357bd0c9c433216109ac40300e1a7e1fe64a671bbb55d2423be",
+    "examples/js2py/u05-exceptions/errors/reraise.py": "8a8818a6d8e1d09114734b4a639f5c1c24a8d0277487efecc4c3e05abc86fdaf",
+    "examples/js2py/u05-exceptions/errors/chained_error.py": "92202070344971ce9882720fd66e35d2634f58d7cb4ab49c402746b67d3d1b6f",
+    "examples/js2py/u05-exceptions/finally_paths.py": "3c4fda92445d5d2f839fa7d91f4f0e2bdecbf2f034176c814f07297f93edf614",
+    "examples/js2py/u05-exceptions/errors/finally_unhandled.py": "93762fd9b62ee1d767e4887d960ee741b514f3eb66c0bab30ad88568f7f112af",
+    "examples/js2py/u05-exceptions/pitfalls/finally_return.py": "0207e729e02b5297c2781fe52267938f4a08f83354d60b5d1de20847806d217c",
+    "examples/js2py/u05-exceptions/pitfalls/partial_mutation.py": "3df4f80c5860bc4da7814067c45beeca5433c74b4d7b55319f24704b66b609e0",
+    "examples/js2py/u05-exceptions/apply_estimate.py": "a50f3aa71dfbd939ae8be4fd96eb180873fce2b538006b9b6e624ceaadbc3710",
+    "examples/js2py/u05-exceptions/assert_invariant.py": "e13a4c758fbe60596f79ec883f90349248f4a42fdb13b0a81413ab31119c38e0",
+    "examples/js2py/u05-exceptions/pitfalls/assert_validation.py": "2d7e74c5e9d903652a5b57e4910c77824f6841dcf43457ae08d4f5cb7e2761a5",
+    "examples/js2py/u05-exceptions/solutions/fix_boundary.py": "ab494dfc65cfdb2c23726966996cd36b685b18125e3f5ebe6b86b213e8012133",
+    "examples/js2py/u05-exceptions/solutions/import_report.py": "b5968abe5d4e3137e9071fd864973f5ed1cabf485839fb84112daba7af7d57c4",
+    "examples/js2py/u05-exceptions/README.md": "7a2ddb6c3494adc5bf54cb469db8ee0daaeeddf4f251e50fa70d69f4a287044e",
+    "examples/js2py/u05-exceptions-files.json": "376e9c853930a35bbc5609c6e8a78104036df6e04eeaa5858e58ede24cfdd11c"
+  },
+  "credential_persisted": false
+}

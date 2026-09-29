@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>H06 real browser contract</title>
+<style>
+body { font: 18px/1.5 system-ui; max-width: 54rem; margin: 3rem auto; padding: 1rem; }
+button { font: inherit; padding: .5rem 1rem; } pre { white-space: pre-wrap; }
+</style>
+<h1>H06 real browser contract</h1>
+<p>API: 127.0.0.1:8006. Allowed page origin: http://127.0.0.1:5506.</p>
+<p>Run only against this disposable learning server. A created task is deleted afterwards.</p>
+<button id="run">Run browser check</button>
+<pre id="result" aria-live="polite">Not run</pre>
+<script type="module">
+const output = document.querySelector('#result');
+const button = document.querySelector('#run');
+const base = 'http://127.0.0.1:8006';
+button.addEventListener('click', async () => {
+  button.disabled = true;
+  output.textContent = 'Running';
+  let id;
+  let message = '';
+  try {
+    const created = await fetch(`${base}/tasks`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Browser check', minutes: 0 }),
+    });
+    if (created.status !== 201) throw new Error(`POST status ${created.status}`);
+    const task = await created.json();
+    id = task.id;
+    if (!Number.isInteger(id) || task.title !== 'Browser check' || task.minutes !== 0 ||
+        task.done !== false || task.note !== null || 'internal_tag' in task) {
+      throw new Error('POST contract mismatch');
+    }
+    const invalid = await fetch(`${base}/tasks`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Bad', minutes: true }),
+    });
+    const error = await invalid.json();
+    if (invalid.status !== 422 || !Array.isArray(error.detail)) throw new Error('Expected 422 detail');
+    const read = await fetch(`${base}/tasks/${id}`);
+    if (read.status !== 200 || (await read.json()).id !== id) throw new Error('GET contract mismatch');
+    message = 'PASS: browser POST 201, GET 200, strict input 422';
+  } catch (error) {
+    message = `FAIL: ${error.message}`;
+  } finally {
+    if (id !== undefined) {
+      try {
+        const removed = await fetch(`${base}/tasks/${id}`, { method: 'DELETE' });
+        if (removed.status !== 204 || (await removed.text()) !== '') throw new Error('DELETE contract mismatch');
+        message += '\nPASS: cleanup DELETE 204';
+      } catch (error) {
+        message += `\nFAIL: cleanup: ${error.message}; remove task ${id} manually`;
+      }
+    }
+    output.textContent = message;
+    button.disabled = false;
+  }
+});
+</script>
+</html>

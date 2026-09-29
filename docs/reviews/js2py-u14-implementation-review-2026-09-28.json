@@ -1,0 +1,446 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "u14-resources complete English lesson and all allowlisted download files, not subsequent chapters or production readiness.",
+  "metadata": {
+    "started_at_utc": "2026-09-28T04:04:46.612124+00:00",
+    "elapsed_seconds": 1.242,
+    "http_status": 200,
+    "endpoint": "https://api.typesafe.ai/v1/systemone",
+    "requested_model": "jev-latest",
+    "returned_model": "jev-1.13.0",
+    "questions": 7,
+    "request_sha256": "b733ce4a116fc34da50deccf6818be001398dc12e0ffe38e64ab2299f555f4ef",
+    "usage": {
+      "input_tokens": 13149,
+      "output_tokens": 341
+    },
+    "credential_persisted": false,
+    "probability_sums": {
+      "depth": 1.0,
+      "technical_mechanisms": 0.9900000000000001,
+      "failure_policy": 1.0,
+      "independent_contract": 1.0,
+      "next_action": 1.0
+    },
+    "probability_sum_absolute_tolerance": 0.02,
+    "raw_probabilities_renormalized": false
+  },
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "reader": "Experienced enterprise frontend engineer, fluent JS async/await and basic TypeScript; initially no Python/backend/database/operations practice. Slow, interrupted learning. Language foundations L00-L10 are already taught. The user now explicitly permits subagents; authorship of H01-H06 is parallel and NOT reviewed by this request.",
+      "chapter": "u14-resources",
+      "prior_and_current_contracts": [
+        {
+          "id": "L00",
+          "title": "认识 Python 与第一次运行",
+          "prerequisites": [],
+          "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+          "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+          "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+          "status": "implemented"
+        },
+        {
+          "id": "L01",
+          "title": "名称、值与基本运算",
+          "prerequisites": [
+            "L00"
+          ],
+          "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+          "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+          "boundary": "不引入复杂容器、作用域或类型体操",
+          "status": "implemented"
+        },
+        {
+          "id": "L02",
+          "title": "容器、引用与修改",
+          "prerequisites": [
+            "L01"
+          ],
+          "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+          "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+          "boundary": "不依赖循环或自定义函数完成首次容器实验",
+          "status": "implemented"
+        },
+        {
+          "id": "L03",
+          "title": "条件、循环与遍历",
+          "prerequisites": [
+            "L02"
+          ],
+          "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+          "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+          "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+          "status": "implemented"
+        },
+        {
+          "id": "L04",
+          "title": "函数、参数与作用域",
+          "prerequisites": [
+            "L03"
+          ],
+          "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+          "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+          "boundary": "不以装饰器或类封装作为练习要求",
+          "status": "implemented"
+        },
+        {
+          "id": "L05",
+          "title": "异常与调试",
+          "prerequisites": [
+            "L04"
+          ],
+          "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+          "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+          "boundary": "不把assert当作不可信输入的生产校验",
+          "status": "implemented"
+        },
+        {
+          "id": "L06",
+          "title": "模块与标准库",
+          "prerequisites": [
+            "L05"
+          ],
+          "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+          "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+          "boundary": "不先要求发布包、动态导入或框架架构",
+          "status": "implemented"
+        },
+        {
+          "id": "L07",
+          "title": "文件、JSON 与资源使用",
+          "prerequisites": [
+            "L06"
+          ],
+          "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+          "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+          "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+          "status": "implemented"
+        },
+        {
+          "id": "L08",
+          "title": "环境与依赖管理",
+          "prerequisites": [
+            "L06",
+            "L07"
+          ],
+          "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+          "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+          "boundary": "不在入门章考核；不同时比较所有包管理器",
+          "status": "implemented"
+        },
+        {
+          "id": "L09",
+          "title": "基础自动化测试",
+          "prerequisites": [
+            "L04",
+            "L05",
+            "L06",
+            "L08"
+          ],
+          "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+          "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+          "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+          "status": "implemented"
+        },
+        {
+          "id": "L10",
+          "title": "第一个独立可复现项目",
+          "prerequisites": [
+            "L07",
+            "L08",
+            "L09"
+          ],
+          "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+          "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+          "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+          "status": "implemented"
+        },
+        {
+          "id": "L11",
+          "title": "基础类型注解",
+          "prerequisites": [
+            "L02",
+            "L04",
+            "L06",
+            "L10"
+          ],
+          "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+          "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+          "boundary": "不要求复杂泛型、协议或零Any指标",
+          "status": "planned"
+        },
+        {
+          "id": "L12",
+          "title": "类与数据模型",
+          "prerequisites": [
+            "L04",
+            "L06",
+            "L11"
+          ],
+          "teach": "实例、self、初始化、组合、简单继承、dataclass",
+          "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+          "boundary": "不要求元类、深继承或框架内部实现",
+          "status": "planned"
+        },
+        {
+          "id": "L13",
+          "title": "装饰器与声明式接口",
+          "prerequisites": [
+            "L04",
+            "L06",
+            "L12"
+          ],
+          "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+          "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+          "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+          "status": "planned"
+        },
+        {
+          "id": "L14",
+          "title": "生成器与资源生命周期",
+          "prerequisites": [
+            "L05",
+            "L07",
+            "L12",
+            "L13"
+          ],
+          "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+          "acceptance": "跟踪资源获取、使用、正常及异常释放",
+          "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+          "status": "planned"
+        }
+      ],
+      "actual_english_lesson": "---\ntitle: Generators and Resource Lifecycles — Suspension, Resumption, and Release\ndescription: Trace lazy yield execution, exhaustion, and early close, then explain the with protocol and contextlib using real files, acquisition failures, body errors, and partial writes.\n---\n\nimport { getResourceExample } from '@/lib/js2py-examples'\n\n## 1. Ask who finishes, not only what a function returns\n\nEarlier, with automatically closed files. Backend code will add connections, sessions, and dependencies, where consumers may fail, read only one item, or fail to acquire a resource at all. Memorizing yield or with can leave you assuming that the end of an operation implies all resources have been released.\n\nWe will make lifecycles observable and expand familiar file handling. This is synchronous Python, not database transactions or async context management. Closing a file, rolling back business effects, and successfully persisting data are different promises.\n\n| Contract | Scope |\n| --- | --- |\n| Prerequisites | L05 exceptions, L07 files, L12 classes, L13 decorators, basic tests |\n| New capabilities | yield, suspension/resumption, iteration/exhaustion, explicit close, context protocols, contextlib |\n| Acceptance | Trace acquisition/use/normal and exceptional release, prove break is not closure, verify acquisition failure |\n| Excluded | send/bidirectional generators, complex delegation, async resource protocols, pools, transaction implementations |\n\nDownload the [complete L14 lab](/learning-assets/js2py/u14-resources.zip) and enter u14-resources. The baseline is CPython 3.13.15, uv 0.12.13, and pytest 8.4.2. These local file operations do not have misleading browser Run buttons.\n\n## 2. Calling a generator function does not execute its body immediately\n\nAn ordinary call typically executes until returning or raising. With yield in its body, calling a generator function creates a generator object; execution starts when a consumer first requests an item. yield supplies a value and suspends, retaining locals and the execution position. The next request resumes after that suspension rather than restarting the body.\n\nThe consumer may be next, for, or list. for handles normal exhaustion; manual next raises StopIteration when exhausted. An exhausted generator is not a replayable array. Call the generator function again to establish a new iteration.\n\n<Code language=\"python\">{getResourceExample('sequences.py')}</Code>\n\ntracked_minutes records events to expose mechanics; it does not hold a real system resource. It validates each value only when about to yield it, so earlier items may have been consumed before a later failure. Lazy validation differs from L11's requirement to validate everything before returning a match. Saving memory alone does not justify replacing one policy with the other.\n\n`Generator[int]` and `Generator[str]` describe the actual generator objects, including iteration and close. The single yielded-type parameter form fits the Python 3.13 baseline. These are not lists. Later, `Iterator[TextIO]` describes an iteration yielding a text file for contextmanager to adapt; bidirectional generator type parameters are not required here.\n\n## 3. Draw suspension and cleanup on a timeline\n\n```python\nfrom collections.abc import Generator\n\n\ndef numbers() -> Generator[int]:\n    print(\"start\")\n    try:\n        yield 30\n        print(\"resume\")\n        yield 0\n    finally:\n        print(\"finish\")\n\n\nvalues = numbers()\nprint(\"created\")\nprint(next(values))\nprint(list(values))\nprint(list(values))\n```\n\n```text\ncreated\nstart\n30\nresume\nfinish\n[0]\n[]\n```\n\ncreated precedes start because construction did not enter the body. list(values) consumes the remaining process: resume is printed, normal completion runs finally, then the collected [0] reaches print. The second list is empty; it does not restart the generator.\n\nfinally participates in normal completion, exception propagation, and closing a generator suspended within that try block. **Closing a never-started generator does not first execute its body or finally.** Acquiring a resource inside the body therefore means it has not been acquired before starting. Acquiring outside and returning another generator needs a separate ownership design.\n\n<details>\n<summary>Explanation answer: does a generator guarantee all input is valid?</summary>\n\nNo. Constructing tracked_minutes([30, -1], events) does not fail; the first next yields 30, and only the second rejects -1 and cleans up. A policy that rejects the whole batch before any effects requires prior validation, not lazy iteration presented as advance validation.\n\n</details>\n\n## 4. break ends a loop, not an ownership protocol\n\n<Code language=\"python\">{getResourceExample('break_demo.py')}</Code>\n\n```bash\nuv sync --locked\nuv run --locked python break_demo.py\n```\n\n```text\n30\n['started', 'yield 30']\n['started', 'yield 30', 'finished']\n```\n\nAfter break, values still references the suspended generator and finally has not run. Explicit close triggers cleanup here. Do not depend on an interpreter immediately reclaiming an incidental temporary object or on process-exit cleanup as a stable resource policy.\n\nclose finishes the suspended generator; later iteration produces no values. Closing before start produces no acquisition/release events, and closing an already closed generator does not repeat cleanup. Ordinary business code need not inject exceptions manually. It does need an explicit consumer and owner responsible for closure.\n\n## 5. A file generator must release even when you read less\n\nlines_from opens the file when iteration actually starts and yields lines with the trailing newline removed, preserving blank lines. While suspended at yield, execution is still inside the file's with block and the handle remains open. Exhaustion exits that block; early stopping requires a reliable consumer-side exit boundary.\n\n`contextlib.closing` accepts an object with close and calls that method when its with block exits, including through break or an exception. It does not turn arbitrary objects into generators or undo business effects. Having yield does not by itself make a raw generator a with-compatible context manager.\n\nThe app below includes the complete first-line-only use. There are two ownership layers: closing closes the generator; generator termination exits its internal with and closes the file. Proving that printing stopped is not proof of underlying release.\n\n## 6. Expand with: the manager and the supplied value can differ\n\nThe class version implements two special methods. __enter__ acquires the resource and returns the value supplied to the body; __exit__ defines the exit policy. In `with TextFile(...) as handle`, handle is the actual file returned by __enter__, not the TextFile manager itself.\n\n<Code language=\"python\">{getResourceExample('resources.py')}</Code>\n\nRead TextFile first. Entry records acquire-attempt and, after successful open, acquired. Normal body completion supplies three None values to __exit__. A body exception supplies its type, instance, and traceback. The unused traceback parameter carries diagnostic information; its internal structure and advanced annotations are not prerequisites here.\n\nReturning False declines to suppress the body exception. Returning True suppresses it and requires a deliberate policy. If __enter__ fails while opening, the body never runs and __exit__ is not called for that unentered context. When acquiring multiple resources, establish a release boundary for each instead of assuming the final with manages all prior failures.\n\nThis simple TextFile is not promised to support nested reuse of the same instance. Construct a fresh manager for each with to avoid overwriting a previous handle. If close itself fails during error handling, another exception can result; this chapter does not claim exhaustive coverage of disk and operating-system failures.\n\n## 7. contextmanager adapts an exactly-one-yield protocol\n\nNow read opened_text. @contextmanager accepts a generator function and produces a factory for with-compatible managers. Entry runs to yield and supplies the file to the body. Exit resumes that suspension: normal exit continues, while exceptional exit throws the body's exception at the suspended yield, allowing finally to close the handle.\n\nThis is neither background execution nor coroutine scheduling. Before yield is acquisition, the yielded value is for use, and finally handles release. Successful entry must yield exactly once; yielding zero or twice violates the protocol. An open failure may raise immediately rather than supplying a fake resource to satisfy a yield count.\n\nA manager instance is not a general reentrant object; call opened_text(...) afresh for each use. Logging and reraising an exception can aid diagnosis. Catching without reraising can instead turn failure into success, as the next experiment demonstrates.\n\n## 8. Complete execution: separate normal and exceptional cleanup\n\n<Code language=\"toml\">{getResourceExample('pyproject.toml')}</Code>\n\n<Code language=\"text\">{getResourceExample('fixtures/lines.txt')}</Code>\n\n<Code language=\"python\">{getResourceExample('app.py')}</Code>\n\n```bash\nuv run --locked python app.py\nuv run --locked python -m pytest -q\n```\n\n```text\n[]\n30\n['started', 'yield 30']\n['started', 'yield 30', 'finished']\nalpha\nTrue ['acquire-attempt', 'acquired', 'released']\nTrue ['acquire-attempt', 'acquired', 'released']\nalpha\n```\n\nFirst observe laziness and close. Next, normal exit from the class manager makes handle.closed true. Then the body deliberately fails; the file still closes, and printing occurs only after ValueError reaches the outer except. Finally, closing handles early exit from file iteration. Identical released events do not prove identical business success; inspect exceptions and results too.\n\n## 9. Two real defects: hidden failure and protocol violation\n\n<Code language=\"python\">{getResourceExample('errors/suppressed.py')}</Code>\n\n```bash\nuv run --locked python errors/suppressed.py\n```\n\nIt prints hidden and continued and exits successfully. The body failed, but the generator caught the exception and finished normally, so contextmanager treats it as handled. If saving failure must remain visible, repair by reraising, not by changing the log to say “serious error.”\n\n<Code language=\"python\">{getResourceExample('errors/two_yields.py')}</Code>\n\n```bash\nuv run --locked python errors/two_yields.py\n```\n\nIt prints first, then raises RuntimeError on exit because it yields a second time. This differs from a missing path, a body error, and a pytest assertion failure. Diagnose whether acquisition, use, or release failed instead of calling every issue a with problem.\n\n## 10. Verify real handles and failure paths, not only logs\n\n<Code language=\"python\">{getResourceExample('tests/test_resources.py')}</Code>\n\nThere are twelve cases. Parametrization gives class and generator managers the same normal, exceptional, and acquisition-failure checks. Tests inspect closed, exception propagation, whether the body ran, event order, and subsequent iteration. Logging released can itself be wrong, so a log assertion alone is insufficient.\n\nAcquisition failure uses a missing file inside an owned temporary directory rather than a path that may exist on another machine. The nested test proves the outer handle remains usable after inner exit and closes afterward. This uses already taught TemporaryDirectory and parametrization, not unexplained fixtures.\n\nGuided work: change __exit__ to return True and identify the failing exception test. Remove close from break_demo and explain why a zero process status still does not establish deterministic release.\n\n<details>\n<summary>Guided exercise checks</summary>\n\npytest.raises expects ValueError to reach the outer test boundary; suppression makes that expectation fail. Without close, inspect events while retaining the generator reference: finished must not yet appear. Waiting for garbage collection or adding sleep is not a repair. Establish an owner and an exit boundary.\n\n</details>\n\n## 11. Independent variation: a new report, not a pretend transaction\n\nImplement new_report(path, events). It may only create a new file; an existing target must be refused without altering its bytes. Yield a writable text handle, close it after normal or exceptional body exit, and propagate body exceptions. Use the same acquire-attempt/acquired/released events. The caller prepares the parent directory; do not silently create or overwrite unrelated directories.\n\nMode x provides exclusive creation and raises FileExistsError for an existing path, unlike w, which truncates. “Exclusive” describes creation, not a transaction lock covering every subsequent file operation. If the body writes part of a report and fails, partial content may remain. Document and test that policy rather than claiming close provides rollback or atomic replacement.\n\nIndependently test normal writes, existing targets, partial-write failure, and real handle closure in temporary directories. Retained effects are part of the requirement; do not silently delete files to make tests green.\n\n<details>\n<summary>Independent reference implementation and tests</summary>\n\n<Code language=\"python\">{getResourceExample('solutions/new_report.py')}</Code>\n\n<Code language=\"python\">{getResourceExample('solutions/test_new_report.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q solutions/test_new_report.py\n```\n\nTwo reference tests cover successful acquisition/use, acquisition refusal, and failure during use. Existing files record only the attempt: no body and no invented released event. Partial-write failure closes and propagates while retaining partial content. An all-or-nothing policy requires additional storage design and failure experiments not supplied by this chapter.\n\n</details>\n\n## 12. Acceptance and a lifecycle-based checkpoint\n\nIndependently draw creation, first next, suspension, resumption, and exhaustion/close. Prove break does not guarantee release, distinguish unstarted and suspended closure, implement a manager that does not swallow exceptions, make tests catch suppression, and complete the new-report requirement.\n\nBefore pausing, record who acquires and closes the resource, whether iteration has started, the last successful/failing commands, retained partial files, the failure stage, and the next step. Resume with temporary data rather than experimenting with overwriting or deleting important files.\n\nOnly after these foundations does H01 introduce a continuously running service: why one call ending does not end the process, who listens on a port, and why client input is untrusted. A file demonstration is not suddenly a deployable backend.\n\n## 13. Primary references and the extent of release guarantees\n\nChecked on September 28, 2026: [generator methods](https://docs.python.org/3.13/reference/expressions.html#generator-iterator-methods), the [with protocol](https://docs.python.org/3.13/reference/compound_stmts.html#the-with-statement), [contextlib](https://docs.python.org/3.13/library/contextlib.html), and [Generator annotations](https://docs.python.org/3.13/library/typing.html#typing.Generator).\n\nWe verify normal control flow, Python exceptions, and explicit closure—not execution of finally after forced termination, power loss, or filesystem failure. Closing is neither business rollback nor proof that data is durable on storage media. Database and operations chapters will establish those separate responsibilities.\n",
+      "actual_download_files": {
+        ".python-version": "3.13.15\n",
+        "README.md": "# u14-resources\n\nLocal CPython 3.13.15 / uv 0.12.13 lab (verified 2026-09-28); pytest 8.4.2. Standard-library business runtime.\n\nExtract the download and enter `u14-resources`. Do not copy `.venv`; reconstruct from the supplied declaration and lock.\n\n```bash\nuv sync --locked\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_new_report.py\n```\n\nDefault suite: 12 tests. Reference variation: 2 tests. Write your own implementation from the lesson requirements before opening `solutions`. The default suite does not collect intentional failures in `errors`.\n\ntwo_yields fails on exit; suppressed intentionally hides an exception and is a counterexample. break does not guarantee close. new_report can retain partial content: closure is not rollback, durability, or crash protection.\n\nRead the matching full lesson for expected outputs, explicit failure commands, mechanism explanations, independent requirements, and limits. All displayed files are canonical files in this archive; no credentials or environments are included. Resume by recording source changes, interpreter/version, working directory, last successful command, observed failure, and the next experiment. Passing this local lab is not a backend deployment certificate.\n",
+        "README.zh-cn.md": "# u14-resources\n\n本地实验，2026-09-28 实测 CPython 3.13.15、uv 0.12.13、pytest 8.4.2。业务运行只使用标准库。\n\n解压下载包并进入 `u14-resources`。不要复制 `.venv`，用声明与锁恢复环境。\n\n```bash\nuv sync --locked\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_new_report.py\n```\n\n默认套件 12 项，独立参考变式 2 项。先按教材需求自己实现，再看 `solutions`；默认发现范围不含 `errors` 中的刻意失败。\n\ntwo_yields 在退出时失败；suppressed 有意吞异常，是反例。break 不保证关闭。new_report 失败会留部分内容；关闭不是回滚、持久化或抗崩溃保证。\n\n完整教材说明预期输出、逐条失败命令、机制、独立需求与边界。本包是网页展示的源码来源，不含环境与凭证。暂停记录源码改动、解释器版本、工作目录、最后成功命令、未解决失败和下一步。通过本地实验不等于能直接交付后端。\n",
+        "README.zh-tw.md": "# u14-resources\n\n本地實驗，2026-09-28 實測 CPython 3.13.15、uv 0.12.13、pytest 8.4.2。業務運行只使用標準庫。\n\n解壓下載包並進入 `u14-resources`。不要複製 `.venv`，用聲明與鎖恢復環境。\n\n```bash\nuv sync --locked\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_new_report.py\n```\n\n默認套件 12 項，獨立參考變式 2 項。先按教材需求自己實現，再看 `solutions`；默認發現範圍不含 `errors` 中的刻意失敗。\n\ntwo_yields 在退出時失敗；suppressed 有意吞異常，是反例。break 不保證關閉。new_report 失敗會留部分內容；關閉不是回滾、持久化或抗崩潰保證。\n\n完整教材說明預期輸出、逐條失敗命令、機制、獨立需求與邊界。本包是網頁展示的源碼來源，不含環境與憑證。暫停記錄源碼改動、解釋器版本、工作目錄、最後成功命令、未解決失敗和下一步。通過本地實驗不等於能直接交付後端。\n",
+        "app.py": "from contextlib import closing\nfrom pathlib import Path\n\nfrom resources import TextFile, opened_text\nfrom sequences import lines_from, tracked_minutes\n\n\ndef main() -> None:\n    events: list[str] = []\n    values = tracked_minutes([30, 0], events)\n    print(events)\n    print(next(values))\n    print(events)\n    values.close()\n    print(events)\n\n    path = Path(__file__).parent / \"fixtures\" / \"lines.txt\"\n    events = []\n    with TextFile(path, events) as handle:\n        print(handle.readline().rstrip(\"\\n\"))\n    print(handle.closed, events)\n\n    events = []\n    try:\n        with opened_text(path, events) as handle:\n            raise ValueError(\"deliberate body failure\")\n    except ValueError:\n        print(handle.closed, events)\n\n    with closing(lines_from(path)) as lines:\n        for line in lines:\n            print(line)\n            break\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "break_demo.py": "from sequences import tracked_minutes\n\nevents: list[str] = []\nvalues = tracked_minutes([30, 0], events)\nfor value in values:\n    print(value)\n    break\nprint(events)\nvalues.close()\nprint(events)\n",
+        "errors/__init__.py": "\"\"\"Intentionally incorrect demonstrations; not the default test suite.\"\"\"\n",
+        "errors/suppressed.py": "from contextlib import contextmanager\n\n\n@contextmanager\ndef wrong_boundary():\n    try:\n        yield\n    except ValueError:\n        print(\"hidden\")  # Wrong policy here: no re-raise, so the caller continues.\n\n\nwith wrong_boundary():\n    raise ValueError(\"save failed\")\nprint(\"continued\")\n",
+        "errors/two_yields.py": "from contextlib import contextmanager\n\n\n@contextmanager\ndef wrong_resource():\n    yield \"first\"\n    yield \"second\"  # Intentional: a contextmanager must yield exactly once.\n\n\nwith wrong_resource() as value:\n    print(value)\n",
+        "fixtures/lines.txt": "alpha\n\nbeta\n",
+        "pyproject.toml": "[project]\nname = \"js2py-u14-resources\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = []\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\"]\n\n[tool.uv]\npackage = false\n\n[tool.pytest.ini_options]\npythonpath = [\".\"]\ntestpaths = [\"tests\"]\n",
+        "resources.py": "from collections.abc import Iterator\nfrom contextlib import contextmanager\nfrom pathlib import Path\nfrom typing import TextIO\n\n\nclass TextFile:\n    def __init__(self, path: Path, events: list[str]) -> None:\n        self.path = path\n        self.events = events\n        self.handle: TextIO | None = None\n\n    def __enter__(self) -> TextIO:\n        self.events.append(\"acquire-attempt\")\n        self.handle = self.path.open(encoding=\"utf-8\")\n        self.events.append(\"acquired\")\n        return self.handle\n\n    def __exit__(self, exc_type, exc_value, traceback):\n        # A successful __enter__ is the prerequisite for this exit call.\n        if self.handle is not None:\n            self.handle.close()\n        self.events.append(\"released\")\n        return False  # Do not suppress a body exception.\n\n\n@contextmanager\ndef opened_text(path: Path, events: list[str]) -> Iterator[TextIO]:\n    events.append(\"acquire-attempt\")\n    handle = path.open(encoding=\"utf-8\")\n    events.append(\"acquired\")\n    try:\n        yield handle\n    finally:\n        handle.close()\n        events.append(\"released\")\n",
+        "sequences.py": "from collections.abc import Generator\nfrom pathlib import Path\n\n\ndef tracked_minutes(values: list[int], events: list[str]) -> Generator[int]:\n    events.append(\"started\")\n    try:\n        for value in values:\n            if type(value) is not int or value < 0:\n                raise ValueError(\"minutes must be a non-negative integer\")\n            events.append(\"yield \" + str(value))\n            yield value\n    finally:\n        events.append(\"finished\")\n\n\ndef lines_from(path: Path) -> Generator[str]:\n    with path.open(encoding=\"utf-8\") as handle:\n        for line in handle:\n            yield line.rstrip(\"\\n\")\n",
+        "solutions/__init__.py": "\"\"\"Reference answers; try the independent requirement first.\"\"\"\n",
+        "solutions/new_report.py": "from collections.abc import Iterator\nfrom contextlib import contextmanager\nfrom pathlib import Path\nfrom typing import TextIO\n\n\n@contextmanager\ndef new_report(path: Path, events: list[str]) -> Iterator[TextIO]:\n    events.append(\"acquire-attempt\")\n    handle = path.open(\"x\", encoding=\"utf-8\")\n    events.append(\"acquired\")\n    try:\n        yield handle\n    finally:\n        handle.close()\n        events.append(\"released\")\n",
+        "solutions/test_new_report.py": "from pathlib import Path\nfrom tempfile import TemporaryDirectory\n\nimport pytest\n\nfrom solutions.new_report import new_report\n\n\ndef test_success_and_existing_file_preservation():\n    with TemporaryDirectory() as directory:\n        path = Path(directory) / \"report.txt\"\n        events = []\n        with new_report(path, events) as handle:\n            handle.write(\"ready\\n\")\n        assert handle.closed\n        assert path.read_text(encoding=\"utf-8\") == \"ready\\n\"\n        assert events == [\"acquire-attempt\", \"acquired\", \"released\"]\n        events = []\n        with pytest.raises(FileExistsError):\n            with new_report(path, events):\n                raise AssertionError(\"body must not execute\")\n        assert events == [\"acquire-attempt\"]\n        assert path.read_text(encoding=\"utf-8\") == \"ready\\n\"\n\n\ndef test_cleanup_is_not_rollback():\n    with TemporaryDirectory() as directory:\n        path = Path(directory) / \"partial.txt\"\n        events = []\n        with pytest.raises(ValueError, match=\"body failed\"):\n            with new_report(path, events) as handle:\n                handle.write(\"partial\\n\")\n                raise ValueError(\"body failed\")\n        assert handle.closed\n        assert events[-1] == \"released\"\n        assert path.read_text(encoding=\"utf-8\") == \"partial\\n\"\n",
+        "tests/test_resources.py": "from contextlib import closing\nfrom pathlib import Path\nfrom tempfile import TemporaryDirectory\n\nimport pytest\n\nfrom resources import TextFile, opened_text\nfrom sequences import lines_from, tracked_minutes\n\nFIXTURE = Path(__file__).resolve().parents[1] / \"fixtures\" / \"lines.txt\"\n\n\ndef test_laziness_and_normal_exhaustion():\n    events = []\n    values = tracked_minutes([30, 0], events)\n    assert events == []\n    assert next(values) == 30\n    assert events == [\"started\", \"yield 30\"]\n    assert list(values) == [0]\n    assert events == [\"started\", \"yield 30\", \"yield 0\", \"finished\"]\n    assert list(values) == []\n    with pytest.raises(StopIteration):\n        next(values)\n\n\ndef test_partial_validation_happens_when_resumed():\n    events = []\n    values = tracked_minutes([30, -1], events)\n    assert next(values) == 30\n    with pytest.raises(ValueError):\n        next(values)\n    assert events[-1] == \"finished\"\n\n\ndef test_break_needs_an_owner_to_close():\n    events = []\n    values = tracked_minutes([30, 0], events)\n    for value in values:\n        assert value == 30\n        break\n    assert \"finished\" not in events\n    values.close()\n    values.close()\n    assert events.count(\"finished\") == 1\n\n\ndef test_unstarted_close_does_not_enter_body():\n    events = []\n    values = tracked_minutes([30], events)\n    values.close()\n    assert events == []\n\n\n@pytest.mark.parametrize(\"factory\", [TextFile, opened_text])\ndef test_real_handle_normal_cleanup(factory):\n    events = []\n    with factory(FIXTURE, events) as handle:\n        assert handle.readline() == \"alpha\\n\"\n        assert not handle.closed\n    assert handle.closed\n    assert events == [\"acquire-attempt\", \"acquired\", \"released\"]\n\n\n@pytest.mark.parametrize(\"factory\", [TextFile, opened_text])\ndef test_body_failure_is_not_suppressed(factory):\n    events = []\n    with pytest.raises(ValueError, match=\"body failed\"):\n        with factory(FIXTURE, events) as handle:\n            raise ValueError(\"body failed\")\n    assert handle.closed\n    assert events[-1] == \"released\"\n\n\n@pytest.mark.parametrize(\"factory\", [TextFile, opened_text])\ndef test_acquisition_failure_has_no_body_or_exit(factory):\n    with TemporaryDirectory() as directory:\n        events = []\n        with pytest.raises(FileNotFoundError):\n            with factory(Path(directory) / \"missing.txt\", events):\n                raise AssertionError(\"body must not execute\")\n        assert events == [\"acquire-attempt\"]\n\n\ndef test_line_iteration_preserves_blank_lines_and_handles_early_exit():\n    assert list(lines_from(FIXTURE)) == [\"alpha\", \"\", \"beta\"]\n    with closing(lines_from(FIXTURE)) as lines:\n        assert next(lines) == \"alpha\"\n    assert list(lines) == []\n\n\ndef test_nested_release_order():\n    events = []\n    with opened_text(FIXTURE, events) as outer:\n        with opened_text(FIXTURE, events) as inner:\n            assert not outer.closed and not inner.closed\n        assert inner.closed and not outer.closed\n    assert outer.closed\n    assert events == [\n        \"acquire-attempt\",\n        \"acquired\",\n        \"acquire-attempt\",\n        \"acquired\",\n        \"released\",\n        \"released\",\n    ]\n",
+        "uv.lock": "version = 1\nrevision = 3\nrequires-python = \"==3.13.*\"\n\n[[package]]\nname = \"colorama\"\nversion = \"0.4.6\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz\", hash = \"sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44\", size = 27697, upload-time = \"2022-10-25T02:36:22.414Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl\", hash = \"sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6\", size = 25335, upload-time = \"2022-10-25T02:36:20.889Z\" },\n]\n\n[[package]]\nname = \"iniconfig\"\nversion = \"2.3.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz\", hash = \"sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730\", size = 20503, upload-time = \"2025-10-18T21:55:43.219Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl\", hash = \"sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12\", size = 7484, upload-time = \"2025-10-18T21:55:41.639Z\" },\n]\n\n[[package]]\nname = \"js2py-u14-resources\"\nversion = \"0.1.0\"\nsource = { virtual = \".\" }\n\n[package.dev-dependencies]\ndev = [\n    { name = \"pytest\" },\n]\n\n[package.metadata]\n\n[package.metadata.requires-dev]\ndev = [{ name = \"pytest\", specifier = \"==8.4.2\" }]\n\n[[package]]\nname = \"packaging\"\nversion = \"26.3\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/7d/fa/3944b40b07da9ce895c0e6303a5ab7d53da063554f534556b134a54d6093/packaging-26.3.tar.gz\", hash = \"sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79\", size = 313412, upload-time = \"2026-08-04T18:15:28.737Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl\", hash = \"sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c\", size = 129956, upload-time = \"2026-08-04T18:15:27.159Z\" },\n]\n\n[[package]]\nname = \"pluggy\"\nversion = \"1.6.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz\", hash = \"sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3\", size = 69412, upload-time = \"2025-05-15T12:30:07.975Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl\", hash = \"sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746\", size = 20538, upload-time = \"2025-05-15T12:30:06.134Z\" },\n]\n\n[[package]]\nname = \"pygments\"\nversion = \"2.21.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/49/2e/ced460408999b33da6b31b0021b0f37d329e202d4169aeb164493778f25b/pygments-2.21.0.tar.gz\", hash = \"sha256:610ca751c9bc2492b38eb9a38a7fbc93edbbb2d7182edaf34e66ae493dee5c8c\", size = 5005329, upload-time = \"2026-08-17T08:02:48.824Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl\", hash = \"sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9\", size = 1250147, upload-time = \"2026-08-17T08:02:44.912Z\" },\n]\n\n[[package]]\nname = \"pytest\"\nversion = \"8.4.2\"\nsource = { registry = \"https://pypi.org/simple\" }\ndependencies = [\n    { name = \"colorama\", marker = \"sys_platform == 'win32'\" },\n    { name = \"iniconfig\" },\n    { name = \"packaging\" },\n    { name = \"pluggy\" },\n    { name = \"pygments\" },\n]\nsdist = { url = \"https://files.pythonhosted.org/packages/a3/5c/00a0e072241553e1a7496d638deababa67c5058571567b92a7eaa258397c/pytest-8.4.2.tar.gz\", hash = \"sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01\", size = 1519618, upload-time = \"2025-09-04T14:34:22.711Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl\", hash = \"sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79\", size = 365750, upload-time = \"2025-09-04T14:34:20.226Z\" },\n]\n"
+      },
+      "validation_status": "Actual CPython3.13.15 and uv0.12.13 clean ZIP and second-empty-directory reconstruction passed. L11: 8+2 pytest tests, mypy2.3.1 normal pass, deliberate static errors, runtime annotation nonvalidation, neutral-config unchecked body false green, bool/int static/runtime mismatch, two mutations caught. L12:9+2 tests, sharing/binding/no-validation experiments, two mutations caught. L13:8+7 tests, expression/application timing, order/registry divergence, missing return/duplicate registration, two mutations caught. L14:12+2 tests, real handles normal/error/acquire-failure, referenced generator break/close, suppression and two-yield defects, two mutations caught. Three-locale code/output/source refs match; remaining full cumulative build/site/browser validation is still pending. This review does not establish production readiness or learner effectiveness.",
+      "primary_reference_observations": "Python3.13 official docs for typing/classes/dataclasses/function definitions/functools/generator methods/contextlib read. Mypy2.3.1 and pytest8.4.2 official repository docs used after documentation sites returned403. Python3.13 Generator yield-only annotation shorthand actually evaluated. Exact-int policy intentionally rejects bool and subclasses; Any/object boundary is not a schema. Models public mutation is explicitly not revalidated. Decorator factories evaluate top-down and apply bottom-up, main expansion only scoped to independent factories. Plain break does not close a retained generator; unstarted close does not execute body; contextmanager must yield once after successful acquisition, cleanup != rollback."
+    },
+    "questions": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "instructions": "Does REQUIRED learner work use an essential capability neither taught previously nor explained before required use? Exclude maintainer verification and explicitly optional advanced concepts."
+      },
+      "depth": {
+        "type": "choice",
+        "instructions": "Assess motivation, actual mechanism explanations, diagnosis and independent work in the supplied full material, not length.",
+        "criteria": {
+          "SUBSTANTIVE": "Concrete transferable textbook teaching.",
+          "PARTIAL": "Important mechanisms abbreviated.",
+          "API_CATALOGUE": "Primarily syntax/names.",
+          "UNCERTAIN": "Evidence is insufficient."
+        }
+      },
+      "technical_mechanisms": {
+        "type": "choice",
+        "instructions": "Review actual claims against actual code. L11 annotation/default/narrowing/Any/runtime rules and mypy scope; L12 ownership/binding/composition/inheritance/dataclass defaults and explicit validation; L13 factory/evaluation/application/invocation/registration/wrapping/order/parametrization; L14 lazy validation/exhaustion/break/close/with/contextmanager/failure stages.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Mechanism is accurate, taught before required use, and limitations are explicit.",
+          "MATERIAL_ERROR": "Substantive inaccurate or unsafe technical claim.",
+          "NECESSARY_GAP": "Essential explanation or evidence missing.",
+          "UNCERTAIN": "Evidence cannot settle this."
+        }
+      },
+      "failure_policy": {
+        "type": "choice",
+        "instructions": "Are failures intentional, diagnosed by correct stage, and repaired without masking errors or claiming guarantees not supplied? Separate explicitly marked bad examples from recommended implementations.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Mechanism is accurate, taught before required use, and limitations are explicit.",
+          "MATERIAL_ERROR": "Substantive inaccurate or unsafe technical claim.",
+          "NECESSARY_GAP": "Essential explanation or evidence missing.",
+          "UNCERTAIN": "Evidence cannot settle this."
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "instructions": "Do the independent requirements, actual implementations/tests, exact types, outputs and commands agree?",
+        "criteria": {
+          "COHERENT_AND_TESTABLE": "Agree and have measurable acceptance.",
+          "CONTRADICTORY": "A material requirement/source/behavior conflict.",
+          "UNDERSPECIFIED": "Essential policy unclear.",
+          "UNCERTAIN": "Insufficient evidence."
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "instructions": "Does acceptance require explanation, changed input, reconstruction, diagnosis, or defect detection rather than copying a fixed success output?"
+      },
+      "next_action": {
+        "type": "choice",
+        "instructions": "Assuming pending cumulative build/site/browser checks pass, choose the action for THIS chapter only.",
+        "criteria": {
+          "PROCEED": "Complete enough to continue in prerequisite order.",
+          "REVISE": "Material issue needs repair first.",
+          "TARGETED_REVIEW": "Uncertainty requires focused evidence inspection."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "noul": 0.22
+      },
+      "depth": {
+        "type": "choice",
+        "choice": "SUBSTANTIVE",
+        "confidence": 1.0,
+        "probabilities": {
+          "PARTIAL": 0.0,
+          "SUBSTANTIVE": 1.0,
+          "API_CATALOGUE": 0.0,
+          "UNCERTAIN": 0.0
+        }
+      },
+      "technical_mechanisms": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 0.91,
+        "probabilities": {
+          "NECESSARY_GAP": 0.02,
+          "MATERIAL_ERROR": 0.03,
+          "ACCURATE_AND_BOUNDED": 0.93,
+          "UNCERTAIN": 0.01
+        }
+      },
+      "failure_policy": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 1.0,
+        "probabilities": {
+          "NECESSARY_GAP": 0.0,
+          "MATERIAL_ERROR": 0.0,
+          "ACCURATE_AND_BOUNDED": 1.0,
+          "UNCERTAIN": 0.0
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "choice": "COHERENT_AND_TESTABLE",
+        "confidence": 0.96,
+        "probabilities": {
+          "CONTRADICTORY": 0.03,
+          "UNDERSPECIFIED": 0.0,
+          "COHERENT_AND_TESTABLE": 0.97,
+          "UNCERTAIN": 0.0
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "noul": 0.94
+      },
+      "next_action": {
+        "type": "choice",
+        "choice": "PROCEED",
+        "confidence": 0.88,
+        "probabilities": {
+          "TARGETED_REVIEW": 0.06,
+          "PROCEED": 0.92,
+          "REVISE": 0.02
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 13149,
+      "output_tokens": 341
+    }
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not gpt-6-astra. User-authorized writing subagents work on distinct later chapters; they are not this service.",
+    "decision": "Conditional PROCEED adopted after real runtime, mutation, reconstruction, cumulative regression and three-locale page checks. Lower-confidence and unfavorable branches explicitly audited, not hidden.",
+    "limits": "Confidence is distribution concentration, not correctness or measured learner effectiveness. Translation/runtime/browser checks are separate. The original request truthfully states site checks were pending then.",
+    "snapshot": "Reviewed English and downloads match exact submitted bytes. Additional hashes bind this verification snapshot only; later updates to shared navigation/tooling do not rewrite historical reviews."
+  },
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-14-resources.mdx",
+    "examples/js2py/u14-resources/.python-version",
+    "examples/js2py/u14-resources/README.md",
+    "examples/js2py/u14-resources/README.zh-cn.md",
+    "examples/js2py/u14-resources/README.zh-tw.md",
+    "examples/js2py/u14-resources/app.py",
+    "examples/js2py/u14-resources/break_demo.py",
+    "examples/js2py/u14-resources/errors/__init__.py",
+    "examples/js2py/u14-resources/errors/suppressed.py",
+    "examples/js2py/u14-resources/errors/two_yields.py",
+    "examples/js2py/u14-resources/fixtures/lines.txt",
+    "examples/js2py/u14-resources/pyproject.toml",
+    "examples/js2py/u14-resources/resources.py",
+    "examples/js2py/u14-resources/sequences.py",
+    "examples/js2py/u14-resources/solutions/__init__.py",
+    "examples/js2py/u14-resources/solutions/new_report.py",
+    "examples/js2py/u14-resources/solutions/test_new_report.py",
+    "examples/js2py/u14-resources/tests/test_resources.py",
+    "examples/js2py/u14-resources/uv.lock"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-14-resources.mdx": "13b0f93c1944b6a070117ee39ccdcac4cd397f76929b878404fa1c4a4015b366",
+    "examples/js2py/u14-resources/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/u14-resources/README.md": "733f34564b4829dbe716293c5050554bba7b1b38e820f342d35b80dd77941657",
+    "examples/js2py/u14-resources/README.zh-cn.md": "e42513e53545772da22f651458a4274f27a79d17be127eaa56700fb35d42e396",
+    "examples/js2py/u14-resources/README.zh-tw.md": "d25507fb3020b1286ca2436837d6e2aae704e0e3fd781a014ca6e4faf0665491",
+    "examples/js2py/u14-resources/app.py": "3783b44a78b990590ae9a5685b435c9f4c3ef51a793c50e97669d363e0c44425",
+    "examples/js2py/u14-resources/break_demo.py": "aa2a1394ca6488c818202b8c6e254ba9f7490befbe3cca18be9acb6911f09f10",
+    "examples/js2py/u14-resources/errors/__init__.py": "a709bf15cc771c29db9b83f259fb31bc1a80c4cfa123f16b0b88c0d3b3756634",
+    "examples/js2py/u14-resources/errors/suppressed.py": "8b29c9e6e43536cf3532d89d85050130323a186a2653e4be7df8ebaa657c0fd6",
+    "examples/js2py/u14-resources/errors/two_yields.py": "2c0614369c1f37e497edebf8fd1432016ddce9227bad00cca5bac873ca5c443b",
+    "examples/js2py/u14-resources/fixtures/lines.txt": "0e937c34625ef864d694878f01fd96318893d29014a51536006dacd150d809ec",
+    "examples/js2py/u14-resources/pyproject.toml": "4bbb0193e466b73bf1b49c64515b72fc5900077a02e01bd3ca4c615414322697",
+    "examples/js2py/u14-resources/resources.py": "a636afacd9c8a1994351128b5b1c7b8dce5ac3a7f4e90539edf4c63d693acaa5",
+    "examples/js2py/u14-resources/sequences.py": "a5f558d1db1daf23692192f2f65c04a746eee206a0a22d1c2f20c8c01b78fc45",
+    "examples/js2py/u14-resources/solutions/__init__.py": "9d3de2f67aece9cf57204d2c74f6ca357407f0fb768ea1cb8f88fb7e59504820",
+    "examples/js2py/u14-resources/solutions/new_report.py": "6e96914d070499e5610f243ad12c9791959806493ef55e1dd406e1a9b8a42158",
+    "examples/js2py/u14-resources/solutions/test_new_report.py": "0559765dec927ca3a5440a00ebe5d9ad57c847d37c3a5cc473237da89d312166",
+    "examples/js2py/u14-resources/tests/test_resources.py": "74e051fbe0e8bc26e694758b8617ab2b05b4fd2d883245b3f9bc0cba038b3651",
+    "examples/js2py/u14-resources/uv.lock": "ba189f9e379d941c767a4f89f169e113cbe6d7b557abf915a693a8a0b29e3439",
+    ".gitignore": "6c96925a50699e6f3fadb2a8eef6118152c916a12671a8deebc2ba481d61670c",
+    "package.json": "fd985cfdc90b0a5cf30064f4abb15b0049ddc83e79b36d44d58f17a69b35afc7",
+    "lib/js2py-examples.ts": "75087a16762826a10ac9a33198e52d1de2e4245ae3d589015fddbcfb1b88a908",
+    "scripts/build-js2py-lab.py": "21b370744d42f75ab8c788ae77eb96bc8fca0a155aec57bca205d4cbe5dd7beb",
+    "scripts/check-js2py-content.py": "510b18f2832acf578b77e2d1f86498b9e24dc46f0bc29050dc0cb20a8aee1063",
+    "scripts/test-js2py-transitions.py": "32027ee4ba29759649402dfbb8422b9ba38dd945cf21b2f5731818555577677d",
+    "scripts/tests/test_js2py_transition_foundations.py": "09dfa05193eaab7ff72b5783cff67e2ae025d1de8985fb29f336eb079b4330d9",
+    "scripts/tests/fixtures/js2py-transition-foundations.json": "45b36bd746886121fb2e9947c3818b00b28ccdc5a08c9f0d01368bfc6ea6a8d9",
+    "scripts/tests/test_js2py_first_script.py": "1dcb571b6c749a1a8f5e8392316064400c793777932f9a81fc0736c582aef4c7",
+    "docs/js2py-chapter-contracts.json": "1eb527248683809ed1df8c44747536ab89dd9c00b013446a3b79fbd53b7a2044",
+    "docs/js2py-learning-path.zh-cn.md": "2352e3071a568c31c8a26d6c303c5adb0f79b681e621dbc7962e7f41fc74d95f",
+    "docs/reviews/js2py-l11-l14-source-check-2026-09-28.md": "4da727b4be314cb34b91e9bef59d0a5a917b500f862b3cf01d5aac8995c99f1f",
+    "content/docs/js2py/index.mdx": "a787392d01d46786e8c05da476e1f2cd8476abeed8610060c33e885411074601",
+    "content/docs/js2py/index.zh-tw.mdx": "a5a09adbd35a02a6c25100b4cfccc452942621e47a5b40ec3b1e4ea647e23aeb",
+    "content/docs/js2py/index.zh-cn.mdx": "e51c0aedbe476e69f6f49408ccfff5d7afba5ca3d145ecce5c98a7e8395d6eec",
+    "content/docs/js2py/module-14-resources.zh-cn.mdx": "f7b0f4b712b95d3aab670e83f4de7c6c37ec075825e05efa559560e7c7756de6",
+    "content/docs/js2py/module-14-resources.zh-tw.mdx": "61b7c5d965e7220262bf82be30ef71e86e66a0ed9fd2692639339d982872a999",
+    "examples/js2py/u14-resources-files.json": "59523ab794e6a7196393e7bb24242b0897a573abb61e137b82350af74283b64d",
+    "public/learning-assets/js2py/u14-resources.zip": "428145580fb24b2095142513d7697ac3d87092a7226498796f1a56ff88cd94cb"
+  },
+  "verification_report": "js2py-l11-l14-source-check-2026-09-28.md",
+  "credential_persisted": false,
+  "interface_recovery": {
+    "date": "2026-09-28",
+    "batch": "review-19",
+    "failure": "Original runner rejected the next_action probability sum (absolute difference from 1 was not below 0.001) after receiving/parsing a response. The original runner validated before saving; raw response was lost. No choice or confidence from this attempt is interpreted.",
+    "retry_policy": "One transport/interface recovery retry of the exact request with raw response persistence before validation and explicit reported probability-sum tolerance. This is not sampling for a better semantic score.",
+    "credential_persisted": false
+  },
+  "accepted_raw_response_sha256": "c2aaba4a709ea676d010250d2a01a602741f14b544282806966c394753d35558"
+}

@@ -1,0 +1,1126 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-09-28",
+  "timezone": "Asia/Shanghai",
+  "repository": "/Users/mikmyp/Documents/code-projects/langshift.dev",
+  "report_path": "/tmp/langshift-d06-a02-g01-prerequisite-audit.json",
+  "audit_type": "bounded_independent_read_only_prerequisite_and_acceptance_review",
+  "reader": "成熟JS/企业前端工程师，从未写Python/后端/DB/运维；按39章能力阶梯慢工细学，不以API目录或代码展示代替首次教学。",
+  "constraints_observed": {
+    "repository_files_written": false,
+    "typesafe_invoked": false,
+    "full_integration_rerun": false,
+    "database_connection_or_server_start": false,
+    "existing_user_processes_signaled": false,
+    "dependencies_installed": false,
+    "report_only_write": "/tmp/langshift-d06-a02-g01-prerequisite-audit.json"
+  },
+  "triage_inputs": [
+    {
+      "chapter": "D06",
+      "module": "module-26-database-testing",
+      "lab": "d06-database-testing",
+      "supplied_hidden_prerequisite_scores": [
+        0.57,
+        0.47
+      ],
+      "target": "review"
+    },
+    {
+      "chapter": "A02",
+      "module": "module-31-external-services",
+      "lab": "a02-external-services",
+      "supplied_hidden_prerequisite_scores": [
+        0.6,
+        0.61
+      ],
+      "target": "review"
+    },
+    {
+      "chapter": "G01",
+      "module": "module-38-graduation",
+      "lab": "g01-graduation",
+      "supplied_hidden_prerequisite_scores": [
+        0.76,
+        0.67
+      ],
+      "target": "review"
+    }
+  ],
+  "triage_interpretation": "分数仅用于指定审查对象，未据概率判错，未推测模型心理。原始state只有直接前置，不能据其缺少传递章节就认定读者没有学过；反过来DAG契约也不能证明未写页面已教。",
+  "summary": {
+    "actionable_target_material_findings": 2,
+    "severity_counts": {
+      "P2": 2
+    },
+    "availability_gates": 2,
+    "D06": "主要DB/fixture/SQL先修有明确传递教学，未证实广义hidden prerequisite；须补清小数据计划练习的参数/断言联动。",
+    "A02": "主要异步生命周期机制已教；确认async for流式正文处理存在首次解释缺口。S01–S03当前缺页仍是课程必修门禁。",
+    "G01": "所查要求与材料没有后端实现答案，没有把checker称作毕业/上线证明；高分不能据此判错。前38章的合同闭包存在，但S/O缺页及O06真实证据未具备时不能宣称新读者可直接毕业。",
+    "overall": "需要局部教学补充并保持上游未完成门禁；不是泛化安全合规结论，也不是全课程验收。"
+  },
+  "dag": {
+    "source": "/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-chapter-contracts.json",
+    "chapter_count": 39,
+    "all_ids_unique": true,
+    "all_edges_resolve": true,
+    "acyclic": true,
+    "all_edges_point_backward_in_chapter_order": true,
+    "edges": {
+      "L00": [],
+      "L01": [
+        "L00"
+      ],
+      "L02": [
+        "L01"
+      ],
+      "L03": [
+        "L02"
+      ],
+      "L04": [
+        "L03"
+      ],
+      "L05": [
+        "L04"
+      ],
+      "L06": [
+        "L05"
+      ],
+      "L07": [
+        "L06"
+      ],
+      "L08": [
+        "L06",
+        "L07"
+      ],
+      "L09": [
+        "L04",
+        "L05",
+        "L06",
+        "L08"
+      ],
+      "L10": [
+        "L07",
+        "L08",
+        "L09"
+      ],
+      "L11": [
+        "L02",
+        "L04",
+        "L06",
+        "L10"
+      ],
+      "L12": [
+        "L04",
+        "L06",
+        "L11"
+      ],
+      "L13": [
+        "L04",
+        "L06",
+        "L12"
+      ],
+      "L14": [
+        "L05",
+        "L07",
+        "L12",
+        "L13"
+      ],
+      "H01": [
+        "L10",
+        "L14"
+      ],
+      "H02": [
+        "H01"
+      ],
+      "H03": [
+        "H02",
+        "L13"
+      ],
+      "H04": [
+        "H03",
+        "L11",
+        "L12"
+      ],
+      "H05": [
+        "H04",
+        "L14"
+      ],
+      "H06": [
+        "H05",
+        "L09",
+        "L13"
+      ],
+      "D01": [
+        "H06"
+      ],
+      "D02": [
+        "D01"
+      ],
+      "D03": [
+        "D02"
+      ],
+      "D04": [
+        "D03",
+        "H05"
+      ],
+      "D05": [
+        "D04"
+      ],
+      "D06": [
+        "D05",
+        "H06"
+      ],
+      "S01": [
+        "D06"
+      ],
+      "S02": [
+        "S01"
+      ],
+      "S03": [
+        "S02",
+        "D03"
+      ],
+      "A01": [
+        "S03"
+      ],
+      "A02": [
+        "A01",
+        "L14",
+        "H05"
+      ],
+      "O01": [
+        "A02"
+      ],
+      "O02": [
+        "O01",
+        "L08"
+      ],
+      "O03": [
+        "O02"
+      ],
+      "O04": [
+        "O03",
+        "D05",
+        "D06"
+      ],
+      "O05": [
+        "O04"
+      ],
+      "O06": [
+        "O05"
+      ],
+      "G01": [
+        "O06"
+      ]
+    },
+    "target_transitive_prerequisites": {
+      "D06": [
+        "L00",
+        "L01",
+        "L02",
+        "L03",
+        "L04",
+        "L05",
+        "L06",
+        "L07",
+        "L08",
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "H01",
+        "H02",
+        "H03",
+        "H04",
+        "H05",
+        "H06",
+        "D01",
+        "D02",
+        "D03",
+        "D04",
+        "D05"
+      ],
+      "A02": [
+        "L00",
+        "L01",
+        "L02",
+        "L03",
+        "L04",
+        "L05",
+        "L06",
+        "L07",
+        "L08",
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "H01",
+        "H02",
+        "H03",
+        "H04",
+        "H05",
+        "H06",
+        "D01",
+        "D02",
+        "D03",
+        "D04",
+        "D05",
+        "D06",
+        "S01",
+        "S02",
+        "S03",
+        "A01"
+      ],
+      "G01": [
+        "L00",
+        "L01",
+        "L02",
+        "L03",
+        "L04",
+        "L05",
+        "L06",
+        "L07",
+        "L08",
+        "L09",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "H01",
+        "H02",
+        "H03",
+        "H04",
+        "H05",
+        "H06",
+        "D01",
+        "D02",
+        "D03",
+        "D04",
+        "D05",
+        "D06",
+        "S01",
+        "S02",
+        "S03",
+        "A01",
+        "A02",
+        "O01",
+        "O02",
+        "O03",
+        "O04",
+        "O05",
+        "O06"
+      ]
+    },
+    "target_transitive_counts": {
+      "D06": 26,
+      "A02": 31,
+      "G01": 38
+    },
+    "status_note": "合同中目标及多数后端章节仍为planned，页面/样例已写不自动修改此状态。"
+  },
+  "findings": [
+    {
+      "id": "D06-F01",
+      "chapter": "D06",
+      "severity": "P2",
+      "kind": "guided_required_exercise_contract_mismatch",
+      "title": "缩小计划实验数据量时，尚未观察计划就撞上固定基线断言；目标项目也可能没有样本",
+      "primary_location": {
+        "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+        "start_line": 172,
+        "end_line": 177
+      },
+      "supporting_locations": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/query_plan.py",
+          "start_line": 31,
+          "end_line": 42
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/query_plan.py",
+          "start_line": 44,
+          "end_line": 62
+        }
+      ],
+      "required_path": "D05/H06 → D06 §10–11 查询计划基线 → §12 带提示修改（几行与六万行比较）→ 出口解释查询改进。不是附录里的可选运维内部实现。",
+      "observed_material": "正文要求把 query_plan 数据量缩小到几行；折叠答案只笼统要求重新设计观察断言。源码仍固定创建 200 项目，以 projects[-1] 查询，断言总行数为 60000、结果为20，并要求新索引被采用；report 的 rows_seeded/projects/returned 也写死。",
+      "reproducible_static_reasoning": "若读者按字面把任务 generate_series(1, 60000) 改成 generate_series(1, 6)，前6行分配给前6项目，查询的第200项目没有任务；第51行先因6 != 60000失败，尚未运行第58–60行的计划输出。即使更新该计数，len(after_rows)==20仍失败。此结论是直接读取控制流和种子公式得到，没有运行数据库，也没有声称实测小表会选择哪种扫描。",
+      "why_not_hidden_transitive_prerequisite": "D02 已讲 WHERE/JOIN/聚合；D06 已讲小表不必用索引。问题不是读者欠 SQL 或规划器先修，而是引导修改没有区分固定基线的数据/正确性断言与需要放松的索引选择断言。",
+      "minimal_teaching_addition": "小数据变式不只改生成行数：本脚本把200个项目、目标项目、60000总行数、20条结果和证据标签绑定成一份基线。请在练习副本中先选一个确有 doing 任务的项目，按新样本核对总行数与应返回的任务身份/数量；保留索引前后结果相等的断言，只把“必须选择复合索引”改为记录和解释。同步更正证据中的样本数量，别把小样本仍标成60000。完成后恢复原基线及其断言。",
+      "acceptance_for_fix": "用明确的小样本能得到两份计划和真实样本计数；结果正确性仍被核对，不因“几行”就删掉所有断言；六万行原基线保持原有验收。此处是补充后的验收建议，审查未执行。",
+      "locale_scope": "英文与繁中第172–177行存在相同指令及同一共享源码；建议三语同步，不涉及措辞风格。",
+      "confidence": "high_static",
+      "changes_applied": false
+    },
+    {
+      "id": "A02-F01",
+      "chapter": "A02",
+      "severity": "P2",
+      "kind": "first_use_explanation_gap",
+      "title": "必读响应适配器首次使用 async for，却未教会其等待、结束及异常退出语义",
+      "primary_location": {
+        "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+        "start_line": 105,
+        "end_line": 115
+      },
+      "supporting_locations": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/service.py",
+          "start_line": 37,
+          "end_line": 57
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-30-async-model.zh-cn.mdx",
+          "start_line": 97,
+          "end_line": 123
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+          "start_line": 48,
+          "end_line": 74
+        }
+      ],
+      "required_path": "A01 的等待/取消/预算 + L14 的资源边界 → A02 §4–7 生命周期与超时 → §8 要求从 hint 追踪到 _once → §12故障诊断和§15独立解释新故障/谁清理。",
+      "observed_material": "A02 专门解释了 async with、异步生成器管理器和 AnyIO 清理保护，但必读 service.py 第50行使用 async for chunk in response.aiter_raw()。正文仅说 raw 字节累计限制1024，没有说明异步迭代如何逐次等待、为何不能换普通for、迭代结束与响应关闭的责任如何区分。对所有现有简中页检索 async for/aiter/异步迭代/__aiter__/__anext__/bytearray，只有L03“不要求异步迭代”的边界命中，未发现前序教学桥接；代码展示本身不算解释。",
+      "why_it_matters": "此循环是慢响应让出执行、逐块限制不可信正文和取消离开响应范围的核心，不是读者可以完全当黑箱的测试工具。熟悉JS async/await不等于已经知道Python异步迭代；也不能由L14恰好一次yield的管理器协议推得此循环。",
+      "what_is_already_taught": "不重复报缺失Task/Semaphore/timeout/finally：A01 §7–9已解释；不要求重教asynccontextmanager/AnyIO scope：A02 §4–6已在首次核心使用附近提供机制解释。",
+      "minimal_teaching_addition": "aiter_raw() 给出异步字节块迭代器，不是已下载好的列表。async for 每次等待下一块，再执行循环体；迭代器报告结束时循环结束，它并不会为每块另建Task。普通for不能代替这次异步等待。bytearray是可累加的字节缓冲；先检查已有字节数加新块长度，再extend，所以超限块不会加入保留正文，1024是字节数而非字符数。等待时若取消，异常离开循环，由外层 async with client.stream(...) 退出响应范围，不能把async for本身当成关闭整个客户端的语句。最后bytes(body)交给模型验证完整JSON。",
+      "minimal_comprehension_check": "先口述收到700字节再收到400字节时哪一步拒绝、保留缓冲有多大；再口述等待下一块时被取消，谁退出响应范围、谁仍拥有共享client。不必引入自定义异步迭代器或新框架。",
+      "acceptance_for_fix": "读者能解释每次等待、循环正常结束、正文超限与取消三条路径，并能把响应清理与应用级client关闭分开；保留现有政策和真实socket证据，不要求重跑整个A组集成。",
+      "locale_scope": "教学缺口以简中必修阅读为主要证据；三语读取同一service.py。没有做全套英文/繁中逐句教学审查。",
+      "confidence": "high_static",
+      "changes_applied": false
+    }
+  ],
+  "resolved_or_rejected_broad_suspicions": [
+    {
+      "chapter": "D06",
+      "question": "fixture、yield前失败、函数作用域隔离是否凭空出现？",
+      "disposition": "not_a_hidden_prerequisite",
+      "evidence": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx",
+          "start_line": 85,
+          "end_line": 100
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-14-resources.zh-cn.mdx",
+          "start_line": 106,
+          "end_line": 124
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+          "start_line": 59,
+          "end_line": 77
+        }
+      ],
+      "reason": "H06已经讲fixture参数供应、conftest发现、scope、yield前失败；D06把相同所有权原则落实到数据库/Engine/Session，不是只罗列API。"
+    },
+    {
+      "chapter": "D06",
+      "question": "真实数据库、SQL约束/聚合、Session、迁移是否超出直接D05/H06合同？",
+      "disposition": "covered_by_transitive_prerequisites",
+      "evidence": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-21-relational-data.zh-cn.mdx",
+          "start_line": 87,
+          "end_line": 141
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-22-sql.zh-cn.mdx",
+          "start_line": 63,
+          "end_line": 84
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-24-sqlalchemy.zh-cn.mdx",
+          "start_line": 45,
+          "end_line": 90
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-cn.mdx",
+          "start_line": 85,
+          "end_line": 157
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+          "start_line": 89,
+          "end_line": 159
+        }
+      ],
+      "reason": "D01解释server/cluster/role/socket及独占运行；D02解释LEFT JOIN、ON/WHERE、NULL、coalesce、GROUP BY；D04解释事务/Session/连接池；D05解释历史迁移。D06再教deferred COMMIT、隔离库测试和EXPLAIN，不能把直接合同未展开误判为这些都没教。"
+    },
+    {
+      "chapter": "A02",
+      "question": "异步资源管理、lifespan、取消、semaphore、总预算是否全属隐藏先修？",
+      "disposition": "mostly_explicitly_taught",
+      "evidence": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-14-resources.zh-cn.mdx",
+          "start_line": 106,
+          "end_line": 124
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-cn.mdx",
+          "start_line": 64,
+          "end_line": 136
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-30-async-model.zh-cn.mdx",
+          "start_line": 97,
+          "end_line": 130
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+          "start_line": 48,
+          "end_line": 115
+        }
+      ],
+      "reason": "L14/H05/A01提供基础，A02自身解释新协议和取消scope，不能要求读者先学未来O01才可运行本地回环服务。真正的小缺口限定为本报告A02-F01。"
+    },
+    {
+      "chapter": "G01",
+      "question": "只列O06是否意味着权限、幂等、迁移、观测和恢复都是G01的隐藏新要求？",
+      "disposition": "not_demonstrated_by_direct_contract_only",
+      "evidence": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-chapter-contracts.json",
+          "start_line": 316,
+          "end_line": 463
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-38-graduation.zh-cn.mdx",
+          "start_line": 10,
+          "end_line": 28
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-38-graduation.zh-cn.mdx",
+          "start_line": 58,
+          "end_line": 106
+        }
+      ],
+      "reason": "O06的传递闭包是前38章，涵盖S01–S03/D03–D06/A02/O04–O06。评论的新角色组合、撤回、冲突、重放与恢复是综合需求，不因没有给算法就判教材缺步骤；前序当前缺页另列，不能用DAG合同冒充已教。"
+    }
+  ],
+  "upstream_availability_and_gates": [
+    {
+      "id": "PATH-S-GAP",
+      "kind": "current_material_availability_gate_not_new_target_algorithm",
+      "affected_targets": [
+        "A02",
+        "G01"
+      ],
+      "missing_logical_chapters": [
+        "S01",
+        "S02",
+        "S03"
+      ],
+      "evidence": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-chapter-contracts.json",
+          "start_line": 328,
+          "end_line": 369
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+          "start_line": 16,
+          "end_line": 21
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-38-graduation.zh-cn.mdx",
+          "start_line": 39,
+          "end_line": 66
+        }
+      ],
+      "filesystem_observation": "content/docs/js2py/没有module-27-*.mdx、module-28-*.mdx、module-29-*.mdx（含简繁中）；examples/js2py/s01-identity、s02-authorization、s03-reliable-operations有代码，但未见这些目录的README正文，代码不能替代成熟JS工程师的首次后端安全教学。",
+      "required_path": "D06 → S01 → S02 → S03 → A01 → A02；同一链也通向G01。",
+      "impact": "不能根据合同存在或lab代码存在，声称当前新读者已获得认证/对象授权/持久幂等先修。A02的本地资源小实验仍可单独研究，但课程必修先修未被材料完整兑现。",
+      "minimal_gate_text": "本页的小实验可以独立运行，但不补验S01–S03。尚未完成凭证、对象权限和可靠操作学习与验收时，请把该先修记为未完成，不把提示实验通过视为可靠多用户业务通过。",
+      "recommendation": "把教学与验收补在所属S章节，或保留明确未完成门禁；不要在G01披露实现算法。",
+      "status_interpretation": "合同已标planned；这是当前读者路径可用性缺口，不是声称课程已全部完成后的新发现，也不改变主线状态。"
+    },
+    {
+      "id": "PATH-O-GAP",
+      "kind": "current_material_availability_gate_not_new_target_algorithm",
+      "affected_targets": [
+        "G01"
+      ],
+      "missing_logical_chapters": [
+        "O01",
+        "O02",
+        "O03"
+      ],
+      "evidence": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-chapter-contracts.json",
+          "start_line": 386,
+          "end_line": 450
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-35-release.zh-cn.mdx",
+          "start_line": 14,
+          "end_line": 19
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-37-recovery.zh-cn.mdx",
+          "start_line": 186,
+          "end_line": 192
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-38-graduation.zh-cn.mdx",
+          "start_line": 10,
+          "end_line": 28
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-38-graduation.zh-cn.mdx",
+          "start_line": 91,
+          "end_line": 106
+        }
+      ],
+      "filesystem_observation": "content/docs/js2py/没有module-32-*.mdx、module-33-*.mdx、module-34-*.mdx（含简繁中）。O04–O06已有相关页面，不足以反向替代OS/容器/HTTPS的首次解释。",
+      "required_path": "A02 → O01 → O02 → O03 → O04 → O05 → O06 → G01。",
+      "impact": "当前不能授予课程路径完成、O06通过、G01毕业或公网运营结论。G01现有O06实证门禁正确，不能因为O06页存在就认为其全部前序交付已完成。",
+      "minimal_gate_text": "O06的证据须连同O01–O05的必修能力核实；缺操作系统、容器或HTTPS入口材料/环境时，只能准备毕业需求并记录blocked，不能由格式检查器补验。",
+      "recommendation": "保持G01要求/证据/人工评阅性质；先在所属O章节补齐教学与真实验收，不把部署步骤塞进毕业题。",
+      "status_interpretation": "已计划但未完整落地的上游边界；不作为G01泄露实现或虚假验收的指控。"
+    }
+  ],
+  "acceptance_truthfulness": {
+    "evidence_provenance": "以下运行事实由用户给定并与本地材料/runner声明核对，本次未独立复跑，不伪称本审查新生成的执行结果。",
+    "D06": {
+      "known_execution": "26 tests ×2、真实PostgreSQL与六万行索引实验。",
+      "static_consistency": "pyproject.toml第27行testpaths包含tests和solutions，因此26中含作者聚合参考答案，不是学生独立实现证明。正文§12另要求读者先写真实库测试，§14明确平台/容量/顺序/恢复等未覆盖；未发现把作者基线绿灯自动等同学生独立通过的声明。",
+      "locations": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/pyproject.toml",
+          "start_line": 26,
+          "end_line": 29
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+          "start_line": 181,
+          "end_line": 190
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+          "start_line": 239,
+          "end_line": 247
+        }
+      ]
+    },
+    "A02": {
+      "known_execution": "A组60 unique tests在源码和干净包各通过一次，另4 mutants被捕获。",
+      "scope_correction": "60不是A02单章测试数。A01为19+5，A02为32+4；A02主测试中5项真实TCP，其余政策/ASGI/诊断。4 mutants是A组变异验证，不是额外学生独立后端场景。",
+      "static_consistency": "正文明确Mock不能证明网络计时、真实socket不覆盖TLS/DNS/HTTP2/多worker/强杀，变式内存幂等账本不持久。未把局部实验说成SQL/授权/capstone通过。",
+      "locations": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+          "start_line": 16,
+          "end_line": 21
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+          "start_line": 154,
+          "end_line": 170
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+          "start_line": 195,
+          "end_line": 216
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/scripts/test-js2py-async-foundations.py",
+          "start_line": 258,
+          "end_line": 293
+        }
+      ]
+    },
+    "G01": {
+      "known_execution": "仅15项材料工具测试；无学生应用、无24业务场景实跑。",
+      "static_test_method_count": 15,
+      "template_scenarios": 24,
+      "all_template_scenarios_not_run": true,
+      "checker_result_flags": "validate成功返回format_valid=true，artifact_files_verified/backend_verified/graduation_awarded/public_operation_verified固定为false。",
+      "human_gates": "rubric要求全部24场景人工reviewed pass（非hard gate也不能豁免）、O06独立证据、硬门槛、评分、独立解释；评阅模板保持not_assessed。",
+      "implementation_leakage": "需求规定角色权限、冲突、撤回、重放、数据保留及恢复的外部行为；student_owned_decisions仍保留物理schema、路由、事务机制、请求身份存储、保留限制、部署拓扑。checker和tests操作材料JSON，不是评论后端参考实现；未建议往G01添加实施步骤。",
+      "path_check_limit": "路径仅做词法相对路径检查，不打开artifact或核对哈希；不能理解为已验证文件真实落点/符号链接或证据真实性。正文124行已明确不打开文件，未据此另报安全漏洞。",
+      "locations": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-38-graduation.zh-cn.mdx",
+          "start_line": 110,
+          "end_line": 148
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/check_evidence.py",
+          "start_line": 76,
+          "end_line": 99
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/check_evidence.py",
+          "start_line": 140,
+          "end_line": 167
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/tests/test_materials.py",
+          "start_line": 66,
+          "end_line": 80
+        }
+      ]
+    }
+  },
+  "performed_checks": {
+    "dag_full_traversal": "对全部39节点检查ID、边、无环与章节顺序；计算三个目标完整传递闭包。",
+    "target_page_review": "阅读三个目标简中正文，针对争点追踪canonical源码和引用的已写前序章节。",
+    "global_prerequisite_search": "对现有简中MDX做异步迭代等首次术语检索；全量枚举章节页，确认六个缺页逻辑章节。",
+    "archive_parity": [
+      {
+        "lab": "d06-database-testing",
+        "allowlist_files": 32,
+        "zip_regular_files": 32,
+        "missing_or_content_mismatch": [],
+        "extra_files": [],
+        "zip_sha256": "de73c041f7f44a3b414faacc6cc517b655cc022e16910a2db7de5fb7161f6a58",
+        "method": "只在内存读取ZIP并逐字节比较，未解压执行"
+      },
+      {
+        "lab": "a02-external-services",
+        "allowlist_files": 23,
+        "zip_regular_files": 23,
+        "missing_or_content_mismatch": [],
+        "extra_files": [],
+        "zip_sha256": "dff768b6b45e6e916654d30c38cf674c8ed7ab5b7e3482eaba1c79baa225c81c",
+        "method": "只在内存读取ZIP并逐字节比较，未解压执行"
+      },
+      {
+        "lab": "g01-graduation",
+        "allowlist_files": 17,
+        "zip_regular_files": 17,
+        "missing_or_content_mismatch": [],
+        "extra_files": [],
+        "zip_sha256": "1cb62eed4582c07c733f4d3e2f79695238ad5850d5b74f1273d0898ff2c2605d",
+        "method": "只在内存读取ZIP并逐字节比较，未解压执行"
+      }
+    ],
+    "read_only_json_and_ast_parse_counts": {
+      "d06-database-testing": 22,
+      "a02-external-services": 15,
+      "g01-graduation": 12
+    },
+    "parse_limit": "仅json.loads/ast.parse，不import目标模块、不执行示例或测试；语法检查不等于行为验收。",
+    "safety_boundary_experiment": {
+      "performed": false,
+      "reason": "两项材料问题可由教学文字和控制流直接确定；G01不认证后端的边界在代码与模板中明确，无需为了增加数量触发数据库或网络实验。"
+    },
+    "repository_worktree": "初始git status已存在大量已改/未跟踪教材及实验文件；未还原、暂存或覆盖这些用户/并行工作。"
+  },
+  "coverage": {
+    "primary_pages": [
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-38-graduation.zh-cn.mdx"
+    ],
+    "predecessor_pages_read_or_targeted_excerpts": [
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-14-resources.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-21-relational-data.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-22-sql.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-24-sqlalchemy.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-30-async-model.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-35-release.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-37-recovery.zh-cn.mdx"
+    ],
+    "core_code_read": [
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/safety.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/testing.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/pg_sandbox.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/query_plan.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/solutions/project_totals.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/solutions/test_project_totals.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/pyproject.toml",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/lifecycle.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/service.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/check_evidence.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/tests/test_materials.py",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/requirements.json",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/scenarios.json",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/rubric.json",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/templates/evidence.json",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/templates/reviewer-record.json"
+    ],
+    "coverage_depth_note": "源码清单表示争点阅读范围，其他allowlist文件仅做字节/JSON/AST检查，不声称逐行行为审查；前序页有的为相关段落抽查，不声称全39章逐段重审。"
+  },
+  "not_covered": [
+    "未运行已有D组/A组/全站集成，未新证实其既有26×2或60×2运行结果。",
+    "未连接现有或临时数据库，未启动HTTP服务，未触碰用户进程，未做生产压力或安全渗透。",
+    "未验证新手从零安装PostgreSQL/uv的跨平台可行性；D01已有独占环境解释，但官方安装入口与本机预装条件不能当成所有平台实测。",
+    "未验证缺页的S/O未来教材；已有lab源码不被算作替代教学。",
+    "未全量检查三语翻译、站点渲染/导航、所有非目标ZIP和链接；三目标ZIP逐字节一致仅说明打包同源。",
+    "未把语法、allowlist、绿色参考测试或材料格式检查当成学生独立能力证明。",
+    "未运行学生后端、发布/回退/恢复/受邀试用，没有毕业或公网运营实证。",
+    "未进行G01checker的完整模糊测试/路径攻击/保密审计；不依据它为任何证据真实性背书。",
+    "未给G01新增表结构、路由、迁移命令或事务/幂等实现算法。"
+  ],
+  "snapshot_sha256": [
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-14-resources.zh-cn.mdx",
+      "sha256": "f7b0f4b712b95d3aab670e83f4de7c6c37ec075825e05efa559560e7c7756de6"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-cn.mdx",
+      "sha256": "86f6e72ab123d9650d674f41d7558021973eeb8502c7f93432e41a12d83ec3b7"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx",
+      "sha256": "e6ae5845d977e61b173932ade7db341c12332ad7cc6be0efe8d0a5849473bab0"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-21-relational-data.zh-cn.mdx",
+      "sha256": "39a499bded9632c20215008bb9c5a9161382802b3bf0b2c8c73be7fb61923b3c"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-22-sql.zh-cn.mdx",
+      "sha256": "3d760921277b9f0c72e71fd7876a74651367f4e3df84d81de8c253c744a0368d"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+      "sha256": "0c32e844c02d3b39856b6d242fcc800d0e9cc6da96039c1272065f51f0b7ae5b"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-24-sqlalchemy.zh-cn.mdx",
+      "sha256": "f8da0b824bb965c40ce47c01a7a73ff0710415456e5e21a1256931736283cab0"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-cn.mdx",
+      "sha256": "4204e4776c80d732eb1448d1bda6cc877449f51c9346a620b79ae552ef58d349"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+      "sha256": "36c6767f15163e2984ef086169e6f252ff92b5525444fe5c147170171df2722c"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-30-async-model.zh-cn.mdx",
+      "sha256": "1d514b71328cd5a534019980a051a0b214d40bb6ee7ff94fa3f5225d1c8c52fa"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+      "sha256": "e4d765e36ad07f48f89e903f4786a9f401ba543561ab97d1c20dda1586a48d3f"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-35-release.zh-cn.mdx",
+      "sha256": "efa8416e2a09870d1b0213c9005bd3c9dba34246b702824e8356df93163ad03f"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-36-observability.zh-cn.mdx",
+      "sha256": "9a9e787fef762b64d18b875dcbff23a0608f18ac187a19d20f34142e94fd453b"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-37-recovery.zh-cn.mdx",
+      "sha256": "df1043d3d50aea6bd62a978a9eafc0f41c0e6fdeaf6ede14a916be685ab157be"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-38-graduation.zh-cn.mdx",
+      "sha256": "e61315f8bea77f9ee28ebe26ca35e9870aab11dc5d107fbdc925e51d5259ebc7"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-chapter-contracts.json",
+      "sha256": "1eb527248683809ed1df8c44747536ab89dd9c00b013446a3b79fbd53b7a2044"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/.python-version",
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/DOWNLOAD-ALLOWLIST.json",
+      "sha256": "e6a8620d8c66b5f3744d71724ee05e21988ae67f4474feccfc818eac296a96e0"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/README.md",
+      "sha256": "4faedc7319edc2e9d6aa190951a1ff3a005e73577fb78bdf08bc6bdb90141fd0"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/README.zh-cn.md",
+      "sha256": "e552a15ccc20461830d5c56c40c21679eee3da7a5da702c7bc70d380e7d47313"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/README.zh-tw.md",
+      "sha256": "7fcf578d6968d37ee32c9e1520ee8443da2c0877e58d8d75ce4d1fabbd952adb"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/app.py",
+      "sha256": "22f38a66de9c0a8df0a3bcd88a26829b193717ae84dcb845d9d1903a1ed6509d"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/commands.sh",
+      "sha256": "bde1e32f8546575053c5ddfcb768a6fe02774e49bea6e8d5e8a35fc72d356046"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/errors/__init__.py",
+      "sha256": "42ccfdb7b1b9b53094eae7568fa6594ce93a3fc73d0311a8c1029ab2e52d218e"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/errors/config.py",
+      "sha256": "004cfd057b9f8ba84aac443bcb2d41904fe24ab632942b0ce712e457965b90c5"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/errors/untrusted.py",
+      "sha256": "0d703976fb5553b443e019e6e4e250e55e704d853ed794a4875e8d097959fc4c"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/expected-socket-output.txt",
+      "sha256": "9715315b5ab2fad82b685b86bdb2c4318f69f56ab5b4db4d8930a6b1008c13f5"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/faults.py",
+      "sha256": "c1a87abcf574eaa5980c2b9caa207e2899286472f7fec2d05f8ab56fc77f03f1"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/lifecycle.py",
+      "sha256": "84f4421f4bb761226e581659ebe958476769c29a9e1086f78d15855827028a58"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/pyproject.toml",
+      "sha256": "c69af542970871cffe0c9d90c4d9a2882071f8b40bda4aa0c464bf9c24fad1ff"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/service.py",
+      "sha256": "3b140861377e974799dfbad83c1aa069d92973d06a4c4ec0f66f3749f001e9b1"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/socket_lab.py",
+      "sha256": "a9a7027fc81ed729b338e74fcaaa13fd6248962e90b6caa6f23fbc75fe30218c"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/solutions/__init__.py",
+      "sha256": "d68566f065f1edcaecef2e1a8c990d6e7898daf807876222d3297839a9103bce"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/solutions/receipts.py",
+      "sha256": "01c6cb109d797da3bd5179b1c9ef8c66d8f4cc85043be2be46ccaeb269e60c10"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/solutions/test_receipts.py",
+      "sha256": "b4ab8944d7f22d2b673827b211f33f553dd857e6dd0a1be51cb044b7f412c191"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/sources.json",
+      "sha256": "1a5407ffd6ecd0ff169049d3f25aaab1f804b12de35d7ee2b2506f3fd259965f"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/tests/test_service.py",
+      "sha256": "ea9ee9617ef7e8c8ccb4e6a0ca60b15d658931a5eed9e2da4f91937753837f62"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/tests/test_socket.py",
+      "sha256": "9f924625142c2c8665df1a65d5a5915e2c101ae66fca8e403d7246e01062375a"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/uv.lock",
+      "sha256": "0e608573b0b9e5efb3bf0599f10b64dd7fd1ae4233367305d7bb3bfacc7a9077"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/.gitignore",
+      "sha256": "85c36a89acabe55cd838be3f3aa989186b9c34aa58ff789f8404d2c498b439bc"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/.python-version",
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/README.md",
+      "sha256": "a45e6c7ec8ffd40b618828898084fe4993dc835efbea2435b398fce38aac7efc"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/README.zh-cn.md",
+      "sha256": "646498a26081a8aeb1bddf1581cc0b556e4fd4769648abccbaff7fb8874ea4ef"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/README.zh-tw.md",
+      "sha256": "eeed981415633dd465d03d3e53e25914a05e5688d1ab2d920ef23d84c2cfc3e8"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/SOURCES.md",
+      "sha256": "e5dbe1f2c891895ec65e1a5ce4e63c31604688c3b10928dd23b3aeb723c70b5b"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/alembic.ini",
+      "sha256": "4a3548a36b2cb94eaa5fd7f90a4540b02d6ca6d15a5942da90608bc8a1388ec8"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/commit_failure.py",
+      "sha256": "de586071ff3137e810288640061baa71390e946fc30e49d1f83c14a9e710b2e8"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/db.py",
+      "sha256": "78d684e1e1f199855f01119f50daca3a7614f1578b51f06df1da5b066f4734c5"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/history_data.py",
+      "sha256": "4d0b5d8732f78b63d783367c7429ed09bc67f66f73cecac42ea6bbe3a9784c9f"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/history_demo.py",
+      "sha256": "e7798473864a467d718b84891907d0980bcfc61bde2c69848e7434fcbb0f5657"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrate.py",
+      "sha256": "b6d7e2e09dcfb4eb7efa9bba49538a7d8bbd79b6dcb711139b5479f849bc0913"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrations/env.py",
+      "sha256": "d0e72d32d14a93f7391bb2ed5dd9c2d719e96c3979168063adace196c527a6cd"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrations/script.py.mako",
+      "sha256": "f98e6d716bda998058de35ca2d9108c516309ada5bb0ae25eb82f69471ab5158"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrations/versions/001_base.py",
+      "sha256": "05143b89aa86070f8248699beea1f42e53457ac8dfc92d97870e415edd85f6fe"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrations/versions/002_expand.py",
+      "sha256": "da198f9a50872aeaa17c09aaba080a883f697cd2372d434c9f2c39b5ff1311ce"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrations/versions/003_contract.py",
+      "sha256": "ffa82310957d11510cbfac1d08a025fb24b6a1a6b747832681a81ba4fdce4f41"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/models.py",
+      "sha256": "b6f8278ae0ef6f7ada061f0eb7296c700437159697ece222b613c84898571c21"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/pg_sandbox.py",
+      "sha256": "2d369c594ff62d70b15d00670061ba60167879b2b31b47cc7c3a7e72ade3c88e"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/pyproject.toml",
+      "sha256": "babd93d9477e19cc44bb6e33f5e928879f49bc5b35a17acfd5e1174ab8c47f9f"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/query_plan.py",
+      "sha256": "39195f3b61b5c144c0e51c5f26dd972885e76e73e7d53da5919f779639d7f1bf"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/safety.py",
+      "sha256": "b2573ac5bd8be41e26d5b5968dc4b9b7786740db347295496cdad0b381a24756"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/services.py",
+      "sha256": "f69268dcd393c2c12fa0a8df361e6f0bf977608a0ad19a8f6f027ed7107ca89b"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/solutions/project_totals.py",
+      "sha256": "b0e00972662a4052211010a83540e04f36dc3f361ce46b0bd892a01ad5c09ab0"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/solutions/test_project_totals.py",
+      "sha256": "18f5fb3b17ee9ae38d951830f38672d6349d1e4cf0fedabd95532742f0150bff"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/source-verification.json",
+      "sha256": "ee1d9e668b149606ff17d6550d32cbc5846afdbddd343b7353c99d2679b341b1"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/testing.py",
+      "sha256": "f5db68a323325f807254a7a83722230bc464ee8515ca04b3b19fda45eaef2d63"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/tests/conftest.py",
+      "sha256": "9eb0259f436863815868275f80f71be05e4413d89ecc86bbaf3435efdcbb7572"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/tests/test_database.py",
+      "sha256": "85aef42b48a6bcde70b3e78b078bea858f6dc52f187da9ccb3dc9f16c7eec240"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/tests/test_migration_history.py",
+      "sha256": "fe0070e686f3a150e141dcf698596cfbee131c4b368f23522edfaac1e1058b6d"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/tests/test_resource_safety.py",
+      "sha256": "1a5e8f20c9b35d8f955d5270e215e16751988c1f549e0d33e7b4d92d279c9eb9"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/uv.lock",
+      "sha256": "a267e5db5755891a87a0477c551a519f7095c60388ed8afbb80b4dd7d84e5c2a"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/.gitignore",
+      "sha256": "80295d5887ba0ccce6eb509790dbbb928f3161102895d897abbbc980bd24da8d"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/.python-version",
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/FILES.json",
+      "sha256": "3a0f48bd0f7ee7b4a0a75284fff67b1c0748df5ade2506114761c4ea39715299"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/README.md",
+      "sha256": "8f9ccaa6fab48b6a3436dc01343f0ea78c54fa84a71edfb85a50d5e7c0a4112b"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/README.zh-cn.md",
+      "sha256": "0eba3df9b724ed05c3a8049992dcbdb48b51f57656e3d3dbe650b712ecb0d6bc"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/README.zh-tw.md",
+      "sha256": "1e5216d2b9c140478d3ebdec49bb6e0e73c909353e092ec4f092c5b07aee5332"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/check_evidence.py",
+      "sha256": "2dd04f3365991d408a3d12f1fe3ede6f1bdf6fcd0899247c5aeecb6da875982e"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/fixtures/actors-and-data.json",
+      "sha256": "ad4094fe99d524ae1505aff997bcd133f50b9c78b44ec1682648b0cf1c53ae75"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/requirements.json",
+      "sha256": "8d69502c99fd2c07421c1765a60f6f9ba535584ea260875210febd17ad0eb7eb"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/rubric.json",
+      "sha256": "bd996e927d8491e05334b8a2301acf3782fd15f72196e5cdf0bfb5f1b3474225"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/scenarios.json",
+      "sha256": "ea5ebcaf66fc93930888c1def52b8765022516255091f66e367e5cd34f050775"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/sources.json",
+      "sha256": "6aa552cb18e90c90f5ded7158583681f21fe607d7528bc514cbe2d8b5a24f380"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/templates/checkpoint.json",
+      "sha256": "c87a4501d7871b477a253bcf7e7fd6dd3ecf9415f32a0900a9c09de522ccfd5f"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/templates/evidence.json",
+      "sha256": "bba8dd91dd2e46b0a1d45cc812231300e2d8609daf6413a863205d6b9edb240b"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/templates/fixture-bindings.json",
+      "sha256": "899b3ae62b25bdd355940c21e55fb1b582f2dcca9dea5b67572412a30b002225"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/templates/reviewer-record.json",
+      "sha256": "dfed50f94e0cf0ad242224000644676af0f138a78944bdeacdce1fa19d8569f3"
+    },
+    {
+      "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/tests/test_materials.py",
+      "sha256": "a53f88a93a737becc0d25472a1a83b66e958b65043fd2b5559c0206ead47d7e1"
+    }
+  ]
+}

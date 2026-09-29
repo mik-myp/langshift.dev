@@ -1,0 +1,43 @@
+{
+  "standard_tests": 17,
+  "independent_tests": 7,
+  "actually_run": [
+    "OpenSSL3.6.4 temporary CA/leaf and restrictive key modes",
+    "real local TLS with curl8.7.1 --cacert; no -k",
+    "unknown CA and wrong hostname each curl60",
+    "proxy disabled ignores spoofed headers; edge overwrites spoofed headers",
+    "direct trusted-loopback spoof remains possible and is explicitly demonstrated",
+    "fictional Authorization forwarding WITHOUT authentication",
+    "generic500, safe422/no input echo, safe event log",
+    "local teaching-edge413 only",
+    "CORS preflight and actual-response headers; exact-origin independent tests",
+    "owned backend/edge shutdown and temporary-key removal",
+    "selected Caddy text invariants only"
+  ],
+  "unavailable_here": [
+    "Caddy binary",
+    "controlled Linux/container environment",
+    "user domain/host/production secrets not provided"
+  ],
+  "user_must_supply": [
+    "controlled host and fixed reviewed production reverse-proxy version",
+    "owned domain and DNS administration",
+    "approved firewall/challenge ports and certificate persistence",
+    "production configuration/secret storage; never teaching keys",
+    "real browser/frontend and full S03 authorized backend"
+  ],
+  "pending_acceptance": [
+    "caddy validate/adapt and actual Caddy runtime",
+    "real DNS A/AAAA and external reachability",
+    "trusted public certificate issuance/renewal",
+    "non-bypassable upstream isolation and multi-proxy trust if applicable",
+    "actual browser integration and CSRF reassessment on any cookie migration",
+    "full S03 session/revocation/authorization/DB readiness and header integration",
+    "production body bounds/login throttling/password-hash capacity",
+    "migration/release/rollback/backup/restore; no real-user launch"
+  ],
+  "verified_date": "2026-09-28",
+  "implementation_status": "implemented",
+  "environment_status": "environment_pending",
+  "claims_do_not_include": "documentation completion is not deployment/environment acceptance"
+}

@@ -1,0 +1,149 @@
+{
+  "kind": "synthetic-scenario-data-not-production-seed",
+  "requires_binding_to_student_model": true,
+  "actors": [
+    {
+      "id": "alice",
+      "active": true
+    },
+    {
+      "id": "bob",
+      "active": true
+    },
+    {
+      "id": "chen",
+      "active": true
+    },
+    {
+      "id": "dana",
+      "active": true
+    },
+    {
+      "id": "erin",
+      "active": false
+    }
+  ],
+  "projects": [
+    {
+      "id": "P101",
+      "owner": "alice"
+    },
+    {
+      "id": "P202",
+      "owner": "chen"
+    }
+  ],
+  "memberships": [
+    {
+      "project": "P101",
+      "actor": "alice",
+      "role": "owner"
+    },
+    {
+      "project": "P101",
+      "actor": "bob",
+      "role": "member"
+    },
+    {
+      "project": "P101",
+      "actor": "erin",
+      "role": "member"
+    },
+    {
+      "project": "P202",
+      "actor": "chen",
+      "role": "owner"
+    }
+  ],
+  "removed_memberships": [
+    {
+      "project": "P101",
+      "actor": "chen",
+      "was_role": "member"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T101",
+      "project": "P101"
+    },
+    {
+      "id": "T102",
+      "project": "P101"
+    },
+    {
+      "id": "T201",
+      "project": "P202"
+    }
+  ],
+  "comments": [
+    {
+      "id": "C101",
+      "task": "T101",
+      "author": "bob",
+      "text": "Review the acceptance evidence.",
+      "revision": 1,
+      "state": "visible"
+    },
+    {
+      "id": "C102",
+      "task": "T101",
+      "author": "chen",
+      "text": "Historical authorship remains.",
+      "revision": 1,
+      "state": "visible"
+    },
+    {
+      "id": "C201",
+      "task": "T201",
+      "author": "chen",
+      "text": "Private to the other project.",
+      "revision": 1,
+      "state": "visible"
+    }
+  ],
+  "request_identities": [
+    "request-a",
+    "request-b"
+  ],
+  "content_vectors": [
+    {
+      "id": "blank_ascii",
+      "value": "   ",
+      "valid": false
+    },
+    {
+      "id": "blank_unicode",
+      "value": "　\t\n",
+      "valid": false
+    },
+    {
+      "id": "null",
+      "value": null,
+      "valid": false
+    },
+    {
+      "id": "one",
+      "value": "A",
+      "valid": true
+    },
+    {
+      "id": "max",
+      "repeat": "x",
+      "count": 1000,
+      "valid": true
+    },
+    {
+      "id": "too_long",
+      "repeat": "x",
+      "count": 1001,
+      "valid": false
+    },
+    {
+      "id": "literal_markup",
+      "value": "<script>not executable</script>",
+      "valid": true
+    }
+  ],
+  "note": "IDs are logical labels, not prescribed database types or routes. Expansion of repeat/count is test-data interpretation, not application code."
+}

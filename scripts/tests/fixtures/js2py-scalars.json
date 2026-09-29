@@ -1,0 +1,69 @@
+{
+  "files": {
+    "bindings.py": {
+      "stdout": "30\n45\n30\n"
+    },
+    "scalar_types.py": {
+      "stdout": "<class 'int'>\n<class 'float'>\n<class 'str'>\n<class 'bool'>\n<class 'NoneType'>\n<class 'int'>\n<class 'str'>\n"
+    },
+    "numbers.py": {
+      "stdout": "9\n5\n14\n3.5\n3\n1\n49\n3.0\n-4\n1\n"
+    },
+    "boolean_none.py": {
+      "stdout": "True\nFalse\nTrue\nTrue\nTrue\nFalse\nNone\nTrue\nFalse\n"
+    },
+    "strings.py": {
+      "stdout": "[  Read Python basics  ]\n[Read Python basics]\n18\nPython basics\nIt is \"Python\".\nfirst\nsecond\n"
+    },
+    "conversions.py": {
+      "stdout": "45\n3.5\n3\n-3\nMinutes: 30\n"
+    },
+    "formatting.py": {
+      "stdout": "Estimate: 95 minutes\nEstimate: 95 minutes\nEstimate: 120 minutes\nDecimal hours: 1.58\n1.5833333333333333\n"
+    },
+    "task_estimate.py": {
+      "stdout": "Task: Read Python basics\nEstimate: 1h 35m\nDecimal hours: 1.58\n"
+    },
+    "errors/text_plus_number.py": {
+      "stdout": "",
+      "error": "TypeError",
+      "error_line": 2
+    },
+    "errors/invalid_integer.py": {
+      "stdout": "",
+      "error": "ValueError",
+      "error_line": 2
+    },
+    "solutions/fix_minutes.py": {
+      "stdout": "45\nfinished\n"
+    },
+    "solutions/reading_plan.py": {
+      "stdout": "Topic: Python names\nSessions: 4\nTotal: 100 minutes (1h 40m)\n"
+    }
+  },
+  "fences": {
+    "constant_convention": {
+      "stdout": "30\n"
+    },
+    "precedence": {
+      "stdout": "14\n20\n-9\n9\n"
+    },
+    "integer_precision": {
+      "stdout": "9007199254740992\n9007199254740993\n"
+    },
+    "float_precision": {
+      "stdout": "0.30000000000000004\nFalse\n"
+    },
+    "exercise_snapshot": {
+      "stdout": "30\n45\nPlan: 30\n"
+    },
+    "exercise_inputs": {
+      "stdout": ""
+    }
+  },
+  "javascript": {
+    "integer_precision": {
+      "stdout": "9007199254740992\n9007199254740992\n"
+    }
+  }
+}

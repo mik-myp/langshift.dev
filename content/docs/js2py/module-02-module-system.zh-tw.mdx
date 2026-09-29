@@ -1,974 +1,701 @@
 ---
-title: "Python 模塊系統與項目組織"
-description: "從 JavaScript 開發者視角學習 Python 的模塊系統、包管理和項目組織最佳實踐"
+title: "容器、引用與修改"
+description: "從單個值走向任務數據：逐步理解列表、字典、元組和集合，分清缺失與 None、重新綁定與原地修改、共享引用與淺複製，並獨立完成不會互相汙染的學習計劃。"
 ---
 
-## 1. 引言
+import { getContainerExample } from '@/lib/js2py-examples'
 
-### 為什麼需要模塊系統？
+## 1. 現在的問題：不再只有一個值
 
-在前端開發中，我們已經習慣了使用 ES6 模塊或 CommonJS 來組織代碼。Python 也有自己的模塊系統，雖然語法不同，但核心概念是相似的。
+L01 中，我們用幾個名稱保存標題、時長，再生成一段文字。只有一項任務時，這樣足夠；如果有兩項任務，每項又有標題、標籤、負責人和時長，繼續增加 `title_1`、`title_2`、`minutes_1` 很快就容易配錯。
 
-**模塊化的核心價值**
-- 代碼複用：避免重複編寫相同的功能
-- 命名空間隔離：避免變量名衝突
-- 項目組織：將相關功能組織在一起
-- 依賴管理：明確項目依賴關係
+我們需要兩種組織方式：**把同一類條目放在一起，以及把同一條記錄的不同字段放在一起。** 接下來還會遇到一個更隱蔽的問題：複製一個任務草稿後，為什麼改了草稿的標籤，原任務也變了？
 
-> 💡 **學習策略**：將 Python 的模塊系統理解為 JavaScript 模塊系統的"方言版本"
+這一章不以背容器 API 為目標。我們要能畫出數據關係，解釋修改沿著哪條引用發生，再決定哪裡應該共享、哪裡應該隔離。
 
-## 2. Python 模塊系統基礎
+### 本章契約
 
-### 2.1 什麼是模塊？
+| 項目 | 約定 |
+| --- | --- |
+| 前置能力 | 完成 L00、L01：運行腳本，解釋名稱綁定、基本值、比較、None、方法調用和格式化 |
+| 本章新學 | 列表、字典、元組、集合；位置與鍵；缺失與 None；原地修改、身份、淺複製及指定層級的隔離 |
+| 獨立驗收 | 從模板創建兩份可獨立編輯的學習計劃，正確表達缺失字段，預測並修復共享引用造成的意外修改 |
+| 暫不要求 | `if`、循環、推導式、自定義函數、異常捕獲、導入、類、類型註解、JSON、數據庫或 Web 服務 |
 
-在 Python 中，任何 `.py` 文件都可以作為一個模塊。這類似於 JavaScript 中的單個 `.js` 文件。
+我們會使用嵌套容器，但不會用還沒教的 `for`、`def` 或 `import copy` 來跳過解釋。當前隻手工構造兩條記錄；處理任意數量的數據是下一章控制流的任務。
 
-<PythonEditor title="創建和使用模塊" compare={true} canRun={false}>
-```javascript !! js
-// math_utils.js - JavaScript 模塊
-export function add(a, b) {
-    return a + b;
-}
+### 文件與運行方式
 
-export function multiply(a, b) {
-    return a * b;
-}
+下載 [L02 獨立示例與參考答案](/learning-assets/js2py/u02-containers.zip)，或按正文手寫。解壓後用編輯器打開 `u02-containers`，讓終端位於這個文件夾。每個文件獨立執行，不依賴前一個文件留下的變量。
 
-export const PI = 3.14159;
-
-// 默認導出
-export default function calculator() {
-    console.log("計算器已初始化");
-}
+```bash
+uv run --no-project --python 3.13 python lists.py
 ```
 
-```python !! py
-# math_utils.py - Python 模塊
-def add(a, b):
-    """加法函數"""
-    return a + b
+後續只替換末尾文件名。本章繼續使用 CPython 3.13 和內置功能，不安裝第三方 Python 包、不創建工程配置。尚不能執行這條命令時，回到 [L00](/zh-tw/docs/js2py/module-00-python-introduction) 排查運行環境，不要同時學習另一套安裝方式。
 
-def multiply(a, b):
-    """乘法函數"""
-    return a * b
+`errors/` 中是明確標註的失敗實驗；`solutions/` 中是先獨立嘗試再查看的參考，不需要一次運行所有文件。
 
-# 模塊級變量（類似 JavaScript 的常量）
-PI = 3.14159
+## 2. 先決定數據表達什麼，再選擇容器
 
-# Python 沒有默認導出的概念，但可以定義 __all__ 來控制 from module import * 的行為
-__all__ = ['add', 'multiply', 'PI']
-```
-</PythonEditor>
+下面只是學習地圖，具體機制會逐節實驗，**不是看完這張表就算學會了四種類型**。
 
-擴展閱讀：[__all__](https://docs.python.org/3/tutorial/modules.html#importing-from-a-package)
+| 容器 | 當前適合表達的意思 | 訪問方式 | 本章關注的限制 |
+| --- | --- | --- | --- |
+| `list` 列表 | 有順序的一組任務或標題，允許重複 | 位置索引 | 可以修改；順序改變後，同一個索引可能指向另一項 |
+| `dict` 字典 | 一條任務的有名字的字段 | 鍵，例如 `"title"` | 可以修改；不存在的鍵與值為 None 不相同 |
+| `tuple` 元組 | 固定位置含義的一組值，例如座標 | 位置索引 | 元組自身的槽位不能替換，不代表內部對象都不可變 |
+| `set` 集合 | 不重複的標籤、成員關係 | 成員檢查，不按位置取值 | 無位置順序保證；成員必須可哈希，稍後解釋 |
 
-### 2.2 導入模塊的方式
+這不是“列表只能裝同類型，元組必須裝不同類型”的語言規定。選擇首先來自數據含義。為了可讀性，我們的任務列表放任務、標籤列表放字符串，不把所有類型隨意混在一起。
 
-Python 提供了多種導入模塊的方式，每種都有其適用場景。
+JS 的 Array、Object、Set 能幫助你產生直覺，但不能把 Python 容器當作換了拼寫的同一套對象：越界、相等判斷、缺失字段和集合成員都有差異。
 
-<PythonEditor title="模塊導入方式對比" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript 導入方式
+## 3. 列表：位置、修改和返回值
 
-// 1. 命名導入
-import { add, multiply } from './math_utils.js';
+### 3.1 方括號裡的條目，與讀取條目的方括號
 
-// 2. 默認導入
-import calculator from './math_utils.js';
+`["Read names", "Practice values"]` 創建一個列表。逗號分隔條目，兩個字符串仍然是兩個值，不是拼接成了一段文字。
 
-// 3. 命名空間導入
-import * as MathUtils from './math_utils.js';
+創建之後，`titles[0]` 表示讀取索引為 `0` 的條目。列表從 `0` 開始編號；兩項列表的有效非負索引是 `0` 和 `1`。`titles[-1]` 從尾部讀取最後一項，`-2` 是倒數第二項。負索引不是循環迴繞，越過開頭仍然會出錯。
 
-// 4. 重命名導入
-import { add as addFunction } from './math_utils.js';
+`len(titles)` 返回條目個數，不是最後一個索引。空列表寫作 `[]`，長度是 `0`，沒有可讀取的第一個條目。
 
-// 5. 混合導入
-import calculator, { add, multiply } from './math_utils.js';
+### 3.2 先說明這個實驗會用到的操作
 
-console.log(add(5, 3));        // 8
-console.log(multiply(4, 2));   // 8
-console.log(MathUtils.PI);     // 3.14159
-```
+- `titles[1] = "Practice containers"` 替換現有位置上的條目，修改列表，不是重新綁定 `titles`。
+- `titles.append("Review")` 把**一個條目**追加到末尾，直接修改列表，返回 `None`，不是返回新列表。
+- `titles.pop(0)` 刪除並返回索引 `0` 的條目；剩餘條目的位置向前移動。不傳索引時，`pop()` 取走最後一項。
+- `titles[0:1]` 是切片：從索引 `0` 開始，到索引 `1` 之前，得到一個新列表。右邊界不包含在結果裡。這裡先觀察外層列表，是否複製內部對象留到第 7 節。
+- `"Review" in titles` 檢查是否有相等的條目，產生布爾值，不是取得索引，也不是執行循環體。
 
-```python !! py
-# Python 導入方式
+文件：`lists.py`。先預測，再運行。
 
-# 1. 導入整個模塊
-import math_utils
+<Code language="python">{getContainerExample('lists.py')}</Code>
 
-# 2. 從模塊導入特定函數/變量
-from math_utils import add, multiply, PI
+預期：
 
-# 3. 導入所有內容（不推薦）
-from math_utils import *
-
-# 4. 重命名導入
-from math_utils import add as add_function
-
-# 5. 重命名模塊
-import math_utils as math
-
-# 6. 從模塊導入並重命名
-from math_utils import add as add_func, multiply as mul
-
-print(add(5, 3))           // 8
-print(multiply(4, 2))      // 8
-print(PI)                  // 3.14159
-print(math_utils.add(10, 5))  // 15
-```
-</PythonEditor>
-
-**導入方式對比表**
-
-| 功能 | JavaScript | Python | 說明 |
-|------|------------|--------|------|
-| **導入整個模塊** | `import * as Module` | `import module` | Python 更簡潔 |
-| **命名導入** | `import { func }` | `from module import func` | 語法不同但概念相同 |
-| **重命名** | `import { func as newName }` | `from module import func as newName` | 兩者都支持 |
-| **默認導入** | `import defaultFunc` | 無對應概念 | Python 沒有默認導出 |
-| **命名空間導入** | `import * as Namespace` | `import module as namespace` | 概念相同 |
-
-### 2.3 模塊的特殊變量
-
-Python 模塊有一些特殊的變量，類似於 JavaScript 中的一些全局變量。
-
-<PythonEditor title="模塊特殊變量" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript 模塊特殊變量
-
-// __filename - 當前文件路徑
-console.log(__filename);
-
-// __dirname - 當前目錄路徑
-console.log(__dirname);
-
-// module.exports - 導出對象
-console.log(module.exports);
-
-// require.main - 判斷是否為直接運行的文件
-if (require.main === module) {
-    console.log("這個文件被直接運行");
-} else {
-    console.log("這個文件被作為模塊導入");
-}
+```text
+2
+Read names
+Practice values
+['Read names', 'Practice containers', 'Review']
+None
+Read names
+['Practice containers', 'Review']
+['Practice containers']
+True
 ```
 
-```python !! py
-# Python 模塊特殊變量
+輸出整個列表時，你看到的是容器的表示形式：保留方括號，字符串條目顯示引號。單獨 `print(titles[0])` 則輸出那個字符串本身，不帶界定引號。它不是自動把 Python 數據轉換成 JSON。
 
-# __file__ - 當前文件路徑
-print(__file__)
+重點追蹤三次變化：先替換第二項，再追加第三項，最後移除第一項。`pop(0)` 後的 `titles[0]` 已經是 `Practice containers`。所以“某項曾經在索引 0”不是這項任務永久的業務身份；後面做真正的後端時會另外學習標識符。
 
-# __name__ - 模塊名稱
-print(__name__)
+### 3.3 修改成功，不代表方法返回容器
 
-# __doc__ - 模塊文檔字符串
-print(__doc__)
+`result` 是 `None`，但列表已經追加成功。**方法的副作用和返回值必須分別看。** `append` 為修改服務，`pop` 則既修改又交還被移除的值，不能概括成“所有修改方法都返回 None”。
 
-# __all__ - 控制 from module import * 的行為
-print(__all__)
+故意失敗的文件：`errors/append_rebind.py`。
 
-# 判斷是否為直接運行的文件
-if __name__ == "__main__":
-    print("這個文件被直接運行")
-else:
-    print("這個文件被作為模塊導入")
-```
-</PythonEditor>
+<Code language="python">{getContainerExample('errors/append_rebind.py')}</Code>
 
+先輸出：
 
-### 2.4 運行模塊：腳本 vs 模塊
-
-這是 Python 初學者最容易困惑的地方之一：如何正確運行一個 Python 文件？
-
-**直接運行 vs 模塊運行**
-
-| 運行方式 | 命令 | `sys.path` (搜索路徑) | `__name__` | 適用場景 |
-|----------|------|-----------------------|------------|----------|
-| **腳本運行** | `python file.py` | 包含 `file.py` 所在的目錄 | `"__main__"` | 簡單的單文件腳本 |
-| **模塊運行** | `python -m package.module` | 包含**當前工作目錄** | `"__main__"` | 項目中的模塊，需要引用同級或上級包時 |
-
-**常見錯誤示例**
-
-假設目錄結構如下：
-```
-project/
-├── main.py
-└── utils.py
+```text
+None
 ```
 
-如果在 `main.py` 中有 `from . import utils` (相對導入)：
-- 運行 `python project/main.py` 會**報錯**：`ImportError: attempted relative import with no known parent package`。
-- 運行 `python -m project.main` (在 `project` 的上一級目錄) 會**成功**。
+然後在第 4 行產生 `TypeError`，說明 `NoneType` 不能被這樣下標訪問。第 2 行先修改了原列表，但接著把方法返回的 `None` 重新綁定給 `titles`；第 4 行讀取的已經不是列表。
 
-> 💡 **最佳實踐**：在開發項目時，習慣在項目根目錄使用 `python -m package.module` 的方式運行代碼，這樣可以確保 `sys.path` 正確，且相對導入能正常工作。
+修復不是改成另一種索引，而是不要接收 `append` 的結果來覆蓋列表名稱：保留 `titles.append("Review")` 這次調用，再單獨讀取列表。也不要套用 JS Array `push` 的返回值經驗，Python `append` 不返回新長度。
 
-## 3. 包（Package）系統
+### 3.4 越界不是得到 undefined
 
+故意失敗的文件：`errors/list_index.py`。
 
-### 3.1 什麼是包？
+<Code language="python">{getContainerExample('errors/list_index.py')}</Code>
 
-包是包含多個模塊的目錄，類似於 JavaScript 中的 npm 包或目錄結構。
+它沒有正常輸出；第 2 行產生 `IndexError: list index out of range`，最後的 `finished` 不會執行。只有一項時，索引 `1` 已經越界。這與 JS 普通數組讀取不存在位置時得到 `undefined` 不同。
 
-<PythonEditor title="包結構示例" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript 包結構示例
-// my-package/
-// ├── package.json
-// ├── index.js
-// ├── utils/
-// │   ├── math.js
-// │   └── string.js
-// └── tests/
-//     └── test.js
+索引賦值也不會幫你自動擴展列表：只有一項的列表不能用 `titles[1] = ...` 當作追加。當前需求是追加就用 `append`；需求是讀取就先核對長度與位置。完整的條件保護會在 L03 學習，現在不要用還沒教的 `if` 掩蓋對索引的誤解。
 
-// index.js - 主入口文件
-export { add, multiply } from './utils/math.js';
-export { capitalize, reverse } from './utils/string.js';
+切片的邊界規則又不同：下面不會拋 IndexError，而是得到空列表。
 
-// utils/math.js
-export function add(a, b) {
-    return a + b;
-}
-
-export function multiply(a, b) {
-    return a * b;
-}
-
-// utils/string.js
-export function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-export function reverse(str) {
-    return str.split('').reverse().join('');
-}
+```python case=empty_slice
+items = ["Read"]
+print(items[2:5])
 ```
 
-```python !! py
-# Python 包結構示例
-# my_package/
-# ├── __init__.py          # 包初始化文件
-# ├── math_utils.py        # 數學工具模塊
-# ├── string_utils.py      # 字符串工具模塊
-# └── tests/
-#     ├── __init__.py
-#     └── test_math.py
-
-# __init__.py - 包初始化文件
-from .math_utils import add, multiply
-from .string_utils import capitalize, reverse
-
-__all__ = ['add', 'multiply', 'capitalize', 'reverse']
-
-# math_utils.py
-def add(a, b):
-    """加法函數"""
-    return a + b
-
-def multiply(a, b):
-    """乘法函數"""
-    return a * b
-
-# string_utils.py
-def capitalize(text):
-    """首字母大寫"""
-    return text.capitalize()
-
-def reverse(text):
-    """字符串反轉"""
-    return text[::-1]
-```
-</PythonEditor>
-
-### 3.2 包的導入和使用
-
-<PythonEditor title="包的導入和使用" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript 包的使用
-
-// 1. 從包導入特定函數
-import { add, multiply } from 'my-package';
-
-// 2. 導入整個包
-import * as MyPackage from 'my-package';
-
-// 3. 從子模塊導入
-import { capitalize } from 'my-package/utils/string';
-
-console.log(add(5, 3));           // 8
-console.log(MyPackage.multiply(4, 2));  // 8
-console.log(capitalize("hello")); // "Hello"
+```text
+[]
 ```
 
-```python !! py
-# Python 包的使用
+不能把“切片得到空列表”泛化成“單項讀取也總是安全”。本節依據：[列表入門](https://docs.python.org/3.13/tutorial/introduction.html#lists)、[列表方法](https://docs.python.org/3.13/tutorial/datastructures.html#more-on-lists)。
 
-# 1. 從包導入特定函數
-from my_package import add, multiply
+**停靠點 A：** 從兩項列表開始，替換一項、追加一項、取走第一項。逐步寫下列表內容、長度和方法返回值；不要只檢查最後有沒有異常。
 
-# 2. 導入整個包
-import my_package
+## 4. 字典：用鍵表達一條記錄
 
-# 3. 從子模塊導入
-from my_package.string_utils import capitalize
+### 4.1 為什麼標題、時長、負責人不該靠位置猜
 
-print(add(5, 3))                    // 8
-print(my_package.multiply(4, 2))    // 8
-print(capitalize("hello"))          // "Hello"
+如果把一條任務寫成 `["Read names", 25, None]`，讀者需要記住每個位置的含義。字典可以寫成 `{"title": "Read names", "minutes": 25, "owner": None}`，讓字段名稱直接出現在數據裡。
+
+花括號包住鍵值對；每一對用冒號連接鍵與值，逗號分隔各對。本章用字符串作為鍵。`task["title"]` 取對應值；Python 字典不是通過 `task.title` 讀取這個字段。
+
+把字典寫成多行時，大括號已經界定了表達式，換行和縮進是排版幫助，不是下一章才會學習的控制流代碼塊。最後一對後面的逗號也允許保留。
+
+### 4.2 已有鍵被替換，新鍵被加入
+
+文件：`dictionaries.py`。
+
+<Code language="python">{getContainerExample('dictionaries.py')}</Code>
+
+預期：
+
+```text
+Read names
+{'title': 'Read names', 'minutes': 30, 'owner': None, 'done': False}
+None
+False
+3
+```
+
+本例先創建三個字段，接著修改已有的 `minutes`，再加入原先沒有的 `done`。同一個鍵不會因此出現兩份；對已有鍵賦值是替換其關聯值。
+
+`task.pop("owner")` 刪除該鍵並返回原來關聯的值，所以這裡得到 `None`。這是本例原本就存入的值，不是“刪除沒有成功”。之後 `"owner" in task` 為 `False`，字典只剩三個字段。
+
+注意同名方法的參數含義：列表 `pop(0)` 使用位置，字典 `pop("owner")` 使用鍵；字典的 `pop` 需要提供鍵，不是無參數刪除最後一項的列表操作。
+
+Python 3.13 的字典保留插入順序，替換已有鍵的值不會把它重新排到末尾。但保留順序不等於按索引訪問：`task[0]` 是查找整數鍵 `0`，不是讀取第一個字段。字典的相等比較關注鍵和值，不以插入順序是否相同為條件。
+
+到這裡先使用明確的字符串鍵，不把 JS 對象的數字屬性名轉換規則套過來。Python 的鍵有自己的類型，例如整數鍵 `1` 與字符串鍵 `"1"` 不同；不是所有對象都能作鍵，集合章節會補上“可哈希”這個限制。
+
+## 5. 字段缺失與字段值為 None，必須分開
+
+### 5.1 方括號在表達一個較強的要求
+
+`task["owner"]` 表示“我要讀取這個鍵關聯的值”。鍵不存在時，不會自動生成一個 None 字段，而是拋 `KeyError`。
+
+故意失敗的文件：`errors/missing_key.py`。
+
+<Code language="python">{getContainerExample('errors/missing_key.py')}</Code>
+
+沒有正常輸出；第 2 行的錯誤最後一行是 `KeyError: 'owner'`。先核對需求：這個字段必須存在，還是允許缺失？不能為消除異常就一律塞入 None，否則會改變數據表達的意思。
+
+### 5.2 `get` 的默認值只針對缺失
+
+`task.get("owner")` 在鍵缺失時返回 `None`，不會拋上述 KeyError。提供第二個參數，如 `task.get("owner", "unassigned")`，則只在**鍵缺失**時返回這個默認值。它不會把已存在的 None、空字符串、0 或 False 自動替換掉，也不會把默認值寫回字典。
+
+因此，如果業務需要區分“沒這個字段”和“字段明確為空”，僅檢查 `get` 的結果是不是 None 不夠，還要檢查鍵是否存在。這裡先分別打印這些事實，不提前寫條件分支。
+
+文件：`missing_values.py`。
+
+<Code language="python">{getContainerExample('missing_values.py')}</Code>
+
+預期：
+
+```text
+True
+None
+False
+None
+None
+unassigned
+[]
+False
+```
+
+| 檢查 | 為什麼得到這個結果 |
+| --- | --- |
+| `"owner" in task` | 鍵已經存在，雖然值是 None |
+| `task.get("owner")` | 返回已經存入的 None |
+| `"deadline" in task` | 沒有這個鍵 |
+| `task.get("deadline")` | 缺失時默認返回 None，單看結果與上面無法區分 |
+| `task.get("owner", "unassigned")` | 鍵存在，不用默認值 |
+| `task.get("deadline", "unassigned")` | 鍵缺失，返回默認值 |
+| 最後再檢查 `deadline` | 仍然缺失，`get` 不會插入默認字段 |
+
+輸出 `[]` 的那一行是兩個方括號字符夾著空標題，**不是打印了一個空列表**。它證明空字符串也沒有被 `get` 的默認值替換。這沿用 L01 讓空白可見的方法。
+
+`in` 對字典檢查的是**鍵**，不是所有值。`"Read" in {"title": "Read"}` 為 False，因為這裡的鍵是 `title`。選擇不同容器時，必須重新確認成員檢查究竟查什麼。
+
+服務端以後也可能需要區分“請求沒有提供字段”和“明確要求清空字段”；現在只是建立數據表達基礎，沒有開始講接口更新協議。依據：[字典類型與 get](https://docs.python.org/3.13/library/stdtypes.html#mapping-types-dict)。
+
+## 6. 共享引用：改名稱，還是改對象？
+
+### 6.1 回到 L01 沒有提前展開的問題
+
+L01 中兩個名稱綁定同一個整數後，重新賦值一個名稱不會改變另一個名稱。但列表可以被原地修改。賦值規則沒有變，變的是我們現在對對象做的操作。
+
+本節將 `is` 從 L01 的 None 檢查擴展為一個實驗工具：判斷兩邊是否是**同一個對象**。不需要查看地址或記憶 `id()` 數字。
+
+文件：`aliases.py`。
+
+<Code language="python">{getContainerExample('aliases.py')}</Code>
+
+預期：
+
+```text
+True
+['todo', 'review']
+['todo', 'review']
+['done']
+False
+```
+
+執行 `alias = original` 後，只有一個列表，兩個名稱都能訪問它。`alias.append("review")` 通過其中一個名稱修改這個列表，所以從 `original` 看也能看到新條目。並不是 Python 把一次修改廣播到了兩個副本，因為本來就沒有兩個副本。
+
+隨後 `alias = ["done"]` 創建另一個列表，並讓 `alias` 改為指向它。`original` 仍指向原來的列表；重新綁定一個名稱，不會把原列表裡的條目重置掉。
+
+| 寫法 | 改變的對象或關係 |
+| --- | --- |
+| `alias = other` | 改變名稱 `alias` 的綁定 |
+| `alias[0] = value` | 修改 `alias` 當前指向的列表中的一個位置 |
+| `alias.append(value)` | 修改 `alias` 當前指向的列表，新增一個條目 |
+| `task["tags"] = new_tags` | 修改字典的一個關聯，讓這個鍵指向另一份值 |
+
+這也是為什麼“賦值左邊有沒有下標”會影響理解，不能把所有帶 `=` 的行都解釋成同一種名稱重新綁定。
+
+### 6.2 值相等，不等於同一個容器
+
+兩個內容相同、分別創建的列表可以 `==` 相等，同時 `is` 為 False。與 JS 對照時，不能把 Python `==` 直接當成 JS 對數組使用 `===`。
+
+下面只做靜態語法對照；本章以本地 CPython 和獨立示例驗收，不依賴網頁運行器。
+
+<PythonEditor title="容器的內容與身份" compare={true} canRun={false}>
+```javascript case=container_equality
+const left = ["python"];
+const right = ["python"];
+const alias = left;
+console.log(left === right);
+console.log(alias === left);
+```
+
+```python case=container_equality
+left = ["python"]
+right = ["python"]
+alias = left
+print(left == right)
+print(left is right)
+print(alias is left)
 ```
 </PythonEditor>
 
-## 4. 項目組織最佳實踐
+Python 輸出：
 
-### 4.1 項目目錄結構
-
-一個良好的項目結構對於代碼維護和團隊協作至關重要。
-
-<PythonEditor title="項目目錄結構對比" compare={true} canRun={false} height={800}>
-```javascript !! js
-// JavaScript 項目結構
-// my-project/
-// ├── package.json
-// ├── README.md
-// ├── .gitignore
-// ├── src/
-// │   ├── index.js
-// │   ├── utils/
-// │   │   ├── math.js
-// │   │   └── string.js
-// │   ├── components/
-// │   │   └── Calculator.js
-// │   └── services/
-// │       └── api.js
-// ├── tests/
-// │   ├── math.test.js
-// │   └── string.test.js
-// ├── docs/
-// │   └── API.md
-// └── dist/
-//     └── bundle.js
-
-// src/index.js
-import { Calculator } from './components/Calculator.js';
-import { add, multiply } from './utils/math.js';
-
-export { Calculator, add, multiply };
+```text
+True
+False
+True
 ```
 
-```python !! py
-# Python 項目結構
-# my_project/
-# ├── setup.py              # 包安裝配置
-# ├── requirements.txt      # 依賴管理
-# ├── README.md
-# ├── .gitignore
-# ├── my_project/
-# │   ├── __init__.py
-# │   ├── main.py
-# │   ├── utils/
-# │   │   ├── __init__.py
-# │   │   ├── math_utils.py
-# │   │   └── string_utils.py
-# │   ├── components/
-# │   │   ├── __init__.py
-# │   │   └── calculator.py
-# │   └── services/
-# │       ├── __init__.py
-# │       └── api.py
-# ├── tests/
-# │   ├── __init__.py
-# │   ├── test_math.py
-# │   └── test_string.py
-# ├── docs/
-# │   └── api.md
-# └── build/
-#     └── dist/
+JS 輸出：
 
-# my_project/__init__.py
-from .main import main
-from .components.calculator import Calculator
-from .utils.math_utils import add, multiply
-
-__all__ = ['main', 'Calculator', 'add', 'multiply']
-```
-</PythonEditor>
-
-### 4.2 依賴管理對比
-
-```json
-// package.json (JavaScript)
-{
-  "name": "my-project",
-  "version": "1.0.0",
-  "description": "A sample project",
-  "main": "src/index.js",
-  "scripts": {
-    "start": "node src/index.js",
-    "test": "jest",
-    "build": "webpack",
-    "dev": "nodemon src/index.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "axios": "^1.6.0",
-    "lodash": "^4.17.21"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "eslint": "^8.55.0",
-    "webpack": "^5.89.0"
-  },
-  "keywords": ["javascript", "nodejs"],
-  "author": "Your Name",
-  "license": "MIT"
-}
+```text
+false
+true
 ```
 
-```python
-# setup.py (Python)
-from setuptools import setup, find_packages
+本章內置容器的內容比較與對象身份是兩個問題：內容可以碰巧相同，也可以在後續修改後變得不同；`is` 用來確認是否共享同一對象。不要因此回到 L01，用 `is` 比較整數或字符串內容。參見 [Python 比較規則](https://docs.python.org/3.13/reference/expressions.html#comparisons)和 [JS 嚴格相等](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality)。
 
-setup(
-    name="my-project",
-    version="1.0.0",
-    description="A sample Python project",
-    author="Your Name",
-    author_email="your.email@example.com",
-    packages=find_packages(),
-    install_requires=[
-        "flask>=2.3.0",
-        "requests>=2.31.0",
-        "pandas>=2.1.0",
-    ],
-    extras_require={
-        "dev": [
-            "pytest>=7.4.0",
-            "black>=23.0.0",
-            "flake8>=6.0.0",
-        ],
-    },
-    python_requires=">=3.8",
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-    ],
-)
+## 7. 複製：必須說清複製到哪一層
 
-# requirements.txt
-flask>=2.3.0
-requests>=2.31.0
-pandas>=2.1.0
+### 7.1 先看只有字符串條目的列表
 
-# requirements-dev.txt
--r requirements.txt
-pytest>=7.4.0
-black>=23.0.0
-flake8>=6.0.0
+`original.copy()` 創建一個新的外層列表。這與 `draft = original` 不同。列表的完整切片 `original[:]` 也創建淺複製；我們先統一用明確的 `.copy()`。
+
+文件：`list_copy.py`。
+
+<Code language="python">{getContainerExample('list_copy.py')}</Code>
+
+預期：
+
+```text
+['read']
+['read', 'review']
+False
 ```
 
-## 5. 實際項目示例
+追加發生在新列表上，原列表沒有增加條目。字符串條目本身不可變，這個例子暫時沒有暴露內部共享的風險；不能據此認定 `.copy()` 會遞歸複製任意結構。
 
-### 5.1 創建一個簡單的計算器包
+### 7.2 新字典，舊的內層列表
 
-讓我們創建一個完整的計算器包，展示模塊系統的實際應用。
+**淺複製**的意思是新建外層容器，但其中保存的條目或值仍引用原來的對象。字典的 `.copy()` 也遵循這個原則。
 
-<PythonEditor title="計算器包示例" compare={true}>
-```javascript !! js
-// calculator.js - JavaScript 版本
-class Calculator {
-    constructor() {
-        this.history = [];
-    }
-    
-    add(a, b) {
-        const result = a + b;
-        this.history.push(`${a} + ${b} = ${result}`);
-        return result;
-    }
-    
-    subtract(a, b) {
-        const result = a - b;
-        this.history.push(`${a} - ${b} = ${result}`);
-        return result;
-    }
-    
-    multiply(a, b) {
-        const result = a * b;
-        this.history.push(`${a} * ${b} = ${result}`);
-        return result;
-    }
-    
-    divide(a, b) {
-        if (b === 0) {
-            throw new Error("除數不能為零");
-        }
-        const result = a / b;
-        this.history.push(`${a} / ${b} = ${result}`);
-        return result;
-    }
-    
-    getHistory() {
-        return this.history;
-    }
-    
-    clearHistory() {
-        this.history = [];
-    }
-}
+現在讓任務的 `tags` 字段保存一個列表。`draft["tags"]` 先從字典取出這個列表，後面的 `.append(...)` 再修改該列表；不是向字典新增一個名叫 append 的字段。
 
-// 工具函數
-function validateNumber(num) {
-    return typeof num === 'number' && !isNaN(num);
-}
+文件：`shallow_copy.py`。
 
-function formatResult(result) {
-    return `結果: ${result}`;
-}
+<Code language="python">{getContainerExample('shallow_copy.py')}</Code>
 
-const calc = new Calculator()
-console.log(calc.add(10, 5))
-console.log(calc.multiply(4, 3))
-console.log("計算歷史:", calc.getHistory())
+預期：
+
+```text
+False
+True
+Read
+['python', 'basics']
+Practice
 ```
 
-```python !! py
-# calculator.py - Python 版本
-class Calculator:
-    """計算器類，支持基本運算和歷史記錄"""
-    
-    def __init__(self):
-        self.history = []
-    
-    def add(self, a, b):
-        """加法運算"""
-        result = a + b
-        self.history.append(f"{a} + {b} = {result}")
-        return result
-    
-    def subtract(self, a, b):
-        """減法運算"""
-        result = a - b
-        self.history.append(f"{a} - {b} = {result}")
-        return result
-    
-    def multiply(self, a, b):
-        """乘法運算"""
-        result = a * b
-        self.history.append(f"{a} * {b} = {result}")
-        return result
-    
-    def divide(self, a, b):
-        """除法運算"""
-        if b == 0:
-            raise ValueError("除數不能為零")
-        result = a / b
-        self.history.append(f"{a} / {b} = {result}")
-        return result
-    
-    def get_history(self):
-        """獲取計算歷史"""
-        return self.history
-    
-    def clear_history(self):
-        """清空計算歷史"""
-        self.history = []
+畫出關係，比背“淺拷貝”三個字更重要：
 
-# 工具函數
-def validate_number(num):
-    """驗證數字"""
-    return isinstance(num, (int, float)) and not isinstance(num, bool)
+| 執行階段 | 外層字典 | `tags` 指向的列表 |
+| --- | --- | --- |
+| 創建 `original` | 一份 | 一份，內容是 `python` |
+| `draft = original.copy()` | 兩份不同的字典 | 兩個字典仍共享同一份列表 |
+| 改 `draft["title"]` | 只替換草稿字典中的關聯 | 不涉及標籤列表 |
+| 改 `draft["tags"]` 取得的列表 | 外層仍是兩份 | 共享列表被追加，因此原任務也看到新標籤 |
 
-def format_result(result):
-    """格式化結果"""
-    return f"結果: {result}"
+給 `draft["title"]` 賦新字符串，不會修改原字典的 `title` 關聯。可是兩次下標訪問 `draft["tags"]`、`original["tags"]` 取得的是同一個可變列表。這是兩種不同的操作對象，不是字典複製“有時成功、有時失效”。
 
-# 如果直接運行此文件
-if __name__ == "__main__":
-    calc = Calculator()
-    print(calc.add(10, 5))
-    print(calc.multiply(4, 3))
-    print("計算歷史:", calc.get_history())
-```
-</PythonEditor>
+### 7.3 按本章數據形狀，隔離將要修改的層
 
-### 5.2 使用計算器包
+當前數據形狀已知：外層是字典，只有 `tags` 是我們會修改的內層列表，列表中都是不可變字符串。因此先複製字典，再複製該字段的列表，就能滿足當前編輯需求。
 
-<PythonEditor title="使用計算器包" compare={true} canRun={false} height={700}>
-```javascript !! js
-// main.js - 使用計算器
-import Calculator, { validateNumber, formatResult } from './calculator.js';
+文件：`isolated_copy.py`。
 
-// 創建計算器實例
-const calc = new Calculator();
+<Code language="python">{getContainerExample('isolated_copy.py')}</Code>
 
-// 基本運算
-console.log(formatResult(calc.add(10, 5)));      // 結果: 15
-console.log(formatResult(calc.subtract(10, 3))); // 結果: 7
-console.log(formatResult(calc.multiply(4, 6)));  // 結果: 24
-console.log(formatResult(calc.divide(20, 4)));   // 結果: 5
+預期：
 
-// 查看歷史記錄
-console.log("計算歷史:");
-calc.getHistory().forEach(record => {
-    console.log(`  ${record}`);
-});
-
-// 錯誤處理
-try {
-    calc.divide(10, 0);
-} catch (error) {
-    console.error("錯誤:", error.message);
-}
-
-// 驗證數字
-console.log(validateNumber(42));     // true
-console.log(validateNumber("42"));   // false
-console.log(validateNumber(NaN));    // false
+```text
+Read
+['python']
+Practice
+['python', 'basics']
+False
 ```
 
-```python !! py
-# main.py - 使用計算器
-from calculator import Calculator, validate_number, format_result
+關鍵是 `draft["tags"] = original["tags"].copy()`：右邊新建列表，左邊只替換草稿字典中的 `tags` 關聯。修改之前就切斷了這條不希望共享的路徑。
 
-def main():
-    # 創建計算器實例
-    calc = Calculator()
-    
-    # 基本運算
-    print(format_result(calc.add(10, 5)))      # 結果: 15
-    print(format_result(calc.subtract(10, 3))) # 結果: 7
-    print(format_result(calc.multiply(4, 6)))  # 結果: 24
-    print(format_result(calc.divide(20, 4)))   # 結果: 5.0
-    
-    # 查看歷史記錄
-    print("計算歷史:")
-    for record in calc.get_history():
-        print(f"  {record}")
-    
-    # 錯誤處理
-    try:
-        calc.divide(10, 0)
-    except ValueError as error:
-        print(f"錯誤: {error}")
-    
-    # 驗證數字
-    print(validate_number(42))     # True
-    print(validate_number("42"))   # False
-    print(validate_number(3.14))   # True
+**這不是通用深複製函數。** 如果標籤條目以後變成可變字典，或增加另一份可變字段，這段代碼不保證它們也獨立。應重新畫關係、明確哪些層會修改。也不是所有共享都錯誤：看板和任務詳情有時就應該引用同一份任務。
 
-if __name__ == "__main__":
-    main()
-```
-</PythonEditor>
+Python 的 `copy` 模塊提供淺複製、深複製等工具，但它需要後面的模塊知識，深複製的邊界也要具體分析。本章不要求複製一行 `import copy` 後把機制當作已經解釋完畢。參見 [copy 模塊對複製語義的說明](https://docs.python.org/3.13/library/copy.html)。
 
-## 6. 高級模塊特性
+**停靠點 B：** 合上代碼，用兩個字典和一個列表畫出失敗原因，再補上第二個列表畫出修復。能指出哪條關聯被替換，才算理解，而不是記住兩行 `.copy()`。
 
-### 6.1 相對導入
+## 8. 一個很容易漏掉的共享來源：列表重複
 
-Python 支持相對導入，類似於 JavaScript 中的相對路徑導入。
+`["todo"] * 2` 是重複列表條目，不是做數值乘法，也不是把每個條目遞歸複製。尤其當被重複的條目本身是可變容器時，要檢查引用。
 
-<PythonEditor title="相對導入示例" compare={true} canRun={false} height={500}>
-```javascript !! js
-// JavaScript 相對導入
-// project/
-// ├── src/
-// │   ├── utils/
-// │   │   ├── math.js
-// │   │   └── string.js
-// │   ├── components/
-// │   │   └── calculator.js
-// │   └── main.js
+`[[]] * 2` 先創建一個內層空列表，再把指向它的引用重複兩次；不是分別執行兩次 `[]` 創建。
 
-// src/components/calculator.js
-import { add, multiply } from '../utils/math.js';
-import { capitalize } from '../utils/string.js';
+文件：`repeated_rows.py`。
 
-export class Calculator {
-    constructor() {
-        this.math = { add, multiply };
-        this.string = { capitalize };
-    }
-}
+<Code language="python">{getContainerExample('repeated_rows.py')}</Code>
 
-// src/main.js
-import { Calculator } from './components/calculator.js';
+預期：
+
+```text
+True
+[['Read'], ['Read']]
 ```
 
-```python !! py
-# Python 相對導入
-# project/
-# ├── my_package/
-# │   ├── utils/
-# │   │   ├── __init__.py
-# │   │   ├── math_utils.py
-# │   │   └── string_utils.py
-# │   ├── components/
-# │   │   ├── __init__.py
-# │   │   └── calculator.py
-# │   └── main.py
+程序沒有拋異常，但如果需求是兩行獨立數據，行為已經錯了。當前只需要兩行，可以明確創建兩個不同的空列表：
 
-# my_package/components/calculator.py
-from ..utils.math_utils import add, multiply
-from ..utils.string_utils import capitalize
-
-class Calculator:
-    def __init__(self):
-        self.math = {'add': add, 'multiply': multiply}
-        self.string = {'capitalize': capitalize}
-
-# my_package/main.py
-from .components.calculator import Calculator
-```
-</PythonEditor>
-
-### 6.2 動態導入
-
-Python 支持動態導入模塊，類似於 JavaScript 的動態 import()。
-
-<PythonEditor title="動態導入示例" compare={true} canRun={false} height={600}>
-```javascript !! js
-// JavaScript 動態導入
-async function loadModule(moduleName) {
-    try {
-        const module = await import(`./modules/${moduleName}.js`);
-        return module;
-    } catch (error) {
-        console.error(`無法加載模塊 ${moduleName}:`, error);
-        return null;
-    }
-}
-
-// 使用動態導入
-async function main() {
-    const mathModule = await loadModule('math');
-    if (mathModule) {
-        console.log(mathModule.add(5, 3));
-    }
-    
-    const stringModule = await loadModule('string');
-    if (stringModule) {
-        console.log(stringModule.capitalize('hello'));
-    }
-}
-
-main();
+```python case=independent_rows
+rows = [[], []]
+print(rows[0] is rows[1])
+rows[0].append("Read")
+print(rows)
 ```
 
-```python !! py
-# Python 動態導入
-import importlib
-import sys
-
-def load_module(module_name):
-    """動態加載模塊"""
-    try:
-        module = importlib.import_module(f"modules.{module_name}")
-        return module
-    except ImportError as error:
-        print(f"無法加載模塊 {module_name}: {error}")
-        return None
-
-# 使用動態導入
-def main():
-    math_module = load_module('math_utils')
-    if math_module:
-        print(math_module.add(5, 3))
-    
-    string_module = load_module('string_utils')
-    if string_module:
-        print(string_module.capitalize('hello'))
-
-if __name__ == "__main__":
-    main()
-```
-</PythonEditor>
-
-
-### 6.3 循環導入陷阱 (Circular Imports)
-
-循環導入是指兩個或多個模塊相互導入對方，形成一個閉環。這在 Python 中會導致 `ImportError` 或 `AttributeError`，因為模塊在導入時會執行頂層代碼。
-
-**問題示例**
-
-```python
-# a.py
-from b import func_b
-
-def func_a():
-    func_b()
-
-# b.py
-from a import func_a
-
-def func_b():
-    func_a()
+```text
+False
+[['Read'], []]
 ```
 
-**解決方案**
+兩個空列表起初內容相等，但身份不同。未來用循環或推導式創建任意數量的獨立列表時，會沿用同一條原則；本章不提前使用這些語法。官方 FAQ 也專門解釋了[多維列表的共享問題](https://docs.python.org/3.13/faq/programming.html#how-do-i-create-a-multidimensional-list)。
 
-1.  **重構代碼**：將共享的依賴提取到第三個模塊（推薦）。
-2.  **延遲導入**：將導入語句移到函數/方法內部（僅在需要時導入）。
+## 9. 元組：固定的是槽位，不是整個對象圖
 
-```python
-# b.py (修復後)
-def func_b():
-    # 延遲導入，打破循環
-    from a import func_a
-    func_a()
+列表適合需要增刪條目的序列。有些數據由固定位置承載含義，例如二維座標；元組可以表達這組槽位不被原地增刪或替換。
+
+`(2, 5)` 是兩個元素的元組。單元素元組必須保留逗號：`("todo",)`；`("todo")` 只有用於分組的括號，結果仍是字符串。空元組寫作 `()`。可以按索引讀取、用 `len` 計數，但沒有列表的 `append`。
+
+文件：`tuples.py`。
+
+<Code language="python">{getContainerExample('tuples.py')}</Code>
+
+預期：
+
+```text
+2
+1
+<class 'str'>
+<class 'tuple'>
+('task-1', ['python', 'basics'])
 ```
 
-## 7. 練習題
+最後的 `record` 有兩個槽位：字符串和列表。`record[1].append(...)` 先取出列表，再修改列表；元組的第二個槽位仍然指向原來的那個列表，所以沒有違反元組自身不可變的規則。
 
+把“元組不可變”理解為“裡面每層都深度只讀”會出錯。對於本章這個例子，固定的是元組持有的引用，不是被引用列表的內容。
 
-### 練習 1：創建工具包
+故意失敗的文件：`errors/tuple_assignment.py`。
 
-創建一個包含數學工具和字符串工具的工具包。
+<Code language="python">{getContainerExample('errors/tuple_assignment.py')}</Code>
 
-<PythonEditor title="練習題 1：工具包" compare={true} canRun={false} height={900}>
-```javascript !! js
-// 創建以下文件結構：
-// my-utils/
-// ├── package.json
-// ├── src/
-// │   ├── index.js
-// │   ├── math.js
-// │   └── string.js
-// └── test/
-//     └── test.js
+它沒有正常輸出；第 2 行產生 `TypeError`，指出 tuple 不支持條目賦值。這次企圖替換的是元組自己的槽位，而不是修改從槽位取出的列表。
 
-// src/math.js
-export function add(a, b) {
-    return a + b;
-}
+如果需求是得到新座標，可以創建新的元組，例如把名稱重新綁定到 `(9, position[1])`；如果需求本來就需要頻繁替換槽位，應重新考慮列表是否更適合。不能只為讓異常消失而盲目換類型。參見[元組與序列](https://docs.python.org/3.13/tutorial/datastructures.html#tuples-and-sequences)。
 
-export function multiply(a, b) {
-    return a * b;
-}
+## 10. 集合：關心成員，而不是條目位置
 
-export function factorial(n) {
-    if (n <= 1) return 1;
-    return n * factorial(n - 1);
-}
+### 10.1 用“還缺哪些標籤”建立動機
 
-// src/string.js
-export function reverse(str) {
-    return str.split('').reverse().join('');
-}
+一項任務的標籤可能重複錄入。如果我們只關心標籤是否存在，而不要求記錄先後順序和出現次數，集合可以表達“不重複的成員”。
 
-export function isPalindrome(str) {
-    const clean = str.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return clean === clean.split('').reverse().join('');
-}
+非空集合可以寫成 `{"python", "basics"}`；它使用花括號，但沒有字典的鍵值冒號。**空花括號 `{}` 是字典，空集合必須寫 `set()`。** `set` 是內置功能，不需要導入。
 
-// src/index.js
-export * from './math.js';
-export * from './string.js';
+先說明本例要用的操作：
+
+| 操作 | 本例的意思 |
+| --- | --- |
+| `tag in tags` | 檢查成員是否存在，產生布爾值 |
+| `tags.add(tag)` | 加入一個成員，已有則不增加重複項 |
+| `tags.discard(tag)` | 移除一個成員；不存在時也不因此報 KeyError |
+| `required - tags` | 新集合：要求有、但當前沒有的成員 |
+| `required & tags` | 新集合：兩邊都有的成員 |
+| `required \| tags` | 新集合：兩邊所有不重複成員 |
+
+後三種運算不會在本例中修改原集合。`add`、`discard` 則原地修改，返回 None，不是返回新集合。
+
+集合沒有列表那樣的位置順序保證，也不支持 `tags[0]`。為了讓教材輸出穩定，我們調用內置 `sorted(tags)` 得到一份排好序的**列表**再打印。當前只有小寫 ASCII 字符串，可以用普通字母順序預測結果；`sorted` 不會給原集合建立位置編號，也不修改它。
+
+文件：`sets.py`。
+
+<Code language="python">{getContainerExample('sets.py')}</Code>
+
+預期：
+
+```text
+2
+True
+['basics', 'practice', 'python']
+['sql']
+['python']
+['basics', 'practice', 'python', 'sql']
+0
 ```
 
-```python !! py
-# 創建以下文件結構：
-# my_utils/
-# ├── setup.py
-# ├── my_utils/
-# │   ├── __init__.py
-# │   ├── math_utils.py
-# │   └── string_utils.py
-# └── tests/
-#     └── test_utils.py
+開頭寫了兩次 `python`，但它是同一個成員值，因此長度為 2。不要靠打印原集合得到的偶然順序安排界面，也不要用集合保存需要保留重複和先後關係的學習記錄。集合適合哪種業務含義，比背三個符號重要。
 
-# my_utils/math_utils.py
-def add(a, b):
-    """加法函數"""
-    return a + b
+### 10.2 為什麼列表不能作為集合成員？
 
-def multiply(a, b):
-    """乘法函數"""
-    return a * b
+集合成員和字典鍵需要**可哈希**。在這裡先理解必要約束：對象要能提供生命週期內穩定的哈希值，並且相等的對象必須具有相同哈希值，容器才能按相應規則組織和查找成員。我們不需要計算這些數字，也不需要提前實現類的方法。
 
-def factorial(n):
-    """階乘函數"""
-    if n <= 1:
-        return 1
-    return n * factorial(n - 1)
+本章使用的 `str`、`int` 可以作為鍵或集合成員；`list`、`dict`、`set` 不可以。元組只有在每個元素都可哈希時才可哈希，所以“元組自身不可變”還不足以保證帶列表的元組能放進集合。不要把“不可變”和“可哈希”當成完全等價的術語。
 
-# my_utils/string_utils.py
-def reverse(text):
-    """字符串反轉"""
-    return text[::-1]
+故意失敗的文件：`errors/unhashable_member.py`。
 
-def is_palindrome(text):
-    """判斷是否為迴文"""
-    import re
-    clean = re.sub(r'[^a-z0-9]', '', text.lower())
-    return clean == clean[::-1]
+<Code language="python">{getContainerExample('errors/unhashable_member.py')}</Code>
 
-# my_utils/__init__.py
-from .math_utils import add, multiply, factorial
-from .string_utils import reverse, is_palindrome
+沒有正常輸出；第 2 行產生 `TypeError: unhashable type: 'list'`。代碼嘗試加入的是列表 `["python"]`，不是字符串 `"python"`。如果需求是一個標籤，傳入那個字符串即可；不要為了過關隨意把任意對象變成文本。
 
-__all__ = ['add', 'multiply', 'factorial', 'reverse', 'is_palindrome']
-```
-</PythonEditor>
+同樣，拿列表作字典鍵也會得到 TypeError。這與 JS Set 可以按對象身份保存數組對象的用法不同，不能把“JS 能放進去”當作 Python 的許可。
 
-### 練習 2：模塊導入練習
+另外，成員去重依賴相等關係，不只是外觀拼寫。L01 已經解釋過 `True == 1`，因此集合不會把這兩個值當成兩個獨立成員；字典也不能靠它們區分兩個不同鍵。本章用同類字符串標籤，避免把布爾狀態和編號混為一類。依據：[集合類型](https://docs.python.org/3.13/library/stdtypes.html#set-types-set-frozenset)、[hashable 術語](https://docs.python.org/3.13/glossary.html#term-hashable)、[sorted](https://docs.python.org/3.13/library/functions.html#sorted)。
 
-<PythonEditor title="練習題 2：模塊導入" compare={true} canRun={false}>
-```javascript !! js
-// 練習不同的導入方式
-import { add, multiply } from './math.js';
-import * as MathUtils from './math.js';
-import { add as addFunction } from './math.js';
+**停靠點 C：** 分別解釋“元組裡為什麼還能有變化”和“集合為什麼不能按第 0 項讀取”。然後為“有順序的任務”和“不重複的標籤”各選一種容器，並說出選擇理由。
 
-console.log(add(5, 3));           // 8
-console.log(MathUtils.multiply(4, 2));  // 8
-console.log(addFunction(10, 5));  // 15
+## 11. 連起來：兩張獨立任務卡，以及有意共享的看板
+
+現在組合已經學過的知識：模板提供默認值，兩份任務各自擁有可編輯標籤，看板保存這兩份任務。
+
+`board[0]["title"]` 分兩步讀取：先從列表取得第一份任務字典，再從該字典取得標題。`board[0]["minutes"] = 40` 則修改這個任務字典的字段，並不替換看板列表。
+
+文件：`task_board.py`。
+
+<Code language="python">{getContainerExample('task_board.py')}</Code>
+
+運行：
+
+```bash
+uv run --no-project --python 3.13 python task_board.py
 ```
 
-```python !! py
-# 練習不同的導入方式
-from my_utils import add, multiply
-import my_utils
-from my_utils import add as add_function
+預期：
 
-print(add(5, 3))              // 8
-print(my_utils.multiply(4, 2))  // 8
-print(add_function(10, 5))    // 15
+```text
+Tasks: 2
+Read names
+['python', 'basics']
+['python']
+['python']
+True
+Mina
+40
+25
 ```
-</PythonEditor>
 
-## 8. 總結
+### 哪些關係獨立，哪些關係有意共享
 
-### 關鍵概念回顧
+| 關係 | 設計意圖 |
+| --- | --- |
+| 模板、第一份任務、第二份任務的外層字典 | 三份不同的字典，改標題或時長不汙染模板 |
+| 三個字典的 `tags` 列表 | 三份不同的列表，改一份標籤不影響另兩份 |
+| `board[0]` 與 `first` | 同一份任務字典，從看板修改後，`first` 應看到變化 |
+| `board[1]` 與 `second` | 同一份任務字典，不是在放入列表時自動複製 |
 
-1. **模塊**：任何 `.py` 文件都可以作為模塊使用
-2. **包**：包含 `__init__.py` 的目錄，可以包含多個模塊
-3. **導入方式**：`import`、`from ... import`、`as` 重命名
-4. **特殊變量**：`__name__`、`__file__`、`__all__`
-5. **項目組織**：合理的目錄結構和依賴管理
+所以最後兩個數字是 `40` 和 `25`：從看板修改第一份任務，`first` 看到 40，而模板保留 25。我們不是追求所有對象永遠互不關聯，而是在設計上區分**需要共享的任務本身**與**不該共享的草稿標籤**。
 
-### JavaScript vs Python 對比總結
+### 修改兩次，驗證關係而不只是看輸出
 
-| 概念 | JavaScript | Python | 說明 |
-|------|------------|--------|------|
-| **模塊文件** | `.js` 文件 | `.py` 文件 | 都是單個文件作為模塊 |
-| **包** | 目錄 + `package.json` | 目錄 + `__init__.py` | Python 需要 `__init__.py` |
-| **導入語法** | `import { func }` | `from module import func` | 語法不同但概念相同 |
-| **默認導出** | `export default` | 無對應概念 | Python 沒有默認導出 |
-| **相對導入** | `../utils/math` | `..utils.math_utils` | 都支持相對路徑 |
-| **動態導入** | `import()` | `importlib.import_module()` | 都支持運行時導入 |
+1. 把給第一份任務追加的 `"basics"` 改為 `"review"`。只應改變第一份任務標籤，模板和第二份仍只有 `python`。
+2. 把末尾賦給 `board[0]["minutes"]` 的 `40` 改為 `55`。`first` 應看到 55，模板仍是 25。
 
-### 下一步學習
+這裡沒有持久化：重新運行時，腳本從源碼重新構造這些對象。它不是數據庫，也沒有多用戶或請求併發隔離。那些服務端問題需要後面的獨立章節，不能拿本例的 `.copy()` 當作生產系統的數據安全方案。
 
-在下一個模塊中，我們將學習：
-- 面向對象編程（類、繼承、多態）
-- 函數式編程特性
-- 裝飾器和元編程
-- 特殊方法（魔術方法）
+**停靠點 D：** 在紙上畫出三個字典、三個標籤列表和一個看板列表。用箭頭表示關係，解釋為什麼有些修改應當可見，有些修改必須被隔離。
 
-這些概念將幫助你更深入地理解 Python 的編程範式，並能夠編寫更復雜和優雅的代碼。 
+## 12. 分級練習：預測、修復、獨立建模
+
+答案默認摺疊。不要只運行下載的答案；要能解釋為什麼自己的程序滿足要求。
+
+### 練習 A：誰會看到追加？
+
+```python case=exercise_alias
+original = ["read"]
+alias = original
+draft = original.copy()
+alias.append("review")
+print(original)
+print(draft)
+print(alias is original)
+```
+
+先寫出輸出，再畫出有幾個列表、每個名稱指向哪一個。最後保存成 `prediction.py`，使用本章同樣的命令驗證。
+
+<details>
+<summary>完成預測與關係圖後查看解釋</summary>
+
+```text
+['read', 'review']
+['read']
+True
+```
+
+`original` 與 `alias` 共享一份列表；`draft` 是第二份列表。追加只改第一份列表。新外層列表中的原始字符串條目不可變，因此本例不需要複製到更深層。
+
+</details>
+
+### 練習 B：沒有報錯，但草稿汙染了原記錄
+
+這是**行為不滿足需求**的起點，不是解釋器異常：
+
+```python case=exercise_shared_tags
+saved = {"title": "Read", "tags": ["python"]}
+draft = saved.copy()
+draft["tags"].append("review")
+print(saved["tags"])
+print(draft["tags"])
+```
+
+當前實際輸出：
+
+```text
+['python', 'review']
+['python', 'review']
+```
+
+要求：保留 `saved` 的原始數據，只讓 `draft` 的標籤新增 `review`。修復應在修改之前隔離所需對象，不是最後再刪除原記錄的標籤來偽裝修復。再輸出一次身份比較，證明兩份標籤列表不是同一個對象。
+
+完成後，將初始標籤從 `"python"` 改成 `"language"`，再次驗證兩份結果，不能在修復代碼中寫死舊標籤。
+
+<details>
+<summary>獨立修復和輸入變式後查看參考</summary>
+
+文件：`solutions/fix_draft.py`。
+
+<Code language="python">{getContainerExample('solutions/fix_draft.py')}</Code>
+
+原輸入的預期輸出：
+
+```text
+['python']
+['python', 'review']
+False
+```
+
+額外複製的是將要修改的內層列表，並把新列表放進草稿字典；外層字典之前已經複製。這隻能保證當前數據形狀下的隔離，不是萬能的對象深複製實現。
+
+</details>
+
+### 練習 C：從空文件創建兩份學習計劃
+
+自己創建 `study_board.py`，從這一份模板開始：
+
+```python case=exercise_template
+template = {"title": "Untitled", "topics": ["python"], "minutes": 20, "owner": None}
+```
+
+獨立完成這些要求，不使用循環、自定義函數或導入：
+
+1. 從模板創建兩份不同的計劃字典，分別命名為 `first`、`second`；三份 `topics` 列表都應能獨立修改。
+2. 第一份標題為 `Read lists`，沿用默認時長和負責人字段。
+3. 第二份標題為 `Practice dictionaries`，追加主題 `copy`，時長設為 35；刪除它的 `owner` 字段，表示該字段缺失，而不是把值再設為 None。
+4. 用列表 `plans` 保存兩份計劃；通過它們的字段計算總分鐘數，不能硬編碼 55。
+5. 輸出計劃數、總時長、兩個標題、三份主題，以及負責人的存在/空值檢查和兩份主題的身份比較。
+
+原輸入應得到：
+
+```text
+Plans: 2; total: 55 minutes
+Read lists
+Practice dictionaries
+['python']
+['python']
+['python', 'copy']
+True
+True
+False
+False
+```
+
+最後四行依次回答：第一份有 `owner` 鍵嗎？第一份的值是 None 嗎？第二份有 `owner` 鍵嗎？兩份計劃的主題列表是同一個對象嗎？
+
+運行自己創建的文件：
+
+```bash
+uv run --no-project --python 3.13 python study_board.py
+```
+
+再做兩次變式：第二份時長改成 50，總時長應為 70；恢復時長，再把模板主題改成 `"language"`，三份主題都應該從新模板派生，只有第二份額外含 `copy`。除了這些輸入，不修改計算與複製邏輯。
+
+最後解釋：為什麼只用 `get("owner")` 無法證明第一份明確為空而第二份缺失？為什麼 `plans[0]` 仍然應該與 `first` 共享同一個字典？
+
+<details>
+<summary>獨立完成並驗證變式後查看參考答案</summary>
+
+文件：`solutions/study_board.py`。
+
+<Code language="python">{getContainerExample('solutions/study_board.py')}</Code>
+
+獨立寫法不必逐字相同，但本題使用指定名稱是為了讓你能逐一核對關係。重點檢查源數據是否保留、可變層是否隔離、缺失是否表達正確、總時長是否由當前輸入計算。
+
+本章只處理兩份計劃。現在不要求消除重複的幾行復制代碼；等理解循環和函數後，再學習如何抽取複用，而不是讓抽象先於機制。
+
+</details>
+
+## 13. 離開本章前，應拿得出什麼證據？
+
+- 能為有序任務、字段記錄、固定槽位和唯一標籤選擇合適容器，並解釋不能直接互換的理由。
+- 能區分索引、切片和鍵；解釋越界、缺失鍵與已有 None，不用默認值掩蓋數據含義。
+- 能分別說明一次方法調用的副作用與返回值，不把 None 重新綁定成原來的列表。
+- 能預測名稱重新綁定、原地修改與淺複製的區別；畫出嵌套共享和重複列表的關係。
+- 能解釋元組的不可變邊界、集合的順序限制與成員要求，而不是隻記住類型名稱。
+- 從空文件完成兩份學習計劃及輸入變式，說明哪些共享是有意的、哪些已經隔離。
+
+如果還需看答案，回到那個小實驗，而不是先去背更多方法名。離開前記錄最後成功的文件與輸出、一個還沒畫清的引用關係、下次要修改的一個輸入。恢復時先預測這個變化，再運行，不必從安裝重新開始。
+
+下一步是 [L03「條件、循環與遍歷」](/zh-tw/docs/js2py/module-03-oop-functional)，把本章手工處理兩項數據的程序擴展成可處理不同數量的數據。目前 L00—L03 已按新契約重編；後續舊頁面仍在遷移。原第 02 章的模塊內容已經歸檔保留，模塊知識會在新的 L06 講解，不是被取消。
+
+## 14. 官方資料與本章邊界
+
+正文已在相關解釋旁提供主要資料，補充兩項：
+
+- [數據模型：對象、值與類型](https://docs.python.org/3.13/reference/datamodel.html#objects-values-and-types)：核對可變容器如何引用其他對象，不要求現在通讀所有特殊方法。
+- [賦值語句](https://docs.python.org/3.13/reference/simple_stmts.html#assignment-statements)：區分名稱綁定與對容器條目的賦值。
+
+本章採用 CPython 3.13 教學基線，不聲稱它是最新版本。網頁與下載包讀取同一份示例，維護者運行檢查不進入讀者先修要求。案例沒有輸入校驗、持久化、事務或併發處理；學會容器只是實現真實後端的一層基礎，不是已經具備全部上線能力。

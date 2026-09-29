@@ -1,0 +1,122 @@
+{
+  "checked": "2026-09-28",
+  "meaning": "Observed gaps, NOT additional promises for the current core contract. No secrets or real user data were submitted.",
+  "source_hashes": {
+    ".python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "pyproject.toml": "9e6c698fa044dcaccbbaff72e33d6b519767261f403ec3f60ea7249e0b64e1e0",
+    "uv.lock": "bda5ae780c04f2682a0e2b282a448d557f8182fd13db4b8365392f6820229535",
+    "app.py": "8dad4a0ae2e0cbf684af81ab936b190d8922138b2697f7fc764f2117661b3d11",
+    "models.py": "b26e6d045e80c7a7177931c2870d141f09d636b577c73fc63e9b73f92aace77a"
+  },
+  "observations": [
+    {
+      "name": "head-not-automatic",
+      "method": "HEAD",
+      "target": "/tasks",
+      "request_body_bytes": 0,
+      "headers": {},
+      "observed_status": 405,
+      "observed_body": null,
+      "scope": "H04 snapshot observation; NOT a desired hardening contract"
+    },
+    {
+      "name": "unknown-query-not-rejected",
+      "method": "GET",
+      "target": "/tasks?done=true",
+      "request_body_bytes": 0,
+      "headers": {},
+      "observed_status": 200,
+      "observed_body": {
+        "items": [
+          {
+            "id": 1,
+            "title": "  Read HTTP  ",
+            "minutes": 25,
+            "done": false,
+            "note": "keep me"
+          },
+          {
+            "id": 2,
+            "title": "Check the failure path",
+            "minutes": 0,
+            "done": true,
+            "note": null
+          },
+          {
+            "id": 3,
+            "title": "Write an independent case",
+            "minutes": 40,
+            "done": false,
+            "note": "later"
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 3
+      },
+      "scope": "H04 snapshot observation; NOT a desired hardening contract"
+    },
+    {
+      "name": "wrong-media-not-415",
+      "method": "POST",
+      "target": "/tasks",
+      "request_body_bytes": 35,
+      "headers": {
+        "Content-Type": "text/plain"
+      },
+      "observed_status": 422,
+      "observed_body": {
+        "detail": [
+          {
+            "type": "model_attributes_type",
+            "loc": [
+              "body"
+            ],
+            "msg": "Input should be a valid dictionary or object to extract fields from",
+            "input": "{\"title\":\"Media probe\",\"minutes\":0}"
+          }
+        ]
+      },
+      "scope": "H04 snapshot observation; NOT a desired hardening contract"
+    },
+    {
+      "name": "missing-content-type",
+      "method": "POST",
+      "target": "/tasks",
+      "request_body_bytes": 36,
+      "headers": {},
+      "observed_status": 422,
+      "observed_body": {
+        "detail": [
+          {
+            "type": "model_attributes_type",
+            "loc": [
+              "body"
+            ],
+            "msg": "Input should be a valid dictionary or object to extract fields from",
+            "input": "{\"title\":\"Header probe\",\"minutes\":0}"
+          }
+        ]
+      },
+      "scope": "H04 snapshot observation; NOT a desired hardening contract"
+    },
+    {
+      "name": "no-64k-body-limit",
+      "method": "POST",
+      "target": "/tasks",
+      "request_body_bytes": 70034,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "observed_status": 201,
+      "observed_body": {
+        "id": 4,
+        "title": "Size probe",
+        "minutes": 0,
+        "done": false,
+        "note": null
+      },
+      "scope": "H04 snapshot observation; NOT a desired hardening contract"
+    }
+  ]
+}

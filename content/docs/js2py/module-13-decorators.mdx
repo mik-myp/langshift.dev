@@ -1,0 +1,239 @@
+---
+title: Decorators and Declarative Interfaces — Expand Before Using
+description: Trace function values and closures into decorators, distinguish evaluation from application and invocation, compare registration with wrapping, and parametrize tests of understood behavior.
+---
+
+import { getDecoratorExample } from '@/lib/js2py-examples'
+
+## 1. Why memorizing @ syntax is not enough
+
+The next stage introduces route declarations, dependencies, and test configuration. They may look like labels attached to functions, yet some replace a function, some only register it, and some fail during import. Without timing, it is easy to mistake startup failure for request failure or assume every call repeats registration.
+
+We will expand @ into familiar function calls before introducing a server. The artifacts are an in-memory operation registry, two narrowly scoped wrappers, and explainable parametrized tests—not a general decorator library or authentication system.
+
+| Contract | Scope |
+| --- | --- |
+| Prerequisites | L04 functions, L06 modules, L12 classes/dataclass, L09 ordinary tests |
+| New capabilities | Function values, closures, application, registration/wrapping, parameterization, execution order |
+| Acceptance | Expand and implement a small decorator, explain import versus invocation, parametrize tests of familiar rules |
+| Excluded | Generic arbitrary-signature wrappers, async wrapping, caching, retries, framework internals |
+
+Download the [complete L13 lab](/learning-assets/js2py/u13-decorators.zip) and enter u13-decorators. The fixed baseline is CPython 3.13.15, uv 0.12.13, and pytest 8.4.2.
+
+## 2. Separate a function from its call result
+
+A function name refers to a callable object; parentheses initiate a call. Passing that object to another function is ordinary value passing, not copying source code.
+
+```python
+def double(value: int) -> int:
+    return value * 2
+
+
+def apply(function, value: int) -> int:
+    return function(value)
+
+
+alias = double
+print(alias is double)
+print(apply(double, 4))
+```
+
+```text
+True
+8
+```
+
+Writing apply(double(4), 4) evaluates double(4) first, then supplies the non-callable integer 8 as function; the later call fails. These are ordinary callback and higher-order-function mechanics. Later code uses `Callable[[int], int]` from collections.abc to describe a callable taking one integer and returning an integer. It does not validate inputs at runtime.
+
+## 3. A closure retains configuration without recreating it on every call
+
+An outer function can return an inner function that continues to access outer variables it references. We need only retained configuration, not rebinding outer names, nonlocal, or elaborate functional-programming terminology.
+
+```python
+def make_fee(fee: int):
+    def add(value: int) -> int:
+        return value + fee
+    return add
+
+
+small = make_fee(3)
+large = make_fee(10)
+print(small(4), large(4), small(5))
+```
+
+```text
+7 14 8
+```
+
+make_fee(3) creates a function retaining that invocation's fee binding. Another make_fee(10) does not change the first integer configuration. A closure referencing a shared mutable list would still observe later mutations: closure retention is not deep copying.
+
+<details>
+<summary>Explanation answer: how often do the outer and inner functions execute?</summary>
+
+The outer function runs twice and creates two functions. small runs its inner body twice; large runs once. Returning a function does not immediately execute it. A configuration log in the outer function would not reappear merely because small is called again.
+
+</details>
+
+## 4. Three participants: original function, decorator, rebound result
+
+A decorator receives a function and returns a result; the function name is then bound to that result. The result is commonly callable, but Python does not require that. Forgetting return can therefore finish the definition while rebinding the name to None.
+
+double_result returns wrapped, whose closure retains the original function. At business-call time it calls the original and doubles the result. Decoration builds this calling relationship rather than executing the business function. This wrapper supports one integer argument and an integer result—not arbitrary keywords, methods, async functions, or resource managers.
+
+<Code language="python">{getDecoratorExample('decorators.py')}</Code>
+
+Read double_result first. Then trace add_fee returning decorate, decorate receiving a function and returning wrapped, and wrapped finally receiving business input. The layers answer “which configuration?”, “which function?”, and “which invocation data?”. An invalid fee fails during configuration, before any business call.
+
+To avoid turning this into nested Callable type gymnastics, repeated complex factory-return annotations are omitted; simple wrapper signatures remain. This chapter does not claim to run the whole project under L11's strict annotation configuration or to obtain complete static coverage from unannotated code.
+
+## 5. wraps preserves descriptive metadata, not object identity
+
+`@wraps(function)` is itself a decorator form. It sets metadata such as the name and documentation on wrapped and records the wrapped object for diagnostics and tools. It does not turn wrapped back into the original object, validate business input, or support arbitrary arguments automatically.
+
+A decorated callable can display the original __name__ while remaining a distinct object. Metadata helps trace behavior; it does not implement it. If the wrapper swallows exceptions, wraps will not restore the correct failure policy.
+
+Use the already explained function-in/result-out model to understand this library helper. There is no need to recursively study every standard-library implementation. Verify the callable relationship, observable metadata, and behavior needed here.
+
+## 6. Registration versus wrapping: inspect what is stored and returned
+
+register receives a registry and a name, then returns decorate. Applying decorate rejects duplicate names, stores the supplied function, and returns that same object. It adds no per-call behavior. The dictionary exists only in the current process; it is not persistent storage or a listening server.
+
+<Code language="python">{getDecoratorExample('app.py')}</Code>
+
+Defining cost registers the operation; main runs only when the module is the entry point. Deliberate, bounded declaration during import does not contradict L06's warning against accidental real-file writes on import. External effects still deserve caution. Ordinary repeated imports use the module cache; registration should not depend on re-importing for every request.
+
+With this order, the registry stores the final wrapper, so direct and registry-based calls agree. A wrong dictionary key produces ordinary KeyError. We have not silently converted it to HTTP 404; HTTP semantics come in H02.
+
+## 7. Expression evaluation and application have different orders
+
+Decorator expressions are evaluated top to bottom when the function definition is encountered; the resulting decorators are applied to the function bottom to top. That does not mean the entire definition runs backwards. Observe the timing directly:
+
+<Code language="python">{getDecoratorExample('timing.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python timing.py
+```
+
+```text
+['evaluate outer', 'evaluate inner', 'apply inner', 'apply outer']
+['evaluate outer', 'evaluate inner', 'apply inner', 'apply outer', 'call 4', 'call 5']
+```
+
+Two business calls add only call events, not new evaluation or application events. The independent factories in the main example can be expanded this way:
+
+<Code language="python">{getDecoratorExample('expansion.py')}</Code>
+
+```bash
+uv run --locked python expansion.py
+```
+
+```text
+11 11
+```
+
+This expansion explains this example, not an unrestricted mechanical rewrite of decorators with complex name-lookup side effects. Obtain the registration and fee decorators, create the function, then bind the result of doubling, adding the fee, and registration.
+
+## 8. Changing order can change both behavior and the registered object
+
+<Code language="python">{getDecoratorExample('order.py')}</Code>
+
+```bash
+uv run --locked python order.py
+```
+
+```text
+14
+7 4
+```
+
+Adding three before doubling differs from doubling before adding three. In the second case register is inside: the registry keeps the original function while the external name later refers to the fee wrapper. The two call paths diverge. A framework declaration and another wrapper are not order-independent merely because both use @.
+
+<Code language="toml">{getDecoratorExample('pyproject.toml')}</Code>
+
+```bash
+uv run --locked python app.py
+```
+
+```text
+['cost']
+11 11
+cost
+True
+```
+
+This is demonstration integer arithmetic, not a real pricing or currency policy. Do not mistake a small decorator experiment for payment-system design.
+
+## 9. Does the failure occur during definition or invocation?
+
+<Code language="python">{getDecoratorExample('errors/missing_return.py')}</Code>
+
+```bash
+uv run --locked python errors/missing_return.py
+```
+
+It prints decorated and True, then calling None raises TypeError. The root cause is the decorator's return policy, not business arithmetic. Trace what definition produced, what the name now references, and what is being called.
+
+<Code language="python">{getDecoratorExample('errors/duplicate.py')}</Code>
+
+```bash
+uv run --locked python -m errors.duplicate
+```
+
+The second definition fails during decoration with ValueError; neither business body executes. If this happens during import, service startup has not completed. A single-request exception handler cannot repair a registration collision at startup.
+
+## 10. Parametrize tests of understood behavior
+
+<Code language="python">{getDecoratorExample('tests/test_decorators.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q
+```
+
+`@pytest.mark.parametrize("value, expected", [...])` supplies parameter names and input/expected combinations. During collection, pytest creates separate cases and later provides those values to the test's parameters. Names and row widths must match. There is no mysterious global variable: parametrization supplies the arguments here, before fixtures are introduced.
+
+This suite has eight cases: three from its first function and five ordinary tests. Each case has an independent failure identity. Mutable parameter values are not automatically deep-copied, so the example uses integers rather than treating one shared list as fresh state for every row.
+
+Guided work: add a parameter case proving zero is valid, then make a business function raise ValueError and verify that the wrapper does not swallow it. Replacing every exception with zero would merge failure and a valid result.
+
+<details>
+<summary>Guided exercise checks</summary>
+
+The existing (0, 0) provides a zero baseline. Add a larger value or a negative after explaining that this wrapper defines arithmetic but no non-negative input policy. Use pytest.raises for the business exception; a wrapper that does not catch it propagates it. Verify that adding a parameter row changes collection count. An incorrect expected value must produce failure, not silently disappear from collection.
+
+</details>
+
+## 11. Independent variation: reject before calling
+
+Implement reject_above(limit), a decorator factory. Validate an ordinary non-negative integer limit at factory-call time. The wrapped function accepts one ordinary non-negative integer; equality to the limit is allowed. Larger or wrong-type input must raise ValueError before the original executes. Valid input calls the original exactly once, preserving its result and name. No retries, caching, or default success values.
+
+Use a list to record original-function invocations and prove invalid input has no such effect. Include zero, the exact limit, above-limit input, negatives, bool, and text. Explain each parameter row's relationship rather than accumulating arbitrary numbers as pretend coverage.
+
+<details>
+<summary>Independent reference implementation and parametrized tests</summary>
+
+<Code language="python">{getDecoratorExample('solutions/reject_above.py')}</Code>
+
+<Code language="python">{getDecoratorExample('solutions/test_reject_above.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_reject_above.py
+```
+
+Seven reference cases check boundaries and call counts. Moving the guard after function(value) must make rejection tests detect the already-performed call. This is not an authentication decorator; correct invocation count does not establish multi-user authorization.
+
+</details>
+
+## 12. Acceptance and a resumable checkpoint
+
+Implement a wrapper using ordinary calls before writing @ syntax, then prove the two forms agree. List factory evaluation, application, and business invocation in time order; predict both stacking examples; repair a missing return; distinguish registration failure from business failure; complete the independent guard and parametrized tests.
+
+Record decorator input/return contracts, the object stored in the registry, the last test command/count, the observed timeline, and the next ordering experiment. On resuming, a familiar function name is not sufficient evidence: wraps can preserve that name on a different object.
+
+L14 introduces yield and resource lifecycles: first suspension/resumption, then the enter/use/exit protocol behind familiar with statements. Resource release and transactional success will remain separate claims.
+
+## 13. Primary references and limits
+
+Checked on September 28, 2026: [Python function definitions and decorators](https://docs.python.org/3.13/reference/compound_stmts.html#function-definitions), [functools.wraps](https://docs.python.org/3.13/library/functools.html#functools.wraps), and [pytest 8.4.2 parametrization documentation](https://github.com/pytest-dev/pytest/blob/8.4.2/doc/en/how-to/parametrize.rst). The pytest documentation site returned HTTP 403, so the matching official repository documentation was used.
+
+These wrappers deliberately support one integer argument. General wrappers for arbitrary signatures, methods, async functions, or generators require additional contracts. They are not prerequisites for beginning backend development.

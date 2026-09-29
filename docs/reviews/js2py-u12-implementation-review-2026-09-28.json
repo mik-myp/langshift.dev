@@ -1,0 +1,428 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "u12-models complete English lesson and all allowlisted download files, not subsequent chapters or production readiness.",
+  "metadata": {
+    "started_at_utc": "2026-09-28T04:00:37.052014+00:00",
+    "elapsed_seconds": 0.78,
+    "http_status": 200,
+    "endpoint": "https://api.typesafe.ai/v1/systemone",
+    "requested_model": "jev-latest",
+    "returned_model": "jev-1.13.0",
+    "questions": 7,
+    "request_sha256": "62641b4246a32e6a7de295fe0f472f7504dbedb372450cb08ae5c30b4d9c5dfc",
+    "usage": {
+      "input_tokens": 12457,
+      "output_tokens": 341
+    },
+    "credential_persisted": false
+  },
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "reader": "Experienced enterprise frontend engineer, fluent JS async/await and basic TypeScript; initially no Python/backend/database/operations practice. Slow, interrupted learning. Language foundations L00-L10 are already taught. The user now explicitly permits subagents; authorship of H01-H06 is parallel and NOT reviewed by this request.",
+      "chapter": "u12-models",
+      "prior_and_current_contracts": [
+        {
+          "id": "L00",
+          "title": "认识 Python 与第一次运行",
+          "prerequisites": [],
+          "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+          "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+          "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+          "status": "implemented"
+        },
+        {
+          "id": "L01",
+          "title": "名称、值与基本运算",
+          "prerequisites": [
+            "L00"
+          ],
+          "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+          "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+          "boundary": "不引入复杂容器、作用域或类型体操",
+          "status": "implemented"
+        },
+        {
+          "id": "L02",
+          "title": "容器、引用与修改",
+          "prerequisites": [
+            "L01"
+          ],
+          "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+          "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+          "boundary": "不依赖循环或自定义函数完成首次容器实验",
+          "status": "implemented"
+        },
+        {
+          "id": "L03",
+          "title": "条件、循环与遍历",
+          "prerequisites": [
+            "L02"
+          ],
+          "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+          "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+          "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+          "status": "implemented"
+        },
+        {
+          "id": "L04",
+          "title": "函数、参数与作用域",
+          "prerequisites": [
+            "L03"
+          ],
+          "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+          "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+          "boundary": "不以装饰器或类封装作为练习要求",
+          "status": "implemented"
+        },
+        {
+          "id": "L05",
+          "title": "异常与调试",
+          "prerequisites": [
+            "L04"
+          ],
+          "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+          "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+          "boundary": "不把assert当作不可信输入的生产校验",
+          "status": "implemented"
+        },
+        {
+          "id": "L06",
+          "title": "模块与标准库",
+          "prerequisites": [
+            "L05"
+          ],
+          "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+          "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+          "boundary": "不先要求发布包、动态导入或框架架构",
+          "status": "implemented"
+        },
+        {
+          "id": "L07",
+          "title": "文件、JSON 与资源使用",
+          "prerequisites": [
+            "L06"
+          ],
+          "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+          "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+          "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+          "status": "implemented"
+        },
+        {
+          "id": "L08",
+          "title": "环境与依赖管理",
+          "prerequisites": [
+            "L06",
+            "L07"
+          ],
+          "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+          "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+          "boundary": "不在入门章考核；不同时比较所有包管理器",
+          "status": "implemented"
+        },
+        {
+          "id": "L09",
+          "title": "基础自动化测试",
+          "prerequisites": [
+            "L04",
+            "L05",
+            "L06",
+            "L08"
+          ],
+          "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+          "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+          "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+          "status": "implemented"
+        },
+        {
+          "id": "L10",
+          "title": "第一个独立可复现项目",
+          "prerequisites": [
+            "L07",
+            "L08",
+            "L09"
+          ],
+          "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+          "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+          "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+          "status": "implemented"
+        },
+        {
+          "id": "L11",
+          "title": "基础类型注解",
+          "prerequisites": [
+            "L02",
+            "L04",
+            "L06",
+            "L10"
+          ],
+          "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+          "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+          "boundary": "不要求复杂泛型、协议或零Any指标",
+          "status": "planned"
+        },
+        {
+          "id": "L12",
+          "title": "类与数据模型",
+          "prerequisites": [
+            "L04",
+            "L06",
+            "L11"
+          ],
+          "teach": "实例、self、初始化、组合、简单继承、dataclass",
+          "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+          "boundary": "不要求元类、深继承或框架内部实现",
+          "status": "planned"
+        },
+        {
+          "id": "L13",
+          "title": "装饰器与声明式接口",
+          "prerequisites": [
+            "L04",
+            "L06",
+            "L12"
+          ],
+          "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+          "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+          "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+          "status": "planned"
+        },
+        {
+          "id": "L14",
+          "title": "生成器与资源生命周期",
+          "prerequisites": [
+            "L05",
+            "L07",
+            "L12",
+            "L13"
+          ],
+          "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+          "acceptance": "跟踪资源获取、使用、正常及异常释放",
+          "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+          "status": "planned"
+        }
+      ],
+      "actual_english_lesson": "---\ntitle: Classes and Data Models — Instances, Ownership, and Explicit Validation\ndescription: Move from dictionaries and functions to small object models; understand self, initialization, composition, simple inheritance, and dataclasses through real ownership and validation failures.\n---\n\nimport { getModelExample } from '@/lib/js2py-examples'\n\n## 1. When should data and behavior live together?\n\nUsing dictionaries for tasks and functions for operations was not wrong, and does not become obsolete when class syntax appears. When several functions depend on the same fields and rules, an object can make relevant operations easier to find. It does not automatically provide a database, authorization, or unbreakable constraints.\n\nWe will build a small, traceable model of task completion. Understand what each object contains, which names refer to the same instance, and who can modify state. Do not convert every dictionary into a class merely because the syntax is available.\n\n| Contract | Scope |\n| --- | --- |\n| Prerequisites | L04 functions, L06 modules, L11 basic annotations, plus containers and basic tests |\n| New capabilities | Classes/instances, self, initialization, composition, simple inheritance, dataclasses |\n| Acceptance | Build a small model, explain sharing/copying, compare a dictionary alternative, prove annotations are not validation |\n| Excluded | Metaclasses, deep inheritance, descriptors, property decorators, ORMs, framework internals |\n\nDownload the [complete L12 lab](/learning-assets/js2py/u12-models.zip) and enter u12-models. This remains local Python, without networking or a database.\n\n## 2. Compare an existing dictionary design before learning labels\n\nA task has title, minutes, and done. The dictionary version can call mark_done(task), inspect done, update it if necessary, and return whether anything changed. The object version calls task.mark_done(). The benefit is not prettier punctuation but a clearer connection between state and relevant behavior. Whether it prevents mistakes depends on rules and tests.\n\nA class describes how to construct and operate on a kind of object; an instance is a particular constructed object. Creating Task(\"Read\", 30) twice creates distinct instances. Binding another name to an existing task does not copy it. Equal field contents and identical object identity are separate questions.\n\nA Python class is not a TypeScript interface: classes and instances exist at runtime. Nor should you simply equate a Python class with a JavaScript prototype object. Start with observable construction, attributes, and methods, without assuming any backend framework experience.\n\n## 3. self receives the instance; it is not hidden global state\n\nThis is a complete, independent example:\n\n```python\nclass Counter:\n    def __init__(self, start: int = 0) -> None:\n        self.value = start\n\n    def increase(self) -> int:\n        self.value += 1\n        return self.value\n\n\nfirst = Counter()\nsecond = Counter(10)\nprint(first.increase(), second.value)\nprint(Counter.increase(first))\n```\n\n```text\n1 10\n2\n```\n\nOrdinary instance-method access binds the instance as the first argument. Here first.increase() and Counter.increase(first) perform the same operation. self is a conventional name, not a keyword. Unlike relying on JavaScript this binding, you explicitly declare the receiving parameter but omit it when calling through an instance.\n\n`self.value = start` sets an attribute on this instance; a local variable named value is a different storage location. __init__ initializes a newly created instance and should not return a business object. Implementing low-level allocation is outside this chapter.\n\n<details>\n<summary>Explanation answer: what changes after second = first?</summary>\n\nBoth names refer to one instance. Calling increase through either changes the same value. Constructing Counter(first.value) creates a different counter instead. Equal initial numbers do not make these operations equivalent copies.\n\n</details>\n\n## 4. Constructor checks establish a starting point, not a permanent seal\n\nTask initialization checks a non-blank title, ordinary non-negative integer minutes, and strictly boolean done. Validated values are stored on the instance. If construction fails, the caller does not receive a normally initialized Task. Silently substituting zero would conceal the failure.\n\nmark_done reports whether a transition occurred, so repeated completion is not counted twice. remaining_minutes derives its result from current done instead of storing another total that might become stale. Many state errors come from redundant information, not from insufficient inheritance layers.\n\nTask attributes are still publicly writable. After valid construction, assigning -1 to task.minutes does not automatically rerun validation. Using the methods is a convention, not a security sandbox. Service inputs, database constraints, and business operations will each have responsibilities later; naming something a model does not remove those obligations.\n\n## 5. Composition starts with ownership and sharing\n\nPlan contains a task list: it has Tasks rather than being a Task. It copies the outer input list, so a caller clearing its own list does not empty the plan. The contained Task instances are intentionally shared: completing read changes the remaining minutes observed by the plan.\n\nThis is not a deep copy or a frozen snapshot. Draw the references: the original list points to task; Plan.tasks points to the same task; the two lists themselves differ. An independent snapshot needs an explicit policy about copied state and later updates, not merely list(...).\n\nThe implementation uses an ordinary for loop to avoid requiring generator expressions before L14. Plan is also not a public converter for arbitrary input: it expects a list of Tasks and does not validate every possible foreign object.\n\n## 6. Complete models: read ordinary classes before dataclasses\n\n<Code language=\"python\">{getModelExample('models.py')}</Code>\n\nFirst trace checked_title, checked_minutes, Task, and Plan. The validation functions accept object and return a more specific value after runtime checks. Task reuses them during initialization. Plan totals each instance's current remaining_minutes without depending on global state.\n\nThen inspect UrgentTask. It is a Task that retains completion and minutes behavior while changing its display label. Because it does not redefine __init__, it inherits initialization. Its overridden label uses super().label() to reuse the parent implementation. In this simple inheritance relationship, super continues lookup; it does not create a second parent object. The method still operates on the same instance.\n\nUse composition when a plan contains tasks. If a proposed subtype cannot preserve the parent's essential behavior, do not force inheritance merely to reuse a few lines. Multiple inheritance lookup and framework base-class design are excluded.\n\n## 7. Explain the @ line before using dataclass\n\n`@dataclass` above a class passes the created class through dataclass and binds the result back to the class name. For this simple use, think of writing the class and then `Estimate = dataclass(Estimate)`. It is not magic rerun whenever a field is read. L13 fully explains decorator evaluation, wrapping, and registration; this local explanation is enough to use the library now.\n\nA dataclass derives common methods, including initialization, representation, and field comparison, from declared fields. RawEstimate deliberately has no validation: text can enter minutes despite its int annotation. Estimate explicitly checks values in __post_init__, called by its generated initializer. Those rules come from our code, not from annotations.\n\n`field(default_factory=list)` supplies a function for creating defaults. When tags is omitted, each instance calls list separately and gets its own empty list. Pass list, not list(). If the caller explicitly supplies a list, the factory does not copy it; __post_init__ therefore validates text elements and copies the outer list itself.\n\nDo not use a shared tags = [] as an instance default. This dataclass rejects that common mutable default declaration, while an ordinary class attribute can silently share state, as we will observe next. __post_init__ also protects only initialization; later appending a non-text value can still violate the convention.\n\n## 8. Build the environment and trace a complete run\n\n<Code language=\"toml\">{getModelExample('pyproject.toml')}</Code>\n\n<Code language=\"python\">{getModelExample('app.py')}</Code>\n\n```bash\nuv sync --locked\nuv run --locked python app.py\nuv run --locked python -m pytest -q\n```\n\n```text\n45\nTrue False\n15\n! Write\nTrue False\n['python'] []\n```\n\nThe baseline is CPython 3.13.15, uv 0.12.13, and pytest 8.4.2. The first total is 45. Completing one task twice reports a change and then no change. Plan shares task instances, so the remaining total becomes 15. The Estimates have equal fields, making == true, but are different objects, making is false. Their default tag lists are independent.\n\nOrdinary Task does not define field-based equality, so do not assume dataclass equality applies to it. Persistent record identity will involve database IDs later. Here we are reasoning about in-memory objects, not claiming to solve entity identity generally.\n\n## 9. Three failures at different stages\n\n<Code language=\"python\">{getModelExample('errors/shared_state.py')}</Code>\n\n```bash\nuv run --locked python errors/shared_state.py\n```\n\nIt prints ['Read'] without raising. The class definition created one entries list; neither instance overrides that attribute, so both access it. Incorrect behavior can exit successfully. Tests must check isolation rather than merely process status.\n\n<Code language=\"python\">{getModelExample('errors/missing_self.py')}</Code>\n\n```bash\nuv run --locked python errors/missing_self.py\n```\n\nThis fails during invocation with TypeError because the bound instance has no receiving parameter. Do not respond by turning every method into a stateless global function. First reconcile the method definition with its call.\n\n<Code language=\"python\">{getModelExample('errors/no_validation.py')}</Code>\n\n```bash\nuv run --locked python -m errors.no_validation\n```\n\nIt prints str. The dataclass generated initialization, not runtime field-type validation. Unlike the method-binding error, invalid data enters successfully. An explicit boundary rule is needed.\n\n## 10. Read the state policy through tests, then repair a defect\n\n<Code language=\"python\">{getModelExample('tests/test_models.py')}</Code>\n\nThe nine normal tests cover binding, repeated transitions, constructor rejection, shallow copying and sharing, inheritance, equality/identity, explicit tag-list copying, and public-attribute bypass. The last test documents a guarantee the implementation does not provide; it is not a recommendation to corrupt state.\n\nRepair WrongNotebook so instances have independent lists. Then accept an optional initial list and prove that later edits to the caller's list do not affect the instance. Explain why sharing Tasks in Plan is intentional while sharing notebook entries is wrong.\n\n<details>\n<summary>Guided repair checks</summary>\n\nCreate self.entries in __init__. Use None as the omitted-input default, then create or copy a list inside initialization rather than using a mutable default argument. Sharing follows the contract, not a universal deep-copy rule. Plan observes one task's changing state; each notebook owns its records container. Change the source list, instance list, and contained objects separately to know which layer of isolation you have proved.\n\n</details>\n\n## 11. Independent variation: an owned WorkLog\n\nWithout opening the answer, build WorkLog with a non-blank title and an optional list of non-negative integers. It owns its outer list. add accepts ordinary non-negative integers and appends nothing on rejection. total_minutes returns the current sum. Two default instances are independent; editing a supplied source list does not change an existing log. Write requirement tests first, then implement the class and explain whether dictionaries plus functions could also work.\n\nDo not add abstract bases, property decorators, storage connections, or an inheritance tree to make the object look enterprise-ready. The evidence needed here concerns state policy and failure paths, not directory count.\n\n<details>\n<summary>Independent reference implementation and tests</summary>\n\n<Code language=\"python\">{getModelExample('solutions/work_log.py')}</Code>\n\n<Code language=\"python\">{getModelExample('solutions/test_work_log.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q solutions/test_work_log.py\n```\n\nConstruction reuses add so there is one validation rule. Appending occurs after validation, leaving records unchanged on failure. Attributes remain public: this is neither permanently immutable nor a thread-safe container. A future undo requirement first needs a record-identification and failure policy, not arbitrary new mutation entry points.\n\n</details>\n\n## 12. Acceptance, a checkpoint, and what comes next\n\nExplain an instance's creation, validation, references, and state changes. Draw Plan's shallow copy, repair shared state, distinguish == from is, prove RawEstimate does not validate, and complete WorkLog. Introduce a shared-default defect and require a test to catch it. Finally answer whether this model has solved persistence or authorization: it has not.\n\nBefore pausing, record model contracts, container ownership, the last successful command/test count, known writable bypasses, and the next step. Resume with isolation and failure tests, not only the familiar app output.\n\nThe next chapter expands decorators into ordinary function calls, explains registration and wrapping timing, then introduces pytest parametrization. Memorizing a route decorator will not replace that explanation.\n\n## 13. Primary references and scope\n\nChecked on September 28, 2026: the [Python classes tutorial](https://docs.python.org/3.13/tutorial/classes.html) and [dataclasses documentation](https://docs.python.org/3.13/library/dataclasses.html). This chapter uses mutable instances, shallow copies, single inheritance, and basic dataclasses without turning every optional parameter or special method into a prerequisite.\n\nClasses can organize responsibility, but clear data flow, explicit validation, and behavior tests remain essential. A clear dictionary/function design is preferable to an elaborate inheritance hierarchy with ambiguous state ownership.\n",
+      "actual_download_files": {
+        ".python-version": "3.13.15\n",
+        "README.md": "# u12-models\n\nLocal CPython 3.13.15 / uv 0.12.13 lab (verified 2026-09-28); pytest 8.4.2. Standard-library business runtime.\n\nExtract the download and enter `u12-models`. Do not copy `.venv`; reconstruct from the supplied declaration and lock.\n\n```bash\nuv sync --locked\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_work_log.py\n```\n\nDefault suite: 9 tests. Reference variation: 2 tests. Write your own implementation from the lesson requirements before opening `solutions`. The default suite does not collect intentional failures in `errors`.\n\nshared_state silently shares a list; missing_self raises TypeError; no_validation demonstrates that RawEstimate does not validate. Public mutation can still bypass initialization rules.\n\nRead the matching full lesson for expected outputs, explicit failure commands, mechanism explanations, independent requirements, and limits. All displayed files are canonical files in this archive; no credentials or environments are included. Resume by recording source changes, interpreter/version, working directory, last successful command, observed failure, and the next experiment. Passing this local lab is not a backend deployment certificate.\n",
+        "README.zh-cn.md": "# u12-models\n\n本地实验，2026-09-28 实测 CPython 3.13.15、uv 0.12.13、pytest 8.4.2。业务运行只使用标准库。\n\n解压下载包并进入 `u12-models`。不要复制 `.venv`，用声明与锁恢复环境。\n\n```bash\nuv sync --locked\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_work_log.py\n```\n\n默认套件 9 项，独立参考变式 2 项。先按教材需求自己实现，再看 `solutions`；默认发现范围不含 `errors` 中的刻意失败。\n\nshared_state 无异常却共享列表；missing_self 抛 TypeError；no_validation 证明 RawEstimate 不执行字段校验。公开属性仍能绕过初始化规则。\n\n完整教材说明预期输出、逐条失败命令、机制、独立需求与边界。本包是网页展示的源码来源，不含环境与凭证。暂停记录源码改动、解释器版本、工作目录、最后成功命令、未解决失败和下一步。通过本地实验不等于能直接交付后端。\n",
+        "README.zh-tw.md": "# u12-models\n\n本地實驗，2026-09-28 實測 CPython 3.13.15、uv 0.12.13、pytest 8.4.2。業務運行只使用標準庫。\n\n解壓下載包並進入 `u12-models`。不要複製 `.venv`，用聲明與鎖恢復環境。\n\n```bash\nuv sync --locked\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_work_log.py\n```\n\n默認套件 9 項，獨立參考變式 2 項。先按教材需求自己實現，再看 `solutions`；默認發現範圍不含 `errors` 中的刻意失敗。\n\nshared_state 無異常卻共享列表；missing_self 拋 TypeError；no_validation 證明 RawEstimate 不執行字段校驗。公開屬性仍能繞過初始化規則。\n\n完整教材說明預期輸出、逐條失敗命令、機制、獨立需求與邊界。本包是網頁展示的源碼來源，不含環境與憑證。暫停記錄源碼改動、解釋器版本、工作目錄、最後成功命令、未解決失敗和下一步。通過本地實驗不等於能直接交付後端。\n",
+        "app.py": "from models import Estimate, Plan, Task, UrgentTask\n\n\ndef main() -> None:\n    read = Task(\"Read\", 30)\n    write = UrgentTask(\"Write\", 15)\n    plan = Plan([read, write])\n    print(plan.remaining_minutes())\n    print(read.mark_done(), read.mark_done())\n    print(plan.remaining_minutes())\n    print(write.label())\n    first = Estimate(\"Read\", 30)\n    second = Estimate(\"Read\", 30)\n    print(first == second, first is second)\n    first.tags.append(\"python\")\n    print(first.tags, second.tags)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "errors/__init__.py": "\"\"\"Intentionally incorrect demonstrations; not the default test suite.\"\"\"\n",
+        "errors/missing_self.py": "class WrongTask:\n    def label():  # Intentional: no parameter to receive the bound instance.\n        return \"Read\"\n\n\nprint(WrongTask().label())\n",
+        "errors/no_validation.py": "from models import RawEstimate\n\nrecord = RawEstimate(\"Read\", \"30\")\nprint(type(record.minutes).__name__)\n",
+        "errors/shared_state.py": "class WrongNotebook:\n    entries: list[str] = []  # One class-level list, not one list per instance.\n\n\nfirst = WrongNotebook()\nsecond = WrongNotebook()\nfirst.entries.append(\"Read\")\nprint(second.entries)\n",
+        "models.py": "from dataclasses import dataclass, field\n\n\ndef checked_title(value: object) -> str:\n    if not isinstance(value, str) or not value.strip():\n        raise ValueError(\"title must be non-blank text\")\n    return value\n\n\ndef checked_minutes(value: object) -> int:\n    if type(value) is not int or value < 0:\n        raise ValueError(\"minutes must be a non-negative integer\")\n    return value\n\n\nclass Task:\n    def __init__(self, title: str, minutes: int, done: bool = False) -> None:\n        self.title = checked_title(title)\n        self.minutes = checked_minutes(minutes)\n        if type(done) is not bool:\n            raise ValueError(\"done must be a bool\")\n        self.done = done\n\n    def mark_done(self) -> bool:\n        if self.done:\n            return False\n        self.done = True\n        return True\n\n    def remaining_minutes(self) -> int:\n        return 0 if self.done else self.minutes\n\n    def label(self) -> str:\n        return self.title\n\n\nclass Plan:\n    def __init__(self, tasks: list[Task]) -> None:\n        self.tasks = list(tasks)  # Own the list, share the contained Task instances.\n\n    def remaining_minutes(self) -> int:\n        total = 0\n        for task in self.tasks:\n            total += task.remaining_minutes()\n        return total\n\n\nclass UrgentTask(Task):\n    def label(self) -> str:\n        return \"! \" + super().label()\n\n\n@dataclass\nclass RawEstimate:\n    title: str\n    minutes: int\n\n\n@dataclass\nclass Estimate:\n    title: str\n    minutes: int\n    tags: list[str] = field(default_factory=list)\n\n    def __post_init__(self) -> None:\n        self.title = checked_title(self.title)\n        self.minutes = checked_minutes(self.minutes)\n        if not isinstance(self.tags, list):\n            raise ValueError(\"tags must be a list of text\")\n        for tag in self.tags:\n            if not isinstance(tag, str):\n                raise ValueError(\"tags must be a list of text\")\n        self.tags = list(self.tags)\n",
+        "pyproject.toml": "[project]\nname = \"js2py-u12-models\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = []\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\"]\n\n[tool.uv]\npackage = false\n\n[tool.pytest.ini_options]\npythonpath = [\".\"]\ntestpaths = [\"tests\"]\n",
+        "solutions/__init__.py": "\"\"\"Reference answers; try the independent requirement first.\"\"\"\n",
+        "solutions/test_work_log.py": "import pytest\n\nfrom solutions.work_log import WorkLog\n\n\ndef test_owned_inputs_and_independent_instances():\n    source = [10, 0]\n    first = WorkLog(\"Read\", source)\n    second = WorkLog(\"Write\")\n    source.append(999)\n    first.add(5)\n    assert first.entries == [10, 0, 5]\n    assert first.total_minutes() == 15\n    assert second.total_minutes() == 0\n\n\ndef test_failure_does_not_append():\n    log = WorkLog(\"Read\", [10])\n    for value in (-1, True, 1.5, \"5\"):\n        with pytest.raises(ValueError):\n            log.add(value)\n    assert log.entries == [10]\n    with pytest.raises(ValueError):\n        WorkLog(\" \")\n",
+        "solutions/work_log.py": "from models import checked_minutes, checked_title\n\n\nclass WorkLog:\n    def __init__(self, title: str, entries: list[int] | None = None) -> None:\n        self.title = checked_title(title)\n        self.entries: list[int] = []\n        if entries is not None:\n            for minutes in entries:\n                self.add(minutes)\n\n    def add(self, minutes: int) -> None:\n        self.entries.append(checked_minutes(minutes))\n\n    def total_minutes(self) -> int:\n        return sum(self.entries)\n",
+        "tests/test_models.py": "import pytest\n\nfrom models import Estimate, Plan, RawEstimate, Task, UrgentTask\n\n\ndef test_bound_method_and_explicit_instance_agree():\n    task = Task(\"Read\", 30)\n    assert task.label() == Task.label(task) == \"Read\"\n\n\ndef test_repeated_transition_and_separate_instances():\n    first = Task(\"Read\", 30)\n    second = Task(\"Read\", 30)\n    assert first.mark_done() is True\n    assert first.mark_done() is False\n    assert first.remaining_minutes() == 0\n    assert second.remaining_minutes() == 30\n\n\ndef test_constructor_validation():\n    for value in (-1, True, 1.5, \"30\"):\n        with pytest.raises(ValueError):\n            Task(\"Read\", value)\n    with pytest.raises(ValueError):\n        Task(\" \", 30)\n    with pytest.raises(ValueError):\n        Task(\"Read\", 30, done=1)\n\n\ndef test_composition_copies_list_not_tasks():\n    task = Task(\"Read\", 30)\n    source = [task]\n    plan = Plan(source)\n    source.clear()\n    assert plan.remaining_minutes() == 30\n    task.mark_done()\n    assert plan.remaining_minutes() == 0\n\n\ndef test_inherited_behavior_and_overridden_label():\n    task = UrgentTask(\"Write\", 15)\n    assert isinstance(task, Task)\n    assert task.label() == \"! Write\"\n    assert task.mark_done() is True\n    assert task.remaining_minutes() == 0\n\n\ndef test_dataclass_equality_is_not_identity():\n    first = Estimate(\"Read\", 30)\n    second = Estimate(\"Read\", 30)\n    assert first == second\n    assert first is not second\n    first.tags.append(\"python\")\n    assert first != second\n    assert second.tags == []\n\n\ndef test_dataclass_explicit_input_list_is_copied():\n    tags = [\"python\"]\n    record = Estimate(\"Read\", 30, tags)\n    tags.append(\"changed\")\n    assert record.tags == [\"python\"]\n\n\ndef test_dataclass_validation_is_explicit():\n    with pytest.raises(ValueError):\n        Estimate(\"Read\", -1)\n    with pytest.raises(ValueError):\n        Estimate(\"Read\", 30, [1])\n    raw = RawEstimate(\"Read\", \"30\")\n    assert raw.minutes == \"30\"\n\n\ndef test_public_mutation_is_not_a_validation_boundary():\n    task = Task(\"Read\", 30)\n    task.minutes = -1\n    assert task.remaining_minutes() == -1\n",
+        "uv.lock": "version = 1\nrevision = 3\nrequires-python = \"==3.13.*\"\n\n[[package]]\nname = \"colorama\"\nversion = \"0.4.6\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz\", hash = \"sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44\", size = 27697, upload-time = \"2022-10-25T02:36:22.414Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl\", hash = \"sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6\", size = 25335, upload-time = \"2022-10-25T02:36:20.889Z\" },\n]\n\n[[package]]\nname = \"iniconfig\"\nversion = \"2.3.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz\", hash = \"sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730\", size = 20503, upload-time = \"2025-10-18T21:55:43.219Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl\", hash = \"sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12\", size = 7484, upload-time = \"2025-10-18T21:55:41.639Z\" },\n]\n\n[[package]]\nname = \"js2py-u12-models\"\nversion = \"0.1.0\"\nsource = { virtual = \".\" }\n\n[package.dev-dependencies]\ndev = [\n    { name = \"pytest\" },\n]\n\n[package.metadata]\n\n[package.metadata.requires-dev]\ndev = [{ name = \"pytest\", specifier = \"==8.4.2\" }]\n\n[[package]]\nname = \"packaging\"\nversion = \"26.3\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/7d/fa/3944b40b07da9ce895c0e6303a5ab7d53da063554f534556b134a54d6093/packaging-26.3.tar.gz\", hash = \"sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79\", size = 313412, upload-time = \"2026-08-04T18:15:28.737Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl\", hash = \"sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c\", size = 129956, upload-time = \"2026-08-04T18:15:27.159Z\" },\n]\n\n[[package]]\nname = \"pluggy\"\nversion = \"1.6.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz\", hash = \"sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3\", size = 69412, upload-time = \"2025-05-15T12:30:07.975Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl\", hash = \"sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746\", size = 20538, upload-time = \"2025-05-15T12:30:06.134Z\" },\n]\n\n[[package]]\nname = \"pygments\"\nversion = \"2.21.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/49/2e/ced460408999b33da6b31b0021b0f37d329e202d4169aeb164493778f25b/pygments-2.21.0.tar.gz\", hash = \"sha256:610ca751c9bc2492b38eb9a38a7fbc93edbbb2d7182edaf34e66ae493dee5c8c\", size = 5005329, upload-time = \"2026-08-17T08:02:48.824Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl\", hash = \"sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9\", size = 1250147, upload-time = \"2026-08-17T08:02:44.912Z\" },\n]\n\n[[package]]\nname = \"pytest\"\nversion = \"8.4.2\"\nsource = { registry = \"https://pypi.org/simple\" }\ndependencies = [\n    { name = \"colorama\", marker = \"sys_platform == 'win32'\" },\n    { name = \"iniconfig\" },\n    { name = \"packaging\" },\n    { name = \"pluggy\" },\n    { name = \"pygments\" },\n]\nsdist = { url = \"https://files.pythonhosted.org/packages/a3/5c/00a0e072241553e1a7496d638deababa67c5058571567b92a7eaa258397c/pytest-8.4.2.tar.gz\", hash = \"sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01\", size = 1519618, upload-time = \"2025-09-04T14:34:22.711Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl\", hash = \"sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79\", size = 365750, upload-time = \"2025-09-04T14:34:20.226Z\" },\n]\n"
+      },
+      "validation_status": "Actual CPython3.13.15 and uv0.12.13 clean ZIP and second-empty-directory reconstruction passed. L11: 8+2 pytest tests, mypy2.3.1 normal pass, deliberate static errors, runtime annotation nonvalidation, neutral-config unchecked body false green, bool/int static/runtime mismatch, two mutations caught. L12:9+2 tests, sharing/binding/no-validation experiments, two mutations caught. L13:8+7 tests, expression/application timing, order/registry divergence, missing return/duplicate registration, two mutations caught. L14:12+2 tests, real handles normal/error/acquire-failure, referenced generator break/close, suppression and two-yield defects, two mutations caught. Three-locale code/output/source refs match; remaining full cumulative build/site/browser validation is still pending. This review does not establish production readiness or learner effectiveness.",
+      "primary_reference_observations": "Python3.13 official docs for typing/classes/dataclasses/function definitions/functools/generator methods/contextlib read. Mypy2.3.1 and pytest8.4.2 official repository docs used after documentation sites returned403. Python3.13 Generator yield-only annotation shorthand actually evaluated. Exact-int policy intentionally rejects bool and subclasses; Any/object boundary is not a schema. Models public mutation is explicitly not revalidated. Decorator factories evaluate top-down and apply bottom-up, main expansion only scoped to independent factories. Plain break does not close a retained generator; unstarted close does not execute body; contextmanager must yield once after successful acquisition, cleanup != rollback."
+    },
+    "questions": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "instructions": "Does REQUIRED learner work use an essential capability neither taught previously nor explained before required use? Exclude maintainer verification and explicitly optional advanced concepts."
+      },
+      "depth": {
+        "type": "choice",
+        "instructions": "Assess motivation, actual mechanism explanations, diagnosis and independent work in the supplied full material, not length.",
+        "criteria": {
+          "SUBSTANTIVE": "Concrete transferable textbook teaching.",
+          "PARTIAL": "Important mechanisms abbreviated.",
+          "API_CATALOGUE": "Primarily syntax/names.",
+          "UNCERTAIN": "Evidence is insufficient."
+        }
+      },
+      "technical_mechanisms": {
+        "type": "choice",
+        "instructions": "Review actual claims against actual code. L11 annotation/default/narrowing/Any/runtime rules and mypy scope; L12 ownership/binding/composition/inheritance/dataclass defaults and explicit validation; L13 factory/evaluation/application/invocation/registration/wrapping/order/parametrization; L14 lazy validation/exhaustion/break/close/with/contextmanager/failure stages.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Mechanism is accurate, taught before required use, and limitations are explicit.",
+          "MATERIAL_ERROR": "Substantive inaccurate or unsafe technical claim.",
+          "NECESSARY_GAP": "Essential explanation or evidence missing.",
+          "UNCERTAIN": "Evidence cannot settle this."
+        }
+      },
+      "failure_policy": {
+        "type": "choice",
+        "instructions": "Are failures intentional, diagnosed by correct stage, and repaired without masking errors or claiming guarantees not supplied? Separate explicitly marked bad examples from recommended implementations.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Mechanism is accurate, taught before required use, and limitations are explicit.",
+          "MATERIAL_ERROR": "Substantive inaccurate or unsafe technical claim.",
+          "NECESSARY_GAP": "Essential explanation or evidence missing.",
+          "UNCERTAIN": "Evidence cannot settle this."
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "instructions": "Do the independent requirements, actual implementations/tests, exact types, outputs and commands agree?",
+        "criteria": {
+          "COHERENT_AND_TESTABLE": "Agree and have measurable acceptance.",
+          "CONTRADICTORY": "A material requirement/source/behavior conflict.",
+          "UNDERSPECIFIED": "Essential policy unclear.",
+          "UNCERTAIN": "Insufficient evidence."
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "instructions": "Does acceptance require explanation, changed input, reconstruction, diagnosis, or defect detection rather than copying a fixed success output?"
+      },
+      "next_action": {
+        "type": "choice",
+        "instructions": "Assuming pending cumulative build/site/browser checks pass, choose the action for THIS chapter only.",
+        "criteria": {
+          "PROCEED": "Complete enough to continue in prerequisite order.",
+          "REVISE": "Material issue needs repair first.",
+          "TARGETED_REVIEW": "Uncertainty requires focused evidence inspection."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "noul": 0.27
+      },
+      "depth": {
+        "type": "choice",
+        "choice": "SUBSTANTIVE",
+        "confidence": 1.0,
+        "probabilities": {
+          "SUBSTANTIVE": 1.0,
+          "PARTIAL": 0.0,
+          "API_CATALOGUE": 0.0,
+          "UNCERTAIN": 0.0
+        }
+      },
+      "technical_mechanisms": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 0.62,
+        "probabilities": {
+          "UNCERTAIN": 0.05,
+          "NECESSARY_GAP": 0.11,
+          "MATERIAL_ERROR": 0.12,
+          "ACCURATE_AND_BOUNDED": 0.72
+        }
+      },
+      "failure_policy": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 0.99,
+        "probabilities": {
+          "UNCERTAIN": 0.0,
+          "NECESSARY_GAP": 0.0,
+          "MATERIAL_ERROR": 0.0,
+          "ACCURATE_AND_BOUNDED": 1.0
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "choice": "COHERENT_AND_TESTABLE",
+        "confidence": 0.9,
+        "probabilities": {
+          "COHERENT_AND_TESTABLE": 0.93,
+          "UNCERTAIN": 0.0,
+          "CONTRADICTORY": 0.07,
+          "UNDERSPECIFIED": 0.0
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "next_action": {
+        "type": "choice",
+        "choice": "PROCEED",
+        "confidence": 0.83,
+        "probabilities": {
+          "PROCEED": 0.89,
+          "TARGETED_REVIEW": 0.08,
+          "REVISE": 0.03
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 12457,
+      "output_tokens": 341
+    }
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not gpt-6-astra. User-authorized writing subagents work on distinct later chapters; they are not this service.",
+    "decision": "Conditional PROCEED adopted after real runtime, mutation, reconstruction, cumulative regression and three-locale page checks. Lower-confidence and unfavorable branches explicitly audited, not hidden.",
+    "limits": "Confidence is distribution concentration, not correctness or measured learner effectiveness. Translation/runtime/browser checks are separate. The original request truthfully states site checks were pending then.",
+    "snapshot": "Reviewed English and downloads match exact submitted bytes. Additional hashes bind this verification snapshot only; later updates to shared navigation/tooling do not rewrite historical reviews."
+  },
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-12-type-annotations.mdx",
+    "examples/js2py/u12-models/.python-version",
+    "examples/js2py/u12-models/README.md",
+    "examples/js2py/u12-models/README.zh-cn.md",
+    "examples/js2py/u12-models/README.zh-tw.md",
+    "examples/js2py/u12-models/app.py",
+    "examples/js2py/u12-models/errors/__init__.py",
+    "examples/js2py/u12-models/errors/missing_self.py",
+    "examples/js2py/u12-models/errors/no_validation.py",
+    "examples/js2py/u12-models/errors/shared_state.py",
+    "examples/js2py/u12-models/models.py",
+    "examples/js2py/u12-models/pyproject.toml",
+    "examples/js2py/u12-models/solutions/__init__.py",
+    "examples/js2py/u12-models/solutions/test_work_log.py",
+    "examples/js2py/u12-models/solutions/work_log.py",
+    "examples/js2py/u12-models/tests/test_models.py",
+    "examples/js2py/u12-models/uv.lock"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-12-type-annotations.mdx": "1ce1a1f6fb388250a6004b9ad3fada1067b02be74bc297d7b435472b5adbb870",
+    "examples/js2py/u12-models/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/u12-models/README.md": "a73282d414d6952dabd6174797ea2d5bfed151b8b09f190d8bae16c8a57d4cd9",
+    "examples/js2py/u12-models/README.zh-cn.md": "c69ac60e65666dbf8736e4a858dd3ab1a9526a5455f7a7f81b8b56258034acce",
+    "examples/js2py/u12-models/README.zh-tw.md": "84a76064b396ce63ea409147b8268152a83c281b2807d7680b3634d53ba1df56",
+    "examples/js2py/u12-models/app.py": "8da737ed8efc124c0f72811bfe8e81dddf59baa479a7fe7eb06afac615f24671",
+    "examples/js2py/u12-models/errors/__init__.py": "a709bf15cc771c29db9b83f259fb31bc1a80c4cfa123f16b0b88c0d3b3756634",
+    "examples/js2py/u12-models/errors/missing_self.py": "4e1e519b00b0400bc37e7040956b204d60766d5e0e044ef01ecdb54c371d6b53",
+    "examples/js2py/u12-models/errors/no_validation.py": "a102a899217b1fee0869d6f82a805a58f79b767edf8d347baed41624e00a30cd",
+    "examples/js2py/u12-models/errors/shared_state.py": "f1ff6c7e1158f668ff72e47c294311f746b3e35fabf3808355f67acd04157af3",
+    "examples/js2py/u12-models/models.py": "02635f0fe76eb735b81b485dfc83661d0c6dd680ddd3d4df94e487cad9ac50b0",
+    "examples/js2py/u12-models/pyproject.toml": "acb6151641b09e68156d89a5748d3613ccf26d08a5519039f1946f5710ec51bb",
+    "examples/js2py/u12-models/solutions/__init__.py": "9d3de2f67aece9cf57204d2c74f6ca357407f0fb768ea1cb8f88fb7e59504820",
+    "examples/js2py/u12-models/solutions/test_work_log.py": "e35611e3a8192f674734de412c3218cd737d36234f28496c58e7fa5c6bfe8ef6",
+    "examples/js2py/u12-models/solutions/work_log.py": "dc83f58d8013da89504b0058c8518e251c8b216e0aed11ecd539f2f8599012b3",
+    "examples/js2py/u12-models/tests/test_models.py": "461e580290f8eed6a28bc083dee218d62004ddcc938cf096207fd10d7e224278",
+    "examples/js2py/u12-models/uv.lock": "0cf94e0d84431f004fca56b32eda4f80d7a3c920071628340877e6c1e16a665c",
+    ".gitignore": "6c96925a50699e6f3fadb2a8eef6118152c916a12671a8deebc2ba481d61670c",
+    "package.json": "fd985cfdc90b0a5cf30064f4abb15b0049ddc83e79b36d44d58f17a69b35afc7",
+    "lib/js2py-examples.ts": "75087a16762826a10ac9a33198e52d1de2e4245ae3d589015fddbcfb1b88a908",
+    "scripts/build-js2py-lab.py": "21b370744d42f75ab8c788ae77eb96bc8fca0a155aec57bca205d4cbe5dd7beb",
+    "scripts/check-js2py-content.py": "510b18f2832acf578b77e2d1f86498b9e24dc46f0bc29050dc0cb20a8aee1063",
+    "scripts/test-js2py-transitions.py": "32027ee4ba29759649402dfbb8422b9ba38dd945cf21b2f5731818555577677d",
+    "scripts/tests/test_js2py_transition_foundations.py": "09dfa05193eaab7ff72b5783cff67e2ae025d1de8985fb29f336eb079b4330d9",
+    "scripts/tests/fixtures/js2py-transition-foundations.json": "45b36bd746886121fb2e9947c3818b00b28ccdc5a08c9f0d01368bfc6ea6a8d9",
+    "scripts/tests/test_js2py_first_script.py": "1dcb571b6c749a1a8f5e8392316064400c793777932f9a81fc0736c582aef4c7",
+    "docs/js2py-chapter-contracts.json": "1eb527248683809ed1df8c44747536ab89dd9c00b013446a3b79fbd53b7a2044",
+    "docs/js2py-learning-path.zh-cn.md": "2352e3071a568c31c8a26d6c303c5adb0f79b681e621dbc7962e7f41fc74d95f",
+    "docs/reviews/js2py-l11-l14-source-check-2026-09-28.md": "4da727b4be314cb34b91e9bef59d0a5a917b500f862b3cf01d5aac8995c99f1f",
+    "content/docs/js2py/index.mdx": "a787392d01d46786e8c05da476e1f2cd8476abeed8610060c33e885411074601",
+    "content/docs/js2py/index.zh-tw.mdx": "a5a09adbd35a02a6c25100b4cfccc452942621e47a5b40ec3b1e4ea647e23aeb",
+    "content/docs/js2py/index.zh-cn.mdx": "e51c0aedbe476e69f6f49408ccfff5d7afba5ca3d145ecce5c98a7e8395d6eec",
+    "content/docs/js2py/module-12-type-annotations.zh-tw.mdx": "990350f77cba69442596d098b6ccbd3cf0883ceb1fb3161d4a4a11692841aef3",
+    "content/docs/js2py/module-12-type-annotations.zh-cn.mdx": "c6ea35928d01542837c2ecffa46588574ab70308b5cf21bbe141b47ce6450dbb",
+    "examples/js2py/u12-models-files.json": "f82ab9c16a436f13fd81183d42bd9c674de9c12c12ce00a7d1fc8a51a30fc4a5",
+    "public/learning-assets/js2py/u12-models.zip": "032fc8778a1bf9e3dc5afbb27481092ca939adadc93016089516009d1f2e146d",
+    "docs/archive/js2py-u12-typing/module-12-type-annotations.zh-tw.mdx": "d5401a7117c1bc969abd88648213d43dd4d3f1ad16f2c86baf39bc64457569f7",
+    "docs/archive/js2py-u12-typing/module-12-type-annotations.zh-cn.mdx": "45e4e89776b42034f687b819a9eee78c0ac0384db16e1a3864f174157f69b424",
+    "docs/archive/js2py-u12-typing/sha256.json": "16b150a79c55826a2c71b79a876725ec02a27ae2f828b20938f48d455fca9bb7",
+    "docs/archive/js2py-u12-typing/module-12-type-annotations.mdx": "36b280a49597cf5f1ceb96d86dfb3b5b04828e21f7561f87177460b38ef221a4",
+    "docs/archive/js2py-u12-typing/README.md": "3e3209d5e9cd7354e27ee9f8befec064bb75aa5cf3f52b55a0b4b6bf48abccd9"
+  },
+  "verification_report": "js2py-l11-l14-source-check-2026-09-28.md",
+  "credential_persisted": false
+}

@@ -1,0 +1,1915 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-28",
+  "completed_at": "2026-09-28T06:17:03.954148+00:00",
+  "workspace": "/Users/mikmyp/Documents/code-projects/langshift.dev",
+  "review_type": "bounded_read_only_pedagogy_prerequisite_closure",
+  "audience": "成熟 JS 前端工程师，起初无 Python/backend/DB；已按 L00–L14、H01–H06、D01–D06 完成学习；身份权限在 S 首次学习。",
+  "verdict": {
+    "status": "NO_REPRODUCIBLE_P1_P2_PEDAGOGICAL_BLOCKER_FOUND",
+    "P1": 0,
+    "P2": 0,
+    "findings": [],
+    "conclusion": "按指定读者和先修，在完整三章中文正文及必要引用源码内，未发现可定位、可说明学习阻断或错误行为的 P1/P2。支持的是有界实验能力，不是无辅助的生产重建或实际读者学习效果证明。",
+    "strict_first_explain_then_show_code": false,
+    "explanation_available_before_required_independent_exercises": true,
+    "rationale": "部分是完整代码后同节讲解，不能报告成每个新 API 都严格先解释后出现；但本轮未找到由该排版顺序造成必要知识完全缺位的具体练习。"
+  },
+  "scope": {
+    "required_chinese_chapters_read_completely": [
+      "S01",
+      "S02",
+      "S03"
+    ],
+    "contract_records_focused": [
+      "L00–L14",
+      "H01–H06",
+      "D01–D06",
+      "S01–S03"
+    ],
+    "source_reading": "仅必要核心实现、迁移、变式、验收断言及 loader；范围逐文件标明。不是对所有非 lock 源文件的新一轮全面审计。",
+    "did_not_do": [
+      "修改任何仓库正文/代码",
+      "重采 TypeSafe 或解释其无文字理由的分数为事实",
+      "读取 secret/session/.env/数据库凭证内容",
+      "启动服务、数据库、代理或网络探针",
+      "重跑 PostgreSQL/API/ZIP 验收",
+      "全文复核英文/繁中或 39 章",
+      "要求重写封装好的测试运维 helper",
+      "将缺少实际读者试学或公网验收列作正文错误"
+    ],
+    "outputs_written_only_under_tmp": true
+  },
+  "finding_threshold": "仅报告具有明确文件/位置、缺失先修或错误规则、以及实际学习阻断/错误行为因果链的 P1/P2；不把简略讲解、可选进阶范围或未知试学结果升级为缺陷。",
+  "capability_intro_exercise_map": [
+    {
+      "id": "C01",
+      "supported_capability": "区分密码、带盐密码哈希、原始 Bearer 与会话摘要；用库验证和重新哈希",
+      "prerequisite_evidence": [],
+      "intro_sections": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 23,
+          "line_end": 40,
+          "label": "S01 §2: 先分清四样东西，再跟随一次登录"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 57,
+          "line_end": 75,
+          "label": "S01 §4: Argon2id 的工作不是“把密码快速变成一串字符”"
+        }
+      ],
+      "exercise": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 137,
+          "line_end": 167,
+          "label": "S01 §8: 用不泄露令牌的真实客户端走完生命周期"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 168,
+          "line_end": 187,
+          "label": "S01 §9: 真实失败、恢复与不会误判的重启"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 188,
+          "line_end": 209,
+          "label": "S01 §10: 独立重建与会话数量变式"
+        }
+      ],
+      "source_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py",
+          "line_start": 14,
+          "line_end": 59
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/test_identity.py",
+          "line_start": 16,
+          "line_end": 37
+        }
+      ],
+      "closure_assessment": "闭合到本章用库构建登录的任务。解释了盐自动生成/随编码保存、同密码不同哈希，以及密码与高熵令牌为何采用不同处理；不要求推导密码算法。"
+    },
+    {
+      "id": "C02",
+      "supported_capability": "会话签发、过期、单次/全量撤销、改密、停用再启用及有效会话计数",
+      "prerequisite_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-22-sql.zh-cn.mdx",
+          "line_start": 69,
+          "line_end": 78,
+          "label": "D02 §5: JOIN：按匹配关系生成结果，不是把对象自动嵌套"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-24-sqlalchemy.zh-cn.mdx",
+          "line_start": 82,
+          "line_end": 91,
+          "label": "D04 §5: Session 的工作单元：排队、发送、提交不是同一件事"
+        }
+      ],
+      "intro_sections": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 41,
+          "line_end": 56,
+          "label": "S01 §3: 先有可审查迁移，不给旧用户塞默认密码"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 76,
+          "line_end": 87,
+          "label": "S01 §5: 每次请求重新建立身份，不缓存“上次登录成功”"
+        }
+      ],
+      "exercise": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 137,
+          "line_end": 167,
+          "label": "S01 §8: 用不泄露令牌的真实客户端走完生命周期"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 168,
+          "line_end": 187,
+          "label": "S01 §9: 真实失败、恢复与不会误判的重启"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 188,
+          "line_end": 209,
+          "label": "S01 §10: 独立重建与会话数量变式"
+        }
+      ],
+      "source_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py",
+          "line_start": 62,
+          "line_end": 120
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/solutions/session_count.py",
+          "line_start": 1,
+          "line_end": 16
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/test_solution.py",
+          "line_start": 1,
+          "line_end": 11
+        }
+      ],
+      "closure_assessment": "闭合。计数变式可由已教 WHERE/COUNT 加当前用户、版本、撤销及到期谓词独立组合，不要求重写测试集群。"
+    },
+    {
+      "id": "C03",
+      "supported_capability": "SecretStr 的有限保护、取明文验证、公开模型与错误/日志脱敏",
+      "prerequisite_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-18-validation.zh-cn.mdx",
+          "line_start": 47,
+          "line_end": 66,
+          "label": "H04 §3: 三种形状，对应三种不同信任"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-18-validation.zh-cn.mdx",
+          "line_start": 67,
+          "line_end": 94,
+          "label": "H04 §4: 转换不是免费正确，严格也不是“拒绝所有格式变化”"
+        }
+      ],
+      "intro_sections": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 88,
+          "line_end": 99,
+          "label": "S01 §6: 输入、响应与日志是三条不同的泄露路径"
+        }
+      ],
+      "exercise": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 168,
+          "line_end": 187,
+          "label": "S01 §9: 真实失败、恢复与不会误判的重启"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 188,
+          "line_end": 209,
+          "label": "S01 §10: 独立重建与会话数量变式"
+        }
+      ],
+      "source_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/schemas.py",
+          "line_start": 1,
+          "line_end": 39
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/app.py",
+          "line_start": 13,
+          "line_end": 37
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/app.py",
+          "line_start": 60,
+          "line_end": 83
+        }
+      ],
+      "closure_assessment": "闭合。输入模型/输出模型/错误适配均有可读实现，正文明确 SecretStr 不是传输加密或自动全路径脱敏。"
+    },
+    {
+      "id": "C04",
+      "supported_capability": "由成员关系和操作规则授权；阻止自授身份/角色与跨父子对象访问",
+      "prerequisite_evidence": [],
+      "intro_sections": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 8,
+          "line_end": 20,
+          "label": "S02 §1: 认证给出 actor，授权才回答这个操作是否允许"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 21,
+          "line_end": 43,
+          "label": "S02 §2: 先把权限写成可证伪的表"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 58,
+          "line_end": 67,
+          "label": "S02 §4: 先限定对象作用域，再让处理函数继续"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 83,
+          "line_end": 96,
+          "label": "S02 §6: 完整输入与路由：不要把检查留给某个“调用约定”"
+        }
+      ],
+      "exercise": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 131,
+          "line_end": 153,
+          "label": "S02 §8: 让 Alice 直接拿到 Bob 的真实对象 ID，再试越权"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 154,
+          "line_end": 173,
+          "label": "S02 §9: 撤成员不是撤身份，但必须立即撤掉对象权限"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 190,
+          "line_end": 211,
+          "label": "S02 §11: 独立重建与带权限的统计变式"
+        }
+      ],
+      "source_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/authorization.py",
+          "line_start": 10,
+          "line_end": 25
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/authorization.py",
+          "line_start": 37,
+          "line_end": 76
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_authorization.py",
+          "line_start": 56,
+          "line_end": 94
+        }
+      ],
+      "closure_assessment": "闭合。已知 Bob 真 ID 的负向操作与成员移除后的身份/权限分离有明确预期，不依赖未教的 RBAC 框架。"
+    },
+    {
+      "id": "C05",
+      "supported_capability": "理解统一行锁顺序、撤权前后顺序和原子 project+owner 创建",
+      "prerequisite_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+          "line_start": 108,
+          "line_end": 117,
+          "label": "D03 §7: 两个连接看到哪一版：快照不是 Python 对象缓存"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+          "line_start": 118,
+          "line_end": 132,
+          "label": "D03 §8: 丢失更新：只加 BEGIN 并不能修好读后写"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+          "line_start": 133,
+          "line_end": 142,
+          "label": "D03 §9: 约束竞争、锁超时和完整重试"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-24-sqlalchemy.zh-cn.mdx",
+          "line_start": 82,
+          "line_end": 91,
+          "label": "D04 §5: Session 的工作单元：排队、发送、提交不是同一件事"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-24-sqlalchemy.zh-cn.mdx",
+          "line_start": 102,
+          "line_end": 111,
+          "label": "D04 §7: 业务函数借 Session，调用层拥有事务"
+        }
+      ],
+      "intro_sections": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 76,
+          "line_end": 87,
+          "label": "S01 §5: 每次请求重新建立身份，不缓存“上次登录成功”"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 44,
+          "line_end": 57,
+          "label": "S02 §3: 数据库增加“至多一个 owner”，但它不是整个业务规则"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 68,
+          "line_end": 82,
+          "label": "S02 §5: 为什么权限检查与写入要留在同一个事务里"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 86,
+          "line_end": 106,
+          "label": "S03 §6: 跟随认领者与等待者，理解为何要第二条 SQL"
+        }
+      ],
+      "exercise": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 174,
+          "line_end": 189,
+          "label": "S02 §10: 验收正常路径，更要覆盖允许规则的反面"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 190,
+          "line_end": 211,
+          "label": "S02 §11: 独立重建与带权限的统计变式"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 168,
+          "line_end": 185,
+          "label": "S03 §10: 两连接竞争必须真的同时存在"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 224,
+          "line_end": 242,
+          "label": "S03 §13: 独立重建与可验收变式"
+        }
+      ],
+      "source_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py",
+          "line_start": 70,
+          "line_end": 80
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/authorization.py",
+          "line_start": 10,
+          "line_end": 34
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_authorization.py",
+          "line_start": 96,
+          "line_end": 111
+        }
+      ],
+      "closure_assessment": "闭合到列出的协议。D03 已教行锁等待/同事务/顺序风险，S 解释共享与排他锁所保护的撤权顺序；不要求凭空实现通用并发测试调度器或证明任意组合无死锁。"
+    },
+    {
+      "id": "C06",
+      "supported_capability": "在授权项目内统计未完成任务，不把分页或 JOIN 放大混入汇总",
+      "prerequisite_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-22-sql.zh-cn.mdx",
+          "line_start": 69,
+          "line_end": 78,
+          "label": "D02 §5: JOIN：按匹配关系生成结果，不是把对象自动嵌套"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-22-sql.zh-cn.mdx",
+          "line_start": 79,
+          "line_end": 91,
+          "label": "D02 §6: GROUP BY 与 HAVING：行与组是两层过滤"
+        }
+      ],
+      "intro_sections": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 58,
+          "line_end": 67,
+          "label": "S02 §4: 先限定对象作用域，再让处理函数继续"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 83,
+          "line_end": 96,
+          "label": "S02 §6: 完整输入与路由：不要把检查留给某个“调用约定”"
+        }
+      ],
+      "exercise": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 190,
+          "line_end": 211,
+          "label": "S02 §11: 独立重建与带权限的统计变式"
+        }
+      ],
+      "source_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/solutions/project_summary.py",
+          "line_start": 1,
+          "line_end": 18
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_solution.py",
+          "line_start": 1,
+          "line_end": 11
+        }
+      ],
+      "closure_assessment": "闭合。COUNT/SUM/NULL/coalesce 在 D02 已实际讲授；变式指定 todo/0、doing/15、done/40 与外人 404 的验收。"
+    },
+    {
+      "id": "C07",
+      "supported_capability": "定义幂等范围与规范化 payload，原子保存任务和公开回执",
+      "prerequisite_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+          "line_start": 95,
+          "line_end": 107,
+          "label": "D03 §6: ACID 的可用含义与不可承诺的事"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-24-sqlalchemy.zh-cn.mdx",
+          "line_start": 82,
+          "line_end": 91,
+          "label": "D04 §5: Session 的工作单元：排队、发送、提交不是同一件事"
+        }
+      ],
+      "intro_sections": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 8,
+          "line_end": 20,
+          "label": "S03 §1: 没收到响应，不等于服务器没做事"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 21,
+          "line_end": 35,
+          "label": "S03 §2: 先把“相同请求”变成明确契约"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 36,
+          "line_end": 56,
+          "label": "S03 §3: 从故障窗口推导事务边界"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 57,
+          "line_end": 70,
+          "label": "S03 §4: 新迁移只保存必要的公开回执"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 71,
+          "line_end": 85,
+          "label": "S03 §5: 规范化先于摘要，不对原始 JSON 字符串做比较"
+        }
+      ],
+      "exercise": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 142,
+          "line_end": 167,
+          "label": "S03 §9: 真实请求：重放、冲突、撤权与恢复"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 224,
+          "line_end": 242,
+          "label": "S03 §13: 独立重建与可验收变式"
+        }
+      ],
+      "source_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/reliable.py",
+          "line_start": 15,
+          "line_end": 45
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/reliable.py",
+          "line_start": 61,
+          "line_end": 68
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/006_task_operations.py",
+          "line_start": 1,
+          "line_end": 30
+        }
+      ],
+      "closure_assessment": "闭合。先给故障窗口、范围和响应表，再给迁移/实现；缺省 minutes=0、字段顺序与保留 title 空格都明确，可完成变式 A。"
+    },
+    {
+      "id": "C08",
+      "supported_capability": "解释 UNIQUE/ON CONFLICT 竞争、第二条 SELECT、提交/回滚及重放前重新授权",
+      "prerequisite_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+          "line_start": 108,
+          "line_end": 117,
+          "label": "D03 §7: 两个连接看到哪一版：快照不是 Python 对象缓存"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+          "line_start": 133,
+          "line_end": 142,
+          "label": "D03 §9: 约束竞争、锁超时和完整重试"
+        }
+      ],
+      "intro_sections": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 86,
+          "line_end": 106,
+          "label": "S03 §6: 跟随认领者与等待者，理解为何要第二条 SQL"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 107,
+          "line_end": 116,
+          "label": "S03 §7: 重放仍是受保护的数据读取"
+        }
+      ],
+      "exercise": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 142,
+          "line_end": 167,
+          "label": "S03 §9: 真实请求：重放、冲突、撤权与恢复"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 168,
+          "line_end": 185,
+          "label": "S03 §10: 两连接竞争必须真的同时存在"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 224,
+          "line_end": 242,
+          "label": "S03 §13: 独立重建与可验收变式"
+        }
+      ],
+      "source_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/reliable.py",
+          "line_start": 34,
+          "line_end": 68
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_reliable.py",
+          "line_start": 121,
+          "line_end": 205
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/app.py",
+          "line_start": 202,
+          "line_end": 216
+        }
+      ],
+      "closure_assessment": "闭合。D03 已教唯一约束等待及每语句快照；S03 明确 ON CONFLICT 无返回值后新 SELECT 的理由，并列出胜者提交/回滚三种结果。"
+    },
+    {
+      "id": "C09",
+      "supported_capability": "在声明的输入边界处理 aware UTC：服务器时钟、到期比较、偏移归一化",
+      "prerequisite_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-21-relational-data.zh-cn.mdx",
+          "line_start": 80,
+          "line_end": 80
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-24-sqlalchemy.zh-cn.mdx",
+          "line_start": 96,
+          "line_end": 96
+        }
+      ],
+      "intro_sections": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 76,
+          "line_end": 87,
+          "label": "S01 §5: 每次请求重新建立身份，不缓存“上次登录成功”"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 83,
+          "line_end": 96,
+          "label": "S02 §6: 完整输入与路由：不要把检查留给某个“调用约定”"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 71,
+          "line_end": 85,
+          "label": "S03 §5: 规范化先于摘要，不对原始 JSON 字符串做比较"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 206,
+          "line_end": 223,
+          "label": "S03 §12: 按业务需要选择 UTC、UUID 与精确数值"
+        }
+      ],
+      "exercise": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 168,
+          "line_end": 187,
+          "label": "S01 §9: 真实失败、恢复与不会误判的重启"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 142,
+          "line_end": 167,
+          "label": "S03 §9: 真实请求：重放、冲突、撤权与恢复"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 224,
+          "line_end": 242,
+          "label": "S03 §13: 独立重建与可验收变式"
+        }
+      ],
+      "source_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py",
+          "line_start": 22,
+          "line_end": 23
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/test_identity.py",
+          "line_start": 46,
+          "line_end": 52
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/schemas.py",
+          "line_start": 80,
+          "line_end": 93
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/representations.py",
+          "line_start": 7,
+          "line_end": 11
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_representations.py",
+          "line_start": 14,
+          "line_end": 17
+        }
+      ],
+      "closure_assessment": "范围内闭合但分阶段讲授：S01 仅固定 UTC 时钟与 timedelta；一般输入偏移验证在 S02 明说，S03 在转换练习前说明同一时刻归一化。未把完整 aware/naive/DST 理论算作 S01 已掌握能力。"
+    },
+    {
+      "id": "C10",
+      "supported_capability": "字符串 Decimal 金额乘整数数量，拒绝 float/bool/非有限/过多小数并限定范围",
+      "prerequisite_evidence": [],
+      "intro_sections": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 206,
+          "line_end": 223,
+          "label": "S03 §12: 按业务需要选择 UTC、UUID 与精确数值"
+        }
+      ],
+      "exercise": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 224,
+          "line_end": 242,
+          "label": "S03 §13: 独立重建与可验收变式"
+        }
+      ],
+      "source_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/representations.py",
+          "line_start": 14,
+          "line_end": 36
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_representations.py",
+          "line_start": 1,
+          "line_end": 11
+        }
+      ],
+      "closure_assessment": "闭合到窄数据表示练习。正文在练习前给出输入政策、上限/局部精度、完整 API 用法及 0.30 输出；不是已掌握任意金融计算、NUMERIC 迁移或舍入制度的证明。"
+    },
+    {
+      "id": "C11",
+      "supported_capability": "解释 TTL、过期保留冲突、显式清理与清理后去重边界",
+      "prerequisite_evidence": [],
+      "intro_sections": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 21,
+          "line_end": 35,
+          "label": "S03 §2: 先把“相同请求”变成明确契约"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 186,
+          "line_end": 205,
+          "label": "S03 §11: TTL 是保留协议，不是魔法过期删除器"
+        }
+      ],
+      "exercise": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 186,
+          "line_end": 205,
+          "label": "S03 §11: TTL 是保留协议，不是魔法过期删除器"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 224,
+          "line_end": 242,
+          "label": "S03 §13: 独立重建与可验收变式"
+        }
+      ],
+      "source_evidence": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/purge_expired.py",
+          "line_start": 1,
+          "line_end": 26
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/reliable.py",
+          "line_start": 46,
+          "line_end": 60
+        }
+      ],
+      "closure_assessment": "闭合。预览/--apply 区分及清理后可能重新创建写在正文中；独立练习不依赖生产调度器。"
+    }
+  ],
+  "first_introduction_order_review": [
+    {
+      "concept": "密码哈希与盐",
+      "first_exposure": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+        "line_start": 23,
+        "line_end": 40,
+        "label": "S01 §2: 先分清四样东西，再跟随一次登录"
+      },
+      "explanation": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+        "line_start": 57,
+        "line_end": 75,
+        "label": "S01 §4: Argon2id 的工作不是“把密码快速变成一串字符”"
+      },
+      "before_independent_exercise": true,
+      "strictly_prose_before_every_code_use": false,
+      "note": "迁移和完整 security.py 先显示字段/调用；§4 紧随代码解释盐、成本和 verify，且给明确阅读顺序。没有据此制造 P2。"
+    },
+    {
+      "concept": "会话摘要",
+      "first_exposure": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+        "line_start": 23,
+        "line_end": 40,
+        "label": "S01 §2: 先分清四样东西，再跟随一次登录"
+      },
+      "explanation": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 57,
+          "line_end": 75,
+          "label": "S01 §4: Argon2id 的工作不是“把密码快速变成一串字符”"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 76,
+          "line_end": 87,
+          "label": "S01 §5: 每次请求重新建立身份，不缓存“上次登录成功”"
+        }
+      ],
+      "before_independent_exercise": true,
+      "strictly_prose_before_every_code_use": false,
+      "note": "流程图先出现 digest，§4 折叠解释区分密码与随机 token，§5 才展开请求验证。"
+    },
+    {
+      "concept": "SecretStr",
+      "first_exposure": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+        "line_start": 88,
+        "line_end": 99,
+        "label": "S01 §6: 输入、响应与日志是三条不同的泄露路径"
+      },
+      "explanation": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+        "line_start": 88,
+        "line_end": 99,
+        "label": "S01 §6: 输入、响应与日志是三条不同的泄露路径"
+      },
+      "before_independent_exercise": true,
+      "strictly_prose_before_every_code_use": false,
+      "note": "完整 schemas 在前，同节正文紧跟说明用途、get_secret_value 和局限。"
+    },
+    {
+      "concept": "aware UTC",
+      "first_exposure": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-21-relational-data.zh-cn.mdx",
+          "line_start": 80,
+          "line_end": 80
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 57,
+          "line_end": 75,
+          "label": "S01 §4: Argon2id 的工作不是“把密码快速变成一串字符”"
+        }
+      ],
+      "explanation": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 76,
+          "line_end": 87,
+          "label": "S01 §5: 每次请求重新建立身份，不缓存“上次登录成功”"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 83,
+          "line_end": 96,
+          "label": "S02 §6: 完整输入与路由：不要把检查留给某个“调用约定”"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 71,
+          "line_end": 85,
+          "label": "S03 §5: 规范化先于摘要，不对原始 JSON 字符串做比较"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 206,
+          "line_end": 223,
+          "label": "S03 §12: 按业务需要选择 UTC、UUID 与精确数值"
+        }
+      ],
+      "before_independent_exercise": true,
+      "strictly_prose_before_every_code_use": false,
+      "note": "S01 的 security.py 先给 datetime.now(UTC)，其任务不是任意时区解析；完整 offset 校验在 S02/S03 练习前落地。此项只给分阶段能力结论。"
+    },
+    {
+      "concept": "成员权限",
+      "first_exposure": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+        "line_start": 8,
+        "line_end": 20,
+        "label": "S02 §1: 认证给出 actor，授权才回答这个操作是否允许"
+      },
+      "explanation": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+        "line_start": 21,
+        "line_end": 43,
+        "label": "S02 §2: 先把权限写成可证伪的表"
+      },
+      "before_independent_exercise": true,
+      "strictly_prose_before_every_code_use": true,
+      "note": "先权限表，再 guard/路由和真实 ID 负向实验。"
+    },
+    {
+      "concept": "行锁顺序",
+      "first_exposure": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+        "line_start": 133,
+        "line_end": 142,
+        "label": "D03 §9: 约束竞争、锁超时和完整重试"
+      },
+      "explanation": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+          "line_start": 76,
+          "line_end": 87,
+          "label": "S01 §5: 每次请求重新建立身份，不缓存“上次登录成功”"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+          "line_start": 68,
+          "line_end": 82,
+          "label": "S02 §5: 为什么权限检查与写入要留在同一个事务里"
+        }
+      ],
+      "before_independent_exercise": true,
+      "strictly_prose_before_every_code_use": false,
+      "note": "先修有锁等待和统一顺序；S01 完整代码先出现 read=，同章在执行/重建前解释协议。"
+    },
+    {
+      "concept": "幂等回执/接收记录",
+      "first_exposure": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+        "line_start": 21,
+        "line_end": 35,
+        "label": "S03 §2: 先把“相同请求”变成明确契约"
+      },
+      "explanation": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 36,
+          "line_end": 56,
+          "label": "S03 §3: 从故障窗口推导事务边界"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+          "line_start": 57,
+          "line_end": 70,
+          "label": "S03 §4: 新迁移只保存必要的公开回执"
+        }
+      ],
+      "before_independent_exercise": true,
+      "strictly_prose_before_every_code_use": true,
+      "note": "先响应/范围和故障窗口，再数据表及认领算法。"
+    },
+    {
+      "concept": "金额 Decimal",
+      "first_exposure": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+        "line_start": 206,
+        "line_end": 223,
+        "label": "S03 §12: 按业务需要选择 UTC、UUID 与精确数值"
+      },
+      "explanation": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+        "line_start": 206,
+        "line_end": 223,
+        "label": "S03 §12: 按业务需要选择 UTC、UUID 与精确数值"
+      },
+      "before_independent_exercise": true,
+      "strictly_prose_before_every_code_use": false,
+      "note": "代码在同节解释前，不声称逐行 API 微课；从字符串构造、拒绝集合、边界与预期输出足以支持本章有限变式 B。"
+    },
+    {
+      "concept": "UNIQUE / ON CONFLICT",
+      "first_exposure": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+        "line_start": 133,
+        "line_end": 142,
+        "label": "D03 §9: 约束竞争、锁超时和完整重试"
+      },
+      "explanation": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+        "line_start": 86,
+        "line_end": 106,
+        "label": "S03 §6: 跟随认领者与等待者，理解为何要第二条 SQL"
+      },
+      "before_independent_exercise": true,
+      "strictly_prose_before_every_code_use": false,
+      "note": "唯一竞争先修明确；S03 代码后的认领/等待/新 SELECT 解释位于全部实验之前。"
+    }
+  ],
+  "exercise_rebuild_boundaries": [
+    {
+      "chapter": "S01",
+      "reference": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+        "line_start": 188,
+        "line_end": 209,
+        "label": "S01 §10: 独立重建与会话数量变式"
+      },
+      "student_owned": "输入/公开模型、哈希与会话服务、HTTP 入口、受控账号命令；不导入参考 app。",
+      "reusable_or_observable_scaffold": "环境/迁移以及隔离测试、真实客户端、运维 helper 的既有支撑；正文 §7 明说 labdb 是隔离设施，未要求重写整个进程管理器。",
+      "assessment": "有本章模型/服务/入口、错误策略和验收矩阵可学习后独立重建；难度较高不等于缺先修。"
+    },
+    {
+      "chapter": "S02",
+      "reference": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+        "line_start": 190,
+        "line_end": 211,
+        "label": "S02 §11: 独立重建与带权限的统计变式"
+      },
+      "student_owned": "项目/成员/任务服务、对象路由、权限约束与 summary 变式；不导入参考 authorization.py/对象路由。",
+      "reusable_or_observable_scaffold": "正文明确允许环境、身份模块和迁移文件。",
+      "assessment": "独立范围清楚，SQL 聚合与事务步骤有真实先修。"
+    },
+    {
+      "chapter": "S03",
+      "reference": {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+        "line_start": 224,
+        "line_end": 242,
+        "label": "S03 §13: 独立重建与可验收变式"
+      },
+      "student_owned": "006 回执设计、规范化、认领/重放及 A/B 变式；不导入参考 reliable.py。",
+      "reusable_or_observable_scaffold": "环境、既有身份/权限契约和 001–005；按既有测试设施观察两连接，不推定需从零发明线程/PG 生命周期管理。",
+      "assessment": "先推理故障窗口再验收；新增业务算法已在 §2–7 展开，不需要未教授的 outbox/分布式事务。"
+    }
+  ],
+  "non_blocking_limits_not_findings": [
+    {
+      "topic": "代码先展示、同节再解释",
+      "reason": "不是严格的逐术语先讲后用；核心判断以独立任务前是否已有必要语义/接口/失败预期为准，不能将代码整块出现等同于立即要求读者独立重写全部。"
+    },
+    {
+      "topic": "UTC 的分阶段深度",
+      "reason": "S01 仅提供固定 UTC 时钟与到期运算；aware/naive 的一般边界在 S02/S03 才显式展开。对 S01 既定生命周期任务未找到由此必然产生的错误步骤；不据此宣称 S01 已教全时区设计。"
+    },
+    {
+      "topic": "Decimal 的精简讲解",
+      "reason": "as_tuple().exponent/quantize/localcontext 的逐 API 解释较紧凑，但完整实现、输入规则与预期结果都在独立变式前；不要求支付、税务、币种或数据库金额模型。"
+    },
+    {
+      "topic": "合同元数据",
+      "reason": "合同的 status_note/planned 与用户提供的完成状态不一致；本轮以实际正文和契约能力为核查对象，不把旧状态字段当作缺课或 P2。"
+    },
+    {
+      "topic": "TypeSafe 低置信输出",
+      "reason": "未重采且未根据未提供理由的 hidden prerequisite 概率创造具体缺陷。"
+    }
+  ],
+  "remaining_boundaries": [
+    "真实读者的首次尝试、学习时间、停顿点和间隔学习保留未被观察；本报告是可尝试性的文本/代码论证，不是实测教学效果。",
+    "全文范围仅简体中文三章；未重新证明三语完全等价或全 39 章闭合。",
+    "实际后端验证是既有证据，本轮未重跑；代码与文件哈希限定本结论。",
+    "本地 loopback 实验不构成生产 TLS、限流、密码哈希容量、找回/MFA、Cookie/CSRF、生产日志/备份/时钟同步验收。",
+    "授权只覆盖声明的成员/owner/创建者规则；不包含所有权转移、组织管理、RLS、任意缓存一致性或追回已发送响应。",
+    "幂等只在已定义范围、相同规范化 payload、权限和保留政策内成立；不包含外部副作用恰好一次、永久去重、所有清理交错/死锁或任意盲重试。",
+    "UTC/Decimal 练习不证明掌握夏令时/本地日历、任意 Decimal 上下文、财务舍入或多币种。"
+  ],
+  "existing_runtime_evidence": {
+    "provenance": "/tmp/langshift-s01-s03-handoff.json",
+    "executed_this_review": false,
+    "reported_cases_by_lab": [
+      {
+        "lab": "s01-identity",
+        "pytest_cases": 22,
+        "clean_copy_cases": 22
+      },
+      {
+        "lab": "s02-authorization",
+        "pytest_cases": 43,
+        "clean_copy_cases": 43
+      },
+      {
+        "lab": "s03-reliable-operations",
+        "pytest_cases": 58,
+        "clean_copy_cases": 58
+      }
+    ],
+    "reported_recorded_real_api_http_per_full_suite": 631,
+    "count_note": "22/43/58 为独立实验套件计数，共享身份测试会重复；631 是既有记录的真实 API 请求数，不是本轮新增执行。用户另确认主线已从发布 ZIP 重跑。",
+    "old_security_finding": "审计中的 SEC-S01-S03-001/fix_applied=false 是修复前快照；交接记录记载代理修复和回归，当前三份 client.py 字节相同且有 ProxyHandler({})。不重复上报，不冒称本轮重新执行了代理探针。"
+  },
+  "static_delivery_checks": {
+    "embedded_code_references": [
+      {
+        "chapter": "S01",
+        "reference_count": 12,
+        "invalid_references": [],
+        "names": [
+          "pyproject.toml",
+          "migrations/versions/004_identity.py",
+          "security.py",
+          "db.py",
+          "schemas.py",
+          "app.py",
+          "admin.py",
+          "labdb.py",
+          "client.py",
+          "tests/test_identity.py",
+          "tests/conftest.py",
+          "solutions/session_count.py"
+        ]
+      },
+      {
+        "chapter": "S02",
+        "reference_count": 8,
+        "invalid_references": [],
+        "names": [
+          "pyproject.toml",
+          "migrations/versions/005_owner_guard.py",
+          "authorization.py",
+          "schemas.py",
+          "app.py",
+          "tests/test_authorization.py",
+          "tests/test_migrations.py",
+          "solutions/project_summary.py"
+        ]
+      },
+      {
+        "chapter": "S03",
+        "reference_count": 10,
+        "invalid_references": [],
+        "names": [
+          "pyproject.toml",
+          "migrations/versions/006_task_operations.py",
+          "schemas.py",
+          "reliable.py",
+          "db.py",
+          "app.py",
+          "tests/test_reliable.py",
+          "purge_expired.py",
+          "representations.py",
+          "tests/test_representations.py"
+        ]
+      }
+    ],
+    "invalid_reference_count": 0
+  },
+  "official_mechanism_spot_checks": [
+    {
+      "topic": "Argon2 库生成随机盐与 verify",
+      "url": "https://argon2-cffi.readthedocs.io/en/stable/api.html",
+      "scope": "仅核对本章库语义，不重新做密码策略安全审计"
+    },
+    {
+      "topic": "SecretStr 表示与 get_secret_value",
+      "url": "https://docs.pydantic.dev/latest/api/types/#pydantic.types.SecretStr",
+      "scope": "类型语义点核，不以动态文档替代锁定源码"
+    },
+    {
+      "topic": "aware/naive UTC",
+      "url": "https://docs.python.org/3.13/library/datetime.html",
+      "scope": "带偏移判断与时区转换"
+    },
+    {
+      "topic": "Decimal 字符串/float、精度与 quantize",
+      "url": "https://docs.python.org/3.13/library/decimal.html",
+      "scope": "仅数据表示练习"
+    },
+    {
+      "topic": "READ COMMITTED、ON CONFLICT 与新语句快照",
+      "url": "https://www.postgresql.org/docs/18/transaction-iso.html",
+      "scope": "仅核对 §6 的机制解释"
+    }
+  ],
+  "reviewed_files": [
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-27-identity.zh-cn.mdx",
+      "sha256": "3f23bc1850c147384050989ff8ac9146bebc432e7825c442b7c1bc405a338cb2",
+      "bytes": 20469,
+      "lines": 232,
+      "read_extent": "complete",
+      "purpose": "通读中文正文、全部练习、折叠解释及边界",
+      "baseline_sha256": "3f23bc1850c147384050989ff8ac9146bebc432e7825c442b7c1bc405a338cb2",
+      "baseline_available": true,
+      "sha256_at_completion": "3f23bc1850c147384050989ff8ac9146bebc432e7825c442b7c1bc405a338cb2",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-28-authorization.zh-cn.mdx",
+      "sha256": "c76ac61e8087e453997d61206720a958eefdc544241291e2065fc51e0b976938",
+      "bytes": 18449,
+      "lines": 233,
+      "read_extent": "complete",
+      "purpose": "通读中文正文、全部练习、折叠解释及边界",
+      "baseline_sha256": "c76ac61e8087e453997d61206720a958eefdc544241291e2065fc51e0b976938",
+      "baseline_available": true,
+      "sha256_at_completion": "c76ac61e8087e453997d61206720a958eefdc544241291e2065fc51e0b976938",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+      "sha256": "5e1b8818f1947877a9e62777d38b79f0cf99f5ea5edb185eb3b9a6fc333fa8d8",
+      "bytes": 21455,
+      "lines": 264,
+      "read_extent": "complete",
+      "purpose": "通读中文正文、全部练习、折叠解释及边界",
+      "baseline_sha256": "5e1b8818f1947877a9e62777d38b79f0cf99f5ea5edb185eb3b9a6fc333fa8d8",
+      "baseline_available": true,
+      "sha256_at_completion": "5e1b8818f1947877a9e62777d38b79f0cf99f5ea5edb185eb3b9a6fc333fa8d8",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-chapter-contracts.json",
+      "sha256": "1eb527248683809ed1df8c44747536ab89dd9c00b013446a3b79fbd53b7a2044",
+      "bytes": 17469,
+      "lines": 466,
+      "read_extent": "structured_read",
+      "purpose": "解析完整 JSON；重点核对 L/H/D/S 的 teach、prerequisites、acceptance、boundary；不以 planned 元数据推断正文缺失",
+      "baseline_sha256": "1eb527248683809ed1df8c44747536ab89dd9c00b013446a3b79fbd53b7a2044",
+      "baseline_available": true,
+      "sha256_at_completion": "1eb527248683809ed1df8c44747536ab89dd9c00b013446a3b79fbd53b7a2044",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-21-relational-data.zh-cn.mdx",
+      "sha256": "cab3df486389e4d5ca59f1b8075bdc5ba2ca43a91ff8fdc2bb3d412af694e733",
+      "bytes": 21399,
+      "lines": 245,
+      "read_extent": "targeted_excerpts_and_search",
+      "purpose": "核对实际先修解释而非仅凭章节标题假设已教",
+      "baseline_sha256": "cab3df486389e4d5ca59f1b8075bdc5ba2ca43a91ff8fdc2bb3d412af694e733",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          65,
+          80
+        ]
+      ],
+      "sha256_at_completion": "cab3df486389e4d5ca59f1b8075bdc5ba2ca43a91ff8fdc2bb3d412af694e733",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-22-sql.zh-cn.mdx",
+      "sha256": "1219f2f88546256bae5e7b05e45d674ec6a94aaeaf5eefadc4a12e7ebffabe27",
+      "bytes": 16715,
+      "lines": 170,
+      "read_extent": "targeted_excerpts_and_search",
+      "purpose": "核对实际先修解释而非仅凭章节标题假设已教",
+      "baseline_sha256": "1219f2f88546256bae5e7b05e45d674ec6a94aaeaf5eefadc4a12e7ebffabe27",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          48,
+          92
+        ]
+      ],
+      "sha256_at_completion": "1219f2f88546256bae5e7b05e45d674ec6a94aaeaf5eefadc4a12e7ebffabe27",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-23-transactions.zh-cn.mdx",
+      "sha256": "4ea38df2d53f935625e1f11fb21934b529b9fa0aa5e287169ee5dbf988c1d889",
+      "bytes": 19127,
+      "lines": 202,
+      "read_extent": "targeted_excerpts_and_search",
+      "purpose": "核对实际先修解释而非仅凭章节标题假设已教",
+      "baseline_sha256": "4ea38df2d53f935625e1f11fb21934b529b9fa0aa5e287169ee5dbf988c1d889",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          90,
+          143
+        ]
+      ],
+      "sha256_at_completion": "4ea38df2d53f935625e1f11fb21934b529b9fa0aa5e287169ee5dbf988c1d889",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-24-sqlalchemy.zh-cn.mdx",
+      "sha256": "f8da0b824bb965c40ce47c01a7a73ff0710415456e5e21a1256931736283cab0",
+      "bytes": 22200,
+      "lines": 276,
+      "read_extent": "targeted_excerpts_and_search",
+      "purpose": "核对实际先修解释而非仅凭章节标题假设已教",
+      "baseline_sha256": "f8da0b824bb965c40ce47c01a7a73ff0710415456e5e21a1256931736283cab0",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          76,
+          120
+        ]
+      ],
+      "sha256_at_completion": "f8da0b824bb965c40ce47c01a7a73ff0710415456e5e21a1256931736283cab0",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+      "sha256": "aa70b3b1117a92171f44bc08d80c2fd72fbadb63576fc1e9604c403d04f2e2b5",
+      "bytes": 23726,
+      "lines": 284,
+      "read_extent": "targeted_excerpts_and_search",
+      "purpose": "核对实际先修解释而非仅凭章节标题假设已教",
+      "baseline_sha256": "aa70b3b1117a92171f44bc08d80c2fd72fbadb63576fc1e9604c403d04f2e2b5",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          1,
+          70
+        ]
+      ],
+      "sha256_at_completion": "aa70b3b1117a92171f44bc08d80c2fd72fbadb63576fc1e9604c403d04f2e2b5",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-18-validation.zh-cn.mdx",
+      "sha256": "0a794032e667128dfe3a15b4af702d97eaa524ec47de3a4aa1eae1c7cbb05ff6",
+      "bytes": 23987,
+      "lines": 311,
+      "read_extent": "targeted_excerpts_and_search",
+      "purpose": "核对实际先修解释而非仅凭章节标题假设已教",
+      "baseline_sha256": "0a794032e667128dfe3a15b4af702d97eaa524ec47de3a4aa1eae1c7cbb05ff6",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          45,
+          65
+        ],
+        [
+          67,
+          93
+        ]
+      ],
+      "sha256_at_completion": "0a794032e667128dfe3a15b4af702d97eaa524ec47de3a4aa1eae1c7cbb05ff6",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-12-type-annotations.zh-cn.mdx",
+      "sha256": "c6ea35928d01542837c2ecffa46588574ab70308b5cf21bbe141b47ce6450dbb",
+      "bytes": 13656,
+      "lines": 202,
+      "read_extent": "search_only",
+      "purpose": "检索先修定位；不声称全文教学审查",
+      "baseline_sha256": "c6ea35928d01542837c2ecffa46588574ab70308b5cf21bbe141b47ce6450dbb",
+      "baseline_available": true,
+      "sha256_at_completion": "c6ea35928d01542837c2ecffa46588574ab70308b5cf21bbe141b47ce6450dbb",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-06-web-development.zh-cn.mdx",
+      "sha256": "a971d58da26f2a1cc7354a1a7ddc66088900ba7ac5878a269c2e0c834178daf4",
+      "bytes": 35866,
+      "lines": 686,
+      "read_extent": "search_only",
+      "purpose": "检索先修定位；不声称全文教学审查",
+      "baseline_sha256": "a971d58da26f2a1cc7354a1a7ddc66088900ba7ac5878a269c2e0c834178daf4",
+      "baseline_available": true,
+      "sha256_at_completion": "a971d58da26f2a1cc7354a1a7ddc66088900ba7ac5878a269c2e0c834178daf4",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/security.py",
+      "sha256": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+      "bytes": 5133,
+      "lines": 120,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+      "baseline_available": true,
+      "sha256_at_completion": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/schemas.py",
+      "sha256": "88cb4e0576565fcf774027518a78b0861058d9c883ab635d9f48935e5f7c5ce9",
+      "bytes": 1040,
+      "lines": 39,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "88cb4e0576565fcf774027518a78b0861058d9c883ab635d9f48935e5f7c5ce9",
+      "baseline_available": true,
+      "sha256_at_completion": "88cb4e0576565fcf774027518a78b0861058d9c883ab635d9f48935e5f7c5ce9",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/app.py",
+      "sha256": "ff7e1d7185ea82c1c6b124ae1dbad7a99321cf54b25680500dcf64703216c985",
+      "bytes": 4242,
+      "lines": 97,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "ff7e1d7185ea82c1c6b124ae1dbad7a99321cf54b25680500dcf64703216c985",
+      "baseline_available": true,
+      "sha256_at_completion": "ff7e1d7185ea82c1c6b124ae1dbad7a99321cf54b25680500dcf64703216c985",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/admin.py",
+      "sha256": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea",
+      "bytes": 1551,
+      "lines": 38,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea",
+      "baseline_available": true,
+      "sha256_at_completion": "05dd4e89054c639883030281af98cb754c1d7c5b6f73754c76b3d8272b423bea",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/migrations/versions/004_identity.py",
+      "sha256": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef",
+      "bytes": 2062,
+      "lines": 35,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef",
+      "baseline_available": true,
+      "sha256_at_completion": "fc1a6f45b485e09b713eab0e42945cf59717447d448d7810d90259ce904e14ef",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/solutions/session_count.py",
+      "sha256": "3014447f03a1b71414e158c4356cac07effe59cb5c2cfe6faa4724fcfe225268",
+      "bytes": 687,
+      "lines": 16,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "3014447f03a1b71414e158c4356cac07effe59cb5c2cfe6faa4724fcfe225268",
+      "baseline_available": true,
+      "sha256_at_completion": "3014447f03a1b71414e158c4356cac07effe59cb5c2cfe6faa4724fcfe225268",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/test_solution.py",
+      "sha256": "c854e2879eac9bf9b647a57cc83bb20ae0b6482e67177afd4ba404c5d2474276",
+      "bytes": 771,
+      "lines": 11,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "c854e2879eac9bf9b647a57cc83bb20ae0b6482e67177afd4ba404c5d2474276",
+      "baseline_available": true,
+      "sha256_at_completion": "c854e2879eac9bf9b647a57cc83bb20ae0b6482e67177afd4ba404c5d2474276",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/test_identity.py",
+      "sha256": "d06441e61a2218804b490bdede3ea90a53c561188dfff0383964f6bbd57a4694",
+      "bytes": 13451,
+      "lines": 260,
+      "read_extent": "targeted_excerpts",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "d06441e61a2218804b490bdede3ea90a53c561188dfff0383964f6bbd57a4694",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          1,
+          112
+        ]
+      ],
+      "sha256_at_completion": "d06441e61a2218804b490bdede3ea90a53c561188dfff0383964f6bbd57a4694",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/tests/conftest.py",
+      "sha256": "bb9c3a3a09ada3cc2059002c92cbc1688090a16958c88768d71e21aa2c7c747b",
+      "bytes": 7994,
+      "lines": 174,
+      "read_extent": "targeted_excerpts",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "bb9c3a3a09ada3cc2059002c92cbc1688090a16958c88768d71e21aa2c7c747b",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          91,
+          91
+        ],
+        [
+          117,
+          124
+        ]
+      ],
+      "sha256_at_completion": "bb9c3a3a09ada3cc2059002c92cbc1688090a16958c88768d71e21aa2c7c747b",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/models.py",
+      "sha256": "5e3f311ca2d4d62c536e793b59f26e52d27ee9476be159309ed32a913ca9a92b",
+      "bytes": 4835,
+      "lines": 86,
+      "read_extent": "targeted_excerpts",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "5e3f311ca2d4d62c536e793b59f26e52d27ee9476be159309ed32a913ca9a92b",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          58,
+          86
+        ]
+      ],
+      "sha256_at_completion": "5e3f311ca2d4d62c536e793b59f26e52d27ee9476be159309ed32a913ca9a92b",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity/client.py",
+      "sha256": "57c9041e796b9dac1f4af5c2347d1652231177501eb3bcc32b6c2eb12b6f5392",
+      "bytes": 5110,
+      "lines": 115,
+      "read_extent": "targeted_excerpts",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "57c9041e796b9dac1f4af5c2347d1652231177501eb3bcc32b6c2eb12b6f5392",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          1,
+          43
+        ]
+      ],
+      "sha256_at_completion": "57c9041e796b9dac1f4af5c2347d1652231177501eb3bcc32b6c2eb12b6f5392",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/authorization.py",
+      "sha256": "f902b9cb6ae1cad3ab25f42bd0e3b07c5e47a964d9dc52184dcb6f4f6189ca92",
+      "bytes": 3862,
+      "lines": 98,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "f902b9cb6ae1cad3ab25f42bd0e3b07c5e47a964d9dc52184dcb6f4f6189ca92",
+      "baseline_available": true,
+      "sha256_at_completion": "f902b9cb6ae1cad3ab25f42bd0e3b07c5e47a964d9dc52184dcb6f4f6189ca92",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/schemas.py",
+      "sha256": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b",
+      "bytes": 3596,
+      "lines": 136,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b",
+      "baseline_available": true,
+      "sha256_at_completion": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/migrations/versions/005_owner_guard.py",
+      "sha256": "dfae20f1777b520ca547804dff471f40c660d01ae506d72ebfa59186ced0c4ba",
+      "bytes": 511,
+      "lines": 17,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "dfae20f1777b520ca547804dff471f40c660d01ae506d72ebfa59186ced0c4ba",
+      "baseline_available": true,
+      "sha256_at_completion": "dfae20f1777b520ca547804dff471f40c660d01ae506d72ebfa59186ced0c4ba",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/solutions/project_summary.py",
+      "sha256": "c27f8489cfdb0fc1365b88538ea61e67c4ac0f484475e6ca2932e602d845e040",
+      "bytes": 781,
+      "lines": 18,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "c27f8489cfdb0fc1365b88538ea61e67c4ac0f484475e6ca2932e602d845e040",
+      "baseline_available": true,
+      "sha256_at_completion": "c27f8489cfdb0fc1365b88538ea61e67c4ac0f484475e6ca2932e602d845e040",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_solution.py",
+      "sha256": "94d03f58013767b98d8cff115f76a9e8da2e85f538a2ceca9b90001f8bce89e3",
+      "bytes": 705,
+      "lines": 11,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "94d03f58013767b98d8cff115f76a9e8da2e85f538a2ceca9b90001f8bce89e3",
+      "baseline_available": true,
+      "sha256_at_completion": "94d03f58013767b98d8cff115f76a9e8da2e85f538a2ceca9b90001f8bce89e3",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/test_authorization.py",
+      "sha256": "044c6d654e4de4c3a4899a7d17a69928d6731f990139e43070e4858e636d2dda",
+      "bytes": 11820,
+      "lines": 208,
+      "read_extent": "targeted_excerpts",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "044c6d654e4de4c3a4899a7d17a69928d6731f990139e43070e4858e636d2dda",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          56,
+          111
+        ]
+      ],
+      "sha256_at_completion": "044c6d654e4de4c3a4899a7d17a69928d6731f990139e43070e4858e636d2dda",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/tests/conftest.py",
+      "sha256": "e1e2fdb189b1858fd66799621a902c29b46637e9656171eeb5fc00349eb5cd33",
+      "bytes": 7998,
+      "lines": 174,
+      "read_extent": "targeted_excerpts",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "e1e2fdb189b1858fd66799621a902c29b46637e9656171eeb5fc00349eb5cd33",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          91,
+          91
+        ],
+        [
+          117,
+          124
+        ]
+      ],
+      "sha256_at_completion": "e1e2fdb189b1858fd66799621a902c29b46637e9656171eeb5fc00349eb5cd33",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/reliable.py",
+      "sha256": "4e30f86753dccb0135ffaebe5af9e57775af3ab5f27be175f7898cfc45402984",
+      "bytes": 3337,
+      "lines": 68,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "4e30f86753dccb0135ffaebe5af9e57775af3ab5f27be175f7898cfc45402984",
+      "baseline_available": true,
+      "sha256_at_completion": "4e30f86753dccb0135ffaebe5af9e57775af3ab5f27be175f7898cfc45402984",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/representations.py",
+      "sha256": "9a7d2a94b3f6dd0732d0913f1567babeae16e0e334769eb4a1b8224b2feaefb5",
+      "bytes": 1524,
+      "lines": 36,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "9a7d2a94b3f6dd0732d0913f1567babeae16e0e334769eb4a1b8224b2feaefb5",
+      "baseline_available": true,
+      "sha256_at_completion": "9a7d2a94b3f6dd0732d0913f1567babeae16e0e334769eb4a1b8224b2feaefb5",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_representations.py",
+      "sha256": "bf418c4ec131aa7950ff629bea73036f0b9c86f26f6f17eb9062335a1588c6bf",
+      "bytes": 677,
+      "lines": 17,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "bf418c4ec131aa7950ff629bea73036f0b9c86f26f6f17eb9062335a1588c6bf",
+      "baseline_available": true,
+      "sha256_at_completion": "bf418c4ec131aa7950ff629bea73036f0b9c86f26f6f17eb9062335a1588c6bf",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/migrations/versions/006_task_operations.py",
+      "sha256": "13d910a8fe03c3af75f4d06a471caa745f8f05cb71497e0c74dc5bdfc8088491",
+      "bytes": 1535,
+      "lines": 30,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "13d910a8fe03c3af75f4d06a471caa745f8f05cb71497e0c74dc5bdfc8088491",
+      "baseline_available": true,
+      "sha256_at_completion": "13d910a8fe03c3af75f4d06a471caa745f8f05cb71497e0c74dc5bdfc8088491",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/db.py",
+      "sha256": "7f6c65ee2651f76e0b20821e446357d82aa281cee3bf6ebc403cfe7c61677c2a",
+      "bytes": 1170,
+      "lines": 31,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "7f6c65ee2651f76e0b20821e446357d82aa281cee3bf6ebc403cfe7c61677c2a",
+      "baseline_available": true,
+      "sha256_at_completion": "7f6c65ee2651f76e0b20821e446357d82aa281cee3bf6ebc403cfe7c61677c2a",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/purge_expired.py",
+      "sha256": "288de2287aeb72b88c83b0527f508d99164465431dd8181cbbe29202f146b3b7",
+      "bytes": 962,
+      "lines": 26,
+      "read_extent": "complete",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "288de2287aeb72b88c83b0527f508d99164465431dd8181cbbe29202f146b3b7",
+      "baseline_available": true,
+      "sha256_at_completion": "288de2287aeb72b88c83b0527f508d99164465431dd8181cbbe29202f146b3b7",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/tests/test_reliable.py",
+      "sha256": "84ccc48f0c9432819e860699763fa8e5e29b6815ef4e014644cf6d9868077794",
+      "bytes": 10934,
+      "lines": 215,
+      "read_extent": "targeted_excerpts",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "84ccc48f0c9432819e860699763fa8e5e29b6815ef4e014644cf6d9868077794",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          1,
+          105
+        ],
+        [
+          111,
+          205
+        ]
+      ],
+      "sha256_at_completion": "84ccc48f0c9432819e860699763fa8e5e29b6815ef4e014644cf6d9868077794",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/app.py",
+      "sha256": "164cabdb5c06daf50a2e86c7b5fd3959be6537f54b2e10344efe2722c5322a9e",
+      "bytes": 12964,
+      "lines": 263,
+      "read_extent": "targeted_excerpts",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "164cabdb5c06daf50a2e86c7b5fd3959be6537f54b2e10344efe2722c5322a9e",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          130,
+          158
+        ],
+        [
+          184,
+          222
+        ]
+      ],
+      "sha256_at_completion": "164cabdb5c06daf50a2e86c7b5fd3959be6537f54b2e10344efe2722c5322a9e",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/models.py",
+      "sha256": "d023e0c4e85a619a4b0b1875ee19927157d83526bb8596cbdd7480f03507bb37",
+      "bytes": 6219,
+      "lines": 114,
+      "read_extent": "targeted_excerpts",
+      "purpose": "核对讲解、业务责任或练习验收对应源码；未执行",
+      "baseline_sha256": "d023e0c4e85a619a4b0b1875ee19927157d83526bb8596cbdd7480f03507bb37",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          90,
+          114
+        ]
+      ],
+      "sha256_at_completion": "d023e0c4e85a619a4b0b1875ee19927157d83526bb8596cbdd7480f03507bb37",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/security.py",
+      "sha256": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+      "bytes": 5133,
+      "lines": 120,
+      "read_extent": "byte_equivalence_only",
+      "purpose": "与已阅读的 S01 同名文件 SHA-256 完全相同；client.py 只继承所审片段范围",
+      "baseline_sha256": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+      "baseline_available": true,
+      "sha256_at_completion": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization/client.py",
+      "sha256": "57c9041e796b9dac1f4af5c2347d1652231177501eb3bcc32b6c2eb12b6f5392",
+      "bytes": 5110,
+      "lines": 115,
+      "read_extent": "byte_equivalence_only",
+      "purpose": "与已阅读的 S01 同名文件 SHA-256 完全相同；client.py 只继承所审片段范围",
+      "baseline_sha256": "57c9041e796b9dac1f4af5c2347d1652231177501eb3bcc32b6c2eb12b6f5392",
+      "baseline_available": true,
+      "sha256_at_completion": "57c9041e796b9dac1f4af5c2347d1652231177501eb3bcc32b6c2eb12b6f5392",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/security.py",
+      "sha256": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+      "bytes": 5133,
+      "lines": 120,
+      "read_extent": "byte_equivalence_only",
+      "purpose": "与已阅读的 S01 同名文件 SHA-256 完全相同；client.py 只继承所审片段范围",
+      "baseline_sha256": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+      "baseline_available": true,
+      "sha256_at_completion": "0ac0acd85b2757e4f21d2ea9fbac3a51e1e68e8498cb62d044e55df3585c40e6",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/client.py",
+      "sha256": "57c9041e796b9dac1f4af5c2347d1652231177501eb3bcc32b6c2eb12b6f5392",
+      "bytes": 5110,
+      "lines": 115,
+      "read_extent": "byte_equivalence_only",
+      "purpose": "与已阅读的 S01 同名文件 SHA-256 完全相同；client.py 只继承所审片段范围",
+      "baseline_sha256": "57c9041e796b9dac1f4af5c2347d1652231177501eb3bcc32b6c2eb12b6f5392",
+      "baseline_available": true,
+      "sha256_at_completion": "57c9041e796b9dac1f4af5c2347d1652231177501eb3bcc32b6c2eb12b6f5392",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations/schemas.py",
+      "sha256": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b",
+      "bytes": 3596,
+      "lines": 136,
+      "read_extent": "byte_equivalence_only",
+      "purpose": "与已通读的 S02 schemas.py 字节相同",
+      "baseline_sha256": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b",
+      "baseline_available": true,
+      "sha256_at_completion": "4306e91559150130cbadaef464f657ebe6a5282bdd21ebdea10e4f579093ab3b",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/lib/js2py-examples.ts",
+      "sha256": "9d076f218cc1b38c07571a355b2e0513adc1524af871898d506adfea447b4311",
+      "bytes": 8470,
+      "lines": 218,
+      "read_extent": "targeted_excerpts",
+      "purpose": "确认正文 Code 实际读取 canonical 源码",
+      "baseline_sha256": "9d076f218cc1b38c07571a355b2e0513adc1524af871898d506adfea447b4311",
+      "baseline_available": true,
+      "reviewed_line_ranges": [
+        [
+          1,
+          60
+        ],
+        [
+          196,
+          205
+        ]
+      ],
+      "sha256_at_completion": "9d076f218cc1b38c07571a355b2e0513adc1524af871898d506adfea447b4311",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s01-identity-files.json",
+      "sha256": "14fe4478815de4bdbebf15e40c36e00e1530d862afff1774760189c5608ad0b7",
+      "bytes": 715,
+      "lines": 34,
+      "read_extent": "complete_structured_read",
+      "purpose": "核对本章 Code 引用的 allowlist 成员资格；未读取锁文件内容",
+      "baseline_sha256": null,
+      "baseline_available": false,
+      "sha256_at_completion": "14fe4478815de4bdbebf15e40c36e00e1530d862afff1774760189c5608ad0b7",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s02-authorization-files.json",
+      "sha256": "65db094e1af41cb0e8204e288a13491918f4edb0ef4a9b46545386964bbf42fa",
+      "bytes": 816,
+      "lines": 37,
+      "read_extent": "complete_structured_read",
+      "purpose": "核对本章 Code 引用的 allowlist 成员资格；未读取锁文件内容",
+      "baseline_sha256": null,
+      "baseline_available": false,
+      "sha256_at_completion": "65db094e1af41cb0e8204e288a13491918f4edb0ef4a9b46545386964bbf42fa",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/s03-reliable-operations-files.json",
+      "sha256": "fc2150e9d151e7c604facbd5ffa1c3ed23c37e6f1d695bd4ec8c525f207128b3",
+      "bytes": 990,
+      "lines": 43,
+      "read_extent": "complete_structured_read",
+      "purpose": "核对本章 Code 引用的 allowlist 成员资格；未读取锁文件内容",
+      "baseline_sha256": null,
+      "baseline_available": false,
+      "sha256_at_completion": "fc2150e9d151e7c604facbd5ffa1c3ed23c37e6f1d695bd4ec8c525f207128b3",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/docs/reviews/js2py-s01-s03-security-audit-2026-09-28.json",
+      "sha256": "8a10aeac0725b972fb73d10460f706f0ee8081ab553437b8c3a435a36b6ba40d",
+      "bytes": 75327,
+      "lines": 949,
+      "read_extent": "structured_summary_and_selected_fields",
+      "purpose": "只读历史审计状态、修复交接和验证计数；不重做安全探针",
+      "baseline_sha256": "8a10aeac0725b972fb73d10460f706f0ee8081ab553437b8c3a435a36b6ba40d",
+      "baseline_available": true,
+      "sha256_at_completion": "8a10aeac0725b972fb73d10460f706f0ee8081ab553437b8c3a435a36b6ba40d",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/docs/reviews/js2py-s01-s03-security-probes-2026-09-28.json",
+      "sha256": "ffd23767baaacc4e83b7ea796044458f2ff50a19123b19e43535b751cfb78ca0",
+      "bytes": 1298,
+      "lines": 52,
+      "read_extent": "structured_summary_and_selected_fields",
+      "purpose": "只读历史审计状态、修复交接和验证计数；不重做安全探针",
+      "baseline_sha256": "ffd23767baaacc4e83b7ea796044458f2ff50a19123b19e43535b751cfb78ca0",
+      "baseline_available": true,
+      "sha256_at_completion": "ffd23767baaacc4e83b7ea796044458f2ff50a19123b19e43535b751cfb78ca0",
+      "unchanged_during_finalization": true
+    },
+    {
+      "path": "/tmp/langshift-s01-s03-handoff.json",
+      "sha256": "bfd593080add14d839f808a2609679d811625d40cb88951dd21e826cfee5feac",
+      "bytes": 102544,
+      "lines": 2053,
+      "read_extent": "structured_summary_and_selected_fields",
+      "purpose": "只读历史审计状态、修复交接和验证计数；不重做安全探针",
+      "baseline_sha256": "bfd593080add14d839f808a2609679d811625d40cb88951dd21e826cfee5feac",
+      "baseline_available": true,
+      "sha256_at_completion": "bfd593080add14d839f808a2609679d811625d40cb88951dd21e826cfee5feac",
+      "unchanged_during_finalization": true
+    }
+  ],
+  "hash_policy": {
+    "algorithm": "SHA-256",
+    "input": "文件原始字节（非规范化文本、非 Git blob SHA）",
+    "paths": "绝对路径",
+    "coverage_note": "整文件哈希用于锁定版本；read_extent/ranges 区分全文、片段、检索和字节等价，哈希不代表全文审计。",
+    "initial_snapshot_at": "2026-09-28T06:08:33.040116+00:00",
+    "initial_snapshot_note": "初次正文阅读后采集的只读来源快照；后续源码与章节片段核查及最终核对使用同一字节版本。allowlist 在其读取时单独记录。"
+  },
+  "source_stability": {
+    "changed_reviewed_files": [],
+    "all_reviewed_snapshots_stable": true,
+    "reviewed_file_count": 51,
+    "repository_files_written_by_review": []
+  }
+}

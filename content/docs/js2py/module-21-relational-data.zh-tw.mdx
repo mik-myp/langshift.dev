@@ -1,0 +1,245 @@
+---
+title: 關係模型與 PostgreSQL：先認識數據，再連接服務器
+description: 從內存任務演進到關係模型，逐步建立獨佔 PostgreSQL 集群，解釋進程、數據目錄、數據庫、角色、鍵、約束與 NULL，並驗證真實拒絕和安全恢復。
+---
+
+import { getRelationalExample } from '@/lib/js2py-examples'
+
+## 1. 數據庫不是升級版 JSON 文件
+
+H 系列的內存任務已經能響應 HTTP，但兩個請求可以同時讀取同一份舊狀態，分別修改後互相覆蓋；進程退出，內存隨之消失。換成 JSON 文件只能改變存放位置：誰協調兩個寫入者？怎樣在寫到一半失敗時恢復？另一個腳本繞開 API 寫進無效數據怎麼辦？文件適合明確擁有單一寫入者的小工具，不應該靠“文件更大”逐漸變成多人協作存儲。
+
+關係數據庫把這些職責交給獨立的服務器：按明確類型保存記錄，跨記錄表達關係，對每個寫入者執行約束，協調併發，並提供提交與恢復協議。它不是讓 Python 直接修改某個 JSON 的庫，也不自動知道我們的業務和權限。D01 先學數據與服務器，D02 學查詢，D03 才把多個修改組織成可靠的事務。
+
+| 章節契約 | 可驗證範圍 |
+| --- | --- |
+| 前置 | L00–L14 與 H01–H06 已完成；會異常、模塊、文件、測試和 HTTP 內存實驗，不預設 SQL 或運維 |
+| 新能力 | 畫關係圖；解釋表、行、鍵、約束、NULL；區分進程、目錄、數據庫、角色和連接 |
+| 獨立驗收 | 在自己的隔離集群創建模型；預測並驗證壞記錄被誰拒絕；為新實體選擇鍵和關係 |
+| 不要求 | Docker、ORM、遷移框架、認證、連接池、生產部署；安裝成功不是掌握關係模型 |
+
+下載 [D01 完整實驗](/learning-assets/js2py/d01-relational-data.zip)，工作目錄是解壓後的 `d01-relational-data`。本章全部 SQL、服務與文件實驗只在本地運行，不是瀏覽器 Python。代碼顯示與下載共用實驗文件。
+
+## 2. 把字段變化當作設計決定，而不是偷偷換題
+
+H 中的 `id/title/minutes/done/note` 是單人內存任務。現在要表達“誰在什麼項目裡創建了任務”，所以本實驗選擇以下演進；**這是新建練習數據庫，不是執行了舊數據遷移**。
+
+| 原字段或新需求 | 關係模型中的選擇 | 原因與界限 |
+| --- | --- | --- |
+| id | bigint identity 主鍵 | 由數據庫分配；不是列表位置，不承諾連續，也不自動保留內存 ID |
+| title | title，最多 120 字符，非空且非純 ASCII 空格 | 應用仍做友好驗證；數據庫守住底線 |
+| minutes | 保留非負整數估時 | 用於聚合和併發實驗，是保留的擴展，不是 capstone 強制字段 |
+| done | status：todo / doing / done | false 可映射 todo、true 可映射 done；doing 是新增狀態，不能同時保留兩個真相 |
+| note | 可空 description，最多 2000 字符 | NULL 表示未提供；空字符串表示提供了空文本 |
+| 多人/項目 | users、projects、project_members | 用戶存在不等於已認證；成員關係存在不等於接口已完成授權 |
+| 歸屬/時間 | project_id、created_by、due_at、created_at、updated_at | 明確引用；時間用 timestamptz，實驗連接顯示 UTC |
+
+`users.login` 只是測試人員標識，不是登錄系統；沒有密碼哈希、Token 或認證版本。以後必須通過遷移增加認證字段，而不是為了讓 ORM 示例好看而塞入假密碼。本模型的 `updated_at` 只有插入默認值，更新它是寫入代碼的責任，數據庫不會因為列名叫它就自動更新時間。
+
+## 3. 一行表達一個事實，關係用鍵表達
+
+表規定列名與類型，一行是一條記錄；行在磁盤或查詢結果中沒有天然的先後順序。主鍵唯一、非空，穩定標識一行；把 UI 的數組下標當主鍵，排序後就會指錯對象。identity 負責產生候選數字，PRIMARY KEY 才負責唯一約束。
+
+```text
+users (1) ----< projects.created_by
+users (1) ----< project_members >---- (1) projects
+users (1) ----< tasks.created_by
+projects (1) ----< tasks.project_id
+```
+
+`<` 一側可以有多行：一個項目有很多任務，一項任務只屬於一個項目。用戶和項目是多對多關係，因此用 `project_members` 拆成兩個一對多關係。它的複合主鍵 `(project_id, user_id)` 保證“同一人加入同一項目一次”，並不限制一個人加入多個項目。這裡的 `role` 是該成員關係的屬性，不是用戶的全局屬性。
+
+外鍵記錄的是另一行的 ID，不是把整份用戶對象複製進任務。否則用戶改名時，幾十項任務裡的副本可能不同步，這就是更新異常。展示用戶名時 D02 再通過 JOIN 組合；數據庫不等於必須把展示 JSON 原樣存進去。
+
+本實驗所有刪除引用都用 `ON DELETE RESTRICT`：項目還有任務或成員時拒絕刪除，而不是悄悄連帶清空。完整項目刪除策略是未來服務層的顯式業務操作。另一個重要空白：外鍵只證明用戶和項目存在，不證明創建者是成員，更不證明當前 HTTP 調用者有權操作。至少一個負責人、負責人等於創建者等跨表業務規則也不是這份 DDL 自動保證的。
+
+<details>
+<summary>解釋題答案：為什麼不把 member_ids 數組放在 projects，或把 project_name 複製到每項任務？</summary>
+
+數組會讓“同一項目同一用戶不能重複”和“每個成員有自己的角色”難以直接由當前關係約束表達；複製項目名稱會引入更新異常。關聯表的一行承擔一個成員事實，複合主鍵和兩個外鍵各自守住一條規則。它不是反對所有數組或 JSON，而是當前需要獨立約束和關聯查詢的事實適合單獨建模。
+
+</details>
+
+## 4. 寫入順序之前，先理解 DDL 和約束
+
+DDL 是定義結構的 SQL。`CREATE TABLE` 創建表；列聲明描述允許的值；逗號分隔列或表級約束；分號結束一條 SQL。下面是三章相同的完整結構，不需要先會 ORM 才能理解。
+
+<Code language="sql">{getRelationalExample('sql/schema.sql')}</Code>
+
+從父表開始讀：先有 users，再有引用它的 projects，再有同時引用兩者的成員和任務。不是通過定義順序“把表嵌套進去”，而是外鍵目標必須已存在。`GENERATED ALWAYS AS IDENTITY` 讓普通插入不提供 id；`DEFAULT` 僅在未提供該列時補值，顯式 NULL 不會自動變成默認值。省略 status 得到 todo，寫入 NULL 則被 NOT NULL 拒絕。
+
+| 規則 | 拒絕什麼 | 不能替代什麼 |
+| --- | --- | --- |
+| NOT NULL | 缺失值 NULL | 不能拒絕空字符串 |
+| CHECK | 本行表達式為 false，例如負 minutes | 單獨 CHECK 不會拒絕表達式結果為 unknown 的 NULL |
+| UNIQUE | 重複登錄標識 | 當前大小寫敏感；alice 與 Alice 並非同值 |
+| PRIMARY KEY | 重複或空標識；可以跨多列 | 不表示業務記錄一定完整 |
+| FOREIGN KEY | 指向不存在的父記錄 | 不證明業務授權，也不自動創建父記錄 |
+| varchar(n) | 超過長度的普通寫入 | 不等於 Python 所有輸入規範化規則 |
+
+`btrim` 默認修剪普通空格，不是 Python `strip()` 的全部 Unicode 空白集合。應用可以更嚴格，不能聲稱兩個驗證完全等價。`timestamptz` 表示時間點；顯示隨連接時區變化，不保留最初輸入的時區名稱。實驗統一 UTC，不在本章解決用戶日曆與夏令時產品設計。
+
+## 5. NULL 不是空字符串，也不是 JavaScript 的 undefined
+
+SQL 的 NULL 表示缺失或未知。Python 驅動通常把它讀成 `None`，但 SQL 比較不是 Python 比較：`NULL = NULL` 得到 unknown，而不是 true；`WHERE` 只保留條件為 true 的行。問“是否缺失”要寫 `IS NULL`；把所有缺失替換成空字符串會丟失業務含義。
+
+暫時記住兩個觀察：種子任務 1、4 的 description 是 NULL，任務 2 是空字符串；`CHECK (minutes >= 0)` 遇到 NULL 不會得到 false，所以還必須加 NOT NULL。本章測試臨時創建一個只有 CHECK 的表，真實證明 NULL 能進入，再與 tasks 的拒絕行為比較。不要只背約束名稱。
+
+## 6. 從安裝物到運行中的數據庫：六個不同對象
+
+| 對象 | 做什麼 | 常見誤會 |
+| --- | --- | --- |
+| PostgreSQL 工具文件 | postgres 是服務端程序，psql 是命令行客戶端 | psql 能啟動不代表服務已運行 |
+| 服務器進程 | 接受連接、執行查詢、管理併發與持久化 | Python 退出不等於服務器退出 |
+| 數據目錄 / cluster | initdb 創建的一組系統目錄和數據庫存儲；此處 cluster 不是多機集群 | 不要手改其中的二進制文件，也不要對舊目錄重新 initdb |
+| database | 一個 cluster 裡的邏輯數據庫，本實驗叫 langshift_lab | 一個 database 不是一個操作系統進程 |
+| role | PostgreSQL 內部的權限身份，lab_student 是普通角色 | 不是系統用戶名，也不是 users 表裡的一行 |
+| connection | 客戶端到服務端的一次有狀態通信，會建立數據庫會話 | 連接串只是地址和選項，不是連接本身；連接也不是事務 |
+
+數據流是“終端/驅動 → socket → 服務端會話 → 約束與存儲 → 結果/錯誤 → 客戶端”。Unix socket 是本機通信端點，不是數據庫數據文件；端口號在本實驗也用來命名 socket，但 TCP 完全關閉。啟動時創建隨機管理角色只做集群引導，日常 SQL 使用非超級用戶 `lab_student`。它擁有練習數據庫，仍不代表生產賬號權限設計已經完成。
+
+## 7. 一步一步準備：不碰已存在的數據庫
+
+核驗日期 **2026-09-28**。固定基線：PostgreSQL **18.6**（官方發佈日 2026-08-13）、CPython **3.13.15**、uv **0.12.13**、pytest **8.4.2**、psycopg **3.3.6**。本機 macOS Homebrew 工具已經存在，不需要安裝任何系統軟件。其他機器必須先從 PostgreSQL 官方下載入口取得同版本工具並確認路徑；其他操作系統的安裝沒有在這裡實測，不要照抄 Homebrew 路徑。
+
+**第一步：只檢查工具，不啟動默認服務。** `PG_BIN` 是目錄，不是連接串。不要使用 `brew services`，不要用沒有 `-D` 的管理命令，也不要猜 5432 上是誰的數據庫。
+
+**連接環境檢查點。** libpq 除了讀取連接串，還會讀取環境默認值，例如 `PGHOSTADDR` 指定網絡地址，`PGSERVICE` 加載保存的連接配置。因此控制器在啟動或 SQL 之前，拒絕除 `PG_BIN`（工具目錄）與 `PGHOST`（被顯式私有 socket 覆蓋）以外的全部 `PG*`，報錯只列變量名，不列值。被拒絕時，在本實驗終端中檢查並移除報出的設置，再重試；不要改填生產連接串，也不要盲目重置已有數據庫。`DATABASE_URL` 仍被忽略。控制器使用自己創建的空白、0600 權限密碼文件，不讀取用戶憑證文件，並清理子進程的數據庫默認配置。即使環境已污染，仍能用 `status`/`stop` 清理自有集群；stop 仍須驗證保存的服務器身份。三語 README 有同樣的政策說明。
+
+**測試計數。** 本章有 14 項業務／SQL 測試與 50 項環境邊界測試，共 64 項。後者包括參數化的拒絕設置、私有密碼文件檢查與自有迴環監聽實驗，保護的是學習環境；不等於新增了 50 個 SQL 知識點，更不等於生產安全認證。
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+"$PG_BIN/postgres" --version
+"$PG_BIN/psql" --version
+"$PG_BIN/initdb" --version
+"$PG_BIN/pg_ctl" --version
+uv --version
+uv sync --locked
+uv run --locked python --version
+```
+
+四個 PostgreSQL 命令應包含 `18.6 (Homebrew)`，uv 是 0.12.13，Python 是 3.13.15。`uv sync --locked` 從公共 PyPI 鎖文件創建本實驗的 `.venv`；不升級鎖、不安裝前端依賴。若任一版本不符，先停在這裡，而不是把不同版本結果混進本實驗。
+
+**第二步：創建獨佔數據目錄並啟動獨佔進程。** 下列控制腳本將步驟機械化，不把它當黑箱：先 `mkdtemp` 分配 `/tmp/lsdb-*`，根目錄與 socket 目錄都是 0700；寫所有權標記；用 `initdb -D` 初始化新目錄；配置 `listen_addresses = ''`；用帶明確 `-D`、日誌路徑的 `pg_ctl start` 啟動；只在這個 socket 上創建角色與數據庫。端口號隨機，地址目錄也唯一，不復用你已有的服務。
+
+```bash
+uv run --locked python labctl.py start
+uv run --locked python labctl.py status
+uv run --locked python labctl.py dsn
+uv run --locked python labctl.py reset --yes-reset
+uv run --locked python labctl.py psql --file sql/inspect.sql
+```
+
+第一次 start 打印隨機 root，status 應顯示 running 為 true。reset 的固定輸出如下；它會刪除並重建**本實驗的四張表**，不是無害的只讀命令。重新做練習前先保存自己的 SQL 文件。
+
+```text
+schema + seed ready: users=2 projects=3 members=4 tasks=5
+```
+
+**第三步：讀懂地址再打開連接。** dsn 輸出包含 `host=/private/tmp/lsdb-.../socket`、隨機 `port`、`dbname=langshift_lab`、`user=lab_student`、UTC 與超時選項。macOS 可能把 /tmp 解析為 /private/tmp；不要把教材中的省略地址當成可粘貼配置。沒有密碼是因為本地 trust 認證受到私有目錄權限隔離，並關閉 TCP；同一操作系統賬號下的其他進程仍可訪問，root 也不是隔離對象。這絕不是生產 trust 配置建議。
+
+控制腳本在連接和重置之前核對標記、目錄歸屬、服務端數據目錄、系統標識與 `server_version_num=180006`；故意不讀取 `DATABASE_URL`。不要改成自己的數據庫地址。psql 的反斜槓命令由客戶端解釋，不是 SQL。
+
+```bash
+uv run --locked python labctl.py psql
+```
+
+```sql
+\conninfo
+SELECT current_database(), current_user;
+\dt
+\d tasks
+SELECT id, title, status, minutes FROM tasks ORDER BY id;
+\q
+```
+
+`\conninfo` 顯示當前連接目標，`\dt` 列表，`\d tasks` 看約束，`\q` 只退出客戶端，不停止服務器。若出現 `langshift_lab-#` 一類續行提示，通常是 SQL 還沒用分號結束；用 Ctrl+C 放棄當前輸入，不要重建集群。
+
+## 8. 把結構填成可觀察的數據
+
+<Code language="sql">{getRelationalExample('sql/seed.sql')}</Code>
+
+種子數據依賴空表中的 identity 從 1 開始，因此應通過 reset 運行，不能在任意舊庫反覆粘貼。預期是 Alice 與 Bob、Launch/Docs/Empty 三個項目、四條成員關係和五項任務。Empty 雖然沒有任務，仍有負責人；“空項目”不是“無用戶的非法行”。給外鍵列傳整數時，服務器去驗證父記錄，不會根據 1 的數字意義猜業務對象。
+
+<Code language="sql">{getRelationalExample('sql/inspect.sql')}</Code>
+
+inspect 會把 NULL 顯示成 `(null)`，方便區別空文本。預期任務依次是 `Design API / Add tests / Ship demo / Read SQL / Write guide`，minutes 為 `30 / 45 / 15 / 20 / 40`。這只是當前種子；沒有 ORDER BY 就不應承諾這個順序。
+
+## 9. 故意失敗：誰拒絕、何時拒絕、剩下什麼
+
+先 reset，然後執行專門標記為錯誤實驗的文件。
+
+<Code language="sql">{getRelationalExample('sql/expected_failures.sql')}</Code>
+
+```bash
+uv run --locked python labctl.py reset --yes-reset
+uv run --locked python labctl.py psql --file sql/expected_failures.sql
+uv run --locked pytest -q
+```
+
+前四條 INSERT 在服務端執行階段依次失敗：重複 login 是 `23505`，不存在的 user_id 是 `23503`，負 minutes 是 `23514`，NULL 標題是 `23502`。psql 輸出 ERROR 是預期，不是“腳本沒跑”；文件只在這段主動關閉遇錯退出，逐條繼續，最後任務數仍為 5。因為此處 psql 默認每條語句各自提交，失敗語句不會取消前面已成功的獨立語句；D03 才驗證多條語句一起回滾。
+
+測試還覆蓋超長標題 `22001` 和有子記錄時刪除項目。在本次 **18.6 實測**，`ON DELETE RESTRICT` 返回 `RestrictViolation / 23001`，不能未經驗證就把所有引用錯誤都寫成 `23503`。普通插入壞外鍵仍是 `23503`。錯誤碼比本地化錯誤文字更適合精確斷言。
+
+<details>
+<summary>帶提示修改答案：允許未知估時，應該只刪 CHECK 嗎？</summary>
+
+不是。原模型用 NOT NULL 禁止 NULL，CHECK 禁止負數；允許未知估時應移除 NOT NULL，並保留非負 CHECK，同時明確默認 0 是否仍合理。臨時練習可以創建另一張表比較插入 NULL、0、-1 的行為，不要悄悄改三章共享模型。將來聚合要區分“零分鐘”和“未知”，也不能一律 coalesce 成 0 而不說明業務含義。
+
+</details>
+
+## 10. 獨立變式：一項任務可以有多條評論
+
+不抄上面的關聯表，獨立設計 `task_comments`：每條評論屬於一個存在的任務，由一個存在的用戶撰寫；正文最多 500 字符且不能空白；一人可對同一任務評論多次；刪除被引用任務先拒絕。畫基數，決定主鍵，寫 DDL 和一條成功 INSERT，再分別製造不存在的任務與空白正文失敗。為什麼不能拿 `(task_id, author_id)` 當主鍵？
+
+完成後再打開答案。驗收需要解釋每個約束保護什麼，不以“pytest 全綠所以我理解了”代替。
+
+<details>
+<summary>獨立變式參考答案與驗收</summary>
+
+<Code language="sql">{getRelationalExample('answers/variant.sql')}</Code>
+
+評論本身有身份，一名用戶能發表多次，因此用獨立 identity 主鍵。兩個外鍵分別保護任務存在與作者存在；它們仍不證明作者有項目權限。測試 `tests/test_variant.py` 真實運行參考 DDL，並斷言壞外鍵與空正文被拒絕；最後刪除練習表，避免干擾主模型重置。此表不是後續 ORM 基線的一部分。
+
+</details>
+
+## 11. 停機、恢復與學習檢查點
+
+```bash
+uv run --locked python labctl.py stop
+uv run --locked python labctl.py status
+uv run --locked python labctl.py start
+uv run --locked python labctl.py psql --file sql/inspect.sql
+uv run --locked python labctl.py stop
+```
+
+stop 只在目錄標記和服務器身份匹配時，對自己的 `-D` 執行 `pg_ctl -m fast -w stop`：斷開本集群客戶端、回滾未提交事務，再關閉服務器；不會停止其他集群。status 應顯示 `running: false`、`pg_ctl_status: 3`。再次 start 使用同一數據目錄，不會重新 initdb；沒有 reset 時，已提交記錄應仍存在。這是停啟持久性檢查，不是備份或災難恢復演練。
+
+目錄與日誌保留用於排錯；/tmp 可能被系統清理，所以這裡不是長期保存方案。不要拷貝活躍數據目錄當備份，不要刪除標記去“解除限制”，也不要 kill 所有 postgres 進程。
+
+| 現象 | 先查什麼 | 恢復邊界 |
+| --- | --- | --- |
+| 找不到工具/版本不對 | PG_BIN、四個 --version | 不自動安裝或升級系統服務 |
+| connection refused / socket 不存在 | 本實驗 status、root/server.log | 只重新 start 自己的集群 |
+| marker mismatch / 身份不符 | .lab-state.json 與私有目錄標記是否完整 | 拒絕重置和停機；查明原因，不把保護關閉 |
+| 初始化中途失敗 | start 的異常、私有目錄日誌和 status | 腳本嘗試只停止剛創建的目錄；保留證據，不對舊目錄再 initdb |
+| 表不存在 | 是否執行 reset、是否連本實驗數據庫 | 先確認目標，再選擇有損 reset |
+
+暫停時記錄：工作目錄、隨機 root、最後成功命令、通過的測試、待解決錯誤碼、下次第一步。推薦檢查點是“結構與 seed 已確認、64 項測試通過（14 項業務＋50 項環境）、集群已停止”；下次先 status/start，不是盲目 reset。
+
+## 12. 本章驗收與官方依據
+
+你應能不看答案畫出四表關係，解釋數據庫角色與業務用戶不同，獨立連接自己的數據庫，預測並觀察至少三種約束錯誤，區分 NULL 與空文本，並用停啟結果證明已提交數據不依賴 Python 內存。驗收腳本還會從 allowlist 重建下載包並在獨佔集群運行；MDX 編譯不證明這些能力。
+
+官方依據核驗於 **2026-09-28**，文檔固定 PostgreSQL 18，運行固定 18.6：
+
+- [PostgreSQL 18.6 發佈說明](https://www.postgresql.org/docs/release/18.6/)：補丁版本與發佈日期。
+- [客戶端/服務端架構](https://www.postgresql.org/docs/18/tutorial-arch.html)、[initdb](https://www.postgresql.org/docs/18/app-initdb.html)、[pg_ctl](https://www.postgresql.org/docs/18/app-pg-ctl.html)：啟動對象及生命週期。
+- [約束](https://www.postgresql.org/docs/18/ddl-constraints.html)、[錯誤碼](https://www.postgresql.org/docs/18/errcodes-appendix.html)：關係規則與 NULL 的 CHECK 行為。
+- [libpq 連接參數](https://www.postgresql.org/docs/18/libpq-connect.html)、[官方下載入口](https://www.postgresql.org/download/)：連接目標和工具來源。
+
+未驗收：其他操作系統安裝、TCP/TLS/生產角色配置、備份恢復、認證授權和線上容量；這些不是本章實驗的隱含承諾。

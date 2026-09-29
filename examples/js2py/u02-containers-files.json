@@ -1,0 +1,21 @@
+[
+  "README.md",
+  "lists.py",
+  "dictionaries.py",
+  "missing_values.py",
+  "aliases.py",
+  "list_copy.py",
+  "shallow_copy.py",
+  "isolated_copy.py",
+  "repeated_rows.py",
+  "tuples.py",
+  "sets.py",
+  "task_board.py",
+  "errors/list_index.py",
+  "errors/missing_key.py",
+  "errors/tuple_assignment.py",
+  "errors/unhashable_member.py",
+  "errors/append_rebind.py",
+  "solutions/fix_draft.py",
+  "solutions/study_board.py"
+]

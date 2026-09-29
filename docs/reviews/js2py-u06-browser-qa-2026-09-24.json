@@ -1,0 +1,78 @@
+{
+  "date": "2026-09-24",
+  "route": "/[locale]/docs/js2py/module-06-web-development",
+  "results": [
+    {
+      "locale": "zh-cn",
+      "title": "模块与标准库",
+      "sections": 14,
+      "viewport": [
+        1280,
+        900
+      ],
+      "details_initially_closed": 3,
+      "details_clicked_and_open": 3,
+      "sources_exact": 37,
+      "page_horizontal_overflow": false,
+      "code_colors": [
+        "rgb(201, 209, 217)"
+      ],
+      "zip_bytes": 12733,
+      "zip_sha256": "6e4193b33ed884e72af3c00ef72b5dc41d5affa4d559e4d9514e1f593d954eb8",
+      "screenshots": [
+        "zh-cn-top.png",
+        "zh-cn-bindings.png",
+        "zh-cn-answer.png"
+      ]
+    },
+    {
+      "locale": "en",
+      "title": "Modules and the Standard Library",
+      "sections": 14,
+      "viewport": [
+        1280,
+        900
+      ],
+      "details_initially_closed": 3,
+      "details_clicked_and_open": 3,
+      "sources_exact": 37,
+      "page_horizontal_overflow": false,
+      "code_colors": [
+        "rgb(201, 209, 217)"
+      ],
+      "zip_bytes": 12733,
+      "zip_sha256": "6e4193b33ed884e72af3c00ef72b5dc41d5affa4d559e4d9514e1f593d954eb8",
+      "screenshots": [
+        "en-top.png",
+        "en-bindings.png",
+        "en-answer.png"
+      ]
+    },
+    {
+      "locale": "zh-tw",
+      "title": "模塊與標準庫",
+      "sections": 14,
+      "viewport": [
+        1280,
+        900
+      ],
+      "details_initially_closed": 3,
+      "details_clicked_and_open": 3,
+      "sources_exact": 37,
+      "page_horizontal_overflow": false,
+      "code_colors": [
+        "rgb(201, 209, 217)"
+      ],
+      "zip_bytes": 12733,
+      "zip_sha256": "6e4193b33ed884e72af3c00ef72b5dc41d5affa4d559e4d9514e1f593d954eb8",
+      "screenshots": [
+        "zh-tw-top.png",
+        "zh-tw-bindings.png",
+        "zh-tw-answer.png"
+      ]
+    }
+  ],
+  "screenshots_actually_viewed": 9,
+  "screenshot_directory": "/tmp/langshift-l06-work",
+  "limitations": "1280x900 desktop viewport and named interactions only; long code lines scroll within code blocks; not a mobile/all-site/zero-network-request certification."
+}

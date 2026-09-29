@@ -1,0 +1,128 @@
+[
+  {
+    "title": "DNS concepts RFC1034",
+    "url": "https://www.rfc-editor.org/rfc/rfc1034",
+    "scope": "Names, resolver cache, authority and TTL; DNS does not choose HTTP paths",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://www.rfc-editor.org/info/rfc1034/",
+    "sha256": "b64b008b650881e255b1cc8551b61c1a5395923f5de080d631ac90080849a746"
+  },
+  {
+    "title": "Reserved names RFC2606",
+    "url": "https://www.rfc-editor.org/rfc/rfc2606",
+    "scope": "test/invalid reserved for examples",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://www.rfc-editor.org/info/rfc2606/",
+    "sha256": "ba6fbd71818bfe7ccc9a12854a3a6bae8848e8de650507ee26bd3560c742fbf1"
+  },
+  {
+    "title": "TLS1.3 RFC8446",
+    "url": "https://www.rfc-editor.org/rfc/rfc8446",
+    "scope": "TLS authentication and encrypted transport, not application authorization",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://www.rfc-editor.org/info/rfc8446/",
+    "sha256": "c2e1cc932b3d3d896a19becf18505d17ae3a1a7e273b9aa1d20ec78ff5d42cb0"
+  },
+  {
+    "title": "Python SSL",
+    "url": "https://docs.python.org/3.13/library/ssl.html",
+    "scope": "SSLContext, certificates and verification",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.python.org/3.13/library/ssl.html",
+    "sha256": "775168b684f7cdfd7fc686cd4796181115367e5f11f125e7d1f41cac3e483f9f"
+  },
+  {
+    "title": "OpenSSL req",
+    "url": "https://docs.openssl.org/3.6/man1/openssl-req/",
+    "scope": "Temporary keys and certificate extensions",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.openssl.org/3.6/man1/openssl-req/",
+    "sha256": "76a8a5008451a2b9144476cb112bfd03f8d56acee3f8ae431c6275ee032af808"
+  },
+  {
+    "title": "OpenSSL x509",
+    "url": "https://docs.openssl.org/3.6/man1/openssl-x509/",
+    "scope": "CA signing for local experiment only",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.openssl.org/3.6/man1/openssl-x509/",
+    "sha256": "6041d99310bcc85878aec6298c67e3860a31d171da569add0ccdd844f8f2fe9c"
+  },
+  {
+    "title": "curl TLS certificates",
+    "url": "https://curl.se/docs/sslcerts.html",
+    "scope": "--cacert and hostname verification; no insecure verification",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://curl.se/docs/sslcerts.html",
+    "sha256": "b057885cf0fac5c8ae153a78b01713edf4b571b41799c1a0b7ac3850ddcfa742"
+  },
+  {
+    "title": "curl command reference",
+    "url": "https://curl.se/docs/manpage.html",
+    "scope": "--resolve, --noproxy, -H, --include, --data, --write-out",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://curl.se/docs/manpage.html",
+    "sha256": "317d764cad01af11d2a660f14f8739b65d86b98a0a036105e32aefface5938a1"
+  },
+  {
+    "title": "Uvicorn settings",
+    "url": "https://www.uvicorn.dev/settings/",
+    "scope": "forwarded-allow-ips, proxy-headers, no-access-log",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://uvicorn.dev/settings/",
+    "sha256": "dd534a054514d1a735b78da8fc654ba572b83525e56a433a5f8f4ad67cb2cf58"
+  },
+  {
+    "title": "Caddy reverse_proxy",
+    "url": "https://caddyserver.com/docs/caddyfile/directives/reverse_proxy",
+    "scope": "X-Forwarded headers and upstream trust",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://caddyserver.com/docs/caddyfile/directives/reverse_proxy",
+    "sha256": "b6abf46d6e6b069541b18df80cb0bb1417ca577612744b42be852713fc100ff0"
+  },
+  {
+    "title": "Caddy automatic HTTPS",
+    "url": "https://caddyserver.com/docs/automatic-https",
+    "scope": "Public ACME issuance/renewal requires real validated environment",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://caddyserver.com/docs/automatic-https",
+    "sha256": "88b3a6a5d7c495d08722120fc5372719625098ceec0df9c5f443a78992bdb682"
+  },
+  {
+    "title": "FastAPI CORS",
+    "url": "https://fastapi.tiangolo.com/tutorial/cors/",
+    "scope": "Origins, preflight and credential-bearing requests",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://fastapi.tiangolo.com/tutorial/cors/",
+    "sha256": "717111e63192718cafcb4df408d1fe912c2260316f26711218f3e890560eb47f"
+  },
+  {
+    "title": "Starlette middleware",
+    "url": "https://starlette.dev/middleware/",
+    "scope": "Global CORS enforcement and TrustedHost",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://starlette.dev/middleware/",
+    "sha256": "9a510cdf05897c20319ae841d89ce66e643312c53a21f05189247da26d8d2957"
+  },
+  {
+    "title": "OWASP CSRF prevention",
+    "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html",
+    "scope": "Ambient cookies, defenses and reassessment when auth scheme changes",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html",
+    "sha256": "95af1a08b8100482a37516df7a73c06dd3373f0040aa041cd75b4cb89d7bc2dd"
+  }
+]

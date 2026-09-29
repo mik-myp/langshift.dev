@@ -1,0 +1,19 @@
+[
+  ".gitignore",
+  ".python-version",
+  "FILES.json",
+  "README.md",
+  "README.zh-cn.md",
+  "README.zh-tw.md",
+  "check_evidence.py",
+  "fixtures/actors-and-data.json",
+  "requirements.json",
+  "rubric.json",
+  "scenarios.json",
+  "sources.json",
+  "templates/checkpoint.json",
+  "templates/evidence.json",
+  "templates/fixture-bindings.json",
+  "templates/reviewer-record.json",
+  "tests/test_materials.py"
+]

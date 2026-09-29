@@ -1,974 +1,701 @@
 ---
-title: "Python 模块系统与项目组织"
-description: "从 JavaScript 开发者视角学习 Python 的模块系统、包管理和项目组织最佳实践"
+title: "容器、引用与修改"
+description: "从单个值走向任务数据：逐步理解列表、字典、元组和集合，分清缺失与 None、重新绑定与原地修改、共享引用与浅复制，并独立完成不会互相污染的学习计划。"
 ---
 
-## 1. 引言
+import { getContainerExample } from '@/lib/js2py-examples'
 
-### 为什么需要模块系统？
+## 1. 现在的问题：不再只有一个值
 
-在前端开发中，我们已经习惯了使用 ES6 模块或 CommonJS 来组织代码。Python 也有自己的模块系统，虽然语法不同，但核心概念是相似的。
+L01 中，我们用几个名称保存标题、时长，再生成一段文字。只有一项任务时，这样足够；如果有两项任务，每项又有标题、标签、负责人和时长，继续增加 `title_1`、`title_2`、`minutes_1` 很快就容易配错。
 
-**模块化的核心价值**
-- 代码复用：避免重复编写相同的功能
-- 命名空间隔离：避免变量名冲突
-- 项目组织：将相关功能组织在一起
-- 依赖管理：明确项目依赖关系
+我们需要两种组织方式：**把同一类条目放在一起，以及把同一条记录的不同字段放在一起。** 接下来还会遇到一个更隐蔽的问题：复制一个任务草稿后，为什么改了草稿的标签，原任务也变了？
 
-> 💡 **学习策略**：将 Python 的模块系统理解为 JavaScript 模块系统的"方言版本"
+这一章不以背容器 API 为目标。我们要能画出数据关系，解释修改沿着哪条引用发生，再决定哪里应该共享、哪里应该隔离。
 
-## 2. Python 模块系统基础
+### 本章契约
 
-### 2.1 什么是模块？
+| 项目 | 约定 |
+| --- | --- |
+| 前置能力 | 完成 L00、L01：运行脚本，解释名称绑定、基本值、比较、None、方法调用和格式化 |
+| 本章新学 | 列表、字典、元组、集合；位置与键；缺失与 None；原地修改、身份、浅复制及指定层级的隔离 |
+| 独立验收 | 从模板创建两份可独立编辑的学习计划，正确表达缺失字段，预测并修复共享引用造成的意外修改 |
+| 暂不要求 | `if`、循环、推导式、自定义函数、异常捕获、导入、类、类型注解、JSON、数据库或 Web 服务 |
 
-在 Python 中，任何 `.py` 文件都可以作为一个模块。这类似于 JavaScript 中的单个 `.js` 文件。
+我们会使用嵌套容器，但不会用还没教的 `for`、`def` 或 `import copy` 来跳过解释。当前只手工构造两条记录；处理任意数量的数据是下一章控制流的任务。
 
-<PythonEditor title="创建和使用模块" compare={true} canRun={false}>
-```javascript !! js
-// math_utils.js - JavaScript 模块
-export function add(a, b) {
-    return a + b;
-}
+### 文件与运行方式
 
-export function multiply(a, b) {
-    return a * b;
-}
+下载 [L02 独立示例与参考答案](/learning-assets/js2py/u02-containers.zip)，或按正文手写。解压后用编辑器打开 `u02-containers`，让终端位于这个文件夹。每个文件独立执行，不依赖前一个文件留下的变量。
 
-export const PI = 3.14159;
-
-// 默认导出
-export default function calculator() {
-    console.log("计算器已初始化");
-}
+```bash
+uv run --no-project --python 3.13 python lists.py
 ```
 
-```python !! py
-# math_utils.py - Python 模块
-def add(a, b):
-    """加法函数"""
-    return a + b
+后续只替换末尾文件名。本章继续使用 CPython 3.13 和内置功能，不安装第三方 Python 包、不创建工程配置。尚不能执行这条命令时，回到 [L00](/zh-cn/docs/js2py/module-00-python-introduction) 排查运行环境，不要同时学习另一套安装方式。
 
-def multiply(a, b):
-    """乘法函数"""
-    return a * b
+`errors/` 中是明确标注的失败实验；`solutions/` 中是先独立尝试再查看的参考，不需要一次运行所有文件。
 
-# 模块级变量（类似 JavaScript 的常量）
-PI = 3.14159
+## 2. 先决定数据表达什么，再选择容器
 
-# Python 没有默认导出的概念，但可以定义 __all__ 来控制 from module import * 的行为
-__all__ = ['add', 'multiply', 'PI']
-```
-</PythonEditor>
+下面只是学习地图，具体机制会逐节实验，**不是看完这张表就算学会了四种类型**。
 
-扩展阅读：[__all__](https://docs.python.org/3/tutorial/modules.html#importing-from-a-package)
+| 容器 | 当前适合表达的意思 | 访问方式 | 本章关注的限制 |
+| --- | --- | --- | --- |
+| `list` 列表 | 有顺序的一组任务或标题，允许重复 | 位置索引 | 可以修改；顺序改变后，同一个索引可能指向另一项 |
+| `dict` 字典 | 一条任务的有名字的字段 | 键，例如 `"title"` | 可以修改；不存在的键与值为 None 不相同 |
+| `tuple` 元组 | 固定位置含义的一组值，例如坐标 | 位置索引 | 元组自身的槽位不能替换，不代表内部对象都不可变 |
+| `set` 集合 | 不重复的标签、成员关系 | 成员检查，不按位置取值 | 无位置顺序保证；成员必须可哈希，稍后解释 |
 
-### 2.2 导入模块的方式
+这不是“列表只能装同类型，元组必须装不同类型”的语言规定。选择首先来自数据含义。为了可读性，我们的任务列表放任务、标签列表放字符串，不把所有类型随意混在一起。
 
-Python 提供了多种导入模块的方式，每种都有其适用场景。
+JS 的 Array、Object、Set 能帮助你产生直觉，但不能把 Python 容器当作换了拼写的同一套对象：越界、相等判断、缺失字段和集合成员都有差异。
 
-<PythonEditor title="模块导入方式对比" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript 导入方式
+## 3. 列表：位置、修改和返回值
 
-// 1. 命名导入
-import { add, multiply } from './math_utils.js';
+### 3.1 方括号里的条目，与读取条目的方括号
 
-// 2. 默认导入
-import calculator from './math_utils.js';
+`["Read names", "Practice values"]` 创建一个列表。逗号分隔条目，两个字符串仍然是两个值，不是拼接成了一段文字。
 
-// 3. 命名空间导入
-import * as MathUtils from './math_utils.js';
+创建之后，`titles[0]` 表示读取索引为 `0` 的条目。列表从 `0` 开始编号；两项列表的有效非负索引是 `0` 和 `1`。`titles[-1]` 从尾部读取最后一项，`-2` 是倒数第二项。负索引不是循环回绕，越过开头仍然会出错。
 
-// 4. 重命名导入
-import { add as addFunction } from './math_utils.js';
+`len(titles)` 返回条目个数，不是最后一个索引。空列表写作 `[]`，长度是 `0`，没有可读取的第一个条目。
 
-// 5. 混合导入
-import calculator, { add, multiply } from './math_utils.js';
+### 3.2 先说明这个实验会用到的操作
 
-console.log(add(5, 3));        // 8
-console.log(multiply(4, 2));   // 8
-console.log(MathUtils.PI);     // 3.14159
-```
+- `titles[1] = "Practice containers"` 替换现有位置上的条目，修改列表，不是重新绑定 `titles`。
+- `titles.append("Review")` 把**一个条目**追加到末尾，直接修改列表，返回 `None`，不是返回新列表。
+- `titles.pop(0)` 删除并返回索引 `0` 的条目；剩余条目的位置向前移动。不传索引时，`pop()` 取走最后一项。
+- `titles[0:1]` 是切片：从索引 `0` 开始，到索引 `1` 之前，得到一个新列表。右边界不包含在结果里。这里先观察外层列表，是否复制内部对象留到第 7 节。
+- `"Review" in titles` 检查是否有相等的条目，产生布尔值，不是取得索引，也不是执行循环体。
 
-```python !! py
-# Python 导入方式
+文件：`lists.py`。先预测，再运行。
 
-# 1. 导入整个模块
-import math_utils
+<Code language="python">{getContainerExample('lists.py')}</Code>
 
-# 2. 从模块导入特定函数/变量
-from math_utils import add, multiply, PI
+预期：
 
-# 3. 导入所有内容（不推荐）
-from math_utils import *
-
-# 4. 重命名导入
-from math_utils import add as add_function
-
-# 5. 重命名模块
-import math_utils as math
-
-# 6. 从模块导入并重命名
-from math_utils import add as add_func, multiply as mul
-
-print(add(5, 3))           // 8
-print(multiply(4, 2))      // 8
-print(PI)                  // 3.14159
-print(math_utils.add(10, 5))  // 15
-```
-</PythonEditor>
-
-**导入方式对比表**
-
-| 功能 | JavaScript | Python | 说明 |
-|------|------------|--------|------|
-| **导入整个模块** | `import * as Module` | `import module` | Python 更简洁 |
-| **命名导入** | `import { func }` | `from module import func` | 语法不同但概念相同 |
-| **重命名** | `import { func as newName }` | `from module import func as newName` | 两者都支持 |
-| **默认导入** | `import defaultFunc` | 无对应概念 | Python 没有默认导出 |
-| **命名空间导入** | `import * as Namespace` | `import module as namespace` | 概念相同 |
-
-### 2.3 模块的特殊变量
-
-Python 模块有一些特殊的变量，类似于 JavaScript 中的一些全局变量。
-
-<PythonEditor title="模块特殊变量" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript 模块特殊变量
-
-// __filename - 当前文件路径
-console.log(__filename);
-
-// __dirname - 当前目录路径
-console.log(__dirname);
-
-// module.exports - 导出对象
-console.log(module.exports);
-
-// require.main - 判断是否为直接运行的文件
-if (require.main === module) {
-    console.log("这个文件被直接运行");
-} else {
-    console.log("这个文件被作为模块导入");
-}
+```text
+2
+Read names
+Practice values
+['Read names', 'Practice containers', 'Review']
+None
+Read names
+['Practice containers', 'Review']
+['Practice containers']
+True
 ```
 
-```python !! py
-# Python 模块特殊变量
+输出整个列表时，你看到的是容器的表示形式：保留方括号，字符串条目显示引号。单独 `print(titles[0])` 则输出那个字符串本身，不带界定引号。它不是自动把 Python 数据转换成 JSON。
 
-# __file__ - 当前文件路径
-print(__file__)
+重点追踪三次变化：先替换第二项，再追加第三项，最后移除第一项。`pop(0)` 后的 `titles[0]` 已经是 `Practice containers`。所以“某项曾经在索引 0”不是这项任务永久的业务身份；后面做真正的后端时会另外学习标识符。
 
-# __name__ - 模块名称
-print(__name__)
+### 3.3 修改成功，不代表方法返回容器
 
-# __doc__ - 模块文档字符串
-print(__doc__)
+`result` 是 `None`，但列表已经追加成功。**方法的副作用和返回值必须分别看。** `append` 为修改服务，`pop` 则既修改又交还被移除的值，不能概括成“所有修改方法都返回 None”。
 
-# __all__ - 控制 from module import * 的行为
-print(__all__)
+故意失败的文件：`errors/append_rebind.py`。
 
-# 判断是否为直接运行的文件
-if __name__ == "__main__":
-    print("这个文件被直接运行")
-else:
-    print("这个文件被作为模块导入")
-```
-</PythonEditor>
+<Code language="python">{getContainerExample('errors/append_rebind.py')}</Code>
 
+先输出：
 
-### 2.4 运行模块：脚本 vs 模块
-
-这是 Python 初学者最容易困惑的地方之一：如何正确运行一个 Python 文件？
-
-**直接运行 vs 模块运行**
-
-| 运行方式 | 命令 | `sys.path` (搜索路径) | `__name__` | 适用场景 |
-|----------|------|-----------------------|------------|----------|
-| **脚本运行** | `python file.py` | 包含 `file.py` 所在的目录 | `"__main__"` | 简单的单文件脚本 |
-| **模块运行** | `python -m package.module` | 包含**当前工作目录** | `"__main__"` | 项目中的模块，需要引用同级或上级包时 |
-
-**常见错误示例**
-
-假设目录结构如下：
-```
-project/
-├── main.py
-└── utils.py
+```text
+None
 ```
 
-如果在 `main.py` 中有 `from . import utils` (相对导入)：
-- 运行 `python project/main.py` 会**报错**：`ImportError: attempted relative import with no known parent package`。
-- 运行 `python -m project.main` (在 `project` 的上一级目录) 会**成功**。
+然后在第 4 行产生 `TypeError`，说明 `NoneType` 不能被这样下标访问。第 2 行先修改了原列表，但接着把方法返回的 `None` 重新绑定给 `titles`；第 4 行读取的已经不是列表。
 
-> 💡 **最佳实践**：在开发项目时，习惯在项目根目录使用 `python -m package.module` 的方式运行代码，这样可以确保 `sys.path` 正确，且相对导入能正常工作。
+修复不是改成另一种索引，而是不要接收 `append` 的结果来覆盖列表名称：保留 `titles.append("Review")` 这次调用，再单独读取列表。也不要套用 JS Array `push` 的返回值经验，Python `append` 不返回新长度。
 
-## 3. 包（Package）系统
+### 3.4 越界不是得到 undefined
 
+故意失败的文件：`errors/list_index.py`。
 
-### 3.1 什么是包？
+<Code language="python">{getContainerExample('errors/list_index.py')}</Code>
 
-包是包含多个模块的目录，类似于 JavaScript 中的 npm 包或目录结构。
+它没有正常输出；第 2 行产生 `IndexError: list index out of range`，最后的 `finished` 不会执行。只有一项时，索引 `1` 已经越界。这与 JS 普通数组读取不存在位置时得到 `undefined` 不同。
 
-<PythonEditor title="包结构示例" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript 包结构示例
-// my-package/
-// ├── package.json
-// ├── index.js
-// ├── utils/
-// │   ├── math.js
-// │   └── string.js
-// └── tests/
-//     └── test.js
+索引赋值也不会帮你自动扩展列表：只有一项的列表不能用 `titles[1] = ...` 当作追加。当前需求是追加就用 `append`；需求是读取就先核对长度与位置。完整的条件保护会在 L03 学习，现在不要用还没教的 `if` 掩盖对索引的误解。
 
-// index.js - 主入口文件
-export { add, multiply } from './utils/math.js';
-export { capitalize, reverse } from './utils/string.js';
+切片的边界规则又不同：下面不会抛 IndexError，而是得到空列表。
 
-// utils/math.js
-export function add(a, b) {
-    return a + b;
-}
-
-export function multiply(a, b) {
-    return a * b;
-}
-
-// utils/string.js
-export function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-export function reverse(str) {
-    return str.split('').reverse().join('');
-}
+```python case=empty_slice
+items = ["Read"]
+print(items[2:5])
 ```
 
-```python !! py
-# Python 包结构示例
-# my_package/
-# ├── __init__.py          # 包初始化文件
-# ├── math_utils.py        # 数学工具模块
-# ├── string_utils.py      # 字符串工具模块
-# └── tests/
-#     ├── __init__.py
-#     └── test_math.py
-
-# __init__.py - 包初始化文件
-from .math_utils import add, multiply
-from .string_utils import capitalize, reverse
-
-__all__ = ['add', 'multiply', 'capitalize', 'reverse']
-
-# math_utils.py
-def add(a, b):
-    """加法函数"""
-    return a + b
-
-def multiply(a, b):
-    """乘法函数"""
-    return a * b
-
-# string_utils.py
-def capitalize(text):
-    """首字母大写"""
-    return text.capitalize()
-
-def reverse(text):
-    """字符串反转"""
-    return text[::-1]
-```
-</PythonEditor>
-
-### 3.2 包的导入和使用
-
-<PythonEditor title="包的导入和使用" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript 包的使用
-
-// 1. 从包导入特定函数
-import { add, multiply } from 'my-package';
-
-// 2. 导入整个包
-import * as MyPackage from 'my-package';
-
-// 3. 从子模块导入
-import { capitalize } from 'my-package/utils/string';
-
-console.log(add(5, 3));           // 8
-console.log(MyPackage.multiply(4, 2));  // 8
-console.log(capitalize("hello")); // "Hello"
+```text
+[]
 ```
 
-```python !! py
-# Python 包的使用
+不能把“切片得到空列表”泛化成“单项读取也总是安全”。本节依据：[列表入门](https://docs.python.org/3.13/tutorial/introduction.html#lists)、[列表方法](https://docs.python.org/3.13/tutorial/datastructures.html#more-on-lists)。
 
-# 1. 从包导入特定函数
-from my_package import add, multiply
+**停靠点 A：** 从两项列表开始，替换一项、追加一项、取走第一项。逐步写下列表内容、长度和方法返回值；不要只检查最后有没有异常。
 
-# 2. 导入整个包
-import my_package
+## 4. 字典：用键表达一条记录
 
-# 3. 从子模块导入
-from my_package.string_utils import capitalize
+### 4.1 为什么标题、时长、负责人不该靠位置猜
 
-print(add(5, 3))                    // 8
-print(my_package.multiply(4, 2))    // 8
-print(capitalize("hello"))          // "Hello"
+如果把一条任务写成 `["Read names", 25, None]`，读者需要记住每个位置的含义。字典可以写成 `{"title": "Read names", "minutes": 25, "owner": None}`，让字段名称直接出现在数据里。
+
+花括号包住键值对；每一对用冒号连接键与值，逗号分隔各对。本章用字符串作为键。`task["title"]` 取对应值；Python 字典不是通过 `task.title` 读取这个字段。
+
+把字典写成多行时，大括号已经界定了表达式，换行和缩进是排版帮助，不是下一章才会学习的控制流代码块。最后一对后面的逗号也允许保留。
+
+### 4.2 已有键被替换，新键被加入
+
+文件：`dictionaries.py`。
+
+<Code language="python">{getContainerExample('dictionaries.py')}</Code>
+
+预期：
+
+```text
+Read names
+{'title': 'Read names', 'minutes': 30, 'owner': None, 'done': False}
+None
+False
+3
+```
+
+本例先创建三个字段，接着修改已有的 `minutes`，再加入原先没有的 `done`。同一个键不会因此出现两份；对已有键赋值是替换其关联值。
+
+`task.pop("owner")` 删除该键并返回原来关联的值，所以这里得到 `None`。这是本例原本就存入的值，不是“删除没有成功”。之后 `"owner" in task` 为 `False`，字典只剩三个字段。
+
+注意同名方法的参数含义：列表 `pop(0)` 使用位置，字典 `pop("owner")` 使用键；字典的 `pop` 需要提供键，不是无参数删除最后一项的列表操作。
+
+Python 3.13 的字典保留插入顺序，替换已有键的值不会把它重新排到末尾。但保留顺序不等于按索引访问：`task[0]` 是查找整数键 `0`，不是读取第一个字段。字典的相等比较关注键和值，不以插入顺序是否相同为条件。
+
+到这里先使用明确的字符串键，不把 JS 对象的数字属性名转换规则套过来。Python 的键有自己的类型，例如整数键 `1` 与字符串键 `"1"` 不同；不是所有对象都能作键，集合章节会补上“可哈希”这个限制。
+
+## 5. 字段缺失与字段值为 None，必须分开
+
+### 5.1 方括号在表达一个较强的要求
+
+`task["owner"]` 表示“我要读取这个键关联的值”。键不存在时，不会自动生成一个 None 字段，而是抛 `KeyError`。
+
+故意失败的文件：`errors/missing_key.py`。
+
+<Code language="python">{getContainerExample('errors/missing_key.py')}</Code>
+
+没有正常输出；第 2 行的错误最后一行是 `KeyError: 'owner'`。先核对需求：这个字段必须存在，还是允许缺失？不能为消除异常就一律塞入 None，否则会改变数据表达的意思。
+
+### 5.2 `get` 的默认值只针对缺失
+
+`task.get("owner")` 在键缺失时返回 `None`，不会抛上述 KeyError。提供第二个参数，如 `task.get("owner", "unassigned")`，则只在**键缺失**时返回这个默认值。它不会把已存在的 None、空字符串、0 或 False 自动替换掉，也不会把默认值写回字典。
+
+因此，如果业务需要区分“没这个字段”和“字段明确为空”，仅检查 `get` 的结果是不是 None 不够，还要检查键是否存在。这里先分别打印这些事实，不提前写条件分支。
+
+文件：`missing_values.py`。
+
+<Code language="python">{getContainerExample('missing_values.py')}</Code>
+
+预期：
+
+```text
+True
+None
+False
+None
+None
+unassigned
+[]
+False
+```
+
+| 检查 | 为什么得到这个结果 |
+| --- | --- |
+| `"owner" in task` | 键已经存在，虽然值是 None |
+| `task.get("owner")` | 返回已经存入的 None |
+| `"deadline" in task` | 没有这个键 |
+| `task.get("deadline")` | 缺失时默认返回 None，单看结果与上面无法区分 |
+| `task.get("owner", "unassigned")` | 键存在，不用默认值 |
+| `task.get("deadline", "unassigned")` | 键缺失，返回默认值 |
+| 最后再检查 `deadline` | 仍然缺失，`get` 不会插入默认字段 |
+
+输出 `[]` 的那一行是两个方括号字符夹着空标题，**不是打印了一个空列表**。它证明空字符串也没有被 `get` 的默认值替换。这沿用 L01 让空白可见的方法。
+
+`in` 对字典检查的是**键**，不是所有值。`"Read" in {"title": "Read"}` 为 False，因为这里的键是 `title`。选择不同容器时，必须重新确认成员检查究竟查什么。
+
+服务端以后也可能需要区分“请求没有提供字段”和“明确要求清空字段”；现在只是建立数据表达基础，没有开始讲接口更新协议。依据：[字典类型与 get](https://docs.python.org/3.13/library/stdtypes.html#mapping-types-dict)。
+
+## 6. 共享引用：改名称，还是改对象？
+
+### 6.1 回到 L01 没有提前展开的问题
+
+L01 中两个名称绑定同一个整数后，重新赋值一个名称不会改变另一个名称。但列表可以被原地修改。赋值规则没有变，变的是我们现在对对象做的操作。
+
+本节将 `is` 从 L01 的 None 检查扩展为一个实验工具：判断两边是否是**同一个对象**。不需要查看地址或记忆 `id()` 数字。
+
+文件：`aliases.py`。
+
+<Code language="python">{getContainerExample('aliases.py')}</Code>
+
+预期：
+
+```text
+True
+['todo', 'review']
+['todo', 'review']
+['done']
+False
+```
+
+执行 `alias = original` 后，只有一个列表，两个名称都能访问它。`alias.append("review")` 通过其中一个名称修改这个列表，所以从 `original` 看也能看到新条目。并不是 Python 把一次修改广播到了两个副本，因为本来就没有两个副本。
+
+随后 `alias = ["done"]` 创建另一个列表，并让 `alias` 改为指向它。`original` 仍指向原来的列表；重新绑定一个名称，不会把原列表里的条目重置掉。
+
+| 写法 | 改变的对象或关系 |
+| --- | --- |
+| `alias = other` | 改变名称 `alias` 的绑定 |
+| `alias[0] = value` | 修改 `alias` 当前指向的列表中的一个位置 |
+| `alias.append(value)` | 修改 `alias` 当前指向的列表，新增一个条目 |
+| `task["tags"] = new_tags` | 修改字典的一个关联，让这个键指向另一份值 |
+
+这也是为什么“赋值左边有没有下标”会影响理解，不能把所有带 `=` 的行都解释成同一种名称重新绑定。
+
+### 6.2 值相等，不等于同一个容器
+
+两个内容相同、分别创建的列表可以 `==` 相等，同时 `is` 为 False。与 JS 对照时，不能把 Python `==` 直接当成 JS 对数组使用 `===`。
+
+下面只做静态语法对照；本章以本地 CPython 和独立示例验收，不依赖网页运行器。
+
+<PythonEditor title="容器的内容与身份" compare={true} canRun={false}>
+```javascript case=container_equality
+const left = ["python"];
+const right = ["python"];
+const alias = left;
+console.log(left === right);
+console.log(alias === left);
+```
+
+```python case=container_equality
+left = ["python"]
+right = ["python"]
+alias = left
+print(left == right)
+print(left is right)
+print(alias is left)
 ```
 </PythonEditor>
 
-## 4. 项目组织最佳实践
+Python 输出：
 
-### 4.1 项目目录结构
-
-一个良好的项目结构对于代码维护和团队协作至关重要。
-
-<PythonEditor title="项目目录结构对比" compare={true} canRun={false} height={800}>
-```javascript !! js
-// JavaScript 项目结构
-// my-project/
-// ├── package.json
-// ├── README.md
-// ├── .gitignore
-// ├── src/
-// │   ├── index.js
-// │   ├── utils/
-// │   │   ├── math.js
-// │   │   └── string.js
-// │   ├── components/
-// │   │   └── Calculator.js
-// │   └── services/
-// │       └── api.js
-// ├── tests/
-// │   ├── math.test.js
-// │   └── string.test.js
-// ├── docs/
-// │   └── API.md
-// └── dist/
-//     └── bundle.js
-
-// src/index.js
-import { Calculator } from './components/Calculator.js';
-import { add, multiply } from './utils/math.js';
-
-export { Calculator, add, multiply };
+```text
+True
+False
+True
 ```
 
-```python !! py
-# Python 项目结构
-# my_project/
-# ├── setup.py              # 包安装配置
-# ├── requirements.txt      # 依赖管理
-# ├── README.md
-# ├── .gitignore
-# ├── my_project/
-# │   ├── __init__.py
-# │   ├── main.py
-# │   ├── utils/
-# │   │   ├── __init__.py
-# │   │   ├── math_utils.py
-# │   │   └── string_utils.py
-# │   ├── components/
-# │   │   ├── __init__.py
-# │   │   └── calculator.py
-# │   └── services/
-# │       ├── __init__.py
-# │       └── api.py
-# ├── tests/
-# │   ├── __init__.py
-# │   ├── test_math.py
-# │   └── test_string.py
-# ├── docs/
-# │   └── api.md
-# └── build/
-#     └── dist/
+JS 输出：
 
-# my_project/__init__.py
-from .main import main
-from .components.calculator import Calculator
-from .utils.math_utils import add, multiply
-
-__all__ = ['main', 'Calculator', 'add', 'multiply']
-```
-</PythonEditor>
-
-### 4.2 依赖管理对比
-
-```json
-// package.json (JavaScript)
-{
-  "name": "my-project",
-  "version": "1.0.0",
-  "description": "A sample project",
-  "main": "src/index.js",
-  "scripts": {
-    "start": "node src/index.js",
-    "test": "jest",
-    "build": "webpack",
-    "dev": "nodemon src/index.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "axios": "^1.6.0",
-    "lodash": "^4.17.21"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "eslint": "^8.55.0",
-    "webpack": "^5.89.0"
-  },
-  "keywords": ["javascript", "nodejs"],
-  "author": "Your Name",
-  "license": "MIT"
-}
+```text
+false
+true
 ```
 
-```python
-# setup.py (Python)
-from setuptools import setup, find_packages
+本章内置容器的内容比较与对象身份是两个问题：内容可以碰巧相同，也可以在后续修改后变得不同；`is` 用来确认是否共享同一对象。不要因此回到 L01，用 `is` 比较整数或字符串内容。参见 [Python 比较规则](https://docs.python.org/3.13/reference/expressions.html#comparisons)和 [JS 严格相等](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Strict_equality)。
 
-setup(
-    name="my-project",
-    version="1.0.0",
-    description="A sample Python project",
-    author="Your Name",
-    author_email="your.email@example.com",
-    packages=find_packages(),
-    install_requires=[
-        "flask>=2.3.0",
-        "requests>=2.31.0",
-        "pandas>=2.1.0",
-    ],
-    extras_require={
-        "dev": [
-            "pytest>=7.4.0",
-            "black>=23.0.0",
-            "flake8>=6.0.0",
-        ],
-    },
-    python_requires=">=3.8",
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-    ],
-)
+## 7. 复制：必须说清复制到哪一层
 
-# requirements.txt
-flask>=2.3.0
-requests>=2.31.0
-pandas>=2.1.0
+### 7.1 先看只有字符串条目的列表
 
-# requirements-dev.txt
--r requirements.txt
-pytest>=7.4.0
-black>=23.0.0
-flake8>=6.0.0
+`original.copy()` 创建一个新的外层列表。这与 `draft = original` 不同。列表的完整切片 `original[:]` 也创建浅复制；我们先统一用明确的 `.copy()`。
+
+文件：`list_copy.py`。
+
+<Code language="python">{getContainerExample('list_copy.py')}</Code>
+
+预期：
+
+```text
+['read']
+['read', 'review']
+False
 ```
 
-## 5. 实际项目示例
+追加发生在新列表上，原列表没有增加条目。字符串条目本身不可变，这个例子暂时没有暴露内部共享的风险；不能据此认定 `.copy()` 会递归复制任意结构。
 
-### 5.1 创建一个简单的计算器包
+### 7.2 新字典，旧的内层列表
 
-让我们创建一个完整的计算器包，展示模块系统的实际应用。
+**浅复制**的意思是新建外层容器，但其中保存的条目或值仍引用原来的对象。字典的 `.copy()` 也遵循这个原则。
 
-<PythonEditor title="计算器包示例" compare={true}>
-```javascript !! js
-// calculator.js - JavaScript 版本
-class Calculator {
-    constructor() {
-        this.history = [];
-    }
-    
-    add(a, b) {
-        const result = a + b;
-        this.history.push(`${a} + ${b} = ${result}`);
-        return result;
-    }
-    
-    subtract(a, b) {
-        const result = a - b;
-        this.history.push(`${a} - ${b} = ${result}`);
-        return result;
-    }
-    
-    multiply(a, b) {
-        const result = a * b;
-        this.history.push(`${a} * ${b} = ${result}`);
-        return result;
-    }
-    
-    divide(a, b) {
-        if (b === 0) {
-            throw new Error("除数不能为零");
-        }
-        const result = a / b;
-        this.history.push(`${a} / ${b} = ${result}`);
-        return result;
-    }
-    
-    getHistory() {
-        return this.history;
-    }
-    
-    clearHistory() {
-        this.history = [];
-    }
-}
+现在让任务的 `tags` 字段保存一个列表。`draft["tags"]` 先从字典取出这个列表，后面的 `.append(...)` 再修改该列表；不是向字典新增一个名叫 append 的字段。
 
-// 工具函数
-function validateNumber(num) {
-    return typeof num === 'number' && !isNaN(num);
-}
+文件：`shallow_copy.py`。
 
-function formatResult(result) {
-    return `结果: ${result}`;
-}
+<Code language="python">{getContainerExample('shallow_copy.py')}</Code>
 
-const calc = new Calculator()
-console.log(calc.add(10, 5))
-console.log(calc.multiply(4, 3))
-console.log("计算历史:", calc.getHistory())
+预期：
+
+```text
+False
+True
+Read
+['python', 'basics']
+Practice
 ```
 
-```python !! py
-# calculator.py - Python 版本
-class Calculator:
-    """计算器类，支持基本运算和历史记录"""
-    
-    def __init__(self):
-        self.history = []
-    
-    def add(self, a, b):
-        """加法运算"""
-        result = a + b
-        self.history.append(f"{a} + {b} = {result}")
-        return result
-    
-    def subtract(self, a, b):
-        """减法运算"""
-        result = a - b
-        self.history.append(f"{a} - {b} = {result}")
-        return result
-    
-    def multiply(self, a, b):
-        """乘法运算"""
-        result = a * b
-        self.history.append(f"{a} * {b} = {result}")
-        return result
-    
-    def divide(self, a, b):
-        """除法运算"""
-        if b == 0:
-            raise ValueError("除数不能为零")
-        result = a / b
-        self.history.append(f"{a} / {b} = {result}")
-        return result
-    
-    def get_history(self):
-        """获取计算历史"""
-        return self.history
-    
-    def clear_history(self):
-        """清空计算历史"""
-        self.history = []
+画出关系，比背“浅拷贝”三个字更重要：
 
-# 工具函数
-def validate_number(num):
-    """验证数字"""
-    return isinstance(num, (int, float)) and not isinstance(num, bool)
+| 执行阶段 | 外层字典 | `tags` 指向的列表 |
+| --- | --- | --- |
+| 创建 `original` | 一份 | 一份，内容是 `python` |
+| `draft = original.copy()` | 两份不同的字典 | 两个字典仍共享同一份列表 |
+| 改 `draft["title"]` | 只替换草稿字典中的关联 | 不涉及标签列表 |
+| 改 `draft["tags"]` 取得的列表 | 外层仍是两份 | 共享列表被追加，因此原任务也看到新标签 |
 
-def format_result(result):
-    """格式化结果"""
-    return f"结果: {result}"
+给 `draft["title"]` 赋新字符串，不会修改原字典的 `title` 关联。可是两次下标访问 `draft["tags"]`、`original["tags"]` 取得的是同一个可变列表。这是两种不同的操作对象，不是字典复制“有时成功、有时失效”。
 
-# 如果直接运行此文件
-if __name__ == "__main__":
-    calc = Calculator()
-    print(calc.add(10, 5))
-    print(calc.multiply(4, 3))
-    print("计算历史:", calc.get_history())
-```
-</PythonEditor>
+### 7.3 按本章数据形状，隔离将要修改的层
 
-### 5.2 使用计算器包
+当前数据形状已知：外层是字典，只有 `tags` 是我们会修改的内层列表，列表中都是不可变字符串。因此先复制字典，再复制该字段的列表，就能满足当前编辑需求。
 
-<PythonEditor title="使用计算器包" compare={true} canRun={false} height={700}>
-```javascript !! js
-// main.js - 使用计算器
-import Calculator, { validateNumber, formatResult } from './calculator.js';
+文件：`isolated_copy.py`。
 
-// 创建计算器实例
-const calc = new Calculator();
+<Code language="python">{getContainerExample('isolated_copy.py')}</Code>
 
-// 基本运算
-console.log(formatResult(calc.add(10, 5)));      // 结果: 15
-console.log(formatResult(calc.subtract(10, 3))); // 结果: 7
-console.log(formatResult(calc.multiply(4, 6)));  // 结果: 24
-console.log(formatResult(calc.divide(20, 4)));   // 结果: 5
+预期：
 
-// 查看历史记录
-console.log("计算历史:");
-calc.getHistory().forEach(record => {
-    console.log(`  ${record}`);
-});
-
-// 错误处理
-try {
-    calc.divide(10, 0);
-} catch (error) {
-    console.error("错误:", error.message);
-}
-
-// 验证数字
-console.log(validateNumber(42));     // true
-console.log(validateNumber("42"));   // false
-console.log(validateNumber(NaN));    // false
+```text
+Read
+['python']
+Practice
+['python', 'basics']
+False
 ```
 
-```python !! py
-# main.py - 使用计算器
-from calculator import Calculator, validate_number, format_result
+关键是 `draft["tags"] = original["tags"].copy()`：右边新建列表，左边只替换草稿字典中的 `tags` 关联。修改之前就切断了这条不希望共享的路径。
 
-def main():
-    # 创建计算器实例
-    calc = Calculator()
-    
-    # 基本运算
-    print(format_result(calc.add(10, 5)))      # 结果: 15
-    print(format_result(calc.subtract(10, 3))) # 结果: 7
-    print(format_result(calc.multiply(4, 6)))  # 结果: 24
-    print(format_result(calc.divide(20, 4)))   # 结果: 5.0
-    
-    # 查看历史记录
-    print("计算历史:")
-    for record in calc.get_history():
-        print(f"  {record}")
-    
-    # 错误处理
-    try:
-        calc.divide(10, 0)
-    except ValueError as error:
-        print(f"错误: {error}")
-    
-    # 验证数字
-    print(validate_number(42))     # True
-    print(validate_number("42"))   # False
-    print(validate_number(3.14))   # True
+**这不是通用深复制函数。** 如果标签条目以后变成可变字典，或增加另一份可变字段，这段代码不保证它们也独立。应重新画关系、明确哪些层会修改。也不是所有共享都错误：看板和任务详情有时就应该引用同一份任务。
 
-if __name__ == "__main__":
-    main()
-```
-</PythonEditor>
+Python 的 `copy` 模块提供浅复制、深复制等工具，但它需要后面的模块知识，深复制的边界也要具体分析。本章不要求复制一行 `import copy` 后把机制当作已经解释完毕。参见 [copy 模块对复制语义的说明](https://docs.python.org/3.13/library/copy.html)。
 
-## 6. 高级模块特性
+**停靠点 B：** 合上代码，用两个字典和一个列表画出失败原因，再补上第二个列表画出修复。能指出哪条关联被替换，才算理解，而不是记住两行 `.copy()`。
 
-### 6.1 相对导入
+## 8. 一个很容易漏掉的共享来源：列表重复
 
-Python 支持相对导入，类似于 JavaScript 中的相对路径导入。
+`["todo"] * 2` 是重复列表条目，不是做数值乘法，也不是把每个条目递归复制。尤其当被重复的条目本身是可变容器时，要检查引用。
 
-<PythonEditor title="相对导入示例" compare={true} canRun={false} height={500}>
-```javascript !! js
-// JavaScript 相对导入
-// project/
-// ├── src/
-// │   ├── utils/
-// │   │   ├── math.js
-// │   │   └── string.js
-// │   ├── components/
-// │   │   └── calculator.js
-// │   └── main.js
+`[[]] * 2` 先创建一个内层空列表，再把指向它的引用重复两次；不是分别执行两次 `[]` 创建。
 
-// src/components/calculator.js
-import { add, multiply } from '../utils/math.js';
-import { capitalize } from '../utils/string.js';
+文件：`repeated_rows.py`。
 
-export class Calculator {
-    constructor() {
-        this.math = { add, multiply };
-        this.string = { capitalize };
-    }
-}
+<Code language="python">{getContainerExample('repeated_rows.py')}</Code>
 
-// src/main.js
-import { Calculator } from './components/calculator.js';
+预期：
+
+```text
+True
+[['Read'], ['Read']]
 ```
 
-```python !! py
-# Python 相对导入
-# project/
-# ├── my_package/
-# │   ├── utils/
-# │   │   ├── __init__.py
-# │   │   ├── math_utils.py
-# │   │   └── string_utils.py
-# │   ├── components/
-# │   │   ├── __init__.py
-# │   │   └── calculator.py
-# │   └── main.py
+程序没有抛异常，但如果需求是两行独立数据，行为已经错了。当前只需要两行，可以明确创建两个不同的空列表：
 
-# my_package/components/calculator.py
-from ..utils.math_utils import add, multiply
-from ..utils.string_utils import capitalize
-
-class Calculator:
-    def __init__(self):
-        self.math = {'add': add, 'multiply': multiply}
-        self.string = {'capitalize': capitalize}
-
-# my_package/main.py
-from .components.calculator import Calculator
-```
-</PythonEditor>
-
-### 6.2 动态导入
-
-Python 支持动态导入模块，类似于 JavaScript 的动态 import()。
-
-<PythonEditor title="动态导入示例" compare={true} canRun={false} height={600}>
-```javascript !! js
-// JavaScript 动态导入
-async function loadModule(moduleName) {
-    try {
-        const module = await import(`./modules/${moduleName}.js`);
-        return module;
-    } catch (error) {
-        console.error(`无法加载模块 ${moduleName}:`, error);
-        return null;
-    }
-}
-
-// 使用动态导入
-async function main() {
-    const mathModule = await loadModule('math');
-    if (mathModule) {
-        console.log(mathModule.add(5, 3));
-    }
-    
-    const stringModule = await loadModule('string');
-    if (stringModule) {
-        console.log(stringModule.capitalize('hello'));
-    }
-}
-
-main();
+```python case=independent_rows
+rows = [[], []]
+print(rows[0] is rows[1])
+rows[0].append("Read")
+print(rows)
 ```
 
-```python !! py
-# Python 动态导入
-import importlib
-import sys
-
-def load_module(module_name):
-    """动态加载模块"""
-    try:
-        module = importlib.import_module(f"modules.{module_name}")
-        return module
-    except ImportError as error:
-        print(f"无法加载模块 {module_name}: {error}")
-        return None
-
-# 使用动态导入
-def main():
-    math_module = load_module('math_utils')
-    if math_module:
-        print(math_module.add(5, 3))
-    
-    string_module = load_module('string_utils')
-    if string_module:
-        print(string_module.capitalize('hello'))
-
-if __name__ == "__main__":
-    main()
-```
-</PythonEditor>
-
-
-### 6.3 循环导入陷阱 (Circular Imports)
-
-循环导入是指两个或多个模块相互导入对方，形成一个闭环。这在 Python 中会导致 `ImportError` 或 `AttributeError`，因为模块在导入时会执行顶层代码。
-
-**问题示例**
-
-```python
-# a.py
-from b import func_b
-
-def func_a():
-    func_b()
-
-# b.py
-from a import func_a
-
-def func_b():
-    func_a()
+```text
+False
+[['Read'], []]
 ```
 
-**解决方案**
+两个空列表起初内容相等，但身份不同。未来用循环或推导式创建任意数量的独立列表时，会沿用同一条原则；本章不提前使用这些语法。官方 FAQ 也专门解释了[多维列表的共享问题](https://docs.python.org/3.13/faq/programming.html#how-do-i-create-a-multidimensional-list)。
 
-1.  **重构代码**：将共享的依赖提取到第三个模块（推荐）。
-2.  **延迟导入**：将导入语句移到函数/方法内部（仅在需要时导入）。
+## 9. 元组：固定的是槽位，不是整个对象图
 
-```python
-# b.py (修复后)
-def func_b():
-    # 延迟导入，打破循环
-    from a import func_a
-    func_a()
+列表适合需要增删条目的序列。有些数据由固定位置承载含义，例如二维坐标；元组可以表达这组槽位不被原地增删或替换。
+
+`(2, 5)` 是两个元素的元组。单元素元组必须保留逗号：`("todo",)`；`("todo")` 只有用于分组的括号，结果仍是字符串。空元组写作 `()`。可以按索引读取、用 `len` 计数，但没有列表的 `append`。
+
+文件：`tuples.py`。
+
+<Code language="python">{getContainerExample('tuples.py')}</Code>
+
+预期：
+
+```text
+2
+1
+<class 'str'>
+<class 'tuple'>
+('task-1', ['python', 'basics'])
 ```
 
-## 7. 练习题
+最后的 `record` 有两个槽位：字符串和列表。`record[1].append(...)` 先取出列表，再修改列表；元组的第二个槽位仍然指向原来的那个列表，所以没有违反元组自身不可变的规则。
 
+把“元组不可变”理解为“里面每层都深度只读”会出错。对于本章这个例子，固定的是元组持有的引用，不是被引用列表的内容。
 
-### 练习 1：创建工具包
+故意失败的文件：`errors/tuple_assignment.py`。
 
-创建一个包含数学工具和字符串工具的工具包。
+<Code language="python">{getContainerExample('errors/tuple_assignment.py')}</Code>
 
-<PythonEditor title="练习题 1：工具包" compare={true} canRun={false} height={900}>
-```javascript !! js
-// 创建以下文件结构：
-// my-utils/
-// ├── package.json
-// ├── src/
-// │   ├── index.js
-// │   ├── math.js
-// │   └── string.js
-// └── test/
-//     └── test.js
+它没有正常输出；第 2 行产生 `TypeError`，指出 tuple 不支持条目赋值。这次企图替换的是元组自己的槽位，而不是修改从槽位取出的列表。
 
-// src/math.js
-export function add(a, b) {
-    return a + b;
-}
+如果需求是得到新坐标，可以创建新的元组，例如把名称重新绑定到 `(9, position[1])`；如果需求本来就需要频繁替换槽位，应重新考虑列表是否更适合。不能只为让异常消失而盲目换类型。参见[元组与序列](https://docs.python.org/3.13/tutorial/datastructures.html#tuples-and-sequences)。
 
-export function multiply(a, b) {
-    return a * b;
-}
+## 10. 集合：关心成员，而不是条目位置
 
-export function factorial(n) {
-    if (n <= 1) return 1;
-    return n * factorial(n - 1);
-}
+### 10.1 用“还缺哪些标签”建立动机
 
-// src/string.js
-export function reverse(str) {
-    return str.split('').reverse().join('');
-}
+一项任务的标签可能重复录入。如果我们只关心标签是否存在，而不要求记录先后顺序和出现次数，集合可以表达“不重复的成员”。
 
-export function isPalindrome(str) {
-    const clean = str.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return clean === clean.split('').reverse().join('');
-}
+非空集合可以写成 `{"python", "basics"}`；它使用花括号，但没有字典的键值冒号。**空花括号 `{}` 是字典，空集合必须写 `set()`。** `set` 是内置功能，不需要导入。
 
-// src/index.js
-export * from './math.js';
-export * from './string.js';
+先说明本例要用的操作：
+
+| 操作 | 本例的意思 |
+| --- | --- |
+| `tag in tags` | 检查成员是否存在，产生布尔值 |
+| `tags.add(tag)` | 加入一个成员，已有则不增加重复项 |
+| `tags.discard(tag)` | 移除一个成员；不存在时也不因此报 KeyError |
+| `required - tags` | 新集合：要求有、但当前没有的成员 |
+| `required & tags` | 新集合：两边都有的成员 |
+| `required \| tags` | 新集合：两边所有不重复成员 |
+
+后三种运算不会在本例中修改原集合。`add`、`discard` 则原地修改，返回 None，不是返回新集合。
+
+集合没有列表那样的位置顺序保证，也不支持 `tags[0]`。为了让教材输出稳定，我们调用内置 `sorted(tags)` 得到一份排好序的**列表**再打印。当前只有小写 ASCII 字符串，可以用普通字母顺序预测结果；`sorted` 不会给原集合建立位置编号，也不修改它。
+
+文件：`sets.py`。
+
+<Code language="python">{getContainerExample('sets.py')}</Code>
+
+预期：
+
+```text
+2
+True
+['basics', 'practice', 'python']
+['sql']
+['python']
+['basics', 'practice', 'python', 'sql']
+0
 ```
 
-```python !! py
-# 创建以下文件结构：
-# my_utils/
-# ├── setup.py
-# ├── my_utils/
-# │   ├── __init__.py
-# │   ├── math_utils.py
-# │   └── string_utils.py
-# └── tests/
-#     └── test_utils.py
+开头写了两次 `python`，但它是同一个成员值，因此长度为 2。不要靠打印原集合得到的偶然顺序安排界面，也不要用集合保存需要保留重复和先后关系的学习记录。集合适合哪种业务含义，比背三个符号重要。
 
-# my_utils/math_utils.py
-def add(a, b):
-    """加法函数"""
-    return a + b
+### 10.2 为什么列表不能作为集合成员？
 
-def multiply(a, b):
-    """乘法函数"""
-    return a * b
+集合成员和字典键需要**可哈希**。在这里先理解必要约束：对象要能提供生命周期内稳定的哈希值，并且相等的对象必须具有相同哈希值，容器才能按相应规则组织和查找成员。我们不需要计算这些数字，也不需要提前实现类的方法。
 
-def factorial(n):
-    """阶乘函数"""
-    if n <= 1:
-        return 1
-    return n * factorial(n - 1)
+本章使用的 `str`、`int` 可以作为键或集合成员；`list`、`dict`、`set` 不可以。元组只有在每个元素都可哈希时才可哈希，所以“元组自身不可变”还不足以保证带列表的元组能放进集合。不要把“不可变”和“可哈希”当成完全等价的术语。
 
-# my_utils/string_utils.py
-def reverse(text):
-    """字符串反转"""
-    return text[::-1]
+故意失败的文件：`errors/unhashable_member.py`。
 
-def is_palindrome(text):
-    """判断是否为回文"""
-    import re
-    clean = re.sub(r'[^a-z0-9]', '', text.lower())
-    return clean == clean[::-1]
+<Code language="python">{getContainerExample('errors/unhashable_member.py')}</Code>
 
-# my_utils/__init__.py
-from .math_utils import add, multiply, factorial
-from .string_utils import reverse, is_palindrome
+没有正常输出；第 2 行产生 `TypeError: unhashable type: 'list'`。代码尝试加入的是列表 `["python"]`，不是字符串 `"python"`。如果需求是一个标签，传入那个字符串即可；不要为了过关随意把任意对象变成文本。
 
-__all__ = ['add', 'multiply', 'factorial', 'reverse', 'is_palindrome']
-```
-</PythonEditor>
+同样，拿列表作字典键也会得到 TypeError。这与 JS Set 可以按对象身份保存数组对象的用法不同，不能把“JS 能放进去”当作 Python 的许可。
 
-### 练习 2：模块导入练习
+另外，成员去重依赖相等关系，不只是外观拼写。L01 已经解释过 `True == 1`，因此集合不会把这两个值当成两个独立成员；字典也不能靠它们区分两个不同键。本章用同类字符串标签，避免把布尔状态和编号混为一类。依据：[集合类型](https://docs.python.org/3.13/library/stdtypes.html#set-types-set-frozenset)、[hashable 术语](https://docs.python.org/3.13/glossary.html#term-hashable)、[sorted](https://docs.python.org/3.13/library/functions.html#sorted)。
 
-<PythonEditor title="练习题 2：模块导入" compare={true} canRun={false}>
-```javascript !! js
-// 练习不同的导入方式
-import { add, multiply } from './math.js';
-import * as MathUtils from './math.js';
-import { add as addFunction } from './math.js';
+**停靠点 C：** 分别解释“元组里为什么还能有变化”和“集合为什么不能按第 0 项读取”。然后为“有顺序的任务”和“不重复的标签”各选一种容器，并说出选择理由。
 
-console.log(add(5, 3));           // 8
-console.log(MathUtils.multiply(4, 2));  // 8
-console.log(addFunction(10, 5));  // 15
+## 11. 连起来：两张独立任务卡，以及有意共享的看板
+
+现在组合已经学过的知识：模板提供默认值，两份任务各自拥有可编辑标签，看板保存这两份任务。
+
+`board[0]["title"]` 分两步读取：先从列表取得第一份任务字典，再从该字典取得标题。`board[0]["minutes"] = 40` 则修改这个任务字典的字段，并不替换看板列表。
+
+文件：`task_board.py`。
+
+<Code language="python">{getContainerExample('task_board.py')}</Code>
+
+运行：
+
+```bash
+uv run --no-project --python 3.13 python task_board.py
 ```
 
-```python !! py
-# 练习不同的导入方式
-from my_utils import add, multiply
-import my_utils
-from my_utils import add as add_function
+预期：
 
-print(add(5, 3))              // 8
-print(my_utils.multiply(4, 2))  // 8
-print(add_function(10, 5))    // 15
+```text
+Tasks: 2
+Read names
+['python', 'basics']
+['python']
+['python']
+True
+Mina
+40
+25
 ```
-</PythonEditor>
 
-## 8. 总结
+### 哪些关系独立，哪些关系有意共享
 
-### 关键概念回顾
+| 关系 | 设计意图 |
+| --- | --- |
+| 模板、第一份任务、第二份任务的外层字典 | 三份不同的字典，改标题或时长不污染模板 |
+| 三个字典的 `tags` 列表 | 三份不同的列表，改一份标签不影响另两份 |
+| `board[0]` 与 `first` | 同一份任务字典，从看板修改后，`first` 应看到变化 |
+| `board[1]` 与 `second` | 同一份任务字典，不是在放入列表时自动复制 |
 
-1. **模块**：任何 `.py` 文件都可以作为模块使用
-2. **包**：包含 `__init__.py` 的目录，可以包含多个模块
-3. **导入方式**：`import`、`from ... import`、`as` 重命名
-4. **特殊变量**：`__name__`、`__file__`、`__all__`
-5. **项目组织**：合理的目录结构和依赖管理
+所以最后两个数字是 `40` 和 `25`：从看板修改第一份任务，`first` 看到 40，而模板保留 25。我们不是追求所有对象永远互不关联，而是在设计上区分**需要共享的任务本身**与**不该共享的草稿标签**。
 
-### JavaScript vs Python 对比总结
+### 修改两次，验证关系而不只是看输出
 
-| 概念 | JavaScript | Python | 说明 |
-|------|------------|--------|------|
-| **模块文件** | `.js` 文件 | `.py` 文件 | 都是单个文件作为模块 |
-| **包** | 目录 + `package.json` | 目录 + `__init__.py` | Python 需要 `__init__.py` |
-| **导入语法** | `import { func }` | `from module import func` | 语法不同但概念相同 |
-| **默认导出** | `export default` | 无对应概念 | Python 没有默认导出 |
-| **相对导入** | `../utils/math` | `..utils.math_utils` | 都支持相对路径 |
-| **动态导入** | `import()` | `importlib.import_module()` | 都支持运行时导入 |
+1. 把给第一份任务追加的 `"basics"` 改为 `"review"`。只应改变第一份任务标签，模板和第二份仍只有 `python`。
+2. 把末尾赋给 `board[0]["minutes"]` 的 `40` 改为 `55`。`first` 应看到 55，模板仍是 25。
 
-### 下一步学习
+这里没有持久化：重新运行时，脚本从源码重新构造这些对象。它不是数据库，也没有多用户或请求并发隔离。那些服务端问题需要后面的独立章节，不能拿本例的 `.copy()` 当作生产系统的数据安全方案。
 
-在下一个模块中，我们将学习：
-- 面向对象编程（类、继承、多态）
-- 函数式编程特性
-- 装饰器和元编程
-- 特殊方法（魔术方法）
+**停靠点 D：** 在纸上画出三个字典、三个标签列表和一个看板列表。用箭头表示关系，解释为什么有些修改应当可见，有些修改必须被隔离。
 
-这些概念将帮助你更深入地理解 Python 的编程范式，并能够编写更复杂和优雅的代码。 
+## 12. 分级练习：预测、修复、独立建模
+
+答案默认折叠。不要只运行下载的答案；要能解释为什么自己的程序满足要求。
+
+### 练习 A：谁会看到追加？
+
+```python case=exercise_alias
+original = ["read"]
+alias = original
+draft = original.copy()
+alias.append("review")
+print(original)
+print(draft)
+print(alias is original)
+```
+
+先写出输出，再画出有几个列表、每个名称指向哪一个。最后保存成 `prediction.py`，使用本章同样的命令验证。
+
+<details>
+<summary>完成预测与关系图后查看解释</summary>
+
+```text
+['read', 'review']
+['read']
+True
+```
+
+`original` 与 `alias` 共享一份列表；`draft` 是第二份列表。追加只改第一份列表。新外层列表中的原始字符串条目不可变，因此本例不需要复制到更深层。
+
+</details>
+
+### 练习 B：没有报错，但草稿污染了原记录
+
+这是**行为不满足需求**的起点，不是解释器异常：
+
+```python case=exercise_shared_tags
+saved = {"title": "Read", "tags": ["python"]}
+draft = saved.copy()
+draft["tags"].append("review")
+print(saved["tags"])
+print(draft["tags"])
+```
+
+当前实际输出：
+
+```text
+['python', 'review']
+['python', 'review']
+```
+
+要求：保留 `saved` 的原始数据，只让 `draft` 的标签新增 `review`。修复应在修改之前隔离所需对象，不是最后再删除原记录的标签来伪装修复。再输出一次身份比较，证明两份标签列表不是同一个对象。
+
+完成后，将初始标签从 `"python"` 改成 `"language"`，再次验证两份结果，不能在修复代码中写死旧标签。
+
+<details>
+<summary>独立修复和输入变式后查看参考</summary>
+
+文件：`solutions/fix_draft.py`。
+
+<Code language="python">{getContainerExample('solutions/fix_draft.py')}</Code>
+
+原输入的预期输出：
+
+```text
+['python']
+['python', 'review']
+False
+```
+
+额外复制的是将要修改的内层列表，并把新列表放进草稿字典；外层字典之前已经复制。这只能保证当前数据形状下的隔离，不是万能的对象深复制实现。
+
+</details>
+
+### 练习 C：从空文件创建两份学习计划
+
+自己创建 `study_board.py`，从这一份模板开始：
+
+```python case=exercise_template
+template = {"title": "Untitled", "topics": ["python"], "minutes": 20, "owner": None}
+```
+
+独立完成这些要求，不使用循环、自定义函数或导入：
+
+1. 从模板创建两份不同的计划字典，分别命名为 `first`、`second`；三份 `topics` 列表都应能独立修改。
+2. 第一份标题为 `Read lists`，沿用默认时长和负责人字段。
+3. 第二份标题为 `Practice dictionaries`，追加主题 `copy`，时长设为 35；删除它的 `owner` 字段，表示该字段缺失，而不是把值再设为 None。
+4. 用列表 `plans` 保存两份计划；通过它们的字段计算总分钟数，不能硬编码 55。
+5. 输出计划数、总时长、两个标题、三份主题，以及负责人的存在/空值检查和两份主题的身份比较。
+
+原输入应得到：
+
+```text
+Plans: 2; total: 55 minutes
+Read lists
+Practice dictionaries
+['python']
+['python']
+['python', 'copy']
+True
+True
+False
+False
+```
+
+最后四行依次回答：第一份有 `owner` 键吗？第一份的值是 None 吗？第二份有 `owner` 键吗？两份计划的主题列表是同一个对象吗？
+
+运行自己创建的文件：
+
+```bash
+uv run --no-project --python 3.13 python study_board.py
+```
+
+再做两次变式：第二份时长改成 50，总时长应为 70；恢复时长，再把模板主题改成 `"language"`，三份主题都应该从新模板派生，只有第二份额外含 `copy`。除了这些输入，不修改计算与复制逻辑。
+
+最后解释：为什么只用 `get("owner")` 无法证明第一份明确为空而第二份缺失？为什么 `plans[0]` 仍然应该与 `first` 共享同一个字典？
+
+<details>
+<summary>独立完成并验证变式后查看参考答案</summary>
+
+文件：`solutions/study_board.py`。
+
+<Code language="python">{getContainerExample('solutions/study_board.py')}</Code>
+
+独立写法不必逐字相同，但本题使用指定名称是为了让你能逐一核对关系。重点检查源数据是否保留、可变层是否隔离、缺失是否表达正确、总时长是否由当前输入计算。
+
+本章只处理两份计划。现在不要求消除重复的几行复制代码；等理解循环和函数后，再学习如何抽取复用，而不是让抽象先于机制。
+
+</details>
+
+## 13. 离开本章前，应拿得出什么证据？
+
+- 能为有序任务、字段记录、固定槽位和唯一标签选择合适容器，并解释不能直接互换的理由。
+- 能区分索引、切片和键；解释越界、缺失键与已有 None，不用默认值掩盖数据含义。
+- 能分别说明一次方法调用的副作用与返回值，不把 None 重新绑定成原来的列表。
+- 能预测名称重新绑定、原地修改与浅复制的区别；画出嵌套共享和重复列表的关系。
+- 能解释元组的不可变边界、集合的顺序限制与成员要求，而不是只记住类型名称。
+- 从空文件完成两份学习计划及输入变式，说明哪些共享是有意的、哪些已经隔离。
+
+如果还需看答案，回到那个小实验，而不是先去背更多方法名。离开前记录最后成功的文件与输出、一个还没画清的引用关系、下次要修改的一个输入。恢复时先预测这个变化，再运行，不必从安装重新开始。
+
+下一步是 [L03「条件、循环与遍历」](/zh-cn/docs/js2py/module-03-oop-functional)，把本章手工处理两项数据的程序扩展成可处理不同数量的数据。目前 L00—L03 已按新契约重编；后续旧页面仍在迁移。原第 02 章的模块内容已经归档保留，模块知识会在新的 L06 讲解，不是被取消。
+
+## 14. 官方资料与本章边界
+
+正文已在相关解释旁提供主要资料，补充两项：
+
+- [数据模型：对象、值与类型](https://docs.python.org/3.13/reference/datamodel.html#objects-values-and-types)：核对可变容器如何引用其他对象，不要求现在通读所有特殊方法。
+- [赋值语句](https://docs.python.org/3.13/reference/simple_stmts.html#assignment-statements)：区分名称绑定与对容器条目的赋值。
+
+本章采用 CPython 3.13 教学基线，不声称它是最新版本。网页与下载包读取同一份示例，维护者运行检查不进入读者先修要求。案例没有输入校验、持久化、事务或并发处理；学会容器只是实现真实后端的一层基础，不是已经具备全部上线能力。

@@ -1,0 +1,197 @@
+---
+title: Python 异步执行模型：先拥有，再调度，再等待
+description: 用事件与真实文件追踪 coroutine、Task、事件循环、阻塞、取消、超时和并发上限；把成熟的 JS async 经验转成可验证的 Python 服务端判断。
+---
+
+import { getAsyncModelExample } from '@/lib/js2py-examples'
+
+## 1. 在 S03 之后重新检查一个熟悉的词：async
+
+你已经做过同步 API、SQL 事务、认证授权和可靠业务。现在想为任务提供一个可选的外部提示：请求在等网络时，服务是否还能处理另一个请求？这个问题不是“给所有函数加 async”。它要求分清**谁开始工作、谁在等待、谁持有资源、谁负责让工作结束**。
+
+| 本章契约 | 要求 |
+| --- | --- |
+| 前置 | S03；已有函数、异常、with、模块与 pytest 基础；熟悉 JS Promise/async/await |
+| 新能力 | 区分 coroutine object、Task 和 event loop；选择同步/异步边界；拥有并收尾并发工作 |
+| 独立验收 | 用可观察事件证明顺序/并发，用真实资源状态证明取消清理，完成受限批处理变式 |
+| 不在本章 | TaskGroup/ExceptionGroup、线程池容量规划、异步数据库迁移、生产任务队列 |
+
+实验完全独立，不导入 S03 或其他章节正在变化的工程。它不是 capstone 的异步版，也不证明数据库事务、权限或部署已经完成。A02 才会把这里的边界接到一个本地模拟外部依赖。
+
+## 2. 可恢复的起点与完整运行环境
+
+[下载独立实验](/learning-assets/js2py/a01-async-model.zip)。解压后进入 `a01-async-model`；仓库对应目录为 `examples/js2py/a01-async-model`。所有代码块直接读取此目录；三种语言、参考答案与下载共用源文件。没有浏览器运行按钮：本章需要真实 CPython 事件循环、线程、文件与多文件导入，不能拿页面中的 Pyodide 运行环境替代。
+
+核验日期 **2026-09-28**。实测 CPython **3.13.15**、uv **0.12.13**、pytest **8.4.2**。项目只接受 Python 3.13 系列；`package = false` 表示运行源码而不打包安装本项目。`uv.lock` 是 public PyPI 的实际解析结果，含依赖与哈希，不是手写的版本清单。不要删锁后再用“今天最新”代替本章基线。
+
+<Code language="toml">{getAsyncModelExample('pyproject.toml')}</Code>
+
+以下命令的工作目录都是实验根。两个 `/tmp` 目录用于隔离本轮解释器与下载缓存，不是秘密或业务存储。已安装 uv 0.12.13 再运行；输出版本不一致时先修复环境，不忽略警告继续。
+
+<Code language="bash">{getAsyncModelExample('commands.sh')}</Code>
+
+主测试为 **19 passed**，独立答案为 **5 passed**；耗时与点号布局不作验收。先保留完整实验，再逐文件阅读；不要求一次写出整套测试。检查点 C0：记录当前目录、Python/uv 版本、最后成功命令和一个未解问题。停在任何节都可以据此恢复。
+
+## 3. Python 调用 async 函数，不等于 JS 调用 async 函数
+
+先分别预测“调用之后”与“函数体开始”谁先出现，再看对照。两个文件都完整；JS 用本地 Node 运行，仅作你熟悉的语义对照。这里明确 `compare={true}`、`canRun={false}`，因为 Python 入口拥有本地事件循环，不能在已经运行的浏览器循环上再次使用同样入口。
+
+<PythonEditor title="Call versus execution" compare={true} canRun={false} code={[{ lang: 'javascript', value: getAsyncModelExample('comparison.js') }, { lang: 'python', value: getAsyncModelExample('comparison.py') }]} />
+
+```bash
+node comparison.js
+uv run --locked python comparison.py
+```
+
+JS 的实际输出：
+
+<Code language="text">{getAsyncModelExample('expected-javascript.txt')}</Code>
+
+Python 的实际输出：
+
+<Code language="text">{getAsyncModelExample('expected-python.txt')}</Code>
+
+JS async 函数调用会执行函数体到第一个暂停点，返回 Promise；Python 的 `async def` 定义 coroutine function，调用得到 **coroutine object**，函数体尚未开始。对象保存的是一次可恢复的执行，不是已经启动的网络请求，也不是自动排队的后台任务。直接丢弃它通常会得到 `RuntimeWarning: coroutine was never awaited`，而不会替你完成工作。
+
+`await pending` 让当前执行沿着这个 coroutine 前进；`asyncio.create_task(pending)` 则把它包装成 Task 并交给当前运行的 loop 调度。Task 保存执行状态、结果/异常和取消状态，拥有者要保留引用并最终观察结果。本实验使用 Python 3.13 的**默认任务工厂**；没有启用 eager task factory，不能把这里“create_task 后还未运行”的观察扩展到一切自定义任务工厂。
+
+## 4. 一次调用中的四个角色，不是四种线程
+
+想象一个服务进程中的一个事件循环线程：loop 维护已就绪的回调与待完成 I/O，挑可运行的工作继续；Task 驱动 coroutine，直到其完成、失败或等待尚未就绪的东西。`await` 表示“依赖这个可等待对象的结果”，不是“新建线程”，也不是无条件的让出。
+
+如果 await 的对象已经就绪，当前 Task 可能直接继续；测试里对已 set 的 Event 执行 wait，预先排队的回调仍没运行。若等待的是未 set 的 Event，Task 暂停，loop 才能推进其他就绪工作。因此 CPU 长循环里塞一个已完成的 await，并不能保证服务响应。
+
+`asyncio.run(main())` 在独立程序入口管理循环生命周期，运行 main 并最终关闭循环。框架内部已有循环时不再套 run；应在 async 调用链内 await。也不要把不同循环创建的异步资源长期塞进一个模块全局后到处复用。
+
+完整调度实验如下。先读 `creation` 和 `sequential`，再看 `scheduled`；后两个函数留到阻塞一节。
+
+<Code language="python">{getAsyncModelExample('scheduling.py')}</Code>
+
+这里的 Event 是单进程、同一事件循环中的门闩：`set()` 使等待者可继续；`wait()` 在未 set 时暂停；它不传递结果，不是持久消息。我们用它表达“孩子已经进入”“允许这个孩子结束”，避免拿机器快慢猜执行先后。
+
+## 5. 直接 await 的顺序，与显式调度的重叠
+
+`sequential` 先完整 await A，再调用并 await B。A 里的 `sleep(0)` 确实给循环一个调度机会，但 B 尚未被创建，不会凭空并发。这与连续两句 `await fetch(...)` 的 JS 经验相通；差别在于 Python 提前调用两个 async 函数也仅产生两个 coroutine，仍未启动它们。
+
+`scheduled` 则先创建两个 Task，随后拥有者等待两个 entered 门闩，再放行 B、观察 B 完成，最后放行 A。所有权与完成顺序是显式的。输出中 A/B 的 start 顺序是本次默认调度的观察；可移植验收只要求**两个 start 都发生在 both-entered 之前，而两个 end 都在之后**，不把无关的队列先后当作业务协议。
+
+`finally` 中的 `drain` 先取消所有未结束孩子，再用 `gather(..., return_exceptions=True)` 等待所有终态。此处 gather 是收尾工具：返回的位置对应输入，异常/取消成为结果项，便于不因某一个孩子取消就漏收其他孩子。它不会自动赋予任意程序“失败即取消其他孩子”的政策。我们的正常路径已经观察目标结果；示例清理阶段不重新抛次生错误。生产监督若需要保留所有次生错误，必须另行记录/报告，不能把这些返回值长期当垃圾丢掉。
+
+<details>
+<summary>解释性检查答案：先调用两个 coroutine，再逐个 await，会不会自动并发？</summary>
+
+不会。创建 coroutine object 本身没有把它加入 loop 的就绪工作。第一个被 await 时才开始，等其结束后才执行第二个。要重叠进行，须先显式创建两个 Task，或使用有明确调度语义的组合器，并拥有两者的生命周期。另一个陷阱是 await 不必总暂停：已经就绪的 Event 可以立即返回。
+
+</details>
+
+## 6. 阻塞不是“等得久”，而是把循环线程占住
+
+`blocking` 先用 `loop.call_soon` 排入一个就绪回调，再在循环线程执行同步 `time.sleep(0.02)`。sleep 期间 CPU 可以闲下来，但这个线程没有返回事件循环；因此同步段结束时回调仍未运行。只有执行真正让出的 `await asyncio.sleep(0)`，回调才出现。
+
+我们断言的是回调与同步段的先后，不是“20 ms 应当跑完”之类易受系统负载影响的时钟阈值。这个例子证明 loop 不能穿插推进其他工作，不是性能基准，也不意味着只要回调晚到就必然能定位到某一行阻塞。
+
+`offloaded` 把一个必须同步调用的阻塞库放到 `asyncio.to_thread`。线程用 `call_soon_threadsafe` 报告已进入，并等待线程专用的 `threading.Event`；主循环此时仍能记录事件、释放线程，最后明确 await 加入收尾。不要从工作线程直接调用 asyncio.Event.set 来偷跨线程访问。这里两个 Event 属于不同并发模型，有各自用途。
+
+选择边界时先问：纯标题校验、字典读写保持普通函数；已有真正异步 I/O 客户端才 await；不可替换的同步 I/O 可考虑线程桥接；长 CPU 运算不能因为包进 async 就变成并行。取消等待 to_thread 的 Task 也**不能强制杀死底层线程**，阻塞库自己仍需超时/停止协议。本例明确 release 并等待线程退出，不把遗留线程交给运气。
+
+## 7. 取消是请求，不是立即中断，也不是成功结果
+
+下面用真实临时文件，而不是只打印“closed”。`hold_file` 在函数体真正开始时获取文件，进入 try，报告 entered，然后等待 release。拥有者等待 entered 才取消，确保取消发生在已取得资源之后。
+
+<Code language="python">{getAsyncModelExample('ownership.py')}</Code>
+
+`task.cancel()` 请求把 `asyncio.CancelledError` 注入目标执行；它不会同步把线程停在任意机器指令。目标通常在下一次可取消等待处感知请求，然后经过 finally。拥有者仍须 await Task，观察它真正结束。CancelledError 属于 BaseException 而不是普通 Exception；不要用裸 except/BaseException 把取消当网络故障。
+
+如果需要记录取消，可捕获后清理并原样 `raise`；本例根本不拦截工作中的取消，只用 finally 关闭文件。拥有者的 except 则是**边界观察**：它知道自己刚请求结束该任务，记录 owner:cancelled，而不是让业务结果变成成功。清理若自己报错，原来的取消也可能被新的错误遮盖，不能用日志一句话宣称“永远可靠”。
+
+还有一个容易遗漏的边界：默认工厂下，Task 尚未开始就取消，函数体和 finally 都没有运行。因为资源获取也在函数体里，此时没有文件需要关闭。若把资源先开在外面再交给未启动的 Task，外层必须继续承担所有权。
+
+## 8. 超时建立预算，不保证墙钟上的强制终止
+
+`timed_out` 用 `asyncio.timeout(0)` 人为安排在下一轮循环到期：当前任务仍会开文件，到等待未就绪 Event 时触发取消，finally 关文件，退出 timeout 上下文后才在外面捕获 TimeoutError。零秒是可重复的机制实验，不是实际网络预算建议。
+
+timeout 针对当前任务的取消被上下文转换为 TimeoutError；外部独立取消仍应传播为 CancelledError。应在 timeout 块外捕获超时，才能清楚地区分预算到期与块内业务异常。真实总预算以后应覆盖排队、多个尝试和退避，而不是每一步偷偷重置。
+
+超时是协作式的：循环被同步代码占住时，定时器也无法及时执行；清理本身可能需要时间。不要承诺“到 N 秒操作一定已停止”，更不能推导“远端写入一定未发生”。A02 会进一步区分 HTTP 分阶段超时与整个操作 deadline。
+
+## 9. 并发上限不是把无限请求变得免费
+
+<Code language="python">{getAsyncModelExample('capacity.py')}</Code>
+
+Semaphore 是许可计数器。进入 `async with slots` 取得一个许可，没有许可就等待；退出时归还。Meter 只统计已准入的工作，不统计等在外面的 Task。四个任务、两个许可时，只有两个 entered 为真；放行一个旧任务后，才观察到新的 entered。正常与取消都经过 finally 减 active，上下文归还许可。
+
+把 semaphore 建在每次请求内部会使每个请求都有自己的上限，无法限制共享依赖的总压力。A02 会把它放在应用生命周期内。本例最多创建四个任务，独立变式最多八个；**即使 semaphore 只有两个，预先创建一百万个 Task 仍会占用内存**。无限输入需要有界接收、背压与其他设计，不在这里冒充已经解决。
+
+带提示修改：把 limit 从 2 改为 1，再改为 3。不要改成 assert “运行时间翻倍/缩短”；验收 peak 等于新 limit、结束时 active 为零，并解释一个等待许可的 Task 被取消为何不应额外归还一个未取得的许可。
+
+<details>
+<summary>引导练习答案：应该改哪里，如何证明没有泄漏许可？</summary>
+
+调用 bounded(1) 或 bounded(3)，其 gate 算法本身无需按固定两个任务重写。主测试对 1、2、3、4 均验收 peak 与结束状态。另一个测试先让第一个任务持有唯一许可，再取消等待者，确认原持有者仍让 slots.locked() 为真；随后取消持有者，再通过公开的 acquire 证明许可可重新取得。不读取 Semaphore 私有计数，也不把打印一行“released”当证据。
+
+</details>
+
+## 10. 运行整条链，并学会读证据
+
+<Code language="python">{getAsyncModelExample('app.py')}</Code>
+
+`uv run --locked python app.py` 的共享基线：
+
+<Code language="text">{getAsyncModelExample('expected-output.txt')}</Code>
+
+主测试的完整文件如下。测试自己用 asyncio.run 建独立循环，不依赖 pytest 异步插件的默认配置；退出时不留下跨测试 Task。文件关闭验收既检查真实 handle.closed，也尝试再写而得到 ValueError。
+
+<Code language="python">{getAsyncModelExample('tests/test_model.py')}</Code>
+
+检查点 C1：能画出 `scheduled` 中创建、进入、释放、完成四个时刻；C2：能在不看日志的情况下解释文件与许可如何验证。恢复时先跑对应测试，再跑全组；不要靠提高任意 sleep 值“修复”顺序错误。
+
+## 11. 三个真实失败：定位发生阶段，再恢复
+
+**漏等：**运行 `uv run --locked python errors/forgotten.py`。该脚本有意收集真实 RuntimeWarning，输出稳定摘要；events 仍为空。它用 gc.collect 只为了让诊断演示可重复，绝不是正常资源管理方案。修复是在拥有者明确 await 或调度并收尾，而不是屏蔽警告。
+
+<Code language="python">{getAsyncModelExample('errors/forgotten.py')}</Code>
+
+**复用：**运行 `uv run --locked python errors/reuse.py`，先得到 42，再以非零退出并报告 `RuntimeError: cannot reuse already awaited coroutine`。一个 coroutine object 不能执行第二次。需要第二次操作就再次调用函数；需要观察同一次已经完成的工作，可持有并再次 await 同一个 Task，而不是重新使用原 coroutine。
+
+<Code language="python">{getAsyncModelExample('errors/reuse.py')}</Code>
+
+**吞取消：**运行 `uv run --locked python errors/swallow.py`，输出 `result=pretend-success cancelled=False`。它没有抛异常，但契约坏了；拥有者会把取消误看成完成。删除吞取消的处理，或处理后 raise，再用取消测试验收。
+
+<Code language="python">{getAsyncModelExample('errors/swallow.py')}</Code>
+
+主测试会在独立子进程重现三个诊断并核对退出码/信息。若你另外遇到 `asyncio.run() cannot be called from a running event loop`，先查是否把脚本入口复制到框架或 notebook 内，不要新增嵌套循环补丁来掩盖边界。恢复用原完整源文件、同一 lock 和主测试；无需删除已有环境或触碰其他实验。
+
+## 12. 独立变式：有限批次的可取消转换器
+
+暂时不打开答案。实现 `transform_batch(titles, fetch, *, limit=2, deadline=1.0)`：同步清理标题，任何空标题都在调用 fetch 前拒绝；最多八项，许可 1—4，总预算大于零且不超过 30 秒；空列表返回空；异步 fetch 结果按输入顺序返回。失败、超时或拥有者取消后，自己创建的所有孩子都必须结束。外部依赖由传入的本地异步函数代替，不联网。
+
+验收要故意让一个 fetch 失败、其他 fetch 悬停，再检查 live 集合为空；分别取消拥有者和触发预算。只证明最终返回正确列表不够。说明你的实现是否 fail-fast：按输入顺序 await 时，后面的失败可能等前面的工作先结束才被观察，但总 deadline 仍覆盖整个批次。本题不要求引入尚未讲授的 TaskGroup/ExceptionGroup。
+
+<details>
+<summary>独立变式完整参考实现、测试与设计取舍</summary>
+
+<Code language="python">{getAsyncModelExample('solutions/batch.py')}</Code>
+
+<Code language="python">{getAsyncModelExample('solutions/test_batch.py')}</Code>
+
+运行 `uv run --locked python -m pytest -q solutions`，应为 5 passed。先整体校验，再创建 Task，避免半批输入已经产生外部效果。finally 先请求停止全部孩子，再统一收尾；这不是撤销已完成效果。纯 normalize 仍为同步函数。上限八个让每项一个 Task 的开销有明确边界；这不是无限流处理器。
+
+</details>
+
+## 13. 出口验收与恢复卡
+
+不看答案完成一次需求变更后，再勾选：能解释 coroutine 调用不启动；能用 entered/release 证明重叠而非仅比较时长；能指出同步代码占循环的行；能传播取消并验证文件与许可；能解释总预算不能强杀线程、回滚远端操作或保证绝对截止时间。
+
+保存恢复卡：**当前文件/分支、最后成功命令、19+5 中已通过哪组、自己改的条件、观察到的第一个反例、下次第一步**。本章没有性能压测、跨线程通用取消协议、持久任务或生产服务验收。仅编译成功、MDX 渲染成功和输出看起来合理，都不能代替实验中的运行证据。
+
+## 14. 官方依据与版本维护
+
+核验日期 **2026-09-28**；安装版本以本实验 pyproject、.python-version 与 uv.lock 为准。下列依据用于机制核对，事件门闩、容量数字与题目预算是教学设计，不是官方推荐的生产参数。
+
+- [Python 3.13：Coroutines and Tasks](https://docs.python.org/3.13/library/asyncio-task.html)：coroutine/Task、create_task、取消、timeout、to_thread 及 eager 工厂边界。
+- [Python 3.13：事件循环](https://docs.python.org/3.13/library/asyncio-eventloop.html)：回调调度与线程安全入口。
+- [Python 3.13：同步原语](https://docs.python.org/3.13/library/asyncio-sync.html)：Event、Semaphore 及非线程安全边界。
+- [Python 3.13：开发注意事项](https://docs.python.org/3.13/library/asyncio-dev.html)：阻塞代码和从未 await 的 coroutine。
+- [Python 3.13：异步异常](https://docs.python.org/3.13/library/asyncio-exceptions.html)与[运行器](https://docs.python.org/3.13/library/asyncio-runner.html)：取消继承关系和入口所有权。
+- [ECMAScript：AsyncFunctionStart](https://tc39.es/ecma262/multipage/control-abstraction-objects.html#sec-async-functions-abstract-operations-async-function-start)：JS 对照语义，不推导 Python 自动调度。
+- [uv：锁定与同步](https://docs.astral.sh/uv/concepts/projects/sync/)：固定环境的同步方式。

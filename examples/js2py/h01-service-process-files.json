@@ -1,0 +1,21 @@
+[
+  ".python-version",
+  "README.md",
+  "README.zh-cn.md",
+  "README.zh-tw.md",
+  "client.py",
+  "observe.py",
+  "one_shot.py",
+  "public/hello.txt",
+  "public/index.html",
+  "pyproject.toml",
+  "solutions/__init__.py",
+  "solutions/observe_health.py",
+  "solutions/public/health.txt",
+  "solutions/public/note.txt",
+  "solutions/test_health.py",
+  "tests/test_service_process.py",
+  "tools/__init__.py",
+  "tools/owned_server.py",
+  "uv.lock"
+]

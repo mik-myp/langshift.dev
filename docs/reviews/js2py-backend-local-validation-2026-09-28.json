@@ -1,0 +1,243 @@
+{
+  "date": "2026-09-28",
+  "scope": "Local reference materials and actual owned experiments; not learner graduation or public deployment.",
+  "aggregate_commands": {
+    "pnpm test:js2py-lab": {
+      "exit_code": 0,
+      "scope": "All language and backend maintained runners, including real owned PostgreSQL, HTTP/TLS and intentional failures."
+    },
+    "pnpm build": {
+      "exit_code": 0,
+      "static_pages_generated": 1597
+    },
+    "pnpm lint": {
+      "exit_code": 0,
+      "mdx_files_checked": 756,
+      "warnings": [
+        "Two existing React Hook dependency warnings",
+        "Existing Next.js workspace-root inference warning"
+      ]
+    },
+    "pnpm exec tsc --noEmit --incremental false": {
+      "exit_code": 0
+    },
+    "node --test scripts/tests/js2py-*.test.mjs": {
+      "exit_code": 0,
+      "tests": 8
+    },
+    "pnpm test:js2py": {
+      "exit_code": 0,
+      "maintenance_tests": 153,
+      "Node_tests": 8,
+      "fresh_declaration_processes": 9,
+      "js2py_MDX": 120,
+      "Python_fences_syntax_only": 150
+    }
+  },
+  "backend_matrix": {
+    "H01-H02": {
+      "tests": 67,
+      "breakdown": "13+2 / 47+5",
+      "evidence": "Owned static/service processes, intentional contract failure, contract aligned to H04."
+    },
+    "H03-H04": {
+      "named_checks": 124,
+      "actual_http_assertions": 107,
+      "scope": "Named integration checks, not called124 pytest cases."
+    },
+    "H05-H06": {
+      "tests": 70,
+      "breakdown": "17+2 / 48+3",
+      "failure_regressions": [
+        "No-op PATCH must preserve persisted full state",
+        "Cleanup tries every owned record after first DELETE failure and retains body exception"
+      ],
+      "real_browser_CORS": "Actual Chromium allowed/denied/allowed; OPTIONS400 on disallowed origin, no record leak; nonbrowser unaffected."
+    },
+    "D01-D03": {
+      "tests_per_round": 193,
+      "rounds_per_maintained_run": 2,
+      "breakdown": [
+        64,
+        66,
+        63
+      ],
+      "original_SQL_cases": 43,
+      "environment_case_executions_per_round": 150,
+      "scope": "Parametrized/same environment implementation repeated across3 independent labs, not150 unique security mechanisms."
+    },
+    "D04-D06": {
+      "tests_per_round": 45,
+      "rounds_per_maintained_run": 2,
+      "breakdown": [
+        10,
+        9,
+        26
+      ],
+      "evidence": "Actual PostgreSQL18.6, commit failure/rollback, populated migration,60k-row plans and real HTTP."
+    },
+    "S01-S03": {
+      "tests": 123,
+      "breakdown": [
+        22,
+        43,
+        58
+      ],
+      "recorded_real_api_responses_per_suite": 631,
+      "fake_proxy_regression_per_lab": {
+        "target": 3,
+        "proxy": 0,
+        "redirect_target": 0
+      },
+      "scope": "Synthetic credentials, owned DB/sockets; no production account exposure."
+    },
+    "A01-A02": {
+      "tests_per_round": 60,
+      "rounds": 2,
+      "mutants_detected": 4,
+      "real_TCP_tests": 5,
+      "scope": "Cancellation/resource/timeout model, not full authenticated persistent capstone."
+    },
+    "O01-O03": {
+      "local_tests": 58,
+      "breakdown": [
+        "16+1",
+        "14+3",
+        "17+7"
+      ],
+      "container_probe_exit_code": 77,
+      "environment_status": "environment_pending"
+    },
+    "O04-O06": {
+      "local_tests": 25,
+      "breakdown": [
+        "7+2",
+        "8+1",
+        "6+1"
+      ],
+      "real_drills": [
+        "with-data release and compatible application rollback",
+        "log-based privilege-fault diagnosis/repair",
+        "actual private pg_dump/pg_restore and fingerprints/corrupt-restore rejection"
+      ],
+      "not_production_RPO_RTO": true
+    },
+    "G01": {
+      "material_tests_per_round": 15,
+      "rounds": 2,
+      "student_behavior_scenarios_not_run": 24,
+      "implementation_solution_supplied": false,
+      "learner_graduation_awarded": false
+    }
+  },
+  "build_warnings": [
+    "Existing React Hook dependency warnings",
+    "Code Hike empty-language warnings",
+    "Existing Next.js workspace-root and static-export warnings"
+  ],
+  "logs": {
+    "all-labs-final.log": {
+      "path": "/tmp/langshift-backend-20260928/all-labs-final.log",
+      "sha256": "6ab2387cf62bcb71722f6b325bc77c71fc5ed398b1a25f966f6ebb20d9c078f6",
+      "bytes": 80444
+    },
+    "build-final.log": {
+      "path": "/tmp/langshift-backend-20260928/build-final.log",
+      "sha256": "32a73062214e67d7b3efa053cf02f731497d313ffdf8faada1b1e377140343ab",
+      "bytes": 8792
+    },
+    "lint-final.log": {
+      "path": "/tmp/langshift-backend-20260928/lint-final.log",
+      "sha256": "67ca3f1aa290b89cc431ba9a03f4ec1b563f73e2688c8761b72f2df2d46a9982",
+      "bytes": 1532
+    },
+    "typescript-final.log": {
+      "path": "/tmp/langshift-backend-20260928/typescript-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "node-final.log": {
+      "path": "/tmp/langshift-backend-20260928/node-final.log",
+      "sha256": "d1c422481fe0f7bdec782247d493935b371ae43fb779d6ddf452b7fee29f9ad1",
+      "bytes": 722
+    },
+    "security-final-main.log": {
+      "path": "/tmp/langshift-backend-20260928/security-final-main.log",
+      "sha256": "353cdac5b02608b5e735643b6c781e5a9404e9ecc8b2dde51f970c1f0bd8abc0",
+      "bytes": 2873
+    },
+    "operations-final-main.log": {
+      "path": "/tmp/langshift-backend-20260928/operations-final-main.log",
+      "sha256": "8397b24b4ced30fff6cf8b58e6f73975e82e675cf2825d956ffbab091dbed717",
+      "bytes": 15469
+    },
+    "d01-d03-final-main.log": {
+      "path": "/tmp/langshift-backend-20260928/d01-d03-final-main.log",
+      "sha256": "503db565f495380888d23d1d84f1c2d47d82bba7b91fcb25580998fc08ab8076",
+      "bytes": 3978
+    },
+    "all-labs-after-targeted-fixes.log": {
+      "path": "/tmp/langshift-backend-20260928/all-labs-after-targeted-fixes.log",
+      "sha256": "c19b382f8e05be6b8c6d476c2dbc12eb71b5b875a133a0ac1801fb0aadecc767",
+      "bytes": 80445
+    },
+    "build-after-targeted-fixes.log": {
+      "path": "/tmp/langshift-backend-20260928/build-after-targeted-fixes.log",
+      "sha256": "0222a962722db9f1adac9bc5af71b708a49fb0ee61ce0191ecc5d582f554d716",
+      "bytes": 8760
+    },
+    "build-final-stable.log": {
+      "path": "/tmp/langshift-backend-20260928/build-final-stable.log",
+      "sha256": "08193f08f4e0b386e6172548c4909c877ee05785c2ed1ec002aca7901ec1f872",
+      "bytes": 8799
+    },
+    "browser-extra-final-stable.log": {
+      "path": "/tmp/langshift-backend-20260928/browser-extra-final-stable.log",
+      "sha256": "56102b39fbb5ca86453ce9b1ebe678b85f715f00ce70d0146ba40a470f2a827e",
+      "bytes": 110
+    },
+    "maintenance-before-status-final.log": {
+      "path": "/tmp/langshift-backend-20260928/maintenance-before-status-final.log",
+      "sha256": "ee3eb024f1a1c36b5d739f379debf9d336cf21993db3338cc60736f1e54b9b55",
+      "bytes": 3916
+    },
+    "maintenance-after-status-final.log": {
+      "path": "/tmp/langshift-backend-20260928/maintenance-after-status-final.log",
+      "sha256": "f18bf591dcb3a27a3a7f32acd61ff912397d6f95a30beee3aa4e3360ae10a023",
+      "bytes": 3913
+    },
+    "lint-final-complete.log": {
+      "path": "/tmp/langshift-backend-20260928/lint-final-complete.log",
+      "sha256": "67ca3f1aa290b89cc431ba9a03f4ec1b563f73e2688c8761b72f2df2d46a9982",
+      "bytes": 1532
+    },
+    "typescript-final-complete.log": {
+      "path": "/tmp/langshift-backend-20260928/typescript-final-complete.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "pending_external_gates": [
+    "Linux/systemd and dedicated service account",
+    "Docker build, nonroot/read-only root and real volume lifecycle",
+    "Caddy/public DNS/firewall/public CA issuance and renewal",
+    "Hosted CI runner and real deployment switch",
+    "Full S03 app integration and production body-size/login-throttling/hash-capacity validation",
+    "Real alert delivery/acknowledgment/recovery notification",
+    "Encrypted off-site and cross-host restoration including roles/config/secrets",
+    "Representative load/capacity and production RPO/RTO",
+    "Explicit invited-user trial, no public self-registration",
+    "Audit and narrow DML/sequence grants to actual full-application route/job needs; existing DDL refusal does not prove least privilege."
+  ],
+  "public_deployment_performed": false,
+  "secrets_persisted": false,
+  "learner_acceptance": "not_assessed",
+  "final_repair_reruns": {
+    "pnpm test:js2py-lab": "Passed on final D03 owner-assertion and O privilege-wording bytes",
+    "pnpm build": "Passed on final stable source, including both Chinese index emphasis repairs; final browser verifies no literal emphasis markers.",
+    "D03_owner_mutant": "Old target1passed; fixed target1failed; correct full suite63passed; main aggregate repeated actual D03 suite twice",
+    "O04-O06": "New exact published ZIPs rerun25 tests and all3 real drills after wording repair"
+  },
+  "Ruff_scope": "Configured legacy u00-environment reference checked/formatted-as-check in the full lab command; no claim all lesson directories have Ruff policies.",
+  "cleanup_summary": "Main browser session closed; explicitly owned static preview pid53275 stopped, port54524 refused. Owned disposable security ZIP copy removed. Runtime runner receipts document owned API/PG cleanup; D01-D03 deliberately retain stopped data for evidence. No global process/service cleanup used."
+}

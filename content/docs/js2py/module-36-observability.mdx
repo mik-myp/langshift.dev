@@ -1,0 +1,174 @@
+---
+title: "Logs, Monitoring, and Diagnosis: Safe Evidence for a Real Failure"
+description: Build structured events, server-generated request IDs, status and latency windows, alerts, and recovery around an actual PostgreSQL privilege fault; scan real outputs for secret leakage without claiming production observability or capacity.
+---
+
+import { getObservabilityExample } from '@/lib/js2py-examples'
+
+## 1. A user says “it failed a moment ago.” Where do you start?
+
+O04 can release and roll back, but a bare 503 does not tell you which request, route, or time window failed. Printing the entire Request, exception, or SQL parameters seems convenient while risking passwords, cookies, Bearer tokens, and bodies in long-lived logs. Observability must answer both what happened and what must never be collected.
+
+We do not begin by installing a dashboard. We cause a real request to encounter a controlled database privilege fault, find its structured event using the response request ID, investigate the authorization change, repair it, and observe a healthy window. Synthetic secret scans then check that another output path did not leak the same data.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | O04 release gates; H06 tests; S01–S03 credentials/authorization; A02 asynchronous request/response lifecycle |
+| New capabilities | JSON field allowlists, server request IDs, defined status/latency measurements, finite-window metrics, alert rules, real fault correlation, privacy checks |
+| Independent acceptance | Trace and repair a real 503; prove canaries do not appear in logs; implement consecutive-window alerting |
+| Not claimed | Notification delivery, cross-process tracing, a log platform, production capacity, lossless collection under unlimited traffic |
+
+Download the [complete O05 lab](/learning-assets/js2py/o05-observability.zip) and enter `o05-observability`. Service, isolated PostgreSQL, SQL, migrations, and tests are self-contained. The app remains O04's protected-project operational slice, not a complete product or public login service.
+
+## 2. Logs, metrics, and traces are different evidence
+
+A log records context for an event. A metric aggregates events over an interval into counts, ratios, or distributions. A trace describes spans across components for a request. They can be linked, but one JSON event does not implement distributed tracing, and a count of log lines is not service capacity.
+
+For each request reaching the response-headers-ready point, our event contains only event, request_id, timestamp, method, route, status, ready_ms, and error_type. This supports individual lookup and aggregation of 5xx rates/p95. Consumed fields become a data contract; silently renaming them or replacing numeric values with prose breaks consumers.
+
+Route uses the template `/projects/{project_id}`, not the concrete URL. Otherwise each ID or query could create another label, increase cardinality, and expose business identifiers or secrets. An unmatched route is the fixed label unmatched, and unknown methods become OTHER.
+
+## 3. Generate correlation IDs; do not blindly trust caller headers
+
+A browser or HTTPX client can report the response X-Request-ID to a maintainer. It is a correlation marker, not proof of identity or an authorization credential. This server generates a UUID for every request and does not log the caller's same-named header.
+
+Why not merely validate the caller ID's length and characters? A valid random Bearer token can satisfy that exact character policy. Logging the header would still leak it. Valid format is not permission to record a value. Accepting an upstream proxy ID later requires a separately defined trusted-proxy boundary.
+
+<Code language="python">{getObservabilityExample('ops/telemetry.py')}</Code>
+
+Middleware wraps call_next with timing and controlled error conversion. Synchronous business functions still run through the framework; the outer layer uses async/await already taught in A02. Exceptions become fixed error categories, never serialized repr(error). Body, Authorization, Cookie, and query strings never enter the field allowlist.
+
+Explicit JSON encoding and append-only writes make the output boundary easy to inspect. There is no complex logging formatter silently appending full exceptions. This is not a general logging platform: the file has no rotation, writes occupy execution time, disk failure has no distributed durable queue, and abrupt termination can lose tail records. Production needs bounded buffering, collection/rotation, quotas, access controls, and a policy for failures of the logging system itself. Do not scale this finite exercise unchanged.
+
+<details>
+<summary>Explanation answer: why not remove a few sensitive keys and log the remaining Request?</summary>
+
+Secrets can appear in nested values, custom headers, query parameters, and exception strings. A blacklist continually chases new fields. An allowlist admits only justified scalar values and rejects unknown data by default. Server-generated request IDs also prevent caller-selected secrets from entering an otherwise approved field. Privacy is not merely replacing the word password.
+
+</details>
+
+## 4. Where does latency start, and where does it end?
+
+Timestamp uses wall-clock time to locate an event approximately. Ready_ms uses a perf_counter difference to measure duration without interpreting clock adjustments as latency. They serve different purposes even though both relate to time.
+
+Ready_ms ends when call_next returns and response headers are ready. **It does not measure delivery of the final byte to the client**, slow streaming bodies, download time, or browser rendering. P95_ready_ms uses the same boundary. Define the measurement alongside the field; an attractive low number may simply measure a narrower interval.
+
+Do not invent successful events for requests never observed. Readiness probes are real requests and are counted; the drill does not label them as business users. Multiple processes introduce separate logs, clock differences, sampling, and duplicate handling that need additional design. No distributed aggregation guarantee is made here.
+
+## 5. Aggregate a window rather than hiding failures in an average
+
+Summarize computes request count, 5xx count, error ratio, and nearest-rank p95 from a supplied finite collection. It sorts durations and takes the rounded-up 95% position. With twenty observations, tail statistics remain coarse. P95 is neither the maximum nor a measure that “95% of users are happy.” Averaging percentiles from different windows does not produce a global percentile.
+
+The exercise requires at least twenty samples and a 5xx ratio of at least five percent to return page. Fewer samples produce insufficient_data, not an invented healthy result. A 422 is client-input rejection, so it is not in this server-failure numerator. A rise in 4xx may still deserve another rule for incompatible frontend versions or abuse.
+
+Page is only a decision value: it sends no SMS, email, or on-call notification. Real alerting needs a time window, minimum volume, duration, suppression/recovery rules, an owner, and a runbook. These thresholds are an explainable teaching policy, not a universal production SLO.
+
+<Code language="python">{getObservabilityExample('tests/test_observability.py')}</Code>
+
+Five aggregate tests cover empty input, low sample count, excluding 422, the exact threshold, and p95 indexing. They test the aggregate function. Real logging and database faults are exercised later; do not call these five database tests.
+
+## 6. Establish private output paths and identities before startup
+
+The 2026-09-28 baseline is CPython 3.13.15, uv 0.12.13, pytest 8.4.2, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, HTTPX 0.28.1, SQLAlchemy 2.0.54, Alembic 1.20.0, psycopg 3.3.6, and PG18.6.
+
+<Code language="toml">{getObservabilityExample('pyproject.toml')}</Code>
+
+<details>
+<summary>Complete underlying service and isolated process entry points</summary>
+
+<Code language="python">{getObservabilityExample('ops/app.py')}</Code>
+
+<Code language="python">{getObservabilityExample('ops/cluster.py')}</Code>
+
+<Code language="python">{getObservabilityExample('ops/server.py')}</Code>
+
+</details>
+
+Events are created mode 0600 inside the exclusive 0700 temporary directory. Uvicorn access logging is disabled so another logger cannot record full query URLs. Validation errors return only safe loc/type fields, not input/body/context. PostgreSQL does not log statements or error parameters. Those controls and the event allowlist work together; fixing one logger while leaving a proxy/access log leak is insufficient.
+
+This lab verifies separation of administrative and runtime identities and rejection of the tested ALTER/DROP operations; it does **not** prove least-privilege DML. The shared `sql/grants.sql` still gives SELECT/INSERT/UPDATE/DELETE on projects, project_members and tasks, plus USAGE/SELECT on all public sequences. Several grants exceed the current read/create-project routes. Before a real deployment, map each route and job to its table operation, narrow the table/sequence grants, and verify required actions succeed while unused UPDATE/DELETE and other unneeded actions are denied. Passing the existing DDL-denial tests cannot replace that audit.
+
+ A separate administrative connection operates the drill. No real user logs, passwords, or production database are read. Synthetic secrets exist only to test negative disclosure paths.
+
+Passing a private-socket host is not sufficient by itself: libpq can still obtain other connection defaults from `PGHOSTADDR`, `PGSERVICE`, `PGSERVICEFILE`, and related variables. `reject_connection_environment` rejects every inherited `PG*` name before temporary-directory creation and before each direct connection, migration, or server launch. The only exception is `PG_BIN`, which locates executables, not a database. Errors list names only, never their values, and do not mutate the caller's environment. Python connections, SQLAlchemy's connection creator, and PostgreSQL subprocesses use an empty mode0600 `empty.pgpass` in the owned directory rather than the user's default password file. Direct `demo.py` and `ci.py` execution have these guards too; safety does not depend on the repository runner cleaning up first.
+
+The controller no longer probes an unused port, closes that socket, and asks another process to acquire the same number. Uvicorn binds `--port 0` itself. The controller reads the actual port from **that child's own private startup log**, then requests readiness. `--no-access-log` does not suppress the info-level startup banner; the controller explicitly selects uncolored logs and one worker. Concurrent identical releases have distinct log files. A real test starts two servers together and checks their different ports, corresponding banners, actual requests, and cleanup. This removes the probe-close-rebind window, not every possible concurrency failure. A future incompatible Uvicorn banner format fails by deadline rather than guessing a port.
+
+## 7. Cause a real database fault and repair it using evidence
+
+<Code language="python">{getObservabilityExample('ops/observe.py')}</Code>
+
+The repository runner reconstructs child settings: inherited `UV_*`, virtual-environment selectors, and Python injection settings are removed before the course cache/interpreter directories, public PyPI, and `UV_NO_CONFIG=1` are set. Only `PG_BIN` survives the `PG*` filter. A real check uses an owned external-venv decoy, a nonexistent interpreter, and invalid user uv configuration: installation must stay inside the clean copy's `.venv`, with the decoy unchanged. This cannot undo actions an outer uv command already performed before Python started. Before the manual uv commands below, leave other virtual environments and use a clean terminal; remove overrides such as `VIRTUAL_ENV`, `UV_PROJECT_ENVIRONMENT`, `UV_ACTIVE`, `UV_PYTHON`, and `UV_CONFIG_FILE`, and set `UV_NO_CONFIG=1`. If a direct Python entry rejects PG settings, remove only the reported names from this experiment's environment; never edit production configuration or print their values.
+
+```bash
+uv sync --locked
+uv run --locked python ci.py
+uv run --locked python demo.py
+```
+
+Ci.py already runs a demo; the separate command replays it. Each owns a different cluster, so it does not depend on leftover state. Stable result lines are:
+
+```text
+PASS correlate: real HTTP 503 -> request_id -> route template -> revoked DB privilege
+PASS privacy: synthetic password/cookie/query/Bearer canaries absent from event, service and PostgreSQL logs
+PASS repair: final 20 real requests healthy; alert cleared
+CLEANUP PASS: private logs and owned services removed
+```
+
+An additional OBSERVATION JSON contains variable duration and p95 measurements. Do not turn one machine's values into constants. The sequence first sends healthy requests, then revokes lab_app SELECT on projects. Five real project requests fail at PostgreSQL and produce API 503 responses. Each response's server ID locates the matching route/status event. After restoring GRANT, the final twenty real requests return 200.
+
+Readiness using SELECT 1 can still pass while project SELECT is denied. A health check proves only what it queried, not every business privilege. Logs contain no SQL parameters, but timing, affected route, and request correlation narrow the problem, combined with the privilege-change record. Restoring SUPERUSER is not an acceptable shortcut.
+
+<details>
+<summary>Guided diagnosis: if the overall window still says page, did the repair fail?</summary>
+
+Check the interval. The whole drill still contains five earlier failures and may remain above threshold, while its final twenty-request healthy window is ok. Those describe different time ranges. Real alerting needs a rolling-window and recovery policy; deleting historical failures to make a dashboard green is not repair. A readiness 200 alone is also insufficient—retest the failed business route.
+
+</details>
+
+## 8. Scan every actual output path for secrets
+
+The drill puts a random synthetic canary in an invalid password field, cookie, query parameter, and untrusted request ID, and sends real synthetic Bearer tokens. It scans event files, service stdout/stderr, and PostgreSQL logs for those original values. Validation responses must not echo the canary either.
+
+This proves no disclosure of those markers on the executed paths. It does not prove every dependency, future route, proxy, browser console, or exception path is eternally safe. Rerun after changes to logging or error handling and review collection scope. Do not print the full token from test locals while debugging a failed privacy assertion; statuses, counts, and correlation IDs suffice.
+
+Logs themselves require access policy, retention, and deletion rules. This drill deletes its entire temporary directory on exit, so no logged business data or secrets become artifacts. Production cannot evade maintenance by retaining nothing; it needs controlled retention and deletion, not a ZIP containing every .log file.
+
+## 9. Independent variation: notify after two consecutive windows
+
+Without the solution, implement sustained_alert: trigger only when **two consecutive** windows each have at least twenty requests and a 5xx ratio of at least five percent. Healthy or undersampled windows break the streak. Empty input returns false. An ancient failure and a current one must not be combined into “consecutive.”
+
+<details>
+<summary>Independent decision rule and test</summary>
+
+<Code language="python">{getObservabilityExample('solutions/consecutive.py')}</Code>
+
+<Code language="python">{getObservabilityExample('solutions/test_consecutive.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions
+```
+
+```text
+1 passed
+```
+
+One test contains several assertions; it is not four test cases. This remains a notification decision function, not notification delivery. Connecting an on-call service requires duplicate suppression, delivery-failure handling, and recovery-notification acceptance, all pending here.
+
+</details>
+
+## 10. Capacity observations and a recovery checkpoint
+
+Actual request counts, failures, response-ready times, and elapsed observation time can expose regressions, but do not constitute production capacity testing. This is one machine, one worker, sequential synthetic requests, tiny data, and warm local caches. There are no concurrent real users, remote databases, login-hash load, long connections, or durable log collectors. Dividing requests by this duration cannot establish supported production user count.
+
+Before invited use, bound users, rates, and data sizes. Observe CPU, memory, connection pools, queues, disk, errors, and latency while gradually increasing representative load in isolation. Define overload rejection/degradation. Average latency or an installed dashboard cannot replace that work.
+
+When pausing, record the last correlation ID—not the token—application version, observation interval, affected route/status, privilege change, verified repair, privacy scan, stopped processes/removed directories, and next action. Resume ordinary aggregate tests, then replay the fault in a new cluster. Never revoke privileges on a user database for this exercise.
+
+## 11. Official sources and boundaries
+
+Checked on 2026-09-28: the [official OWASP logging guide repository](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Logging_Cheat_Sheet.md), [Python logging](https://docs.python.org/3.13/library/logging.html), [PostgreSQL logging configuration](https://www.postgresql.org/docs/18/runtime-config-logging.html), and [Google SRE on monitoring distributed systems](https://sre.google/sre-book/monitoring-distributed-systems/). The OWASP site returned 403, so its official repository supplied the text. The field allowlist, twenty-sample/five-percent policy, and consecutive-window rule are instructional choices, not official universal thresholds.
+
+Five aggregate tests, one independent rule test, real PostgreSQL privilege failure/repair, actual HTTP 503 correlation, and secret scans ran. A log platform, rotation/load tests, notification delivery, distributed tracing, and production monitoring remain unverified. This operational slice also does not implement the rest of the S-series API.
+
+Environment acceptance adds three cases in `tests/test_environment.py`: two isolation-rule checks and one real PostgreSQL/two-Uvicorn-process check. The ordinary suite now has eight cases, plus the same one independent solution case. These checks do not turn an alert decision into a delivered notification.

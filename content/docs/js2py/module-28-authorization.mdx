@@ -1,0 +1,233 @@
+---
+title: Object authorization — knowing an ID does not grant access
+description: Build deny-by-default policies from database membership, with project/task CRUD, atomic ownership, parent checks, membership revocation and real negative tests.
+---
+
+import { getAuthorizationExample } from '@/lib/js2py-examples'
+
+## 1. Authentication identifies the actor; authorization permits an operation
+
+S01 turns a valid session into a server-verified user. What happens if Alice changes a URL's project ID to Bob's project? If the handler checks only “logged in,” neither database foreign keys nor response models will reject the request for you. **Object authorization needs the current user, the target object and the intended operation.** It is not button visibility or CORS policy.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | S01 identity/revocation; D's relationships, sessions, transactions, migrations and owned-database tests |
+| New capabilities | Database membership, roles and creator rules, default denial, scoped queries, parent-child checks, atomic project creation and membership revocation |
+| Independent acceptance | Alice knows Bob's actual project/task IDs but cannot enumerate, read or modify them; clients cannot assign their own role/creator; failed transactions leave no half-created project |
+| Not implemented | Ownership transfer, public invitation links, organization administrators, database RLS, production deployment or cross-service permission caches |
+
+Download the [complete S02 lab](/learning-assets/js2py/s02-authorization.zip). It independently includes S01 identity code and the complete migration chain, without importing another lab directory. To avoid changing the business model silently, tasks keep D's description, status, minutes, due_at and priority. H's done/note aliases are not accepted. The database generates id; the authenticated actor determines created_by.
+
+## 2. Write a policy table that tests can disprove
+
+| Operation | Unauthenticated | Nonmember | Ordinary member | Project owner |
+| --- | --- | --- | --- | --- |
+| Create project | 401 | Authenticated users may create their own | Allowed | Allowed |
+| List projects | 401 | Only projects the caller belongs to | Same | Same |
+| Read project/members/tasks | 401 | 404 | Allowed | Allowed |
+| Create task | 401 | 404 | Allowed; caller is creator | Allowed; caller is creator |
+| Update/delete task | 401 | 404 | Own tasks only, otherwise 403 | Any task in this project |
+| Update/delete project; manage members | 401 | 404 | 403 | Allowed |
+| Delete the owner membership | 401 | 404 | 403 | 409; explicitly prohibited |
+
+Identity/object statuses in the table assume a well-formed request. The framework may first reject malformed structure with sanitized 422; that does not grant object access. The 404 deliberately does not tell outsiders whether a project is absent or invisible. Existing members who lack permission for an operation receive 403. This is a consistent lab contract, not the only valid policy for every product. Do not let different routes disclose different amounts of information by accident.
+
+Default denial means stopping unless an explicit allow rule applies. It does not mean returning the complete object and advising the frontend to hide it. Request bodies cannot self-authorize through owner_id, created_by or role. The user_id in an invitation identifies the **target user to add**, not the caller; the service always assigns member.
+
+<details>
+<summary>Explanation answer: why authorization if foreign keys and hard-to-guess IDs exist?</summary>
+
+A foreign key proves that a referenced record exists, not that this caller may use it. Random or hard-to-guess IDs reduce accidental discovery but are not authorization evidence: URLs, logs and shared content can reveal IDs. Checks must remain correct when actual IDs are known. That is why the negative tests give Alice Bob's real IDs instead of testing only a nonexistent number.
+
+</details>
+
+## 3. At most one owner is not the entire ownership policy
+
+Baseline verified on **2026-09-28**: Python 3.13.15 and uv 0.12.13; the Web pins remain FastAPI 0.135.1/Uvicorn 0.42.0/Pydantic 2.12.5, with SQLAlchemy 2.0.54, Alembic 1.20.0, psycopg[binary] 3.3.6, PostgreSQL 18.6, argon2-cffi 25.1.0 and pytest 8.4.2. The public-PyPI lock includes actual transitive dependencies.
+
+<Code language="toml">{getAuthorizationExample('pyproject.toml')}</Code>
+
+The complete migration chain inherits 001–004 and adds:
+
+<Code language="python">{getAuthorizationExample('migrations/versions/005_owner_guard.py')}</Code>
+
+The partial unique index includes only role='owner' rows. A project can therefore have at most one owner but many ordinary members. It does not establish “at least one owner,” or prove that the owner is the project creator. Atomic creation and the service rule prohibiting owner removal maintain those additional invariants.
+
+If legacy data has two owners, migration must fail while retaining the data, not secretly delete one. A test builds such an owned historical database, observes failure, makes an explicit correction to fictional records, then upgrades. Production data needs a decision from the business owner; do not copy the test's arbitrary choice.
+
+## 4. Establish the object's scope before continuing
+
+<Code language="python">{getAuthorizationExample('authorization.py')}</Code>
+
+Start with guard_project: find the URL's project, take its row lock, then look up membership by project_id and actor_id. Either missing result produces the same Project not found. The returned member comes from the database, not a role cached at login or supplied in JSON.
+
+Why does find_task also constrain project_id? Even if Alice owns a project, she must not put Bob's task_id underneath her own parent URL. The query must constrain both task.id and task.project_id. Only then may the creator-or-owner rule run. A task's existence alone says nothing about whether it belongs to the already-authorized project.
+
+These helpers are ordinary functions, not magical decorators. Every endpoint must call the appropriate guards inside its transaction. A new route that forgets the guard is not protected merely because adjacent routes use it. Keeping the policy explicit makes negative tests and review necessary and understandable.
+
+## 5. Keep membership changes and business writes in a defined order
+
+Operations on a specific project hold a shared project-row lock. Membership changes and project deletion take an exclusive lock on the same row. Membership is read after the lock is acquired, and the lock lasts through transaction completion. A previously authorized operation may finish; removing the member waits for it. After removal commits, a newly authorized object operation sees no membership and receives 404. This does not retroactively cancel a response already being sent.
+
+The global project list is an explicit exception: it is a membership-filtered SQL statement snapshot, not a set of per-project locks. Already-started list responses cannot be withdrawn, and concurrent pagination does not guarantee items and total share a single snapshot. Do not broaden the per-project lock guarantee to every query.
+
+create_project inserts the project, flushes to obtain its generated id, inserts the owner's membership, and flushes again. The endpoint owns the single commit. flush sends SQL inside the transaction; it is not a commit. Helpers must not commit either step independently and leave unrecoverable partial state.
+
+<details>
+<summary>Transaction answer: why not save the project and add the owner later?</summary>
+
+If the project is committed first and the owner INSERT subsequently fails through a foreign key, uniqueness constraint or exception, an unmanaged project remains. The partial unique index limits owner count but cannot invent a missing owner. The test makes the second INSERT hit a real foreign-key error, then uses a new transaction to prove that the project does not exist. A subsequent valid creation succeeds, demonstrating recovery rather than merely catching an exception while retaining a failed Session.
+
+</details>
+
+## 6. Full inputs and routes, not an unenforced calling convention
+
+<Code language="python">{getAuthorizationExample('schemas.py')}</Code>
+
+ProjectInput accepts only name; MemberInput only the target user_id. TaskInput excludes server-owned id/project_id/created_by. minutes is a strict nonnegative int bounded by PostgreSQL integer; priority is 0–2; status is todo/doing/done. description and due_at may be cleared. Partial updates still use exclude_unset to distinguish omission from a supplied value. title is validated as nonblank without changing its spelling.
+
+A due_at string is explicitly parsed as an offset-aware time and converted to UTC; a value without a timezone is rejected. That is a deliberate, documented conversion, not permission to accept all numeric strings loosely. The next chapter connects UTC normalization with idempotency digests.
+
+<Code language="python">{getAuthorizationExample('app.py')}</Code>
+
+Each object route authenticates, establishes scope, checks its operation policy and performs SQL inside its own Session.begin, returning only after the transaction finishes. List queries join membership in SQL; total is counted under the same scope. Never fetch every record and filter only in the page.
+
+Project deletion retains RESTRICT foreign keys and explicitly removes tasks, memberships and then the project in one transaction. Here the owner may delete the entire project and its children, but UI confirmation, recovery and production backups are not provided by that SQL. There is no hidden soft-delete or ownership-transfer implementation.
+
+## 7. Prepare two users without putting passwords in the tutorial
+
+Enter s02-authorization and use its own isolated cluster, not S01's DATABASE_URL:
+
+```bash
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+unset VIRTUAL_ENV UV_PROJECT_ENVIRONMENT UV_ACTIVE UV_PYTHON UV_CONFIG_FILE
+export UV_NO_CONFIG=true
+uv sync --locked
+uv run --locked python labdb.py start
+```
+
+Copy the printed DATABASE_URL export line, then:
+
+```bash
+uv run --locked alembic upgrade head
+uv run --locked python admin.py create-user Alice
+uv run --locked python admin.py create-user Bob
+uv run --locked python serve.py --port 8062
+```
+
+Enter passwords only at getpass prompts. Open another terminal in this lab and log in as both users:
+
+```bash
+uv run --locked python client.py --port 8062 --session .session-alice.json login Alice
+uv run --locked python client.py --port 8062 --session .session-bob.json login Bob
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /users/me
+uv run --locked python client.py --port 8062 --session .session-bob.json request GET /users/me
+```
+
+Read the actual user IDs from the responses. The examples below assume a fresh lab where Alice=1 and Bob=2. If your responses differ, substitute the target IDs; do not reset an unfamiliar database to force the example numbers.
+
+## 8. Give Alice Bob's actual IDs and attempt unauthorized access
+
+Bob first creates a project and task. Record their response IDs; the following assumes both are 1:
+
+```bash
+uv run --locked python client.py --port 8062 --session .session-bob.json request POST /projects --json '{"name":"Bob private"}'
+uv run --locked python client.py --port 8062 --session .session-bob.json request POST /projects/1/tasks --json '{"title":"Bob task","minutes":25}'
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /projects
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /projects/1
+uv run --locked python client.py --port 8062 --session .session-alice.json request PATCH /projects/1/tasks/1 --json '{"status":"done"}'
+```
+
+Bob's two creates return 201. Alice's list returns 200 but omits Bob's project; her direct read and modification both return 404. Bob then adds Alice as an ordinary member. This user_id is the target invitee:
+
+```bash
+uv run --locked python client.py --port 8062 --session .session-bob.json request POST /projects/1/members --json '{"user_id":1}'
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /projects/1/tasks/1
+uv run --locked python client.py --port 8062 --session .session-alice.json request PATCH /projects/1/tasks/1 --json '{"status":"done"}'
+uv run --locked python client.py --port 8062 --session .session-alice.json request POST /projects/1/tasks --json '{"title":"Alice task","created_by":2}'
+```
+
+Alice can now read with 200, but cannot modify Bob's task (403), and a self-reported created_by is rejected by the model (422). Remove the forged field and create a task normally as Alice: the returned created_by must identify Alice. Do not test only listings. Direct object URLs, child-resource URLs, PATCH and DELETE all need negative cases.
+
+## 9. Removing membership revokes object access, not identity
+
+```bash
+uv run --locked python client.py --port 8062 --session .session-bob.json request DELETE /projects/1/members/2
+uv run --locked python client.py --port 8062 --session .session-bob.json request DELETE /projects/1/members/1
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /users/me
+uv run --locked python client.py --port 8062 --session .session-alice.json request GET /projects/1
+```
+
+The first command attempts to delete Bob's own owner membership and must return 409. Removing Alice returns 204. Her credential is still valid, so /users/me returns 200, but reading the project returns 404. Revocation does not wait for token expiry because roles and membership are not cached inside the token.
+
+For recovery, Bob can invite Alice again. Alice cannot submit role="owner" to restore permission, and authentication must not be disabled. A duplicate invitation hits the database primary key and becomes a sanitized 409. After that transaction ends, a subsequent valid request must still succeed; never retain a failed global Session.
+
+<details>
+<summary>Boundary answer: why can't a removed member edit a task she created?</summary>
+
+The task-creator rule grants an additional permission only within current project membership; it is not a permanent ownership pass. The entry point checks membership first, returns 404 after removal and never reaches may_edit_task. Authorizing solely from historical created_by would let former members retain write access. A valid identity cannot supply the missing relationship.
+
+</details>
+
+## 10. Test the opposite of each allow rule
+
+```bash
+uv run --locked python -m pytest -q
+```
+
+<Code language="python">{getAuthorizationExample('tests/test_authorization.py')}</Code>
+
+Tests use known real IDs for unauthorized reads, lists, parent substitution, writes and deletes. They also prove ordinary members cannot manage projects/members, creator IDs cannot be forged, owners cannot be removed, old but valid credentials lose object access after removal, failed second steps roll back, the unique-owner constraint works, and project deletion removes its children. A happy path or high coverage percentage is not a permission proof.
+
+<Code language="python">{getAuthorizationExample('tests/test_migrations.py')}</Code>
+
+Historical migration tests create additional owned databases, preserve priority and existing tasks, leave legacy users without a default password, and reject multiple legacy owners instead of silently repairing them. All run on owned PostgreSQL 18.6, not SQLite. Fixtures own database and application processes, and recorded responses contain no passwords or tokens.
+
+Separate real connections also demonstrate a project writer holding a shared lock while membership removal waits. After the writer commits and removal commits, Alice's identity remains valid but the object is denied. This is an ordering guarantee, not a promise to interrupt an already-authorized request. Sensitive body/query/path validation probes and actual database errors are checked against response and application/PostgreSQL log leakage.
+
+## 11. Independent rebuild and an authorized aggregation variation
+
+**Independent rebuild:** start from the field, route and permission tables and implement project, member and task services yourself. You may retain this chapter's environment, identity module and migrations, but do not import reference authorization.py or its object routes. First give Alice Bob's real IDs and test denial, then verify normal CRUD. Demonstrate that the two owner-creation INSERTs share one transaction.
+
+**Variation:** add GET `/projects/{project_id}/summary`, counting unfinished tasks and summing their minutes for that project only. Members may read; outsiders receive 404. Done tasks do not count; zero-minute tasks still do. List pagination must not narrow the summary. Do not aggregate the entire database before filtering the result.
+
+<details>
+<summary>Independent variation answer</summary>
+
+<Code language="python">{getAuthorizationExample('solutions/project_summary.py')}</Code>
+
+Authenticate and establish project scope first, then put project_id/status conditions into the SQL aggregate. SUM over no rows may be null; coalesce explicitly makes it 0. Implement your own version before starting the reference from this directory:
+
+```bash
+uv run --locked python serve.py --port 8062 --app solutions.project_summary:app
+uv run --locked python client.py --port 8062 --session .session-bob.json request GET /projects/1/summary
+```
+
+Run the request in another terminal. With todo/0, doing/15 and done/40, expect count=2 and minutes=15; an outsider still gets 404. Tests run this extended entry point over HTTP and recheck the original routes too.
+
+</details>
+
+## 12. Recovery notes, boundaries and primary sources
+
+```text
+checkpoint: S02 object authorization
+migration: 005_owner_guard
+last_success: Alice /users/me -> 200; removed membership /projects/1 -> 404
+failure_recovered: duplicate invitation -> 409; next valid request -> 200
+credential_values: not recorded
+api: stopped in owning terminal
+next: start API; verify owner still present; run negative matrix
+```
+
+Stop your API first. Decide whether labdb.py restart should preserve the database or labdb.py stop should delete the temporary lab data. Save the tested role matrix, object IDs and last failure/recovery step, never credentials. Pages and downloads use an allowlist excluding sessions, PG data, caches, environments and logs.
+
+This is not a general-purpose permission system: no ownership transfer, cross-service caches, administrator bypass, RLS, independent security audit or deployment guarantee. Synchronous handlers can still run concurrently. Specific database locks and constraints cover the declared operations; not every business combination is proven deadlock-free. Global lists have snapshot boundaries, and concurrent account disable versus inviting that account is not a promised atomic onboarding workflow. S03 separately handles retries, idempotency and unique-key races.
+
+Official documentation verified on 2026-09-28 is recorded in SOURCES.md; actual requests and case counts are in VERIFICATION.md:
+
+- [OWASP Authorization](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html): default denial, checks on every request and object-level permissions.
+- [PostgreSQL Constraints](https://www.postgresql.org/docs/18/ddl-constraints.html) and [Partial Indexes](https://www.postgresql.org/docs/18/indexes-partial.html): the actual guarantees of foreign keys and partial uniqueness.
+- [PostgreSQL Explicit Locking](https://www.postgresql.org/docs/18/explicit-locking.html): row-lock compatibility and waiting.
+- [SQLAlchemy Session Transactions](https://docs.sqlalchemy.org/en/20/orm/session_transaction.html): transaction ownership, commit and rollback.

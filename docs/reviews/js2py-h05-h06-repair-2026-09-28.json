@@ -1,0 +1,1729 @@
+{
+  "status": "completed",
+  "started_at": "2026-09-28T13:16:59.354753+08:00",
+  "workspace": "/Users/mikmyp/Documents/code-projects/langshift.dev",
+  "temporary_workspace": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5",
+  "source_snapshots_before": {
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies-files.json": {
+      "sha256": "c9c7353e6a11c9129635c8a88a3d1b163ecbf1ab7a871b373e07de9079461ca9",
+      "bytes": 466
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/.gitignore": {
+      "sha256": "34b9af89b8f5d720380cd80173e192d8e2cc225efeda084f08a197d38c50bfba",
+      "bytes": 59
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/.python-version": {
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "bytes": 8
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/README.md": {
+      "sha256": "5a5c38aabcfbdb2377b2656d8ee94d024c99ce622c1ee9229f6c8f0e9fb5458c",
+      "bytes": 6284
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/README.zh-cn.md": {
+      "sha256": "3b8f3f5b03b45e58bade2042d4b1b9a5f7cfa8c0759e158fd1bff0b6df6ff314",
+      "bytes": 5702
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/README.zh-tw.md": {
+      "sha256": "f86ce6361cf79f268ebab5b4a3a52e03fd6e4d0b6cf9f1235a838388268be018",
+      "bytes": 5702
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/SOURCES.md": {
+      "sha256": "b7d3bceae6f3e8debb8debc7362b02241c079e92e986a77a4e147bd4a40f7762",
+      "bytes": 3074
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/live_client.py": {
+      "sha256": "729c9190db01d8beb1ddf1aa1c0c98a9ad0fbe09aca4b8c63fe11ead30c5e1ba",
+      "bytes": 3607
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/pyproject.toml": {
+      "sha256": "2223011435a537f22e71dcc89c1a01c2b1531cdf168b6c2ebd8b82b5fdb8c558",
+      "bytes": 409
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/requests.sh": {
+      "sha256": "433ebde154168337705570890e86fc76b2b4bc40ecd32b6504e3e73536191a9b",
+      "bytes": 603
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/solutions/__init__.py": {
+      "sha256": "09242c83c26a4902373546a06a4544ecd7c987bf7fcee2c6443bf37cf85c7efe",
+      "bytes": 71
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/solutions/summary.py": {
+      "sha256": "0ab73df07abddbb00643e31d3310916c239e271a69972f3e37080ff9cf61fcd1",
+      "bytes": 779
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/solutions/test_summary.py": {
+      "sha256": "61527714c684da914cdb172e2a646d58c54ff89d2c0d3b027a79f14ec2d66342",
+      "bytes": 727
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/__init__.py": {
+      "sha256": "06208f3c6c8fa4e0a44a2ade0a0fa8aabb61fe12ddea023e84cc7f459c976c15",
+      "bytes": 74
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/config.py": {
+      "sha256": "e11a940b2458000f459dc32e51547d4f093beee16686061944722e9d0ac6d136",
+      "bytes": 1008
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/dependencies.py": {
+      "sha256": "503e924ebce6a67d491188ede2b2928bea151b990a81fc8f984e28609f174076",
+      "bytes": 1621
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/main.py": {
+      "sha256": "09ce53947aabfab84e54b33cdb536f92ea74e11a43bae3862bbf92c055f6c159",
+      "bytes": 595
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/models.py": {
+      "sha256": "089e2060f77c0b568a37f64aba8b6262cde3d30490968d4f824057072a23f08b",
+      "bytes": 1473
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/routes.py": {
+      "sha256": "af3e00bd92d33101b3d7593f6734a6f9b2ef26560831e00c9d4cc989ecf274b4",
+      "bytes": 1942
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/store.py": {
+      "sha256": "9a0d19fc112828aa071329656dbc773ce5c6f960760314d20a2688bb85e9d1db",
+      "bytes": 1063
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/tests/test_basics.py": {
+      "sha256": "ce84920baa8e13d3394cb9a33d3c2a56a5604a76fa16532827affb29e9a8d7b7",
+      "bytes": 2214
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/uv.lock": {
+      "sha256": "20eab946162a3af02bb88995b5b82f6fd8aa1a6a2218efd61760060b2f41d083",
+      "bytes": 19004
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing-files.json": {
+      "sha256": "d280292288c1c1b7d056165d477dbcc4a66e95fd7497953fef43d9aed469247c",
+      "bytes": 667
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/.gitignore": {
+      "sha256": "34b9af89b8f5d720380cd80173e192d8e2cc225efeda084f08a197d38c50bfba",
+      "bytes": 59
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/.python-version": {
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "bytes": 8
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/README.md": {
+      "sha256": "967af2b772894d7fa74278c15502d11a1a252a593167c0202f312a43fe0a3185",
+      "bytes": 7382
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/README.zh-cn.md": {
+      "sha256": "8ea7c80b626152fbe5eaf2421a2f7039ce03ace2d845f6012a0ad3046602382f",
+      "bytes": 6602
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/README.zh-tw.md": {
+      "sha256": "ad3bdee182312a1f00b2c2a103f48d82e11976efca163feca9ec15eb6a171fea",
+      "bytes": 6602
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/SOURCES.md": {
+      "sha256": "b7d3bceae6f3e8debb8debc7362b02241c079e92e986a77a4e147bd4a40f7762",
+      "bytes": 3074
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/browser/index.html": {
+      "sha256": "7d76251c32e921f1bd2c59023f3e5ead7c91723866d007a9539dfbd3c32a03c3",
+      "bytes": 2636
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/experiments/conftest.py": {
+      "sha256": "b7af6de9c5d6140cee5b5af85258bbddc29b5090fae23308449c020f6a3e2005",
+      "bytes": 92
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/experiments/test_fixture_failure.py": {
+      "sha256": "7a20a5b7ba0b024518e346d801e4fb4fdfcf65f5e13aedff31cce2adcbb241c3",
+      "bytes": 614
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/live_client.py": {
+      "sha256": "0d739429afd0652c269255d5d51e70194e6e1a47bcdbd76ed5f2e24ef625a5a3",
+      "bytes": 2949
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/live_httpx.py": {
+      "sha256": "2b63cca7cfd06480d22003313d454399fa1941e4f3eeef1a0bb3e12ecdc2bac5",
+      "bytes": 2061
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/pyproject.toml": {
+      "sha256": "1434f4ae3b7c27f610d7f0b752a8dbf9ebe07fb6778905b911694016de6786b0",
+      "bytes": 425
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/requests.sh": {
+      "sha256": "1f205052c330b5d584303f09beae18a7c2702ad51aaf3202ccc7d5d163efc104",
+      "bytes": 603
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/solutions/test_independent.py": {
+      "sha256": "e5e4020368aa9f224169b30a45a1ce9ffc3b87f15a3ba9cb24614f7af2b933d3",
+      "bytes": 1862
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/__init__.py": {
+      "sha256": "06208f3c6c8fa4e0a44a2ade0a0fa8aabb61fe12ddea023e84cc7f459c976c15",
+      "bytes": 74
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/config.py": {
+      "sha256": "e11a940b2458000f459dc32e51547d4f093beee16686061944722e9d0ac6d136",
+      "bytes": 1008
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/dependencies.py": {
+      "sha256": "503e924ebce6a67d491188ede2b2928bea151b990a81fc8f984e28609f174076",
+      "bytes": 1621
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/main.py": {
+      "sha256": "76908cf199bdb381edada299ba26dec8c93993d6ad08ca78ec9dfc9e74bf749b",
+      "bytes": 880
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/models.py": {
+      "sha256": "089e2060f77c0b568a37f64aba8b6262cde3d30490968d4f824057072a23f08b",
+      "bytes": 1473
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/routes.py": {
+      "sha256": "af3e00bd92d33101b3d7593f6734a6f9b2ef26560831e00c9d4cc989ecf274b4",
+      "bytes": 1942
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/store.py": {
+      "sha256": "9a0d19fc112828aa071329656dbc773ce5c6f960760314d20a2688bb85e9d1db",
+      "bytes": 1063
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/__init__.py": {
+      "sha256": "9f7b30d9f17ae3421ba91256d796135fa4f4fe4b2a2eba505c05a05607ec5842",
+      "bytes": 77
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/conftest.py": {
+      "sha256": "eff300749aaa780c076e80589274c59de572489b99c10dd90a0309e948ad3038",
+      "bytes": 631
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_contract.py": {
+      "sha256": "e7631b833b605bd71afb51c8a2373bc1e656a403d3814032a2dcae65b5e27b37",
+      "bytes": 4188
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_cors.py": {
+      "sha256": "5f69ed616b121b8daf50605fa33577e0ddfc35ac553d0c248b6a0be584070000",
+      "bytes": 1076
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_dependencies.py": {
+      "sha256": "41857a50fad5b9e9552ff5fc090f7010065b41f6340826251b5bc1a8f51a6c22",
+      "bytes": 3015
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_first_request.py": {
+      "sha256": "5671a7facb998c43de8c32ee199800117cfa097f5f2465fa1a9672f5e9540c7c",
+      "bytes": 488
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/uv.lock": {
+      "sha256": "ffb1f6cf79df2cb902513b374161db50a397a39855237d6a1929527530537f6f",
+      "bytes": 21353
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.mdx": {
+      "sha256": "8169703dd04617b468c20b431f0770a4755d6c90d7c60554dd8921a39cb9cc9f",
+      "bytes": 24575
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-cn.mdx": {
+      "sha256": "86f6e72ab123d9650d674f41d7558021973eeb8502c7f93432e41a12d83ec3b7",
+      "bytes": 23180
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-tw.mdx": {
+      "sha256": "0ea92254e6176add49449ef3e57e009fbce4c8a2810162d81f9d52ea652a834f",
+      "bytes": 23180
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.mdx": {
+      "sha256": "0024ce82a0099ea55d7d5f882504fba12012760ac05db065478de138a6a6881f",
+      "bytes": 29090
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx": {
+      "sha256": "e6ae5845d977e61b173932ade7db341c12332ad7cc6be0efe8d0a5849473bab0",
+      "bytes": 26915
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-tw.mdx": {
+      "sha256": "c3ebff0aa23af13277efb0f410aa300fb8612bfb9ac424bb8b2b8258eba8ca24",
+      "bytes": 26915
+    }
+  },
+  "changes_since_targeted_audit": [],
+  "chapters_before": {
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.mdx": {
+      "sections": 15,
+      "refs": [
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/config.py",
+        "task_api/main.py",
+        "task_api/routes.py",
+        "pyproject.toml",
+        "live_client.py",
+        "requests.sh",
+        "tests/test_basics.py",
+        "solutions/summary.py",
+        "solutions/test_summary.py"
+      ]
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-cn.mdx": {
+      "sections": 15,
+      "refs": [
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/config.py",
+        "task_api/main.py",
+        "task_api/routes.py",
+        "pyproject.toml",
+        "live_client.py",
+        "requests.sh",
+        "tests/test_basics.py",
+        "solutions/summary.py",
+        "solutions/test_summary.py"
+      ]
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-tw.mdx": {
+      "sections": 15,
+      "refs": [
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/config.py",
+        "task_api/main.py",
+        "task_api/routes.py",
+        "pyproject.toml",
+        "live_client.py",
+        "requests.sh",
+        "tests/test_basics.py",
+        "solutions/summary.py",
+        "solutions/test_summary.py"
+      ]
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.mdx": {
+      "sections": 16,
+      "refs": [
+        "pyproject.toml",
+        "tests/test_first_request.py",
+        "task_api/config.py",
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/routes.py",
+        "tests/conftest.py",
+        "tests/test_contract.py",
+        "tests/test_dependencies.py",
+        "experiments/test_fixture_failure.py",
+        "experiments/conftest.py",
+        "solutions/test_independent.py",
+        "live_httpx.py",
+        "live_client.py",
+        "task_api/main.py",
+        "tests/test_cors.py",
+        "browser/index.html"
+      ]
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx": {
+      "sections": 16,
+      "refs": [
+        "pyproject.toml",
+        "tests/test_first_request.py",
+        "task_api/config.py",
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/routes.py",
+        "tests/conftest.py",
+        "tests/test_contract.py",
+        "tests/test_dependencies.py",
+        "experiments/test_fixture_failure.py",
+        "experiments/conftest.py",
+        "solutions/test_independent.py",
+        "live_httpx.py",
+        "live_client.py",
+        "task_api/main.py",
+        "tests/test_cors.py",
+        "browser/index.html"
+      ]
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-tw.mdx": {
+      "sections": 16,
+      "refs": [
+        "pyproject.toml",
+        "tests/test_first_request.py",
+        "task_api/config.py",
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/routes.py",
+        "tests/conftest.py",
+        "tests/test_contract.py",
+        "tests/test_dependencies.py",
+        "experiments/test_fixture_failure.py",
+        "experiments/conftest.py",
+        "solutions/test_independent.py",
+        "live_httpx.py",
+        "live_client.py",
+        "task_api/main.py",
+        "tests/test_cors.py",
+        "browser/index.html"
+      ]
+    }
+  },
+  "original_audit": {
+    "path": "/tmp/langshift-h05-h06-targeted-audit.json",
+    "sha256": "79190c5c730960bfb6405756f8fb125f92986f578e1692acacbe05b36f77da89"
+  },
+  "commands": [
+    {
+      "label": "h05-dependencies: locked sync",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "sync",
+        "--locked"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "",
+      "stderr": "Using CPython 3.13.15\nCreating virtual environment at: .venv\nResolved 20 packages in 3ms\nInstalled 18 packages in 13ms\n + annotated-doc==0.0.5\n + annotated-types==0.8.0\n + anyio==4.12.1\n + click==8.5.0\n + fastapi==0.135.1\n + h11==0.16.0\n + idna==3.20\n + iniconfig==2.3.0\n + packaging==26.3\n + pluggy==1.6.0\n + pydantic==2.12.5\n + pydantic-core==2.41.5\n + pygments==2.21.0\n + pytest==8.4.2\n + starlette==0.52.1\n + typing-extensions==4.16.0\n + typing-inspection==0.4.4\n + uvicorn==0.42.0\n",
+      "elapsed_seconds": 0.031,
+      "id": "command-01",
+      "fresh_environment": true
+    },
+    {
+      "label": "h05-dependencies: standard",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h05-dependencies-standard"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": ".................                                                        [100%]\n17 passed in 1.51s\n",
+      "stderr": "",
+      "elapsed_seconds": 1.976,
+      "id": "command-02"
+    },
+    {
+      "label": "h05-dependencies: independent",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "solutions",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h05-dependencies-independent"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "..                                                                       [100%]\n2 passed in 0.11s\n",
+      "stderr": "",
+      "elapsed_seconds": 0.345,
+      "id": "command-03"
+    },
+    {
+      "label": "h05-dependencies: explicit fault evidence",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/test_live_client_cleanup.py",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h05-dependencies-faults"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "{\"regression\": \"owned-client-cleanup\", \"body_failure\": false, \"port\": 65244, \"server_pid\": 37305, \"server_stopped\": true, \"server_returncode\": -15, \"client_returncode\": 1, \"client_stdout\": \"LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\\n\", \"client_stderr\": \"CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\nTraceback (most recent call last):\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\\\", line 88, in <module>\\n    check(args.port, args.summary)\\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\\\", line 73, in check\\n    raise RuntimeError(message)\\nRuntimeError: CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\n\", \"delete_attempts\": [\"DELETE ATTEMPT /tasks/1\", \"DELETE ATTEMPT /tasks/2\"], \"remaining_ids_before_server_stop\": [1], \"note\": \"Remaining task belongs only to this stopped in-memory fault app.\"}\n.{\"regression\": \"owned-client-cleanup\", \"body_failure\": true, \"port\": 65270, \"server_pid\": 37320, \"server_stopped\": true, \"server_returncode\": -15, \"client_returncode\": 1, \"client_stdout\": \"\", \"client_stderr\": \"CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\nTraceback (most recent call last):\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\\\", line 88, in <module>\\n    check(args.port, args.summary)\\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\\\", line 51, in check\\n    assert send(\\\"GET\\\", \\\"/tasks/99999\\\") == (404, {\\\"detail\\\": \\\"Task not found\\\"})\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nAssertionError\\n\", \"delete_attempts\": [\"DELETE ATTEMPT /tasks/1\", \"DELETE ATTEMPT /tasks/2\"], \"remaining_ids_before_server_stop\": [1], \"note\": \"Remaining task belongs only to this stopped in-memory fault app.\"}\n.\n2 passed in 1.06s\n",
+      "stderr": "",
+      "elapsed_seconds": 1.211,
+      "id": "command-04"
+    },
+    {
+      "label": "h06-api-testing: locked sync",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "sync",
+        "--locked"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "",
+      "stderr": "Using CPython 3.13.15\nCreating virtual environment at: .venv\nResolved 23 packages in 3ms\nInstalled 21 packages in 19ms\n + annotated-doc==0.0.5\n + annotated-types==0.8.0\n + anyio==4.12.1\n + certifi==2026.7.22\n + click==8.5.0\n + fastapi==0.135.1\n + h11==0.16.0\n + httpcore==1.0.9\n + httpx==0.28.1\n + idna==3.20\n + iniconfig==2.3.0\n + packaging==26.3\n + pluggy==1.6.0\n + pydantic==2.12.5\n + pydantic-core==2.41.5\n + pygments==2.21.0\n + pytest==8.4.2\n + starlette==0.52.1\n + typing-extensions==4.16.0\n + typing-inspection==0.4.4\n + uvicorn==0.42.0\n",
+      "elapsed_seconds": 0.037,
+      "id": "command-05",
+      "fresh_environment": true
+    },
+    {
+      "label": "h06-api-testing: standard",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h06-api-testing-standard"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "................................................                         [100%]\n48 passed in 2.39s\n",
+      "stderr": "",
+      "elapsed_seconds": 3.806,
+      "id": "command-06"
+    },
+    {
+      "label": "h06-api-testing: independent",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "solutions",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h06-api-testing-independent"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "...                                                                      [100%]\n3 passed in 0.19s\n",
+      "stderr": "",
+      "elapsed_seconds": 0.449,
+      "id": "command-07"
+    },
+    {
+      "label": "h06-api-testing: explicit fault evidence",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/test_live_client_cleanup.py",
+        "tests/test_patch_readback_regression.py",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h06-api-testing-faults"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "{\"regression\": \"owned-client-cleanup\", \"body_failure\": false, \"port\": 65385, \"server_pid\": 37502, \"server_stopped\": true, \"server_returncode\": -15, \"client_returncode\": 1, \"client_stdout\": \"LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\\n\", \"client_stderr\": \"CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\nTraceback (most recent call last):\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\\\", line 78, in <module>\\n    check(args.port)\\n    ~~~~~^^^^^^^^^^^\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\\\", line 67, in check\\n    raise RuntimeError(message)\\nRuntimeError: CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\n\", \"delete_attempts\": [\"DELETE ATTEMPT /tasks/1\", \"DELETE ATTEMPT /tasks/2\"], \"remaining_ids_before_server_stop\": [1], \"note\": \"Remaining task belongs only to this stopped in-memory fault app.\"}\n.{\"regression\": \"owned-client-cleanup\", \"body_failure\": true, \"port\": 65412, \"server_pid\": 37515, \"server_stopped\": true, \"server_returncode\": -15, \"client_returncode\": 1, \"client_stdout\": \"\", \"client_stderr\": \"CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\nTraceback (most recent call last):\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\\\", line 78, in <module>\\n    check(args.port)\\n    ~~~~~^^^^^^^^^^^\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\\\", line 49, in check\\n    assert send(\\\"GET\\\", \\\"/tasks/99999\\\") == (404, {\\\"detail\\\": \\\"Task not found\\\"})\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nAssertionError\\n\", \"delete_attempts\": [\"DELETE ATTEMPT /tasks/1\", \"DELETE ATTEMPT /tasks/2\"], \"remaining_ids_before_server_stop\": [1], \"note\": \"Remaining task belongs only to this stopped in-memory fault app.\"}\n.{\"regression\": \"stale-response-mutant\", \"target\": \"tests/test_contract.py::test_patch_note_states\", \"child_returncode\": 1, \"child_stdout\": \"F..                                                                      [100%]\\n=================================== FAILURES ===================================\\n____________________ test_patch_note_states[changes0-keep] _____________________\\ntests/test_contract.py:34: in test_patch_note_states\\n    assert stored.json() == expected_task\\nE   AssertionError: assert {'done': Fals...e': None, ...} == {'done': Fals...: 'keep', ...}\\nE     \\nE     Omitting 3 identical items, use -vv to show\\nE     Differing items:\\nE     {'title': 'Untitled'} != {'title': 'Read'}\\nE     {'note': None} != {'note': 'keep'}\\nE     Use -v to get more diff\\n----------------------------- Captured stdout call -----------------------------\\nTRACE acquire POST /tasks\\nTRACE use POST /tasks get_store\\nTRACE use POST /tasks create_task\\nTRACE release POST /tasks closed=True\\nTRACE acquire PATCH /tasks/1\\nTRACE use PATCH /tasks/1 get_store\\nTRACE release PATCH /tasks/1 closed=True\\nTRACE acquire GET /tasks/1\\nTRACE use GET /tasks/1 get_store\\nTRACE release GET /tasks/1 closed=True\\n=========================== short test summary info ============================\\nFAILED tests/test_contract.py::test_patch_note_states[changes0-keep] - Assert...\\n1 failed, 2 passed in 0.06s\\n\", \"child_stderr\": \"\", \"canonical_store_unchanged\": true}\n.{\"regression\": \"stale-response-mutant\", \"target\": \"solutions/test_independent.py::test_empty_patch_preserves_non_default_values\", \"child_returncode\": 1, \"child_stdout\": \"F                                                                        [100%]\\n=================================== FAILURES ===================================\\n________________ test_empty_patch_preserves_non_default_values _________________\\nsolutions/test_independent.py:51: in test_empty_patch_preserves_non_default_values\\n    assert stored.json() == original\\nE   AssertionError: assert {'done': Fals...e': None, ...} == {'done': True...: 'keep', ...}\\nE     \\nE     Omitting 1 identical items, use -vv to show\\nE     Differing items:\\nE     {'note': None} != {'note': 'keep'}\\nE     {'minutes': 0} != {'minutes': 5}\\nE     {'done': False} != {'done': True}\\nE     {'title': 'Untitled'} != {'title': 'Keep'}\\nE     Use -v to get more diff\\n----------------------------- Captured stdout call -----------------------------\\nTRACE acquire POST /tasks\\nTRACE use POST /tasks get_store\\nTRACE use POST /tasks create_task\\nTRACE release POST /tasks closed=True\\nTRACE acquire PATCH /tasks/1\\nTRACE use PATCH /tasks/1 get_store\\nTRACE release PATCH /tasks/1 closed=True\\nTRACE acquire GET /tasks/1\\nTRACE use GET /tasks/1 get_store\\nTRACE release GET /tasks/1 closed=True\\n=========================== short test summary info ============================\\nFAILED solutions/test_independent.py::test_empty_patch_preserves_non_default_values\\n1 failed in 0.15s\\n\", \"child_stderr\": \"\", \"canonical_store_unchanged\": true}\n.\n4 passed in 1.72s\n",
+      "stderr": "",
+      "elapsed_seconds": 2.212,
+      "id": "command-08"
+    },
+    {
+      "label": "h05-dependencies: locked sync",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "sync",
+        "--locked"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "",
+      "stderr": "Resolved 20 packages in 10ms\nChecked 18 packages in 2ms\n",
+      "elapsed_seconds": 0.134,
+      "id": "command-09",
+      "fresh_environment": false
+    },
+    {
+      "label": "h05-dependencies: standard",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h05-dependencies-standard"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": ".................                                                        [100%]\n17 passed in 0.93s\n",
+      "stderr": "",
+      "elapsed_seconds": 1.183,
+      "id": "command-10"
+    },
+    {
+      "label": "h05-dependencies: independent",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "solutions",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h05-dependencies-independent"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "..                                                                       [100%]\n2 passed in 0.10s\n",
+      "stderr": "",
+      "elapsed_seconds": 0.265,
+      "id": "command-11"
+    },
+    {
+      "label": "h05-dependencies: explicit fault evidence",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/test_live_client_cleanup.py",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h05-dependencies-faults"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "{\"regression\": \"owned-client-cleanup\", \"body_failure\": false, \"port\": 49888, \"server_pid\": 40617, \"server_stopped\": true, \"server_returncode\": -15, \"client_returncode\": 1, \"client_stdout\": \"LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\\n\", \"client_stderr\": \"CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\nTraceback (most recent call last):\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\\\", line 88, in <module>\\n    check(args.port, args.summary)\\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\\\", line 73, in check\\n    raise RuntimeError(message)\\nRuntimeError: CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\n\", \"delete_attempts\": [\"DELETE ATTEMPT /tasks/1\", \"DELETE ATTEMPT /tasks/2\"], \"remaining_ids_before_server_stop\": [1], \"note\": \"Remaining task belongs only to this stopped in-memory fault app.\"}\n.{\"regression\": \"owned-client-cleanup\", \"body_failure\": true, \"port\": 49914, \"server_pid\": 40620, \"server_stopped\": true, \"server_returncode\": -15, \"client_returncode\": 1, \"client_stdout\": \"\", \"client_stderr\": \"CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\nTraceback (most recent call last):\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\\\", line 88, in <module>\\n    check(args.port, args.summary)\\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\\\", line 51, in check\\n    assert send(\\\"GET\\\", \\\"/tasks/99999\\\") == (404, {\\\"detail\\\": \\\"Task not found\\\"})\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nAssertionError\\n\", \"delete_attempts\": [\"DELETE ATTEMPT /tasks/1\", \"DELETE ATTEMPT /tasks/2\"], \"remaining_ids_before_server_stop\": [1], \"note\": \"Remaining task belongs only to this stopped in-memory fault app.\"}\n.\n2 passed in 0.80s\n",
+      "stderr": "",
+      "elapsed_seconds": 0.946,
+      "id": "command-12"
+    },
+    {
+      "label": "h06-api-testing: locked sync",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "sync",
+        "--locked"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "",
+      "stderr": "Resolved 23 packages in 3ms\nChecked 21 packages in 2ms\n",
+      "elapsed_seconds": 0.046,
+      "id": "command-13",
+      "fresh_environment": false
+    },
+    {
+      "label": "h06-api-testing: standard",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h06-api-testing-standard"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "................................................                         [100%]\n48 passed in 1.75s\n",
+      "stderr": "",
+      "elapsed_seconds": 2.086,
+      "id": "command-14"
+    },
+    {
+      "label": "h06-api-testing: independent",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "solutions",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h06-api-testing-independent"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "...                                                                      [100%]\n3 passed in 0.14s\n",
+      "stderr": "",
+      "elapsed_seconds": 0.325,
+      "id": "command-15"
+    },
+    {
+      "label": "h06-api-testing: explicit fault evidence",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/test_live_client_cleanup.py",
+        "tests/test_patch_readback_regression.py",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/pytest-h06-api-testing-faults"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "{\"regression\": \"owned-client-cleanup\", \"body_failure\": false, \"port\": 50000, \"server_pid\": 40646, \"server_stopped\": true, \"server_returncode\": -15, \"client_returncode\": 1, \"client_stdout\": \"LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\\n\", \"client_stderr\": \"CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\nTraceback (most recent call last):\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\\\", line 78, in <module>\\n    check(args.port)\\n    ~~~~~^^^^^^^^^^^\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\\\", line 67, in check\\n    raise RuntimeError(message)\\nRuntimeError: CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\n\", \"delete_attempts\": [\"DELETE ATTEMPT /tasks/1\", \"DELETE ATTEMPT /tasks/2\"], \"remaining_ids_before_server_stop\": [1], \"note\": \"Remaining task belongs only to this stopped in-memory fault app.\"}\n.{\"regression\": \"owned-client-cleanup\", \"body_failure\": true, \"port\": 50026, \"server_pid\": 40648, \"server_stopped\": true, \"server_returncode\": -15, \"client_returncode\": 1, \"client_stdout\": \"\", \"client_stderr\": \"CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\\nTraceback (most recent call last):\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\\\", line 78, in <module>\\n    check(args.port)\\n    ~~~~~^^^^^^^^^^^\\n  File \\\"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\\\", line 49, in check\\n    assert send(\\\"GET\\\", \\\"/tasks/99999\\\") == (404, {\\\"detail\\\": \\\"Task not found\\\"})\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nAssertionError\\n\", \"delete_attempts\": [\"DELETE ATTEMPT /tasks/1\", \"DELETE ATTEMPT /tasks/2\"], \"remaining_ids_before_server_stop\": [1], \"note\": \"Remaining task belongs only to this stopped in-memory fault app.\"}\n.{\"regression\": \"stale-response-mutant\", \"target\": \"tests/test_contract.py::test_patch_note_states\", \"child_returncode\": 1, \"child_stdout\": \"F..                                                                      [100%]\\n=================================== FAILURES ===================================\\n____________________ test_patch_note_states[changes0-keep] _____________________\\ntests/test_contract.py:34: in test_patch_note_states\\n    assert stored.json() == expected_task\\nE   AssertionError: assert {'done': Fals...e': None, ...} == {'done': Fals...: 'keep', ...}\\nE     \\nE     Omitting 3 identical items, use -vv to show\\nE     Differing items:\\nE     {'title': 'Untitled'} != {'title': 'Read'}\\nE     {'note': None} != {'note': 'keep'}\\nE     Use -v to get more diff\\n----------------------------- Captured stdout call -----------------------------\\nTRACE acquire POST /tasks\\nTRACE use POST /tasks get_store\\nTRACE use POST /tasks create_task\\nTRACE release POST /tasks closed=True\\nTRACE acquire PATCH /tasks/1\\nTRACE use PATCH /tasks/1 get_store\\nTRACE release PATCH /tasks/1 closed=True\\nTRACE acquire GET /tasks/1\\nTRACE use GET /tasks/1 get_store\\nTRACE release GET /tasks/1 closed=True\\n=========================== short test summary info ============================\\nFAILED tests/test_contract.py::test_patch_note_states[changes0-keep] - Assert...\\n1 failed, 2 passed in 0.04s\\n\", \"child_stderr\": \"\", \"canonical_store_unchanged\": true}\n.{\"regression\": \"stale-response-mutant\", \"target\": \"solutions/test_independent.py::test_empty_patch_preserves_non_default_values\", \"child_returncode\": 1, \"child_stdout\": \"F                                                                        [100%]\\n=================================== FAILURES ===================================\\n________________ test_empty_patch_preserves_non_default_values _________________\\nsolutions/test_independent.py:51: in test_empty_patch_preserves_non_default_values\\n    assert stored.json() == original\\nE   AssertionError: assert {'done': Fals...e': None, ...} == {'done': True...: 'keep', ...}\\nE     \\nE     Omitting 1 identical items, use -vv to show\\nE     Differing items:\\nE     {'minutes': 0} != {'minutes': 5}\\nE     {'note': None} != {'note': 'keep'}\\nE     {'done': False} != {'done': True}\\nE     {'title': 'Untitled'} != {'title': 'Keep'}\\nE     Use -v to get more diff\\n----------------------------- Captured stdout call -----------------------------\\nTRACE acquire POST /tasks\\nTRACE use POST /tasks get_store\\nTRACE use POST /tasks create_task\\nTRACE release POST /tasks closed=True\\nTRACE acquire PATCH /tasks/1\\nTRACE use PATCH /tasks/1 get_store\\nTRACE release PATCH /tasks/1 closed=True\\nTRACE acquire GET /tasks/1\\nTRACE use GET /tasks/1 get_store\\nTRACE release GET /tasks/1 closed=True\\n=========================== short test summary info ============================\\nFAILED solutions/test_independent.py::test_empty_patch_preserves_non_default_values\\n1 failed in 0.13s\\n\", \"child_stderr\": \"\", \"canonical_store_unchanged\": true}\n.\n4 passed in 1.46s\n",
+      "stderr": "",
+      "elapsed_seconds": 1.73,
+      "id": "command-16"
+    },
+    {
+      "label": "h05-dependencies:canonical: healthy urllib replay 1",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "live_client.py",
+        "--port",
+        "50084"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nLIVE PASS: cleanup and subsequent 404\n",
+      "stderr": "",
+      "id": "command-17"
+    },
+    {
+      "label": "h05-dependencies:canonical: healthy urllib replay 2",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "live_client.py",
+        "--port",
+        "50084"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nLIVE PASS: cleanup and subsequent 404\n",
+      "stderr": "",
+      "id": "command-18"
+    },
+    {
+      "label": "h05-dependencies:summary: healthy urllib replay 1",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "live_client.py",
+        "--port",
+        "50138",
+        "--summary"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nSUMMARY PASS: empty, populated, updated, deleted\nLIVE PASS: cleanup and subsequent 404\n",
+      "stderr": "",
+      "id": "command-19"
+    },
+    {
+      "label": "h05-dependencies:summary: healthy urllib replay 2",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "live_client.py",
+        "--port",
+        "50138",
+        "--summary"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nSUMMARY PASS: empty, populated, updated, deleted\nLIVE PASS: cleanup and subsequent 404\n",
+      "stderr": "",
+      "id": "command-20"
+    },
+    {
+      "label": "h06-api-testing:canonical: healthy urllib replay 1",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/.venv/bin/python",
+        "live_client.py",
+        "--port",
+        "50205"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nLIVE PASS: cleanup and subsequent 404\n",
+      "stderr": "",
+      "id": "command-21"
+    },
+    {
+      "label": "h06-api-testing:canonical: healthy urllib replay 2",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/.venv/bin/python",
+        "live_client.py",
+        "--port",
+        "50205"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nLIVE PASS: cleanup and subsequent 404\n",
+      "stderr": "",
+      "id": "command-22"
+    },
+    {
+      "label": "h06-api-testing:canonical: healthy HTTPX",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/.venv/bin/python",
+        "live_httpx.py",
+        "--port",
+        "50205"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "stdout": "HTTPX LIVE PASS: real socket, 201/200/422, PATCH unchanged, preflight\nHTTPX LIVE PASS: cleanup 204/404\n",
+      "stderr": "",
+      "id": "command-23"
+    },
+    {
+      "label": "h06: original expected fixture failure",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "experiments/test_fixture_failure.py",
+        "--basetemp",
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/fixture-failure"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "stdout": "F.                                                                       [100%]\n=================================== FAILURES ===================================\n__________________________ test_01_deliberate_failure __________________________\n\napp = <fastapi.applications.FastAPI object at 0x10814fcb0>\noverrides = {<function get_store at 0x10805a480>: <function test_01_deliberate_failure.<locals>.<lambda> at 0x10820ccc0>}\n\n    def test_01_deliberate_failure(app, overrides):\n        seen.append(app)\n        overrides[get_store] = lambda: MemoryStore()\n>       assert False, \"deliberate failure after override\"\nE       AssertionError: deliberate failure after override\nE       assert False\n\nexperiments/test_fixture_failure.py:16: AssertionError\n=========================== short test summary info ============================\nFAILED experiments/test_fixture_failure.py::test_01_deliberate_failure - Asse...\n1 failed, 1 passed in 0.02s\n",
+      "stderr": "",
+      "id": "command-24"
+    }
+  ],
+  "repairs": [
+    "H06-F01",
+    "H05-H06-F02"
+  ],
+  "healthy_server_cleanup": [
+    {
+      "label": "h05-dependencies:canonical",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "-m",
+        "uvicorn",
+        "task_api.main:create_app",
+        "--factory",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "0"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "pid": 40767,
+      "port": 50084,
+      "returncode": -15,
+      "stopped": true,
+      "port_closed": true,
+      "tasks_after_client_cleanup": {
+        "items": [],
+        "limit": 20,
+        "offset": 0,
+        "total": 0
+      },
+      "summary_after_client_cleanup": null,
+      "server_log": "INFO:     Started server process [40767]\nINFO:     Waiting for application startup.\nINFO:     Application startup complete.\nINFO:     Uvicorn running on http://127.0.0.1:50084 (Press CTRL+C to quit)\nINFO:     127.0.0.1:50085 - \"GET /health HTTP/1.1\" 200 OK\nINFO:     127.0.0.1:50086 - \"GET /health HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50087 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50088 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50089 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50090 - \"GET /tasks?limit=1&offset=1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50091 - \"PATCH /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50092 - \"PATCH /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50093 - \"PATCH /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nINFO:     127.0.0.1:50094 - \"GET /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50095 - \"PATCH /tasks/1 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nINFO:     127.0.0.1:50096 - \"GET /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50097 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50098 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50099 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50100 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50101 - \"GET /tasks?limit=0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50102 - \"GET /tasks?offset=-1 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/0\nTRACE use GET /tasks/0 get_store\nTRACE release GET /tasks/0 closed=True\nINFO:     127.0.0.1:50103 - \"GET /tasks/0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/no\nTRACE use GET /tasks/no get_store\nTRACE release GET /tasks/no closed=True\nINFO:     127.0.0.1:50104 - \"GET /tasks/no HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/99999\nTRACE use GET /tasks/99999 get_store\nTRACE release GET /tasks/99999 closed=True\nINFO:     127.0.0.1:50105 - \"GET /tasks/99999 HTTP/1.1\" 404 Not Found\nTRACE acquire DELETE /tasks/1\nTRACE use DELETE /tasks/1 get_store\nTRACE release DELETE /tasks/1 closed=True\nINFO:     127.0.0.1:50106 - \"DELETE /tasks/1 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nINFO:     127.0.0.1:50107 - \"GET /tasks/1 HTTP/1.1\" 404 Not Found\nTRACE acquire DELETE /tasks/2\nTRACE use DELETE /tasks/2 get_store\nTRACE release DELETE /tasks/2 closed=True\nINFO:     127.0.0.1:50108 - \"DELETE /tasks/2 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/2\nTRACE use GET /tasks/2 get_store\nTRACE release GET /tasks/2 closed=True\nINFO:     127.0.0.1:50109 - \"GET /tasks/2 HTTP/1.1\" 404 Not Found\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50110 - \"GET /tasks HTTP/1.1\" 200 OK\nINFO:     127.0.0.1:50111 - \"GET /health HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50112 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50113 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50114 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50115 - \"GET /tasks?limit=1&offset=1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50116 - \"PATCH /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50117 - \"PATCH /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50118 - \"PATCH /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks/3\nTRACE use GET /tasks/3 get_store\nTRACE release GET /tasks/3 closed=True\nINFO:     127.0.0.1:50119 - \"GET /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50120 - \"PATCH /tasks/3 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/3\nTRACE use GET /tasks/3 get_store\nTRACE release GET /tasks/3 closed=True\nINFO:     127.0.0.1:50121 - \"GET /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50122 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50123 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50124 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50125 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50126 - \"GET /tasks?limit=0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50127 - \"GET /tasks?offset=-1 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/0\nTRACE use GET /tasks/0 get_store\nTRACE release GET /tasks/0 closed=True\nINFO:     127.0.0.1:50128 - \"GET /tasks/0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/no\nTRACE use GET /tasks/no get_store\nTRACE release GET /tasks/no closed=True\nINFO:     127.0.0.1:50129 - \"GET /tasks/no HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/99999\nTRACE use GET /tasks/99999 get_store\nTRACE release GET /tasks/99999 closed=True\nINFO:     127.0.0.1:50130 - \"GET /tasks/99999 HTTP/1.1\" 404 Not Found\nTRACE acquire DELETE /tasks/3\nTRACE use DELETE /tasks/3 get_store\nTRACE release DELETE /tasks/3 closed=True\nINFO:     127.0.0.1:50131 - \"DELETE /tasks/3 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/3\nTRACE use GET /tasks/3 get_store\nTRACE release GET /tasks/3 closed=True\nINFO:     127.0.0.1:50132 - \"GET /tasks/3 HTTP/1.1\" 404 Not Found\nTRACE acquire DELETE /tasks/4\nTRACE use DELETE /tasks/4 get_store\nTRACE release DELETE /tasks/4 closed=True\nINFO:     127.0.0.1:50133 - \"DELETE /tasks/4 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/4\nTRACE use GET /tasks/4 get_store\nTRACE release GET /tasks/4 closed=True\nINFO:     127.0.0.1:50134 - \"GET /tasks/4 HTTP/1.1\" 404 Not Found\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50135 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50136 - \"GET /tasks HTTP/1.1\" 200 OK\nINFO:     Shutting down\nINFO:     Waiting for application shutdown.\nINFO:     Application shutdown complete.\nINFO:     Finished server process [40767]\n"
+    },
+    {
+      "label": "h05-dependencies:summary",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/.venv/bin/python",
+        "-m",
+        "uvicorn",
+        "solutions.summary:create_summary_app",
+        "--factory",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "0"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies",
+      "pid": 40770,
+      "port": 50138,
+      "returncode": -15,
+      "stopped": true,
+      "port_closed": true,
+      "tasks_after_client_cleanup": {
+        "items": [],
+        "limit": 20,
+        "offset": 0,
+        "total": 0
+      },
+      "summary_after_client_cleanup": {
+        "total": 0,
+        "done": 0,
+        "minutes": 0
+      },
+      "server_log": "INFO:     Started server process [40770]\nINFO:     Waiting for application startup.\nINFO:     Application startup complete.\nINFO:     Uvicorn running on http://127.0.0.1:50138 (Press CTRL+C to quit)\nINFO:     127.0.0.1:50139 - \"GET /health HTTP/1.1\" 200 OK\nINFO:     127.0.0.1:50140 - \"GET /health HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50141 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nINFO:     127.0.0.1:50142 - \"GET /summary HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50143 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50144 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50145 - \"GET /tasks?limit=1&offset=1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50146 - \"PATCH /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50147 - \"PATCH /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50148 - \"PATCH /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nINFO:     127.0.0.1:50149 - \"GET /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50150 - \"PATCH /tasks/1 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nINFO:     127.0.0.1:50151 - \"GET /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50152 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50153 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50154 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50155 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50156 - \"GET /tasks?limit=0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50157 - \"GET /tasks?offset=-1 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/0\nTRACE use GET /tasks/0 get_store\nTRACE release GET /tasks/0 closed=True\nINFO:     127.0.0.1:50158 - \"GET /tasks/0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/no\nTRACE use GET /tasks/no get_store\nTRACE release GET /tasks/no closed=True\nINFO:     127.0.0.1:50159 - \"GET /tasks/no HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/99999\nTRACE use GET /tasks/99999 get_store\nTRACE release GET /tasks/99999 closed=True\nINFO:     127.0.0.1:50160 - \"GET /tasks/99999 HTTP/1.1\" 404 Not Found\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nINFO:     127.0.0.1:50161 - \"GET /summary HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50162 - \"PATCH /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nINFO:     127.0.0.1:50163 - \"GET /summary HTTP/1.1\" 200 OK\nTRACE acquire DELETE /tasks/1\nTRACE use DELETE /tasks/1 get_store\nTRACE release DELETE /tasks/1 closed=True\nINFO:     127.0.0.1:50164 - \"DELETE /tasks/1 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nINFO:     127.0.0.1:50165 - \"GET /tasks/1 HTTP/1.1\" 404 Not Found\nTRACE acquire DELETE /tasks/2\nTRACE use DELETE /tasks/2 get_store\nTRACE release DELETE /tasks/2 closed=True\nINFO:     127.0.0.1:50166 - \"DELETE /tasks/2 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/2\nTRACE use GET /tasks/2 get_store\nTRACE release GET /tasks/2 closed=True\nINFO:     127.0.0.1:50167 - \"GET /tasks/2 HTTP/1.1\" 404 Not Found\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50168 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nINFO:     127.0.0.1:50169 - \"GET /summary HTTP/1.1\" 200 OK\nINFO:     127.0.0.1:50170 - \"GET /health HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50171 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nINFO:     127.0.0.1:50172 - \"GET /summary HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50173 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50174 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50175 - \"GET /tasks?limit=1&offset=1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50176 - \"PATCH /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50177 - \"PATCH /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50178 - \"PATCH /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks/3\nTRACE use GET /tasks/3 get_store\nTRACE release GET /tasks/3 closed=True\nINFO:     127.0.0.1:50179 - \"GET /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50180 - \"PATCH /tasks/3 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/3\nTRACE use GET /tasks/3 get_store\nTRACE release GET /tasks/3 closed=True\nINFO:     127.0.0.1:50181 - \"GET /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50182 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50183 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50184 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50185 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50186 - \"GET /tasks?limit=0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50187 - \"GET /tasks?offset=-1 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/0\nTRACE use GET /tasks/0 get_store\nTRACE release GET /tasks/0 closed=True\nINFO:     127.0.0.1:50188 - \"GET /tasks/0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/no\nTRACE use GET /tasks/no get_store\nTRACE release GET /tasks/no closed=True\nINFO:     127.0.0.1:50189 - \"GET /tasks/no HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/99999\nTRACE use GET /tasks/99999 get_store\nTRACE release GET /tasks/99999 closed=True\nINFO:     127.0.0.1:50190 - \"GET /tasks/99999 HTTP/1.1\" 404 Not Found\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nINFO:     127.0.0.1:50191 - \"GET /summary HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50192 - \"PATCH /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nINFO:     127.0.0.1:50193 - \"GET /summary HTTP/1.1\" 200 OK\nTRACE acquire DELETE /tasks/3\nTRACE use DELETE /tasks/3 get_store\nTRACE release DELETE /tasks/3 closed=True\nINFO:     127.0.0.1:50194 - \"DELETE /tasks/3 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/3\nTRACE use GET /tasks/3 get_store\nTRACE release GET /tasks/3 closed=True\nINFO:     127.0.0.1:50195 - \"GET /tasks/3 HTTP/1.1\" 404 Not Found\nTRACE acquire DELETE /tasks/4\nTRACE use DELETE /tasks/4 get_store\nTRACE release DELETE /tasks/4 closed=True\nINFO:     127.0.0.1:50196 - \"DELETE /tasks/4 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/4\nTRACE use GET /tasks/4 get_store\nTRACE release GET /tasks/4 closed=True\nINFO:     127.0.0.1:50197 - \"GET /tasks/4 HTTP/1.1\" 404 Not Found\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50198 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nINFO:     127.0.0.1:50199 - \"GET /summary HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50200 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nINFO:     127.0.0.1:50201 - \"GET /summary HTTP/1.1\" 200 OK\nINFO:     Shutting down\nINFO:     Waiting for application shutdown.\nINFO:     Application shutdown complete.\nINFO:     Finished server process [40770]\n"
+    },
+    {
+      "label": "h06-api-testing:canonical",
+      "command": [
+        "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/.venv/bin/python",
+        "-m",
+        "uvicorn",
+        "task_api.main:create_app",
+        "--factory",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "0"
+      ],
+      "cwd": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing",
+      "pid": 40773,
+      "port": 50205,
+      "returncode": -15,
+      "stopped": true,
+      "port_closed": true,
+      "tasks_after_client_cleanup": {
+        "items": [],
+        "limit": 20,
+        "offset": 0,
+        "total": 0
+      },
+      "summary_after_client_cleanup": null,
+      "server_log": "INFO:     Started server process [40773]\nINFO:     Waiting for application startup.\nINFO:     Application startup complete.\nINFO:     Uvicorn running on http://127.0.0.1:50205 (Press CTRL+C to quit)\nINFO:     127.0.0.1:50206 - \"GET /health HTTP/1.1\" 200 OK\nINFO:     127.0.0.1:50207 - \"GET /health HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50208 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50209 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50210 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50211 - \"GET /tasks?limit=1&offset=1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50212 - \"PATCH /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50213 - \"PATCH /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50214 - \"PATCH /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nINFO:     127.0.0.1:50215 - \"GET /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nINFO:     127.0.0.1:50216 - \"PATCH /tasks/1 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nINFO:     127.0.0.1:50217 - \"GET /tasks/1 HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50218 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50219 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50220 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50221 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50222 - \"GET /tasks?limit=0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50223 - \"GET /tasks?offset=-1 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/0\nTRACE use GET /tasks/0 get_store\nTRACE release GET /tasks/0 closed=True\nINFO:     127.0.0.1:50224 - \"GET /tasks/0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/no\nTRACE use GET /tasks/no get_store\nTRACE release GET /tasks/no closed=True\nINFO:     127.0.0.1:50225 - \"GET /tasks/no HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/99999\nTRACE use GET /tasks/99999 get_store\nTRACE release GET /tasks/99999 closed=True\nINFO:     127.0.0.1:50226 - \"GET /tasks/99999 HTTP/1.1\" 404 Not Found\nTRACE acquire DELETE /tasks/1\nTRACE use DELETE /tasks/1 get_store\nTRACE release DELETE /tasks/1 closed=True\nINFO:     127.0.0.1:50227 - \"DELETE /tasks/1 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nINFO:     127.0.0.1:50228 - \"GET /tasks/1 HTTP/1.1\" 404 Not Found\nTRACE acquire DELETE /tasks/2\nTRACE use DELETE /tasks/2 get_store\nTRACE release DELETE /tasks/2 closed=True\nINFO:     127.0.0.1:50229 - \"DELETE /tasks/2 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/2\nTRACE use GET /tasks/2 get_store\nTRACE release GET /tasks/2 closed=True\nINFO:     127.0.0.1:50230 - \"GET /tasks/2 HTTP/1.1\" 404 Not Found\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50231 - \"GET /tasks HTTP/1.1\" 200 OK\nINFO:     127.0.0.1:50232 - \"GET /health HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50233 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50234 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50235 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50236 - \"GET /tasks?limit=1&offset=1 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50237 - \"PATCH /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50238 - \"PATCH /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50239 - \"PATCH /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks/3\nTRACE use GET /tasks/3 get_store\nTRACE release GET /tasks/3 closed=True\nINFO:     127.0.0.1:50240 - \"GET /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/3\nTRACE use PATCH /tasks/3 get_store\nTRACE release PATCH /tasks/3 closed=True\nINFO:     127.0.0.1:50241 - \"PATCH /tasks/3 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/3\nTRACE use GET /tasks/3 get_store\nTRACE release GET /tasks/3 closed=True\nINFO:     127.0.0.1:50242 - \"GET /tasks/3 HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50243 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50244 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50245 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50246 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50247 - \"GET /tasks?limit=0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50248 - \"GET /tasks?offset=-1 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/0\nTRACE use GET /tasks/0 get_store\nTRACE release GET /tasks/0 closed=True\nINFO:     127.0.0.1:50249 - \"GET /tasks/0 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/no\nTRACE use GET /tasks/no get_store\nTRACE release GET /tasks/no closed=True\nINFO:     127.0.0.1:50250 - \"GET /tasks/no HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/99999\nTRACE use GET /tasks/99999 get_store\nTRACE release GET /tasks/99999 closed=True\nINFO:     127.0.0.1:50251 - \"GET /tasks/99999 HTTP/1.1\" 404 Not Found\nTRACE acquire DELETE /tasks/3\nTRACE use DELETE /tasks/3 get_store\nTRACE release DELETE /tasks/3 closed=True\nINFO:     127.0.0.1:50252 - \"DELETE /tasks/3 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/3\nTRACE use GET /tasks/3 get_store\nTRACE release GET /tasks/3 closed=True\nINFO:     127.0.0.1:50253 - \"GET /tasks/3 HTTP/1.1\" 404 Not Found\nTRACE acquire DELETE /tasks/4\nTRACE use DELETE /tasks/4 get_store\nTRACE release DELETE /tasks/4 closed=True\nINFO:     127.0.0.1:50254 - \"DELETE /tasks/4 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/4\nTRACE use GET /tasks/4 get_store\nTRACE release GET /tasks/4 closed=True\nINFO:     127.0.0.1:50255 - \"GET /tasks/4 HTTP/1.1\" 404 Not Found\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50256 - \"GET /tasks HTTP/1.1\" 200 OK\nINFO:     127.0.0.1:50257 - \"GET /health HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50257 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nINFO:     127.0.0.1:50257 - \"POST /tasks HTTP/1.1\" 201 Created\nTRACE acquire GET /tasks/5\nTRACE use GET /tasks/5 get_store\nTRACE release GET /tasks/5 closed=True\nINFO:     127.0.0.1:50257 - \"GET /tasks/5 HTTP/1.1\" 200 OK\nTRACE acquire PATCH /tasks/5\nTRACE use PATCH /tasks/5 get_store\nTRACE release PATCH /tasks/5 closed=True\nINFO:     127.0.0.1:50257 - \"PATCH /tasks/5 HTTP/1.1\" 422 Unprocessable Content\nTRACE acquire GET /tasks/5\nTRACE use GET /tasks/5 get_store\nTRACE release GET /tasks/5 closed=True\nINFO:     127.0.0.1:50257 - \"GET /tasks/5 HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50257 - \"GET /tasks?limit=1&offset=0 HTTP/1.1\" 200 OK\nINFO:     127.0.0.1:50257 - \"OPTIONS /tasks HTTP/1.1\" 200 OK\nTRACE acquire DELETE /tasks/5\nTRACE use DELETE /tasks/5 get_store\nTRACE release DELETE /tasks/5 closed=True\nINFO:     127.0.0.1:50257 - \"DELETE /tasks/5 HTTP/1.1\" 204 No Content\nTRACE acquire GET /tasks/5\nTRACE use GET /tasks/5 get_store\nTRACE release GET /tasks/5 closed=True\nINFO:     127.0.0.1:50257 - \"GET /tasks/5 HTTP/1.1\" 404 Not Found\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50257 - \"GET /tasks HTTP/1.1\" 200 OK\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nINFO:     127.0.0.1:50258 - \"GET /tasks HTTP/1.1\" 200 OK\nINFO:     Shutting down\nINFO:     Waiting for application shutdown.\nINFO:     Application shutdown complete.\nINFO:     Finished server process [40773]\n"
+    }
+  ],
+  "modified_files": [
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.mdx",
+      "kind": "modified",
+      "before_sha256": "8169703dd04617b468c20b431f0770a4755d6c90d7c60554dd8921a39cb9cc9f",
+      "after_sha256": "13d6db81ba8333abf99062474fba1d2469d6508162ec2c7bf82fa8ca5f64bbd7",
+      "bytes": 26681
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-cn.mdx",
+      "kind": "modified",
+      "before_sha256": "86f6e72ab123d9650d674f41d7558021973eeb8502c7f93432e41a12d83ec3b7",
+      "after_sha256": "043c9ee9c3363e02bb33ba8650c6f06d5357652ce4244e7d20005f48a4501b2b",
+      "bytes": 25014
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-tw.mdx",
+      "kind": "modified",
+      "before_sha256": "0ea92254e6176add49449ef3e57e009fbce4c8a2810162d81f9d52ea652a834f",
+      "after_sha256": "2e4755d0b6d15a6477f811fe34e6d47b627748fcb3f9a70a8907dd74e602e1f0",
+      "bytes": 25014
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.mdx",
+      "kind": "modified",
+      "before_sha256": "0024ce82a0099ea55d7d5f882504fba12012760ac05db065478de138a6a6881f",
+      "after_sha256": "8b71ca0294b72d80ffd5d566c913ec5e9574e798e9fa54f39f29a0dad17bf781",
+      "bytes": 32433
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx",
+      "kind": "modified",
+      "before_sha256": "e6ae5845d977e61b173932ade7db341c12332ad7cc6be0efe8d0a5849473bab0",
+      "after_sha256": "f91dc6c8bdda5f4034f7ed6f5a69bfa08e7497a8b595d6dcc0947780dc2823b2",
+      "bytes": 29832
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-tw.mdx",
+      "kind": "modified",
+      "before_sha256": "c3ebff0aa23af13277efb0f410aa300fb8612bfb9ac424bb8b2b8258eba8ca24",
+      "after_sha256": "98f8d00e9af2c2716b43e0d81044ef68275bc299f52139031a632bb7a8f4db46",
+      "bytes": 29832
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies-files.json",
+      "kind": "modified",
+      "before_sha256": "c9c7353e6a11c9129635c8a88a3d1b163ecbf1ab7a871b373e07de9079461ca9",
+      "after_sha256": "83fd2384c5e52f76b922c42409fffcffdd0ad9be40c6160415b9cf3289187303",
+      "bytes": 505
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/README.md",
+      "kind": "modified",
+      "before_sha256": "5a5c38aabcfbdb2377b2656d8ee94d024c99ce622c1ee9229f6c8f0e9fb5458c",
+      "after_sha256": "8c13acc178b5fda7e002e8b0d63b1baedad78da6307945f158021a40bb4ce91f",
+      "bytes": 7509
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/README.zh-cn.md",
+      "kind": "modified",
+      "before_sha256": "3b8f3f5b03b45e58bade2042d4b1b9a5f7cfa8c0759e158fd1bff0b6df6ff314",
+      "after_sha256": "d3acb5471cd11e1ea6d7c447b7d5152cb5e6004e91809e1dc3f223175301334a",
+      "bytes": 6791
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/README.zh-tw.md",
+      "kind": "modified",
+      "before_sha256": "f86ce6361cf79f268ebab5b4a3a52e03fd6e4d0b6cf9f1235a838388268be018",
+      "after_sha256": "98bf5c50fe7fdb2022514abbaa011d27efd1bc8314698fb10effad619784d8cb",
+      "bytes": 6791
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/live_client.py",
+      "kind": "modified",
+      "before_sha256": "729c9190db01d8beb1ddf1aa1c0c98a9ad0fbe09aca4b8c63fe11ead30c5e1ba",
+      "after_sha256": "e144c9e694e27f3e40c0fc0e319aae21cef9248a196e3198f17f3fb29bd37298",
+      "bytes": 4502
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/tests/test_live_client_cleanup.py",
+      "kind": "added",
+      "before_sha256": null,
+      "after_sha256": "c7f7fde2bfc0ee4bfeaf955cf9cfa90719d40bbed97554b1ae62897d65235b7f",
+      "bytes": 5176
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing-files.json",
+      "kind": "modified",
+      "before_sha256": "d280292288c1c1b7d056165d477dbcc4a66e95fd7497953fef43d9aed469247c",
+      "after_sha256": "7cf819f066783d0ec5b241e30b441608c82e606d8699cffd36eab074a27c82d8",
+      "bytes": 751
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/README.md",
+      "kind": "modified",
+      "before_sha256": "967af2b772894d7fa74278c15502d11a1a252a593167c0202f312a43fe0a3185",
+      "after_sha256": "9c051c02167d65049506c4db71e282243bba649db37889ebb5e9e49005676ca5",
+      "bytes": 9498
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/README.zh-cn.md",
+      "kind": "modified",
+      "before_sha256": "8ea7c80b626152fbe5eaf2421a2f7039ce03ace2d845f6012a0ad3046602382f",
+      "after_sha256": "8eab7aa1c2692e572323a8022edef677b0ea65262fbd11a036eab2b28430e162",
+      "bytes": 8422
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/README.zh-tw.md",
+      "kind": "modified",
+      "before_sha256": "ad3bdee182312a1f00b2c2a103f48d82e11976efca163feca9ec15eb6a171fea",
+      "after_sha256": "44df1ec88a2a81410f2bc24994b268c17911e108b973178ccfb59b7abb660b52",
+      "bytes": 8422
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/live_client.py",
+      "kind": "modified",
+      "before_sha256": "0d739429afd0652c269255d5d51e70194e6e1a47bcdbd76ed5f2e24ef625a5a3",
+      "after_sha256": "389ac841769a76dd991297c74ff76d09509466e108a3954a9bc8dadd8ade9db3",
+      "bytes": 3844
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/solutions/test_independent.py",
+      "kind": "modified",
+      "before_sha256": "e5e4020368aa9f224169b30a45a1ce9ffc3b87f15a3ba9cb24614f7af2b933d3",
+      "after_sha256": "b2ecbb60ec095dbbda6083b18ffa11a913f12f55c133d86cad7828e0b6afe211",
+      "bytes": 1988
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_contract.py",
+      "kind": "modified",
+      "before_sha256": "e7631b833b605bd71afb51c8a2373bc1e656a403d3814032a2dcae65b5e27b37",
+      "after_sha256": "8e712ac26636a6cad860c98ec0a7d13c3931aa0f31eae999cae97e592af9fced",
+      "bytes": 4313
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_live_client_cleanup.py",
+      "kind": "added",
+      "before_sha256": null,
+      "after_sha256": "c7f7fde2bfc0ee4bfeaf955cf9cfa90719d40bbed97554b1ae62897d65235b7f",
+      "bytes": 5176
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_patch_readback_regression.py",
+      "kind": "added",
+      "before_sha256": null,
+      "after_sha256": "f8508c4ad14d468469bbc1461a375a1425e60992a11d2666c13ab36dbfdbcd8e",
+      "bytes": 2674
+    }
+  ],
+  "modified_file_count": 21,
+  "unchanged_snapshotted_file_count": 39,
+  "allowlist_verification": [
+    {
+      "lab": "h05-dependencies",
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies-files.json",
+      "published_file_count": 22,
+      "new_published_files": [
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/tests/test_live_client_cleanup.py"
+      ],
+      "all_files_exist": true,
+      "no_cache_database_or_secret_paths": true,
+      "final_tested_copy_matches_all_published_bytes": true
+    },
+    {
+      "lab": "h06-api-testing",
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing-files.json",
+      "published_file_count": 30,
+      "new_published_files": [
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_live_client_cleanup.py",
+        "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_patch_readback_regression.py"
+      ],
+      "all_files_exist": true,
+      "no_cache_database_or_secret_paths": true,
+      "final_tested_copy_matches_all_published_bytes": true
+    }
+  ],
+  "chapter_verification": [
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.mdx",
+      "sections": 15,
+      "refs": [
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/config.py",
+        "task_api/main.py",
+        "task_api/routes.py",
+        "pyproject.toml",
+        "live_client.py",
+        "requests.sh",
+        "tests/test_basics.py",
+        "solutions/summary.py",
+        "solutions/test_summary.py"
+      ],
+      "refs_order_unchanged": true,
+      "default_closed_answers": 4
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-cn.mdx",
+      "sections": 15,
+      "refs": [
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/config.py",
+        "task_api/main.py",
+        "task_api/routes.py",
+        "pyproject.toml",
+        "live_client.py",
+        "requests.sh",
+        "tests/test_basics.py",
+        "solutions/summary.py",
+        "solutions/test_summary.py"
+      ],
+      "refs_order_unchanged": true,
+      "default_closed_answers": 4
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-tw.mdx",
+      "sections": 15,
+      "refs": [
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/config.py",
+        "task_api/main.py",
+        "task_api/routes.py",
+        "pyproject.toml",
+        "live_client.py",
+        "requests.sh",
+        "tests/test_basics.py",
+        "solutions/summary.py",
+        "solutions/test_summary.py"
+      ],
+      "refs_order_unchanged": true,
+      "default_closed_answers": 4
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.mdx",
+      "sections": 16,
+      "refs": [
+        "pyproject.toml",
+        "tests/test_first_request.py",
+        "task_api/config.py",
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/routes.py",
+        "tests/conftest.py",
+        "tests/test_contract.py",
+        "tests/test_dependencies.py",
+        "experiments/test_fixture_failure.py",
+        "experiments/conftest.py",
+        "solutions/test_independent.py",
+        "live_httpx.py",
+        "live_client.py",
+        "task_api/main.py",
+        "tests/test_cors.py",
+        "browser/index.html"
+      ],
+      "refs_order_unchanged": true,
+      "default_closed_answers": 5
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx",
+      "sections": 16,
+      "refs": [
+        "pyproject.toml",
+        "tests/test_first_request.py",
+        "task_api/config.py",
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/routes.py",
+        "tests/conftest.py",
+        "tests/test_contract.py",
+        "tests/test_dependencies.py",
+        "experiments/test_fixture_failure.py",
+        "experiments/conftest.py",
+        "solutions/test_independent.py",
+        "live_httpx.py",
+        "live_client.py",
+        "task_api/main.py",
+        "tests/test_cors.py",
+        "browser/index.html"
+      ],
+      "refs_order_unchanged": true,
+      "default_closed_answers": 5
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-tw.mdx",
+      "sections": 16,
+      "refs": [
+        "pyproject.toml",
+        "tests/test_first_request.py",
+        "task_api/config.py",
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/routes.py",
+        "tests/conftest.py",
+        "tests/test_contract.py",
+        "tests/test_dependencies.py",
+        "experiments/test_fixture_failure.py",
+        "experiments/conftest.py",
+        "solutions/test_independent.py",
+        "live_httpx.py",
+        "live_client.py",
+        "task_api/main.py",
+        "tests/test_cors.py",
+        "browser/index.html"
+      ],
+      "refs_order_unchanged": true,
+      "default_closed_answers": 5
+    }
+  ],
+  "metadata": [
+    {
+      "lab": "h05-dependencies",
+      "loader": "getDependencyExample",
+      "slug": "module-19-application-dependencies",
+      "sections": 15,
+      "refs": [
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/config.py",
+        "task_api/main.py",
+        "task_api/routes.py",
+        "pyproject.toml",
+        "live_client.py",
+        "requests.sh",
+        "tests/test_basics.py",
+        "solutions/summary.py",
+        "solutions/test_summary.py"
+      ]
+    },
+    {
+      "lab": "h06-api-testing",
+      "loader": "getApiTestingExample",
+      "slug": "module-20-api-testing",
+      "sections": 16,
+      "refs": [
+        "pyproject.toml",
+        "tests/test_first_request.py",
+        "task_api/config.py",
+        "task_api/models.py",
+        "task_api/store.py",
+        "task_api/dependencies.py",
+        "task_api/routes.py",
+        "tests/conftest.py",
+        "tests/test_contract.py",
+        "tests/test_dependencies.py",
+        "experiments/test_fixture_failure.py",
+        "experiments/conftest.py",
+        "solutions/test_independent.py",
+        "live_httpx.py",
+        "live_client.py",
+        "task_api/main.py",
+        "tests/test_cors.py",
+        "browser/index.html"
+      ]
+    }
+  ],
+  "locale_verification": [
+    {
+      "lab": "h05-dependencies",
+      "mdx_executable_and_output_fences_identical": true,
+      "readme_executable_and_output_fences_identical": true,
+      "protected_opencc_translation_used": true
+    },
+    {
+      "lab": "h06-api-testing",
+      "mdx_executable_and_output_fences_identical": true,
+      "readme_executable_and_output_fences_identical": true,
+      "protected_opencc_translation_used": true
+    }
+  ],
+  "protected_service_and_environment_files": [
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/.python-version",
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/pyproject.toml",
+      "sha256": "2223011435a537f22e71dcc89c1a01c2b1531cdf168b6c2ebd8b82b5fdb8c558",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/__init__.py",
+      "sha256": "06208f3c6c8fa4e0a44a2ade0a0fa8aabb61fe12ddea023e84cc7f459c976c15",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/config.py",
+      "sha256": "e11a940b2458000f459dc32e51547d4f093beee16686061944722e9d0ac6d136",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/dependencies.py",
+      "sha256": "503e924ebce6a67d491188ede2b2928bea151b990a81fc8f984e28609f174076",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/main.py",
+      "sha256": "09ce53947aabfab84e54b33cdb536f92ea74e11a43bae3862bbf92c055f6c159",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/models.py",
+      "sha256": "089e2060f77c0b568a37f64aba8b6262cde3d30490968d4f824057072a23f08b",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/routes.py",
+      "sha256": "af3e00bd92d33101b3d7593f6734a6f9b2ef26560831e00c9d4cc989ecf274b4",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/store.py",
+      "sha256": "9a0d19fc112828aa071329656dbc773ce5c6f960760314d20a2688bb85e9d1db",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/uv.lock",
+      "sha256": "20eab946162a3af02bb88995b5b82f6fd8aa1a6a2218efd61760060b2f41d083",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/.python-version",
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/pyproject.toml",
+      "sha256": "1434f4ae3b7c27f610d7f0b752a8dbf9ebe07fb6778905b911694016de6786b0",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/__init__.py",
+      "sha256": "06208f3c6c8fa4e0a44a2ade0a0fa8aabb61fe12ddea023e84cc7f459c976c15",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/config.py",
+      "sha256": "e11a940b2458000f459dc32e51547d4f093beee16686061944722e9d0ac6d136",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/dependencies.py",
+      "sha256": "503e924ebce6a67d491188ede2b2928bea151b990a81fc8f984e28609f174076",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/main.py",
+      "sha256": "76908cf199bdb381edada299ba26dec8c93993d6ad08ca78ec9dfc9e74bf749b",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/models.py",
+      "sha256": "089e2060f77c0b568a37f64aba8b6262cde3d30490968d4f824057072a23f08b",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/routes.py",
+      "sha256": "af3e00bd92d33101b3d7593f6734a6f9b2ef26560831e00c9d4cc989ecf274b4",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/store.py",
+      "sha256": "9a0d19fc112828aa071329656dbc773ce5c6f960760314d20a2688bb85e9d1db",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/uv.lock",
+      "sha256": "ffb1f6cf79df2cb902513b374161db50a397a39855237d6a1929527530537f6f",
+      "unchanged": true
+    }
+  ],
+  "repair_summary": [
+    {
+      "finding": "H06-F01",
+      "result": "fixed_and_mutation_verified",
+      "implementation": "基础 note 三态与独立空 PATCH 答案都检查 PATCH 完整内容，并补后续 GET 状态 200 和完整内容；三语契约同步。只在临时副本植入旧 mutant。",
+      "regressions": "新增 tests/test_patch_readback_regression.py，两项外层回归分别确认基础/独立答案的 GET 断言捕获 mutant；导入或收集错误不算。"
+    },
+    {
+      "finding": "H05-H06-F02",
+      "result": "fixed_and_real_socket_verified",
+      "implementation": "每个自有 ID 单独捕获清理异常并继续；聚合输出未确认 ID；主体成功时清理失败抛错，主体已失败时保留原异常传播并另行报告清理错误。无 ExceptionGroup、无扩大删除范围。",
+      "regressions": "两 lab 的 tests/test_live_client_cleanup.py 各两项：首次 DELETE503 与主体+清理同时失败，确认第二 ID 已删除、仅第一 ID 剩余、非零退出、原主体诊断保留。"
+    }
+  ],
+  "test_counts": [
+    {
+      "lab": "h05-dependencies",
+      "standard_before": 15,
+      "standard_after": 17,
+      "standard_delta": 2,
+      "independent_before": 2,
+      "independent_after": 2,
+      "composition": "15 configuration/store + 2 real-client cleanup regressions",
+      "standard_command": "uv run --locked python -m pytest -q",
+      "independent_command": "uv run --locked python -m pytest -q solutions/test_summary.py"
+    },
+    {
+      "lab": "h06-api-testing",
+      "standard_before": 44,
+      "standard_after": 48,
+      "standard_delta": 4,
+      "independent_before": 3,
+      "independent_after": 3,
+      "composition": "44 original in-process + 2 real-client cleanup + 2 nested mutation-acceptance regressions",
+      "standard_command": "uv run --locked python -m pytest -q",
+      "independent_command": "uv run --locked python -m pytest -q solutions/test_independent.py"
+    }
+  ],
+  "total_current_standard_cases": 65,
+  "total_current_independent_cases": 5,
+  "total_current_cases": 70,
+  "counting_policy": "当前唯一用例 17+2、48+3；重复运行与显式故障子集不重复计数。内层 pytest 故意变红是外层回归预期，不计为正常服务失败；原 fixture 故障探针仍为预期 1 failed,1 passed。",
+  "fault_regression_evidence": [
+    {
+      "regression": "owned-client-cleanup",
+      "body_failure": false,
+      "port": 65244,
+      "server_pid": 37305,
+      "server_stopped": true,
+      "server_returncode": -15,
+      "client_returncode": 1,
+      "client_stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\n",
+      "client_stderr": "CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\nTraceback (most recent call last):\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\", line 88, in <module>\n    check(args.port, args.summary)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\", line 73, in check\n    raise RuntimeError(message)\nRuntimeError: CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\n",
+      "delete_attempts": [
+        "DELETE ATTEMPT /tasks/1",
+        "DELETE ATTEMPT /tasks/2"
+      ],
+      "remaining_ids_before_server_stop": [
+        1
+      ],
+      "note": "Remaining task belongs only to this stopped in-memory fault app.",
+      "command_id": "command-04",
+      "lab": "h05-dependencies"
+    },
+    {
+      "regression": "owned-client-cleanup",
+      "body_failure": true,
+      "port": 65270,
+      "server_pid": 37320,
+      "server_stopped": true,
+      "server_returncode": -15,
+      "client_returncode": 1,
+      "client_stdout": "",
+      "client_stderr": "CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\nTraceback (most recent call last):\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\", line 88, in <module>\n    check(args.port, args.summary)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\", line 51, in check\n    assert send(\"GET\", \"/tasks/99999\") == (404, {\"detail\": \"Task not found\"})\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+      "delete_attempts": [
+        "DELETE ATTEMPT /tasks/1",
+        "DELETE ATTEMPT /tasks/2"
+      ],
+      "remaining_ids_before_server_stop": [
+        1
+      ],
+      "note": "Remaining task belongs only to this stopped in-memory fault app.",
+      "command_id": "command-04",
+      "lab": "h05-dependencies"
+    },
+    {
+      "regression": "owned-client-cleanup",
+      "body_failure": false,
+      "port": 65385,
+      "server_pid": 37502,
+      "server_stopped": true,
+      "server_returncode": -15,
+      "client_returncode": 1,
+      "client_stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\n",
+      "client_stderr": "CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\nTraceback (most recent call last):\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\", line 78, in <module>\n    check(args.port)\n    ~~~~~^^^^^^^^^^^\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\", line 67, in check\n    raise RuntimeError(message)\nRuntimeError: CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\n",
+      "delete_attempts": [
+        "DELETE ATTEMPT /tasks/1",
+        "DELETE ATTEMPT /tasks/2"
+      ],
+      "remaining_ids_before_server_stop": [
+        1
+      ],
+      "note": "Remaining task belongs only to this stopped in-memory fault app.",
+      "command_id": "command-08",
+      "lab": "h06-api-testing"
+    },
+    {
+      "regression": "owned-client-cleanup",
+      "body_failure": true,
+      "port": 65412,
+      "server_pid": 37515,
+      "server_stopped": true,
+      "server_returncode": -15,
+      "client_returncode": 1,
+      "client_stdout": "",
+      "client_stderr": "CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\nTraceback (most recent call last):\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\", line 78, in <module>\n    check(args.port)\n    ~~~~~^^^^^^^^^^^\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\", line 49, in check\n    assert send(\"GET\", \"/tasks/99999\") == (404, {\"detail\": \"Task not found\"})\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+      "delete_attempts": [
+        "DELETE ATTEMPT /tasks/1",
+        "DELETE ATTEMPT /tasks/2"
+      ],
+      "remaining_ids_before_server_stop": [
+        1
+      ],
+      "note": "Remaining task belongs only to this stopped in-memory fault app.",
+      "command_id": "command-08",
+      "lab": "h06-api-testing"
+    },
+    {
+      "regression": "stale-response-mutant",
+      "target": "tests/test_contract.py::test_patch_note_states",
+      "child_returncode": 1,
+      "child_stdout": "F..                                                                      [100%]\n=================================== FAILURES ===================================\n____________________ test_patch_note_states[changes0-keep] _____________________\ntests/test_contract.py:34: in test_patch_note_states\n    assert stored.json() == expected_task\nE   AssertionError: assert {'done': Fals...e': None, ...} == {'done': Fals...: 'keep', ...}\nE     \nE     Omitting 3 identical items, use -vv to show\nE     Differing items:\nE     {'title': 'Untitled'} != {'title': 'Read'}\nE     {'note': None} != {'note': 'keep'}\nE     Use -v to get more diff\n----------------------------- Captured stdout call -----------------------------\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\n=========================== short test summary info ============================\nFAILED tests/test_contract.py::test_patch_note_states[changes0-keep] - Assert...\n1 failed, 2 passed in 0.06s\n",
+      "child_stderr": "",
+      "canonical_store_unchanged": true,
+      "command_id": "command-08",
+      "lab": "h06-api-testing"
+    },
+    {
+      "regression": "stale-response-mutant",
+      "target": "solutions/test_independent.py::test_empty_patch_preserves_non_default_values",
+      "child_returncode": 1,
+      "child_stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________ test_empty_patch_preserves_non_default_values _________________\nsolutions/test_independent.py:51: in test_empty_patch_preserves_non_default_values\n    assert stored.json() == original\nE   AssertionError: assert {'done': Fals...e': None, ...} == {'done': True...: 'keep', ...}\nE     \nE     Omitting 1 identical items, use -vv to show\nE     Differing items:\nE     {'note': None} != {'note': 'keep'}\nE     {'minutes': 0} != {'minutes': 5}\nE     {'done': False} != {'done': True}\nE     {'title': 'Untitled'} != {'title': 'Keep'}\nE     Use -v to get more diff\n----------------------------- Captured stdout call -----------------------------\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\n=========================== short test summary info ============================\nFAILED solutions/test_independent.py::test_empty_patch_preserves_non_default_values\n1 failed in 0.15s\n",
+      "child_stderr": "",
+      "canonical_store_unchanged": true,
+      "command_id": "command-08",
+      "lab": "h06-api-testing"
+    },
+    {
+      "regression": "owned-client-cleanup",
+      "body_failure": false,
+      "port": 49888,
+      "server_pid": 40617,
+      "server_stopped": true,
+      "server_returncode": -15,
+      "client_returncode": 1,
+      "client_stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\n",
+      "client_stderr": "CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\nTraceback (most recent call last):\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\", line 88, in <module>\n    check(args.port, args.summary)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\", line 73, in check\n    raise RuntimeError(message)\nRuntimeError: CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\n",
+      "delete_attempts": [
+        "DELETE ATTEMPT /tasks/1",
+        "DELETE ATTEMPT /tasks/2"
+      ],
+      "remaining_ids_before_server_stop": [
+        1
+      ],
+      "note": "Remaining task belongs only to this stopped in-memory fault app.",
+      "command_id": "command-12",
+      "lab": "h05-dependencies"
+    },
+    {
+      "regression": "owned-client-cleanup",
+      "body_failure": true,
+      "port": 49914,
+      "server_pid": 40620,
+      "server_stopped": true,
+      "server_returncode": -15,
+      "client_returncode": 1,
+      "client_stdout": "",
+      "client_stderr": "CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\nTraceback (most recent call last):\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\", line 88, in <module>\n    check(args.port, args.summary)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h05-dependencies/live_client.py\", line 51, in check\n    assert send(\"GET\", \"/tasks/99999\") == (404, {\"detail\": \"Task not found\"})\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+      "delete_attempts": [
+        "DELETE ATTEMPT /tasks/1",
+        "DELETE ATTEMPT /tasks/2"
+      ],
+      "remaining_ids_before_server_stop": [
+        1
+      ],
+      "note": "Remaining task belongs only to this stopped in-memory fault app.",
+      "command_id": "command-12",
+      "lab": "h05-dependencies"
+    },
+    {
+      "regression": "owned-client-cleanup",
+      "body_failure": false,
+      "port": 50000,
+      "server_pid": 40646,
+      "server_stopped": true,
+      "server_returncode": -15,
+      "client_returncode": 1,
+      "client_stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\n",
+      "client_stderr": "CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\nTraceback (most recent call last):\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\", line 78, in <module>\n    check(args.port)\n    ~~~~~^^^^^^^^^^^\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\", line 67, in check\n    raise RuntimeError(message)\nRuntimeError: CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\n",
+      "delete_attempts": [
+        "DELETE ATTEMPT /tasks/1",
+        "DELETE ATTEMPT /tasks/2"
+      ],
+      "remaining_ids_before_server_stop": [
+        1
+      ],
+      "note": "Remaining task belongs only to this stopped in-memory fault app.",
+      "command_id": "command-16",
+      "lab": "h06-api-testing"
+    },
+    {
+      "regression": "owned-client-cleanup",
+      "body_failure": true,
+      "port": 50026,
+      "server_pid": 40648,
+      "server_stopped": true,
+      "server_returncode": -15,
+      "client_returncode": 1,
+      "client_stdout": "",
+      "client_stderr": "CLEANUP FAILED (unconfirmed owned IDs): id=1: AssertionError: DELETE expected (204, None), got (503, {'detail': 'Deliberate first-delete failure'})\nTraceback (most recent call last):\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\", line 78, in <module>\n    check(args.port)\n    ~~~~~^^^^^^^^^^^\n  File \"/private/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5/run/h06-api-testing/live_client.py\", line 49, in check\n    assert send(\"GET\", \"/tasks/99999\") == (404, {\"detail\": \"Task not found\"})\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+      "delete_attempts": [
+        "DELETE ATTEMPT /tasks/1",
+        "DELETE ATTEMPT /tasks/2"
+      ],
+      "remaining_ids_before_server_stop": [
+        1
+      ],
+      "note": "Remaining task belongs only to this stopped in-memory fault app.",
+      "command_id": "command-16",
+      "lab": "h06-api-testing"
+    },
+    {
+      "regression": "stale-response-mutant",
+      "target": "tests/test_contract.py::test_patch_note_states",
+      "child_returncode": 1,
+      "child_stdout": "F..                                                                      [100%]\n=================================== FAILURES ===================================\n____________________ test_patch_note_states[changes0-keep] _____________________\ntests/test_contract.py:34: in test_patch_note_states\n    assert stored.json() == expected_task\nE   AssertionError: assert {'done': Fals...e': None, ...} == {'done': Fals...: 'keep', ...}\nE     \nE     Omitting 3 identical items, use -vv to show\nE     Differing items:\nE     {'title': 'Untitled'} != {'title': 'Read'}\nE     {'note': None} != {'note': 'keep'}\nE     Use -v to get more diff\n----------------------------- Captured stdout call -----------------------------\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\n=========================== short test summary info ============================\nFAILED tests/test_contract.py::test_patch_note_states[changes0-keep] - Assert...\n1 failed, 2 passed in 0.04s\n",
+      "child_stderr": "",
+      "canonical_store_unchanged": true,
+      "command_id": "command-16",
+      "lab": "h06-api-testing"
+    },
+    {
+      "regression": "stale-response-mutant",
+      "target": "solutions/test_independent.py::test_empty_patch_preserves_non_default_values",
+      "child_returncode": 1,
+      "child_stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________ test_empty_patch_preserves_non_default_values _________________\nsolutions/test_independent.py:51: in test_empty_patch_preserves_non_default_values\n    assert stored.json() == original\nE   AssertionError: assert {'done': Fals...e': None, ...} == {'done': True...: 'keep', ...}\nE     \nE     Omitting 1 identical items, use -vv to show\nE     Differing items:\nE     {'minutes': 0} != {'minutes': 5}\nE     {'note': None} != {'note': 'keep'}\nE     {'done': False} != {'done': True}\nE     {'title': 'Untitled'} != {'title': 'Keep'}\nE     Use -v to get more diff\n----------------------------- Captured stdout call -----------------------------\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\n=========================== short test summary info ============================\nFAILED solutions/test_independent.py::test_empty_patch_preserves_non_default_values\n1 failed in 0.13s\n",
+      "child_stderr": "",
+      "canonical_store_unchanged": true,
+      "command_id": "command-16",
+      "lab": "h06-api-testing"
+    }
+  ],
+  "verification_environment": {
+    "date": "2026-09-28",
+    "python": "3.13.15",
+    "uv": "0.12.13",
+    "fastapi": "0.135.1",
+    "uvicorn": "0.42.0",
+    "pydantic": "2.12.5",
+    "starlette": "0.52.1",
+    "pytest": "8.4.2",
+    "h06_httpx": "0.28.1",
+    "UV_PYTHON_INSTALL_DIR": "/tmp/langshift-js2py-python-20260928",
+    "UV_CACHE_DIR": "/tmp/langshift-js2py-uv-cache-20260928",
+    "PATH_prefix": "/Users/mikmyp/.local/bin",
+    "normal_server_environment": {
+      "TASKS_APP_NAME": "Repair healthy replay",
+      "TASKS_MAX_PAGE_SIZE": "100"
+    },
+    "installation": "第一轮在两个全新 allowlist 副本中 uv sync --locked；第二轮同步最终发布字节，重用临时虚拟环境并再次 locked sync/标准/独立/故障验收。未生成或修改锁。"
+  },
+  "resource_cleanup_evidence": {
+    "explicitly_recorded_server_pid_checks": [
+      {
+        "pid": 37305,
+        "exists_at_final_check": false
+      },
+      {
+        "pid": 37320,
+        "exists_at_final_check": false
+      },
+      {
+        "pid": 37502,
+        "exists_at_final_check": false
+      },
+      {
+        "pid": 37515,
+        "exists_at_final_check": false
+      },
+      {
+        "pid": 40617,
+        "exists_at_final_check": false
+      },
+      {
+        "pid": 40620,
+        "exists_at_final_check": false
+      },
+      {
+        "pid": 40646,
+        "exists_at_final_check": false
+      },
+      {
+        "pid": 40648,
+        "exists_at_final_check": false
+      },
+      {
+        "pid": 40767,
+        "exists_at_final_check": false
+      },
+      {
+        "pid": 40770,
+        "exists_at_final_check": false
+      },
+      {
+        "pid": 40773,
+        "exists_at_final_check": false
+      }
+    ],
+    "owned_workspace_processes_remaining": [],
+    "standard_run_server_teardown_assertions_passed": true,
+    "normal_services_end_with_zero_tasks": true,
+    "normal_services_ports_closed": true,
+    "fault_remaining_id_interpretation": "故障应用预期留下拒绝删除的 ID1；ID2 已真实删除。ID1 只属于随后停止的独占内存进程，没有修改任何持久库或用户服务。",
+    "shared_interpreter_and_uv_cache_preserved": true,
+    "private_workspace_removed": true,
+    "private_workspace_exists_after_cleanup": false,
+    "removed_private_file_count": 2990,
+    "cleanup_action": {
+      "operation": "shutil.rmtree",
+      "exact_owned_path": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/langshift-h05-h06-repair-dz6zeay5",
+      "shared_cache_or_interpreter_removed": false
+    }
+  },
+  "reproduction_harnesses": [
+    {
+      "name": "verify.py",
+      "sha256": "f64be9b8244046927fa8643c2a30a438b3cd3fca7d0238fc53942f0ee6def237",
+      "source": "from pathlib import Path\nfrom datetime import datetime\nfrom zoneinfo import ZoneInfo\nimport json,os,subprocess,time\nreport=Path(\"/tmp/langshift-h05-h06-repair-handoff.json\")\nd=json.loads(report.read_text());work=Path(d[\"temporary_workspace\"]);root=Path(d[\"workspace\"])\nenv={**os.environ,\"PATH\":str(Path.home()/\".local/bin\")+\":\"+os.environ[\"PATH\"],\"UV_PYTHON_INSTALL_DIR\":\"/tmp/langshift-js2py-python-20260928\",\"UV_CACHE_DIR\":\"/tmp/langshift-js2py-uv-cache-20260928\",\"NO_PROXY\":\"127.0.0.1,localhost\",\"no_proxy\":\"127.0.0.1,localhost\"}\ndef run(label,args,cwd,expected=0):\n    begin=time.monotonic();r=subprocess.run(args,cwd=cwd,env=env,text=True,capture_output=True,timeout=180)\n    event={\"label\":label,\"command\":list(map(str,args)),\"cwd\":str(cwd),\"exit_code\":r.returncode,\"expected_exit_code\":expected,\"stdout\":r.stdout,\"stderr\":r.stderr,\"elapsed_seconds\":round(time.monotonic()-begin,3)}\n    current=json.loads(report.read_text());current[\"commands\"].append(event);report.write_text(json.dumps(current,ensure_ascii=False,indent=2)+\"\\n\")\n    print(label,r.returncode,r.stdout[-2000:],r.stderr[-500:],flush=True)\n    assert r.returncode==expected,event\nfor lab in (\"h05-dependencies\",\"h06-api-testing\"):\n    copy=work/\"run\"/lab;copy.mkdir(parents=True,exist_ok=True)\n    for name in json.loads((root/f\"examples/js2py/{lab}-files.json\").read_text()):\n        dest=copy/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((root/f\"examples/js2py/{lab}\"/name).read_bytes())\n    run(f\"{lab}: locked clean install\",[str(Path.home()/\".local/bin/uv\"),\"sync\",\"--locked\"],copy)\n    py=str(copy/\".venv/bin/python\")\n    run(f\"{lab}: standard\",[py,\"-m\",\"pytest\",\"-q\",\"--basetemp\",str(work/f\"pytest-{lab}-standard\")],copy)\n    run(f\"{lab}: independent\",[py,\"-m\",\"pytest\",\"-q\",\"solutions\",\"--basetemp\",str(work/f\"pytest-{lab}-independent\")],copy)\n    targets=[\"tests/test_live_client_cleanup.py\"]\n    if lab.startswith(\"h06\"):\n        targets.append(\"tests/test_patch_readback_regression.py\")\n    run(f\"{lab}: explicit fault evidence\",[py,\"-m\",\"pytest\",\"-q\",\"-s\",*targets,\"--basetemp\",str(work/f\"pytest-{lab}-faults\")],copy)\n"
+    },
+    {
+      "name": "verify_live.py",
+      "sha256": "1e584645d2fc323c57cfd5f06160f66c645b132b23de11483eb0aadab62f7804",
+      "source": "from pathlib import Path\nimport json,os,re,socket,subprocess,time\nfrom urllib.request import build_opener,ProxyHandler\nreport=Path(\"/tmp/langshift-h05-h06-repair-handoff.json\")\nd=json.loads(report.read_text());work=Path(d[\"temporary_workspace\"])\nenv={**os.environ,\"TASKS_APP_NAME\":\"Repair healthy replay\",\"TASKS_MAX_PAGE_SIZE\":\"100\",\"NO_PROXY\":\"127.0.0.1,localhost\",\"no_proxy\":\"127.0.0.1,localhost\"}\nopener=build_opener(ProxyHandler({}))\ndef append(field,event):\n    d=json.loads(report.read_text());d.setdefault(field,[]).append(event);report.write_text(json.dumps(d,ensure_ascii=False,indent=2)+\"\\n\")\ndef run(label,args,cwd,expected=0):\n    r=subprocess.run(args,cwd=cwd,env=env,capture_output=True,text=True,timeout=40)\n    append(\"commands\",{\"label\":label,\"command\":args,\"cwd\":str(cwd),\"exit_code\":r.returncode,\"expected_exit_code\":expected,\"stdout\":r.stdout,\"stderr\":r.stderr})\n    print(label,r.returncode,r.stdout[-600:],r.stderr[-300:],flush=True)\n    assert r.returncode==expected,r.stdout+r.stderr\nfor lab,entry,summary in ((\"h05-dependencies\",\"task_api.main:create_app\",False),(\"h05-dependencies\",\"solutions.summary:create_summary_app\",True),(\"h06-api-testing\",\"task_api.main:create_app\",False)):\n    cwd=work/\"run\"/lab;py=str(cwd/\".venv/bin/python\")\n    label=lab+(\":summary\" if summary else \":canonical\")\n    args=[py,\"-m\",\"uvicorn\",entry,\"--factory\",\"--host\",\"127.0.0.1\",\"--port\",\"0\"]\n    log_path=work/(label.replace(\":\",\"-\")+\".log\")\n    port=None;remaining=None;summary_after=None\n    with log_path.open(\"w\") as log:\n        proc=subprocess.Popen(args,cwd=cwd,env=env,stdout=log,stderr=subprocess.STDOUT)\n        try:\n            deadline=time.monotonic()+20\n            while True:\n                text=log_path.read_text();assert proc.poll() is None,text\n                m=re.search(r\"Uvicorn running on http://127[.]0[.]0[.]1:(\\d+)\",text)\n                if m:\n                    port=int(m.group(1))\n                    try:\n                        with opener.open(f\"http://127.0.0.1:{port}/health\",timeout=1) as response:\n                            assert response.status==200\n                        break\n                    except OSError:pass\n                assert time.monotonic()<deadline,text\n                time.sleep(.03)\n            for replay in (1,2):\n                command=[py,\"live_client.py\",\"--port\",str(port)]\n                if summary:command.append(\"--summary\")\n                run(label+f\": healthy urllib replay {replay}\",command,cwd)\n            if lab.startswith(\"h06\"):\n                run(label+\": healthy HTTPX\",[py,\"live_httpx.py\",\"--port\",str(port)],cwd)\n            with opener.open(f\"http://127.0.0.1:{port}/tasks\",timeout=2) as response:\n                remaining=json.load(response)\n            assert remaining[\"total\"]==0 and remaining[\"items\"]==[],remaining\n            if summary:\n                with opener.open(f\"http://127.0.0.1:{port}/summary\",timeout=2) as response:\n                    summary_after=json.load(response)\n                assert summary_after=={\"total\":0,\"done\":0,\"minutes\":0}\n        finally:\n            if proc.poll() is None:proc.terminate()\n            try:proc.wait(timeout=5)\n            except subprocess.TimeoutExpired:proc.kill();proc.wait(timeout=5)\n            closed=False\n            if port:\n                with socket.socket() as probe:\n                    probe.settimeout(.5);closed=probe.connect_ex((\"127.0.0.1\",port))!=0\n            append(\"healthy_server_cleanup\",{\"label\":label,\"command\":args,\"cwd\":str(cwd),\"pid\":proc.pid,\"port\":port,\"returncode\":proc.returncode,\"stopped\":proc.poll() is not None,\"port_closed\":closed,\"tasks_after_client_cleanup\":remaining,\"summary_after_client_cleanup\":summary_after,\"server_log\":log_path.read_text()})\n            print(label,\"stopped\",proc.pid,\"port_closed\",closed,\"remaining\",remaining,flush=True)\n# Retain the original fixture-failure evidence boundary; a nonzero exit is expected.\ncwd=work/\"run/h06-api-testing\"\nrun(\"h06: original expected fixture failure\",[str(cwd/\".venv/bin/python\"),\"-m\",\"pytest\",\"-q\",\"experiments/test_fixture_failure.py\",\"--basetemp\",str(work/\"fixture-failure\")],cwd,1)\n"
+    }
+  ],
+  "scope_compliance": {
+    "canonical_business_service_unchanged": true,
+    "lab_locks_and_pyprojects_unchanged": true,
+    "original_targeted_audit_unchanged": true,
+    "shared_registration_or_status_files_edited": false,
+    "package_or_total_runner_edited": false,
+    "public_zip_written": false,
+    "typesafe_calls": 0,
+    "subagents_created": 0,
+    "git_commit_created": false,
+    "frontend_dependencies_installed": false
+  },
+  "mainline_integration_actions": [
+    "将主线固定测试数量更新为 H05 standard=17/independent=2，H06 standard=48/independent=3。",
+    "按已更新的两个 allowlist 重建 ZIP；本任务没有写 public ZIP。",
+    "主线自行执行全书注册/构建集成；章节仍为15/16，现有 loader refs 的内容与顺序均未变化。"
+  ],
+  "unverified_boundaries": [
+    "本轮未运行主线总 runner、全站 MDX 构建或 ZIP 构建；这些留给集成方。",
+    "未重跑真实浏览器 CORS 或 ASGI 发送时序探针；已有界面/依赖业务源码未改。",
+    "未声称网络永久不可用、SIGKILL、断电、stderr 自身写入失败或生产并发下能保证清理完成。逐ID清理覆盖普通异常；报告的未确认ID不是自动扩大删除范围的授权。",
+    "两个P2之外的非阻塞教学建议未扩大修复；未修改配置、业务模型、服务依赖图或版本。"
+  ],
+  "completed_at": "2026-09-28T13:32:16.455512+08:00",
+  "verification_result": "Both accepted P2 repairs implemented and verified; ready for mainline test-count update and ZIP rebuild.",
+  "historical_command_note": "命令记录中的临时 cwd、虚拟环境和日志已按资源安全要求删除。可在发布 lab 根目录用 README 的 uv run --locked 命令重现；handoff 同时保留完整临时验证 harness 源码与原 stdout/stderr。"
+}

@@ -1,0 +1,1421 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "Full English + full non-lock text files distributed across bounded slices; all lock bytes deterministically checked. No claim that a single slice viewed other slices.",
+  "slices": [
+    {
+      "batch": "review-80",
+      "metadata": {
+        "started_at_utc": "2026-09-28T06:03:00.191814+00:00",
+        "elapsed_seconds": 1.166,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "bfd4b3bf88222118d9e810d84ba285f53b905f5ff752136f058c0d5fb04fa826",
+        "usage": {
+          "input_tokens": 24309,
+          "output_tokens": 341
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "o03-https-production",
+          "current_contract": {
+            "id": "O03",
+            "title": "网络入口、HTTPS 与生产配置",
+            "prerequisites": [
+              "O02"
+            ],
+            "teach": "域名/DNS、反向代理、TLS终止、可信代理、生产错误与凭证/CORS/CSRF边界",
+            "acceptance": "验证HTTPS、错误响应、请求来源与凭证传递策略",
+            "boundary": "公开前需按实际认证方案检查CSRF等风险",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "O02",
+              "title": "容器与可部署应用",
+              "prerequisites": [
+                "O01",
+                "L08"
+              ],
+              "teach": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查",
+              "acceptance": "从干净环境构建运行并重启，确认数据和秘密边界",
+              "boundary": "不在镜像写密钥；不把容器健康等同于业务正确",
+              "status": "planned"
+            }
+          ],
+          "declared_transitive_prior_capabilities": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "H05",
+              "title": "应用组织、配置与依赖",
+              "prerequisites": [
+                "H04",
+                "L14"
+              ],
+              "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+              "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+              "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+              "status": "planned"
+            },
+            {
+              "id": "H06",
+              "title": "API 测试与前后端联调",
+              "prerequisites": [
+                "H05",
+                "L09",
+                "L13"
+              ],
+              "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+              "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+              "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+              "status": "planned"
+            },
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            },
+            {
+              "id": "D02",
+              "title": "SQL 与参数化查询",
+              "prerequisites": [
+                "D01"
+              ],
+              "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+              "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+              "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+              "status": "planned"
+            },
+            {
+              "id": "D03",
+              "title": "事务、约束与并发冲突",
+              "prerequisites": [
+                "D02"
+              ],
+              "teach": "原子性、提交回滚、约束失败、隔离和竞争、事务边界",
+              "acceptance": "制造两步写入的后一步失败，证明前一步未残留",
+              "boundary": "不仅背ACID；不以单进程内存检查代替约束",
+              "status": "planned"
+            },
+            {
+              "id": "D04",
+              "title": "同步 SQLAlchemy 与 Session",
+              "prerequisites": [
+                "D03",
+                "H05"
+              ],
+              "teach": "映射、连接池与Session、事务所有权、查询、提交失败后的恢复",
+              "acceptance": "把API接入真实数据库并验证成功/失败都释放资源",
+              "boundary": "不第一次学数据库就加入异步ORM",
+              "status": "planned"
+            },
+            {
+              "id": "D05",
+              "title": "Alembic 与已有数据迁移",
+              "prerequisites": [
+                "D04"
+              ],
+              "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+              "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+              "boundary": "不删库重建；不承诺任意降级都无损",
+              "status": "planned"
+            },
+            {
+              "id": "D06",
+              "title": "数据库测试与查询诊断",
+              "prerequisites": [
+                "D05",
+                "H06"
+              ],
+              "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+              "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+              "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+              "status": "planned"
+            },
+            {
+              "id": "S01",
+              "title": "身份与凭证生命周期",
+              "prerequisites": [
+                "D06"
+              ],
+              "teach": "用户、密码哈希、登录、凭证验证/失效、禁用用户、日志脱敏",
+              "acceptance": "拒绝错误/过期/篡改凭证并验证撤销策略",
+              "boundary": "不自创密码学；登录成功不等于有对象权限",
+              "status": "planned"
+            },
+            {
+              "id": "S02",
+              "title": "对象级授权与多用户隔离",
+              "prerequisites": [
+                "S01"
+              ],
+              "teach": "角色和成员关系、所有权、默认拒绝、越权与负向测试",
+              "acceptance": "Alice知道Bob对象ID仍无法读取/修改，角色不能由请求体自授",
+              "boundary": "前端隐藏按钮和CORS都不是服务端授权",
+              "status": "planned"
+            },
+            {
+              "id": "S03",
+              "title": "可靠业务操作与幂等",
+              "prerequisites": [
+                "S02",
+                "D03"
+              ],
+              "teach": "业务冲突、重复提交、事务与幂等范围、日期时间/标识/精确数值的必要标准库",
+              "acceptance": "复现重复请求或并发冲突并验证约定行为",
+              "boundary": "不承诺仅靠重试就能实现恰好一次；按业务需要教学数据表示",
+              "status": "planned"
+            },
+            {
+              "id": "A01",
+              "title": "Python 异步执行模型",
+              "prerequisites": [
+                "S03"
+              ],
+              "teach": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制",
+              "acceptance": "通过可观察实验选择同步/异步边界，并验证取消行为",
+              "boundary": "JS熟悉async不代表Python自动调度；不机械改全部async",
+              "status": "planned"
+            },
+            {
+              "id": "A02",
+              "title": "外部服务与异步资源生命周期",
+              "prerequisites": [
+                "A01",
+                "L14",
+                "H05"
+              ],
+              "teach": "客户端复用、lifespan、超时、重试与幂等、故障替身、清理",
+              "acceptance": "外部依赖失败不拖垮核心CRUD；正常/异常/取消均释放资源",
+              "boundary": "不把进程内队列或BackgroundTasks当持久任务系统",
+              "status": "planned"
+            },
+            {
+              "id": "O01",
+              "title": "操作系统与服务运行基础",
+              "prerequisites": [
+                "A02"
+              ],
+              "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+              "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+              "boundary": "不先让初学者背Docker命令绕过OS基础",
+              "status": "planned"
+            },
+            {
+              "id": "O02",
+              "title": "容器与可部署应用",
+              "prerequisites": [
+                "O01",
+                "L08"
+              ],
+              "teach": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查",
+              "acceptance": "从干净环境构建运行并重启，确认数据和秘密边界",
+              "boundary": "不在镜像写密钥；不把容器健康等同于业务正确",
+              "status": "planned"
+            }
+          ],
+          "prerequisite_scope": "Current direct edges plus their transitive contracts are included. Contracts describe curriculum capabilities, not proof that a particular learner has passed; review required concepts against actual lesson explanation, not absence of transitive detail from earlier rounds.",
+          "actual_english_lesson": "---\ntitle: \"Network entry and HTTPS: verify the connection and whom you trust\"\ndescription: \"Use a temporary CA and loopback proxy to test certificates, hostnames, trusted forwarding, sanitized errors and CORS; connect the S-stage Bearer boundary without claiming public deployment.\"\n---\n\nimport { getHttpsExample } from '@/lib/js2py-examples'\n\n## 1. A production entry point is not simply host=0.0.0.0\n\nSeeing JSON locally proves one local request path works. Reliable, safe access for invited users requires more answers: where does DNS point, who authenticates the server, where does encryption end, which proxy may supply client information, and can errors or logs expose a token? Opening every interface and disabling certificate checks does not solve those problems.\n\nThis chapter follows O02, using HTTP and identity concepts established in H/S. You will explain responsibilities along DNS→connection→TLS→proxy→application and test certificate failures, forwarding trust, production errors, and browser-origin policy. Independent acceptance means testable entry constraints matched to the real authentication scheme. We buy no domain, request no public certificate, create no externally visible resource, and do not deploy a complete product for you.\n\n[Download the complete O03 lab](/learning-assets/js2py/o03-https-production.zip). Python/web versions match O02; local tools tested were OpenSSL 3.6.4 and curl 8.7.1. The diagnostic API, failure endpoint, and standard-library forwarder are **local teaching tools**, not a production reverse proxy. They implement neither real login nor task authorization and must never receive real users or tokens.\n\n## 2. Separate names, addresses, ports, and paths first\n\nIn `https://lab.test:8443/probe`, https selects encrypted HTTP, lab.test is the hostname, 8443 is the TCP destination port, and /probe is the HTTP application path after connection establishment. DNS commonly associates names with IPv4/IPv6 addresses through A/AAAA records. It does not select /probe or store login sessions. A CNAME aliases one name to another; it does not automatically issue a certificate for that alias.\n\nRecursive resolvers and clients cache DNS results. TTL participates in cache lifetime; it is not a button that makes every device update immediately after a record changes. Checking A while leaving AAAA pointing at an old machine can send some clients to a different service. Domain control, DNS configuration, and the process running on a host are separate records.\n\nThis lab uses reserved `.test` names and does not modify system hosts or DNS. curl’s `--resolve` supplies a name→address mapping for that client invocation while preserving the URL hostname for TLS SNI, hostname verification, and HTTP Host. Local success therefore proves no public DNS configuration. The production template uses a reserved `.invalid` placeholder and is not a real deployment domain.\n\n## 3. What TLS does—and does not—verify\n\nTLS negotiates encryption and integrity for a connection while the client verifies such properties as the certificate chain, validity period, and hostname. The server possesses the private key corresponding to its leaf certificate; subjectAltName declares applicable names. Trusting a CA does not accept arbitrary hostnames: a certificate issued for lab.test cannot impersonate wrong.test.\n\nTLS protects a connection. It does not decide whether a Bearer token expired, whether Alice belongs to a project, or whether the application leaks another user’s data. The HTTPS indicator is not general certification of business trustworthiness. If a proxy terminates TLS and connects to the application over HTTP, that later hop is plaintext. This lab confines it to same-host loopback. A cross-host or untrusted network requires a new transport-protection design, not copying this local upstream address.\n\nA temporary local CA gives the experiment a controllable trust chain. `--cacert` selects it for this curl invocation without installing it into a system store. CA and leaf keys exist only in an owned /tmp directory with mode 0700 and files at 0600, removed afterward. Certificates last one day and are recreated rather than packaging old keys. `-k` skips essential checks and is not certificate acceptance.\n\n<Code language=\"python\">{getHttpsExample('certificates.py')}</Code>\n\nThe OpenSSL commands first create a local signing CA, then a leaf key and signing request, and finally a signed leaf with lab.test SAN, server usage, and a non-CA constraint. `-noenc` leaves the temporary private key unencrypted. Its boundary relies on short lifetime, restrictive directory access, and no export—not a recommendation for storing long-lived production keys. Real renewal and key rotation remain deployment gates.\n\n## 4. Restore the lab and run positive and negative evidence together\n\nFrom the repository root, enter the lab directory; ZIP users enter the extracted root. The runner requires POSIX, an ordinary account, OpenSSL 3.x supporting req -addext and -noenc, and curl. This run used OpenSSL 3.6.4. Record missing platform tools instead of bypassing verification or borrowing real certificates. Restoring Python dependencies with uv does not install system OpenSSL, Caddy, or a container engine.\n\n```bash\ncd examples/js2py/o03-https-production\nuv sync --locked\nopenssl version\ncurl --version\nuv run --locked python tls_lab.py\nuv run --locked python -m pytest -q\n```\n\n```text\ntrusted_ca_https=200\nunknown_ca_curl_exit=60\nwrong_hostname_curl_exit=60\nedge_overwrites_forged_forwarding=True\nauthorization_forwarded_not_authenticated=True\nuntrusted_proxy_headers_ignored=True\ntrusted_loopback_direct_spoof_possible=True\nsanitized_error=500\nsanitized_validation=422\nteaching_edge_body_limit=413\nowned_processes_stopped_and_temp_keys_removed=True\n```\n\nThese are observations, not a fabricated success screenshot. The script asserts HTTP statuses/bodies, curl failure exits, and temporary-directory cleanup. `trusted_loopback_direct_spoof_possible=True` deliberately exposes a **residual trust gap**, not a security pass. We explain below why other same-host processes remain inside that trust boundary. Automatically selected ports avoid taking over a user’s fixed service.\n\n## 5. Two-terminal requests: curl is the client, not the server\n\nIn terminal A, start from the lab root. `--serve` keeps the process in the foreground; `--port 0` lets the OS choose an available port. It prints the public CA path and two copyable lines, `export CA=...` and `export PORT=...`. The ellipses here describe runtime values, not paths to type. Copy the actual printed lines into terminal B and remain at the lab root. They contain a public trust-material path and port, not a private key or session token.\n\n```bash\nuv run --locked python tls_lab.py --serve --port 0\n```\n\nAfter pasting the actual export lines, run the following in terminal B. curl sends one request and exits; it does not create a listening service. `--noproxy '*'` prevents local proxy configuration from sending the teaching request elsewhere. `--resolve` maps this name/port to loopback, `--cacert` chooses the local trust CA, `--max-time` bounds total waiting, `--include` displays response headers, and `-H` adds a request header. The Bearer value is a fixed fictional marker, not a login credential.\n\n```bash\ncurl --silent --show-error --include --max-time 5 --noproxy '*'   --resolve \"lab.test:$PORT:127.0.0.1\" --cacert \"$CA\"   -H 'Authorization: Bearer demo-not-a-valid-session'   \"https://lab.test:$PORT/probe\"\n```\n\nExpect HTTP 200 with scheme=https, host=lab.test, client=127.0.0.1, and authorization_present=true. The last field proves only that a header was forwarded, **never that authentication succeeded**. To observe failures, omit --cacert, then separately change both the resolve name and URL to wrong.test. Both returned curl exit 60 in this run, before business handling. 60 is not an HTTP status.\n\nFinish with Ctrl+C in terminal A. The program stops its own edge and backend process and removes temporary keys. Do not use killall or stop every uvicorn on the machine. Terminal B’s CA variable now points to a deleted file; reusing it causes a local file/trust error. A fresh launch requires fresh printed export lines.\n\n## 6. Reverse proxies: trace requests and credentials across every hop\n\nA client selects a server entry point. A **reverse proxy** accepts requests on behalf of the application and opens an upstream connection. The application’s immediate TCP peer is usually the proxy, not the original browser. A proxy can terminate TLS, centralize entry, and constrain requests, but does not automatically establish user identity. Authorization must reach the authentication layer on routes that need it, without appearing in access logs or debug echoes.\n\nThe local chain is curl → loopback teaching TLS edge → loopback HTTP Uvicorn → FastAPI. The edge forwards an allowlist of headers, bounds bodies at 4096 bytes, applies timeouts/response bounds, rejects unsupported transfer forms, and overwrites forwarding information. This deliberately small implementation has no HTTP/2, WebSocket, streaming, complete request-smuggling-resistant parser, or production throttling. **Never deploy it publicly.**\n\n413 is an observed policy of this teaching edge, not evidence that H04 or S03 already limits request sizes. Production must separately implement and test real entry-point bounds and login throttling, including the boundary when a caller bypasses the normal proxy and reaches upstream directly.\n\n<Code language=\"python\">{getHttpsExample('edge.py')}</Code>\n\n## 7. Trusted proxies: a header is not a network fact\n\nAny client can send `X-Forwarded-For: 203.0.113.9` or `X-Forwarded-Proto: https`. Unconditional trust can poison rate-limit/audit identity, generate wrong redirects, or misclassify HTTP as HTTPS. `--proxy-headers` enables interpretation; `--forwarded-allow-ips` restricts which immediate peers may supply that information. `*` trusts every reachable peer and is not a quick fix for a wrong URL.\n\nThe experiment has three stages. With proxy trust disabled, forged headers are ignored and scheme=http/client=127.0.0.1. Through the trusted edge, caller values are overwritten and the application sees https and actual loopback. But another local client connecting directly to the trusted loopback upstream **can forge the client value**. This reveals the limit: trusting 127.0.0.1 trusts local processes able to reach that upstream, not exclusively one proxy process.\n\nProduction must review the proxy allowlist together with real network isolation, socket permissions, process accounts, and container networking. Multiple proxies or a hosted CDN require an explicit hop-by-hop design for sanitizing, appending, and interpreting headers. Even a reliable source IP is not a user identity and never replaces Bearer validation or object authorization.\n\n<Code language=\"python\">{getHttpsExample('tls_lab.py')}</Code>\n\n## 8. Production errors: return less without losing diagnosis\n\nDebug pages, tracebacks, exception repr, and validation input/ctx can disclose paths, SQL parameters, passwords, or tokens. Production must not expose convenient debugging as a default public interface. The diagnostic app creates its own random request ID, returns only generic detail for 500, logs a safe event name and correlation ID, and returns only loc/type for validation failures without echoing input.\n\nDo not swallow every error and return 200. Clients still receive 500/422 and operators can correlate events, without copying secrets into responses. Real operations need access-controlled error observation, appropriate safe context, and alerting; this small logging demonstration is not full observability. /fail exists to trigger a local experiment, not as a public failure button in the real application.\n\n<Code language=\"python\">{getHttpsExample('app.py')}</Code>\n\nThe error-boundary middleware catches exceptions in normal request flow and records a sanitized event for this experiment instead of forwarding the exception into the server’s default traceback logging path. CORS wraps the entire application so an approved frontend can read sanitized errors rather than misdiagnosing them as cross-origin failures. Host checking is separate from TLS: successful certificate validation should not enable arbitrary Host routing. Tests inspect both error bodies and the private runtime log for fictional sensitive markers.\n\n## 9. Align with S01–S03: opaque Bearer, not JWT or cookies\n\nIntegration follows the S-stage contract: the service generates a high-entropy opaque random session token. Its raw value is returned only on successful login; the database stores its SHA-256 digest, expiry/revocation state, and session auth_version. Every request checks the session, expiry, active user, and current version before project membership and action authorization. HTTPS protects transport and the proxy forwards Authorization; **neither performs the application’s database verification**.\n\nThis is not JWT signature verification and requires no JWT key pair from this chapter. Logout, password changes, disabling, and logout-all are enforced by S-stage revocation logic, not bypassed by a proxy-cached successful response. S03’s UUIDv4 Idempotency-Key and Idempotency-Replayed must also survive the entry path; an idempotency receipt is not permanent permission.\n\nThis download verifies only `authorization_present`, with no real session database. Its 200 is not an S03 login success. Production must reconnect S03’s DB-backed readiness, authorization/revocation/idempotency tests, credential-safe logging, and configured/tested login throttling and request bounds. Never replace the complete identity system with a simplified operations-demo bypass.\n\n## 10. CORS constrains browser response access, not caller authority\n\nA browser origin combines scheme, host, and port. `https://frontend.lab.test:8444` differs from HTTP, another port, or another subdomain. Explicit Authorization or certain content types can cause a browser to send an OPTIONS preflight asking whether the origin, method, and headers are allowed. It sends the corresponding actual request after permission. CORS does not sign request bodies or prevent non-browser clients from calling an API directly.\n\nThe local app permits one exact demonstration origin, GET/POST, and Authorization/Content-Type/Idempotency-Key headers. expose_headers lets the frontend read correlation and idempotency-replay headers. There are no cookies, allow_credentials is false, and no wildcard opens access to everything. The complete S API also uses methods such as PATCH/DELETE; integration must add and test the real method policy rather than treating this diagnostic app’s two methods as production configuration.\n\nThe experiment verifies approved-origin preflight=200 and another origin’s preflight=400, yet a direct ordinary GET still returns 200 without Access-Control-Allow-Origin. curl does not enforce browser response-access rules. **CORS cannot replace authentication or authorization.** HTTP-header tests also do not accept every real browser behavior; actual frontend integration remains pending.\n\n## 11. CSRF follows credential mechanics, not frontend/backend separation\n\nTraditional CSRF exploits automatically attached ambient credentials, such as cookies, so a malicious page can send requests as a logged-in user. Our opaque Bearer is explicitly placed in Authorization by frontend code; the service does not treat cookies as sessions, so it does not expose that same automatic-cookie path. This is not “all CSRF/XSS risk disappears.” Stolen tokens, incorrectly allowed origins, unsafe redirects, or caller logic sending credentials to the wrong address still create failures.\n\nSwitching to cookie sessions requires renewed evaluation of SameSite, Secure, HttpOnly, Origin/Referer checks, anti-CSRF tokens, safe-method semantics, and legitimate cross-site flows. Setting allow_credentials=true is not a release plan. HttpOnly limits script access to a cookie but does not stop automatic sending. Secure restricts transport to HTTPS but does not establish user intent.\n\nThe S-stage demonstration frontend can use a short-lived in-memory token and require login after reload. This reduces some persistent-storage exposure but cannot defeat XSS in the current page. Do not recommend long-lived localStorage tokens as a universal default or copy real tokens into screenshots, error reports, or proxy logs. This chapter uses fictional markers only.\n\n## 12. Caddy configuration and public gates: a template is not deployment\n\nProduction reverse proxying should use maintained software rather than this standard-library teaching tool. Local and production Caddy templates support review: the same-host proxy connects to 127.0.0.1:8034, removes caller Forwarded, uses Caddy’s default X-Forwarded handling, defines no broad trusted_proxies, and does not enable access logging. The local template binds loopback, uses explicit certificate paths, and disables automatic HTTPS. The production template still contains api.example.invalid, **not a configured real domain**.\n\nAutomatic HTTPS commonly manages issuance and renewal, requiring correct DNS, verifiable domain control, reachability for the selected challenge, and writable protected storage. HTTP/TLS-ALPN challenges need their respective ports; DNS challenges require controlled DNS access. Not every deployment reduces to “open port 80.” We have no domain/server/production keys and initiated none of these actions.\n\nCaddy is absent here. These files passed only selected text-invariant checks, not real `caddy validate` or proxy execution. Run validation in an approved controlled environment after preparing certificates and selecting a fixed Caddy version. Even validation then needs real HTTPS, request-size bounds, login throttling, renewal, frontend, and full authorized-app tests. The templates do not claim those production policies are already implemented.\n\n<Code language=\"text\">{getHttpsExample('Caddyfile.local')}</Code>\n\n<Code language=\"text\">{getHttpsExample('Caddyfile.production.template')}</Code>\n\n```bash\nuv run --locked python check_config.py\n```\n\n```text\nsame_host_upstream=loopback\nproduction_domain=reserved_placeholder\ncaddy_runtime=NOT_VERIFIED\npublic_dns_and_certificate=NOT_VERIFIED\n```\n\nThese are **same-host topology** templates. If Caddy runs in a separate container, its 127.0.0.1 is not the application container. Choose controlled internal networking/service discovery and revisit upstream trust rather than publishing the backend publicly. Development reload, diagnostic /fail, and broad debug logging do not belong in production. User-facing release still requires later migration, rollback, backup/restore, and controlled-trial acceptance.\n\n## 13. Layered diagnosis: do not conceal distinct faults with -k\n\n| Observation | Layer | Next step |\n| --- | --- | --- |\n| Name resolution fails | DNS/client resolution | Inspect records or local --resolve; TLS has not started |\n| Connection refused | Address/port/listener | Inspect your own process and actual port, not certificates |\n| curl 60, unknown CA | Trust chain | Use this run’s public CA and check validity, never -k |\n| curl 60, wrong name | URL hostname versus SAN | Correct name/certificate, not authentication code |\n| 502 | Proxy-to-upstream hop | Inspect upstream process, address/namespace, and timeout |\n| 500/422 | Application/input | Use sanitized request ID or loc/type without echoing secrets |\n| Browser CORS error while curl responds | Browser access policy | Check exact origin, preflight and actual headers; assess authentication separately |\n| Wrong scheme or forgeable client IP | Forwarding trust | Inspect peer, sanitization and reachability, not allow-ips=* |\n\nA TLS handshake failure occurs at a different stage from HTTP 401/403. The diagnostic app implements no 401/403 authentication behavior; verify that in the complete S03 service. Share only safe categories and correlation IDs, never Authorization, Cookie, database URLs, or private keys.\n\n## 14. Explanation checkpoint: encryption, origin, and identity differ\n\nBefore opening the answer, explain why wrong.test still fails with a trusted CA, why forwarded Authorization does not prove login, why curl can receive 200 with a disallowed Origin, and why trusted loopback does not identify one trusted proxy process.\n\n<details>\n<summary>Answer and explanation</summary>\n\nChain trust and hostname matching are separate checks; SAN does not contain wrong.test. The proxy moved bytes, while authentication still needs digest lookup, expiry/revocation/version checks, then authorization. CORS governs browser response access and curl does not enforce it; an unprotected diagnostic endpoint still answers. Loopback is an address boundary containing other reachable local processes. The third experiment actually observed accepted forged forwarding from such a client.\n\n</details>\n\n## 15. Guided exercise: bad input and faults must not echo markers\n\nUse fictional markers only. POST /probe with string minutes must return 422 with useful loc/type but no input/ctx. GET /fail must return a generic 500 and random correlation ID. Errors for an approved origin must retain CORS headers. Inspect logs too: preserve the event ID, not the marker or traceback. Hint: deleting response details alone may not stop a framework subsequently logging the original exception; inspect control flow.\n\n<details>\n<summary>Guided answer and real TLS tests</summary>\n\nA dedicated validation handler extracts only allowed fields. The outer error boundary converts unknown exceptions into generic 500 responses and records only a safe event. CORS wraps the complete app so approved origins can read errors. The tests also cover wrong hostname, unknown CA, forged headers, body bounds, and owned-resource cleanup; they do not merely assume TLS works because TestClient passed.\n\n<Code language=\"python\">{getHttpsExample('tests/test_https.py')}</Code>\n\n</details>\n\n## 16. Independent variation: two exact origins, not substring domains\n\nRequirements only: allow `https://frontend.lab.test:8444` and `https://admin.lab.test:8445` to POST /probe with Authorization and Idempotency-Key. Use no cookies and implement no real authentication. Reject preflights with the wrong port, HTTP, an evil.invalid suffix, or Origin:null. A direct request without Origin must explicitly report authenticated=false, not treat “CORS did not block it” as login. Write the policy and tests before opening the answer.\n\n<details>\n<summary>Independent reference and counterexamples</summary>\n\n<Code language=\"python\">{getHttpsExample('solutions/origin_policy.py')}</Code>\n\n<Code language=\"python\">{getHttpsExample('solutions/test_origin_policy.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q solutions/test_origin_policy.py\n```\n\nExact-set matching avoids the substring flaw in `\"lab.test\" in origin`. Seven cases cover two approved origins, four rejected near-matches, and one direct non-browser-style request. They verify HTTP policy, not real browser behavior, TLS, or S03 identity. A cookie migration requires a redesigned answer, not one changed boolean.\n\n</details>\n\n## 17. Environment matrix: local TLS passed; public release did not\n\n| State | Evidence or gate |\n| --- | --- |\n| Actually executed | 17 standard and 7 independent tests; temporary CA/leaf, successful curl --cacert, unknown-CA/wrong-hostname failures, real loopback TLS proxy, trusted/untrusted forwarding, sanitized 500/422, teaching 413 bound, CORS headers, and resource cleanup |\n| Unavailable on this host | No Caddy or controlled Linux/container environment; Caddy files had text-invariant checks only, not parsing/execution |\n| User-provided environment | Controlled Linux/proxy version, owned domain/DNS/host, approved firewall/ports, production secret and certificate storage; never move teaching keys into it |\n| Pending public/product acceptance | Real A/AAAA, trusted public issuance/renewal, external/browser tests, non-bypassable proxy boundary, full S03 authorization/revocation/DB readiness, body bounds and throttling, migration/rollback/backup/restore |\n\nText, source, local TLS, and policy tests are implemented. Caddy, Linux, real-browser integration, and public deployment remain environment_pending. No public issuance request, system trust-store change, cloud resource, or real-token operation occurred. The teaching edge, /fail, and diagnostic application are not deployable user-facing services.\n\n## 18. Sources, dates, and a resumable record\n\nPrimary sources checked **2026-09-28**. `SOURCES.json` records URLs, dates, and retrieval summaries; it does not promise that documentation will never change. The three READMEs distinguish observations from environment gaps. The existence of configuration is not deployment acceptance.\n\n- [DNS concepts RFC1034](https://www.rfc-editor.org/rfc/rfc1034)\n- [Reserved names RFC2606](https://www.rfc-editor.org/rfc/rfc2606)\n- [TLS1.3 RFC8446](https://www.rfc-editor.org/rfc/rfc8446)\n- [Python SSL](https://docs.python.org/3.13/library/ssl.html)\n- [OpenSSL req](https://docs.openssl.org/3.6/man1/openssl-req/)\n- [OpenSSL x509](https://docs.openssl.org/3.6/man1/openssl-x509/)\n- [curl TLS certificates](https://curl.se/docs/sslcerts.html)\n- [curl command reference](https://curl.se/docs/manpage.html)\n- [Uvicorn settings](https://www.uvicorn.dev/settings/)\n- [Caddy reverse_proxy](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)\n- [Caddy automatic HTTPS](https://caddyserver.com/docs/automatic-https)\n- [FastAPI CORS](https://fastapi.tiangolo.com/tutorial/cors/)\n- [Starlette middleware](https://starlette.dev/middleware/)\n- [OWASP CSRF prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)\n\nA resume checkpoint records source/lock hashes, tool versions, last successful command, whether 17+7 cases reproduced locally, remaining proxy-trust gaps, approved origins and actual authentication scheme, the environment matrix, and the next first action. Record only the public CA’s lifecycle, never keys or real tokens. After certificates expire, regenerate the experiment instead of using -k. A new server requires new entry/identity integration acceptance; local TLS evidence is not “live in production.”\n\n",
+          "mechanism_focus": "域名/DNS、反向代理、TLS终止、可信代理、生产错误与凭证/CORS/CSRF边界; 验证HTTPS、错误响应、请求来源与凭证传递策略; 公开前需按实际认证方案检查CSRF等风险",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "2d9c9aab86946694e4d67af4f32e0861f314f2f9b9789fdc5410f56ec3c3d821",
+              "bytes": 21430,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".python-version",
+            "Caddyfile.local",
+            "Caddyfile.production.template",
+            "ENVIRONMENT.json",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "SOURCES.json",
+            "app.py",
+            "certificates.py",
+            "check_config.py",
+            "edge.py",
+            "pyproject.toml",
+            "solutions/__init__.py",
+            "solutions/origin_policy.py",
+            "solutions/test_origin_policy.py",
+            "tests/test_https.py",
+            "tls_lab.py",
+            "uv.lock"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "Author source and polluted-environment runs plus mainline unmodified maintained runner against exact downloaded ZIP bytes passed58 local cases: O01=16+1/O02=14+3/O03=17+7. Actual own POSIX process/signals/ports/files, local HTTP and private-CA TLS including unknown-CA/wrong-host rejection executed. No insecure curl -k/global trust import. Docker probe returned expected77 meaning environment_pending, NOT container success. Docker engine, systemd/Linux, Caddy and public domain/DNS/CA/firewall absent. Material authoring may complete while environmental chapter acceptance remains pending. No public users or infrastructure touched. Browser publication checks still pending.",
+          "slice": {
+            "index": 1,
+            "count": 2,
+            "source_paths_here": [
+              ".python-version",
+              "Caddyfile.local",
+              "Caddyfile.production.template",
+              "ENVIRONMENT.json",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "SOURCES.json"
+            ],
+            "source_paths_elsewhere": [
+              "app.py",
+              "certificates.py",
+              "check_config.py",
+              "edge.py",
+              "pyproject.toml",
+              "solutions/__init__.py",
+              "solutions/origin_policy.py",
+              "solutions/test_origin_policy.py",
+              "tests/test_https.py",
+              "tls_lab.py"
+            ]
+          },
+          "actual_download_files": {
+            ".python-version": "3.13.15\n",
+            "Caddyfile.local": "# UNEXECUTED: Caddy is not installed in the verification environment.\n# Same-host alternative to tls_lab.py; never run both on the same port.\n# TLS_CERT/TLS_KEY must refer to an independently owned temporary certificate pair.\n{\n    admin off\n    auto_https off\n}\nhttps://lab.test:8443 {\n    bind 127.0.0.1\n    tls {$TLS_CERT} {$TLS_KEY}\n    reverse_proxy 127.0.0.1:8034 {\n        header_up -Forwarded\n    }\n}\n",
+            "Caddyfile.production.template": "# NOT deploy-ready: reserved domain, no production app, no tested Caddy version.\n# Same HOST topology: Caddy -> loopback app. Not a container-to-container address.\n{\n    admin off\n}\napi.example.invalid {\n    reverse_proxy 127.0.0.1:8034 {\n        header_up -Forwarded\n    }\n    # Access logging deliberately not enabled. Runtime error logs still need review.\n    # Before release: independently implement/test body bounds and login throttling,\n    # full S03 authorization, DB readiness, certificate renewal and recovery.\n}\n",
+            "ENVIRONMENT.json": "{\n  \"standard_tests\": 17,\n  \"independent_tests\": 7,\n  \"actually_run\": [\n    \"OpenSSL3.6.4 temporary CA/leaf and restrictive key modes\",\n    \"real local TLS with curl8.7.1 --cacert; no -k\",\n    \"unknown CA and wrong hostname each curl60\",\n    \"proxy disabled ignores spoofed headers; edge overwrites spoofed headers\",\n    \"direct trusted-loopback spoof remains possible and is explicitly demonstrated\",\n    \"fictional Authorization forwarding WITHOUT authentication\",\n    \"generic500, safe422/no input echo, safe event log\",\n    \"local teaching-edge413 only\",\n    \"CORS preflight and actual-response headers; exact-origin independent tests\",\n    \"owned backend/edge shutdown and temporary-key removal\",\n    \"selected Caddy text invariants only\"\n  ],\n  \"unavailable_here\": [\n    \"Caddy binary\",\n    \"controlled Linux/container environment\",\n    \"user domain/host/production secrets not provided\"\n  ],\n  \"user_must_supply\": [\n    \"controlled host and fixed reviewed production reverse-proxy version\",\n    \"owned domain and DNS administration\",\n    \"approved firewall/challenge ports and certificate persistence\",\n    \"production configuration/secret storage; never teaching keys\",\n    \"real browser/frontend and full S03 authorized backend\"\n  ],\n  \"pending_acceptance\": [\n    \"caddy validate/adapt and actual Caddy runtime\",\n    \"real DNS A/AAAA and external reachability\",\n    \"trusted public certificate issuance/renewal\",\n    \"non-bypassable upstream isolation and multi-proxy trust if applicable\",\n    \"actual browser integration and CSRF reassessment on any cookie migration\",\n    \"full S03 session/revocation/authorization/DB readiness and header integration\",\n    \"production body bounds/login throttling/password-hash capacity\",\n    \"migration/release/rollback/backup/restore; no real-user launch\"\n  ],\n  \"verified_date\": \"2026-09-28\",\n  \"implementation_status\": \"implemented\",\n  \"environment_status\": \"environment_pending\",\n  \"claims_do_not_include\": \"documentation completion is not deployment/environment acceptance\"\n}\n",
+            "README.md": "# O03 HTTPS, reverse proxies, and production boundaries\n\nPrerequisite: O02. Diagnostics run only on127.0.0.1, implement no real identity/task database, and must not be public. S uses opaque Authorization Bearer sessions with DB digest+expiry/revoked+auth_version, not JWT or auth cookies. This tool proves only fictional-header forwarding, never authentication.\n\n## Environment and restoration\n\nChecked **2026-09-28**. Use an ordinary POSIX account, not root, for permission experiments. CPython **3.13.15**, uv **0.12.13**, pytest **8.4.2**. `.python-version` selects the interpreter, pyproject declares `>=3.13,<3.14`, and uv.lock fixes resolution. `[tool.uv] package=false` means the lab is not built as a distributable Python package.\n\nWeb baseline: FastAPI **0.135.1**, Uvicorn **0.42.0**, Pydantic **2.12.5**, HTTPX **0.28.1**, Starlette **0.52.1**, AnyIO **4.12.1**. No frontend dependencies.\n\nRepository users run the cd below from the repository root. ZIP users enter the extracted lab root directly, where pyproject.toml resides. `--locked` refuses silent lock changes.\n\n```bash\ncd examples/js2py/o03-https-production\npwd\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\nThe maintainer actually generated the lock using `uv lock --default-index https://pypi.org/simple`. Restoration does not require fresh resolution. Environments/caches are excluded from the allowlist/ZIP; data experiments use owned temporary directories.\n\nAdditional tools: OpenSSL3.x with req -addext/-noenc (tested3.6.4), curl (tested8.7.1). No system software is installed automatically. certificates.py creates a one-day temporary CA and lab.test leaf only in an owned /tmp directory, with0700 directory/0600 files. It neither installs system trust nor packages/prints keys.\n\n```bash\nopenssl version\ncurl --version\nuv run --locked python tls_lab.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_origin_policy.py\nuv run --locked python check_config.py\n```\n\n```text\ntrusted_ca_https=200\nunknown_ca_curl_exit=60\nwrong_hostname_curl_exit=60\nedge_overwrites_forged_forwarding=True\nauthorization_forwarded_not_authenticated=True\nuntrusted_proxy_headers_ignored=True\ntrusted_loopback_direct_spoof_possible=True\nsanitized_error=500\nsanitized_validation=422\nteaching_edge_body_limit=413\nowned_processes_stopped_and_temp_keys_removed=True\n```\n\n## Two-terminal interaction and stopping\n\nRun the first command in terminalA. --serve stays in the foreground and --port 0 requests an available port. Copy the actual printed export CA and export PORT lines into terminalB. CA points to public trust material, not a private key. Remain at the lab root when invoking curl. --resolve overrides this client’s DNS mapping while retaining SNI/Host; --cacert verifies using the selected CA; --noproxy avoids external proxies; --max-time bounds waiting; --include displays response headers; -H supplies a request header.\n\n```bash\nuv run --locked python tls_lab.py --serve --port 0\n```\n\n```bash\ncurl --silent --show-error --include --max-time 5 --noproxy '*' --resolve \"lab.test:$PORT:127.0.0.1\" --cacert \"$CA\" -H 'Authorization: Bearer demo-not-a-valid-session' \"https://lab.test:$PORT/probe\"\n```\n\nExpect200, scheme=https and authorization_present=true, without authentication. Omitting --cacert or changing both URL/resolve to wrong.test produces curl exit60. Never count -k as verification. Ctrl+C in terminalA stops owned backend/edge and removes temporary keys. The old CA path then becomes invalid; copy fresh values on the next launch. Automatic mode also cleans up without killall.\n\n## Mechanisms and deliberate gaps\n\nedge.py is a bounded standard-library teaching forwarder, not a production HTTP parser. It forwards an explicit header set and overwrites forwarding metadata. Its4096-byte413 policy is local, not an H04/S03 promise. app.py returns safe500 and loc/type-only422 without input/traceback echoes; logs contain only safe events and random IDs. /fail is local fault injection.\n\nDisabled proxy trust ignores forged headers; the edge overwrites them; but other local processes can connect directly to trusted127.0.0.1 upstream and spoof values. This is an observed residual risk requiring real deployment isolation, not allow-ips=* to repair URLs. TLS does not look up sessions, authorize members, or revoke tokens.\n\nExact-origin CORS permits demonstration GET/POST and Authorization/Content-Type/Idempotency-Key; the full S API needs its actual method policy. allow_credentials=False and no cookies. CORS is not authentication and curl does not enforce browser response restrictions. A cookie migration requires fresh CSRF/SameSite/Secure/HttpOnly/origin/anti-CSRF assessment. Real browsers remain unverified.\n\n## Caddy/public deployment (unexecuted)\n\nCaddyfile.local uses a same-host loopback8034 upstream and explicit TLS_CERT/TLS_KEY paths. production.template retains api.example.invalid and cannot be deployed directly. Caddy is absent, so only check_config text invariants ran; no caddy validate/runtime evidence exists. On your own controlled host with a fixed Caddy version, independent certificates and target app, the command below can run the local diagnostic upstream for configuration testing—not production. Prepare certificate paths before validating local configuration; never borrow real user private keys.\n\n```bash\nuv run --locked python -m uvicorn app:create_app --factory --host 127.0.0.1 --port 8034 --proxy-headers --forwarded-allow-ips 127.0.0.1 --no-access-log\ncaddy validate --config Caddyfile.local --adapter caddyfile\n```\n\nThe first command runs in the foreground; run the second in another terminal after preparing certificate environment variables. Stop the first with Ctrl+C. Separate containers cannot communicate through each other’s loopback; topology changes require renewed upstream/trust review. Public DNS, public issuance/renewal, access boundaries, full S03 revocation/auth/DB readiness, request bounds and login throttling, release/rollback and backup/restore all remain pending. No public resources are created.\n\n## Independent requirement\n\nPermit exactly the HTTPS frontend.lab.test:8444 and admin.lab.test:8445 origins. Reject wrong ports, HTTP, malicious hostname suffixes and null preflights. Use no cookies; do not call direct no-Origin access authentication. Write your solution/tests before reading solutions/origin_policy.py and its7 independent cases.\n\n## Environment matrix (machine-readable: ENVIRONMENT.json)\n\n| State | Evidence / gate |\n| --- | --- |\n| actually_run | OpenSSL3.6.4 temporary CA/leaf and restrictive key modes; real local TLS with curl8.7.1 --cacert; no -k; unknown CA and wrong hostname each curl60; proxy disabled ignores spoofed headers; edge overwrites spoofed headers; direct trusted-loopback spoof remains possible and is explicitly demonstrated; fictional Authorization forwarding WITHOUT authentication; generic500, safe422/no input echo, safe event log; local teaching-edge413 only; CORS preflight and actual-response headers; exact-origin independent tests; owned backend/edge shutdown and temporary-key removal; selected Caddy text invariants only |\n| unavailable_here | Caddy binary; controlled Linux/container environment; user domain/host/production secrets not provided |\n| user_must_supply | controlled host and fixed reviewed production reverse-proxy version; owned domain and DNS administration; approved firewall/challenge ports and certificate persistence; production configuration/secret storage; never teaching keys; real browser/frontend and full S03 authorized backend |\n| pending_acceptance | caddy validate/adapt and actual Caddy runtime; real DNS A/AAAA and external reachability; trusted public certificate issuance/renewal; non-bypassable upstream isolation and multi-proxy trust if applicable; actual browser integration and CSRF reassessment on any cookie migration; full S03 session/revocation/authorization/DB readiness and header integration; production body bounds/login throttling/password-hash capacity; migration/release/rollback/backup/restore; no real-user launch |\n\nThis run passed **17 standard** and **7 independent** cases. Source/text are `implemented`; external environment gates remain `environment_pending`, not deployment acceptance. Ordinary macOS tests do not replace Linux/container/public or Windows evidence.\n\n## Resume and diagnosis record\n\nRecord source/lock hashes, cwd, tool versions, last successful command, failure stage/category, actual case counts, environment matrix, and next first step. Never record a full environment, real token, database URL, or private key. Resume with `uv sync --locked`, standard tests, and your own independent tests. A passing reference alone does not establish independent ability.\n\n## Primary sources\n\nSOURCES.json records official URLs, scope, HTTP retrieval results and SHA-256 digests checked on 2026-09-28. The chapter explains mechanisms; this README provides the offline execution entry. No production resource creation, system-software installation, or acceptance of service terms is automated here.\n",
+            "README.zh-cn.md": "# O03 HTTPS、入口代理与生产边界\n\n前置 O02。诊断工具只在127.0.0.1上运行；没有真实认证/任务数据库，不能公开。S阶段实际方案是不透明Authorization Bearer会话，DB摘要+expiry/revoked+auth_version，不用JWT或认证Cookie；本工具仅证明虚构头被传递，绝不证明认证成功。\n\n## 环境与恢复\n\n核验日期：**2026-09-28**。需要普通 POSIX 账户；不以 root 运行权限实验。CPython **3.13.15**、uv **0.12.13**、pytest **8.4.2**。`.python-version` 选解释器，pyproject 声明 `>=3.13,<3.14`，uv.lock 锁依赖；`[tool.uv] package=false` 表示不打包这个练习为可发布 Python 包。\n\nWeb 基线：FastAPI **0.135.1**、Uvicorn **0.42.0**、Pydantic **2.12.5**、HTTPX **0.28.1**、Starlette **0.52.1**、AnyIO **4.12.1**；没有前端依赖。\n\n仓库用户从仓库根目录执行下列 cd；ZIP 用户直接进入解压后的同名实验根目录，里面应有 pyproject.toml。`--locked` 拒绝悄悄更新锁。\n\n```bash\ncd examples/js2py/o03-https-production\npwd\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\n维护者锁文件已用 `uv lock --default-index https://pypi.org/simple` 实际生成。读者恢复不需要重新解析。环境与缓存不进清单/ZIP，所有数据实验用自己创建的临时目录。\n\n额外系统工具：OpenSSL3.x支持 req -addext/-noenc（本轮3.6.4）、curl（本轮8.7.1）。不自动安装系统软件。certificates.py仅在自有/tmp目录生成一天有效的临时CA与lab.test叶证书，目录0700/文件0600，不安装系统信任、不打包、不打印私钥。\n\n```bash\nopenssl version\ncurl --version\nuv run --locked python tls_lab.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_origin_policy.py\nuv run --locked python check_config.py\n```\n\n```text\ntrusted_ca_https=200\nunknown_ca_curl_exit=60\nwrong_hostname_curl_exit=60\nedge_overwrites_forged_forwarding=True\nauthorization_forwarded_not_authenticated=True\nuntrusted_proxy_headers_ignored=True\ntrusted_loopback_direct_spoof_possible=True\nsanitized_error=500\nsanitized_validation=422\nteaching_edge_body_limit=413\nowned_processes_stopped_and_temp_keys_removed=True\n```\n\n## 双终端交互与停止\n\n终端A运行下列命令。--serve保持前台；--port 0让OS选空闲端口。把程序实际打印的export CA和export PORT行复制到终端B；CA是公开信任材料路径，不是私钥。终端B仍在实验根目录运行curl。--resolve仅覆盖这一次客户端的DNS映射，保留SNI/Host；--cacert启用指定CA校验，--noproxy避开外部代理，--max-time限制等待，--include显示响应头，-H添加请求头。\n\n```bash\nuv run --locked python tls_lab.py --serve --port 0\n```\n\n```bash\ncurl --silent --show-error --include --max-time 5 --noproxy '*' --resolve \"lab.test:$PORT:127.0.0.1\" --cacert \"$CA\" -H 'Authorization: Bearer demo-not-a-valid-session' \"https://lab.test:$PORT/probe\"\n```\n\n预期200、scheme=https、authorization_present=true，但并未认证。去掉--cacert或改URL与resolve名字为wrong.test，各自curl exit60；严禁用-k算验收。终端A的Ctrl+C停止自有后端/边缘并删除临时密钥；旧CA路径随后失效，下次启动重新复制。自动模式同样清理，绝不killall。\n\n## 机制与故意缺口\n\nedge.py是有界标准库教学转发器，不是生产HTTP解析器。只接受限定请求头，覆盖Forwarded类信息；4096字节body限制返回413仅对本边缘成立，不替H04/S03承诺策略。app.py返回安全500与loc/type-only422，不回显输入/traceback，日志只安全事件和随机id；/fail只供本地故障实验。\n\n关闭代理信任会忽略伪造头；通过边缘会被覆盖；但受信127.0.0.1上游可被同机其他进程直连伪造。该观察是真实残余风险，必须通过实际部署隔离解决，不能用allow-ips=*修URL。TLS不负责查会话、成员授权或撤销。\n\n精确来源CORS只允许演示GET/POST及Authorization/Content-Type/Idempotency-Key；真实S API另需完整方法策略。allow_credentials=False、不用Cookie；CORS不是认证，curl不执行浏览器读取限制。若改Cookie须重新评估CSRF/SameSite/Secure/HttpOnly/来源和反CSRF机制。真实浏览器未验收。\n\n## Caddy/公网（未实跑）\n\nCaddyfile.local使用同主机loopback上游8034和显式TLS_CERT/TLS_KEY路径；production.template保留api.example.invalid，不可直接发布。caddy缺失，所以只执行check_config文本不变量检查，没有caddy validate/运行证据。若在自己的受控主机准备固定Caddy、独立证书与目标应用，可先单独启动下面的本地诊断上游供配置测试；这不是生产服务。需要自行准备证书路径再验证本地配置，不得借用用户真实私钥。\n\n```bash\nuv run --locked python -m uvicorn app:create_app --factory --host 127.0.0.1 --port 8034 --proxy-headers --forwarded-allow-ips 127.0.0.1 --no-access-log\ncaddy validate --config Caddyfile.local --adapter caddyfile\n```\n\n上面第一条是前台命令，第二条在另一终端且已准备证书环境时运行；结束第一条用Ctrl+C。不同容器不能用彼此的loopback通信；拓扑改变须重审上游/信任边界。公网DNS、公签证书签发续期、访问限制、完整S03认证撤销与DB ready、请求大小和登录节流、发布回退与备份恢复都仍待验收；不创建任何公开资源。\n\n## 独立需求\n\n允许frontend.lab.test:8444与admin.lab.test:8445两个精确HTTPS来源；错端口、HTTP、恶意域名后缀与null预检拒绝。不用Cookie，不把无Origin直接调用称为认证。先写实现与测试，再看solutions/origin_policy.py的7个独立case。\n\n## 环境矩阵（机器可读版本：ENVIRONMENT.json）\n\n| 状态 | 证据与门槛 |\n| --- | --- |\n| 已实际运行 | 临时CA/叶证书与权限、curl --cacert成功及未知CA/错主机名exit60、loopback TLS、转发头覆盖/忽略与同机直连伪造缺口、虚构Authorization传递、脱敏500/422、教学413、CORS头、清理。 |\n| 本机不可运行 | 无Caddy、无受控Linux/容器环境；未提供用户域名、主机或生产秘密。 |\n| 用户需自备 | 受控主机与固定反代版本、自有域名/DNS、防火墙/挑战端口许可、生产秘密与证书持久存储、实际浏览器前端及完整S03服务。 |\n| 待环境验收 | caddy validate与运行、真实A/AAAA/公网连通、公签证书申请续期、上游不可绕过/多代理信任、真实浏览器、Cookie变更时CSRF重评估、S03撤销/授权/DB ready、生产body限制/登录节流/哈希容量、迁移回退与备份恢复。 |\n\n本轮标准 **17**、独立 **7** 个测试通过。源码与文稿 `implemented`；矩阵中的外部环境 `environment_pending`，不是整体部署通过。普通 macOS 测试不能代替 Linux/容器/公网或 Windows 证据。\n\n## 恢复学习与排错记录\n\n记录源码/锁摘要、cwd、工具版本、最后成功命令、失败阶段与分类、实际测试数、环境矩阵和下次第一步。不要记录完整环境、真实 token、数据库 URL 或私钥。恢复先 `uv sync --locked`，再跑标准与自己写的独立测试。只有参考答案通过，不代表你能独立实现。\n\n## 一手资料\n\nSOURCES.json 保存 2026-09-28 核验的官方地址、作用范围、HTTP获取结果与SHA-256摘要。章节正文解释每个机制，README 提供离线运行入口。这里没有自动创建生产资源、安装系统软件或接受服务条款。\n",
+            "README.zh-tw.md": "# O03 HTTPS、入口代理與生產邊界\n\n前置 O02。診斷工具只在127.0.0.1上運行；沒有真實認證/任務數據庫，不能公開。S階段實際方案是不透明Authorization Bearer會話，DB摘要+expiry/revoked+auth_version，不用JWT或認證Cookie；本工具僅證明虛構頭被傳遞，絕不證明認證成功。\n\n## 環境與恢復\n\n核驗日期：**2026-09-28**。需要普通 POSIX 賬戶；不以 root 運行權限實驗。CPython **3.13.15**、uv **0.12.13**、pytest **8.4.2**。`.python-version` 選解釋器，pyproject 聲明 `>=3.13,<3.14`，uv.lock 鎖依賴；`[tool.uv] package=false` 表示不打包這個練習為可發佈 Python 包。\n\nWeb 基線：FastAPI **0.135.1**、Uvicorn **0.42.0**、Pydantic **2.12.5**、HTTPX **0.28.1**、Starlette **0.52.1**、AnyIO **4.12.1**；沒有前端依賴。\n\n倉庫用戶從倉庫根目錄執行下列 cd；ZIP 用戶直接進入解壓後的同名實驗根目錄，裡面應有 pyproject.toml。`--locked` 拒絕悄悄更新鎖。\n\n```bash\ncd examples/js2py/o03-https-production\npwd\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\n維護者鎖文件已用 `uv lock --default-index https://pypi.org/simple` 實際生成。讀者恢復不需要重新解析。環境與緩存不進清單/ZIP，所有數據實驗用自己創建的臨時目錄。\n\n額外系統工具：OpenSSL3.x支持 req -addext/-noenc（本輪3.6.4）、curl（本輪8.7.1）。不自動安裝系統軟件。certificates.py僅在自有/tmp目錄生成一天有效的臨時CA與lab.test葉證書，目錄0700/文件0600，不安裝系統信任、不打包、不打印私鑰。\n\n```bash\nopenssl version\ncurl --version\nuv run --locked python tls_lab.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_origin_policy.py\nuv run --locked python check_config.py\n```\n\n```text\ntrusted_ca_https=200\nunknown_ca_curl_exit=60\nwrong_hostname_curl_exit=60\nedge_overwrites_forged_forwarding=True\nauthorization_forwarded_not_authenticated=True\nuntrusted_proxy_headers_ignored=True\ntrusted_loopback_direct_spoof_possible=True\nsanitized_error=500\nsanitized_validation=422\nteaching_edge_body_limit=413\nowned_processes_stopped_and_temp_keys_removed=True\n```\n\n## 雙終端交互與停止\n\n終端A運行下列命令。--serve保持前臺；--port 0讓OS選空閒端口。把程序實際打印的export CA和export PORT行復制到終端B；CA是公開信任材料路徑，不是私鑰。終端B仍在實驗根目錄運行curl。--resolve僅覆蓋這一次客戶端的DNS映射，保留SNI/Host；--cacert啟用指定CA校驗，--noproxy避開外部代理，--max-time限制等待，--include顯示響應頭，-H添加請求頭。\n\n```bash\nuv run --locked python tls_lab.py --serve --port 0\n```\n\n```bash\ncurl --silent --show-error --include --max-time 5 --noproxy '*' --resolve \"lab.test:$PORT:127.0.0.1\" --cacert \"$CA\" -H 'Authorization: Bearer demo-not-a-valid-session' \"https://lab.test:$PORT/probe\"\n```\n\n預期200、scheme=https、authorization_present=true，但並未認證。去掉--cacert或改URL與resolve名字為wrong.test，各自curl exit60；嚴禁用-k算驗收。終端A的Ctrl+C停止自有後端/邊緣並刪除臨時密鑰；舊CA路徑隨後失效，下次啟動重新複製。自動模式同樣清理，絕不killall。\n\n## 機制與故意缺口\n\nedge.py是有界標準庫教學轉發器，不是生產HTTP解析器。只接受限定請求頭，覆蓋Forwarded類信息；4096字節body限制返回413僅對本邊緣成立，不替H04/S03承諾策略。app.py返回安全500與loc/type-only422，不回顯輸入/traceback，日誌只安全事件和隨機id；/fail只供本地故障實驗。\n\n關閉代理信任會忽略偽造頭；通過邊緣會被覆蓋；但受信127.0.0.1上游可被同機其他進程直連偽造。該觀察是真實殘餘風險，必須通過實際部署隔離解決，不能用allow-ips=*修URL。TLS不負責查會話、成員授權或撤銷。\n\n精確來源CORS只允許演示GET/POST及Authorization/Content-Type/Idempotency-Key；真實S API另需完整方法策略。allow_credentials=False、不用Cookie；CORS不是認證，curl不執行瀏覽器讀取限制。若改Cookie須重新評估CSRF/SameSite/Secure/HttpOnly/來源和反CSRF機制。真實瀏覽器未驗收。\n\n## Caddy/公網（未實跑）\n\nCaddyfile.local使用同主機loopback上游8034和顯式TLS_CERT/TLS_KEY路徑；production.template保留api.example.invalid，不可直接發佈。caddy缺失，所以只執行check_config文本不變量檢查，沒有caddy validate/運行證據。若在自己的受控主機準備固定Caddy、獨立證書與目標應用，可先單獨啟動下面的本地診斷上游供配置測試；這不是生產服務。需要自行準備證書路徑再驗證本地配置，不得借用用戶真實私鑰。\n\n```bash\nuv run --locked python -m uvicorn app:create_app --factory --host 127.0.0.1 --port 8034 --proxy-headers --forwarded-allow-ips 127.0.0.1 --no-access-log\ncaddy validate --config Caddyfile.local --adapter caddyfile\n```\n\n上面第一條是前臺命令，第二條在另一終端且已準備證書環境時運行；結束第一條用Ctrl+C。不同容器不能用彼此的loopback通信；拓撲改變須重審上游/信任邊界。公網DNS、公簽證書籤發續期、訪問限制、完整S03認證撤銷與DB ready、請求大小和登錄節流、發佈回退與備份恢復都仍待驗收；不創建任何公開資源。\n\n## 獨立需求\n\n允許frontend.lab.test:8444與admin.lab.test:8445兩個精確HTTPS來源；錯端口、HTTP、惡意域名後綴與null預檢拒絕。不用Cookie，不把無Origin直接調用稱為認證。先寫實現與測試，再看solutions/origin_policy.py的7個獨立case。\n\n## 環境矩陣（機器可讀版本：ENVIRONMENT.json）\n\n| 狀態 | 證據與門檻 |\n| --- | --- |\n| 已實際運行 | 臨時CA/葉證書與權限、curl --cacert成功及未知CA/錯主機名exit60、loopback TLS、轉發頭覆蓋/忽略與同機直連偽造缺口、虛構Authorization傳遞、脫敏500/422、教學413、CORS頭、清理。 |\n| 本機不可運行 | 無Caddy、無受控Linux/容器環境；未提供用戶域名、主機或生產秘密。 |\n| 用戶需自備 | 受控主機與固定反代版本、自有域名/DNS、防火牆/挑戰端口許可、生產秘密與證書持久存儲、實際瀏覽器前端及完整S03服務。 |\n| 待環境驗收 | caddy validate與運行、真實A/AAAA/公網連通、公簽證書申請續期、上游不可繞過/多代理信任、真實瀏覽器、Cookie變更時CSRF重評估、S03撤銷/授權/DB ready、生產body限制/登錄節流/哈希容量、遷移回退與備份恢復。 |\n\n本輪標準 **17**、獨立 **7** 個測試通過。源碼與文稿 `implemented`；矩陣中的外部環境 `environment_pending`，不是整體部署通過。普通 macOS 測試不能代替 Linux/容器/公網或 Windows 證據。\n\n## 恢復學習與排錯記錄\n\n記錄源碼/鎖摘要、cwd、工具版本、最後成功命令、失敗階段與分類、實際測試數、環境矩陣和下次第一步。不要記錄完整環境、真實 token、數據庫 URL 或私鑰。恢復先 `uv sync --locked`，再跑標準與自己寫的獨立測試。只有參考答案通過，不代表你能獨立實現。\n\n## 一手資料\n\nSOURCES.json 保存 2026-09-28 核驗的官方地址、作用範圍、HTTP獲取結果與SHA-256摘要。章節正文解釋每個機制，README 提供離線運行入口。這裡沒有自動創建生產資源、安裝系統軟件或接受服務條款。\n",
+            "SOURCES.json": "[\n  {\n    \"title\": \"DNS concepts RFC1034\",\n    \"url\": \"https://www.rfc-editor.org/rfc/rfc1034\",\n    \"scope\": \"Names, resolver cache, authority and TTL; DNS does not choose HTTP paths\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://www.rfc-editor.org/info/rfc1034/\",\n    \"sha256\": \"b64b008b650881e255b1cc8551b61c1a5395923f5de080d631ac90080849a746\"\n  },\n  {\n    \"title\": \"Reserved names RFC2606\",\n    \"url\": \"https://www.rfc-editor.org/rfc/rfc2606\",\n    \"scope\": \"test/invalid reserved for examples\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://www.rfc-editor.org/info/rfc2606/\",\n    \"sha256\": \"ba6fbd71818bfe7ccc9a12854a3a6bae8848e8de650507ee26bd3560c742fbf1\"\n  },\n  {\n    \"title\": \"TLS1.3 RFC8446\",\n    \"url\": \"https://www.rfc-editor.org/rfc/rfc8446\",\n    \"scope\": \"TLS authentication and encrypted transport, not application authorization\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://www.rfc-editor.org/info/rfc8446/\",\n    \"sha256\": \"c2e1cc932b3d3d896a19becf18505d17ae3a1a7e273b9aa1d20ec78ff5d42cb0\"\n  },\n  {\n    \"title\": \"Python SSL\",\n    \"url\": \"https://docs.python.org/3.13/library/ssl.html\",\n    \"scope\": \"SSLContext, certificates and verification\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.python.org/3.13/library/ssl.html\",\n    \"sha256\": \"775168b684f7cdfd7fc686cd4796181115367e5f11f125e7d1f41cac3e483f9f\"\n  },\n  {\n    \"title\": \"OpenSSL req\",\n    \"url\": \"https://docs.openssl.org/3.6/man1/openssl-req/\",\n    \"scope\": \"Temporary keys and certificate extensions\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.openssl.org/3.6/man1/openssl-req/\",\n    \"sha256\": \"76a8a5008451a2b9144476cb112bfd03f8d56acee3f8ae431c6275ee032af808\"\n  },\n  {\n    \"title\": \"OpenSSL x509\",\n    \"url\": \"https://docs.openssl.org/3.6/man1/openssl-x509/\",\n    \"scope\": \"CA signing for local experiment only\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.openssl.org/3.6/man1/openssl-x509/\",\n    \"sha256\": \"6041d99310bcc85878aec6298c67e3860a31d171da569add0ccdd844f8f2fe9c\"\n  },\n  {\n    \"title\": \"curl TLS certificates\",\n    \"url\": \"https://curl.se/docs/sslcerts.html\",\n    \"scope\": \"--cacert and hostname verification; no insecure verification\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://curl.se/docs/sslcerts.html\",\n    \"sha256\": \"b057885cf0fac5c8ae153a78b01713edf4b571b41799c1a0b7ac3850ddcfa742\"\n  },\n  {\n    \"title\": \"curl command reference\",\n    \"url\": \"https://curl.se/docs/manpage.html\",\n    \"scope\": \"--resolve, --noproxy, -H, --include, --data, --write-out\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://curl.se/docs/manpage.html\",\n    \"sha256\": \"317d764cad01af11d2a660f14f8739b65d86b98a0a036105e32aefface5938a1\"\n  },\n  {\n    \"title\": \"Uvicorn settings\",\n    \"url\": \"https://www.uvicorn.dev/settings/\",\n    \"scope\": \"forwarded-allow-ips, proxy-headers, no-access-log\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://uvicorn.dev/settings/\",\n    \"sha256\": \"dd534a054514d1a735b78da8fc654ba572b83525e56a433a5f8f4ad67cb2cf58\"\n  },\n  {\n    \"title\": \"Caddy reverse_proxy\",\n    \"url\": \"https://caddyserver.com/docs/caddyfile/directives/reverse_proxy\",\n    \"scope\": \"X-Forwarded headers and upstream trust\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://caddyserver.com/docs/caddyfile/directives/reverse_proxy\",\n    \"sha256\": \"b6abf46d6e6b069541b18df80cb0bb1417ca577612744b42be852713fc100ff0\"\n  },\n  {\n    \"title\": \"Caddy automatic HTTPS\",\n    \"url\": \"https://caddyserver.com/docs/automatic-https\",\n    \"scope\": \"Public ACME issuance/renewal requires real validated environment\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://caddyserver.com/docs/automatic-https\",\n    \"sha256\": \"88b3a6a5d7c495d08722120fc5372719625098ceec0df9c5f443a78992bdb682\"\n  },\n  {\n    \"title\": \"FastAPI CORS\",\n    \"url\": \"https://fastapi.tiangolo.com/tutorial/cors/\",\n    \"scope\": \"Origins, preflight and credential-bearing requests\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://fastapi.tiangolo.com/tutorial/cors/\",\n    \"sha256\": \"717111e63192718cafcb4df408d1fe912c2260316f26711218f3e890560eb47f\"\n  },\n  {\n    \"title\": \"Starlette middleware\",\n    \"url\": \"https://starlette.dev/middleware/\",\n    \"scope\": \"Global CORS enforcement and TrustedHost\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://starlette.dev/middleware/\",\n    \"sha256\": \"9a510cdf05897c20319ae841d89ce66e643312c53a21f05189247da26d8d2957\"\n  },\n  {\n    \"title\": \"OWASP CSRF prevention\",\n    \"url\": \"https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html\",\n    \"scope\": \"Ambient cookies, defenses and reassessment when auth scheme changes\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html\",\n    \"sha256\": \"95af1a08b8100482a37516df7a73c06dd3373f0040aa041cd75b4cb89d7bc2dd\"\n  }\n]\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.5
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 1.0,
+            "probabilities": {
+              "UNCERTAIN": 0.0,
+              "API_CATALOGUE": 0.0,
+              "PARTIAL": 0.0,
+              "SUBSTANTIVE": 1.0
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.97,
+            "probabilities": {
+              "MATERIAL_ERROR": 0.01,
+              "UNCERTAIN": 0.0,
+              "ACCURATE_AND_BOUNDED": 0.98,
+              "NECESSARY_GAP": 0.01
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 1.0,
+            "probabilities": {
+              "NECESSARY_GAP": 0.0,
+              "UNCERTAIN": 0.0,
+              "ACCURATE_AND_BOUNDED": 1.0,
+              "MATERIAL_ERROR": 0.0
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.91,
+            "probabilities": {
+              "UNDERSPECIFIED": 0.0,
+              "UNCERTAIN": 0.0,
+              "COHERENT_AND_TESTABLE": 0.94,
+              "CONTRADICTORY": 0.06
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.81
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "PROCEED",
+            "confidence": 0.34,
+            "probabilities": {
+              "PROCEED": 0.56,
+              "TARGETED_REVIEW": 0.42,
+              "REVISE": 0.02
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 24309,
+          "output_tokens": 341
+        }
+      },
+      "raw_response_sha256": "832f93d411f3e9f65c58df9396e3c5d19228f9213bba908d9de50f75b4d4d545"
+    },
+    {
+      "batch": "review-81",
+      "metadata": {
+        "started_at_utc": "2026-09-28T06:03:01.406107+00:00",
+        "elapsed_seconds": 1.14,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "ddafe63a50d3ca92fbb537ec89388ad3f1a4dcd00b60b3630eb9071a2f58f88d",
+        "usage": {
+          "input_tokens": 19723,
+          "output_tokens": 341
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "o03-https-production",
+          "current_contract": {
+            "id": "O03",
+            "title": "网络入口、HTTPS 与生产配置",
+            "prerequisites": [
+              "O02"
+            ],
+            "teach": "域名/DNS、反向代理、TLS终止、可信代理、生产错误与凭证/CORS/CSRF边界",
+            "acceptance": "验证HTTPS、错误响应、请求来源与凭证传递策略",
+            "boundary": "公开前需按实际认证方案检查CSRF等风险",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "O02",
+              "title": "容器与可部署应用",
+              "prerequisites": [
+                "O01",
+                "L08"
+              ],
+              "teach": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查",
+              "acceptance": "从干净环境构建运行并重启，确认数据和秘密边界",
+              "boundary": "不在镜像写密钥；不把容器健康等同于业务正确",
+              "status": "planned"
+            }
+          ],
+          "declared_transitive_prior_capabilities": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "H05",
+              "title": "应用组织、配置与依赖",
+              "prerequisites": [
+                "H04",
+                "L14"
+              ],
+              "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+              "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+              "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+              "status": "planned"
+            },
+            {
+              "id": "H06",
+              "title": "API 测试与前后端联调",
+              "prerequisites": [
+                "H05",
+                "L09",
+                "L13"
+              ],
+              "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+              "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+              "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+              "status": "planned"
+            },
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            },
+            {
+              "id": "D02",
+              "title": "SQL 与参数化查询",
+              "prerequisites": [
+                "D01"
+              ],
+              "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+              "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+              "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+              "status": "planned"
+            },
+            {
+              "id": "D03",
+              "title": "事务、约束与并发冲突",
+              "prerequisites": [
+                "D02"
+              ],
+              "teach": "原子性、提交回滚、约束失败、隔离和竞争、事务边界",
+              "acceptance": "制造两步写入的后一步失败，证明前一步未残留",
+              "boundary": "不仅背ACID；不以单进程内存检查代替约束",
+              "status": "planned"
+            },
+            {
+              "id": "D04",
+              "title": "同步 SQLAlchemy 与 Session",
+              "prerequisites": [
+                "D03",
+                "H05"
+              ],
+              "teach": "映射、连接池与Session、事务所有权、查询、提交失败后的恢复",
+              "acceptance": "把API接入真实数据库并验证成功/失败都释放资源",
+              "boundary": "不第一次学数据库就加入异步ORM",
+              "status": "planned"
+            },
+            {
+              "id": "D05",
+              "title": "Alembic 与已有数据迁移",
+              "prerequisites": [
+                "D04"
+              ],
+              "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+              "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+              "boundary": "不删库重建；不承诺任意降级都无损",
+              "status": "planned"
+            },
+            {
+              "id": "D06",
+              "title": "数据库测试与查询诊断",
+              "prerequisites": [
+                "D05",
+                "H06"
+              ],
+              "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+              "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+              "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+              "status": "planned"
+            },
+            {
+              "id": "S01",
+              "title": "身份与凭证生命周期",
+              "prerequisites": [
+                "D06"
+              ],
+              "teach": "用户、密码哈希、登录、凭证验证/失效、禁用用户、日志脱敏",
+              "acceptance": "拒绝错误/过期/篡改凭证并验证撤销策略",
+              "boundary": "不自创密码学；登录成功不等于有对象权限",
+              "status": "planned"
+            },
+            {
+              "id": "S02",
+              "title": "对象级授权与多用户隔离",
+              "prerequisites": [
+                "S01"
+              ],
+              "teach": "角色和成员关系、所有权、默认拒绝、越权与负向测试",
+              "acceptance": "Alice知道Bob对象ID仍无法读取/修改，角色不能由请求体自授",
+              "boundary": "前端隐藏按钮和CORS都不是服务端授权",
+              "status": "planned"
+            },
+            {
+              "id": "S03",
+              "title": "可靠业务操作与幂等",
+              "prerequisites": [
+                "S02",
+                "D03"
+              ],
+              "teach": "业务冲突、重复提交、事务与幂等范围、日期时间/标识/精确数值的必要标准库",
+              "acceptance": "复现重复请求或并发冲突并验证约定行为",
+              "boundary": "不承诺仅靠重试就能实现恰好一次；按业务需要教学数据表示",
+              "status": "planned"
+            },
+            {
+              "id": "A01",
+              "title": "Python 异步执行模型",
+              "prerequisites": [
+                "S03"
+              ],
+              "teach": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制",
+              "acceptance": "通过可观察实验选择同步/异步边界，并验证取消行为",
+              "boundary": "JS熟悉async不代表Python自动调度；不机械改全部async",
+              "status": "planned"
+            },
+            {
+              "id": "A02",
+              "title": "外部服务与异步资源生命周期",
+              "prerequisites": [
+                "A01",
+                "L14",
+                "H05"
+              ],
+              "teach": "客户端复用、lifespan、超时、重试与幂等、故障替身、清理",
+              "acceptance": "外部依赖失败不拖垮核心CRUD；正常/异常/取消均释放资源",
+              "boundary": "不把进程内队列或BackgroundTasks当持久任务系统",
+              "status": "planned"
+            },
+            {
+              "id": "O01",
+              "title": "操作系统与服务运行基础",
+              "prerequisites": [
+                "A02"
+              ],
+              "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+              "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+              "boundary": "不先让初学者背Docker命令绕过OS基础",
+              "status": "planned"
+            },
+            {
+              "id": "O02",
+              "title": "容器与可部署应用",
+              "prerequisites": [
+                "O01",
+                "L08"
+              ],
+              "teach": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查",
+              "acceptance": "从干净环境构建运行并重启，确认数据和秘密边界",
+              "boundary": "不在镜像写密钥；不把容器健康等同于业务正确",
+              "status": "planned"
+            }
+          ],
+          "prerequisite_scope": "Current direct edges plus their transitive contracts are included. Contracts describe curriculum capabilities, not proof that a particular learner has passed; review required concepts against actual lesson explanation, not absence of transitive detail from earlier rounds.",
+          "actual_english_lesson": "---\ntitle: \"Network entry and HTTPS: verify the connection and whom you trust\"\ndescription: \"Use a temporary CA and loopback proxy to test certificates, hostnames, trusted forwarding, sanitized errors and CORS; connect the S-stage Bearer boundary without claiming public deployment.\"\n---\n\nimport { getHttpsExample } from '@/lib/js2py-examples'\n\n## 1. A production entry point is not simply host=0.0.0.0\n\nSeeing JSON locally proves one local request path works. Reliable, safe access for invited users requires more answers: where does DNS point, who authenticates the server, where does encryption end, which proxy may supply client information, and can errors or logs expose a token? Opening every interface and disabling certificate checks does not solve those problems.\n\nThis chapter follows O02, using HTTP and identity concepts established in H/S. You will explain responsibilities along DNS→connection→TLS→proxy→application and test certificate failures, forwarding trust, production errors, and browser-origin policy. Independent acceptance means testable entry constraints matched to the real authentication scheme. We buy no domain, request no public certificate, create no externally visible resource, and do not deploy a complete product for you.\n\n[Download the complete O03 lab](/learning-assets/js2py/o03-https-production.zip). Python/web versions match O02; local tools tested were OpenSSL 3.6.4 and curl 8.7.1. The diagnostic API, failure endpoint, and standard-library forwarder are **local teaching tools**, not a production reverse proxy. They implement neither real login nor task authorization and must never receive real users or tokens.\n\n## 2. Separate names, addresses, ports, and paths first\n\nIn `https://lab.test:8443/probe`, https selects encrypted HTTP, lab.test is the hostname, 8443 is the TCP destination port, and /probe is the HTTP application path after connection establishment. DNS commonly associates names with IPv4/IPv6 addresses through A/AAAA records. It does not select /probe or store login sessions. A CNAME aliases one name to another; it does not automatically issue a certificate for that alias.\n\nRecursive resolvers and clients cache DNS results. TTL participates in cache lifetime; it is not a button that makes every device update immediately after a record changes. Checking A while leaving AAAA pointing at an old machine can send some clients to a different service. Domain control, DNS configuration, and the process running on a host are separate records.\n\nThis lab uses reserved `.test` names and does not modify system hosts or DNS. curl’s `--resolve` supplies a name→address mapping for that client invocation while preserving the URL hostname for TLS SNI, hostname verification, and HTTP Host. Local success therefore proves no public DNS configuration. The production template uses a reserved `.invalid` placeholder and is not a real deployment domain.\n\n## 3. What TLS does—and does not—verify\n\nTLS negotiates encryption and integrity for a connection while the client verifies such properties as the certificate chain, validity period, and hostname. The server possesses the private key corresponding to its leaf certificate; subjectAltName declares applicable names. Trusting a CA does not accept arbitrary hostnames: a certificate issued for lab.test cannot impersonate wrong.test.\n\nTLS protects a connection. It does not decide whether a Bearer token expired, whether Alice belongs to a project, or whether the application leaks another user’s data. The HTTPS indicator is not general certification of business trustworthiness. If a proxy terminates TLS and connects to the application over HTTP, that later hop is plaintext. This lab confines it to same-host loopback. A cross-host or untrusted network requires a new transport-protection design, not copying this local upstream address.\n\nA temporary local CA gives the experiment a controllable trust chain. `--cacert` selects it for this curl invocation without installing it into a system store. CA and leaf keys exist only in an owned /tmp directory with mode 0700 and files at 0600, removed afterward. Certificates last one day and are recreated rather than packaging old keys. `-k` skips essential checks and is not certificate acceptance.\n\n<Code language=\"python\">{getHttpsExample('certificates.py')}</Code>\n\nThe OpenSSL commands first create a local signing CA, then a leaf key and signing request, and finally a signed leaf with lab.test SAN, server usage, and a non-CA constraint. `-noenc` leaves the temporary private key unencrypted. Its boundary relies on short lifetime, restrictive directory access, and no export—not a recommendation for storing long-lived production keys. Real renewal and key rotation remain deployment gates.\n\n## 4. Restore the lab and run positive and negative evidence together\n\nFrom the repository root, enter the lab directory; ZIP users enter the extracted root. The runner requires POSIX, an ordinary account, OpenSSL 3.x supporting req -addext and -noenc, and curl. This run used OpenSSL 3.6.4. Record missing platform tools instead of bypassing verification or borrowing real certificates. Restoring Python dependencies with uv does not install system OpenSSL, Caddy, or a container engine.\n\n```bash\ncd examples/js2py/o03-https-production\nuv sync --locked\nopenssl version\ncurl --version\nuv run --locked python tls_lab.py\nuv run --locked python -m pytest -q\n```\n\n```text\ntrusted_ca_https=200\nunknown_ca_curl_exit=60\nwrong_hostname_curl_exit=60\nedge_overwrites_forged_forwarding=True\nauthorization_forwarded_not_authenticated=True\nuntrusted_proxy_headers_ignored=True\ntrusted_loopback_direct_spoof_possible=True\nsanitized_error=500\nsanitized_validation=422\nteaching_edge_body_limit=413\nowned_processes_stopped_and_temp_keys_removed=True\n```\n\nThese are observations, not a fabricated success screenshot. The script asserts HTTP statuses/bodies, curl failure exits, and temporary-directory cleanup. `trusted_loopback_direct_spoof_possible=True` deliberately exposes a **residual trust gap**, not a security pass. We explain below why other same-host processes remain inside that trust boundary. Automatically selected ports avoid taking over a user’s fixed service.\n\n## 5. Two-terminal requests: curl is the client, not the server\n\nIn terminal A, start from the lab root. `--serve` keeps the process in the foreground; `--port 0` lets the OS choose an available port. It prints the public CA path and two copyable lines, `export CA=...` and `export PORT=...`. The ellipses here describe runtime values, not paths to type. Copy the actual printed lines into terminal B and remain at the lab root. They contain a public trust-material path and port, not a private key or session token.\n\n```bash\nuv run --locked python tls_lab.py --serve --port 0\n```\n\nAfter pasting the actual export lines, run the following in terminal B. curl sends one request and exits; it does not create a listening service. `--noproxy '*'` prevents local proxy configuration from sending the teaching request elsewhere. `--resolve` maps this name/port to loopback, `--cacert` chooses the local trust CA, `--max-time` bounds total waiting, `--include` displays response headers, and `-H` adds a request header. The Bearer value is a fixed fictional marker, not a login credential.\n\n```bash\ncurl --silent --show-error --include --max-time 5 --noproxy '*'   --resolve \"lab.test:$PORT:127.0.0.1\" --cacert \"$CA\"   -H 'Authorization: Bearer demo-not-a-valid-session'   \"https://lab.test:$PORT/probe\"\n```\n\nExpect HTTP 200 with scheme=https, host=lab.test, client=127.0.0.1, and authorization_present=true. The last field proves only that a header was forwarded, **never that authentication succeeded**. To observe failures, omit --cacert, then separately change both the resolve name and URL to wrong.test. Both returned curl exit 60 in this run, before business handling. 60 is not an HTTP status.\n\nFinish with Ctrl+C in terminal A. The program stops its own edge and backend process and removes temporary keys. Do not use killall or stop every uvicorn on the machine. Terminal B’s CA variable now points to a deleted file; reusing it causes a local file/trust error. A fresh launch requires fresh printed export lines.\n\n## 6. Reverse proxies: trace requests and credentials across every hop\n\nA client selects a server entry point. A **reverse proxy** accepts requests on behalf of the application and opens an upstream connection. The application’s immediate TCP peer is usually the proxy, not the original browser. A proxy can terminate TLS, centralize entry, and constrain requests, but does not automatically establish user identity. Authorization must reach the authentication layer on routes that need it, without appearing in access logs or debug echoes.\n\nThe local chain is curl → loopback teaching TLS edge → loopback HTTP Uvicorn → FastAPI. The edge forwards an allowlist of headers, bounds bodies at 4096 bytes, applies timeouts/response bounds, rejects unsupported transfer forms, and overwrites forwarding information. This deliberately small implementation has no HTTP/2, WebSocket, streaming, complete request-smuggling-resistant parser, or production throttling. **Never deploy it publicly.**\n\n413 is an observed policy of this teaching edge, not evidence that H04 or S03 already limits request sizes. Production must separately implement and test real entry-point bounds and login throttling, including the boundary when a caller bypasses the normal proxy and reaches upstream directly.\n\n<Code language=\"python\">{getHttpsExample('edge.py')}</Code>\n\n## 7. Trusted proxies: a header is not a network fact\n\nAny client can send `X-Forwarded-For: 203.0.113.9` or `X-Forwarded-Proto: https`. Unconditional trust can poison rate-limit/audit identity, generate wrong redirects, or misclassify HTTP as HTTPS. `--proxy-headers` enables interpretation; `--forwarded-allow-ips` restricts which immediate peers may supply that information. `*` trusts every reachable peer and is not a quick fix for a wrong URL.\n\nThe experiment has three stages. With proxy trust disabled, forged headers are ignored and scheme=http/client=127.0.0.1. Through the trusted edge, caller values are overwritten and the application sees https and actual loopback. But another local client connecting directly to the trusted loopback upstream **can forge the client value**. This reveals the limit: trusting 127.0.0.1 trusts local processes able to reach that upstream, not exclusively one proxy process.\n\nProduction must review the proxy allowlist together with real network isolation, socket permissions, process accounts, and container networking. Multiple proxies or a hosted CDN require an explicit hop-by-hop design for sanitizing, appending, and interpreting headers. Even a reliable source IP is not a user identity and never replaces Bearer validation or object authorization.\n\n<Code language=\"python\">{getHttpsExample('tls_lab.py')}</Code>\n\n## 8. Production errors: return less without losing diagnosis\n\nDebug pages, tracebacks, exception repr, and validation input/ctx can disclose paths, SQL parameters, passwords, or tokens. Production must not expose convenient debugging as a default public interface. The diagnostic app creates its own random request ID, returns only generic detail for 500, logs a safe event name and correlation ID, and returns only loc/type for validation failures without echoing input.\n\nDo not swallow every error and return 200. Clients still receive 500/422 and operators can correlate events, without copying secrets into responses. Real operations need access-controlled error observation, appropriate safe context, and alerting; this small logging demonstration is not full observability. /fail exists to trigger a local experiment, not as a public failure button in the real application.\n\n<Code language=\"python\">{getHttpsExample('app.py')}</Code>\n\nThe error-boundary middleware catches exceptions in normal request flow and records a sanitized event for this experiment instead of forwarding the exception into the server’s default traceback logging path. CORS wraps the entire application so an approved frontend can read sanitized errors rather than misdiagnosing them as cross-origin failures. Host checking is separate from TLS: successful certificate validation should not enable arbitrary Host routing. Tests inspect both error bodies and the private runtime log for fictional sensitive markers.\n\n## 9. Align with S01–S03: opaque Bearer, not JWT or cookies\n\nIntegration follows the S-stage contract: the service generates a high-entropy opaque random session token. Its raw value is returned only on successful login; the database stores its SHA-256 digest, expiry/revocation state, and session auth_version. Every request checks the session, expiry, active user, and current version before project membership and action authorization. HTTPS protects transport and the proxy forwards Authorization; **neither performs the application’s database verification**.\n\nThis is not JWT signature verification and requires no JWT key pair from this chapter. Logout, password changes, disabling, and logout-all are enforced by S-stage revocation logic, not bypassed by a proxy-cached successful response. S03’s UUIDv4 Idempotency-Key and Idempotency-Replayed must also survive the entry path; an idempotency receipt is not permanent permission.\n\nThis download verifies only `authorization_present`, with no real session database. Its 200 is not an S03 login success. Production must reconnect S03’s DB-backed readiness, authorization/revocation/idempotency tests, credential-safe logging, and configured/tested login throttling and request bounds. Never replace the complete identity system with a simplified operations-demo bypass.\n\n## 10. CORS constrains browser response access, not caller authority\n\nA browser origin combines scheme, host, and port. `https://frontend.lab.test:8444` differs from HTTP, another port, or another subdomain. Explicit Authorization or certain content types can cause a browser to send an OPTIONS preflight asking whether the origin, method, and headers are allowed. It sends the corresponding actual request after permission. CORS does not sign request bodies or prevent non-browser clients from calling an API directly.\n\nThe local app permits one exact demonstration origin, GET/POST, and Authorization/Content-Type/Idempotency-Key headers. expose_headers lets the frontend read correlation and idempotency-replay headers. There are no cookies, allow_credentials is false, and no wildcard opens access to everything. The complete S API also uses methods such as PATCH/DELETE; integration must add and test the real method policy rather than treating this diagnostic app’s two methods as production configuration.\n\nThe experiment verifies approved-origin preflight=200 and another origin’s preflight=400, yet a direct ordinary GET still returns 200 without Access-Control-Allow-Origin. curl does not enforce browser response-access rules. **CORS cannot replace authentication or authorization.** HTTP-header tests also do not accept every real browser behavior; actual frontend integration remains pending.\n\n## 11. CSRF follows credential mechanics, not frontend/backend separation\n\nTraditional CSRF exploits automatically attached ambient credentials, such as cookies, so a malicious page can send requests as a logged-in user. Our opaque Bearer is explicitly placed in Authorization by frontend code; the service does not treat cookies as sessions, so it does not expose that same automatic-cookie path. This is not “all CSRF/XSS risk disappears.” Stolen tokens, incorrectly allowed origins, unsafe redirects, or caller logic sending credentials to the wrong address still create failures.\n\nSwitching to cookie sessions requires renewed evaluation of SameSite, Secure, HttpOnly, Origin/Referer checks, anti-CSRF tokens, safe-method semantics, and legitimate cross-site flows. Setting allow_credentials=true is not a release plan. HttpOnly limits script access to a cookie but does not stop automatic sending. Secure restricts transport to HTTPS but does not establish user intent.\n\nThe S-stage demonstration frontend can use a short-lived in-memory token and require login after reload. This reduces some persistent-storage exposure but cannot defeat XSS in the current page. Do not recommend long-lived localStorage tokens as a universal default or copy real tokens into screenshots, error reports, or proxy logs. This chapter uses fictional markers only.\n\n## 12. Caddy configuration and public gates: a template is not deployment\n\nProduction reverse proxying should use maintained software rather than this standard-library teaching tool. Local and production Caddy templates support review: the same-host proxy connects to 127.0.0.1:8034, removes caller Forwarded, uses Caddy’s default X-Forwarded handling, defines no broad trusted_proxies, and does not enable access logging. The local template binds loopback, uses explicit certificate paths, and disables automatic HTTPS. The production template still contains api.example.invalid, **not a configured real domain**.\n\nAutomatic HTTPS commonly manages issuance and renewal, requiring correct DNS, verifiable domain control, reachability for the selected challenge, and writable protected storage. HTTP/TLS-ALPN challenges need their respective ports; DNS challenges require controlled DNS access. Not every deployment reduces to “open port 80.” We have no domain/server/production keys and initiated none of these actions.\n\nCaddy is absent here. These files passed only selected text-invariant checks, not real `caddy validate` or proxy execution. Run validation in an approved controlled environment after preparing certificates and selecting a fixed Caddy version. Even validation then needs real HTTPS, request-size bounds, login throttling, renewal, frontend, and full authorized-app tests. The templates do not claim those production policies are already implemented.\n\n<Code language=\"text\">{getHttpsExample('Caddyfile.local')}</Code>\n\n<Code language=\"text\">{getHttpsExample('Caddyfile.production.template')}</Code>\n\n```bash\nuv run --locked python check_config.py\n```\n\n```text\nsame_host_upstream=loopback\nproduction_domain=reserved_placeholder\ncaddy_runtime=NOT_VERIFIED\npublic_dns_and_certificate=NOT_VERIFIED\n```\n\nThese are **same-host topology** templates. If Caddy runs in a separate container, its 127.0.0.1 is not the application container. Choose controlled internal networking/service discovery and revisit upstream trust rather than publishing the backend publicly. Development reload, diagnostic /fail, and broad debug logging do not belong in production. User-facing release still requires later migration, rollback, backup/restore, and controlled-trial acceptance.\n\n## 13. Layered diagnosis: do not conceal distinct faults with -k\n\n| Observation | Layer | Next step |\n| --- | --- | --- |\n| Name resolution fails | DNS/client resolution | Inspect records or local --resolve; TLS has not started |\n| Connection refused | Address/port/listener | Inspect your own process and actual port, not certificates |\n| curl 60, unknown CA | Trust chain | Use this run’s public CA and check validity, never -k |\n| curl 60, wrong name | URL hostname versus SAN | Correct name/certificate, not authentication code |\n| 502 | Proxy-to-upstream hop | Inspect upstream process, address/namespace, and timeout |\n| 500/422 | Application/input | Use sanitized request ID or loc/type without echoing secrets |\n| Browser CORS error while curl responds | Browser access policy | Check exact origin, preflight and actual headers; assess authentication separately |\n| Wrong scheme or forgeable client IP | Forwarding trust | Inspect peer, sanitization and reachability, not allow-ips=* |\n\nA TLS handshake failure occurs at a different stage from HTTP 401/403. The diagnostic app implements no 401/403 authentication behavior; verify that in the complete S03 service. Share only safe categories and correlation IDs, never Authorization, Cookie, database URLs, or private keys.\n\n## 14. Explanation checkpoint: encryption, origin, and identity differ\n\nBefore opening the answer, explain why wrong.test still fails with a trusted CA, why forwarded Authorization does not prove login, why curl can receive 200 with a disallowed Origin, and why trusted loopback does not identify one trusted proxy process.\n\n<details>\n<summary>Answer and explanation</summary>\n\nChain trust and hostname matching are separate checks; SAN does not contain wrong.test. The proxy moved bytes, while authentication still needs digest lookup, expiry/revocation/version checks, then authorization. CORS governs browser response access and curl does not enforce it; an unprotected diagnostic endpoint still answers. Loopback is an address boundary containing other reachable local processes. The third experiment actually observed accepted forged forwarding from such a client.\n\n</details>\n\n## 15. Guided exercise: bad input and faults must not echo markers\n\nUse fictional markers only. POST /probe with string minutes must return 422 with useful loc/type but no input/ctx. GET /fail must return a generic 500 and random correlation ID. Errors for an approved origin must retain CORS headers. Inspect logs too: preserve the event ID, not the marker or traceback. Hint: deleting response details alone may not stop a framework subsequently logging the original exception; inspect control flow.\n\n<details>\n<summary>Guided answer and real TLS tests</summary>\n\nA dedicated validation handler extracts only allowed fields. The outer error boundary converts unknown exceptions into generic 500 responses and records only a safe event. CORS wraps the complete app so approved origins can read errors. The tests also cover wrong hostname, unknown CA, forged headers, body bounds, and owned-resource cleanup; they do not merely assume TLS works because TestClient passed.\n\n<Code language=\"python\">{getHttpsExample('tests/test_https.py')}</Code>\n\n</details>\n\n## 16. Independent variation: two exact origins, not substring domains\n\nRequirements only: allow `https://frontend.lab.test:8444` and `https://admin.lab.test:8445` to POST /probe with Authorization and Idempotency-Key. Use no cookies and implement no real authentication. Reject preflights with the wrong port, HTTP, an evil.invalid suffix, or Origin:null. A direct request without Origin must explicitly report authenticated=false, not treat “CORS did not block it” as login. Write the policy and tests before opening the answer.\n\n<details>\n<summary>Independent reference and counterexamples</summary>\n\n<Code language=\"python\">{getHttpsExample('solutions/origin_policy.py')}</Code>\n\n<Code language=\"python\">{getHttpsExample('solutions/test_origin_policy.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q solutions/test_origin_policy.py\n```\n\nExact-set matching avoids the substring flaw in `\"lab.test\" in origin`. Seven cases cover two approved origins, four rejected near-matches, and one direct non-browser-style request. They verify HTTP policy, not real browser behavior, TLS, or S03 identity. A cookie migration requires a redesigned answer, not one changed boolean.\n\n</details>\n\n## 17. Environment matrix: local TLS passed; public release did not\n\n| State | Evidence or gate |\n| --- | --- |\n| Actually executed | 17 standard and 7 independent tests; temporary CA/leaf, successful curl --cacert, unknown-CA/wrong-hostname failures, real loopback TLS proxy, trusted/untrusted forwarding, sanitized 500/422, teaching 413 bound, CORS headers, and resource cleanup |\n| Unavailable on this host | No Caddy or controlled Linux/container environment; Caddy files had text-invariant checks only, not parsing/execution |\n| User-provided environment | Controlled Linux/proxy version, owned domain/DNS/host, approved firewall/ports, production secret and certificate storage; never move teaching keys into it |\n| Pending public/product acceptance | Real A/AAAA, trusted public issuance/renewal, external/browser tests, non-bypassable proxy boundary, full S03 authorization/revocation/DB readiness, body bounds and throttling, migration/rollback/backup/restore |\n\nText, source, local TLS, and policy tests are implemented. Caddy, Linux, real-browser integration, and public deployment remain environment_pending. No public issuance request, system trust-store change, cloud resource, or real-token operation occurred. The teaching edge, /fail, and diagnostic application are not deployable user-facing services.\n\n## 18. Sources, dates, and a resumable record\n\nPrimary sources checked **2026-09-28**. `SOURCES.json` records URLs, dates, and retrieval summaries; it does not promise that documentation will never change. The three READMEs distinguish observations from environment gaps. The existence of configuration is not deployment acceptance.\n\n- [DNS concepts RFC1034](https://www.rfc-editor.org/rfc/rfc1034)\n- [Reserved names RFC2606](https://www.rfc-editor.org/rfc/rfc2606)\n- [TLS1.3 RFC8446](https://www.rfc-editor.org/rfc/rfc8446)\n- [Python SSL](https://docs.python.org/3.13/library/ssl.html)\n- [OpenSSL req](https://docs.openssl.org/3.6/man1/openssl-req/)\n- [OpenSSL x509](https://docs.openssl.org/3.6/man1/openssl-x509/)\n- [curl TLS certificates](https://curl.se/docs/sslcerts.html)\n- [curl command reference](https://curl.se/docs/manpage.html)\n- [Uvicorn settings](https://www.uvicorn.dev/settings/)\n- [Caddy reverse_proxy](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)\n- [Caddy automatic HTTPS](https://caddyserver.com/docs/automatic-https)\n- [FastAPI CORS](https://fastapi.tiangolo.com/tutorial/cors/)\n- [Starlette middleware](https://starlette.dev/middleware/)\n- [OWASP CSRF prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)\n\nA resume checkpoint records source/lock hashes, tool versions, last successful command, whether 17+7 cases reproduced locally, remaining proxy-trust gaps, approved origins and actual authentication scheme, the environment matrix, and the next first action. Record only the public CA’s lifecycle, never keys or real tokens. After certificates expire, regenerate the experiment instead of using -k. A new server requires new entry/identity integration acceptance; local TLS evidence is not “live in production.”\n\n",
+          "mechanism_focus": "域名/DNS、反向代理、TLS终止、可信代理、生产错误与凭证/CORS/CSRF边界; 验证HTTPS、错误响应、请求来源与凭证传递策略; 公开前需按实际认证方案检查CSRF等风险",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "2d9c9aab86946694e4d67af4f32e0861f314f2f9b9789fdc5410f56ec3c3d821",
+              "bytes": 21430,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".python-version",
+            "Caddyfile.local",
+            "Caddyfile.production.template",
+            "ENVIRONMENT.json",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "SOURCES.json",
+            "app.py",
+            "certificates.py",
+            "check_config.py",
+            "edge.py",
+            "pyproject.toml",
+            "solutions/__init__.py",
+            "solutions/origin_policy.py",
+            "solutions/test_origin_policy.py",
+            "tests/test_https.py",
+            "tls_lab.py",
+            "uv.lock"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "Author source and polluted-environment runs plus mainline unmodified maintained runner against exact downloaded ZIP bytes passed58 local cases: O01=16+1/O02=14+3/O03=17+7. Actual own POSIX process/signals/ports/files, local HTTP and private-CA TLS including unknown-CA/wrong-host rejection executed. No insecure curl -k/global trust import. Docker probe returned expected77 meaning environment_pending, NOT container success. Docker engine, systemd/Linux, Caddy and public domain/DNS/CA/firewall absent. Material authoring may complete while environmental chapter acceptance remains pending. No public users or infrastructure touched. Browser publication checks still pending.",
+          "slice": {
+            "index": 2,
+            "count": 2,
+            "source_paths_here": [
+              "app.py",
+              "certificates.py",
+              "check_config.py",
+              "edge.py",
+              "pyproject.toml",
+              "solutions/__init__.py",
+              "solutions/origin_policy.py",
+              "solutions/test_origin_policy.py",
+              "tests/test_https.py",
+              "tls_lab.py"
+            ],
+            "source_paths_elsewhere": [
+              ".python-version",
+              "Caddyfile.local",
+              "Caddyfile.production.template",
+              "ENVIRONMENT.json",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "SOURCES.json"
+            ]
+          },
+          "actual_download_files": {
+            "app.py": "\"\"\"Local diagnostics ONLY: no real authentication, authorization, tasks or DB.\"\"\"\nimport logging\nfrom uuid import uuid4\n\nfrom fastapi import FastAPI, Request\nfrom fastapi.exceptions import RequestValidationError\nfrom fastapi.responses import JSONResponse\nfrom pydantic import BaseModel, ConfigDict, Field, StrictInt\nfrom starlette.middleware.cors import CORSMiddleware\nfrom starlette.middleware.trustedhost import TrustedHostMiddleware\n\nlogger = logging.getLogger(\"js2py.safe\")\nLOCAL_ORIGIN = \"https://frontend.lab.test:8444\"\n\n\nclass ProbeInput(BaseModel):\n    model_config = ConfigDict(extra=\"forbid\")\n    minutes: StrictInt = Field(ge=0)\n\n\ndef create_app():\n    app = FastAPI(debug=False, docs_url=None, redoc_url=None, openapi_url=None)\n\n    @app.middleware(\"http\")\n    async def safe_errors(request: Request, call_next):\n        request_id = uuid4().hex  # Do not trust an unbounded caller-provided log id.\n        try:\n            response = await call_next(request)\n        except Exception:\n            # Teaching event only: never include body, query, token, exception or traceback.\n            logger.warning(\"unhandled_error request_id=%s\", request_id)\n            response = JSONResponse({\"detail\": \"Internal server error\"}, status_code=500)\n        response.headers[\"X-Request-ID\"] = request_id\n        return response\n\n    @app.exception_handler(RequestValidationError)\n    async def invalid_input(request, exc):\n        details = [{\"loc\": list(error[\"loc\"]), \"type\": error[\"type\"]}\n                   for error in exc.errors()]\n        return JSONResponse({\"detail\": details}, status_code=422)\n\n    @app.get(\"/health/live\")\n    def live():\n        return {\"status\": \"ok\"}\n\n    @app.get(\"/probe\")\n    def probe(request: Request):\n        return {\"scheme\": request.url.scheme, \"host\": request.url.hostname,\n                \"client\": request.client.host,\n                \"authorization_present\": \"authorization\" in request.headers}\n\n    @app.post(\"/probe\")\n    def input_probe(body: ProbeInput):\n        return {\"minutes\": body.minutes}\n\n    @app.get(\"/fail\")\n    def fail():\n        raise RuntimeError(\"FICTIONAL_INTERNAL_DETAIL_DO_NOT_RETURN\")\n\n    # Global CORS wraps even sanitized error responses. Host validation still applies\n    # to actual endpoint requests. This fixed local origin is not a production default.\n    app.add_middleware(TrustedHostMiddleware, allowed_hosts=[\"lab.test\", \"127.0.0.1\"])\n    return CORSMiddleware(app, allow_origins=[LOCAL_ORIGIN], allow_credentials=False,\n        allow_methods=[\"GET\", \"POST\"],\n        allow_headers=[\"Authorization\", \"Content-Type\", \"Idempotency-Key\"],\n        expose_headers=[\"X-Request-ID\", \"Idempotency-Replayed\"])\n",
+            "certificates.py": "\"\"\"Temporary private CA, never installed in a system store or packaged.\"\"\"\nfrom pathlib import Path\nimport shutil\nimport subprocess\n\n\ndef create_certificates(directory: Path) -> Path:\n    openssl = shutil.which(\"openssl\")\n    if not openssl:\n        raise RuntimeError(\"OpenSSL with req -addext support is required\")\n    directory.chmod(0o700)\n    def run(*args):\n        subprocess.run([openssl, *args], cwd=directory, check=True,\n                       stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=20)\n    run(\"req\", \"-x509\", \"-newkey\", \"rsa:2048\", \"-noenc\", \"-days\", \"1\",\n        \"-keyout\", \"ca.key\", \"-out\", \"ca.pem\", \"-subj\", \"/CN=js2py temporary CA\",\n        \"-addext\", \"basicConstraints=critical,CA:TRUE\",\n        \"-addext\", \"keyUsage=critical,keyCertSign,cRLSign\")\n    run(\"req\", \"-new\", \"-newkey\", \"rsa:2048\", \"-noenc\", \"-keyout\", \"leaf.key\",\n        \"-out\", \"leaf.csr\", \"-subj\", \"/CN=lab.test\")\n    (directory / \"leaf.ext\").write_text(\n        \"subjectAltName=DNS:lab.test\\nbasicConstraints=critical,CA:FALSE\\n\"\n        \"keyUsage=critical,digitalSignature,keyEncipherment\\nextendedKeyUsage=serverAuth\\n\")\n    run(\"x509\", \"-req\", \"-in\", \"leaf.csr\", \"-CA\", \"ca.pem\", \"-CAkey\", \"ca.key\",\n        \"-CAcreateserial\", \"-out\", \"leaf.pem\", \"-days\", \"1\", \"-sha256\", \"-extfile\", \"leaf.ext\")\n    for item in directory.iterdir():\n        if item.is_file():\n            item.chmod(0o600)\n    return directory / \"ca.pem\"\n",
+            "check_config.py": "\"\"\"Text invariants only; not caddy validate or a public TLS acceptance test.\"\"\"\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parent\n\n\ndef check():\n    local = (ROOT / \"Caddyfile.local\").read_text()\n    prod = (ROOT / \"Caddyfile.production.template\").read_text()\n    assert \"bind 127.0.0.1\" in local and \"admin off\" in local\n    assert \"api.example.invalid\" in prod\n    for source in (local, prod):\n        assert \"reverse_proxy 127.0.0.1:8034\" in source\n        assert \"header_up -Forwarded\" in source\n        assert \"tls_insecure_skip_verify\" not in source\n        assert \"trusted_proxies\" not in source\n    return [\"same_host_upstream=loopback\", \"production_domain=reserved_placeholder\",\n            \"caddy_runtime=NOT_VERIFIED\", \"public_dns_and_certificate=NOT_VERIFIED\"]\n\n\nif __name__ == \"__main__\":\n    print(\"\\n\".join(check()))\n",
+            "edge.py": "\"\"\"Bounded loopback-only HTTP/1.0 teaching forwarder. NOT a production server.\nNo streaming, websocket, HTTP/2, rate limiting or hardened request parser.\n\"\"\"\nimport http.client\nfrom http.server import BaseHTTPRequestHandler, HTTPServer\nimport json\nimport socket\nimport ssl\n\nMAX_BODY = 4096\nFORWARD = {\"authorization\", \"content-type\", \"origin\", \"access-control-request-method\",\n           \"access-control-request-headers\", \"idempotency-key\"}\nRESPONSE = {\"content-type\", \"x-request-id\", \"access-control-allow-origin\",\n            \"access-control-allow-methods\", \"access-control-allow-headers\",\n            \"access-control-expose-headers\", \"access-control-max-age\", \"vary\"}\n\n\nclass LocalServer(HTTPServer):\n    def get_request(self):\n        connection, address = super().get_request()\n        connection.settimeout(3)\n        try:\n            return self.tls.wrap_socket(connection, server_side=True), address\n        except Exception:\n            connection.close()\n            raise\n\n\ndef create_edge(backend_port, directory, port=0):\n    class Handler(BaseHTTPRequestHandler):\n        protocol_version = \"HTTP/1.0\"  # One request per connection.\n        server_version = \"js2py-teaching-edge\"\n        sys_version = \"\"\n        def log_message(self, *args):\n            pass  # Never log incoming URL/query/headers or bodies.\n        def reply(self, status, body):\n            data = json.dumps({\"detail\": body}).encode()\n            self.send_response(status)\n            self.send_header(\"Content-Type\", \"application/json\")\n            self.send_header(\"Content-Length\", str(len(data)))\n            self.end_headers(); self.wfile.write(data)\n        def forward(self):\n            if self.headers.get(\"Transfer-Encoding\"):\n                self.reply(400, \"Teaching edge requires Content-Length\"); return\n            lengths = self.headers.get_all(\"Content-Length\", [])\n            value = lengths[0] if lengths else \"0\"\n            if len(lengths) > 1 or not value.isascii() or not value.isdecimal():\n                self.reply(400, \"Invalid Content-Length\"); return\n            length = int(value)\n            if length > MAX_BODY:\n                self.reply(413, \"Teaching edge body limit\"); return\n            if not self.path.startswith(\"/\") or self.path.startswith(\"//\"):\n                self.reply(400, \"Origin-form path required\"); return\n            # Host name validation and SNI/certificate validation are distinct.\n            if self.headers.get(\"Host\") not in {\"lab.test\", f\"lab.test:{self.server.server_port}\"}:\n                self.reply(400, \"Unexpected host\"); return\n            upstream = None\n            try:\n                body = self.rfile.read(length)\n                if len(body) != length:\n                    self.reply(400, \"Incomplete body\"); return\n                # No caller Forwarded/X-Forwarded-* survives this allowlist.\n                headers = {key: value for key, value in self.headers.items() if key.lower() in FORWARD}\n                headers.update({\"Host\": \"lab.test\", \"X-Forwarded-Proto\": \"https\",\n                                \"X-Forwarded-For\": self.client_address[0], \"Connection\": \"close\"})\n                upstream = http.client.HTTPConnection(\"127.0.0.1\", backend_port, timeout=3)\n                upstream.request(self.command, self.path, body=body, headers=headers)\n                response = upstream.getresponse()\n                data = response.read(65537)\n                if len(data) > 65536:\n                    self.reply(502, \"Teaching edge response limit\"); return\n                self.send_response(response.status)\n                for key, value in response.getheaders():\n                    if key.lower() in RESPONSE:\n                        self.send_header(key, value)\n                self.send_header(\"Content-Length\", str(len(data)))\n                self.end_headers(); self.wfile.write(data)\n            except (OSError, http.client.HTTPException):\n                self.reply(502, \"Teaching upstream unavailable\")\n            finally:\n                if upstream is not None:\n                    upstream.close()\n        do_GET = do_POST = do_OPTIONS = forward\n    server = LocalServer((\"127.0.0.1\", port), Handler)\n    tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)\n    tls.minimum_version = ssl.TLSVersion.TLSv1_2\n    tls.load_cert_chain(directory / \"leaf.pem\", directory / \"leaf.key\")\n    server.tls = tls\n    return server\n",
+            "pyproject.toml": "[project]\nname = \"js2py-o03-https-production\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = [\"fastapi==0.135.1\", \"uvicorn==0.42.0\", \"pydantic==2.12.5\", \"starlette==0.52.1\", \"anyio==4.12.1\"]\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\", \"httpx==0.28.1\"]\n\n[tool.uv]\npackage = false\n\n[tool.pytest.ini_options]\npythonpath = [\".\"]\ntestpaths = [\"tests\"]\n",
+            "solutions/__init__.py": "\"\"\"Independent exercise references; attempt the requirement first.\"\"\"\n",
+            "solutions/origin_policy.py": "\"\"\"Independent requirement: exactly two approved browser origins, no cookies.\"\"\"\nfrom starlette.middleware.cors import CORSMiddleware\nfrom fastapi import FastAPI\n\nORIGINS = [\"https://frontend.lab.test:8444\", \"https://admin.lab.test:8445\"]\n\n\ndef create_app():\n    app = FastAPI()\n    @app.post(\"/probe\")\n    def probe():\n        return {\"authenticated\": False}  # This exercise implements no authentication.\n    return CORSMiddleware(app, allow_origins=ORIGINS, allow_credentials=False,\n        allow_methods=[\"POST\"], allow_headers=[\"Authorization\", \"Content-Type\", \"Idempotency-Key\"],\n        expose_headers=[\"Idempotency-Replayed\"])\n",
+            "solutions/test_origin_policy.py": "from fastapi.testclient import TestClient\nimport pytest\nfrom solutions.origin_policy import create_app, ORIGINS\n\n\n@pytest.mark.parametrize(\"origin\", ORIGINS)\ndef test_two_exact_origins(origin):\n    client = TestClient(create_app())\n    result = client.options(\"/probe\", headers={\"Origin\": origin,\n        \"Access-Control-Request-Method\": \"POST\", \"Access-Control-Request-Headers\": \"authorization,idempotency-key\"})\n    assert result.status_code == 200\n    assert result.headers[\"access-control-allow-origin\"] == origin\n    assert \"access-control-allow-credentials\" not in result.headers\n\n\n@pytest.mark.parametrize(\"origin\", [\"https://frontend.lab.test:8445\", \"http://frontend.lab.test:8444\", \"https://frontend.lab.test.evil.invalid:8444\", \"null\"])\ndef test_near_misses_do_not_match(origin):\n    result = TestClient(create_app()).options(\"/probe\", headers={\"Origin\": origin, \"Access-Control-Request-Method\": \"POST\"})\n    assert result.status_code == 400\n    assert \"access-control-allow-origin\" not in result.headers\n\n\ndef test_curl_style_request_is_not_authorized_by_cors():\n    result = TestClient(create_app()).post(\"/probe\")\n    assert result.status_code == 200 and result.json() == {\"authenticated\": False}\n",
+            "tests/test_https.py": "import json\nfrom pathlib import Path\nimport stat\n\nfrom fastapi.testclient import TestClient\nimport pytest\n\nfrom app import create_app, LOCAL_ORIGIN\nfrom check_config import check\nfrom tls_lab import running, curl, decoded, direct, backend\n\n\n@pytest.fixture(scope=\"module\")\ndef lab():\n    with running() as value:\n        yield value\n\n\ndef test_real_tls_and_forwarded_authorization(lab):\n    status, body = decoded(curl(lab, extra=(\"-H\", \"Authorization: Bearer demo-not-a-valid-session\")))\n    assert status == 200\n    assert body == {\"scheme\": \"https\", \"host\": \"lab.test\", \"client\": \"127.0.0.1\", \"authorization_present\": True}\n\n\ndef test_unknown_ca_is_not_trusted(lab):\n    assert curl(lab, trusted=False).returncode == 60\n\n\ndef test_wrong_hostname_still_fails_with_trusted_ca(lab):\n    assert curl(lab, hostname=\"wrong.test\").returncode == 60\n\n\ndef test_edge_discards_spoofed_headers(lab):\n    _, body = decoded(curl(lab, extra=(\"-H\", \"X-Forwarded-For: 203.0.113.9\",\n        \"-H\", \"X-Forwarded-Proto: http\", \"-H\", \"Forwarded: for=203.0.113.9;proto=http\")))\n    assert body[\"client\"] == \"127.0.0.1\" and body[\"scheme\"] == \"https\"\n\n\ndef test_local_process_can_spoof_when_loopback_is_trusted(lab):\n    _, body = direct(lab[\"backend_port\"], headers={\"X-Forwarded-For\": \"203.0.113.9\"})\n    assert body[\"client\"] == \"203.0.113.9\"\n\n\ndef test_no_proxy_trust_ignores_headers(tmp_path):\n    with backend(tmp_path, trust_proxy=False) as port:\n        _, body = direct(port, headers={\"X-Forwarded-Proto\": \"https\", \"X-Forwarded-For\": \"203.0.113.9\"})\n        assert body[\"scheme\"] == \"http\" and body[\"client\"] == \"127.0.0.1\"\n\n\ndef test_generic_500_and_private_log(lab):\n    status, body = decoded(curl(lab, \"/fail\"))\n    assert status == 500 and body == {\"detail\": \"Internal server error\"}\n    log = (lab[\"directory\"] / \"backend.log\").read_text()\n    assert \"unhandled_error request_id=\" in log\n    assert \"FICTIONAL_INTERNAL\" not in log and \"demo-not-a-valid-session\" not in log\n\n\ndef test_422_does_not_echo_input(lab):\n    status, body = decoded(curl(lab, extra=(\"-H\", \"Content-Type: application/json\", \"--data\", '{\"minutes\":\"fictional-secret\"}')))\n    assert status == 422\n    assert body == {\"detail\": [{\"loc\": [\"body\", \"minutes\"], \"type\": \"int_type\"}]}\n\n\ndef test_normal_json_input(lab):\n    assert decoded(curl(lab, extra=(\"-H\", \"Content-Type: application/json\", \"--data\", '{\"minutes\":0}'))) == (200, {\"minutes\": 0})\n\n\ndef test_local_edge_body_limit(lab):\n    assert decoded(curl(lab, extra=(\"--data-binary\", \"x\" * 4097)))[0] == 413\n\n\ndef test_private_temp_key_permissions(lab):\n    assert stat.S_IMODE(lab[\"directory\"].stat().st_mode) == 0o700\n    assert all(stat.S_IMODE((lab[\"directory\"] / file).stat().st_mode) == 0o600 for file in (\"ca.key\", \"leaf.key\"))\n\n\ndef test_cors_preflight_allows_exact_origin(lab):\n    result = curl(lab, extra=(\"--include\", \"-X\", \"OPTIONS\", \"-H\", f\"Origin: {LOCAL_ORIGIN}\",\n        \"-H\", \"Access-Control-Request-Method: POST\", \"-H\", \"Access-Control-Request-Headers: authorization,content-type,idempotency-key\"))\n    assert result.returncode == 0 and result.stdout.endswith(\"\\n200\")\n    assert f\"access-control-allow-origin: {LOCAL_ORIGIN}\" in result.stdout.lower()\n    assert \"access-control-allow-credentials:\" not in result.stdout.lower()\n\n\ndef test_cors_rejected_preflight_but_not_authentication():\n    client = TestClient(create_app(), base_url=\"https://lab.test\")\n    preflight = client.options(\"/probe\", headers={\"Origin\": \"https://other.lab.test\", \"Access-Control-Request-Method\": \"POST\"})\n    assert preflight.status_code == 400 and \"access-control-allow-origin\" not in preflight.headers\n    actual = client.get(\"/probe\", headers={\"Origin\": \"https://other.lab.test\"})\n    assert actual.status_code == 200 and \"access-control-allow-origin\" not in actual.headers\n    assert actual.json()[\"authorization_present\"] is False\n\n\ndef test_host_is_checked_separately():\n    client = TestClient(create_app(), base_url=\"https://evil.invalid\")\n    assert client.get(\"/probe\").status_code == 400\n\n\ndef test_cors_covers_sanitized_500():\n    client = TestClient(create_app(), base_url=\"https://lab.test\")\n    response = client.get(\"/fail\", headers={\"Origin\": LOCAL_ORIGIN})\n    assert response.status_code == 500 and response.headers[\"access-control-allow-origin\"] == LOCAL_ORIGIN\n    assert len(response.headers[\"x-request-id\"]) == 32\n\n\ndef test_config_checks_are_not_deployment_acceptance():\n    assert \"caddy_runtime=NOT_VERIFIED\" in check()\n\n\ndef test_owned_tls_resources_are_removed():\n    with running() as own:\n        directory, port = own[\"directory\"], own[\"backend_port\"]\n    assert not directory.exists()\n    with pytest.raises(OSError):\n        direct(port)\n",
+            "tls_lab.py": "\"\"\"Owned local processes/sockets/temp keys. No DNS change, system CA install or -k.\"\"\"\nimport argparse\nfrom contextlib import contextmanager\nimport http.client\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport shlex\nimport socket\nimport subprocess\nimport sys\nfrom tempfile import TemporaryDirectory\nfrom threading import Thread\nimport time\n\nfrom certificates import create_certificates\nfrom edge import create_edge\n\nROOT = Path(__file__).resolve().parent\n\n\n@contextmanager\ndef backend(directory: Path, trust_proxy=True):\n    listener = socket.socket()\n    listener.bind((\"127.0.0.1\", 0)); listener.listen()\n    port = listener.getsockname()[1]\n    args = [sys.executable, \"-m\", \"uvicorn\", \"app:create_app\", \"--factory\",\n            \"--fd\", str(listener.fileno()), \"--no-access-log\", \"--log-level\", \"warning\"]\n    args += [\"--proxy-headers\", \"--forwarded-allow-ips\", \"127.0.0.1\"] if trust_proxy else [\"--no-proxy-headers\"]\n    with (directory / \"backend.log\").open(\"w\") as output:\n        process = subprocess.Popen(args, cwd=ROOT, pass_fds=(listener.fileno(),),\n                                   stdout=output, stderr=subprocess.STDOUT)\n        listener.close()\n        try:\n            deadline = time.monotonic() + 8\n            while time.monotonic() < deadline:\n                if process.poll() is not None:\n                    raise RuntimeError(\"owned backend failed; inspect its private backend.log\")\n                try:\n                    if direct(port, \"/health/live\")[0] == 200:\n                        yield port\n                        break\n                except OSError:\n                    pass\n                time.sleep(.03)\n            else:\n                raise TimeoutError(\"owned backend not ready\")\n        finally:\n            if process.poll() is None:\n                process.terminate()\n            try:\n                process.wait(timeout=4)\n            except subprocess.TimeoutExpired:\n                process.kill(); process.wait(timeout=3)\n\n\ndef direct(port, path=\"/probe\", headers=None):\n    connection = http.client.HTTPConnection(\"127.0.0.1\", port, timeout=2)\n    try:\n        connection.request(\"GET\", path, headers=headers or {})\n        response = connection.getresponse()\n        return response.status, json.loads(response.read())\n    finally:\n        connection.close()\n\n\n@contextmanager\ndef running(port=0):\n    # /tmp explicitly: neither lab source nor home directory receives private keys.\n    with TemporaryDirectory(prefix=\"js2py-tls-\", dir=\"/tmp\") as temp:\n        directory = Path(temp)\n        ca = create_certificates(directory)\n        with backend(directory) as backend_port:\n            server = create_edge(backend_port, directory, port)\n            thread = Thread(target=server.serve_forever, kwargs={\"poll_interval\": .05}, daemon=True)\n            thread.start()\n            try:\n                yield {\"port\": server.server_port, \"backend_port\": backend_port, \"ca\": ca, \"directory\": directory}\n            finally:\n                server.shutdown(); server.server_close(); thread.join(timeout=5)\n                if thread.is_alive():\n                    raise RuntimeError(\"owned TLS thread did not stop\")\n\n\ndef curl(lab, path=\"/probe\", *, trusted=True, hostname=\"lab.test\", extra=()):\n    binary = shutil.which(\"curl\")\n    if not binary:\n        raise RuntimeError(\"curl required\")\n    args = [binary, \"--silent\", \"--show-error\", \"--noproxy\", \"*\", \"--max-time\", \"5\",\n            \"--resolve\", f\"{hostname}:{lab['port']}:127.0.0.1\"]\n    if trusted:\n        args += [\"--cacert\", str(lab[\"ca\"])]\n    args += list(extra) + [\"--write-out\", \"\\n%{http_code}\", f\"https://{hostname}:{lab['port']}{path}\"]\n    return subprocess.run(args, capture_output=True, text=True, timeout=8)\n\n\ndef decoded(result):\n    if result.returncode:\n        raise RuntimeError(f\"curl transport failed: exit {result.returncode}\")\n    body, status = result.stdout.rsplit(\"\\n\", 1)\n    return int(status), json.loads(body)\n\n\ndef observe():\n    with running() as lab:\n        status, body = decoded(curl(lab, extra=(\"-H\", \"Authorization: Bearer demo-not-a-valid-session\",\n            \"-H\", \"X-Forwarded-For: 203.0.113.9\", \"-H\", \"X-Forwarded-Proto: http\")))\n        assert status == 200 and body[\"scheme\"] == \"https\" and body[\"client\"] == \"127.0.0.1\"\n        assert body[\"authorization_present\"] is True\n        untrusted = curl(lab, trusted=False)\n        hostname = curl(lab, hostname=\"wrong.test\")\n        assert untrusted.returncode == hostname.returncode == 60\n        failure_status, failure = decoded(curl(lab, \"/fail\"))\n        assert failure_status == 500 and failure == {\"detail\": \"Internal server error\"}\n        bad_status, bad = decoded(curl(lab, extra=(\"-H\", \"Content-Type: application/json\", \"--data\", '{\"minutes\":\"fictional-sensitive-input\"}')))\n        assert bad_status == 422 and \"fictional-sensitive-input\" not in json.dumps(bad)\n        oversize, _ = decoded(curl(lab, extra=(\"--data-binary\", \"x\" * 4097)))\n        assert oversize == 413\n        # This demonstrates the residual trust boundary, NOT a safe user identity.\n        _, local_spoof = direct(lab[\"backend_port\"], headers={\"X-Forwarded-For\": \"203.0.113.9\", \"X-Forwarded-Proto\": \"https\"})\n        assert local_spoof[\"client\"] == \"203.0.113.9\"\n        log = (lab[\"directory\"] / \"backend.log\").read_text()\n        assert \"demo-not-a-valid-session\" not in log and \"FICTIONAL_INTERNAL\" not in log\n        location = lab[\"directory\"]\n        with backend(lab[\"directory\"], trust_proxy=False) as untrusted_backend:\n            _, ignored = direct(untrusted_backend, headers={\"X-Forwarded-Proto\": \"https\", \"X-Forwarded-For\": \"203.0.113.9\"})\n            assert ignored[\"scheme\"] == \"http\" and ignored[\"client\"] == \"127.0.0.1\"\n    assert not location.exists()\n    return [\"trusted_ca_https=200\", \"unknown_ca_curl_exit=60\", \"wrong_hostname_curl_exit=60\",\n            \"edge_overwrites_forged_forwarding=True\", \"authorization_forwarded_not_authenticated=True\",\n            \"untrusted_proxy_headers_ignored=True\", \"trusted_loopback_direct_spoof_possible=True\",\n            \"sanitized_error=500\", \"sanitized_validation=422\", \"teaching_edge_body_limit=413\",\n            \"owned_processes_stopped_and_temp_keys_removed=True\"]\n\n\ndef main():\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--serve\", action=\"store_true\")\n    parser.add_argument(\"--port\", type=int, default=8443)\n    args = parser.parse_args()\n    if not args.serve:\n        print(\"\\n\".join(observe())); return\n    with running(args.port) as lab:\n        print(f\"URL=https://lab.test:{lab['port']}/probe\", flush=True)\n        print(f\"PUBLIC_CA={lab['ca']}\", flush=True)\n        print(f\"export CA={shlex.quote(str(lab['ca']))}\", flush=True)\n        print(f\"export PORT={lab['port']}\", flush=True)\n        print(\"Loopback teaching service only. Ctrl+C stops owned processes and removes temporary keys.\", flush=True)\n        try:\n            while True:\n                time.sleep(.2)\n        except KeyboardInterrupt:\n            print(\"stopping owned teaching service\", flush=True)\n\n\nif __name__ == \"__main__\":\n    main()\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.49
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 0.99,
+            "probabilities": {
+              "UNCERTAIN": 0.0,
+              "PARTIAL": 0.0,
+              "API_CATALOGUE": 0.0,
+              "SUBSTANTIVE": 1.0
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.98,
+            "probabilities": {
+              "NECESSARY_GAP": 0.01,
+              "MATERIAL_ERROR": 0.01,
+              "UNCERTAIN": 0.0,
+              "ACCURATE_AND_BOUNDED": 0.98
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 1.0,
+            "probabilities": {
+              "NECESSARY_GAP": 0.0,
+              "ACCURATE_AND_BOUNDED": 1.0,
+              "UNCERTAIN": 0.0,
+              "MATERIAL_ERROR": 0.0
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.89,
+            "probabilities": {
+              "CONTRADICTORY": 0.08,
+              "COHERENT_AND_TESTABLE": 0.92,
+              "UNCERTAIN": 0.0,
+              "UNDERSPECIFIED": 0.0
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.77
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "PROCEED",
+            "confidence": 0.37,
+            "probabilities": {
+              "TARGETED_REVIEW": 0.39,
+              "REVISE": 0.03,
+              "PROCEED": 0.58
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 19723,
+          "output_tokens": 341
+        }
+      },
+      "raw_response_sha256": "55f0ed0fcb9b9d5df4d78b3934ee061dc2e107255508e5e4dc2094c273ad63a9"
+    }
+  ],
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-34-https-production.mdx",
+    "examples/js2py/o03-https-production/.python-version",
+    "examples/js2py/o03-https-production/Caddyfile.local",
+    "examples/js2py/o03-https-production/Caddyfile.production.template",
+    "examples/js2py/o03-https-production/ENVIRONMENT.json",
+    "examples/js2py/o03-https-production/README.md",
+    "examples/js2py/o03-https-production/README.zh-cn.md",
+    "examples/js2py/o03-https-production/README.zh-tw.md",
+    "examples/js2py/o03-https-production/SOURCES.json",
+    "examples/js2py/o03-https-production/app.py",
+    "examples/js2py/o03-https-production/certificates.py",
+    "examples/js2py/o03-https-production/check_config.py",
+    "examples/js2py/o03-https-production/edge.py",
+    "examples/js2py/o03-https-production/pyproject.toml",
+    "examples/js2py/o03-https-production/solutions/__init__.py",
+    "examples/js2py/o03-https-production/solutions/origin_policy.py",
+    "examples/js2py/o03-https-production/solutions/test_origin_policy.py",
+    "examples/js2py/o03-https-production/tests/test_https.py",
+    "examples/js2py/o03-https-production/tls_lab.py"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-34-https-production.mdx": "0c8b8506d0734631038b8ae0fac6d1562dfa304b338f6d74d736a6d4e7bf2a12",
+    "examples/js2py/o03-https-production/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/o03-https-production/Caddyfile.local": "9490e9f6a94ce5052856c6c678781deffbe80adf9e0dfe714c5912db5565f099",
+    "examples/js2py/o03-https-production/Caddyfile.production.template": "805977343f2354a9087ee34d9099f0bced608c8301bd234c9b1bcd93a67a842e",
+    "examples/js2py/o03-https-production/ENVIRONMENT.json": "e174e52e3f9d565cf6c423703de50efb8e69d2e16dfa70b31533e7fecadef078",
+    "examples/js2py/o03-https-production/README.md": "559f7da601e9cb6410d0ad69c0cb692679cea52078242b7db0b5ea23be36cfc6",
+    "examples/js2py/o03-https-production/README.zh-cn.md": "541a735b839cf13b109887155a136d80ca07453f590840c39aa9ec01aea6a4f0",
+    "examples/js2py/o03-https-production/README.zh-tw.md": "22692f1e28648107692ef59d1573b4205620cd79d694bc147fc1f14755e9b1b5",
+    "examples/js2py/o03-https-production/SOURCES.json": "d2e69b87c605996a44bb8db70002594bd96a1d2aa722dd8b746de801999abca3",
+    "examples/js2py/o03-https-production/app.py": "6f0422aecc10612634469e1f226c3f8e98c0cf666905b43f9d2d6bc144bd815d",
+    "examples/js2py/o03-https-production/certificates.py": "718b90016d2a0ff09bb64435cbbfe131f8282e775469e82d3f31e6657407348e",
+    "examples/js2py/o03-https-production/check_config.py": "ab9afd29886e220d4225e36acb4e64abfc3204f8cf7d3bb9b8bc87ad7ae3eb0d",
+    "examples/js2py/o03-https-production/edge.py": "3fd335f07c1fdc58d2e6cddedba1c377141964f4b464daddada278cdb210b136",
+    "examples/js2py/o03-https-production/pyproject.toml": "25a0bf3101342e2ad842dde05e1788e3badd10863f6a621419e198ecd19ec568",
+    "examples/js2py/o03-https-production/solutions/__init__.py": "1cf54e1087c261f0ad9d8cefeba8254976803745db32df8fc00677ee5900fb23",
+    "examples/js2py/o03-https-production/solutions/origin_policy.py": "f4820683345b75b556574f90fdd96f665cb50753aaff26bdf4e9c8d22ea48f3c",
+    "examples/js2py/o03-https-production/solutions/test_origin_policy.py": "8c9d7720820229ce851c9154376b545ef8fcfc8d815fe7b1ed9a4bec11e2b216",
+    "examples/js2py/o03-https-production/tests/test_https.py": "5374028672dc199583303b2f51664c286dc6df8d99a343af6a9b34135d87e564",
+    "examples/js2py/o03-https-production/tls_lab.py": "56152fcae8fada94703eb3d57b99af4952c6c2db2d9b235385cc2c474b405816",
+    "content/docs/js2py/module-34-https-production.zh-tw.mdx": "b9a1c30b5d2f7d8e1c382dbebabd50dc8a306e92dc5f3b61f9616b988eb6148e",
+    "content/docs/js2py/module-34-https-production.zh-cn.mdx": "9d4481b9ecfdbb9c8586043f6b909fc9959c681ae113ee3789f8d31d414bc10b",
+    "examples/js2py/o03-https-production-files.json": "6c307e0e5e44ddbec4a58a0fc7aed65eccda4f11f433abe72c03051fd72757c7",
+    "public/learning-assets/js2py/o03-https-production.zip": "66aea7d89e6573503bea99bef7590fe9e9364602a5c5faea9333b26100d9df86",
+    "examples/js2py/o03-https-production/uv.lock": "2d9c9aab86946694e4d67af4f32e0861f314f2f9b9789fdc5410f56ec3c3d821"
+  },
+  "deterministically_checked_lock_files": {
+    "uv.lock": {
+      "sha256": "2d9c9aab86946694e4d67af4f32e0861f314f2f9b9789fdc5410f56ec3c3d821",
+      "bytes": 21430,
+      "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+    }
+  },
+  "interface_failures": [],
+  "post_review_changes": [],
+  "submitted_source_sha256": {
+    "content/docs/js2py/module-34-https-production.mdx": "0c8b8506d0734631038b8ae0fac6d1562dfa304b338f6d74d736a6d4e7bf2a12",
+    "examples/js2py/o03-https-production/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/o03-https-production/Caddyfile.local": "9490e9f6a94ce5052856c6c678781deffbe80adf9e0dfe714c5912db5565f099",
+    "examples/js2py/o03-https-production/Caddyfile.production.template": "805977343f2354a9087ee34d9099f0bced608c8301bd234c9b1bcd93a67a842e",
+    "examples/js2py/o03-https-production/ENVIRONMENT.json": "e174e52e3f9d565cf6c423703de50efb8e69d2e16dfa70b31533e7fecadef078",
+    "examples/js2py/o03-https-production/README.md": "559f7da601e9cb6410d0ad69c0cb692679cea52078242b7db0b5ea23be36cfc6",
+    "examples/js2py/o03-https-production/README.zh-cn.md": "541a735b839cf13b109887155a136d80ca07453f590840c39aa9ec01aea6a4f0",
+    "examples/js2py/o03-https-production/README.zh-tw.md": "22692f1e28648107692ef59d1573b4205620cd79d694bc147fc1f14755e9b1b5",
+    "examples/js2py/o03-https-production/SOURCES.json": "d2e69b87c605996a44bb8db70002594bd96a1d2aa722dd8b746de801999abca3",
+    "examples/js2py/o03-https-production/app.py": "6f0422aecc10612634469e1f226c3f8e98c0cf666905b43f9d2d6bc144bd815d",
+    "examples/js2py/o03-https-production/certificates.py": "718b90016d2a0ff09bb64435cbbfe131f8282e775469e82d3f31e6657407348e",
+    "examples/js2py/o03-https-production/check_config.py": "ab9afd29886e220d4225e36acb4e64abfc3204f8cf7d3bb9b8bc87ad7ae3eb0d",
+    "examples/js2py/o03-https-production/edge.py": "3fd335f07c1fdc58d2e6cddedba1c377141964f4b464daddada278cdb210b136",
+    "examples/js2py/o03-https-production/pyproject.toml": "25a0bf3101342e2ad842dde05e1788e3badd10863f6a621419e198ecd19ec568",
+    "examples/js2py/o03-https-production/solutions/__init__.py": "1cf54e1087c261f0ad9d8cefeba8254976803745db32df8fc00677ee5900fb23",
+    "examples/js2py/o03-https-production/solutions/origin_policy.py": "f4820683345b75b556574f90fdd96f665cb50753aaff26bdf4e9c8d22ea48f3c",
+    "examples/js2py/o03-https-production/solutions/test_origin_policy.py": "8c9d7720820229ce851c9154376b545ef8fcfc8d815fe7b1ed9a4bec11e2b216",
+    "examples/js2py/o03-https-production/tests/test_https.py": "5374028672dc199583303b2f51664c286dc6df8d99a343af6a9b34135d87e564",
+    "examples/js2py/o03-https-production/tls_lab.py": "56152fcae8fada94703eb3d57b99af4952c6c2db2d9b235385cc2c474b405816"
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not gpt-6-astra; independent reasoning assistants are separate.",
+    "decision": "Original slice choices unchanged. New targeted audits, reproduced repairs, real runtime/browser evidence and exact new source deltas support conditional ACCEPT_WITH_EXPLICIT_ENVIRONMENT_GATES; see closure record for outstanding/final deterministic gates. Never a production or learner approval.",
+    "scope": "Full English in every slice; union of slices covers every non-lock allowlisted file. Only the original H01 request included lock text. Other opaque locks were checked by registry/hash/locked reconstruction rather than semantic inference. No single slice is presented as whole-chapter review.",
+    "uncertainty": "Raw unfavorable branches preserved. Confidence is distribution concentration, not factual correctness or learner outcomes. Initial direct predecessor contracts omit transitive detail; follow-up audits must examine the actual full path rather than assume missing learner capability.",
+    "snapshot": "Submitted source hashes and full requests remain unchanged. Effective source_sha256 includes each explicitly recorded post-review repair; closure delta review binds the final D03 assertion and O privilege wording changes. Locale/locks/manifests/ZIP are deterministic evidence, not semantic translation review."
+  },
+  "credential_persisted": false,
+  "prior_review_rounds": [],
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+}

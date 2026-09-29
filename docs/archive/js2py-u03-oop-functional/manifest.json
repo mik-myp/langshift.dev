@@ -1,0 +1,18 @@
+{
+  "archived_on": "2026-09-23",
+  "source": "Current working-tree module 03, preserving earlier corrections; not Git HEAD.",
+  "files": [
+    {
+      "file": "module-03-oop-functional.mdx",
+      "sha256": "f34f728fb51a3478197e13b19064e6987a7b48ead076b32ff97aea5594ebdb3e"
+    },
+    {
+      "file": "module-03-oop-functional.zh-cn.mdx",
+      "sha256": "0b1acd9e77b4657a72e587844852ecc7c36f8e368349d035cab60701555dc065"
+    },
+    {
+      "file": "module-03-oop-functional.zh-tw.mdx",
+      "sha256": "31a64bbebc433549d633a576ef9cb104af909f2c555398a34adb4f5bd9dc5017"
+    }
+  ]
+}

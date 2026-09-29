@@ -1,0 +1,906 @@
+{
+  "schema_version": 1,
+  "handoff_date": "2026-09-28",
+  "timezone": "Asia/Shanghai",
+  "repository": "/Users/mikmyp/Documents/code-projects/langshift.dev",
+  "report_path": "/tmp/langshift-d06-a02-repair-handoff.json",
+  "status": "completed_with_bounded_scope",
+  "accepted_findings": [
+    "D06-F01",
+    "A02-F01"
+  ],
+  "write_scope": {
+    "repository_files_written": [
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-tw.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-tw.mdx"
+    ],
+    "repository_file_count": 6,
+    "readme_changed": false,
+    "readme_reason": "核对D06/A02三语README；没有重复“小样本只改行数”的引导，也没有首次展示async for核心代码，故无需修改。",
+    "canonical_lab_sources_changed": false,
+    "locks_or_public_archives_changed": false,
+    "G01_changed": false,
+    "shared_registration_or_status_changed": false,
+    "TypeSafe_used": false,
+    "original_audit_overwritten": false,
+    "original_audit_path": "/tmp/langshift-d06-a02-g01-prerequisite-audit.json",
+    "original_audit_sha256": "278755b5670e5da33c6a9164c8fb269a4c77589e36892ef50dc9105ef673bb54",
+    "scope_caveat": "工作树原本已dirty且其他agent继续编写S/O；本交接只声明本轮六页写集，不将别人的并发变动归于本轮或还原它们。"
+  },
+  "changed_files": [
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.mdx",
+      "before_sha256": "4a686f9e2c8712fe1ce1de3125b3f10bc3a9db28ae6aa664d2de40bdee26b6dd",
+      "after_sha256": "2316edd6c49f78f8bf7cd55c3739069294a1c6140d3303bee4a878b3ab53fae5",
+      "changed_ranges": [
+        {
+          "operation": "replace",
+          "before_lines": [
+            172,
+            172
+          ],
+          "after_lines": [
+            172,
+            197
+          ]
+        }
+      ],
+      "change": "D06小样本3项目/12任务操作、正确性断言、单脚本命令及非固定计划观察"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+      "before_sha256": "36c6767f15163e2984ef086169e6f252ff92b5525444fe5c147170171df2722c",
+      "after_sha256": "aa70b3b1117a92171f44bc08d80c2fd72fbadb63576fc1e9604c403d04f2e2b5",
+      "changed_ranges": [
+        {
+          "operation": "replace",
+          "before_lines": [
+            172,
+            172
+          ],
+          "after_lines": [
+            172,
+            197
+          ]
+        }
+      ],
+      "change": "D06小样本3项目/12任务操作、正确性断言、单脚本命令及非固定计划观察"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-tw.mdx",
+      "before_sha256": "f7c0091316bf142fc006aff64ffcc394462de64cfa7786d5f71c715e7eb3739b",
+      "after_sha256": "0fedbe42cdc3d206db927621cc8b7ed0ebd06fd81b1a75d54489b9a0b838a5b9",
+      "changed_ranges": [
+        {
+          "operation": "replace",
+          "before_lines": [
+            172,
+            172
+          ],
+          "after_lines": [
+            172,
+            197
+          ]
+        }
+      ],
+      "change": "D06小样本3项目/12任务操作、正确性断言、单脚本命令及非固定计划观察"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.mdx",
+      "before_sha256": "c640cd38b37cb53567d4920dea7aae73f95d6a0fe6155dbe46e743563e8763b6",
+      "after_sha256": "68d76909014b310be2ecb09f4a313284123ffeabff2240250138d170e3d3707a",
+      "changed_ranges": [
+        {
+          "operation": "insert",
+          "before_lines": [
+            106,
+            105
+          ],
+          "after_lines": [
+            106,
+            115
+          ]
+        }
+      ],
+      "change": "A02在service.py引用之前解释async for协议、结束、字节限额及取消释放边界"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+      "before_sha256": "e4d765e36ad07f48f89e903f4786a9f401ba543561ab97d1c20dda1586a48d3f",
+      "after_sha256": "ab4e64fafff8bcd9e8967d3cb58f8b361b96b893a5f079b7ce426d408a7d82d6",
+      "changed_ranges": [
+        {
+          "operation": "insert",
+          "before_lines": [
+            106,
+            105
+          ],
+          "after_lines": [
+            106,
+            115
+          ]
+        }
+      ],
+      "change": "A02在service.py引用之前解释async for协议、结束、字节限额及取消释放边界"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-tw.mdx",
+      "before_sha256": "e97667ba4a11ad04bc74943ce32efc5f1a9a8634495e02fa3641055f5c7bf5d5",
+      "after_sha256": "68ff3c95355c9175c6d3c44062753e0499c12543480e8cb046ebb9065eacf28f",
+      "changed_ranges": [
+        {
+          "operation": "insert",
+          "before_lines": [
+            106,
+            105
+          ],
+          "after_lines": [
+            106,
+            115
+          ]
+        }
+      ],
+      "change": "A02在service.py引用之前解释async for协议、结束、字节限额及取消释放边界"
+    }
+  ],
+  "repair_details": {
+    "D06": {
+      "guided_workload": {
+        "projects": 3,
+        "tasks": 12,
+        "tasks_per_project": 4,
+        "doing_per_project": 2,
+        "todo_per_project": 2,
+        "target": "实际返回的projects[-1]，不假设数据库ID起点",
+        "expected_titles": [
+          "Task 3",
+          "Task 9"
+        ],
+        "unchanged_query": "ORDER BY id LIMIT 20",
+        "expected_returned_count": 2
+      },
+      "coupled_changes_taught": [
+        "项目生成范围、任务生成范围、分配项目取模、状态分组条件同步调整",
+        "总行数12、目标样本和结果2行相匹配；LIMIT20是上限",
+        "保留索引前后结果相等、正确内容、顺序、无重复断言",
+        "保留索引前未用该实验索引；仅把小样本索引后必须采用该索引改为观察",
+        "仍实际创建索引和两次ANALYZE，不强制Seq Scan或关闭规划器路径",
+        "报告样本标签改12/3，returned取真实值，独立证据文件；只运行query_plan，不将变式当正式整套验收",
+        "临时副本运行和清理，正式60000行源码及其索引断言不变"
+      ],
+      "published_assertions_match_executed_variant": true,
+      "canonical_baseline_rerun": false
+    },
+    "A02": {
+      "placement": "现有§8标题后、getExternalServiceExample(service.py)核心源码引用前；不新增/重排章节或引用。",
+      "teaching_bridge": [
+        "逐次请求并await下一块，循环体处理完再取下一块；并非并行或每块建Task",
+        "未就绪时可以让出执行；已就绪时await不保证任务切换",
+        "普通for使用同步协议，循环体加await不能替代异步取下一项",
+        "StopAsyncIteration表示耗尽，由async for处理并继续循环之后；不是网络重试信号",
+        "bytearray逐块检查700+400，第二块追加前拒绝，保留700而非1100字节",
+        "字节不等于字符，字符/JSON可跨块，正常完整读取后再模型验证",
+        "取消是异常退出，不是耗尽或降级；外层async with退出response，再归还许可；应用lifespan拥有共享client",
+        "清理不保证抵御强杀，正文限额不等于网络栈峰值内存承诺"
+      ],
+      "new_runnable_code_or_output_blocks": 0,
+      "backend_logic_changes": false
+    }
+  },
+  "three_locale_consistency": {
+    "locales": [
+      "en",
+      "zh-cn",
+      "zh-tw"
+    ],
+    "code_and_output_fences_byte_identical": true,
+    "canonical_code_reference_sequences_equal": true,
+    "original_headings_unchanged": true,
+    "original_reference_url_order_unchanged": true,
+    "original_code_reference_order_unchanged": true,
+    "D06_new_fenced_blocks_per_locale": 2,
+    "A02_new_fenced_blocks_per_locale": 0,
+    "details_file": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/parity.json",
+    "meaning_review": "三语分别包含相同样本参数、700/400/1024字节说明、StopAsyncIteration/普通for/非并行/取消清理责任。未借翻译修改原有章节或官方来源顺序。"
+  },
+  "actual_small_sample_experiment": {
+    "runs": 1,
+    "not_a_full_integration_run": true,
+    "source": "从D06 allowlist复制到全新/tmp工作目录，仅修改该副本query_plan.py；真实PostgreSQL 18.6，未使用SQLite或mock。",
+    "executed_variant_path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/query_plan-small.py",
+    "executed_variant_sha256": "09d73bf6839298ead5460b78c32ad424a82b4e296e5a1498a478ce893b9b71b1",
+    "variant_diff": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/small-variant.diff",
+    "command_and_environment": {
+      "command": [
+        "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/runtime/d06-database-testing/.venv/bin/python",
+        "pg_sandbox.py",
+        "--evidence",
+        "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/cluster-cleanup.json",
+        "--",
+        "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/runtime/d06-database-testing/.venv/bin/python",
+        "query_plan.py"
+      ],
+      "cwd": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/runtime/d06-database-testing",
+      "environment_overrides": {
+        "PG_BIN": "/opt/homebrew/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "LAB_PLAN_EVIDENCE": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/small-plan.json"
+      },
+      "wrapper_pid": 35321,
+      "exit_code": 0,
+      "elapsed_seconds": 8.541376829147339,
+      "wrapper_reaped": true
+    },
+    "versions": {
+      "python": "3.13.15",
+      "postgresql_server_version_num": "180006",
+      "SQLAlchemy": "2.0.54",
+      "Alembic": "1.20.0",
+      "psycopg": "3.3.6"
+    },
+    "isolation": "原pg_sandbox创建自己的0700临时集群/Unix socket，TCP关闭、清除继承PG设置及数据库URL，使用专用lab_owner；未修改canonical wrapper。",
+    "results": {
+      "rows_seeded": 12,
+      "projects": 3,
+      "returned": 2,
+      "actual_rows": [
+        [
+          3,
+          "Task 3"
+        ],
+        [
+          9,
+          "Task 9"
+        ]
+      ],
+      "numeric_ids_are_observation_not_contract": true,
+      "correctness": {
+        "before_equals_after": true,
+        "expected_titles": true,
+        "expected_count": true,
+        "ordered_unique_ids": true,
+        "total_rows": true,
+        "no_experimental_index_before": true
+      },
+      "plan_before": [
+        {
+          "node_type": "Limit",
+          "index_name": null
+        },
+        {
+          "node_type": "Sort",
+          "index_name": null
+        },
+        {
+          "node_type": "Seq Scan",
+          "index_name": null
+        }
+      ],
+      "plan_after": [
+        {
+          "node_type": "Limit",
+          "index_name": null
+        },
+        {
+          "node_type": "Sort",
+          "index_name": null
+        },
+        {
+          "node_type": "Seq Scan",
+          "index_name": null
+        }
+      ],
+      "index_used_after": false,
+      "exit_code": 0
+    },
+    "why_different_plans_are_allowed": "本次小表在索引前后均为Limit→Sort→Seq Scan；创建索引不强制规划器使用它，小样本扫描/排序可能更便宜。另一环境可选别的计划，验收要求仍是相同的正确且有序结果，而不是固定节点、cost或耗时。本次没有操纵enable_seqscan。",
+    "evidence_scope": "只证明这一轮12行变式教学路径可执行，不代替原26tests×2基线、A组集成或生产容量证据。"
+  },
+  "validation": {
+    "mdx": {
+      "compiled": 6,
+      "files": [
+        "content/docs/js2py/module-26-database-testing.mdx",
+        "content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+        "content/docs/js2py/module-26-database-testing.zh-tw.mdx",
+        "content/docs/js2py/module-31-external-services.mdx",
+        "content/docs/js2py/module-31-external-services.zh-cn.mdx",
+        "content/docs/js2py/module-31-external-services.zh-tw.mdx"
+      ],
+      "pipeline": "MDX + Code Hike",
+      "full_site_build": false
+    },
+    "parity_and_assertion_linkage": {
+      "checks": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.mdx",
+          "headings_preserved": true,
+          "reference_url_order_preserved": true,
+          "canonical_source_reference_order_preserved": true,
+          "fenced_blocks": 6,
+          "before_sha256": "4a686f9e2c8712fe1ce1de3125b3f10bc3a9db28ae6aa664d2de40bdee26b6dd",
+          "after_sha256": "2316edd6c49f78f8bf7cd55c3739069294a1c6140d3303bee4a878b3ab53fae5"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+          "headings_preserved": true,
+          "reference_url_order_preserved": true,
+          "canonical_source_reference_order_preserved": true,
+          "fenced_blocks": 6,
+          "before_sha256": "36c6767f15163e2984ef086169e6f252ff92b5525444fe5c147170171df2722c",
+          "after_sha256": "aa70b3b1117a92171f44bc08d80c2fd72fbadb63576fc1e9604c403d04f2e2b5"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-26-database-testing.zh-tw.mdx",
+          "headings_preserved": true,
+          "reference_url_order_preserved": true,
+          "canonical_source_reference_order_preserved": true,
+          "fenced_blocks": 6,
+          "before_sha256": "f7c0091316bf142fc006aff64ffcc394462de64cfa7786d5f71c715e7eb3739b",
+          "after_sha256": "0fedbe42cdc3d206db927621cc8b7ed0ebd06fd81b1a75d54489b9a0b838a5b9"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.mdx",
+          "headings_preserved": true,
+          "reference_url_order_preserved": true,
+          "canonical_source_reference_order_preserved": true,
+          "fenced_blocks": 3,
+          "before_sha256": "c640cd38b37cb53567d4920dea7aae73f95d6a0fe6155dbe46e743563e8763b6",
+          "after_sha256": "68d76909014b310be2ecb09f4a313284123ffeabff2240250138d170e3d3707a"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-cn.mdx",
+          "headings_preserved": true,
+          "reference_url_order_preserved": true,
+          "canonical_source_reference_order_preserved": true,
+          "fenced_blocks": 3,
+          "before_sha256": "e4d765e36ad07f48f89e903f4786a9f401ba543561ab97d1c20dda1586a48d3f",
+          "after_sha256": "ab4e64fafff8bcd9e8967d3cb58f8b361b96b893a5f079b7ce426d408a7d82d6"
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-31-external-services.zh-tw.mdx",
+          "headings_preserved": true,
+          "reference_url_order_preserved": true,
+          "canonical_source_reference_order_preserved": true,
+          "fenced_blocks": 3,
+          "before_sha256": "e97667ba4a11ad04bc74943ce32efc5f1a9a8634495e02fa3641055f5c7bf5d5",
+          "after_sha256": "68ff3c95355c9175c6d3c44062753e0499c12543480e8cb046ebb9065eacf28f"
+        }
+      ],
+      "three_locale_code_output_bytes_equal": true,
+      "code_reference_sequences_equal": true,
+      "new_assertion_snippet_matches_executed_variant": true,
+      "protected_files_checked": 84,
+      "protected_files_changed": []
+    },
+    "protected_files_unchanged_count": 84,
+    "protected_files": [
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-chapter-contracts.json",
+        "sha256": "1eb527248683809ed1df8c44747536ab89dd9c00b013446a3b79fbd53b7a2044",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/lib/js2py-examples.ts",
+        "sha256": "f51a2382a25e1bab822449ee4159ccb07f1536da2373caee77a019352b172b41",
+        "unchanged": true
+      },
+      {
+        "path": "/tmp/langshift-d06-a02-g01-prerequisite-audit.json",
+        "sha256": "278755b5670e5da33c6a9164c8fb269a4c77589e36892ef50dc9105ef673bb54",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/.gitignore",
+        "sha256": "85c36a89acabe55cd838be3f3aa989186b9c34aa58ff789f8404d2c498b439bc",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/.python-version",
+        "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/README.md",
+        "sha256": "a45e6c7ec8ffd40b618828898084fe4993dc835efbea2435b398fce38aac7efc",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/README.zh-cn.md",
+        "sha256": "646498a26081a8aeb1bddf1581cc0b556e4fd4769648abccbaff7fb8874ea4ef",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/README.zh-tw.md",
+        "sha256": "eeed981415633dd465d03d3e53e25914a05e5688d1ab2d920ef23d84c2cfc3e8",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/SOURCES.md",
+        "sha256": "e5dbe1f2c891895ec65e1a5ce4e63c31604688c3b10928dd23b3aeb723c70b5b",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/alembic.ini",
+        "sha256": "4a3548a36b2cb94eaa5fd7f90a4540b02d6ca6d15a5942da90608bc8a1388ec8",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/commit_failure.py",
+        "sha256": "de586071ff3137e810288640061baa71390e946fc30e49d1f83c14a9e710b2e8",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/db.py",
+        "sha256": "78d684e1e1f199855f01119f50daca3a7614f1578b51f06df1da5b066f4734c5",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/history_data.py",
+        "sha256": "4d0b5d8732f78b63d783367c7429ed09bc67f66f73cecac42ea6bbe3a9784c9f",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/history_demo.py",
+        "sha256": "e7798473864a467d718b84891907d0980bcfc61bde2c69848e7434fcbb0f5657",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrate.py",
+        "sha256": "b6d7e2e09dcfb4eb7efa9bba49538a7d8bbd79b6dcb711139b5479f849bc0913",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrations/env.py",
+        "sha256": "d0e72d32d14a93f7391bb2ed5dd9c2d719e96c3979168063adace196c527a6cd",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrations/script.py.mako",
+        "sha256": "f98e6d716bda998058de35ca2d9108c516309ada5bb0ae25eb82f69471ab5158",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrations/versions/001_base.py",
+        "sha256": "05143b89aa86070f8248699beea1f42e53457ac8dfc92d97870e415edd85f6fe",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrations/versions/002_expand.py",
+        "sha256": "da198f9a50872aeaa17c09aaba080a883f697cd2372d434c9f2c39b5ff1311ce",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/migrations/versions/003_contract.py",
+        "sha256": "ffa82310957d11510cbfac1d08a025fb24b6a1a6b747832681a81ba4fdce4f41",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/models.py",
+        "sha256": "b6f8278ae0ef6f7ada061f0eb7296c700437159697ece222b613c84898571c21",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/pg_sandbox.py",
+        "sha256": "2d369c594ff62d70b15d00670061ba60167879b2b31b47cc7c3a7e72ade3c88e",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/pyproject.toml",
+        "sha256": "babd93d9477e19cc44bb6e33f5e928879f49bc5b35a17acfd5e1174ab8c47f9f",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/query_plan.py",
+        "sha256": "39195f3b61b5c144c0e51c5f26dd972885e76e73e7d53da5919f779639d7f1bf",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/safety.py",
+        "sha256": "b2573ac5bd8be41e26d5b5968dc4b9b7786740db347295496cdad0b381a24756",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/services.py",
+        "sha256": "f69268dcd393c2c12fa0a8df361e6f0bf977608a0ad19a8f6f027ed7107ca89b",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/solutions/project_totals.py",
+        "sha256": "b0e00972662a4052211010a83540e04f36dc3f361ce46b0bd892a01ad5c09ab0",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/solutions/test_project_totals.py",
+        "sha256": "18f5fb3b17ee9ae38d951830f38672d6349d1e4cf0fedabd95532742f0150bff",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/source-verification.json",
+        "sha256": "ee1d9e668b149606ff17d6550d32cbc5846afdbddd343b7353c99d2679b341b1",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/testing.py",
+        "sha256": "f5db68a323325f807254a7a83722230bc464ee8515ca04b3b19fda45eaef2d63",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/tests/conftest.py",
+        "sha256": "9eb0259f436863815868275f80f71be05e4413d89ecc86bbaf3435efdcbb7572",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/tests/test_database.py",
+        "sha256": "85aef42b48a6bcde70b3e78b078bea858f6dc52f187da9ccb3dc9f16c7eec240",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/tests/test_migration_history.py",
+        "sha256": "fe0070e686f3a150e141dcf698596cfbee131c4b368f23522edfaac1e1058b6d",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/tests/test_resource_safety.py",
+        "sha256": "1a5e8f20c9b35d8f955d5270e215e16751988c1f549e0d33e7b4d92d279c9eb9",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing/uv.lock",
+        "sha256": "a267e5db5755891a87a0477c551a519f7095c60388ed8afbb80b4dd7d84e5c2a",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d06-database-testing-files.json",
+        "sha256": "e93df00244833fdb07634d299853801a5ce9df732c2051412d463a7eb97a7a69",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/public/learning-assets/js2py/d06-database-testing.zip",
+        "sha256": "de73c041f7f44a3b414faacc6cc517b655cc022e16910a2db7de5fb7161f6a58",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/.python-version",
+        "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/DOWNLOAD-ALLOWLIST.json",
+        "sha256": "e6a8620d8c66b5f3744d71724ee05e21988ae67f4474feccfc818eac296a96e0",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/README.md",
+        "sha256": "4faedc7319edc2e9d6aa190951a1ff3a005e73577fb78bdf08bc6bdb90141fd0",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/README.zh-cn.md",
+        "sha256": "e552a15ccc20461830d5c56c40c21679eee3da7a5da702c7bc70d380e7d47313",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/README.zh-tw.md",
+        "sha256": "7fcf578d6968d37ee32c9e1520ee8443da2c0877e58d8d75ce4d1fabbd952adb",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/app.py",
+        "sha256": "22f38a66de9c0a8df0a3bcd88a26829b193717ae84dcb845d9d1903a1ed6509d",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/commands.sh",
+        "sha256": "bde1e32f8546575053c5ddfcb768a6fe02774e49bea6e8d5e8a35fc72d356046",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/errors/__init__.py",
+        "sha256": "42ccfdb7b1b9b53094eae7568fa6594ce93a3fc73d0311a8c1029ab2e52d218e",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/errors/config.py",
+        "sha256": "004cfd057b9f8ba84aac443bcb2d41904fe24ab632942b0ce712e457965b90c5",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/errors/untrusted.py",
+        "sha256": "0d703976fb5553b443e019e6e4e250e55e704d853ed794a4875e8d097959fc4c",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/expected-socket-output.txt",
+        "sha256": "9715315b5ab2fad82b685b86bdb2c4318f69f56ab5b4db4d8930a6b1008c13f5",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/faults.py",
+        "sha256": "c1a87abcf574eaa5980c2b9caa207e2899286472f7fec2d05f8ab56fc77f03f1",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/lifecycle.py",
+        "sha256": "84f4421f4bb761226e581659ebe958476769c29a9e1086f78d15855827028a58",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/pyproject.toml",
+        "sha256": "c69af542970871cffe0c9d90c4d9a2882071f8b40bda4aa0c464bf9c24fad1ff",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/service.py",
+        "sha256": "3b140861377e974799dfbad83c1aa069d92973d06a4c4ec0f66f3749f001e9b1",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/socket_lab.py",
+        "sha256": "a9a7027fc81ed729b338e74fcaaa13fd6248962e90b6caa6f23fbc75fe30218c",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/solutions/__init__.py",
+        "sha256": "d68566f065f1edcaecef2e1a8c990d6e7898daf807876222d3297839a9103bce",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/solutions/receipts.py",
+        "sha256": "01c6cb109d797da3bd5179b1c9ef8c66d8f4cc85043be2be46ccaeb269e60c10",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/solutions/test_receipts.py",
+        "sha256": "b4ab8944d7f22d2b673827b211f33f553dd857e6dd0a1be51cb044b7f412c191",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/sources.json",
+        "sha256": "1a5407ffd6ecd0ff169049d3f25aaab1f804b12de35d7ee2b2506f3fd259965f",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/tests/test_service.py",
+        "sha256": "ea9ee9617ef7e8c8ccb4e6a0ca60b15d658931a5eed9e2da4f91937753837f62",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/tests/test_socket.py",
+        "sha256": "9f924625142c2c8665df1a65d5a5915e2c101ae66fca8e403d7246e01062375a",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services/uv.lock",
+        "sha256": "0e608573b0b9e5efb3bf0599f10b64dd7fd1ae4233367305d7bb3bfacc7a9077",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/a02-external-services-files.json",
+        "sha256": "e6a8620d8c66b5f3744d71724ee05e21988ae67f4474feccfc818eac296a96e0",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/public/learning-assets/js2py/a02-external-services.zip",
+        "sha256": "dff768b6b45e6e916654d30c38cf674c8ed7ab5b7e3482eaba1c79baa225c81c",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/.gitignore",
+        "sha256": "80295d5887ba0ccce6eb509790dbbb928f3161102895d897abbbc980bd24da8d",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/.python-version",
+        "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/FILES.json",
+        "sha256": "3a0f48bd0f7ee7b4a0a75284fff67b1c0748df5ade2506114761c4ea39715299",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/README.md",
+        "sha256": "8f9ccaa6fab48b6a3436dc01343f0ea78c54fa84a71edfb85a50d5e7c0a4112b",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/README.zh-cn.md",
+        "sha256": "0eba3df9b724ed05c3a8049992dcbdb48b51f57656e3d3dbe650b712ecb0d6bc",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/README.zh-tw.md",
+        "sha256": "1e5216d2b9c140478d3ebdec49bb6e0e73c909353e092ec4f092c5b07aee5332",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/check_evidence.py",
+        "sha256": "2dd04f3365991d408a3d12f1fe3ede6f1bdf6fcd0899247c5aeecb6da875982e",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/fixtures/actors-and-data.json",
+        "sha256": "ad4094fe99d524ae1505aff997bcd133f50b9c78b44ec1682648b0cf1c53ae75",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/requirements.json",
+        "sha256": "8d69502c99fd2c07421c1765a60f6f9ba535584ea260875210febd17ad0eb7eb",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/rubric.json",
+        "sha256": "bd996e927d8491e05334b8a2301acf3782fd15f72196e5cdf0bfb5f1b3474225",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/scenarios.json",
+        "sha256": "ea5ebcaf66fc93930888c1def52b8765022516255091f66e367e5cd34f050775",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/sources.json",
+        "sha256": "6aa552cb18e90c90f5ded7158583681f21fe607d7528bc514cbe2d8b5a24f380",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/templates/checkpoint.json",
+        "sha256": "c87a4501d7871b477a253bcf7e7fd6dd3ecf9415f32a0900a9c09de522ccfd5f",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/templates/evidence.json",
+        "sha256": "bba8dd91dd2e46b0a1d45cc812231300e2d8609daf6413a863205d6b9edb240b",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/templates/fixture-bindings.json",
+        "sha256": "899b3ae62b25bdd355940c21e55fb1b582f2dcca9dea5b67572412a30b002225",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/templates/reviewer-record.json",
+        "sha256": "dfed50f94e0cf0ad242224000644676af0f138a78944bdeacdce1fa19d8569f3",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation/tests/test_materials.py",
+        "sha256": "a53f88a93a737becc0d25472a1a83b66e958b65043fd2b5559c0206ead47d7e1",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/g01-graduation-files.json",
+        "sha256": "3a0f48bd0f7ee7b4a0a75284fff67b1c0748df5ade2506114761c4ea39715299",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/public/learning-assets/js2py/g01-graduation.zip",
+        "sha256": "1cb62eed4582c07c733f4d3e2f79695238ad5850d5b74f1273d0898ff2c2605d",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-38-graduation.mdx",
+        "sha256": "b79e8d64c99f043737292483ccb33fe3cc7391e792a49988b10f741b832843ef",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-38-graduation.zh-cn.mdx",
+        "sha256": "e61315f8bea77f9ee28ebe26ca35e9870aab11dc5d107fbdc925e51d5259ebc7",
+        "unchanged": true
+      },
+      {
+        "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-38-graduation.zh-tw.mdx",
+        "sha256": "6792683e7d30419853d4f265d158b10f85ffc3daac71cd3d475a85e6696ca551",
+        "unchanged": true
+      }
+    ],
+    "full_site_build": false,
+    "full_database_or_async_suite_rerun": false,
+    "A02_runtime_tests_rerun": false,
+    "student_app_or_G01_tests_run": false
+  },
+  "resource_cleanup": {
+    "owned_postgresql": {
+      "cluster": "/private/tmp/ls-pg-emtrwx5z",
+      "socket": "/private/tmp/ls-pg-emtrwx5z/socket",
+      "tcp": false,
+      "server_version": "180006",
+      "command_exit": 0,
+      "stopped": true,
+      "removed": true,
+      "status_after_stop": 3,
+      "stop_exit": 0
+    },
+    "cluster_directory_absent": true,
+    "private_socket_directory_absent": true,
+    "wrapper_process": {
+      "pid": 35321,
+      "reaped": true,
+      "post_run_ps_exit": 1,
+      "post_run_ps_output": "",
+      "absent": true
+    },
+    "temporary_runtime": {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/runtime",
+      "removed": true,
+      "included": [
+        "allowlist lab working copy",
+        ".venv",
+        "isolated uv-cache"
+      ]
+    },
+    "borrowed_preexisting_tools": {
+      "python": "/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/bin/python3.13",
+      "uv": "/Users/mikmyp/.local/bin/uv",
+      "postgresql_bin": "/opt/homebrew/bin",
+      "uninstalled_or_modified": false,
+      "python_downloads": "disabled"
+    },
+    "user_databases_or_processes_touched": false,
+    "retained_non_running_evidence_directory": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp",
+    "retention_note": "保留原文快照、六页diff、小样本源码/diff、计划JSON和清理/校验日志供主线核对；它们不是仍运行的资源。"
+  },
+  "retained_artifacts": [
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/six-pages.diff",
+      "sha256": "ff5478807793e5bbaa4db839b715e8ae2f4a1c83b95455e44679c16b0f33c79d"
+    },
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/query_plan-small.py",
+      "sha256": "09d73bf6839298ead5460b78c32ad424a82b4e296e5a1498a478ce893b9b71b1"
+    },
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/small-variant.diff",
+      "sha256": "546137b3dc90234626dc6da5573903ca2fe6ddb083d1a47bb58b3527e6b31fc3"
+    },
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/small-run.json",
+      "sha256": "eb0e37f9213cbcec1e4b09ac6e44924d589b4ca495b7a46a3d708623e132a560"
+    },
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/small-run.log",
+      "sha256": "21edcc89b977186ef97d0ffaf52c2c5821dc6645d12fe4913f44ea46996b236a"
+    },
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/small-plan.json",
+      "sha256": "fbc2ddcd1d64f5cd3f0bb396c0033685bb3c947b50f3aa07b1df8952b857e79a"
+    },
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/cluster-cleanup.json",
+      "sha256": "479594d53afbe3b7d94ec9cf6ad26b04be62bfa77cbfd568522b1e704b2858d0"
+    },
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/resource-cleanup.json",
+      "sha256": "42b169ff1ea74f6a15ff5a0d9ff6fab3102b6de1d009ee8591804eb79a92ab4a"
+    },
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/uv-sync.log",
+      "sha256": "168f1427cf0d557d04425fe6f74ffd52ef4d816070c3af52750e652f12f19b16"
+    },
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/parity.json",
+      "sha256": "dd8b02bf2532a5820335f7a6d7fbda33edc830a9669cf9e1bd4dd12ad69dffce"
+    },
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/mdx-check.json",
+      "sha256": "f86e4c6d04eab30e667f60453769008d70c69350c8375374cb22d4d1ef754ba4"
+    },
+    {
+      "path": "/tmp/langshift-d06-a02-repair-20260928-wkebfzqp/state.json",
+      "sha256": "e7b45550af4aa024f58a49c1a02ede1661d31edf55274c634f266d5daa6f5ad2"
+    }
+  ],
+  "not_claimed": [
+    "未重跑正式60000行样例或现有整套集成；以canonical字节未改变保留已有事实，不声称新增基线实跑。",
+    "A02为教学文字补充，未更改或重新认证响应清理实现；没有重跑A组socket/取消测试。",
+    "未改G01、先修状态或S/O材料；主线补齐并实际验收先修可用性后再判毕业门禁。",
+    "MDX编译和三语字节一致性不是全站导航/构建、学生毕业或公网运营证明。",
+    "保留的/tmp日志/源码/原文快照属于静态交接证据，不包括运行中的集群、虚拟环境或下载缓存。"
+  ]
+}

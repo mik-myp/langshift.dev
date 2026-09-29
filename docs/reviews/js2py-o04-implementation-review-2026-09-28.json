@@ -1,0 +1,1694 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "Full English + full non-lock text files distributed across bounded slices; all lock bytes deterministically checked. No claim that a single slice viewed other slices.",
+  "slices": [
+    {
+      "batch": "review-82",
+      "metadata": {
+        "started_at_utc": "2026-09-28T06:03:02.620774+00:00",
+        "elapsed_seconds": 1.032,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "a0b0659130d1894d4d54d1c1cf92644480449d516e939de52c37540fb9e3699b",
+        "usage": {
+          "input_tokens": 24725,
+          "output_tokens": 344
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "o04-release",
+          "current_contract": {
+            "id": "O04",
+            "title": "持续集成、发布与回退",
+            "prerequisites": [
+              "O03",
+              "D05",
+              "D06"
+            ],
+            "teach": "检查/测试流水线、环境分离、迁移执行时机、发布兼容与应用回退",
+            "acceptance": "完成一次成功发布和一次有数据的兼容回退演练",
+            "boundary": "不把危险数据库降级当作普通应用回退",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "O03",
+              "title": "网络入口、HTTPS 与生产配置",
+              "prerequisites": [
+                "O02"
+              ],
+              "teach": "域名/DNS、反向代理、TLS终止、可信代理、生产错误与凭证/CORS/CSRF边界",
+              "acceptance": "验证HTTPS、错误响应、请求来源与凭证传递策略",
+              "boundary": "公开前需按实际认证方案检查CSRF等风险",
+              "status": "planned"
+            },
+            {
+              "id": "D05",
+              "title": "Alembic 与已有数据迁移",
+              "prerequisites": [
+                "D04"
+              ],
+              "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+              "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+              "boundary": "不删库重建；不承诺任意降级都无损",
+              "status": "planned"
+            },
+            {
+              "id": "D06",
+              "title": "数据库测试与查询诊断",
+              "prerequisites": [
+                "D05",
+                "H06"
+              ],
+              "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+              "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+              "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+              "status": "planned"
+            }
+          ],
+          "declared_transitive_prior_capabilities": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "H05",
+              "title": "应用组织、配置与依赖",
+              "prerequisites": [
+                "H04",
+                "L14"
+              ],
+              "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+              "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+              "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+              "status": "planned"
+            },
+            {
+              "id": "H06",
+              "title": "API 测试与前后端联调",
+              "prerequisites": [
+                "H05",
+                "L09",
+                "L13"
+              ],
+              "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+              "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+              "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+              "status": "planned"
+            },
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            },
+            {
+              "id": "D02",
+              "title": "SQL 与参数化查询",
+              "prerequisites": [
+                "D01"
+              ],
+              "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+              "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+              "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+              "status": "planned"
+            },
+            {
+              "id": "D03",
+              "title": "事务、约束与并发冲突",
+              "prerequisites": [
+                "D02"
+              ],
+              "teach": "原子性、提交回滚、约束失败、隔离和竞争、事务边界",
+              "acceptance": "制造两步写入的后一步失败，证明前一步未残留",
+              "boundary": "不仅背ACID；不以单进程内存检查代替约束",
+              "status": "planned"
+            },
+            {
+              "id": "D04",
+              "title": "同步 SQLAlchemy 与 Session",
+              "prerequisites": [
+                "D03",
+                "H05"
+              ],
+              "teach": "映射、连接池与Session、事务所有权、查询、提交失败后的恢复",
+              "acceptance": "把API接入真实数据库并验证成功/失败都释放资源",
+              "boundary": "不第一次学数据库就加入异步ORM",
+              "status": "planned"
+            },
+            {
+              "id": "D05",
+              "title": "Alembic 与已有数据迁移",
+              "prerequisites": [
+                "D04"
+              ],
+              "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+              "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+              "boundary": "不删库重建；不承诺任意降级都无损",
+              "status": "planned"
+            },
+            {
+              "id": "D06",
+              "title": "数据库测试与查询诊断",
+              "prerequisites": [
+                "D05",
+                "H06"
+              ],
+              "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+              "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+              "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+              "status": "planned"
+            },
+            {
+              "id": "S01",
+              "title": "身份与凭证生命周期",
+              "prerequisites": [
+                "D06"
+              ],
+              "teach": "用户、密码哈希、登录、凭证验证/失效、禁用用户、日志脱敏",
+              "acceptance": "拒绝错误/过期/篡改凭证并验证撤销策略",
+              "boundary": "不自创密码学；登录成功不等于有对象权限",
+              "status": "planned"
+            },
+            {
+              "id": "S02",
+              "title": "对象级授权与多用户隔离",
+              "prerequisites": [
+                "S01"
+              ],
+              "teach": "角色和成员关系、所有权、默认拒绝、越权与负向测试",
+              "acceptance": "Alice知道Bob对象ID仍无法读取/修改，角色不能由请求体自授",
+              "boundary": "前端隐藏按钮和CORS都不是服务端授权",
+              "status": "planned"
+            },
+            {
+              "id": "S03",
+              "title": "可靠业务操作与幂等",
+              "prerequisites": [
+                "S02",
+                "D03"
+              ],
+              "teach": "业务冲突、重复提交、事务与幂等范围、日期时间/标识/精确数值的必要标准库",
+              "acceptance": "复现重复请求或并发冲突并验证约定行为",
+              "boundary": "不承诺仅靠重试就能实现恰好一次；按业务需要教学数据表示",
+              "status": "planned"
+            },
+            {
+              "id": "A01",
+              "title": "Python 异步执行模型",
+              "prerequisites": [
+                "S03"
+              ],
+              "teach": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制",
+              "acceptance": "通过可观察实验选择同步/异步边界，并验证取消行为",
+              "boundary": "JS熟悉async不代表Python自动调度；不机械改全部async",
+              "status": "planned"
+            },
+            {
+              "id": "A02",
+              "title": "外部服务与异步资源生命周期",
+              "prerequisites": [
+                "A01",
+                "L14",
+                "H05"
+              ],
+              "teach": "客户端复用、lifespan、超时、重试与幂等、故障替身、清理",
+              "acceptance": "外部依赖失败不拖垮核心CRUD；正常/异常/取消均释放资源",
+              "boundary": "不把进程内队列或BackgroundTasks当持久任务系统",
+              "status": "planned"
+            },
+            {
+              "id": "O01",
+              "title": "操作系统与服务运行基础",
+              "prerequisites": [
+                "A02"
+              ],
+              "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+              "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+              "boundary": "不先让初学者背Docker命令绕过OS基础",
+              "status": "planned"
+            },
+            {
+              "id": "O02",
+              "title": "容器与可部署应用",
+              "prerequisites": [
+                "O01",
+                "L08"
+              ],
+              "teach": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查",
+              "acceptance": "从干净环境构建运行并重启，确认数据和秘密边界",
+              "boundary": "不在镜像写密钥；不把容器健康等同于业务正确",
+              "status": "planned"
+            },
+            {
+              "id": "O03",
+              "title": "网络入口、HTTPS 与生产配置",
+              "prerequisites": [
+                "O02"
+              ],
+              "teach": "域名/DNS、反向代理、TLS终止、可信代理、生产错误与凭证/CORS/CSRF边界",
+              "acceptance": "验证HTTPS、错误响应、请求来源与凭证传递策略",
+              "boundary": "公开前需按实际认证方案检查CSRF等风险",
+              "status": "planned"
+            }
+          ],
+          "prerequisite_scope": "Current direct edges plus their transitive contracts are included. Contracts describe curriculum capabilities, not proof that a particular learner has passed; review required concepts against actual lesson explanation, not absence of transitive detail from earlier rounds.",
+          "actual_english_lesson": "---\ntitle: Continuous Integration, Releases, and Compatible Rollback\ndescription: Exercise gates, migrations with existing data, real application processes, and rollback against an owned PostgreSQL cluster; distinguish environment isolation and application compatibility from destructive database downgrade.\n---\n\nimport { getReleaseExample } from '@/lib/js2py-examples'\n\n## 1. What evidence is still missing after tests pass?\n\nH06 tests APIs, D05/D06 test migrations and real databases, and O01–O03 establish process, container, and network boundaries. Putting those commands in YAML does not itself make a release safe. Tests may connect to the wrong database; multiple workers may change tables simultaneously; old code may not understand a new schema; reverting code does not undo new data.\n\nWe separate the sequence: check the candidate → verify migrations and interfaces in an owned test database → review the compatibility matrix → migrate as a separate operation → start the candidate and check readiness → approve traffic switching. Failure at one stage must stop later stages rather than be reported as success.\n\n| Chapter contract | Scope |\n| --- | --- |\n| Prerequisites | O03 ingress/production configuration, D05 migrations, D06 real PostgreSQL tests, S01–S03 identity/authorization |\n| New capabilities | A shared local/CI gate, isolated environments, migration timing, release/schema compatibility, application rollback with data |\n| Independent acceptance | v1 → expanded schema → v2 write → v1 rollback with retained data; read real migration state during preflight |\n| Not claimed | Hosted CI execution, container release, real-domain traffic switching, production rollback, arbitrary database downgrade |\n\nDownload the [independent O04 lab](/learning-assets/js2py/o04-release.zip) and enter `o04-release`. It includes source, SQL, the complete Alembic history, tests, and solutions without importing other labs. Every PostgreSQL cluster is short-lived and contains synthetic data only.\n\n## 2. Preserve the D/S contract without pretending this is the whole product\n\nThe package retains the D/S users/projects/project_members/tasks, auth_sessions, and task_operations fields. Tasks use status/description/priority, not the H-stage done/note names. Authentication uses opaque Bearer tokens with only SHA-256 digests stored; each request checks expiry, revocation, account activation, and auth_version. A digest of a random token is not password hashing; synthetic passwords still use the Argon2id library.\n\nThe **operational API slice** exposes health, authenticated project reading, and project creation. It does not reimplement login, password changes, membership management, or the full S03 idempotency service. An operator fixture creates synthetic sessions in the private database; this is not a new public login bypass. Replacing a full application with this slice would lose functionality.\n\nV1 returns project id/name; v2 adds nullable description. Old code names the columns it reads/writes and ignores the new field. The new column permits old inserts to omit it. These are application versions, not PostgreSQL versions.\n\n<Code language=\"python\">{getReleaseExample('ops/app.py')}</Code>\n\nThe factory reads alembic_version and checks compatibility; it does not run migrations. Schema failures occur before serving traffic. The runtime role cannot ALTER tables and need not be a superuser. Inaccessible or absent projects still return 404; rollback must preserve that authorization boundary.\n\n## 3. Isolation begins with connections and ownership\n\nA test database is not merely a name containing test. Tests need ownership of creation and cleanup and must not accept a production URL accidentally. This lab ignores ambient business DATABASE_URL values and connects only to a private Unix socket inside its own `/tmp/ls-ops-*` directory. Database names are explicitly allowlisted too.\n\n<details>\n<summary>Complete isolation tool: create, start, and clean up only the owned cluster</summary>\n\n<Code language=\"python\">{getReleaseExample('ops/cluster.py')}</Code>\n\n</details>\n\nMkdtemp creates an exclusive directory; mode 0700 restricts access; a marker records the UID and a random ownership value. Cleanup rechecks paths, ownership, modes, markers, and symlinks. PostgreSQL listens on no TCP interface, while the API uses a temporary 127.0.0.1 port. Trust authentication on this private socket is a short-lived local teaching policy, **not production authentication**. The operating-system account remains a trust boundary.\n\nDevelopment, tests, staging, and production should use separate databases, accounts, and secrets. Deployment and runtime identities should differ too. We verify an isolated test environment here, not an already deployed staging system. If versions or ownership checks fail, investigate; do not redirect the script to an existing user database to make it run.\n\nPassing a private-socket host is not sufficient by itself: libpq can still obtain other connection defaults from `PGHOSTADDR`, `PGSERVICE`, `PGSERVICEFILE`, and related variables. `reject_connection_environment` rejects every inherited `PG*` name before temporary-directory creation and before each direct connection, migration, or server launch. The only exception is `PG_BIN`, which locates executables, not a database. Errors list names only, never their values, and do not mutate the caller's environment. Python connections, SQLAlchemy's connection creator, and PostgreSQL subprocesses use an empty mode0600 `empty.pgpass` in the owned directory rather than the user's default password file. Direct `demo.py` and `ci.py` execution have these guards too; safety does not depend on the repository runner cleaning up first.\n\nThe controller no longer probes an unused port, closes that socket, and asks another process to acquire the same number. Uvicorn binds `--port 0` itself. The controller reads the actual port from **that child's own private startup log**, then requests readiness. `--no-access-log` does not suppress the info-level startup banner; the controller explicitly selects uncolored logs and one worker. Concurrent identical releases have distinct log files. A real test starts two servers together and checks their different ports, corresponding banners, actual requests, and cleanup. This removes the probe-close-rebind window, not every possible concurrency failure. A future incompatible Uvicorn banner format fails by deadline rather than guessing a port.\n\n## 4. One gate, separately recorded local and hosted results\n\nThe baseline tested on 2026-09-28 is CPython 3.13.15, uv 0.12.13, pytest 8.4.2, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, HTTPX 0.28.1, SQLAlchemy 2.0.54, Alembic 1.20.0, psycopg 3.3.6, and PostgreSQL tools 18.6. Starlette and AnyIO are pinned against client-compatibility drift.\n\n<Code language=\"toml\">{getReleaseExample('pyproject.toml')}</Code>\n\nThe repository runner reconstructs child settings: inherited `UV_*`, virtual-environment selectors, and Python injection settings are removed before the course cache/interpreter directories, public PyPI, and `UV_NO_CONFIG=1` are set. Only `PG_BIN` survives the `PG*` filter. A real check uses an owned external-venv decoy, a nonexistent interpreter, and invalid user uv configuration: installation must stay inside the clean copy's `.venv`, with the decoy unchanged. This cannot undo actions an outer uv command already performed before Python started. Before the manual uv commands below, leave other virtual environments and use a clean terminal; remove overrides such as `VIRTUAL_ENV`, `UV_PROJECT_ENVIRONMENT`, `UV_ACTIVE`, `UV_PYTHON`, and `UV_CONFIG_FILE`, and set `UV_NO_CONFIG=1`. If a direct Python entry rejects PG settings, remove only the reported names from this experiment's environment; never edit production configuration or print their values.\n\n```bash\nuv sync --locked\nuv run --locked python ci.py\n```\n\n<Code language=\"python\">{getReleaseExample('ci.py')}</Code>\n\nThe gate checks syntax, runs seven ordinary tests (four original checks and three environment/port checks), and then starts real services for the release drill. Check=True makes a failed child command fail the gate. Syntax checking is not database testing; database testing is not deployment. Record them separately. Keep the public-PyPI lock and interpreter version together; an unreviewed upgrade between verification and release changes the artifact you tested.\n\n<Code language=\"python\">{getReleaseExample('tests/test_release.py')}</Code>\n\nTests create actual PostgreSQL clusters, preserve records, exercise old-column inserts, reject duplicate owners, and prove that the runtime role cannot ALTER. Expected failures occur inside transaction blocks, which roll back before further queries. Do not leave an aborted transaction for another test.\n\n<Code language=\"yaml\">{getReleaseExample('.github/workflows/check.yml')}</Code>\n\nThis is a **reviewable workflow that has not run on hosted infrastructure**. It grants read-only repository access, pins checkout to a verified commit, does not persist checkout credentials, accepts manual workflow_dispatch only, and requires a prepared isolated Linux/PG18.6 runner. No such runner is available here, so hosted CI is pending. Never execute untrusted PR code on that privileged self-hosted runner. Switching to another runner or container requires validating installation and isolation again, not merely changing a label.\n\n## 5. Who runs migrations, and when?\n\nRevisions 001–006 preserve the D/S model and constraints. This chapter adds 007_project_description. SQL and revision files are all in the package; Alembic does not infer current history from create_all.\n\n<Code language=\"python\">{getReleaseExample('ops/migrate.py')}</Code>\n\n<Code language=\"python\">{getReleaseExample('migrations/env.py')}</Code>\n\n<Code language=\"sql\">{getReleaseExample('sql/007_project_description.sql')}</Code>\n\n<Code language=\"python\">{getReleaseExample('migrations/versions/007_project_description.py')}</Code>\n\nThe controller migrates transactionally with an administrative identity and lock_timeout. Failure stops the release. Ordinary workers do not compete for DDL during startup. Our drill has one serial operator; **the function is not a distributed migration lock across deployment systems**. A real pipeline must enforce a single coordinator and plan timing around table sizes, lock waits, and compatibility windows.\n\nDowngrade deliberately refuses automatic destructive reversal. Dropping description would destroy values already written by v2. Being able to write DROP COLUMN does not make it part of an ordinary code rollback. Restoring a backup also loses post-snapshot data; the recovery chapter treats that separately.\n\n<details>\n<summary>Explanation answer: why not have every worker run upgrade head?</summary>\n\nWorkers can read migration state concurrently, wait for or contend on locks, and begin serving at different stages. Runtime accounts would also need DDL privileges. A separate controlled migration step lets you observe failure before starting compatible processes. It does not promise lock-free or zero-downtime migration; that depends on the actual change and data scale.\n\n</details>\n\n## 6. Describe compatibility with a matrix\n\n| Application / schema | 006, no description | 007, nullable description |\n| --- | --- | --- |\n| v1, named id/name reads/writes | Supported | Supported; omitted new field becomes null |\n| v2, needs description | Startup refused | Supported |\n\nFor this rollback, forward compatibility means old code can operate against the already-expanded schema. A nullable column makes this example compatible, not every ADD COLUMN safe. Constraints, defaults, enums, request formats, and changed meanings can all break old code.\n\nIf frontend clients already require description after v2 launches, returning to v1 can break their response contract. A rollback plan therefore also needs a client compatibility window, feature control, or coordinated suspension of new functionality. This drill deliberately uses a controlled client appropriate to each version. It does not claim a real-user transition has no impact.\n\n## 7. A real release and application rollback with retained data\n\n<Code language=\"python\">{getReleaseExample('ops/release.py')}</Code>\n\n<Code language=\"python\">{getReleaseExample('ops/server.py')}</Code>\n\n```bash\nuv run --locked python demo.py\n```\n\n```text\nPASS v1: real authenticated HTTP and committed baseline data\nPASS expected migration failure: old rows and revision preserved\nPASS v2: reviewed nullable expansion and new-data write\nPASS rollback: v1 reads/writes expanded schema; v2 data retained; no downgrade\nCLEANUP PASS: owned API processes and isolated PostgreSQL cluster removed\n```\n\nThe drill starts, requests, and stops actual Uvicorn subprocesses, rather than changing a string and directly calling a function. V1 writes a project. An intentionally incompatible NOT NULL addition without a default fails against existing rows. The reviewed nullable expansion succeeds; v2 writes description. Then v2 stops and v1 starts against the same database.\n\nAfter rollback, description is still Preserve this value, there are five projects, and alembic_version remains 007. Old code ignores rather than clears the new column. There is a brief stop between processes; no load balancer or zero-downtime traffic switch has been verified.\n\n## 8. A failed migration is not permission to rebuild the database\n\nThe NOT NULL failure means historical rows have no value, not that Alembic is broken. Review the requirement: expand with a nullable field; deploy compatible code; backfill under an explicit business policy; verify no nulls; add the constraint in a separate controlled revision. Deleting user data to make a migration green is not a repair.\n\nLocate other failures by stage: versions at the environment gate; revisions at migration/compatibility checks; role privileges at database authorization; readiness deadlines at startup/database paths. Public reachability belongs to an ingress boundary this drill does not cover. Dumping the environment, SQL parameters, or Bearer tokens is not appropriate diagnosis.\n\n<details>\n<summary>Guided repair: how do you prove there is no partial migration?</summary>\n\nDo more than assert the exception. Reconnect and verify the original three projects and revision 006, then apply the reviewed 007. Transactional DDL failure rolls back here, but that does not prove every external side effect or migration operation is reversible. Concurrent index creation, external calls, and long backfills require their own analysis.\n\n</details>\n\n## 9. Independent variation: preflight the actual database\n\nWithout opening the solution, implement check_release: query real alembic_version from the **owned test database**, permit only matrix entries, and reject unknown applications or schemas. Prove v2 is rejected at 006 and both v1/v2 are accepted after 007. Passing a hard-coded \"007\" into a function is not evidence of checking the database.\n\n<details>\n<summary>Independent implementation and real PostgreSQL tests</summary>\n\n<Code language=\"python\">{getReleaseExample('solutions/check_matrix.py')}</Code>\n\n<Code language=\"python\">{getReleaseExample('solutions/preflight.py')}</Code>\n\n<Code language=\"python\">{getReleaseExample('solutions/test_matrix.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q solutions\n```\n\n```text\n2 passed\n```\n\nOne test covers the rule; the other creates a real database, rejects before migration, and accepts afterwards. Preflight is only a gate. Starting the application and sending real requests still matters; a matching version string is not proof of correct business behavior.\n\n</details>\n\n## 10. A release record you can resume from\n\nRecord candidate code identity, lock hash, application version, target environment identity, migration revisions before/after, commands and results, migration approval, readiness, and rollback version/conditions. This lab makes no Git commit, push, or published artifact, so do not invent a commit SHA or deployment URL.\n\nWhen pausing, record the last successful stage, owned processes still running, whether the database was cleaned, intentional failures, and the clean starting state for replay. Demo/CI stops its API/PG processes and removes its directory. Resume by rerunning rather than looking for a deleted socket. The download allowlist contains source, SQL, lock, and documentation—not environments, logs, database directories, backups, or secrets.\n\nA real release still requires O03's controlled HTTPS ingress, production secrets/permissions, actually executed CI, monitoring, tested backups/restores, and a rollback rehearsal. What is complete here is a reproducible local database/application delivery mechanism, not a public V4 launch.\n\n## 11. Primary sources and verification\n\nChecked on 2026-09-28: [Alembic's official tutorial](https://alembic.sqlalchemy.org/en/latest/tutorial.html), [PostgreSQL privileges](https://www.postgresql.org/docs/18/ddl-priv.html), [GitHub Actions workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax), and [the official checkout v4.2.2 tag commit](https://api.github.com/repos/actions/checkout/git/ref/tags/v4.2.2). Actual versions are defined by the lock and installed PG18.6 tools, not a perpetual compatibility promise from a moving documentation page.\n\nSeven base tests, two independent tests, actual v1/v2/rollback processes, and migrations with records have run. Hosted CI, containers, Linux service management, public traffic switching, real users, and production rollback remain pending without their environments.\n",
+          "mechanism_focus": "检查/测试流水线、环境分离、迁移执行时机、发布兼容与应用回退; 完成一次成功发布和一次有数据的兼容回退演练; 不把危险数据库降级当作普通应用回退",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "c37455141179beca0252064735f9c0b6e7344466564f2bd5648e9c7209ef9838",
+              "bytes": 52945,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".github/workflows/check.yml",
+            ".gitignore",
+            ".python-version",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "SOURCES.md",
+            "alembic.ini",
+            "ci.py",
+            "demo.py",
+            "migrations/env.py",
+            "migrations/versions/001_base.py",
+            "migrations/versions/002_expand.py",
+            "migrations/versions/003_contract.py",
+            "migrations/versions/004_identity.py",
+            "migrations/versions/005_owner_guard.py",
+            "migrations/versions/006_task_operations.py",
+            "migrations/versions/007_project_description.py",
+            "ops/__init__.py",
+            "ops/app.py",
+            "ops/cluster.py",
+            "ops/data.py",
+            "ops/migrate.py",
+            "ops/release.py",
+            "ops/server.py",
+            "pyproject.toml",
+            "solutions/check_matrix.py",
+            "solutions/preflight.py",
+            "solutions/test_matrix.py",
+            "sql/001_base.sql",
+            "sql/002_expand.sql",
+            "sql/003_contract.sql",
+            "sql/004_identity.sql",
+            "sql/005_owner_guard.sql",
+            "sql/006_task_operations.sql",
+            "sql/007_project_description.sql",
+            "sql/grants.sql",
+            "tests/test_environment.py",
+            "tests/test_release.py",
+            "uv.lock"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "Mainline independently reran unmodified maintained runner using exact published ZIP bytes:25 cases total, O04=7+2/O05=8+1/O06=6+1. Additionally real owned PostgreSQL18.6/Uvicorn0.42.0 process drills: with-data compatible release and rollback; structured-log incident and repair; private custom-format pg_dump and actual pg_restore with full table fingerprints, corrupted restore refusal and auth/permission checks. Measured local recovery numbers are NOT production RPO/RTO. Concrete safety repair: uv environment decoy unchanged,6 direct ci/demo poison-env subprocesses refused before allocation, private empty0600 passfile,3 real dual-port0 server tests. Owned clusters/logs/backups removed. Hosted CI, Linux/systemd/Docker/Caddy, complete S03 application deployment, real notification delivery, encrypted off-site/cross-host restoration, load/capacity and invited public users remain NOT_RUN. Final publication/browser gates pending.",
+          "slice": {
+            "index": 1,
+            "count": 2,
+            "source_paths_here": [
+              ".github/workflows/check.yml",
+              ".gitignore",
+              ".python-version",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "SOURCES.md",
+              "alembic.ini",
+              "ci.py",
+              "demo.py",
+              "migrations/env.py",
+              "migrations/versions/001_base.py",
+              "migrations/versions/002_expand.py",
+              "migrations/versions/003_contract.py",
+              "migrations/versions/004_identity.py",
+              "migrations/versions/005_owner_guard.py",
+              "migrations/versions/006_task_operations.py",
+              "migrations/versions/007_project_description.py",
+              "ops/__init__.py",
+              "ops/app.py"
+            ],
+            "source_paths_elsewhere": [
+              "ops/cluster.py",
+              "ops/data.py",
+              "ops/migrate.py",
+              "ops/release.py",
+              "ops/server.py",
+              "pyproject.toml",
+              "solutions/check_matrix.py",
+              "solutions/preflight.py",
+              "solutions/test_matrix.py",
+              "sql/001_base.sql",
+              "sql/002_expand.sql",
+              "sql/003_contract.sql",
+              "sql/004_identity.sql",
+              "sql/005_owner_guard.sql",
+              "sql/006_task_operations.sql",
+              "sql/007_project_description.sql",
+              "sql/grants.sql",
+              "tests/test_environment.py",
+              "tests/test_release.py"
+            ]
+          },
+          "actual_download_files": {
+            ".github/workflows/check.yml": "name: owned-postgres-release-gate\non:\n  workflow_dispatch:\npermissions:\n  contents: read\nconcurrency:\n  group: owned-postgres-release-gate\n  cancel-in-progress: false\njobs:\n  verify:\n    # Explicitly pre-provisioned isolated runner; no such runner is claimed here.\n    # Never attach this privileged runner to untrusted pull_request code.\n    runs-on: [self-hosted, linux, x64, langshift-pg18-6]\n    timeout-minutes: 15\n    steps:\n      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2, verified tag\n        with:\n          persist-credentials: false\n      - name: Check and install locked dependencies\n        working-directory: examples/js2py/o04-release\n        env:\n          PG_BIN: /usr/lib/postgresql/18/bin\n        run: |\n          test \"$(uv --version | cut -d' ' -f2)\" = \"0.12.13\"\n          uv sync --locked\n          uv run --locked python ci.py\n",
+            ".gitignore": ".venv/\n__pycache__/\n.pytest_cache/\n.env\n.env.*\n*.log\n*.dump\n*.backup\n.runtime/\n",
+            ".python-version": "3.13.15\n",
+            "README.md": "# Release and compatible rollback — o04-release\n\nComplete independent local lab. Read the matching O04/O05/O06 lesson before running.\nNo other chapter directory is imported. The sibling `o04-release-files.json` is the\nexplicit download/source allowlist; do not recursively ZIP the live directory.\n\n## Tested environment and commands\n\nDate: 2026-09-28. CPython3.13.15, uv0.12.13, pytest8.4.2, FastAPI0.135.1,\nUvicorn0.42.0, Pydantic2.12.5, HTTPX0.28.1, SQLAlchemy2.0.54, Alembic1.20.0,\npsycopg[binary]3.3.6, PostgreSQL18.6, Argon2-cffi25.1.0. Starlette0.52.1 and\nAnyIO4.12.1 are fixed for compatibility. Requires Python >=3.13,<3.14 and\nuv package=false. The actual lock uses public PyPI with artifact hashes.\n\nRun from this extracted directory. PostgreSQL tools postgres/initdb/pg_ctl/psql/\npg_dump/pg_restore must ALREADY be available at /opt/homebrew/bin or an explicit\nPG_BIN directory. This lab does not install a system server. An incorrect version\nis rejected before modifying a database. Alternative systems require their own\nruntime verification, not a claim that macOS evidence covers Linux.\n\nThe repository runner reconstructs child settings: inherited `UV_*`, virtual-environment selectors, and Python injection settings are removed before the course cache/interpreter directories, public PyPI, and `UV_NO_CONFIG=1` are set. Only `PG_BIN` survives the `PG*` filter. A real check uses an owned external-venv decoy, a nonexistent interpreter, and invalid user uv configuration: installation must stay inside the clean copy's `.venv`, with the decoy unchanged. This cannot undo actions an outer uv command already performed before Python started. Before the manual uv commands below, leave other virtual environments and use a clean terminal; remove overrides such as `VIRTUAL_ENV`, `UV_PROJECT_ENVIRONMENT`, `UV_ACTIVE`, `UV_PYTHON`, and `UV_CONFIG_FILE`, and set `UV_NO_CONFIG=1`. If a direct Python entry rejects PG settings, remove only the reported names from this experiment's environment; never edit production configuration or print their values.\n\n```bash\nuv sync --locked\nuv run --locked python ci.py\nuv run --locked python -m pytest -q solutions\nuv run --locked python demo.py\n```\n\nci.py runs syntax checks, 7 ordinary tests and the real subprocess/database\ndrill. The independent solutions add 2 test(s). demo.py is already part\nof ci.py; running it separately replays the drill from a fresh cluster. Stable\nPASS lines indicate checked stages; durations are measured, not fixed outputs.\nNo syntax check, mocked decision or YAML inspection replaces these runtime checks.\n\n## What this particular lab proves\n\nThe real drill starts v1, commits data, rejects a NOT NULL expansion against\nexisting rows, applies reviewed nullable revision 007, starts v2 and writes a\ndescription, then restarts v1 against that same expanded database. It checks\nthat all five projects and the v2 description remain and the schema is still\n007. No downgrade is performed. A separate preflight solution reads real\nalembic_version before accepting a release/schema pair.\n\nThe bundled `.github/workflows/check.yml` runs the SAME ci.py entry point,\nusing read-only repository permissions and a verified checkout commit. It is\nmanual-only and requires a separately prepared isolated self-hosted Linux\nrunner labeled langshift-pg18-6. That runner is NOT available or executed here.\nDo not connect this privileged runner to untrusted pull-request code. The YAML\nis not evidence of hosted CI, an image build, artifact publication or deployment.\nDo not push to trigger CI as part of this lab. If extracting into a standalone\nrepository, review its working-directory before enabling the workflow.\n\n## Environment boundaries and port ownership\n\nPassing a private-socket host is not sufficient by itself: libpq can still obtain other connection defaults from `PGHOSTADDR`, `PGSERVICE`, `PGSERVICEFILE`, and related variables. `reject_connection_environment` rejects every inherited `PG*` name before temporary-directory creation and before each direct connection, migration, or server launch. The only exception is `PG_BIN`, which locates executables, not a database. Errors list names only, never their values, and do not mutate the caller's environment. Python connections, SQLAlchemy's connection creator, and PostgreSQL subprocesses use an empty mode0600 `empty.pgpass` in the owned directory rather than the user's default password file. Direct `demo.py` and `ci.py` execution have these guards too; safety does not depend on the repository runner cleaning up first.\n\nThe controller no longer probes an unused port, closes that socket, and asks another process to acquire the same number. Uvicorn binds `--port 0` itself. The controller reads the actual port from **that child's own private startup log**, then requests readiness. `--no-access-log` does not suppress the info-level startup banner; the controller explicitly selects uncolored logs and one worker. Concurrent identical releases have distinct log files. A real test starts two servers together and checks their different ports, corresponding banners, actual requests, and cleanup. This removes the probe-close-rebind window, not every possible concurrency failure. A future incompatible Uvicorn banner format fails by deadline rather than guessing a port.\n\n`tests/test_environment.py` adds three cases: inherited PG defaults are rejected before allocation/connection; `PG_BIN` and the owned empty password file have explicit boundaries; and two real services each bind port0, pass HTTP checks, and exit cleanly. The PG variable matrix is multiple assertions in one test, not that many pytest cases.\n\n## Safety, identities and complete source\n\nops/cluster.py only creates its own mkdtemp /tmp/ls-ops-* cluster. It checks UID,\nmode0700, an ownership nonce and symlinks before stopping/deleting. It never accepts\nan ambient DATABASE_URL or controls a user PostgreSQL service. A private mode0700\nUnix socket with local trust is used only for disposable local teaching; no TCP\nPostgreSQL listener is started. Same-OS-user access remains a trust boundary, not\nproduction authentication. The API binds 127.0.0.1 on an owned ephemeral port.\n\nops/app.py is a limited protected-project operations slice, not the full capstone.\nIt preserves D/S fields (status/description/priority, not H done/note), checks opaque\nBearer token digest/expiry/revocation/active/auth_version on every request, and\nreturns 404 for inaccessible projects. Operator fixtures create synthetic users,\nsessions and a nonempty idempotency receipt; there is no public login/provisioning\nbypass. The complete S03 application must still be integrated before any launch.\n\nSQL revisions001..006 independently reproduce the D/S contract snapshot; 007 adds\nnullable projects.description. They are for this disposable laboratory, NOT\npermission to replace an existing application's migration history. Application\nstartup reads schema compatibility but NEVER migrates. Administrative migration\nand runtime roles are separate; grants.sql lists the operational slice privileges.\nThe migration controller is serial, not a distributed deployment lock.\n\nops/server.py owns actual Uvicorn subprocesses, waits for database-backed readiness,\nand closes only those processes in finally. All database roots, synthetic backups,\nprivate logs and sockets are removed on normal/exceptional exit. Stop/ownership\ncheck failure deliberately refuses unsafe deletion rather than targeting another\nservice. If interrupted abnormally, investigate only the root owned by your run;\nnever use global killall, database DROP on an external URL, Docker prune, or broad\nfilesystem deletion. No real credentials or real user data belong in these labs.\n\n## Failure diagnosis and recovery\n\nWrong PG version/missing executable: fix the tool path, not the safety check.\nOwnership rejection: start a fresh run; do not relabel a user directory. Expected\nmigration, permission and corruption failures are asserted in the drill, followed\nby specific repair and revalidation. Unexpected nonzero exit stops the gate; do\nnot ignore it or publish an artifact anyway. Raw exceptions/URLs/environment dumps\ncan contain secrets and are not a safe diagnostic strategy.\n\nPause record: working directory, lock hash/tool versions, last completed stage,\nactual test count, deliberate versus unexpected fault, compatibility/recovery\nstate, private log/backup policy, owned-process/directory cleanup, unverified\nexternal gates and next action. Normal exit removes temporary state, so resume\nwith a fresh run. Do not assume a deleted socket or token file still exists.\n\n## Explicitly pending external gates\n\nActual execution here is macOS arm64 local PG18.6 and loopback HTTP only. No real\nLinux/systemd, Docker build/run, Caddy/public reverse proxy, domain/DNS/public TLS,\nhosted CI, image publication, production data migration, public traffic switch,\nnotification delivery, scheduled encrypted/off-site backup, cross-host restore,\nrepresentative load test or invited-user trial was performed. These require\nseparate environments and approvals. Never equate YAML with a release, an alert\nreturn value with delivered notification, or an archive file with recovery.\n\nFull S03 auth/authorization, body-size bounds, measured password-hash capacity,\nlogin throttling, trusted proxy/CORS/credential policy and the O01-O03 external\ngates remain prerequisites for an actual launch. Do not expand into public signup.\nNo Git commit/push, infrastructure purchase or deployment is part of this exercise.\n\n## Packaging and sources\n\nInclude only allowlisted source, SQL, configuration, lock and documentation.\nExclude .venv, __pycache__, .pytest_cache, .env/.env.*, credentials, logs, backups,\nPostgreSQL data/socket directories and generated runtime manifests. See SOURCES.md\nfor official references checked live on 2026-09-28. The optional repository-level\nscripts/test-js2py-operations-delivery.py verifies clean allowlist copies and the\nreal drills; it is a maintainer gate, not a substitute for missing external gates.\n",
+            "README.zh-cn.md": "# 发布与兼容回退 — o04-release\n\n完整独立本地实验。先读 O04/O05/O06 对应正文，不导入其他章节目录。\n旁边 `o04-release-files.json` 是网页与下载的明确 allowlist，不能递归压缩当前工作目录。\n\n## 实测环境与命令\n\n日期 2026-09-28。CPython3.13.15、uv0.12.13、pytest8.4.2、FastAPI0.135.1、\nUvicorn0.42.0、Pydantic2.12.5、HTTPX0.28.1、SQLAlchemy2.0.54、Alembic1.20.0、\npsycopg[binary]3.3.6、PostgreSQL18.6、Argon2-cffi25.1.0。Starlette0.52.1、\nAnyIO4.12.1 固定兼容；requires-python 为 >=3.13,<3.14，uv package=false。\n真实锁来自 public PyPI，包含制品哈希。\n\n在解压目录运行。postgres/initdb/pg_ctl/psql/pg_dump/pg_restore 必须事先存在于\n/opt/homebrew/bin 或指定 PG_BIN 目录。本实验不安装系统服务器；错误版本会在\n修改数据库前拒绝。其他操作系统需另行运行验证，不用 macOS 结果冒充 Linux。\n\n仓库总 runner 为子进程重建环境：丢弃继承的 `UV_*`、虚拟环境选择与 Python 注入设置，再固定课程 cache/Python 安装目录、public PyPI 和 `UV_NO_CONFIG=1`；`PG*` 也只保留 `PG_BIN`。实测使用自己创建的“外部虚拟环境”诱饵、错误解释器路径和无效用户 uv 配置，确认安装只发生在当前干净副本的 `.venv`，诱饵目录内容不变。不要把这些防护误解为能修复已经在脚本启动前运行的外层 uv：手动执行下方 uv 命令前，应退出其他虚拟环境并使用干净终端；清除 `VIRTUAL_ENV`、`UV_PROJECT_ENVIRONMENT`、`UV_ACTIVE`、`UV_PYTHON`、`UV_CONFIG_FILE` 等覆盖项，并设置 `UV_NO_CONFIG=1`。若直接 Python 入口拒绝 PG 变量，只在本次实验环境中移除它报告的名字，不修改生产配置、更不打印其值。\n\n```bash\nuv sync --locked\nuv run --locked python ci.py\nuv run --locked python -m pytest -q solutions\nuv run --locked python demo.py\n```\n\nci.py 检查语法、运行 7 项正常测试与真实进程/数据库演练；独立答案另有\n2 项测试。ci.py 已包含 demo，单独 demo 用全新集群重放。稳定 PASS 行\n代表已检查阶段；耗时是测量值而非固定输出。语法、mock 决策、检查 YAML 都不\n代替实际运行。\n\n## 本章实际证明的内容\n\n真实演练依次启动 v1、提交数据、拒绝会使旧行失效的 NOT NULL 扩展、执行\n可空字段迁移 007、启动 v2 写入 description，再用同一扩展后的数据库启动 v1。\n检查五条项目和 v2 字段数据保留，结构仍为 007；没有 downgrade。独立答案\n会读取真实 alembic_version 再决定应用/结构组合是否允许启动。\n\n`.github/workflows/check.yml` 调用同一个 ci.py，仓库权限只读，checkout 固定\n到已核验提交。只支持人工触发，并要求另行准备隔离的自托管 Linux runner，\n标签 langshift-pg18-6；当前没有该环境，也未执行托管 CI。不能让该权限较高\n的 runner 执行不可信 PR 代码。检查 YAML 不代表执行流水线、构建镜像、发布\n制品或部署完成。本实验不推 Git 触发 CI；独立解压成仓库后须审查 working-directory。\n\n## 环境边界与端口所有权\n\n传入私有 socket 的 host 还不够：libpq 仍可能从 `PGHOSTADDR`、`PGSERVICE`、`PGSERVICEFILE` 等环境变量取得另一个连接默认值。`reject_connection_environment` 在创建临时目录之前，以及每次直接连接、迁移和服务启动之前，拒绝继承的全部 `PG*` 变量，唯一例外是只定位可执行文件的 `PG_BIN`。错误只列变量名，不打印值，也不修改调用者环境。Python 连接、SQLAlchemy 的连接创建器和 PG 子命令都使用自有目录内的空白 0600 `empty.pgpass`，不读取用户的默认密码文件。直接运行 `demo.py` 或 `ci.py` 也执行这些防护，不依赖仓库总 runner 先替它清理。\n\n启动 API 不再先探测空闲端口、关闭探测 socket，再要求另一个进程抢占同一号码。Uvicorn 自己用 `--port 0` 完成绑定；控制器从**该子进程自己的私有启动日志**读取实际端口，再请求 readiness。`--no-access-log` 不关闭 info 级启动 banner；控制器固定无颜色日志和单 worker。两个同版本服务也使用不同日志文件。测试实际同时启动两个服务，核对两个不同端口、各自 banner、真实请求和退出清理。这消除了选端口后释放再绑定的窗口，不是对任意并发故障的保证；未来 Uvicorn 改变 banner 格式时会超时拒绝，不猜测端口。\n\n`tests/test_environment.py` 提供 3 项补充验收：继承 PG 默认值在分配/连接前被拒绝，`PG_BIN` 与自有空密码文件保持明确边界，以及两个真实服务各自绑定端口 0、通过 HTTP 后完整退出。PG 变量矩阵是一项测试里的多组断言，不夸大成多项 pytest 用例。\n\n## 安全、身份与完整源码\n\nops/cluster.py 只创建自己的 mkdtemp /tmp/ls-ops-* 集群；停止/删除前核对 UID、\n0700、所有权随机标记与 symlink，不接受环境里的 DATABASE_URL，不管理用户\n已有 PostgreSQL。数据库只使用私有 0700 Unix socket 的本地 trust，不监听 TCP；\n这是短命教学政策，不是生产认证。同一个操作系统账户仍然是信任边界。\nAPI 只绑定 127.0.0.1 的自有临时端口。\n\nops/app.py 是受保护项目的运维切片，不是完整 capstone。保留 D/S status/\ndescription/priority 字段，不沿用 H done/note；每请求检查 opaque Bearer\n摘要/expiry/revoked/active/auth_version，无权限的项目 404。操作员 fixture\n建立合成用户、会话和非空幂等回执，不提供公开登录/开户后门；真实上线前仍需\n整合完整 S03 应用。\n\nSQL001..006 独立复现 D/S 合同快照，007 添加可空 projects.description。\n它们只用于自有实验，不允许替换既有生产迁移历史。应用启动只做兼容检查，\n绝不自动迁移。管理迁移与运行身份分离，grants.sql 列出切片所需权限。\n迁移控制器按单操作员串行执行，不是分布式发布锁。\n\nops/server.py 管理实际 Uvicorn 子进程，等待 DB-backed readiness，在 finally\n只停自己的服务。正常/异常退出清理自有库目录、合成归档、私有日志和 socket；\n若停止/所有权检查失败，宁可拒绝删除也不触碰别人的服务。异常中断后仅排查\n本次拥有的根目录；不使用全局 killall、外部 URL 的 DROP、Docker prune 或\n宽泛递归删除。这里不应出现真实凭证或真实用户数据。\n\n## 故障与恢复\n\n工具缺失/版本错误：修工具路径，不绕过检查。所有权拒绝：重开新实验，不把\n用户目录伪装成实验。刻意的迁移/权限/损坏失败有断言和修复复验；意外非零\n退出就停止门禁，不能忽略后继续发布。原始异常、URL、环境整表可能含秘密，\n不要为诊断全量打印。\n\n暂停记录工作目录、锁哈希/版本、最后阶段、真实用例数、刻意/意外故障、兼容/\n恢复状态、私有日志/归档政策、进程目录清理、未验证外部门槛、下次动作。\n正常退出会删临时状态，恢复时重新运行，不假定旧 socket/token 文件还在。\n\n## 明确 pending 的外部验收\n\n本机实跑只有 macOS arm64、PG18.6 与 loopback HTTP。没有实际 Linux/systemd、\nDocker build/run、Caddy/公网代理、域名/DNS/公网 TLS、托管 CI、镜像发布、\n生产迁移/切流、告警送达、定时加密/异地备份、跨机恢复、代表性压测或受邀用户\n试用。这些需要独立环境与授权。不能把 YAML 当发布，把告警返回值当通知送达，\n把备份文件当恢复成功。\n\n完整 S03 认证授权、请求体边界、密码哈希容量、登录限流、可信代理/CORS/凭证\n策略及 O01-O03 外部门槛仍是上线前提；不扩成公开注册。本实验不做 Git 提交/\n推送、不购买基础设施、不执行真实部署。\n\n## 打包与来源\n\n只包含 allowlist 源码、SQL、配置、锁和文档。排除 .venv、__pycache__、\n.pytest_cache、.env/.env.*、凭证、日志、归档、PG数据/socket、运行时清单。\nSOURCES.md 是 2026-09-28 实时核验的一手资料。仓库可选维护脚本\nscripts/test-js2py-operations-delivery.py 检查干净清单副本与真实演练，不替代\n缺失的外部发布门槛。\n",
+            "README.zh-tw.md": "# 發佈與兼容回退 — o04-release\n\n完整獨立本地實驗。先讀 O04/O05/O06 對應正文，不導入其他章節目錄。\n旁邊 `o04-release-files.json` 是網頁與下載的明確 allowlist，不能遞歸壓縮當前工作目錄。\n\n## 實測環境與命令\n\n日期 2026-09-28。CPython3.13.15、uv0.12.13、pytest8.4.2、FastAPI0.135.1、\nUvicorn0.42.0、Pydantic2.12.5、HTTPX0.28.1、SQLAlchemy2.0.54、Alembic1.20.0、\npsycopg[binary]3.3.6、PostgreSQL18.6、Argon2-cffi25.1.0。Starlette0.52.1、\nAnyIO4.12.1 固定兼容；requires-python 為 >=3.13,<3.14，uv package=false。\n真實鎖來自 public PyPI，包含製品哈希。\n\n在解壓目錄運行。postgres/initdb/pg_ctl/psql/pg_dump/pg_restore 必須事先存在於\n/opt/homebrew/bin 或指定 PG_BIN 目錄。本實驗不安裝系統服務器；錯誤版本會在\n修改數據庫前拒絕。其他操作系統需另行運行驗證，不用 macOS 結果冒充 Linux。\n\n倉庫總 runner 為子進程重建環境：丟棄繼承的 `UV_*`、虛擬環境選擇與 Python 注入設置，再固定課程 cache/Python 安裝目錄、public PyPI 和 `UV_NO_CONFIG=1`；`PG*` 也只保留 `PG_BIN`。實測使用自己創建的“外部虛擬環境”誘餌、錯誤解釋器路徑和無效用戶 uv 配置，確認安裝只發生在當前乾淨副本的 `.venv`，誘餌目錄內容不變。不要把這些防護誤解為能修復已經在腳本啟動前運行的外層 uv：手動執行下方 uv 命令前，應退出其他虛擬環境並使用乾淨終端；清除 `VIRTUAL_ENV`、`UV_PROJECT_ENVIRONMENT`、`UV_ACTIVE`、`UV_PYTHON`、`UV_CONFIG_FILE` 等覆蓋項，並設置 `UV_NO_CONFIG=1`。若直接 Python 入口拒絕 PG 變量，只在本次實驗環境中移除它報告的名字，不修改生產配置、更不打印其值。\n\n```bash\nuv sync --locked\nuv run --locked python ci.py\nuv run --locked python -m pytest -q solutions\nuv run --locked python demo.py\n```\n\nci.py 檢查語法、運行 7 項正常測試與真實進程/數據庫演練；獨立答案另有\n2 項測試。ci.py 已包含 demo，單獨 demo 用全新集群重放。穩定 PASS 行\n代表已檢查階段；耗時是測量值而非固定輸出。語法、mock 決策、檢查 YAML 都不\n代替實際運行。\n\n## 本章實際證明的內容\n\n真實演練依次啟動 v1、提交數據、拒絕會使舊行失效的 NOT NULL 擴展、執行\n可空字段遷移 007、啟動 v2 寫入 description，再用同一擴展後的數據庫啟動 v1。\n檢查五條項目和 v2 字段數據保留，結構仍為 007；沒有 downgrade。獨立答案\n會讀取真實 alembic_version 再決定應用/結構組合是否允許啟動。\n\n`.github/workflows/check.yml` 調用同一個 ci.py，倉庫權限只讀，checkout 固定\n到已核驗提交。只支持人工觸發，並要求另行準備隔離的自託管 Linux runner，\n標籤 langshift-pg18-6；當前沒有該環境，也未執行託管 CI。不能讓該權限較高\n的 runner 執行不可信 PR 代碼。檢查 YAML 不代表執行流水線、構建鏡像、發佈\n製品或部署完成。本實驗不推 Git 觸發 CI；獨立解壓成倉庫後須審查 working-directory。\n\n## 環境邊界與端口所有權\n\n傳入私有 socket 的 host 還不夠：libpq 仍可能從 `PGHOSTADDR`、`PGSERVICE`、`PGSERVICEFILE` 等環境變量取得另一個連接默認值。`reject_connection_environment` 在創建臨時目錄之前，以及每次直接連接、遷移和服務啟動之前，拒絕繼承的全部 `PG*` 變量，唯一例外是隻定位可執行文件的 `PG_BIN`。錯誤只列變量名，不打印值，也不修改調用者環境。Python 連接、SQLAlchemy 的連接創建器和 PG 子命令都使用自有目錄內的空白 0600 `empty.pgpass`，不讀取用戶的默認密碼文件。直接運行 `demo.py` 或 `ci.py` 也執行這些防護，不依賴倉庫總 runner 先替它清理。\n\n啟動 API 不再先探測空閒端口、關閉探測 socket，再要求另一個進程搶佔同一號碼。Uvicorn 自己用 `--port 0` 完成綁定；控制器從**該子進程自己的私有啟動日誌**讀取實際端口，再請求 readiness。`--no-access-log` 不關閉 info 級啟動 banner；控制器固定無顏色日誌和單 worker。兩個同版本服務也使用不同日誌文件。測試實際同時啟動兩個服務，核對兩個不同端口、各自 banner、真實請求和退出清理。這消除了選端口後釋放再綁定的窗口，不是對任意併發故障的保證；未來 Uvicorn 改變 banner 格式時會超時拒絕，不猜測端口。\n\n`tests/test_environment.py` 提供 3 項補充驗收：繼承 PG 默認值在分配/連接前被拒絕，`PG_BIN` 與自有空密碼文件保持明確邊界，以及兩個真實服務各自綁定端口 0、通過 HTTP 後完整退出。PG 變量矩陣是一項測試裡的多組斷言，不誇大成多項 pytest 用例。\n\n## 安全、身份與完整源碼\n\nops/cluster.py 只創建自己的 mkdtemp /tmp/ls-ops-* 集群；停止/刪除前核對 UID、\n0700、所有權隨機標記與 symlink，不接受環境裡的 DATABASE_URL，不管理用戶\n已有 PostgreSQL。數據庫只使用私有 0700 Unix socket 的本地 trust，不監聽 TCP；\n這是短命教學政策，不是生產認證。同一個操作系統賬戶仍然是信任邊界。\nAPI 只綁定 127.0.0.1 的自有臨時端口。\n\nops/app.py 是受保護項目的運維切片，不是完整 capstone。保留 D/S status/\ndescription/priority 字段，不沿用 H done/note；每請求檢查 opaque Bearer\n摘要/expiry/revoked/active/auth_version，無權限的項目 404。操作員 fixture\n建立合成用戶、會話和非空冪等回執，不提供公開登錄/開戶後門；真實上線前仍需\n整合完整 S03 應用。\n\nSQL001..006 獨立復現 D/S 合同快照，007 添加可空 projects.description。\n它們只用於自有實驗，不允許替換既有生產遷移歷史。應用啟動只做兼容檢查，\n絕不自動遷移。管理遷移與運行身份分離，grants.sql 列出切片所需權限。\n遷移控制器按單操作員串行執行，不是分佈式發佈鎖。\n\nops/server.py 管理實際 Uvicorn 子進程，等待 DB-backed readiness，在 finally\n只停自己的服務。正常/異常退出清理自有庫目錄、合成歸檔、私有日誌和 socket；\n若停止/所有權檢查失敗，寧可拒絕刪除也不觸碰別人的服務。異常中斷後僅排查\n本次擁有的根目錄；不使用全局 killall、外部 URL 的 DROP、Docker prune 或\n寬泛遞歸刪除。這裡不應出現真實憑證或真實用戶數據。\n\n## 故障與恢復\n\n工具缺失/版本錯誤：修工具路徑，不繞過檢查。所有權拒絕：重開新實驗，不把\n用戶目錄偽裝成實驗。刻意的遷移/權限/損壞失敗有斷言和修復複驗；意外非零\n退出就停止門禁，不能忽略後繼續發佈。原始異常、URL、環境整表可能含秘密，\n不要為診斷全量打印。\n\n暫停記錄工作目錄、鎖哈希/版本、最後階段、真實用例數、刻意/意外故障、兼容/\n恢復狀態、私有日誌/歸檔政策、進程目錄清理、未驗證外部門檻、下次動作。\n正常退出會刪臨時狀態，恢復時重新運行，不假定舊 socket/token 文件還在。\n\n## 明確 pending 的外部驗收\n\n本機實跑只有 macOS arm64、PG18.6 與 loopback HTTP。沒有實際 Linux/systemd、\nDocker build/run、Caddy/公網代理、域名/DNS/公網 TLS、託管 CI、鏡像發佈、\n生產遷移/切流、告警送達、定時加密/異地備份、跨機恢復、代表性壓測或受邀用戶\n試用。這些需要獨立環境與授權。不能把 YAML 當發佈，把告警返回值當通知送達，\n把備份文件當恢復成功。\n\n完整 S03 認證授權、請求體邊界、密碼哈希容量、登錄限流、可信代理/CORS/憑證\n策略及 O01-O03 外部門檻仍是上線前提；不擴成公開註冊。本實驗不做 Git 提交/\n推送、不購買基礎設施、不執行真實部署。\n\n## 打包與來源\n\n只包含 allowlist 源碼、SQL、配置、鎖和文檔。排除 .venv、__pycache__、\n.pytest_cache、.env/.env.*、憑證、日誌、歸檔、PG數據/socket、運行時清單。\nSOURCES.md 是 2026-09-28 實時核驗的一手資料。倉庫可選維護腳本\nscripts/test-js2py-operations-delivery.py 檢查干淨清單副本與真實演練，不替代\n缺失的外部發布門檻。\n",
+            "SOURCES.md": "# Official sources checked live — 2026-09-28\n\nThis laboratory is a local operations slice, not a claimed production deployment.\nThe actual versions are pinned in pyproject.toml and the public-PyPI uv.lock.\n\n- [PostgreSQL18 backup overview](https://www.postgresql.org/docs/18/backup.html)\n- [pg_dump: format, snapshot, scope and security](https://www.postgresql.org/docs/18/app-pgdump.html)\n- [pg_restore: target, errors, single transaction, ownership](https://www.postgresql.org/docs/18/app-pgrestore.html)\n- [SQL dump backup and restore](https://www.postgresql.org/docs/18/backup-dump.html)\n- [pg_dumpall and cluster-global objects](https://www.postgresql.org/docs/18/app-pg-dumpall.html)\n- [Roles and privileges](https://www.postgresql.org/docs/18/ddl-priv.html)\n- [PostgreSQL logging configuration](https://www.postgresql.org/docs/18/runtime-config-logging.html)\n- [Alembic official tutorial](https://alembic.sqlalchemy.org/en/latest/tutorial.html)\n- [GitHub Actions workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)\n- [Official checkout v4.2.2 commit reference](https://api.github.com/repos/actions/checkout/git/ref/tags/v4.2.2)\n- [OWASP Logging Cheat Sheet official repository](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Logging_Cheat_Sheet.md)\n- [Python3.13 logging](https://docs.python.org/3.13/library/logging.html)\n- [Google SRE monitoring](https://sre.google/sre-book/monitoring-distributed-systems/)\n\nOWASP's documentation page and the Psycopg documentation site returned 403 on\nfetch; official repository source was used where available. Moving documentation\npages are cited for mechanisms, not a claim that the pinned versions are latest.\nThe checkout tag was resolved to commit 11bd71901bbe5b1630ceea73d27597364c9af683.\nNo hosted workflow was triggered or verified. Runtime PostgreSQL tools all report\n18.6; cross-major or cross-platform recovery has not been tested.\n\nD/S contracts checked: d04-d06-v1 and s01-s03-v1. O01-O03 contract checked:\no01-o03-v1. Opaque Bearer tokens, database digests, expiry, active/revoked flags and\nauth_version are used, not JWT. The database migrations here are a complete\nindependent operational contract snapshot, not a replacement migration directory\nfor an already deployed S application. Account/membership recovery policies and\nthe metrics thresholds are explicit teaching decisions, not universal guarantees.\n\nEnvironment/port boundary review, also checked live on 2026-09-28:\n\n- [libpq environment variables](https://www.postgresql.org/docs/18/libpq-envars.html)\n- [libpq password-file selection](https://www.postgresql.org/docs/18/libpq-pgpass.html)\n- [uv environment settings](https://docs.astral.sh/uv/reference/environment/)\n- [uv configuration discovery and disabling it](https://docs.astral.sh/uv/concepts/configuration-files/)\n- [Uvicorn host/port/logging settings](https://www.uvicorn.org/settings/)\n- [Pinned Uvicorn0.42.0 startup implementation](https://github.com/Kludex/uvicorn/blob/0.42.0/uvicorn/server.py)\n\nDirect Python entry points reject inherited PG settings rather than mutating the\ncaller's environment. A private empty passfile prevents default credential-file\nlookup. Real simultaneous port0 children validate the pinned startup banner;\nthis is not a claim that every future Uvicorn log format remains compatible.\n",
+            "alembic.ini": "[alembic]\nscript_location = %(here)s/migrations\n",
+            "ci.py": "\"\"\"Same gate locally and in the supplied manual hosted-workflow example.\"\"\"\nimport ast\nfrom pathlib import Path\nimport subprocess\nimport sys\n\nfrom ops.cluster import reject_connection_environment\n\nreject_connection_environment()  # Direct ci.py must fail before tests or cluster creation.\n\nif sys.version_info[:3] != (3,13,15):raise SystemExit(\"Use CPython 3.13.15\")\nfor folder in [Path(\"ops\"),Path(\"migrations\"),Path(\"tests\"),Path(\"solutions\")]:\n    if folder.exists():\n        for source in folder.rglob(\"*.py\"):ast.parse(source.read_text(),filename=str(source))\nsubprocess.run([sys.executable,\"-m\",\"pytest\",\"-q\"],check=True)\nsubprocess.run([sys.executable,\"demo.py\"],check=True)\nprint(\"LOCAL CI PASS: syntax, PostgreSQL/environment tests, real process drill; not hosted CI or public deployment\")\n",
+            "demo.py": "from ops.release import drill\n\nif __name__ == \"__main__\":\n    drill()\n",
+            "migrations/env.py": "from alembic import context\n\n# Only our controller supplies a connection. Never read an ambient DATABASE_URL.\nconnection = context.config.attributes.get(\"connection\")\nif connection is None:\n    raise RuntimeError(\"Use the owned-cluster migration controller, not an external URL\")\ncontext.configure(connection=connection, target_metadata=None)\nwith context.begin_transaction():\n    context.run_migrations()\n",
+            "migrations/versions/001_base.py": "from pathlib import Path\nfrom alembic import op\nrevision = \"001_base\"\ndown_revision = None\nbranch_labels = None\ndepends_on = None\n\ndef upgrade():\n    path = Path(__file__).resolve().parents[2] / \"sql/001_base.sql\"\n    op.execute(path.read_text())\n\ndef downgrade():\n    raise RuntimeError(\"No automatic destructive downgrade: application rollback keeps the expanded schema\")\n",
+            "migrations/versions/002_expand.py": "from pathlib import Path\nfrom alembic import op\nrevision = \"002_expand\"\ndown_revision = '001_base'\nbranch_labels = None\ndepends_on = None\n\ndef upgrade():\n    path = Path(__file__).resolve().parents[2] / \"sql/002_expand.sql\"\n    op.execute(path.read_text())\n\ndef downgrade():\n    raise RuntimeError(\"No automatic destructive downgrade: application rollback keeps the expanded schema\")\n",
+            "migrations/versions/003_contract.py": "from pathlib import Path\nfrom alembic import op\nrevision = \"003_contract\"\ndown_revision = '002_expand'\nbranch_labels = None\ndepends_on = None\n\ndef upgrade():\n    path = Path(__file__).resolve().parents[2] / \"sql/003_contract.sql\"\n    op.execute(path.read_text())\n\ndef downgrade():\n    raise RuntimeError(\"No automatic destructive downgrade: application rollback keeps the expanded schema\")\n",
+            "migrations/versions/004_identity.py": "from pathlib import Path\nfrom alembic import op\nrevision = \"004_identity\"\ndown_revision = '003_contract'\nbranch_labels = None\ndepends_on = None\n\ndef upgrade():\n    path = Path(__file__).resolve().parents[2] / \"sql/004_identity.sql\"\n    op.execute(path.read_text())\n\ndef downgrade():\n    raise RuntimeError(\"No automatic destructive downgrade: application rollback keeps the expanded schema\")\n",
+            "migrations/versions/005_owner_guard.py": "from pathlib import Path\nfrom alembic import op\nrevision = \"005_owner_guard\"\ndown_revision = '004_identity'\nbranch_labels = None\ndepends_on = None\n\ndef upgrade():\n    path = Path(__file__).resolve().parents[2] / \"sql/005_owner_guard.sql\"\n    op.execute(path.read_text())\n\ndef downgrade():\n    raise RuntimeError(\"No automatic destructive downgrade: application rollback keeps the expanded schema\")\n",
+            "migrations/versions/006_task_operations.py": "from pathlib import Path\nfrom alembic import op\nrevision = \"006_task_operations\"\ndown_revision = '005_owner_guard'\nbranch_labels = None\ndepends_on = None\n\ndef upgrade():\n    path = Path(__file__).resolve().parents[2] / \"sql/006_task_operations.sql\"\n    op.execute(path.read_text())\n\ndef downgrade():\n    raise RuntimeError(\"No automatic destructive downgrade: application rollback keeps the expanded schema\")\n",
+            "migrations/versions/007_project_description.py": "from pathlib import Path\nfrom alembic import op\nrevision = \"007_project_description\"\ndown_revision = '006_task_operations'\nbranch_labels = None\ndepends_on = None\n\ndef upgrade():\n    path = Path(__file__).resolve().parents[2] / \"sql/007_project_description.sql\"\n    op.execute(path.read_text())\n\ndef downgrade():\n    raise RuntimeError(\"No automatic destructive downgrade: application rollback keeps the expanded schema\")\n",
+            "ops/__init__.py": "\"\"\"Disposable operations laboratory, not a production deployment wrapper.\"\"\"\n",
+            "ops/app.py": "import hashlib\nimport os\nfrom pathlib import Path\n\nfrom fastapi import Depends, FastAPI, HTTPException, Request, Response\nfrom fastapi.exceptions import RequestValidationError\nfrom fastapi.responses import JSONResponse\nfrom pydantic import BaseModel, ConfigDict, Field, field_validator\nimport psycopg\n\nfrom ops.cluster import checked_root, connect\n\n\nclass ProjectInput(BaseModel):\n    model_config = ConfigDict(strict=True, extra=\"forbid\")\n    name: str = Field(min_length=1,max_length=120)\n\n    @field_validator(\"name\")\n    @classmethod\n    def nonblank(cls,value):\n        if not value.strip(): raise ValueError(\"name must not be blank\")\n        return value\n\n\nclass ProjectInputV2(ProjectInput):\n    description: str | None = Field(default=None,max_length=500)\n\n\ndef create_app():\n    root = checked_root(os.environ[\"OPS_LAB_ROOT\"])\n    database = os.environ.get(\"OPS_DATABASE\", \"source\")\n    release = os.environ.get(\"OPS_RELEASE\", \"v1\")\n    if release not in {\"v1\", \"v2\"}: raise RuntimeError(\"OPS_RELEASE must be v1 or v2\")\n    with connect(root,database,\"lab_app\") as conn:\n        revision = conn.execute(\"SELECT version_num FROM alembic_version\").fetchone()[0]\n    if revision not in {\"006_task_operations\", \"007_project_description\"} or (release==\"v2\" and revision!=\"007_project_description\"):\n        raise RuntimeError(\"Schema is incompatible; run the approved migration before starting this release\")\n    app = FastAPI(title=\"Operations learning slice\",version=release)\n    app.state.root,app.state.database = root,database\n\n    def db():\n        return connect(root,database,\"lab_app\")\n\n    def actor(request:Request):\n        header=request.headers.get(\"authorization\",\"\")\n        scheme,_,token=header.partition(\" \")\n        if scheme.lower()!=\"bearer\" or not token or len(token)>256 or not token.isascii():\n            raise HTTPException(401,\"Authentication required\",headers={\"WWW-Authenticate\":\"Bearer\"})\n        digest=hashlib.sha256(token.encode(\"ascii\")).hexdigest()\n        with db() as conn:\n            row=conn.execute(\"\"\"SELECT u.id FROM auth_sessions s JOIN users u ON u.id=s.user_id\n              WHERE s.token_digest=%s AND s.revoked_at IS NULL AND s.expires_at>now()\n              AND u.is_active AND s.auth_version=u.auth_version\"\"\",(digest,)).fetchone()\n        if row is None:raise HTTPException(401,\"Authentication required\",headers={\"WWW-Authenticate\":\"Bearer\"})\n        return row[0]\n\n    @app.exception_handler(RequestValidationError)\n    def validation_error(request,error):\n        return JSONResponse(status_code=422,content={\"detail\":[{\"loc\":list(item[\"loc\"]),\"type\":item[\"type\"]} for item in error.errors()]})\n\n    @app.exception_handler(psycopg.Error)\n    def database_error(request,error):\n        return JSONResponse(status_code=503,content={\"detail\":\"Database unavailable\"})\n\n    @app.get(\"/health/live\")\n    def live():return {\"status\":\"ok\"}\n\n    @app.get(\"/health/ready\")\n    def ready():\n        with db() as conn:conn.execute(\"SELECT 1\")\n        return {\"status\":\"ready\"}\n\n    @app.get(\"/projects/{project_id}\")\n    def project(project_id:int,user_id:int=Depends(actor)):\n        columns=\"p.id,p.name,p.description\" if release==\"v2\" else \"p.id,p.name\"\n        with db() as conn:\n            row=conn.execute(f\"SELECT {columns} FROM projects p JOIN project_members m ON m.project_id=p.id WHERE p.id=%s AND m.user_id=%s\",(project_id,user_id)).fetchone()\n        if row is None:raise HTTPException(404,\"Project not found\")\n        result={\"id\":row[0],\"name\":row[1]}\n        if release==\"v2\":result[\"description\"]=row[2]\n        return result\n\n    def insert(payload,user_id):\n        with db() as conn:\n            if release==\"v2\":\n                row=conn.execute(\"INSERT INTO projects(name,description,created_by) VALUES (%s,%s,%s) RETURNING id\",(payload.name,payload.description,user_id)).fetchone()\n            else:\n                row=conn.execute(\"INSERT INTO projects(name,created_by) VALUES (%s,%s) RETURNING id\",(payload.name,user_id)).fetchone()\n            conn.execute(\"INSERT INTO project_members(project_id,user_id,role) VALUES (%s,%s,'owner')\",(row[0],user_id))\n        return {\"id\":row[0],\"name\":payload.name}\n\n    if release==\"v2\":\n        @app.post(\"/projects\",status_code=201)\n        def create(payload:ProjectInputV2,user_id:int=Depends(actor)):\n            return {**insert(payload,user_id),\"description\":payload.description}\n    else:\n        @app.post(\"/projects\",status_code=201)\n        def create(payload:ProjectInput,user_id:int=Depends(actor)):\n            return insert(payload,user_id)\n    return app\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.64
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 1.0,
+            "probabilities": {
+              "UNCERTAIN": 0.0,
+              "PARTIAL": 0.0,
+              "API_CATALOGUE": 0.0,
+              "SUBSTANTIVE": 1.0
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.89,
+            "probabilities": {
+              "MATERIAL_ERROR": 0.04,
+              "UNCERTAIN": 0.0,
+              "ACCURATE_AND_BOUNDED": 0.92,
+              "NECESSARY_GAP": 0.04
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.98,
+            "probabilities": {
+              "MATERIAL_ERROR": 0.01,
+              "UNCERTAIN": 0.0,
+              "ACCURATE_AND_BOUNDED": 0.98,
+              "NECESSARY_GAP": 0.01
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.78,
+            "probabilities": {
+              "UNCERTAIN": 0.01,
+              "COHERENT_AND_TESTABLE": 0.83,
+              "UNDERSPECIFIED": 0.01,
+              "CONTRADICTORY": 0.15
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.72
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "TARGETED_REVIEW",
+            "confidence": 0.36,
+            "probabilities": {
+              "REVISE": 0.05,
+              "TARGETED_REVIEW": 0.57,
+              "PROCEED": 0.38
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 24725,
+          "output_tokens": 344
+        }
+      },
+      "raw_response_sha256": "625903ff0547d9c686ed1b471fef0375309b940d6dcafcb2433bafec9041e124"
+    },
+    {
+      "batch": "review-83",
+      "metadata": {
+        "started_at_utc": "2026-09-28T06:03:03.709674+00:00",
+        "elapsed_seconds": 0.987,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "fe4acb202f6cd2383fe0b89456a840010c39e87c817fa8e3b8d853ffb9ceb73b",
+        "usage": {
+          "input_tokens": 19623,
+          "output_tokens": 344
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "o04-release",
+          "current_contract": {
+            "id": "O04",
+            "title": "持续集成、发布与回退",
+            "prerequisites": [
+              "O03",
+              "D05",
+              "D06"
+            ],
+            "teach": "检查/测试流水线、环境分离、迁移执行时机、发布兼容与应用回退",
+            "acceptance": "完成一次成功发布和一次有数据的兼容回退演练",
+            "boundary": "不把危险数据库降级当作普通应用回退",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "O03",
+              "title": "网络入口、HTTPS 与生产配置",
+              "prerequisites": [
+                "O02"
+              ],
+              "teach": "域名/DNS、反向代理、TLS终止、可信代理、生产错误与凭证/CORS/CSRF边界",
+              "acceptance": "验证HTTPS、错误响应、请求来源与凭证传递策略",
+              "boundary": "公开前需按实际认证方案检查CSRF等风险",
+              "status": "planned"
+            },
+            {
+              "id": "D05",
+              "title": "Alembic 与已有数据迁移",
+              "prerequisites": [
+                "D04"
+              ],
+              "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+              "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+              "boundary": "不删库重建；不承诺任意降级都无损",
+              "status": "planned"
+            },
+            {
+              "id": "D06",
+              "title": "数据库测试与查询诊断",
+              "prerequisites": [
+                "D05",
+                "H06"
+              ],
+              "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+              "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+              "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+              "status": "planned"
+            }
+          ],
+          "declared_transitive_prior_capabilities": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "H05",
+              "title": "应用组织、配置与依赖",
+              "prerequisites": [
+                "H04",
+                "L14"
+              ],
+              "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+              "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+              "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+              "status": "planned"
+            },
+            {
+              "id": "H06",
+              "title": "API 测试与前后端联调",
+              "prerequisites": [
+                "H05",
+                "L09",
+                "L13"
+              ],
+              "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+              "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+              "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+              "status": "planned"
+            },
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            },
+            {
+              "id": "D02",
+              "title": "SQL 与参数化查询",
+              "prerequisites": [
+                "D01"
+              ],
+              "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+              "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+              "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+              "status": "planned"
+            },
+            {
+              "id": "D03",
+              "title": "事务、约束与并发冲突",
+              "prerequisites": [
+                "D02"
+              ],
+              "teach": "原子性、提交回滚、约束失败、隔离和竞争、事务边界",
+              "acceptance": "制造两步写入的后一步失败，证明前一步未残留",
+              "boundary": "不仅背ACID；不以单进程内存检查代替约束",
+              "status": "planned"
+            },
+            {
+              "id": "D04",
+              "title": "同步 SQLAlchemy 与 Session",
+              "prerequisites": [
+                "D03",
+                "H05"
+              ],
+              "teach": "映射、连接池与Session、事务所有权、查询、提交失败后的恢复",
+              "acceptance": "把API接入真实数据库并验证成功/失败都释放资源",
+              "boundary": "不第一次学数据库就加入异步ORM",
+              "status": "planned"
+            },
+            {
+              "id": "D05",
+              "title": "Alembic 与已有数据迁移",
+              "prerequisites": [
+                "D04"
+              ],
+              "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+              "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+              "boundary": "不删库重建；不承诺任意降级都无损",
+              "status": "planned"
+            },
+            {
+              "id": "D06",
+              "title": "数据库测试与查询诊断",
+              "prerequisites": [
+                "D05",
+                "H06"
+              ],
+              "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+              "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+              "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+              "status": "planned"
+            },
+            {
+              "id": "S01",
+              "title": "身份与凭证生命周期",
+              "prerequisites": [
+                "D06"
+              ],
+              "teach": "用户、密码哈希、登录、凭证验证/失效、禁用用户、日志脱敏",
+              "acceptance": "拒绝错误/过期/篡改凭证并验证撤销策略",
+              "boundary": "不自创密码学；登录成功不等于有对象权限",
+              "status": "planned"
+            },
+            {
+              "id": "S02",
+              "title": "对象级授权与多用户隔离",
+              "prerequisites": [
+                "S01"
+              ],
+              "teach": "角色和成员关系、所有权、默认拒绝、越权与负向测试",
+              "acceptance": "Alice知道Bob对象ID仍无法读取/修改，角色不能由请求体自授",
+              "boundary": "前端隐藏按钮和CORS都不是服务端授权",
+              "status": "planned"
+            },
+            {
+              "id": "S03",
+              "title": "可靠业务操作与幂等",
+              "prerequisites": [
+                "S02",
+                "D03"
+              ],
+              "teach": "业务冲突、重复提交、事务与幂等范围、日期时间/标识/精确数值的必要标准库",
+              "acceptance": "复现重复请求或并发冲突并验证约定行为",
+              "boundary": "不承诺仅靠重试就能实现恰好一次；按业务需要教学数据表示",
+              "status": "planned"
+            },
+            {
+              "id": "A01",
+              "title": "Python 异步执行模型",
+              "prerequisites": [
+                "S03"
+              ],
+              "teach": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制",
+              "acceptance": "通过可观察实验选择同步/异步边界，并验证取消行为",
+              "boundary": "JS熟悉async不代表Python自动调度；不机械改全部async",
+              "status": "planned"
+            },
+            {
+              "id": "A02",
+              "title": "外部服务与异步资源生命周期",
+              "prerequisites": [
+                "A01",
+                "L14",
+                "H05"
+              ],
+              "teach": "客户端复用、lifespan、超时、重试与幂等、故障替身、清理",
+              "acceptance": "外部依赖失败不拖垮核心CRUD；正常/异常/取消均释放资源",
+              "boundary": "不把进程内队列或BackgroundTasks当持久任务系统",
+              "status": "planned"
+            },
+            {
+              "id": "O01",
+              "title": "操作系统与服务运行基础",
+              "prerequisites": [
+                "A02"
+              ],
+              "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+              "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+              "boundary": "不先让初学者背Docker命令绕过OS基础",
+              "status": "planned"
+            },
+            {
+              "id": "O02",
+              "title": "容器与可部署应用",
+              "prerequisites": [
+                "O01",
+                "L08"
+              ],
+              "teach": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查",
+              "acceptance": "从干净环境构建运行并重启，确认数据和秘密边界",
+              "boundary": "不在镜像写密钥；不把容器健康等同于业务正确",
+              "status": "planned"
+            },
+            {
+              "id": "O03",
+              "title": "网络入口、HTTPS 与生产配置",
+              "prerequisites": [
+                "O02"
+              ],
+              "teach": "域名/DNS、反向代理、TLS终止、可信代理、生产错误与凭证/CORS/CSRF边界",
+              "acceptance": "验证HTTPS、错误响应、请求来源与凭证传递策略",
+              "boundary": "公开前需按实际认证方案检查CSRF等风险",
+              "status": "planned"
+            }
+          ],
+          "prerequisite_scope": "Current direct edges plus their transitive contracts are included. Contracts describe curriculum capabilities, not proof that a particular learner has passed; review required concepts against actual lesson explanation, not absence of transitive detail from earlier rounds.",
+          "actual_english_lesson": "---\ntitle: Continuous Integration, Releases, and Compatible Rollback\ndescription: Exercise gates, migrations with existing data, real application processes, and rollback against an owned PostgreSQL cluster; distinguish environment isolation and application compatibility from destructive database downgrade.\n---\n\nimport { getReleaseExample } from '@/lib/js2py-examples'\n\n## 1. What evidence is still missing after tests pass?\n\nH06 tests APIs, D05/D06 test migrations and real databases, and O01–O03 establish process, container, and network boundaries. Putting those commands in YAML does not itself make a release safe. Tests may connect to the wrong database; multiple workers may change tables simultaneously; old code may not understand a new schema; reverting code does not undo new data.\n\nWe separate the sequence: check the candidate → verify migrations and interfaces in an owned test database → review the compatibility matrix → migrate as a separate operation → start the candidate and check readiness → approve traffic switching. Failure at one stage must stop later stages rather than be reported as success.\n\n| Chapter contract | Scope |\n| --- | --- |\n| Prerequisites | O03 ingress/production configuration, D05 migrations, D06 real PostgreSQL tests, S01–S03 identity/authorization |\n| New capabilities | A shared local/CI gate, isolated environments, migration timing, release/schema compatibility, application rollback with data |\n| Independent acceptance | v1 → expanded schema → v2 write → v1 rollback with retained data; read real migration state during preflight |\n| Not claimed | Hosted CI execution, container release, real-domain traffic switching, production rollback, arbitrary database downgrade |\n\nDownload the [independent O04 lab](/learning-assets/js2py/o04-release.zip) and enter `o04-release`. It includes source, SQL, the complete Alembic history, tests, and solutions without importing other labs. Every PostgreSQL cluster is short-lived and contains synthetic data only.\n\n## 2. Preserve the D/S contract without pretending this is the whole product\n\nThe package retains the D/S users/projects/project_members/tasks, auth_sessions, and task_operations fields. Tasks use status/description/priority, not the H-stage done/note names. Authentication uses opaque Bearer tokens with only SHA-256 digests stored; each request checks expiry, revocation, account activation, and auth_version. A digest of a random token is not password hashing; synthetic passwords still use the Argon2id library.\n\nThe **operational API slice** exposes health, authenticated project reading, and project creation. It does not reimplement login, password changes, membership management, or the full S03 idempotency service. An operator fixture creates synthetic sessions in the private database; this is not a new public login bypass. Replacing a full application with this slice would lose functionality.\n\nV1 returns project id/name; v2 adds nullable description. Old code names the columns it reads/writes and ignores the new field. The new column permits old inserts to omit it. These are application versions, not PostgreSQL versions.\n\n<Code language=\"python\">{getReleaseExample('ops/app.py')}</Code>\n\nThe factory reads alembic_version and checks compatibility; it does not run migrations. Schema failures occur before serving traffic. The runtime role cannot ALTER tables and need not be a superuser. Inaccessible or absent projects still return 404; rollback must preserve that authorization boundary.\n\n## 3. Isolation begins with connections and ownership\n\nA test database is not merely a name containing test. Tests need ownership of creation and cleanup and must not accept a production URL accidentally. This lab ignores ambient business DATABASE_URL values and connects only to a private Unix socket inside its own `/tmp/ls-ops-*` directory. Database names are explicitly allowlisted too.\n\n<details>\n<summary>Complete isolation tool: create, start, and clean up only the owned cluster</summary>\n\n<Code language=\"python\">{getReleaseExample('ops/cluster.py')}</Code>\n\n</details>\n\nMkdtemp creates an exclusive directory; mode 0700 restricts access; a marker records the UID and a random ownership value. Cleanup rechecks paths, ownership, modes, markers, and symlinks. PostgreSQL listens on no TCP interface, while the API uses a temporary 127.0.0.1 port. Trust authentication on this private socket is a short-lived local teaching policy, **not production authentication**. The operating-system account remains a trust boundary.\n\nDevelopment, tests, staging, and production should use separate databases, accounts, and secrets. Deployment and runtime identities should differ too. We verify an isolated test environment here, not an already deployed staging system. If versions or ownership checks fail, investigate; do not redirect the script to an existing user database to make it run.\n\nPassing a private-socket host is not sufficient by itself: libpq can still obtain other connection defaults from `PGHOSTADDR`, `PGSERVICE`, `PGSERVICEFILE`, and related variables. `reject_connection_environment` rejects every inherited `PG*` name before temporary-directory creation and before each direct connection, migration, or server launch. The only exception is `PG_BIN`, which locates executables, not a database. Errors list names only, never their values, and do not mutate the caller's environment. Python connections, SQLAlchemy's connection creator, and PostgreSQL subprocesses use an empty mode0600 `empty.pgpass` in the owned directory rather than the user's default password file. Direct `demo.py` and `ci.py` execution have these guards too; safety does not depend on the repository runner cleaning up first.\n\nThe controller no longer probes an unused port, closes that socket, and asks another process to acquire the same number. Uvicorn binds `--port 0` itself. The controller reads the actual port from **that child's own private startup log**, then requests readiness. `--no-access-log` does not suppress the info-level startup banner; the controller explicitly selects uncolored logs and one worker. Concurrent identical releases have distinct log files. A real test starts two servers together and checks their different ports, corresponding banners, actual requests, and cleanup. This removes the probe-close-rebind window, not every possible concurrency failure. A future incompatible Uvicorn banner format fails by deadline rather than guessing a port.\n\n## 4. One gate, separately recorded local and hosted results\n\nThe baseline tested on 2026-09-28 is CPython 3.13.15, uv 0.12.13, pytest 8.4.2, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, HTTPX 0.28.1, SQLAlchemy 2.0.54, Alembic 1.20.0, psycopg 3.3.6, and PostgreSQL tools 18.6. Starlette and AnyIO are pinned against client-compatibility drift.\n\n<Code language=\"toml\">{getReleaseExample('pyproject.toml')}</Code>\n\nThe repository runner reconstructs child settings: inherited `UV_*`, virtual-environment selectors, and Python injection settings are removed before the course cache/interpreter directories, public PyPI, and `UV_NO_CONFIG=1` are set. Only `PG_BIN` survives the `PG*` filter. A real check uses an owned external-venv decoy, a nonexistent interpreter, and invalid user uv configuration: installation must stay inside the clean copy's `.venv`, with the decoy unchanged. This cannot undo actions an outer uv command already performed before Python started. Before the manual uv commands below, leave other virtual environments and use a clean terminal; remove overrides such as `VIRTUAL_ENV`, `UV_PROJECT_ENVIRONMENT`, `UV_ACTIVE`, `UV_PYTHON`, and `UV_CONFIG_FILE`, and set `UV_NO_CONFIG=1`. If a direct Python entry rejects PG settings, remove only the reported names from this experiment's environment; never edit production configuration or print their values.\n\n```bash\nuv sync --locked\nuv run --locked python ci.py\n```\n\n<Code language=\"python\">{getReleaseExample('ci.py')}</Code>\n\nThe gate checks syntax, runs seven ordinary tests (four original checks and three environment/port checks), and then starts real services for the release drill. Check=True makes a failed child command fail the gate. Syntax checking is not database testing; database testing is not deployment. Record them separately. Keep the public-PyPI lock and interpreter version together; an unreviewed upgrade between verification and release changes the artifact you tested.\n\n<Code language=\"python\">{getReleaseExample('tests/test_release.py')}</Code>\n\nTests create actual PostgreSQL clusters, preserve records, exercise old-column inserts, reject duplicate owners, and prove that the runtime role cannot ALTER. Expected failures occur inside transaction blocks, which roll back before further queries. Do not leave an aborted transaction for another test.\n\n<Code language=\"yaml\">{getReleaseExample('.github/workflows/check.yml')}</Code>\n\nThis is a **reviewable workflow that has not run on hosted infrastructure**. It grants read-only repository access, pins checkout to a verified commit, does not persist checkout credentials, accepts manual workflow_dispatch only, and requires a prepared isolated Linux/PG18.6 runner. No such runner is available here, so hosted CI is pending. Never execute untrusted PR code on that privileged self-hosted runner. Switching to another runner or container requires validating installation and isolation again, not merely changing a label.\n\n## 5. Who runs migrations, and when?\n\nRevisions 001–006 preserve the D/S model and constraints. This chapter adds 007_project_description. SQL and revision files are all in the package; Alembic does not infer current history from create_all.\n\n<Code language=\"python\">{getReleaseExample('ops/migrate.py')}</Code>\n\n<Code language=\"python\">{getReleaseExample('migrations/env.py')}</Code>\n\n<Code language=\"sql\">{getReleaseExample('sql/007_project_description.sql')}</Code>\n\n<Code language=\"python\">{getReleaseExample('migrations/versions/007_project_description.py')}</Code>\n\nThe controller migrates transactionally with an administrative identity and lock_timeout. Failure stops the release. Ordinary workers do not compete for DDL during startup. Our drill has one serial operator; **the function is not a distributed migration lock across deployment systems**. A real pipeline must enforce a single coordinator and plan timing around table sizes, lock waits, and compatibility windows.\n\nDowngrade deliberately refuses automatic destructive reversal. Dropping description would destroy values already written by v2. Being able to write DROP COLUMN does not make it part of an ordinary code rollback. Restoring a backup also loses post-snapshot data; the recovery chapter treats that separately.\n\n<details>\n<summary>Explanation answer: why not have every worker run upgrade head?</summary>\n\nWorkers can read migration state concurrently, wait for or contend on locks, and begin serving at different stages. Runtime accounts would also need DDL privileges. A separate controlled migration step lets you observe failure before starting compatible processes. It does not promise lock-free or zero-downtime migration; that depends on the actual change and data scale.\n\n</details>\n\n## 6. Describe compatibility with a matrix\n\n| Application / schema | 006, no description | 007, nullable description |\n| --- | --- | --- |\n| v1, named id/name reads/writes | Supported | Supported; omitted new field becomes null |\n| v2, needs description | Startup refused | Supported |\n\nFor this rollback, forward compatibility means old code can operate against the already-expanded schema. A nullable column makes this example compatible, not every ADD COLUMN safe. Constraints, defaults, enums, request formats, and changed meanings can all break old code.\n\nIf frontend clients already require description after v2 launches, returning to v1 can break their response contract. A rollback plan therefore also needs a client compatibility window, feature control, or coordinated suspension of new functionality. This drill deliberately uses a controlled client appropriate to each version. It does not claim a real-user transition has no impact.\n\n## 7. A real release and application rollback with retained data\n\n<Code language=\"python\">{getReleaseExample('ops/release.py')}</Code>\n\n<Code language=\"python\">{getReleaseExample('ops/server.py')}</Code>\n\n```bash\nuv run --locked python demo.py\n```\n\n```text\nPASS v1: real authenticated HTTP and committed baseline data\nPASS expected migration failure: old rows and revision preserved\nPASS v2: reviewed nullable expansion and new-data write\nPASS rollback: v1 reads/writes expanded schema; v2 data retained; no downgrade\nCLEANUP PASS: owned API processes and isolated PostgreSQL cluster removed\n```\n\nThe drill starts, requests, and stops actual Uvicorn subprocesses, rather than changing a string and directly calling a function. V1 writes a project. An intentionally incompatible NOT NULL addition without a default fails against existing rows. The reviewed nullable expansion succeeds; v2 writes description. Then v2 stops and v1 starts against the same database.\n\nAfter rollback, description is still Preserve this value, there are five projects, and alembic_version remains 007. Old code ignores rather than clears the new column. There is a brief stop between processes; no load balancer or zero-downtime traffic switch has been verified.\n\n## 8. A failed migration is not permission to rebuild the database\n\nThe NOT NULL failure means historical rows have no value, not that Alembic is broken. Review the requirement: expand with a nullable field; deploy compatible code; backfill under an explicit business policy; verify no nulls; add the constraint in a separate controlled revision. Deleting user data to make a migration green is not a repair.\n\nLocate other failures by stage: versions at the environment gate; revisions at migration/compatibility checks; role privileges at database authorization; readiness deadlines at startup/database paths. Public reachability belongs to an ingress boundary this drill does not cover. Dumping the environment, SQL parameters, or Bearer tokens is not appropriate diagnosis.\n\n<details>\n<summary>Guided repair: how do you prove there is no partial migration?</summary>\n\nDo more than assert the exception. Reconnect and verify the original three projects and revision 006, then apply the reviewed 007. Transactional DDL failure rolls back here, but that does not prove every external side effect or migration operation is reversible. Concurrent index creation, external calls, and long backfills require their own analysis.\n\n</details>\n\n## 9. Independent variation: preflight the actual database\n\nWithout opening the solution, implement check_release: query real alembic_version from the **owned test database**, permit only matrix entries, and reject unknown applications or schemas. Prove v2 is rejected at 006 and both v1/v2 are accepted after 007. Passing a hard-coded \"007\" into a function is not evidence of checking the database.\n\n<details>\n<summary>Independent implementation and real PostgreSQL tests</summary>\n\n<Code language=\"python\">{getReleaseExample('solutions/check_matrix.py')}</Code>\n\n<Code language=\"python\">{getReleaseExample('solutions/preflight.py')}</Code>\n\n<Code language=\"python\">{getReleaseExample('solutions/test_matrix.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q solutions\n```\n\n```text\n2 passed\n```\n\nOne test covers the rule; the other creates a real database, rejects before migration, and accepts afterwards. Preflight is only a gate. Starting the application and sending real requests still matters; a matching version string is not proof of correct business behavior.\n\n</details>\n\n## 10. A release record you can resume from\n\nRecord candidate code identity, lock hash, application version, target environment identity, migration revisions before/after, commands and results, migration approval, readiness, and rollback version/conditions. This lab makes no Git commit, push, or published artifact, so do not invent a commit SHA or deployment URL.\n\nWhen pausing, record the last successful stage, owned processes still running, whether the database was cleaned, intentional failures, and the clean starting state for replay. Demo/CI stops its API/PG processes and removes its directory. Resume by rerunning rather than looking for a deleted socket. The download allowlist contains source, SQL, lock, and documentation—not environments, logs, database directories, backups, or secrets.\n\nA real release still requires O03's controlled HTTPS ingress, production secrets/permissions, actually executed CI, monitoring, tested backups/restores, and a rollback rehearsal. What is complete here is a reproducible local database/application delivery mechanism, not a public V4 launch.\n\n## 11. Primary sources and verification\n\nChecked on 2026-09-28: [Alembic's official tutorial](https://alembic.sqlalchemy.org/en/latest/tutorial.html), [PostgreSQL privileges](https://www.postgresql.org/docs/18/ddl-priv.html), [GitHub Actions workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax), and [the official checkout v4.2.2 tag commit](https://api.github.com/repos/actions/checkout/git/ref/tags/v4.2.2). Actual versions are defined by the lock and installed PG18.6 tools, not a perpetual compatibility promise from a moving documentation page.\n\nSeven base tests, two independent tests, actual v1/v2/rollback processes, and migrations with records have run. Hosted CI, containers, Linux service management, public traffic switching, real users, and production rollback remain pending without their environments.\n",
+          "mechanism_focus": "检查/测试流水线、环境分离、迁移执行时机、发布兼容与应用回退; 完成一次成功发布和一次有数据的兼容回退演练; 不把危险数据库降级当作普通应用回退",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "c37455141179beca0252064735f9c0b6e7344466564f2bd5648e9c7209ef9838",
+              "bytes": 52945,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".github/workflows/check.yml",
+            ".gitignore",
+            ".python-version",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "SOURCES.md",
+            "alembic.ini",
+            "ci.py",
+            "demo.py",
+            "migrations/env.py",
+            "migrations/versions/001_base.py",
+            "migrations/versions/002_expand.py",
+            "migrations/versions/003_contract.py",
+            "migrations/versions/004_identity.py",
+            "migrations/versions/005_owner_guard.py",
+            "migrations/versions/006_task_operations.py",
+            "migrations/versions/007_project_description.py",
+            "ops/__init__.py",
+            "ops/app.py",
+            "ops/cluster.py",
+            "ops/data.py",
+            "ops/migrate.py",
+            "ops/release.py",
+            "ops/server.py",
+            "pyproject.toml",
+            "solutions/check_matrix.py",
+            "solutions/preflight.py",
+            "solutions/test_matrix.py",
+            "sql/001_base.sql",
+            "sql/002_expand.sql",
+            "sql/003_contract.sql",
+            "sql/004_identity.sql",
+            "sql/005_owner_guard.sql",
+            "sql/006_task_operations.sql",
+            "sql/007_project_description.sql",
+            "sql/grants.sql",
+            "tests/test_environment.py",
+            "tests/test_release.py",
+            "uv.lock"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "Mainline independently reran unmodified maintained runner using exact published ZIP bytes:25 cases total, O04=7+2/O05=8+1/O06=6+1. Additionally real owned PostgreSQL18.6/Uvicorn0.42.0 process drills: with-data compatible release and rollback; structured-log incident and repair; private custom-format pg_dump and actual pg_restore with full table fingerprints, corrupted restore refusal and auth/permission checks. Measured local recovery numbers are NOT production RPO/RTO. Concrete safety repair: uv environment decoy unchanged,6 direct ci/demo poison-env subprocesses refused before allocation, private empty0600 passfile,3 real dual-port0 server tests. Owned clusters/logs/backups removed. Hosted CI, Linux/systemd/Docker/Caddy, complete S03 application deployment, real notification delivery, encrypted off-site/cross-host restoration, load/capacity and invited public users remain NOT_RUN. Final publication/browser gates pending.",
+          "slice": {
+            "index": 2,
+            "count": 2,
+            "source_paths_here": [
+              "ops/cluster.py",
+              "ops/data.py",
+              "ops/migrate.py",
+              "ops/release.py",
+              "ops/server.py",
+              "pyproject.toml",
+              "solutions/check_matrix.py",
+              "solutions/preflight.py",
+              "solutions/test_matrix.py",
+              "sql/001_base.sql",
+              "sql/002_expand.sql",
+              "sql/003_contract.sql",
+              "sql/004_identity.sql",
+              "sql/005_owner_guard.sql",
+              "sql/006_task_operations.sql",
+              "sql/007_project_description.sql",
+              "sql/grants.sql",
+              "tests/test_environment.py",
+              "tests/test_release.py"
+            ],
+            "source_paths_elsewhere": [
+              ".github/workflows/check.yml",
+              ".gitignore",
+              ".python-version",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "SOURCES.md",
+              "alembic.ini",
+              "ci.py",
+              "demo.py",
+              "migrations/env.py",
+              "migrations/versions/001_base.py",
+              "migrations/versions/002_expand.py",
+              "migrations/versions/003_contract.py",
+              "migrations/versions/004_identity.py",
+              "migrations/versions/005_owner_guard.py",
+              "migrations/versions/006_task_operations.py",
+              "migrations/versions/007_project_description.py",
+              "ops/__init__.py",
+              "ops/app.py"
+            ]
+          },
+          "actual_download_files": {
+            "ops/cluster.py": "\"\"\"Only creates/controls our own mkdtemp PostgreSQL 18.6 cluster. No DSN input.\"\"\"\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport stat\nimport subprocess\nimport tempfile\nimport uuid\n\nimport psycopg\nfrom psycopg import sql\n\n\ndef pg_bin(name: str) -> str:\n    directory = os.environ.get(\"PG_BIN\", \"/opt/homebrew/bin\")\n    path = Path(directory) / name\n    if not path.is_file():\n        found = shutil.which(name)\n        if not found:\n            raise RuntimeError(f\"Install PostgreSQL 18.6 tools first: missing {name}\")\n        path = Path(found)\n    result = subprocess.run([str(path), \"--version\"], capture_output=True, text=True, check=True)\n    if \" 18.6\" not in result.stdout:\n        raise RuntimeError(\"This acceptance requires PostgreSQL 18.6 client/server tools\")\n    return str(path)\n\n\ndef reject_connection_environment():\n    \"\"\"Fail closed before libpq can read inherited connection defaults.\n\n    This check does not mutate the caller's environment (including in threads).\n    PG_BIN is our executable locator, not a libpq connection parameter.\n    Report names only: values may contain credentials or private paths.\n    \"\"\"\n    names = sorted(name for name in os.environ if name.startswith(\"PG\") and name != \"PG_BIN\")\n    if names:\n        raise RuntimeError(\n            \"Refusing inherited PostgreSQL environment; unset these names for this lab: \"\n            + \", \".join(names)\n        )\n\n\ndef checked_root(value: str) -> Path:\n    root = Path(value)\n    if root.is_symlink() or root.resolve().parent != Path(\"/tmp\").resolve() or not root.name.startswith(\"ls-ops-\"):\n        raise RuntimeError(\"Refusing a non-owned laboratory directory\")\n    if root.stat().st_uid != os.getuid() or stat.S_IMODE(root.stat().st_mode) != 0o700:\n        raise RuntimeError(\"Laboratory directory must be owned by this user and mode 0700\")\n    marker = json.loads((root / \"owner.json\").read_text())\n    if marker.get(\"kind\") != \"langshift-owned-pg18.6\" or marker.get(\"uid\") != os.getuid():\n        raise RuntimeError(\"Invalid laboratory ownership marker\")\n    if (root / \"socket\").is_symlink() or (root / \"data\").is_symlink():\n        raise RuntimeError(\"Refusing symlinked cluster paths\")\n    passfile = root / \"empty.pgpass\"\n    if (passfile.is_symlink() or not passfile.is_file() or passfile.stat().st_size != 0\n            or passfile.stat().st_uid != os.getuid()\n            or stat.S_IMODE(passfile.stat().st_mode) != 0o600):\n        raise RuntimeError(\"Expected this lab's private empty password file\")\n    return root\n\n\ndef connect(root: Path, database: str, user: str = \"lab_owner\"):\n    reject_connection_environment()\n    checked_root(str(root))\n    if database not in {\"postgres\", \"source\", \"restored\", \"damaged\"} or user not in {\"lab_owner\", \"lab_app\"}:\n        raise RuntimeError(\"Database/role is outside this laboratory allowlist\")\n    return psycopg.connect(host=str(root / \"socket\"), port=5432, dbname=database,\n                          user=user, connect_timeout=3, passfile=str(root / \"empty.pgpass\"),\n                          options=\"-c statement_timeout=5000 -c lock_timeout=1000\")\n\n\nclass OwnedCluster:\n    def __init__(self):\n        self.root = None\n        self.nonce = uuid.uuid4().hex\n        self.started = False\n        self.databases = set()\n\n    def run(self, executable: str, *arguments: str, check=True):\n        env = {key: value for key, value in os.environ.items() if not key.startswith(\"PG\")}\n        env[\"PGPASSFILE\"] = str(self.root / \"empty.pgpass\")  # Never consult the user's ~/.pgpass.\n        result = subprocess.run([pg_bin(executable), *map(str, arguments)],\n                                env=env, text=True, capture_output=True, timeout=45, umask=0o077)\n        if check and result.returncode:\n            # Do not print arbitrary database diagnostics/SQL values or connection strings.\n            raise RuntimeError(f\"{executable} failed (exit {result.returncode}); inspect private lab diagnostics\")\n        return result\n\n    def __enter__(self):\n        reject_connection_environment()  # Before creating even a temporary directory.\n        self.root = Path(tempfile.mkdtemp(prefix=\"ls-ops-\", dir=\"/tmp\"))\n        self.root.chmod(0o700)\n        (self.root / \"owner.json\").write_text(json.dumps({\"kind\": \"langshift-owned-pg18.6\", \"uid\": os.getuid(), \"nonce\": self.nonce}))\n        (self.root / \"owner.json\").chmod(0o600)\n        (self.root / \"empty.pgpass\").touch(mode=0o600)\n        (self.root / \"socket\").mkdir(mode=0o700)\n        try:\n            self.run(\"initdb\", \"-D\", self.root / \"data\", \"-U\", \"lab_owner\", \"--encoding=UTF8\", \"--no-locale\", \"--auth-local=trust\", \"--auth-host=reject\")\n            config = self.root / \"data/postgresql.conf\"\n            with config.open(\"a\") as output:\n                output.write(f\"\\nlisten_addresses = ''\\nunix_socket_directories = '{self.root / 'socket'}'\\nunix_socket_permissions = 0700\\nlog_statement = 'none'\\nlog_min_error_statement = 'panic'\\nlog_parameter_max_length_on_error = 0\\n\")\n            self.run(\"pg_ctl\", \"-D\", self.root / \"data\", \"-l\", self.root / \"postgres.log\", \"-w\", \"start\")\n            self.started = True\n            with connect(self.root, \"postgres\") as conn:\n                conn.execute(\"CREATE ROLE lab_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE\")\n            self.create_database(\"source\")\n            return self\n        except BaseException:\n            # A timed-out start can still have produced an owned postmaster.\n            self.started = (self.root / \"data/postmaster.pid\").exists()\n            self.__exit__(None, None, None)\n            raise\n\n    def create_database(self, name: str):\n        if name not in {\"source\", \"restored\", \"damaged\"} or name in self.databases:\n            raise RuntimeError(\"Only a fresh named laboratory target may be created\")\n        with connect(self.root, \"postgres\") as conn:\n            conn.autocommit = True\n            conn.execute(sql.SQL(\"CREATE DATABASE {} TEMPLATE template0\").format(sql.Identifier(name)))\n            conn.execute(sql.SQL(\"REVOKE ALL ON DATABASE {} FROM PUBLIC\").format(sql.Identifier(name)))\n        self.databases.add(name)\n\n    def __exit__(self, *exc):\n        if self.root is None:\n            return\n        checked_root(str(self.root))\n        marker = json.loads((self.root / \"owner.json\").read_text())\n        if marker[\"nonce\"] != self.nonce:\n            raise RuntimeError(\"Ownership changed; refusing stop/delete\")\n        if self.started:\n            self.run(\"pg_ctl\", \"-D\", self.root / \"data\", \"-m\", \"fast\", \"-w\", \"stop\")\n            self.started = False\n        shutil.rmtree(self.root)\n",
+            "ops/data.py": "import hashlib\nfrom pathlib import Path\nimport secrets\nfrom argon2 import PasswordHasher\nfrom psycopg import sql\n\nfrom ops.cluster import connect\n\n\ndef grant_app(root, database=\"source\"):\n    with connect(root, database) as conn:\n        conn.execute((Path(__file__).resolve().parents[1] / \"sql/grants.sql\").read_text())\n        conn.execute(sql.SQL(\"GRANT CONNECT ON DATABASE {} TO lab_app\").format(sql.Identifier(database)))\n\n\ndef issue_fixture_token(root, user_id, database=\"source\", expired=False):\n    # Operator-only synthetic test data; NOT a replacement public login endpoint.\n    token = secrets.token_urlsafe(32)\n    digest = hashlib.sha256(token.encode(\"ascii\")).hexdigest()\n    with connect(root, database) as conn:\n        conn.execute(\"\"\"INSERT INTO auth_sessions(token_digest,user_id,auth_version,issued_at,expires_at)\n            SELECT %s,id,auth_version,now()-interval '2 hours',\n                   now() + CASE WHEN %s THEN interval '-1 hour' ELSE interval '15 minutes' END\n            FROM users WHERE id=%s\"\"\", (digest, expired, user_id))\n    return token\n\n\ndef seed(root):\n    password_hash = PasswordHasher(time_cost=3, memory_cost=65536, parallelism=4).hash(secrets.token_urlsafe(24))\n    with connect(root, \"source\") as conn:\n        for name in [\"Alice\", \"Bob\"]:\n            user_id = conn.execute(\"INSERT INTO users(login,password_hash,is_active) VALUES (%s,%s,true) RETURNING id\", (name,password_hash)).fetchone()[0]\n            project_id = conn.execute(\"INSERT INTO projects(name,created_by) VALUES (%s,%s) RETURNING id\", (name+\" project\",user_id)).fetchone()[0]\n            conn.execute(\"INSERT INTO project_members(project_id,user_id,role) VALUES (%s,%s,'owner')\", (project_id,user_id))\n            conn.execute(\"INSERT INTO tasks(project_id,created_by,title,minutes) VALUES (%s,%s,%s,30)\", (project_id,user_id,name+\" task\"))\n    with connect(root,\"source\") as conn:\n        # Nonempty synthetic idempotency receipt: backup coverage must not skip it.\n        conn.execute(\"\"\"INSERT INTO task_operations(actor_id,project_id,operation,key,request_digest,response_body,response_status,created_at,expires_at)\n            SELECT 1,1,'create-task-v1',gen_random_uuid(),%s,to_jsonb(t),201,now(),now()+interval '1 day'\n            FROM tasks t WHERE t.id=1\"\"\", (hashlib.sha256(b\"synthetic fixture request\").hexdigest(),))\n    return {\"alice\": issue_fixture_token(root,1), \"bob\": issue_fixture_token(root,2)}\n",
+            "ops/migrate.py": "from pathlib import Path\nfrom alembic import command\nfrom alembic.config import Config\nfrom sqlalchemy import create_engine\n\nfrom ops.cluster import checked_root, connect, reject_connection_environment\n\n\ndef upgrade(root: Path, revision: str, database: str = \"source\"):\n    reject_connection_environment()\n    checked_root(str(root))\n    if database not in {\"source\", \"restored\", \"damaged\"}:\n        raise RuntimeError(\"Refusing migration outside owned laboratory\")\n    # Every DBAPI connection uses the same environment guard and private passfile.\n    engine = create_engine(\"postgresql+psycopg://\", creator=lambda: connect(root, database),\n                           hide_parameters=True)\n    try:\n        with engine.begin() as connection:\n            # Serial operator step: app workers NEVER run migrations on startup.\n            connection.exec_driver_sql(\"SET LOCAL lock_timeout = '1s'\")\n            config = Config(str(Path(__file__).resolve().parents[1] / \"alembic.ini\"))\n            config.attributes[\"connection\"] = connection\n            command.upgrade(config, revision)\n    finally:\n        engine.dispose()\n",
+            "ops/release.py": "import psycopg\nfrom ops.cluster import OwnedCluster,connect\nfrom ops.data import grant_app,seed\nfrom ops.migrate import upgrade\nfrom ops.server import running\n\n\ndef drill():\n    with OwnedCluster() as cluster:\n        root=cluster.root\n        upgrade(root,\"006_task_operations\")\n        grant_app(root)\n        tokens=seed(root)\n        headers={\"Authorization\":\"Bearer \"+tokens[\"alice\"]}\n        with running(root,\"v1\") as client:\n            assert client.get(\"/projects/1\",headers=headers).json()=={\"id\":1,\"name\":\"Alice project\"}\n            before=client.post(\"/projects\",headers=headers,json={\"name\":\"Before upgrade\"})\n            assert before.status_code==201\n        print(\"PASS v1: real authenticated HTTP and committed baseline data\")\n        # A deliberate incompatible expansion fails transactionally, not by deleting data.\n        try:\n            with connect(root,\"source\") as conn:\n                conn.execute(\"ALTER TABLE projects ADD COLUMN unsafe_required text NOT NULL\")\n        except psycopg.errors.NotNullViolation:\n            pass\n        else:raise AssertionError(\"Expected NOT NULL expansion to reject existing rows\")\n        with connect(root,\"source\") as conn:\n            assert conn.execute(\"SELECT count(*) FROM projects\").fetchone()[0]==3\n            assert conn.execute(\"SELECT version_num FROM alembic_version\").fetchone()[0]==\"006_task_operations\"\n        print(\"PASS expected migration failure: old rows and revision preserved\")\n        upgrade(root,\"007_project_description\")\n        with running(root,\"v2\") as client:\n            created=client.post(\"/projects\",headers=headers,json={\"name\":\"After upgrade\",\"description\":\"Preserve this value\"})\n            assert created.status_code==201\n            project_id=created.json()[\"id\"]\n            assert client.get(f\"/projects/{project_id}\",headers=headers).json()[\"description\"]==\"Preserve this value\"\n        print(\"PASS v2: reviewed nullable expansion and new-data write\")\n        # Roll back application code, NOT the schema or the data volume.\n        with running(root,\"v1\") as client:\n            read=client.get(f\"/projects/{project_id}\",headers=headers)\n            assert read.status_code==200 and \"description\" not in read.json()\n            assert client.post(\"/projects\",headers=headers,json={\"name\":\"After app rollback\"}).status_code==201\n            assert client.get(\"/projects/2\",headers=headers).status_code==404\n        with connect(root,\"source\") as conn:\n            assert conn.execute(\"SELECT description FROM projects WHERE id=%s\",(project_id,)).fetchone()[0]==\"Preserve this value\"\n            assert conn.execute(\"SELECT count(*) FROM projects\").fetchone()[0]==5\n            assert conn.execute(\"SELECT version_num FROM alembic_version\").fetchone()[0]==\"007_project_description\"\n        print(\"PASS rollback: v1 reads/writes expanded schema; v2 data retained; no downgrade\")\n    assert not root.exists()\n    print(\"CLEANUP PASS: owned API processes and isolated PostgreSQL cluster removed\")\n",
+            "ops/server.py": "from contextlib import contextmanager\nimport os\nimport re\nimport socket\nimport subprocess\nimport sys\nimport tempfile\nimport time\n\nimport httpx\n\nfrom ops.cluster import checked_root, reject_connection_environment\n\n\n@contextmanager\ndef running(root, release=\"v1\", database=\"source\", factory=\"ops.app:create_app\"):\n    reject_connection_environment()\n    checked_root(str(root))\n    env = {\n        key: value for key, value in os.environ.items()\n        if key not in {\"DATABASE_URL\", \"OPS_LOG_FILE\", \"WEB_CONCURRENCY\"}\n        and not key.startswith(\"UVICORN_\")\n    }\n    env.update(OPS_LAB_ROOT=str(root), OPS_DATABASE=database, OPS_RELEASE=release)\n    # Each child owns a distinct private log, even for concurrent identical releases.\n    with tempfile.NamedTemporaryFile(\n        mode=\"w\", prefix=f\"service-{release}-{database}-\", suffix=\".log\",\n        dir=root, delete=False,\n    ) as output:\n        logpath = root / os.path.basename(output.name)\n        logpath.chmod(0o600)\n        child = subprocess.Popen(\n            [sys.executable, \"-m\", \"uvicorn\", factory, \"--factory\",\n             \"--host\", \"127.0.0.1\", \"--port\", \"0\", \"--workers\", \"1\",\n             \"--no-access-log\", \"--no-use-colors\", \"--log-level\", \"info\",\n             \"--no-proxy-headers\"],\n            env=env, stdout=output, stderr=output,\n        )\n        port = None\n        try:\n            deadline = time.monotonic() + 10\n            # Uvicorn binds port0 itself. There is no probe-close-rebind window.\n            # This parser is checked against the pinned Uvicorn startup banner;\n            # a future format change must fail closed, not guess another port.\n            while port is None:\n                if child.poll() is not None:\n                    raise RuntimeError(\"Owned application failed to start; inspect private service diagnostics\")\n                banner = re.search(\n                    r\"^INFO:\\s+Uvicorn running on http://127\\.0\\.0\\.1:([0-9]+) \",\n                    logpath.read_text(), re.MULTILINE,\n                )\n                if banner:\n                    port = int(banner.group(1))\n                    if not 1 <= port <= 65535:\n                        raise RuntimeError(\"Unexpected owned Uvicorn port\")\n                    break\n                if time.monotonic() > deadline:\n                    raise RuntimeError(\"Owned Uvicorn startup banner deadline exceeded\")\n                time.sleep(.05)\n            with httpx.Client(\n                base_url=f\"http://127.0.0.1:{port}\", timeout=5, trust_env=False,\n            ) as client:\n                while True:\n                    if child.poll() is not None:\n                        raise RuntimeError(\"Owned application exited before readiness\")\n                    try:\n                        if client.get(\"/health/ready\").status_code == 200:\n                            break\n                    except httpx.TransportError:\n                        pass\n                    if time.monotonic() > deadline:\n                        raise RuntimeError(\"Readiness deadline exceeded\")\n                    time.sleep(.05)\n                yield client\n        finally:\n            if child.poll() is None:\n                child.terminate()\n            try:\n                child.wait(timeout=10)\n            except subprocess.TimeoutExpired:\n                child.kill()\n                child.wait(timeout=5)\n        if port is not None:\n            with socket.socket() as probe:\n                assert probe.connect_ex((\"127.0.0.1\", port)) != 0, \"Former owned API port still open\"\n",
+            "pyproject.toml": "[project]\nname = \"js2py-o04-release\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = [\"fastapi==0.135.1\", \"uvicorn==0.42.0\", \"pydantic==2.12.5\", \"starlette==0.52.1\", \"anyio==4.12.1\", \"SQLAlchemy==2.0.54\", \"alembic==1.20.0\", \"psycopg[binary]==3.3.6\", \"argon2-cffi==25.1.0\"]\n[dependency-groups]\ndev = [\"pytest==8.4.2\", \"httpx==0.28.1\"]\n[tool.uv]\npackage = false\n[[tool.uv.index]]\nname = \"pypi\"\nurl = \"https://pypi.org/simple\"\ndefault = true\n[tool.pytest.ini_options]\npythonpath = [\".\"]\ntestpaths = [\"tests\"]\n",
+            "solutions/check_matrix.py": "def compatible(release: str, revision: str) -> bool:\n    matrix={\"v1\":{\"006_task_operations\",\"007_project_description\"},\"v2\":{\"007_project_description\"}}\n    return revision in matrix.get(release,set())\n",
+            "solutions/preflight.py": "from ops.cluster import connect\nfrom solutions.check_matrix import compatible\n\n\ndef check_release(root, release, database=\"source\"):\n    with connect(root, database, \"lab_app\") as connection:\n        revision = connection.execute(\"SELECT version_num FROM alembic_version\").fetchone()[0]\n    if not compatible(release, revision):\n        raise ValueError(\"Release/schema pair is not approved; do not start workers\")\n    return revision\n",
+            "solutions/test_matrix.py": "from solutions.check_matrix import compatible\n\ndef test_backward_application_compatibility():\n    assert compatible(\"v1\",\"006_task_operations\")\n    assert compatible(\"v1\",\"007_project_description\")\n    assert compatible(\"v2\",\"007_project_description\")\n    assert not compatible(\"v2\",\"006_task_operations\")\n    assert not compatible(\"v3\",\"007_project_description\")\n    assert not compatible(\"v1\",\"unknown\")\n\n\ndef test_preflight_reads_real_migration_state():\n    import pytest\n    from ops.cluster import OwnedCluster\n    from ops.data import grant_app\n    from ops.migrate import upgrade\n    from solutions.preflight import check_release\n\n    with OwnedCluster() as cluster:\n        upgrade(cluster.root, \"006_task_operations\")\n        grant_app(cluster.root)\n        with pytest.raises(ValueError):\n            check_release(cluster.root, \"v2\")\n        upgrade(cluster.root, \"007_project_description\")\n        assert check_release(cluster.root, \"v1\") == \"007_project_description\"\n        assert check_release(cluster.root, \"v2\") == \"007_project_description\"\n        with pytest.raises(ValueError):\n            check_release(cluster.root, \"unknown\")\n",
+            "sql/001_base.sql": "-- Teaching contract d01-d03-v1 (2026-09-28). Apply only to the owned lab database.\nCREATE TABLE users (\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    login varchar(80) NOT NULL UNIQUE,\n    CONSTRAINT users_login_nonblank CHECK (length(btrim(login)) > 0)\n);\n\nCREATE TABLE projects (\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    name varchar(120) NOT NULL,\n    created_by bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\n    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    CONSTRAINT projects_name_nonblank CHECK (length(btrim(name)) > 0)\n);\n\nCREATE TABLE project_members (\n    project_id bigint NOT NULL REFERENCES projects(id) ON DELETE RESTRICT,\n    user_id bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\n    role varchar(8) NOT NULL,\n    PRIMARY KEY (project_id, user_id),\n    CONSTRAINT project_members_role_valid CHECK (role IN ('owner', 'member'))\n);\n\nCREATE TABLE tasks (\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    project_id bigint NOT NULL REFERENCES projects(id) ON DELETE RESTRICT,\n    created_by bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\n    title varchar(120) NOT NULL,\n    description varchar(2000),\n    status varchar(8) NOT NULL DEFAULT 'todo',\n    minutes integer NOT NULL DEFAULT 0,\n    due_at timestamptz,\n    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    CONSTRAINT tasks_title_nonblank CHECK (length(btrim(title)) > 0),\n    CONSTRAINT tasks_status_valid CHECK (status IN ('todo', 'doing', 'done')),\n    CONSTRAINT tasks_minutes_nonnegative CHECK (minutes >= 0)\n);\n\n",
+            "sql/002_expand.sql": "ALTER TABLE tasks ADD COLUMN priority integer NULL;\n",
+            "sql/003_contract.sql": "UPDATE tasks SET priority=0 WHERE priority IS NULL; ALTER TABLE tasks ALTER COLUMN priority SET DEFAULT 0, ALTER COLUMN priority SET NOT NULL; ALTER TABLE tasks ADD CONSTRAINT tasks_priority_valid CHECK(priority BETWEEN 0 AND 2);\n",
+            "sql/004_identity.sql": "ALTER TABLE users ADD COLUMN password_hash text,\n    ADD COLUMN is_active boolean NOT NULL DEFAULT false,\n    ADD COLUMN auth_version bigint NOT NULL DEFAULT 1,\n    ADD COLUMN created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    ADD COLUMN password_changed_at timestamptz,\n    ADD CONSTRAINT users_auth_version_positive CHECK(auth_version >= 1),\n    ADD CONSTRAINT users_active_password CHECK(NOT is_active OR password_hash IS NOT NULL);\nCREATE TABLE auth_sessions(\n    token_digest varchar(64) PRIMARY KEY,\n    user_id bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\n    auth_version bigint NOT NULL,\n    issued_at timestamptz NOT NULL,\n    expires_at timestamptz NOT NULL,\n    revoked_at timestamptz,\n    CONSTRAINT auth_sessions_version_positive CHECK(auth_version >= 1),\n    CONSTRAINT auth_sessions_expiry_order CHECK(expires_at > issued_at),\n    CONSTRAINT auth_sessions_digest_format CHECK(token_digest ~ '^[0-9a-f]{64}$')\n);\nCREATE INDEX auth_sessions_user_id_idx ON auth_sessions(user_id);\nCREATE INDEX auth_sessions_expires_at_idx ON auth_sessions(expires_at);\n",
+            "sql/005_owner_guard.sql": "CREATE UNIQUE INDEX project_members_one_owner ON project_members(project_id) WHERE role='owner';\n",
+            "sql/006_task_operations.sql": "CREATE TABLE task_operations(\n    actor_id bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\n    project_id bigint NOT NULL REFERENCES projects(id) ON DELETE RESTRICT,\n    operation varchar(32) NOT NULL,\n    key uuid NOT NULL,\n    request_digest varchar(64) NOT NULL,\n    response_body jsonb NOT NULL,\n    response_status smallint NOT NULL,\n    created_at timestamptz NOT NULL,\n    expires_at timestamptz NOT NULL,\n    PRIMARY KEY(actor_id,project_id,operation,key),\n    CONSTRAINT task_operations_expiry_order CHECK(expires_at > created_at),\n    CONSTRAINT task_operations_status CHECK(response_status = 201),\n    CONSTRAINT task_operations_digest_format CHECK(request_digest ~ '^[0-9a-f]{64}$')\n);\nCREATE INDEX task_operations_expires_at_idx ON task_operations(expires_at);\n",
+            "sql/007_project_description.sql": "ALTER TABLE projects ADD COLUMN description varchar(500) NULL;\n",
+            "sql/grants.sql": "-- Runtime identity for this read/create-project operational slice, NOT a superuser.\nREVOKE ALL ON SCHEMA public FROM PUBLIC;\nGRANT USAGE ON SCHEMA public TO lab_app;\nGRANT SELECT ON users, auth_sessions TO lab_app;\nGRANT SELECT, INSERT, UPDATE, DELETE ON projects, project_members, tasks TO lab_app;\nGRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO lab_app;\nGRANT SELECT ON alembic_version TO lab_app;\n",
+            "tests/test_environment.py": "\"\"\"Boundary tests use synthetic values only; never a real external DB or secret.\"\"\"\nimport os\nimport re\n\nimport pytest\n\nfrom ops import cluster\nfrom ops.data import grant_app\nfrom ops.migrate import upgrade\nfrom ops.server import running\n\n\n# One test with multiple assertions, not a claim of this many pytest cases.\nLIBPQ_NAMES = (\n    \"PGHOST\", \"PGHOSTADDR\", \"PGPORT\", \"PGDATABASE\", \"PGUSER\", \"PGPASSWORD\",\n    \"PGPASSFILE\", \"PGSERVICE\", \"PGSERVICEFILE\", \"PGSYSCONFDIR\", \"PGOPTIONS\",\n    \"PGAPPNAME\", \"PGCONNECT_TIMEOUT\", \"PGSSLMODE\", \"PGSSLCERT\", \"PGSSLKEY\",\n    \"PGSSLROOTCERT\", \"PGGSSENCMODE\", \"PGTARGETSESSIONATTRS\", \"PGLOADBALANCEHOSTS\",\n    \"PGFUTURE_OVERRIDE\",\n)\n\n\ndef test_libpq_overrides_rejected_before_creation_or_connection(monkeypatch, tmp_path):\n    def forbidden(*args, **kwargs):\n        raise AssertionError(\"Environment guard must run before any allocation or libpq call\")\n\n    monkeypatch.setattr(cluster.tempfile, \"mkdtemp\", forbidden)\n    monkeypatch.setattr(cluster.psycopg, \"connect\", forbidden)\n    canary = \"synthetic-private-environment-value\"\n    for name in LIBPQ_NAMES:\n        with monkeypatch.context() as change:\n            change.setenv(name, canary)\n            for action in [lambda: cluster.OwnedCluster().__enter__(),\n                           lambda: cluster.connect(tmp_path / \"not-a-cluster\", \"source\"),\n                           lambda: upgrade(tmp_path / \"not-a-cluster\", \"007_project_description\")]:\n                with pytest.raises(RuntimeError, match=\"Refusing inherited PostgreSQL environment\") as caught:\n                    action()\n                assert name in str(caught.value) and canary not in str(caught.value)\n            assert os.environ[name] == canary  # Never silently mutate caller settings.\n\n\ndef test_pg_bin_allowed_and_password_file_is_owned(monkeypatch, tmp_path):\n    calls = []\n    sentinel = object()\n\n    def capture(**kwargs):\n        calls.append(kwargs)\n        return sentinel\n\n    monkeypatch.setenv(\"PG_BIN\", str(tmp_path / \"tool-location-only\"))\n    monkeypatch.setattr(cluster, \"checked_root\", lambda value: tmp_path)\n    monkeypatch.setattr(cluster.psycopg, \"connect\", capture)\n    cluster.reject_connection_environment()\n    assert cluster.connect(tmp_path, \"source\") is sentinel\n    assert calls[0][\"host\"] == str(tmp_path / \"socket\")\n    assert calls[0][\"dbname\"] == \"source\"\n    assert calls[0][\"user\"] == \"lab_owner\"\n    assert calls[0][\"passfile\"] == str(tmp_path / \"empty.pgpass\")\n\n\ndef test_two_actual_servers_own_distinct_ephemeral_ports():\n    with cluster.OwnedCluster() as owned:\n        root = owned.root\n        upgrade(root, \"007_project_description\")\n        grant_app(root)\n        with running(root, \"v2\") as first:\n            with running(root, \"v2\") as second:\n                ports = {first.base_url.port, second.base_url.port}\n                assert len(ports) == 2 and all(0 < port <= 65535 for port in ports)\n                assert first.get(\"/health/ready\").status_code == 200\n                assert second.get(\"/health/ready\").status_code == 200\n                logs = list(root.glob(\"service-*.log\"))\n                assert len(logs) == 2\n                banner_ports = set()\n                for path in logs:\n                    match = re.search(r\"Uvicorn running on http://127\\.0\\.0\\.1:([0-9]+)\", path.read_text())\n                    assert match\n                    banner_ports.add(int(match.group(1)))\n                assert banner_ports == ports\n        # Each context also waits for its child and checks the former port is closed.\n    assert not root.exists()\n",
+            "tests/test_release.py": "import pytest\nimport psycopg\nfrom ops.cluster import OwnedCluster,connect,checked_root\nfrom ops.data import grant_app,seed\nfrom ops.migrate import upgrade\n\n\ndef test_refuse_unowned_path():\n    with pytest.raises(RuntimeError):checked_root(\"/tmp\")\n\n\ndef test_migration_preserves_data_and_old_inserts():\n    with OwnedCluster() as cluster:\n        root=cluster.root\n        upgrade(root,\"006_task_operations\");seed(root)\n        upgrade(root,\"007_project_description\");grant_app(root)\n        with connect(root,\"source\",\"lab_app\") as conn:\n            assert conn.execute(\"SELECT count(*) FROM tasks\").fetchone()[0]==2\n            value=conn.execute(\"INSERT INTO projects(name,created_by) VALUES ('Old app write',1) RETURNING description\").fetchone()[0]\n            assert value is None\n            with pytest.raises(psycopg.errors.InsufficientPrivilege):\n                with conn.transaction():conn.execute(\"ALTER TABLE projects ADD COLUMN forbidden int\")\n\n\ndef test_duplicate_owner_rejected():\n    with OwnedCluster() as cluster:\n        upgrade(cluster.root,\"006_task_operations\");seed(cluster.root)\n        with connect(cluster.root,\"source\") as conn:\n            with pytest.raises(psycopg.errors.UniqueViolation):\n                with conn.transaction():conn.execute(\"INSERT INTO project_members VALUES (1,2,'owner')\")\n\n\ndef test_nonempty_target_cannot_be_created_again():\n    with OwnedCluster() as cluster:\n        with pytest.raises(RuntimeError):cluster.create_database(\"source\")\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.65
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 1.0,
+            "probabilities": {
+              "SUBSTANTIVE": 1.0,
+              "UNCERTAIN": 0.0,
+              "PARTIAL": 0.0,
+              "API_CATALOGUE": 0.0
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.9,
+            "probabilities": {
+              "NECESSARY_GAP": 0.04,
+              "ACCURATE_AND_BOUNDED": 0.93,
+              "MATERIAL_ERROR": 0.03,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.97,
+            "probabilities": {
+              "NECESSARY_GAP": 0.0,
+              "ACCURATE_AND_BOUNDED": 0.99,
+              "MATERIAL_ERROR": 0.01,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.77,
+            "probabilities": {
+              "CONTRADICTORY": 0.15,
+              "COHERENT_AND_TESTABLE": 0.83,
+              "UNCERTAIN": 0.01,
+              "UNDERSPECIFIED": 0.01
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.75
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "TARGETED_REVIEW",
+            "confidence": 0.3,
+            "probabilities": {
+              "REVISE": 0.04,
+              "TARGETED_REVIEW": 0.54,
+              "PROCEED": 0.42
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 19623,
+          "output_tokens": 344
+        }
+      },
+      "raw_response_sha256": "5984c86eca2b3dd8db91dcef6f6edf7e2cbe6027f6ad4ef15e7f782f146dd1d5"
+    }
+  ],
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-35-release.mdx",
+    "examples/js2py/o04-release/.github/workflows/check.yml",
+    "examples/js2py/o04-release/.gitignore",
+    "examples/js2py/o04-release/.python-version",
+    "examples/js2py/o04-release/README.md",
+    "examples/js2py/o04-release/README.zh-cn.md",
+    "examples/js2py/o04-release/README.zh-tw.md",
+    "examples/js2py/o04-release/SOURCES.md",
+    "examples/js2py/o04-release/alembic.ini",
+    "examples/js2py/o04-release/ci.py",
+    "examples/js2py/o04-release/demo.py",
+    "examples/js2py/o04-release/migrations/env.py",
+    "examples/js2py/o04-release/migrations/versions/001_base.py",
+    "examples/js2py/o04-release/migrations/versions/002_expand.py",
+    "examples/js2py/o04-release/migrations/versions/003_contract.py",
+    "examples/js2py/o04-release/migrations/versions/004_identity.py",
+    "examples/js2py/o04-release/migrations/versions/005_owner_guard.py",
+    "examples/js2py/o04-release/migrations/versions/006_task_operations.py",
+    "examples/js2py/o04-release/migrations/versions/007_project_description.py",
+    "examples/js2py/o04-release/ops/__init__.py",
+    "examples/js2py/o04-release/ops/app.py",
+    "examples/js2py/o04-release/ops/cluster.py",
+    "examples/js2py/o04-release/ops/data.py",
+    "examples/js2py/o04-release/ops/migrate.py",
+    "examples/js2py/o04-release/ops/release.py",
+    "examples/js2py/o04-release/ops/server.py",
+    "examples/js2py/o04-release/pyproject.toml",
+    "examples/js2py/o04-release/solutions/check_matrix.py",
+    "examples/js2py/o04-release/solutions/preflight.py",
+    "examples/js2py/o04-release/solutions/test_matrix.py",
+    "examples/js2py/o04-release/sql/001_base.sql",
+    "examples/js2py/o04-release/sql/002_expand.sql",
+    "examples/js2py/o04-release/sql/003_contract.sql",
+    "examples/js2py/o04-release/sql/004_identity.sql",
+    "examples/js2py/o04-release/sql/005_owner_guard.sql",
+    "examples/js2py/o04-release/sql/006_task_operations.sql",
+    "examples/js2py/o04-release/sql/007_project_description.sql",
+    "examples/js2py/o04-release/sql/grants.sql",
+    "examples/js2py/o04-release/tests/test_environment.py",
+    "examples/js2py/o04-release/tests/test_release.py"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-35-release.mdx": "14ca52772844c61708274e4d2923c0ec670e5db5cc36196768661b780bfb5668",
+    "examples/js2py/o04-release/.github/workflows/check.yml": "122d5e1b2ee34b46177862eb91abe1cb6d5d1f5b1224ba2657e2a5d1dc3fbce0",
+    "examples/js2py/o04-release/.gitignore": "8dfae3af9d0c607ef44b4b5fa1b4cfdb62135a9ae9075498004908fdedb10e08",
+    "examples/js2py/o04-release/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/o04-release/README.md": "51bc68fd844541bd7abd3ed87fe1f8f12f4fc76d52f2108263b54614deae29a2",
+    "examples/js2py/o04-release/README.zh-cn.md": "14d73f2d85e42987fc912013334a50b770106a80bd8ae7a8f23525eea238b69e",
+    "examples/js2py/o04-release/README.zh-tw.md": "f4c149fa3ad7a1fdcd73d521222d4738f8328026c7db300cf1ab5ad0e6185ea6",
+    "examples/js2py/o04-release/SOURCES.md": "97400e80d2fe87bf736f93403cbcac48ae986d1f4f96667ee2205b958c071dc0",
+    "examples/js2py/o04-release/alembic.ini": "d5bc114fe68813e83b863a6f45d816a6354fbfede50fb0597cdb41dfc2dedfd0",
+    "examples/js2py/o04-release/ci.py": "0bf6ba01a428ef701572944d7d66a996d910b48a1f58063dfd74c4532d1d86fb",
+    "examples/js2py/o04-release/demo.py": "f3dedb7b591cac7b0f5f772558970ee13e3d8761d8419b9a65dba82e7ca0b1ef",
+    "examples/js2py/o04-release/migrations/env.py": "ab04cd92d191e59b5de50204bce600b4110110fcf3c2e8a83137e3a73442e0a0",
+    "examples/js2py/o04-release/migrations/versions/001_base.py": "639534c45163ec1994f9e8fc84d9a1b863b86f1e54740e617d9ba863f2f7e994",
+    "examples/js2py/o04-release/migrations/versions/002_expand.py": "c373a07ea893b6f3a33ac3b021a217d718dd2dd9a7cf04122b3591cdca69e189",
+    "examples/js2py/o04-release/migrations/versions/003_contract.py": "f076793828fc75a7c7fe67c091980659b7e3271fe4f88bccb482d85eb4211f13",
+    "examples/js2py/o04-release/migrations/versions/004_identity.py": "9d53b60ffec2a29203dbc72902c0553647b4a5077491db686fc7e5d7a2302855",
+    "examples/js2py/o04-release/migrations/versions/005_owner_guard.py": "072d922f49053dc5bdae0ed209b850c78ac78edbc5c1e0045080dee90a323553",
+    "examples/js2py/o04-release/migrations/versions/006_task_operations.py": "574113e59cb9f5ffa187a9df9d6b24ab05615e6a9083b75d6878515d75b57d52",
+    "examples/js2py/o04-release/migrations/versions/007_project_description.py": "81eea8dbc9700eb02a6a6a84a442f627f1636edf3e5529abf26278824a98469f",
+    "examples/js2py/o04-release/ops/__init__.py": "47e6099850edb85b4e7f7814a345a0e8cdcc7d4d3b098741c1b6e3ec53400e29",
+    "examples/js2py/o04-release/ops/app.py": "3e9188cab64e2e359c870f640372e35c1d6aa3ef6f942c3af1110e07e5a1e6b2",
+    "examples/js2py/o04-release/ops/cluster.py": "888c0b519d9ebbad7e3cfe96bab7bbc66e2fbef3f23c144e5a93ac2ce097ff49",
+    "examples/js2py/o04-release/ops/data.py": "3dc6b91999b7e4d550b7e0d441db42c3bf05062d915069d70e398e6d0ac211de",
+    "examples/js2py/o04-release/ops/migrate.py": "dabb4e76e094e6544cf5465b54ada13b3a516cf79324a383c64d8d6f54e3a98f",
+    "examples/js2py/o04-release/ops/release.py": "4c3144ef57ad63cd022c70aca2900e0293de13a393f1bfc2005f3c32d020be56",
+    "examples/js2py/o04-release/ops/server.py": "1e57ad9d3e5213e19f2cb6fdf406834101b8297d2797aedf746e47ff9e3afd06",
+    "examples/js2py/o04-release/pyproject.toml": "a1ddf897f369b44223f0e3f785c9723f6e6e6a14b2e8c2b4fafd49ee3231e143",
+    "examples/js2py/o04-release/solutions/check_matrix.py": "187ba0f491e6f3da1bd61effa475e5bfb9121720736504ab8c334fa78ee1a2cc",
+    "examples/js2py/o04-release/solutions/preflight.py": "b4c8a2afd71e1a583d20834027387ca4dfe838ceb1addfd4805b786ec2bb4c00",
+    "examples/js2py/o04-release/solutions/test_matrix.py": "b4982720743b0f889dd32bc640de8ed1acf6e9487e833650180d343e72547f96",
+    "examples/js2py/o04-release/sql/001_base.sql": "f741a3df2f3cf5fb597f74f1dba8321ff806c65f4035cb4efa00111f163eaab1",
+    "examples/js2py/o04-release/sql/002_expand.sql": "27eb21f0b3d6e8bd2a23109de64d3dfb5df4fce582ab169f17e0ada9bf3e1d73",
+    "examples/js2py/o04-release/sql/003_contract.sql": "85c822b16eeb850f8dceebba6a6e5fec11be7e119f948993fa9843c31b82b5c2",
+    "examples/js2py/o04-release/sql/004_identity.sql": "8b32e238ac2f51c7d6b60af917603470fce3bfe44d42e3f88e8945548cded856",
+    "examples/js2py/o04-release/sql/005_owner_guard.sql": "14c6b2d9b556517a227bf8f0a47ce72488ee46d197c2bc8429998b898005a62f",
+    "examples/js2py/o04-release/sql/006_task_operations.sql": "743ff8b6c7ed83867efa191484ec5ccd9155e6c87ae8a02ec01964e832cd805f",
+    "examples/js2py/o04-release/sql/007_project_description.sql": "e41ad1a5ebf5974b3d7f140d661dfc04cb26128662c088991df7d24a7a896486",
+    "examples/js2py/o04-release/sql/grants.sql": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
+    "examples/js2py/o04-release/tests/test_environment.py": "e97319497f8560f965ffdb11c1ca2159ae1d081bc395c22afa6be868afc704f6",
+    "examples/js2py/o04-release/tests/test_release.py": "7f7e25bd7f8a449ca4bd894cfdb8ce6550fe61e4bac12af1932699cfbd7c95b1",
+    "content/docs/js2py/module-35-release.zh-cn.mdx": "b975490095815e8b50c29a9bcd4f07b46daca3b6aa5ae3bb0dcdd3f75c2d9655",
+    "content/docs/js2py/module-35-release.zh-tw.mdx": "441c6a0f5eb4fb1f66810fa9f509a94c39c844d03ce3f669375c0428a78e2d1a",
+    "examples/js2py/o04-release-files.json": "27bede5a58b6667ab9e42b9b748a5c8ca383f833904b59f7de76b8572268270d",
+    "public/learning-assets/js2py/o04-release.zip": "eb56a3ca2f92ec559a990f99c3e138081b15d085ab268f2b02eabb3057767a57",
+    "examples/js2py/o04-release/uv.lock": "c37455141179beca0252064735f9c0b6e7344466564f2bd5648e9c7209ef9838"
+  },
+  "deterministically_checked_lock_files": {
+    "uv.lock": {
+      "sha256": "c37455141179beca0252064735f9c0b6e7344466564f2bd5648e9c7209ef9838",
+      "bytes": 52945,
+      "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+    }
+  },
+  "interface_failures": [],
+  "post_review_changes": [
+    {
+      "path": "examples/js2py/o04-release/README.md",
+      "previous_effective_sha256": "f85b95ce2b8ddfbd51df4dce07d714851196cccc13ae06146de6abe6d805f536",
+      "current_sha256": "51bc68fd844541bd7abd3ed87fe1f8f12f4fc76d52f2108263b54614deae29a2",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+      "submitted_sha256": "f85b95ce2b8ddfbd51df4dce07d714851196cccc13ae06146de6abe6d805f536",
+      "complete_diff": "--- submitted/examples/js2py/o04-release/README.md\n+++ current/examples/js2py/o04-release/README.md\n@@ -79,8 +79,10 @@\n nullable projects.description. They are for this disposable laboratory, NOT\n permission to replace an existing application's migration history. Application\n startup reads schema compatibility but NEVER migrates. Administrative migration\n-and runtime roles are separate; grants.sql lists the operational slice privileges.\n+and runtime roles are separate; grants.sql lists the current lab privileges, not a proven minimal set.\n The migration controller is serial, not a distributed deployment lock.\n+\n+This lab verifies separation of administrative and runtime identities and rejection of the tested ALTER/DROP operations; it does **not** prove least-privilege DML. The shared `sql/grants.sql` still gives SELECT/INSERT/UPDATE/DELETE on projects, project_members and tasks, plus USAGE/SELECT on all public sequences. Several grants exceed the current read/create-project routes. Before a real deployment, map each route and job to its table operation, narrow the table/sequence grants, and verify required actions succeed while unused UPDATE/DELETE and other unneeded actions are denied. Passing the existing DDL-denial tests cannot replace that audit.\n \n ops/server.py owns actual Uvicorn subprocesses, waits for database-backed readiness,\n and closes only those processes in finally. All database roots, synthetic backups,\n",
+      "verification": "English/source delta included in closure request; Chinese README delta inspected/synchronized but no claim of model-reviewed translation."
+    },
+    {
+      "path": "examples/js2py/o04-release/README.zh-cn.md",
+      "previous_effective_sha256": "9fa369c6b28a55bad24507575f006d81cf21c2192d6c04d6c7769ebdf7441aa5",
+      "current_sha256": "14d73f2d85e42987fc912013334a50b770106a80bd8ae7a8f23525eea238b69e",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+      "submitted_sha256": "9fa369c6b28a55bad24507575f006d81cf21c2192d6c04d6c7769ebdf7441aa5",
+      "complete_diff": "--- submitted/examples/js2py/o04-release/README.zh-cn.md\n+++ current/examples/js2py/o04-release/README.zh-cn.md\n@@ -66,8 +66,10 @@\n \n SQL001..006 独立复现 D/S 合同快照，007 添加可空 projects.description。\n 它们只用于自有实验，不允许替换既有生产迁移历史。应用启动只做兼容检查，\n-绝不自动迁移。管理迁移与运行身份分离，grants.sql 列出切片所需权限。\n+绝不自动迁移。管理迁移与运行身份分离，grants.sql 列出当前实验权限，不代表已经最小授权。\n 迁移控制器按单操作员串行执行，不是分布式发布锁。\n+\n+本实验验证的是管理／运行身份分离，以及已测试的 ALTER/DROP 被拒绝；**没有证明 DML 已按最小权限收敛**。共用的 `sql/grants.sql` 仍对 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，并对 public 的全部序列授予 USAGE/SELECT；其中部分权限超过当前“读取／创建项目”路由的需要。真正部署前，须逐个列出路由和作业需要的表操作，收窄表／序列授权，再验证必要操作成功、未使用的 UPDATE/DELETE 等操作被拒绝。已有 DDL 拒绝测试不能代替这项审计。\n \n ops/server.py 管理实际 Uvicorn 子进程，等待 DB-backed readiness，在 finally\n 只停自己的服务。正常/异常退出清理自有库目录、合成归档、私有日志和 socket；\n",
+      "verification": "English/source delta included in closure request; Chinese README delta inspected/synchronized but no claim of model-reviewed translation."
+    },
+    {
+      "path": "examples/js2py/o04-release/README.zh-tw.md",
+      "previous_effective_sha256": "8530a0af7d4ba20dd05d09ec6e341e82b008271a88283c15b8cf2edb4c9dbb78",
+      "current_sha256": "f4c149fa3ad7a1fdcd73d521222d4738f8328026c7db300cf1ab5ad0e6185ea6",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+      "submitted_sha256": "8530a0af7d4ba20dd05d09ec6e341e82b008271a88283c15b8cf2edb4c9dbb78",
+      "complete_diff": "--- submitted/examples/js2py/o04-release/README.zh-tw.md\n+++ current/examples/js2py/o04-release/README.zh-tw.md\n@@ -66,8 +66,10 @@\n \n SQL001..006 獨立復現 D/S 合同快照，007 添加可空 projects.description。\n 它們只用於自有實驗，不允許替換既有生產遷移歷史。應用啟動只做兼容檢查，\n-絕不自動遷移。管理遷移與運行身份分離，grants.sql 列出切片所需權限。\n+絕不自動遷移。管理遷移與運行身份分離，grants.sql 列出當前實驗權限，不代表已經最小授權。\n 遷移控制器按單操作員串行執行，不是分佈式發佈鎖。\n+\n+本實驗驗證的是管理／運行身份分離，以及已測試的 ALTER/DROP 被拒絕；**沒有證明 DML 已按最小權限收斂**。共用的 `sql/grants.sql` 仍對 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，並對 public 的全部序列授予 USAGE/SELECT；其中部分權限超過當前「讀取／創建項目」路由的需要。真正部署前，須逐個列出路由和作業需要的表操作，收窄表／序列授權，再驗證必要操作成功、未使用的 UPDATE/DELETE 等操作被拒絕。已有 DDL 拒絕測試不能代替這項審計。\n \n ops/server.py 管理實際 Uvicorn 子進程，等待 DB-backed readiness，在 finally\n 只停自己的服務。正常/異常退出清理自有庫目錄、合成歸檔、私有日誌和 socket；\n",
+      "verification": "English/source delta included in closure request; Chinese README delta inspected/synchronized but no claim of model-reviewed translation."
+    },
+    {
+      "path": "public/learning-assets/js2py/o04-release.zip",
+      "previous_effective_sha256": "999d2cafe8d4c8f21722014a4a5c6b01d997b9e01ea13989ef8eafedb7ead8b4",
+      "current_sha256": "eb56a3ca2f92ec559a990f99c3e138081b15d085ab268f2b02eabb3057767a57",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+      "verification": "Deterministic locale/hash or rebuilt archive update accompanying the exact reviewed source delta; not semantic review of ZIP bytes."
+    }
+  ],
+  "submitted_source_sha256": {
+    "content/docs/js2py/module-35-release.mdx": "14ca52772844c61708274e4d2923c0ec670e5db5cc36196768661b780bfb5668",
+    "examples/js2py/o04-release/.github/workflows/check.yml": "122d5e1b2ee34b46177862eb91abe1cb6d5d1f5b1224ba2657e2a5d1dc3fbce0",
+    "examples/js2py/o04-release/.gitignore": "8dfae3af9d0c607ef44b4b5fa1b4cfdb62135a9ae9075498004908fdedb10e08",
+    "examples/js2py/o04-release/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/o04-release/README.md": "f85b95ce2b8ddfbd51df4dce07d714851196cccc13ae06146de6abe6d805f536",
+    "examples/js2py/o04-release/README.zh-cn.md": "9fa369c6b28a55bad24507575f006d81cf21c2192d6c04d6c7769ebdf7441aa5",
+    "examples/js2py/o04-release/README.zh-tw.md": "8530a0af7d4ba20dd05d09ec6e341e82b008271a88283c15b8cf2edb4c9dbb78",
+    "examples/js2py/o04-release/SOURCES.md": "97400e80d2fe87bf736f93403cbcac48ae986d1f4f96667ee2205b958c071dc0",
+    "examples/js2py/o04-release/alembic.ini": "d5bc114fe68813e83b863a6f45d816a6354fbfede50fb0597cdb41dfc2dedfd0",
+    "examples/js2py/o04-release/ci.py": "0bf6ba01a428ef701572944d7d66a996d910b48a1f58063dfd74c4532d1d86fb",
+    "examples/js2py/o04-release/demo.py": "f3dedb7b591cac7b0f5f772558970ee13e3d8761d8419b9a65dba82e7ca0b1ef",
+    "examples/js2py/o04-release/migrations/env.py": "ab04cd92d191e59b5de50204bce600b4110110fcf3c2e8a83137e3a73442e0a0",
+    "examples/js2py/o04-release/migrations/versions/001_base.py": "639534c45163ec1994f9e8fc84d9a1b863b86f1e54740e617d9ba863f2f7e994",
+    "examples/js2py/o04-release/migrations/versions/002_expand.py": "c373a07ea893b6f3a33ac3b021a217d718dd2dd9a7cf04122b3591cdca69e189",
+    "examples/js2py/o04-release/migrations/versions/003_contract.py": "f076793828fc75a7c7fe67c091980659b7e3271fe4f88bccb482d85eb4211f13",
+    "examples/js2py/o04-release/migrations/versions/004_identity.py": "9d53b60ffec2a29203dbc72902c0553647b4a5077491db686fc7e5d7a2302855",
+    "examples/js2py/o04-release/migrations/versions/005_owner_guard.py": "072d922f49053dc5bdae0ed209b850c78ac78edbc5c1e0045080dee90a323553",
+    "examples/js2py/o04-release/migrations/versions/006_task_operations.py": "574113e59cb9f5ffa187a9df9d6b24ab05615e6a9083b75d6878515d75b57d52",
+    "examples/js2py/o04-release/migrations/versions/007_project_description.py": "81eea8dbc9700eb02a6a6a84a442f627f1636edf3e5529abf26278824a98469f",
+    "examples/js2py/o04-release/ops/__init__.py": "47e6099850edb85b4e7f7814a345a0e8cdcc7d4d3b098741c1b6e3ec53400e29",
+    "examples/js2py/o04-release/ops/app.py": "3e9188cab64e2e359c870f640372e35c1d6aa3ef6f942c3af1110e07e5a1e6b2",
+    "examples/js2py/o04-release/ops/cluster.py": "888c0b519d9ebbad7e3cfe96bab7bbc66e2fbef3f23c144e5a93ac2ce097ff49",
+    "examples/js2py/o04-release/ops/data.py": "3dc6b91999b7e4d550b7e0d441db42c3bf05062d915069d70e398e6d0ac211de",
+    "examples/js2py/o04-release/ops/migrate.py": "dabb4e76e094e6544cf5465b54ada13b3a516cf79324a383c64d8d6f54e3a98f",
+    "examples/js2py/o04-release/ops/release.py": "4c3144ef57ad63cd022c70aca2900e0293de13a393f1bfc2005f3c32d020be56",
+    "examples/js2py/o04-release/ops/server.py": "1e57ad9d3e5213e19f2cb6fdf406834101b8297d2797aedf746e47ff9e3afd06",
+    "examples/js2py/o04-release/pyproject.toml": "a1ddf897f369b44223f0e3f785c9723f6e6e6a14b2e8c2b4fafd49ee3231e143",
+    "examples/js2py/o04-release/solutions/check_matrix.py": "187ba0f491e6f3da1bd61effa475e5bfb9121720736504ab8c334fa78ee1a2cc",
+    "examples/js2py/o04-release/solutions/preflight.py": "b4c8a2afd71e1a583d20834027387ca4dfe838ceb1addfd4805b786ec2bb4c00",
+    "examples/js2py/o04-release/solutions/test_matrix.py": "b4982720743b0f889dd32bc640de8ed1acf6e9487e833650180d343e72547f96",
+    "examples/js2py/o04-release/sql/001_base.sql": "f741a3df2f3cf5fb597f74f1dba8321ff806c65f4035cb4efa00111f163eaab1",
+    "examples/js2py/o04-release/sql/002_expand.sql": "27eb21f0b3d6e8bd2a23109de64d3dfb5df4fce582ab169f17e0ada9bf3e1d73",
+    "examples/js2py/o04-release/sql/003_contract.sql": "85c822b16eeb850f8dceebba6a6e5fec11be7e119f948993fa9843c31b82b5c2",
+    "examples/js2py/o04-release/sql/004_identity.sql": "8b32e238ac2f51c7d6b60af917603470fce3bfe44d42e3f88e8945548cded856",
+    "examples/js2py/o04-release/sql/005_owner_guard.sql": "14c6b2d9b556517a227bf8f0a47ce72488ee46d197c2bc8429998b898005a62f",
+    "examples/js2py/o04-release/sql/006_task_operations.sql": "743ff8b6c7ed83867efa191484ec5ccd9155e6c87ae8a02ec01964e832cd805f",
+    "examples/js2py/o04-release/sql/007_project_description.sql": "e41ad1a5ebf5974b3d7f140d661dfc04cb26128662c088991df7d24a7a896486",
+    "examples/js2py/o04-release/sql/grants.sql": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
+    "examples/js2py/o04-release/tests/test_environment.py": "e97319497f8560f965ffdb11c1ca2159ae1d081bc395c22afa6be868afc704f6",
+    "examples/js2py/o04-release/tests/test_release.py": "7f7e25bd7f8a449ca4bd894cfdb8ce6550fe61e4bac12af1932699cfbd7c95b1"
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not gpt-6-astra; independent reasoning assistants are separate.",
+    "decision": "Original slice choices unchanged. New targeted audits, reproduced repairs, real runtime/browser evidence and exact new source deltas support conditional ACCEPT_WITH_EXPLICIT_ENVIRONMENT_GATES; see closure record for outstanding/final deterministic gates. Never a production or learner approval.",
+    "scope": "Full English in every slice; union of slices covers every non-lock allowlisted file. Only the original H01 request included lock text. Other opaque locks were checked by registry/hash/locked reconstruction rather than semantic inference. No single slice is presented as whole-chapter review.",
+    "uncertainty": "Raw unfavorable branches preserved. Confidence is distribution concentration, not factual correctness or learner outcomes. Initial direct predecessor contracts omit transitive detail; follow-up audits must examine the actual full path rather than assume missing learner capability.",
+    "snapshot": "Submitted source hashes and full requests remain unchanged. Effective source_sha256 includes each explicitly recorded post-review repair; closure delta review binds the final D03 assertion and O privilege wording changes. Locale/locks/manifests/ZIP are deterministic evidence, not semantic translation review."
+  },
+  "credential_persisted": false,
+  "prior_review_rounds": [],
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+}

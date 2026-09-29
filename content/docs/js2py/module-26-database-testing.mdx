@@ -1,0 +1,284 @@
+---
+title: Database tests and query diagnosis — prove failure, recovery and improvement
+description: Use dedicated PostgreSQL databases to test constraints, transactions, migrations and fixture cleanup; inspect a 60,000-row query before and after an index without promising fixed planner costs.
+---
+
+import { getDatabaseTestingExample } from '@/lib/js2py-examples'
+
+## 1. Passing an HTTP test does not establish a database guarantee
+
+H06 used dependency replacements to test routing behavior, and D05 examined schema history. A dictionary fake does not execute foreign keys. SQLite is not PostgreSQL's type system, transaction implementation or query planner. Both can help test some application rules; neither can substitute for the PostgreSQL acceptance in this chapter.
+
+Instead of pursuing a coverage percentage, design an experiment that could disprove each claim. Does the first row survive a second-write failure? Can a failed Session be used without recovery? Does fixture setup leave a connection when it fails before yield? Could a generated migration erase existing text? Does an index change the database work, rather than the query merely finishing quickly once?
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | D05 migration history/recovery limits; H06 pytest fixtures, dependency replacement and assertions |
+| New capability | Dedicated real databases, resource-safe fixtures, constraint/transaction/migration tests, query-plan evidence |
+| Independent acceptance | Never target dev/prod; repeatable tests without ordering dependencies; failure cleanup/recovery; explain a real query improvement |
+| Exclusions | SQLite as acceptance replacement, production capacity claims, fixed costs, complete performance engineering or backup rehearsal |
+
+Download the [complete D06 lab](/learning-assets/js2py/d06-database-testing.zip) and work in d06-database-testing. It contains frozen D05 revisions and the final model, without sibling-directory imports. Webpage code and ZIP share the same explicit source allowlist.
+
+## 2. Establish an environment that refuses dangerous targets
+
+Install the actual PostgreSQL server binaries; psycopg/binary supplies a client, not a server. You need uv and PostgreSQL 18's postgres/initdb/pg_ctl/psql. The verified macOS arm64 machine uses /opt/homebrew/bin. Change PG_BIN on another POSIX host; do not use root, brew services, an existing data directory, or Docker. Windows is unverified.
+
+Run from the extracted directory:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+"$PG_BIN/postgres" --version
+uv python install 3.13.15
+uv sync --locked
+uv run --locked python pg_sandbox.py --evidence /tmp/d06-database-testing-cleanup.json -- python -m pytest -q
+LAB_PLAN_EVIDENCE=/tmp/d06-plan.json uv run --locked python pg_sandbox.py -- python query_plan.py
+```
+
+The tested baseline is Python 3.13.15, uv 0.12.13, PostgreSQL 18.6, SQLAlchemy 2.0.54, Alembic 1.20.0, psycopg/binary 3.3.6 and pytest 8.4.2. FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5 and HTTPX 0.28.1 match H03–H06. Starlette 0.52.1 and AnyIO 4.12.1 also match the H05/H06 lock. SQLAlchemy 2.0.54 is a deliberate maintenance-line pin, not a claim that the available 2.1 series is still in the future. Python requires `>=3.13,<3.14`; package=false; the lock was generated from public PyPI.
+
+<Code language="toml">{getDatabaseTestingExample('pyproject.toml')}</Code>
+
+If a binary is missing, fix installation/path configuration rather than connecting to an existing developer server. Naming a database test is not sufficient protection: a wrong environment variable can direct cleanup at user data. This harness fails without ownership markers instead of falling back to DATABASE_URL.
+
+## 3. Isolation is more than “clear the tables before testing”
+
+<Code language="python">{getDatabaseTestingExample('safety.py')}</Code>
+
+The wrapper owns a mkdtemp cluster directory and a private 0700 Unix socket, with no TCP listener. It removes inherited PG settings and common database URLs, creates a non-superuser lab_owner, and passes a random LAB_DATABASE_URL plus marker only to its child. The guard verifies directory, token, driver, username, socket, port, database-name format and server marker. Renaming an arbitrary URL environment variable does not make it acceptable.
+
+Local trust is appropriate only to this short-lived cluster controlled by the same OS user. The marker protects against mistakes, not malicious processes running as that user. CREATEDB exists here for fixtures, not as a recommended production API privilege.
+
+Each test owns a UUID-named database. DROP receives only an internally generated identifier quoted with psycopg Identifier, not a request-controlled SQL fragment. Close every Session/Connection, dispose the pool, then drop the database. No FORCE clause terminates leaked connections merely to hide cleanup failure.
+
+Acceptance also queries the server version, current_database, non-superuser role and NULL inet_server_addr for a Unix socket. SQLite, a shared developer database or a mock cannot satisfy this contract. The guard is a laboratory safety mechanism, not a general destructive administration tool for arbitrary URLs.
+
+## 4. Fixture setup can fail before yield
+
+<Code language="python">{getDatabaseTestingExample('testing.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('tests/conftest.py')}</Code>
+
+A yield fixture resembles H05's request dependency: acquire first, release afterward. But a migration can fail after acquiring resources and before reaching yield. Cleanup written only after that point must not be assumed to run. migrated_engine wraps preparation itself in try/finally, installing a cleanup boundary before risky setup begins.
+
+Ownership is nested: fresh_database owns the database, migrated_engine owns the Engine, and inner Session/Connection contexts own checkouts. Borrowers finish before the owner destroys their container. dispose closes idle pooled connections, not still-borrowed Sessions, so the fixture checks outstanding checkouts before dropping the database. A failed drop remains visible rather than expanding the cleanup target.
+
+<Code language="python">{getDatabaseTestingExample('tests/test_resource_safety.py')}</Code>
+
+One test creates a CHECK-constrained table and inserts -1 during preparation, ensuring yield is never reached. It still expects a physical connection close event and absence of that database from pg_database. Another raises inside the test body and checks the same cleanup order. These failures establish more than a happy-path finally block.
+
+## 5. Why not wrap every test in a transaction that never commits?
+
+An outer transaction with SAVEPOINTs can accelerate some tests. But if the application's commit only releases a savepoint, real COMMIT-time constraints, connection release and cross-connection visibility may not be exercised. The technique is not inherently wrong; it cannot replace this chapter's particular acceptance.
+
+Separate databases let the system under test commit and roll back for real, then let new connections inspect the outcome. Creation and migration cost more, but transaction semantics are not rewritten by the test harness. No test relies on a previous test creating alice. The runner repeats suites serially; untested xdist execution or arbitrary random ordering is not claimed as verified.
+
+## 6. Bypass API validation to test the database's final boundary
+
+<Code language="python">{getDatabaseTestingExample('tests/test_database.py')}</Code>
+
+Pydantic may reject invalid titles/statuses, but an import script, older service or another connection can bypass it. Parameterized tests UPDATE a real task with bogus status, negative minutes, blank title, nonexistent user/project, invalid priority and NULL priority. Each must raise IntegrityError, and a fresh connection must see the unchanged valid row.
+
+Additional tests target duplicate login, the membership composite key and RESTRICT deletion. “Some exception occurred” is too weak: malformed SQL could fail without testing a business constraint. We check integrity errors, subsequent state and resource return.
+
+The model remains D01's User/Project/ProjectMember/Task plus D05 priority. H done→todo/done, note→description and retained minutes still apply; doing remains a status and updated_at still needs explicit application updates. Query scoping is not authorization, and foreign-key existence does not establish membership.
+
+## 7. Inspect state outside the original failed unit of work
+
+The project/owner test injects an invalid role into the second flush. A new Session must find zero rows in both tables, and a subsequent transaction must succeed. A function failing to return or an empty Python list would not prove rollback.
+
+<Code language="python">{getDatabaseTestingExample('commit_failure.py')}</Code>
+
+```bash
+uv run --locked python pg_sandbox.py -- python commit_failure.py
+```
+
+```text
+two INSERT values accepted; deferred check awaits COMMIT
+COMMIT failed
+Session refuses reuse before rollback
+rollback restored Session; next transaction committed one row
+checked out: 0
+```
+
+A deferred UNIQUE constraint moves rejection to an actual COMMIT; this is not relabeling a flush error. Queries before rollback must fail. After recovery, a new transaction inserts 8, commits, and another connection sees only 8. A newly borrowed Connection may reuse the same pooled physical connection: the assertion concerns a new transaction outside the failed Session, not a requirement for a new socket. Cleanup, rollback and successful persistence are separate facts requiring separate observations. Network-induced unknown commit outcomes are not covered; these results do not justify blind retries after every error.
+
+## 8. Migration tests must start with old schema and old data
+
+D06's ordinary engine fixture upgrades to head. Migration-history tests deliberately override it to obtain an empty database, then begin at 001 or 002 as required. Using final-model create_all everywhere would bypass the migration chain entirely.
+
+<Code language="python">{getDatabaseTestingExample('tests/test_migration_history.py')}</Code>
+
+Tests exercise data-preserving upgrades, compatible old writers, rollback of version/DDL/backfill after bad data, refusal of lossy downgrade, and real rename-candidate generation. Frozen revisions are replayed instead of substituting current model definitions. Alembic check compares supported metadata features; it does not prove that historical text survived or that all CHECK expressions are equivalent.
+
+D05's transactional-DDL conclusion remains scoped to these operations. Production lock impact, nontransactional changes and backup restoration are separate concerns.
+
+## 9. Query correctness comes before query speed
+
+First establish project scoping, status filtering, id ordering, pagination, empty results and the unfiltered case. A one-millisecond query leaking another project's tasks is still wrong. Stable ordering for a fixed dataset does not make offset pages immune to concurrent changes.
+
+Then ask how PostgreSQL obtains the rows. WHERE does not mean only matching rows are physically visited. A primary-key index exists, but may not suit a project/status list query. Reading a plan requires the index name, conditions and filtering work, not merely spotting the words Index Scan.
+
+## 10. Create meaningful data before inspecting the plan
+
+<Code language="python">{getDatabaseTestingExample('query_plan.py')}</Code>
+
+The experiment creates 200 projects and 60,000 tasks: 300 per project, 30 of them doing. Tasks are interleaved and include moderately sized descriptions. This avoids claiming an index is worthwhile from a three-row toy table. The query selects one project and status, orders by id and returns 20 rows. Actual returned project IDs are bound; identities need not start at one.
+
+ANALYZE refreshes statistics. The script saves both results and a JSON plan before the composite index, creates `(project_id, status, id)`, analyzes again, and saves the second pair. It never sets enable_seqscan=off to force the desired result. Tests first compare exact result rows, then verify that the experimental index was selected.
+
+The observed PostgreSQL 18.6 output was:
+
+```text
+plan before: [('Limit', None), ('Index Scan', 'tasks_pkey')]
+plan after: [('Limit', None), ('Index Scan', 'ix_tasks_project_status_id')]
+same result rows: 20
+```
+
+This is an observation, not an invariant plan tree across machines/releases. Both plans contain Index Scan, but the first scans primary-key order and filters unrelated projects/statuses. The composite index narrows the candidate set by project/status while supplying id order. Looking only at node type misses the change. The pre-index plan need not be a sequential scan.
+
+## 11. Interpret EXPLAIN fields, not memorized cost numbers
+
+EXPLAIN shows planner estimates. EXPLAIN ANALYZE actually executes the statement and adds measurements; using it on a write really writes. Do not casually apply it to destructive production SQL. Our statement is SELECT in a dedicated test database.
+
+| Field | Interpretation and common mistake |
+| --- | --- |
+| Startup Cost / Total Cost | Relative planner units, not milliseconds or money; parent cost includes children, so do not sum every level |
+| Plan Rows / Actual Rows | Estimates can differ from observations; repeated nodes also require Actual Loops context |
+| Index Cond / Filter | Index conditions narrow candidates; filters reject remaining rows; Rows Removed by Filter reveals discarded work |
+| shared hit/read Buffers | Cached/read block observations, not a direct physical-disk latency or user-response measure |
+| Planning/Execution Time | One instrumented measurement affected by caching, workload and overhead; not a capacity guarantee |
+
+No test asserts an exact cost or fixed time threshold. The evidence JSON retains both complete plans: estimates, index names, discarded rows and buffers can be examined. This host's original plan removed 38,180 rows by filtering before reaching its results. The composite index located candidates directly. That number describes this dataset/run, not a timeless constant.
+
+Sequential scanning can be cheaper for a small table or low-selectivity query. Indexes consume storage and increase write maintenance. Leading-column order should reflect query conditions; indexing every column is not a strategy. If another environment chooses a different plan, inspect distribution, statistics, predicates, ordering and costs instead of disabling alternatives to manufacture success.
+
+The experimental index exists only in its dedicated test database. It is not part of D05's migration head. A later service adopting it needs a reviewed index migration and lock/write-cost assessment; its existence in a test does not upgrade production schema.
+
+## 12. Three exercises: explanation, modification, independent query
+
+**Explain.** How could “roll back everything after every test” hide a commit failure? Why is cleanup placed only after fixture yield insufficient?
+
+<details>
+<summary>Answer: do not erase the boundary you intend to verify</summary>
+
+If the application's commit releases a savepoint, a deferred constraint may wait for the outer real COMMIT. Rolling back that outer transaction avoids the failure entirely. Likewise, setup can fail after acquisition but before yield. Wrap risky preparation in an already-established try/finally and use dedicated databases for actual commit behavior.
+
+</details>
+
+**Guided change.** In a temporary copy of the complete lab, use **3 projects and 12 tasks** to inspect a small-table plan, then return to the unchanged 60,000-row baseline. Keep running through pg_sandbox; do not target an existing database or alter the canonical example to accommodate this exercise. This is not just replacing one 60000 with 12:
+
+1. Change the project range from `generate_series(1, 200)` to `generate_series(1, 3)` and the task range from `generate_series(1, 60000)` to `generate_series(1, 12)`. Also change the project assignment from `(g-1) % 200` to `(g-1) % 3`; otherwise the array subscripts no longer match the project set.
+2. Change the status condition from `((g-1)/200) % 10 = 0` to `((g-1)/3) % 2 = 0`. Each project now has 4 tasks: 2 doing and 2 todo. Continue targeting the actual returned `projects[-1]`, without assuming database IDs start at 1. Its doing titles must be `Task 3` and `Task 9`; other projects and statuses must not appear.
+3. Keep `ORDER BY id LIMIT 20`. Twenty is an upper bound, not a required count; this sample returns only 2 rows. Inside the still-open connection block, change the total-row assertion from 60000 to 12. After both queries, replace the combined assertion requiring 20 returned rows with the checks below. Equality, expected content, ordering and absence of duplicates remain mandatory; deleting every assert is not success.
+
+```python
+assert before_rows == after_rows
+assert len(after_rows) == 2
+assert [row.title for row in after_rows] == ["Task 3", "Task 9"]
+ids = [row.id for row in after_rows]
+assert ids == sorted(ids) and len(ids) == len(set(ids))
+```
+
+4. Keep the check that the experimental index was not used before its creation. Replace only the assertion requiring that index after creation with observation and recording of both plans. Retain both ANALYZE operations, actual index creation and result-correctness checks. Do not set `enable_seqscan=off` or require a small table to choose Seq Scan.
+5. Change the report's `rows_seeded` to 12 and `projects` to 3; keep `returned` derived from the actual result length and label `note` as a small-sample observation. Save evidence to a separate file outside the temporary cluster, without overwriting the 60,000-row evidence. Check the wrapper's stop/removal record and discard the exercise copy afterward; the canonical baseline and its index assertions remain unchanged.
+
+From the exercise copy’s root, run only this small-sample script; do not present the modified workload as acceptance of the entire canonical baseline:
+
+```bash
+LAB_PLAN_EVIDENCE=/tmp/d06-small-plan.json uv run --locked python pg_sandbox.py --evidence /tmp/d06-small-cleanup.json -- python query_plan.py
+```
+
+In this PostgreSQL 18.6 small-sample run, both plans chose `Limit → Sort → Seq Scan` and still returned the two correct rows above. Scanning and sorting a small table can cost less than index access. A different plan in another environment is acceptable if the same correctness assertions hold; reproducing this node sequence is not a requirement.
+
+Predict the two result rows first, then observe: do different plans still return the same correct, ordered tasks? Plan choice may vary; business correctness must not be relaxed.
+
+<details>
+<summary>Answer: index choice is conditional on the workload</summary>
+
+Reading a few pages sequentially can cost less than index traversal. Establish correct results first, then compare estimates, statistics and observed access. The canonical test deliberately checks index selection on a selective 60,000-row workload. If you change that workload, redesign its observation assertions rather than retaining an inapplicable performance assumption.
+
+</details>
+
+**Independent variation.** Return total minutes for done tasks in a supplied project set. Empty projects must return 0; todo/doing do not contribute; outside projects must not appear. Write real-database tests for empty projects and an empty input set before comparing SQL and plans. Do not describe this function as authorization.
+
+<details>
+<summary>Reference implementation: the LEFT JOIN condition matters</summary>
+
+<Code language="python">{getDatabaseTestingExample('solutions/project_totals.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('solutions/test_project_totals.py')}</Code>
+
+The status condition belongs in the join condition, preserving projects without matching tasks. Moving it into WHERE can remove NULL-extended rows and erase empty projects. coalesce converts an empty aggregate to zero. The caller still must supply an authorized project set. Independently add a project containing only doing tasks and explain its zero result.
+
+</details>
+
+## 13. Complete frozen schema and supporting files
+
+<details>
+<summary>Final model, services, connections and migration environment</summary>
+
+<Code language="python">{getDatabaseTestingExample('models.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('services.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('db.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('migrate.py')}</Code>
+
+<Code language="ini">{getDatabaseTestingExample('alembic.ini')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('migrations/env.py')}</Code>
+
+</details>
+
+<details>
+<summary>Three frozen revisions, historical data and candidate template</summary>
+
+<Code language="python">{getDatabaseTestingExample('migrations/versions/001_base.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('migrations/versions/002_expand.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('migrations/versions/003_contract.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('history_data.py')}</Code>
+
+<Code language="text">{getDatabaseTestingExample('migrations/script.py.mako')}</Code>
+
+</details>
+
+<details>
+<summary>Full private-cluster lifecycle and dependency lock</summary>
+
+<Code language="python">{getDatabaseTestingExample('pg_sandbox.py')}</Code>
+
+<Code language="toml">{getDatabaseTestingExample('uv.lock')}</Code>
+
+</details>
+
+The download also retains history_demo.py for a standalone D05 replay. Three README editions explain environment, commands and diagnosis. Only allowlisted source is packaged: no .venv, pytest/Python cache, database directory, .env, logs or secrets.
+
+## 14. Evidence, pause record and unverified boundaries
+
+The complete live suite reports **26 passed**: parameterized constraint failures, duplicates, atomic rollback/recovery, commit-time recovery, query scoping/pagination, RESTRICT, migrations/candidate review, two fixture-failure paths, actual server/role checks, the index experiment and independent aggregation. Repeating it creates fresh databases rather than reusing the previous data.
+
+Evidence records server_version_num=180006. Wrapper exit should report stopped=true, status_after_stop=3 and removed=true; stop failure retains its exact path and log. Finally cannot handle SIGKILL/power loss, so normal cleanup does not prove automatic disaster recovery. Stop only the owned directory, never unrelated PostgreSQL services.
+
+When pausing, record test names/parameters, the last command, current revision, data volume/distribution, plan-file location, unresolved questions and the first next step. Write plan evidence outside the disposable cluster, as the commands do. Save reproducible seeds rather than real user data.
+
+Not verified: Windows/other hardware, production workloads/capacity, network partitions and unknown commit outcomes, production restoration, authorization, zero-downtime migrations, or xdist parallelism. Stating those limits prevents a local green suite from being mistaken for permission to launch.
+
+## 15. Official sources and review date
+
+Reviewed **2026-09-28**; pins and execution notes also appear in SOURCES.md and the READMEs. Where a documentation website was blocked, the same project's official tagged documentation was used.
+
+- [pytest safe teardown](https://docs.pytest.org/en/stable/how-to/fixtures.html#safe-teardowns), [official 8.4.2 documentation source](https://github.com/pytest-dev/pytest/blob/8.4.2/doc/en/how-to/fixtures.rst).
+- [SQLAlchemy Session Basics](https://docs.sqlalchemy.org/en/20/orm/session_basics.html), [Pooling](https://docs.sqlalchemy.org/en/20/core/pooling.html): failed transaction state and returned resources.
+- [PostgreSQL 18 EXPLAIN](https://www.postgresql.org/docs/18/using-explain.html): cost units, measurements and interpretation limits.
+- [PostgreSQL constraints](https://www.postgresql.org/docs/18/ddl-constraints.html), [initdb](https://www.postgresql.org/docs/18/app-initdb.html), [pg_ctl](https://www.postgresql.org/docs/18/app-pg-ctl.html): real-database isolation/lifecycle.
+- [Alembic autogenerate](https://alembic.sqlalchemy.org/en/latest/autogenerate.html): candidate and drift-check limitations.
+- [psycopg 3.3.6 support matrix](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/install.rst), [PostgreSQL 18.6](https://www.postgresql.org/docs/18/release-18-6.html): version evidence.
+- [uv installation](https://docs.astral.sh/uv/getting-started/installation/), [PostgreSQL downloads](https://www.postgresql.org/download/): install binaries; let the owned wrapper run the experimental service.

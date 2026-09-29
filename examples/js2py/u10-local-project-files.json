@@ -1,0 +1,22 @@
+[
+  ".python-version",
+  "pyproject.toml",
+  "demo_resource.py",
+  "check_import.py",
+  "run_tasks.py",
+  "fixtures/initial.json",
+  "fixtures/broken.json",
+  "fixtures/wrong-shape.json",
+  "solutions/__init__.py",
+  "task_app/__init__.py",
+  "task_app/validation.py",
+  "task_app/storage.py",
+  "task_app/rules.py",
+  "task_app/app.py",
+  "tests/test_rules.py",
+  "tests/test_storage.py",
+  "solutions/new_requirement.py",
+  "solutions/test_new_requirement.py",
+  "README.md",
+  "uv.lock"
+]

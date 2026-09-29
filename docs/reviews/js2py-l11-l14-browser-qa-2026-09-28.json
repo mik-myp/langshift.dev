@@ -1,0 +1,300 @@
+{
+  "date": "2026-09-28",
+  "results": [
+    {
+      "lab": "u11-typing",
+      "locale": "zh-cn",
+      "title": "基础类型注解：契约、检查与输入边界",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 14,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 16783,
+      "zip_sha256": "879c589893a81834d03d1ec91f3a7cf531ccaa284f408e1706dac4666681a841",
+      "screenshots": [
+        "u11-typing-zh-cn-top.png",
+        "u11-typing-zh-cn-answer.png"
+      ]
+    },
+    {
+      "lab": "u11-typing",
+      "locale": "en",
+      "title": "Basic Type Annotations — Contracts, Checking, and Input Boundaries",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 14,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 16783,
+      "zip_sha256": "879c589893a81834d03d1ec91f3a7cf531ccaa284f408e1706dac4666681a841",
+      "screenshots": [
+        "u11-typing-en-top.png",
+        "u11-typing-en-answer.png"
+      ]
+    },
+    {
+      "lab": "u11-typing",
+      "locale": "zh-tw",
+      "title": "基礎類型註解：契約、檢查與輸入邊界",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 14,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 16783,
+      "zip_sha256": "879c589893a81834d03d1ec91f3a7cf531ccaa284f408e1706dac4666681a841",
+      "screenshots": [
+        "u11-typing-zh-tw-top.png",
+        "u11-typing-zh-tw-answer.png"
+      ]
+    },
+    {
+      "lab": "u12-models",
+      "locale": "zh-cn",
+      "title": "类与数据模型：实例、状态归属与显式校验",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 9,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 8734,
+      "zip_sha256": "032fc8778a1bf9e3dc5afbb27481092ca939adadc93016089516009d1f2e146d",
+      "screenshots": [
+        "u12-models-zh-cn-top.png",
+        "u12-models-zh-cn-answer.png"
+      ]
+    },
+    {
+      "lab": "u12-models",
+      "locale": "en",
+      "title": "Classes and Data Models — Instances, Ownership, and Explicit Validation",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 9,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 8734,
+      "zip_sha256": "032fc8778a1bf9e3dc5afbb27481092ca939adadc93016089516009d1f2e146d",
+      "screenshots": [
+        "u12-models-en-top.png",
+        "u12-models-en-answer.png"
+      ]
+    },
+    {
+      "lab": "u12-models",
+      "locale": "zh-tw",
+      "title": "類與數據模型：實例、狀態歸屬與顯式校驗",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 9,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 8734,
+      "zip_sha256": "032fc8778a1bf9e3dc5afbb27481092ca939adadc93016089516009d1f2e146d",
+      "screenshots": [
+        "u12-models-zh-tw-top.png",
+        "u12-models-zh-tw-answer.png"
+      ]
+    },
+    {
+      "lab": "u13-decorators",
+      "locale": "zh-cn",
+      "title": "装饰器与声明式接口：先展开，再使用",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 11,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 9373,
+      "zip_sha256": "9eeaea746e3d0eec6b79304a8413d50cce294eeddf528af847a2ab81ef185808",
+      "screenshots": [
+        "u13-decorators-zh-cn-top.png",
+        "u13-decorators-zh-cn-answer.png"
+      ]
+    },
+    {
+      "lab": "u13-decorators",
+      "locale": "en",
+      "title": "Decorators and Declarative Interfaces — Expand Before Using",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 11,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 9373,
+      "zip_sha256": "9eeaea746e3d0eec6b79304a8413d50cce294eeddf528af847a2ab81ef185808",
+      "screenshots": [
+        "u13-decorators-en-top.png",
+        "u13-decorators-en-answer.png"
+      ]
+    },
+    {
+      "lab": "u13-decorators",
+      "locale": "zh-tw",
+      "title": "裝飾器與聲明式接口：先展開，再使用",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 11,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 9373,
+      "zip_sha256": "9eeaea746e3d0eec6b79304a8413d50cce294eeddf528af847a2ab81ef185808",
+      "screenshots": [
+        "u13-decorators-zh-tw-top.png",
+        "u13-decorators-zh-tw-answer.png"
+      ]
+    },
+    {
+      "lab": "u14-resources",
+      "locale": "zh-cn",
+      "title": "生成器与资源生命周期：暂停、恢复与可靠释放",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 11,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 9863,
+      "zip_sha256": "428145580fb24b2095142513d7697ac3d87092a7226498796f1a56ff88cd94cb",
+      "screenshots": [
+        "u14-resources-zh-cn-top.png",
+        "u14-resources-zh-cn-answer.png"
+      ]
+    },
+    {
+      "lab": "u14-resources",
+      "locale": "en",
+      "title": "Generators and Resource Lifecycles — Suspension, Resumption, and Release",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 11,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 9863,
+      "zip_sha256": "428145580fb24b2095142513d7697ac3d87092a7226498796f1a56ff88cd94cb",
+      "screenshots": [
+        "u14-resources-en-top.png",
+        "u14-resources-en-answer.png"
+      ]
+    },
+    {
+      "lab": "u14-resources",
+      "locale": "zh-tw",
+      "title": "生成器與資源生命週期：暫停、恢復與可靠釋放",
+      "sections": 13,
+      "viewport": [
+        1280,
+        900
+      ],
+      "answers_initially_closed": 3,
+      "answers_clicked_open": 3,
+      "displayed_sources_exact": 11,
+      "code_color": "rgb(201, 209, 217)",
+      "page_overflow": false,
+      "zip_bytes": 9863,
+      "zip_sha256": "428145580fb24b2095142513d7697ac3d87092a7226498796f1a56ff88cd94cb",
+      "screenshots": [
+        "u14-resources-zh-tw-top.png",
+        "u14-resources-zh-tw-answer.png"
+      ]
+    }
+  ],
+  "screenshots_captured": 24,
+  "screenshots_actually_viewed": [
+    "u11-typing-zh-cn-top.png",
+    "u11-typing-en-answer.png",
+    "u11-typing-zh-tw-top.png",
+    "u12-models-zh-cn-top.png",
+    "u12-models-en-answer.png",
+    "u12-models-zh-tw-top.png",
+    "u13-decorators-zh-cn-top.png",
+    "u13-decorators-en-answer.png",
+    "u13-decorators-zh-tw-top.png",
+    "u14-resources-zh-cn-top.png",
+    "u14-resources-en-answer.png",
+    "u14-resources-zh-tw-top.png"
+  ],
+  "screenshot_directory": "/tmp/langshift-l11-l14-20260928",
+  "screenshot_sha256": {
+    "u11-typing-zh-cn-top.png": "8d82f8bb76f9425d9af858259e7e1d998535b631a960bbc46aeffb709a63c447",
+    "u11-typing-zh-cn-answer.png": "96c8cee9c8c9f2e0ac9e4d0534791e44f5a5dcb88eeb0ed766a90aab2b90d90a",
+    "u11-typing-en-top.png": "c07bbef98a53705f01f2cfd199df69f1ac29f81bf8b0eb4665d5ed8f68b1f22f",
+    "u11-typing-en-answer.png": "09cdbe24d7f964fca57e2488a84669fc592dc483c15327841344c60081bb3827",
+    "u11-typing-zh-tw-top.png": "36c1c945540d65aa35575970188aaa1d4e9563ba11662b16875b3a2cb72d92ec",
+    "u11-typing-zh-tw-answer.png": "b470bcd7928cac0f44392f2c2cf46df40286a03969e3d93168d240af9d5d977e",
+    "u12-models-zh-cn-top.png": "d4ef460e99f06d7cdc793195d3411253e1af3f0afabc67e0f946d653753b2f4b",
+    "u12-models-zh-cn-answer.png": "9280ba05529a198a24f0405f793000a89dcde2178d72e89e45e307691601f879",
+    "u12-models-en-top.png": "d4f1b3bb34e9e85d11acd74696f9f8c9600c43d7732708f0a8efc87f319a75f8",
+    "u12-models-en-answer.png": "a7094e6a210ac53528d3f342361a4f80624db86ab96520c4e14a750d59d49246",
+    "u12-models-zh-tw-top.png": "2a5521c7d41ff2135fda9bc3d42a1fe5940be52d3b3cf7113ecb6a5e7f9592b1",
+    "u12-models-zh-tw-answer.png": "486d8dc5997765adbefae3c49297d12a21c12be1564ff14131cf3cedb163b706",
+    "u13-decorators-zh-cn-top.png": "e5395384c780311279c52c94691d1f9b842aac7b39fa173d6a58ccf9b71db4ee",
+    "u13-decorators-zh-cn-answer.png": "5994c9d12ff7646949087013727da25da7c4dc17c5166cc527707e10200f3b20",
+    "u13-decorators-en-top.png": "c445ef5c74f9366ec038354cb918b72ddba25386afdc1ba80729dceab39bb7ec",
+    "u13-decorators-en-answer.png": "3c1eb5de3f8e51cdc7748b8cdc256cbc1a3ad600b31e6060a92161aee16a03e9",
+    "u13-decorators-zh-tw-top.png": "065ef5899568e8f5e132771bedfb386c1927c9a36500aac42f1df8d126f4a947",
+    "u13-decorators-zh-tw-answer.png": "06b5dc2741418c765f5a68ca8ddb6d29cb01335658cd78728d8ee3b28005dfac",
+    "u14-resources-zh-cn-top.png": "9a00918f910fa48174e718ef9a44dc4d660948f492c837b0917f5fd434fe9f10",
+    "u14-resources-zh-cn-answer.png": "68158855edf61ff72090500c99407a58f96cc215e8100562e16a62c5bee954bd",
+    "u14-resources-en-top.png": "af2f5cc3067244954f034d623db67b088ba454755f70904f0743b85ac055cf94",
+    "u14-resources-en-answer.png": "2351707f2ff858c9e8960db5d2dd45dc4d91aebad71c86accfd09339d9d824e0",
+    "u14-resources-zh-tw-top.png": "8d9b9bf5d12d5bbe88efbf1fa6febbc5d2a468dd8eb545404fc425807b800719",
+    "u14-resources-zh-tw-answer.png": "29c60e5b9bf6f6175e69b409488ff3c7b2bdd796ad947ad9f2082e336989380e"
+  },
+  "limitations": "Twelve named pages at desktop1280x900, three answer interactions per page, source/download comparison. Twelve of24 captured images actually viewed; not mobile/all-site verification. Owned session closed; owned preview12437 stopped after command verification."
+}

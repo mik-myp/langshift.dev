@@ -1,0 +1,306 @@
+---
+title: "From client to a long-running service: processes, ports, and boundaries"
+description: Trace requests with a loopback-only standard-library tool and two terminals, separate connection, request, and process lifetimes, and test path failures, port conflicts, and safe shutdown.
+---
+
+import { getServiceProcessExample } from '@/lib/js2py-examples'
+
+## 1. Why is the service still running after a request finishes?
+
+As a frontend developer, you are usually given a URL. Now reverse the question: what keeps waiting at that address? Why can you refresh without restarting the backend? Does closing the browser shut down the backend? Confusing these lifetimes makes it easy to misdiagnose “the endpoint returned 404” as “Python did not start,” or to stop somebody else's program while resolving a port conflict.
+
+We first learn to observe a running service, without writing framework routes. Python's existing static-file server makes request paths, operating-system processes, and file locations visible. It is neither the capstone task API nor a production server. Subclassing HTTP handlers, socket programming, threads, and ASGI are not prerequisites.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | L10 local multi-file projects; L14 acquiring, using, and releasing resources |
+| New capabilities | Distinguish programs from processes, addresses from ports, and requests from connections; locate failures along the request path; identify trust boundaries |
+| Independent acceptance | Draw the request path; complete success, failure, success requests; prove request completion is not process termination; stop only your own service |
+| Not required yet | FastAPI, databases, authentication implementation, async, production deployment, or server concurrency internals |
+
+Download the [complete H01 lab](/learning-assets/js2py/h01-service-process.zip). Run it locally, not in the browser Python editor: the page's Python environment cannot listen on this TCP port in your operating system. The baseline is CPython 3.13.15, uv 0.12.13, and pytest 8.4.2. The maintainer tested macOS with curl 8.7.1 on **2026-09-28**. Commands use a macOS/Linux shell; Windows commands and signal behavior have not been verified.
+
+## 2. Three lifetimes that are easily confused
+
+A **program** is code on disk. A **process** is a running instance started by the operating system, with its own runtime state and resources. Starting the same code twice creates two processes; sharing source code does not make them share a Python list. A terminal is a place to launch and observe a process, not the process itself.
+
+An ordinary script can finish one job and exit. This complete file has no loop or wait for more input. After the two print calls, no work remains.
+
+<Code language="python">{getServiceProcessExample('one_shot.py')}</Code>
+
+A service process retains the ability to receive further requests. A **request** is one round of “the client asks; the server responds.” A **connection** is a communication channel carrying that interaction. After a request, a connection may close or be reused. Neither outcome implies that the entire service process should exit. See the client, server, and connection roles in [RFC 9110 §3.3](https://www.rfc-editor.org/rfc/rfc9110.html#section-3.3).
+
+Your development server offers a useful analogy: completing a hot update does not terminate it. The analogy stops there. A backend must also take responsibility for validation, permissions, and storage, not merely deliver frontend build output. Knowing how to start Vite does not replace learning those responsibilities.
+
+## 3. The address locates the host; the port locates a listening endpoint
+
+Our URL is `http://127.0.0.1:8765/hello.txt`. `http` selects the protocol; `127.0.0.1` is an IPv4 loopback address referring to the machine initiating the connection; `8765` is this experiment's TCP port; `/hello.txt` is the request path sent to the service. A port is neither a directory nor a Python function name. [IANA's special-address registry](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml) reserves `127.0.0.0/8` for loopback.
+
+**Listening** means a process asks the operating system to receive connections at a particular address and port. The operating system delivers a connection to that endpoint; the HTTP service then interprets the path and responds. A path named `/hello.txt` does not bypass the port and search your disk. Nor does a 404 prove that nothing is listening: receiving HTTP 404 already means an HTTP service responded.
+
+We bind only to `127.0.0.1`. Do not omit the bind option or change it to `0.0.0.0`, which listens on all IPv4 interfaces rather than providing a “better localhost.” The Python tool defaults to listening on all interfaces, so we explicitly narrow its reach. Loopback reduces network exposure; **it is not login or authorization**. Other local processes may still connect. The [Python CLI documentation](https://docs.python.org/3.13/library/http.server.html#command-line-interface) describes binding behavior.
+
+If you send this URL to another computer, its `127.0.0.1` points to that computer, not yours. Do not change firewall rules, expose a router port, or use a tunnel to share this lab. The name `localhost` may also resolve to IPv6 `::1`; we consistently use the literal `127.0.0.1` to reduce variables.
+
+## 4. Prepare the project and locate both terminals
+
+Open terminal A at the repository root and run the following. If you downloaded the ZIP, enter the extracted `h01-service-process` directory and start with `uv sync`; do not run from its parent. `pwd` checks the current working directory. `uv run --locked` uses the locked project environment. `python -m` runs the named Python module, not a local file named `http.server.py`.
+
+```bash
+cd examples/js2py/h01-service-process
+pwd
+uv sync --locked --default-index https://pypi.org/simple
+uv run --locked python --version
+uv run --locked python one_shot.py
+echo $?
+```
+
+```text
+Python 3.13.15
+script: started
+script: finished
+0
+```
+
+This output omits uv's installation progress and the machine-specific path from `pwd`. Run `echo $?` immediately after the command you are examining: it prints that command's exit status. Zero normally means success; it is not an HTTP status. Once the script finishes, the terminal prompt returns immediately.
+
+<Code language="toml">{getServiceProcessExample('pyproject.toml')}</Code>
+
+There are no third-party runtime packages; pytest is for verification. `package = false` means this is an experiment project, not a requirement to build and install a distribution package. The lockfile has already been generated; ordinary reproduction should not delete it or select new dependency versions.
+
+## 5. Start the service: understand the command before observing it wait
+
+Serve only dedicated teaching files. Do not include `.env`, credentials, your home directory, the project root, or symbolic links. The static tool may produce directory listings and follows symbolic links; `--directory` is not a security sandbox. Our boundary relies on controlled, nonsecret files and loopback, not a claim of production isolation. See the [security considerations](https://docs.python.org/3.13/library/http.server.html#security-considerations).
+
+<Code language="text">{getServiceProcessExample('public/hello.txt')}</Code>
+
+In terminal A, still at the lab root, run:
+
+```bash
+uv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory public
+```
+
+```text
+Serving HTTP on 127.0.0.1 port 8765 (http://127.0.0.1:8765/) ...
+```
+
+`8765` selects the listening port. `--bind` selects the listening address. `--directory public` selects the public file root; the relative path `public` is interpreted against the **working directory at startup**. The missing prompt is expected: this foreground service is waiting for requests, not “stuck.” The standard library already implements waiting and handling; rewriting it is not required here.
+
+If startup reports `Address already in use`, this attempt failed; it did not silently choose another port. Do not kill processes by port or run `killall python`. First check whether another terminal contains an instance you started. If ownership is uncertain, choose `8766` and change all client commands consistently. Only a foreground instance you started should be stopped using this lesson's procedure.
+
+## 6. curl is a client, not another server
+
+Open terminal B and enter the same lab root. Leave A alone. Run:
+
+```bash
+curl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt'
+```
+
+curl connects, sends a request, reads the response, and exits. `--noproxy '*'` bypasses proxies for this experiment. Quotes pass the asterisk literally rather than letting the shell expand it to filenames. `--max-time 3` limits the whole transfer to three seconds. `--verbose` shows connection diagnostics and sent/received headers. Diagnostics go to standard error and the body to standard output, so their order may interleave when copying a log. See the [curl manual](https://curl.se/docs/manpage.html).
+
+Focus on this **excerpt of key lines**. Real output also includes changing dates, file sizes, and tool-version headers; this is not a byte-for-byte snapshot:
+
+```text
+> GET /hello.txt HTTP/1.1
+> Host: 127.0.0.1:8765
+< HTTP/1.0 200 OK
+hello from the service
+```
+
+`>` and `<` are curl's sending/receiving markers, not part of the HTTP message. The service tool defaults to HTTP/1.0 responses. That does not mean your request failed or that the service process exited. We are observing one interaction; implementing HTTP version differences or connection reuse is outside the independent exercise.
+
+Immediately run the request again. A shows a second request log; B receives the body again. The second curl invocation is another short-lived client process. The service is the same long-running process. **A's log demonstrates arrival; B's response demonstrates a returned result. A startup banner alone does not prove a path is correct.**
+
+## 7. Draw the route instead of treating a URL as a local filename
+
+```text
+terminal B: curl (client)
+    -> TCP 127.0.0.1:8765
+    -> terminal A: Python process listening on that address
+    -> HTTP GET /hello.txt
+    -> serving directory public -> public/hello.txt
+    <- HTTP status + headers + body
+client exits; server waits for another request
+```
+
+Mapping to a file is this tool's behavior, not an HTTP requirement. A later path such as `/projects/7/tasks/41` can identify a resource assembled by business logic without a matching directory or file on disk. The request path and working directory belong to different layers: the client supplies the former; the process launch environment determines the latter.
+
+The next URL sends a path and query. `#client-note` is a client-side fragment and is not sent to the HTTP service. The standard-library file tool assigns no business meaning to the query, so it does not search for a file literally named `hello.txt?attempt=2`. A future API will interpret query parameters according to its contract. See [URL structure](https://url.spec.whatwg.org/) and [Python's path handling](https://docs.python.org/3.13/library/http.server.html#http.server.SimpleHTTPRequestHandler).
+
+```bash
+curl --noproxy '*' --max-time 3 --verbose 'http://127.0.0.1:8765/hello.txt?attempt=2#client-note'
+```
+
+```text
+> GET /hello.txt?attempt=2 HTTP/1.1
+hello from the service
+```
+
+Again, these are selected lines. The query does not create application state in this chapter; refreshing does not add a task.
+
+## 8. Three failures at three different layers
+
+In terminal B, request a missing path, then a working one:
+
+```bash
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/not-here.txt'
+echo $?
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/hello.txt'
+```
+
+`--include` displays response headers with the body, without `--verbose`'s full connection diagnostics. The first request receives HTTP 404 and an HTML error page; the second still receives 200. By default curl can exit zero after receiving a complete HTTP error response. HTTP status and command exit status are not interchangeable.
+
+Now return to A and press **Ctrl+C**. This requests an interrupt of the current foreground program; the standard-library tool exits and A's prompt returns. Request the original URL again from B:
+
+```bash
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8765/hello.txt'
+echo $?
+```
+
+In our tested conditions, with nobody taking over the port, curl fails to connect and exits `7`, with no HTTP status or body. A local security tool could instead cause a timeout; do not label every network failure 404. If you receive a successful response, investigate whether another process is listening rather than stopping unidentified programs.
+
+| Observation | Failure stage | Check and recovery |
+| --- | --- | --- |
+| Startup reports a busy address and immediately returns the prompt | Acquiring the listening endpoint | Identify your instance; choose another port if ownership is unclear |
+| HTTP 404 and a request log in A | Connection and HTTP succeeded; resource not found | Check path, `pwd`, and public directory; do not reinstall Python |
+| Connection refused, no HTTP response | Before HTTP handling | Check address, port, and whether your service is still running |
+
+To recover, repeat section 5 in A, then verify the working path in B. Do not casually background this beginner experiment with `&`, or assume that closing a terminal window guarantees correct cleanup in every environment.
+
+## 9. Python can be the client: closing its connection does not stop the service
+
+<Code language="python">{getServiceProcessExample('client.py')}</Code>
+
+This file is still not a server. `HTTPConnection` specifies the destination address and port; `request` sends GET; `getresponse` reads status and headers; `read` retrieves body bytes. We decode as UTF-8 because that is the known encoding of this lab's file. `finally` closes this client connection; it does not acquire power over another process. A timeout prevents indefinite client waiting, but does not automatically undo business changes already made on the server. See the [client documentation](https://docs.python.org/3.13/library/http.client.html).
+
+The file hardcodes loopback and accepts only a port and path, not arbitrary external URLs. It is not a general downloader: no retries, large-file streaming, or complex encoding support. HTTP errors retain their status; connection exceptions are reported separately. Exit code `2` is this script's convention, not a rule for all Python clients.
+
+```bash
+uv run --locked python client.py 8765 /hello.txt
+uv run --locked python client.py 8765 /not-here.txt
+echo $?
+```
+
+```text
+status=200
+hello from the service
+```
+
+The displayed body belongs only to the first command. The second prints `status=404` and an HTML error page; its final exit code is `2`. It has not shut down A's service.
+
+## 10. Trust boundaries: your frontend does not control every request
+
+A title-length restriction in a browser form provides immediate help. curl or another script never passes through that form. The server must validate input, establish identity, check object permissions, and expose only permitted information. It must not trust `creator_id` or `role` supplied in a request, or equate a local request with an authenticated user. Establish this responsibility boundary before designing HTTP contracts.
+
+The division does not mean “delete all frontend validation.” The frontend serves usability; the server enforces rules clients cannot bypass; later, storage enforces its persistence constraints. Different layers may check similar facts while providing different guarantees. We do not yet have a database or authentication. Serving a static `hello.txt` successfully is not a secure backend.
+
+**Explanation exercise:** Why does A keep running when B finishes reading the file? Which layers does a 404 show are working? Would making a title input read-only stop another client from modifying a task? Write reasons before expanding the answer.
+
+<details>
+<summary>Explanation answer: separate lifetime from the source of trust</summary>
+
+B ends one client invocation. A still holds the listening resource and waits for further connections. A 404 proves that some HTTP service received and answered the request; it proves neither that this is your intended instance nor that the resource exists. Correlate the address, port, and A's log. A read-only input constrains that UI, not other request generators. The eventual server must independently reject unauthorized modifications; this chapter has not implemented that permission system.
+
+</details>
+
+## 11. Guided experiment: can the wrong directory start successfully?
+
+First stop your own A. Stay at the lab root, change the public directory to the existing `solutions/public`, keep port `8765`, and request `/hello.txt` followed by `/health.txt`. Hint: do not change the client host or expose the whole project to obtain 200. Predict whether startup succeeds and both response statuses.
+
+<details>
+<summary>Guided answer: working directory and serving directory are different</summary>
+
+```bash
+uv run --locked python -m http.server 8765 --bind 127.0.0.1 --directory solutions/public
+```
+
+In the other terminal, still at the lab root:
+
+```bash
+uv run --locked python client.py 8765 /hello.txt
+uv run --locked python client.py 8765 /health.txt
+```
+
+Startup succeeds. The first request gets 404; the second gets 200 with `ready`. The process working directory stayed the same, but the explicit serving root changed, changing path resolution. Press Ctrl+C to stop your variation, then restore `--directory public`. This is path diagnosis, not a permission system implemented by switching directories.
+
+</details>
+
+## 12. What automated verification is for—and what it does not prove
+
+<Code language="python">{getServiceProcessExample('observe.py')}</Code>
+
+```bash
+uv run --locked python observe.py
+uv run --locked python -m pytest -q
+```
+
+```text
+200 hello from the service
+404 missing
+200 hello from the service
+request_done_process_alive=True
+process_stopped=True
+```
+
+The standard suite has **13 tests**. `observe.py` uses `tools/owned_server.py` to start the standard-library CLI with port `0`. Here `0` asks the operating system to allocate a free port. The client uses the actual port announced in the startup log; `0` is not a browser destination port. The helper tracks its own child process, bounds waits, and cleans up only that child. It does not scan for or kill other listeners.
+
+<Code language="python">{getServiceProcessExample('tests/test_service_process.py')}</Code>
+
+Tests cover repeated requests, continued service after 404, query versus filename, HEAD's empty body, unexposed project files, port collisions, wrong directories, exception cleanup, and interruption of our own child. Process APIs are **maintainer test infrastructure**, not server internals you must independently reconstruct in H01. Consult the [subprocess documentation](https://docs.python.org/3.13/library/subprocess.html) to review the helper. It does not reimplement HTTP.
+
+These tests do not prove safety for every firewall, external network, production load, or hostile request. A single liveness check is not a complete health check. They establish the explicitly listed observations for this experiment.
+
+## 13. Independent variation: change the public directory and keep the evidence
+
+Without reading the answer, create a teaching directory containing only your own `health.txt` and `note.txt`. Choose another unused port, `8766`. Complete a successful health request, a missing-path failure, and a successful note request. Record how paths resolve to files, whether the process survives the failure, and how to stop only your instance. Do not copy a `while True` loop and call it a service; do not include symbolic links or real data.
+
+Acceptance also needs negative evidence: the old `/hello.txt` must not automatically appear in the new directory just because you requested it earlier. Compare with the reference files and tests after your attempt. If you chose different body text, your own assertions should match that deliberate choice.
+
+<details>
+<summary>Independent reference and two checks</summary>
+
+<Code language="text">{getServiceProcessExample('solutions/public/health.txt')}</Code>
+
+<Code language="text">{getServiceProcessExample('solutions/public/note.txt')}</Code>
+
+```bash
+uv run --locked python -m http.server 8766 --bind 127.0.0.1 --directory solutions/public
+```
+
+In the other terminal:
+
+```bash
+uv run --locked python client.py 8766 /health.txt
+uv run --locked python client.py 8766 /not-here.txt
+uv run --locked python client.py 8766 /note.txt
+uv run --locked python client.py 8766 /hello.txt
+```
+
+Statuses are 200, 404, 200, 404. Successful bodies are `ready` and `a separate serving directory`. Finally press Ctrl+C only in the terminal that started it. The automated reference below uses an allocated loopback port and does not depend on your manual instance remaining active:
+
+<Code language="python">{getServiceProcessExample('solutions/observe_health.py')}</Code>
+
+<Code language="python">{getServiceProcessExample('solutions/test_health.py')}</Code>
+
+```bash
+uv run --locked python -m solutions.observe_health
+uv run --locked python -m pytest -q solutions/test_health.py
+```
+
+Two reference tests show that both new files are accessible, the old file is not implicitly shared, and our process has ended after leaving the context. Passing this reference does not replace drawing the path and diagnosing failures yourself.
+
+</details>
+
+## 14. Pause, resume, and the chapter's finish line
+
+Before pausing, record the lab directory, public directory, address and port, terminal owning the service, last successful command, layer of the last failure, standard and variation test results, and the first next step. Stop services you started before leaving the computer; do not leave unidentified background instances.
+
+Resume in order: check CPython and the working directory; run `observe.py` for an isolated check; start the manual service in A; repeat success, failure, success in B; correlate logs and stop it. If a port is occupied, do not copy an old PID from your notes into a kill command. That PID may now belong to a different program.
+
+Acceptance is not “I saw 200 once.” Without relying on framework terminology, explain why the process survives, who interprets the path, where failures occur, which inputs are untrusted, and who has authority to stop the process. H02 turns these interactions into an API contract; H03 implements the first synchronous FastAPI service.
+
+## 15. Primary sources and verification scope
+
+Checked on 2026-09-28: [Python 3.13 http.server](https://docs.python.org/3.13/library/http.server.html), [http.client](https://docs.python.org/3.13/library/http.client.html), [subprocess](https://docs.python.org/3.13/library/subprocess.html), [official curl manual](https://curl.se/docs/manpage.html), [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html), [IANA loopback registry](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml), and [WHATWG URL Standard](https://url.spec.whatwg.org/).
+
+Verification covers local loopback success, failures, the independent variation, and cleanup of owned children. It does not cover public deployment, browser cross-origin policy, TLS, databases, or persistence. The standard-library static server is not positioned as a production application server. An explicit file allowlist connects the download and displayed source without including virtual environments, caches, temporary logs, or credentials.

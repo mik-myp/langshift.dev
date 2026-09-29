@@ -1,0 +1,507 @@
+---
+title: "From Frontend Engineering to Python: Your First Reproducible Project"
+description: "A complete local project for experienced frontend engineers new to backend development: interpreters, virtual environments, dependency locking, execution, testing, and evidence-driven debugging."
+---
+
+import { getU00Example } from '@/lib/js2py-examples'
+
+## 1. More than a list of installation commands
+
+You can already structure a frontend application, manage data flow, and integrate APIs with Promises and async/await. This chapter does not start by explaining what a variable is. Equally importantly, it does not assume you have implemented an Express server, designed a database, or operated a production service.
+
+We start with a question that short tutorials often skip: **when you run a Python command, which program executes your code, where does it find packages, and why can an import work in your editor but fail in your terminal?** Without that foundation, environment failures and application failures become hard to distinguish. Reinstalling everything becomes a habit rather than a diagnosis.
+
+Our deliverable is deliberately small but complete: a local application that reads a task list, prints a progress report, and has automated tests. Its business logic is simple so you can concentrate on how the project works. It is not a web server, and it does not yet implement users, persistence, or input validation. Those responsibilities will be added explicitly in later chapters, not represented by unexplained ellipses.
+
+### 1.1 Questions you should be able to answer
+
+- What are the different responsibilities of Python, CPython, uv, and FastAPI?
+- Why does having Python installed not guarantee that a project can import a package?
+- How do `.venv`, `.python-version`, `pyproject.toml`, and `uv.lock` differ?
+- What changes when a file is executed as a script rather than imported?
+- How do you distinguish a working-directory problem from an interpreter, dependency, or business-logic problem?
+- How can you return after a two-week break and verify that the project still works?
+
+You do not need to master every Python construct before starting. We explain the syntax needed for this example and revisit language differences systematically in the next chapter.
+
+### 1.2 Where each example belongs
+
+| Material | Execution environment | Important boundary |
+| --- | --- | --- |
+| Shell commands | A local terminal in the stated directory | They are not Python statements to paste into a `.py` file |
+| The application and tests | Local CPython 3.13, selected through uv | This is not the browser's Pyodide environment |
+| JSON, TOML, and lockfiles | Saved under the stated filename and read by the relevant tool | They are not executable Python programs |
+| JS/Python comparisons | Equivalent behavior to study or run in the appropriate local environment | You do not need to build a Node backend first |
+| Deliberate fault experiments | Only a disposable copy of this lesson's project | They are not instructions for a production system |
+
+Browser Python is useful for short language experiments. It is not your local computer and does not automatically provide server libraries, a database, or the same filesystem. This chapter's acceptance checks run locally.
+
+## 2. A mental model: four different responsibilities
+
+Frontend tools hide useful infrastructure. When you run `pnpm dev`, you usually do not need to inspect Node's path and module lookup on every invocation. Switching ecosystems is a good opportunity to make those responsibilities explicit again.
+
+### 2.1 A language, an interpreter, and a framework are not interchangeable
+
+**Python** is the language: it defines syntax and behavior for functions, objects, exceptions, and modules. **CPython** is the implementation used in this course. The executable commonly named `python` reads and executes your program.
+
+**uv** is project tooling. It selects Python versions, manages environments, resolves and installs dependencies, and runs project commands. It does not replace the language or implement your business rules.
+
+**FastAPI** is a library/framework introduced later. It organizes how a Python application handles HTTP requests. Running that application also involves an ASGI server such as Uvicorn. These names refer to different layers, not four competing ways to write the same program.
+
+```text
+Terminal
+  └─ uv run: find the project, prepare its environment, select Python
+       └─ CPython: execute main.py
+            ├─ import the json and pathlib standard-library modules
+            ├─ read tasks.json
+            └─ run the business function and print its result
+```
+
+uv does not understand what a completed task means. Python does not decide which dependency versions your team should lock. Later, FastAPI will not decide who is allowed to read a user's data. Backend engineering includes learning where each responsibility starts and ends.
+
+### 2.2 Analogies are useful only when their limits are visible
+
+| Familiar concept | Course counterpart | Limit of the analogy |
+| --- | --- | --- |
+| JavaScript and Node.js | Python and CPython | Similar language/runtime distinction, not identical execution semantics |
+| `package.json` | `pyproject.toml` | Both can declare dependencies; field specifications and tooling differ |
+| `pnpm-lock.yaml` | `uv.lock` | Both record resolution decisions; a loose version range is not a lockfile |
+| `node_modules` | Packages installed in `.venv` | A virtual environment also provides a Python interpreter entry point |
+| `.nvmrc` | `.python-version` | Both express version preferences; neither independently locks all dependencies |
+| `pnpm exec ...` | `uv run ...` | Both select project tools; uv may synchronize the environment before running |
+| ESLint / Prettier | Ruff linting / formatting | Style checks do not replace business-behavior tests |
+
+### 2.3 Why not compare every package manager first?
+
+pip, venv, virtualenv, Poetry, pyenv, pip-tools, and uv exist for different purposes and historical reasons. A professional project does not require installing every one of them.
+
+This course chooses **one operational path through uv**, while explaining the principles of environments and dependency declarations. Those principles will help you understand an existing pip or Poetry project later.
+
+This is not a claim that pip or venv is obsolete. Reducing the number of simultaneous workflows makes failures easier to reason about. Avoid casually alternating between tools to install, upgrade, and remove packages in the same learning environment.
+
+## 3. Python versions and virtual environments
+
+### 3.1 Why your computer may have several Pythons
+
+Your operating system, Homebrew, other applications, and your own installations may each provide a command named `python` or `python3`. A terminal searches `PATH`; an editor may keep a separate interpreter selection. A version displayed in one place does not prove the other place uses the same executable.
+
+Ask the running process instead of guessing. Once the lesson project is ready, execute:
+
+```bash
+uv run --locked python -c "import sys; print(sys.executable); print(sys.version)"
+```
+
+`-c` executes a short Python statement. `sys.executable` identifies the running interpreter; `sys.version` reports its version. These are observations of the actual process, not assumptions based on an editor status bar.
+
+The course uses CPython **3.13** as its teaching version line, not as a permanent claim about the latest Python release. Patch versions may differ. For stricter reproducibility, pin a tested patch version in `.python-version` and rerun the tests when upgrading.
+
+### 3.2 What `.venv` does—and does not—isolate
+
+If projects A and B require different versions of a library, installing both into one shared environment allows maintenance of B to break A. A virtual environment provides a project-specific package installation location and interpreter entry point.
+
+That is not a security sandbox. Code can still access files and networks permitted to the current user. A virtual environment does not isolate a database or prevent a program from deleting files.
+
+Creating an environment and activating it are also different. Activation usually changes command lookup in the current shell. **`uv run` does not require manual activation**: uv selects the project's environment for the command. We use that one path first, rather than introduce hidden activation state.
+
+Observe the environment with:
+
+```bash
+uv run --locked python -c "import sys; print(sys.prefix); print(sys.base_prefix)"
+```
+
+In this lesson's virtual environment, the values should differ. The first identifies the current environment; the second relates to its base interpreter. Exact paths depend on your machine.
+
+> Do not modify system Python, use `sudo pip install`, or disable system protections to fix an ordinary project dependency problem. Establish which project and interpreter are involved first.
+
+## 4. Install the tools and run a known-good project
+
+### 4.1 Install uv and Python
+
+The main path uses macOS. If you already use Homebrew:
+
+```bash
+brew install uv
+uv --version
+uv python install 3.13
+```
+
+These steps install the project tool, verify command lookup, and install the teaching interpreter line. They do not upgrade your operating system's Python in place.
+
+If you do not use Homebrew, or use Windows/Linux, follow the appropriate [official uv installation instructions](https://docs.astral.sh/uv/getting-started/installation/). Read what an installer changes before running it. Do not build a second system-tool workflow merely to imitate this chapter.
+
+On Windows, project commands can run in PowerShell. Platform-specific diagnostic commands are distinguished later.
+
+### 4.2 Download and enter the project
+
+[Download the complete local lab](/learning-assets/js2py/u00-environment.zip). Extract it and enter the **`u00-environment` directory containing `pyproject.toml`**, not its parent Downloads directory.
+
+The website source contains the same files under `examples/js2py/u00-environment`. Displayed source and the download come from those files so that readers do not receive a different implementation from the one explained in the lesson.
+
+```text
+u00-environment/
+├── .python-version
+├── .gitignore
+├── pyproject.toml
+├── uv.lock
+├── main.py
+├── tasks.json
+├── tests/
+│   └── test_main.py
+├── next_task.py
+├── exercises/
+│   └── test_next_task.py
+└── solutions/
+    └── next_task.py
+```
+
+`tests` verifies the supplied implementation. `exercises` contains checks for your own work. `solutions` holds a separate reference answer. The exercise starter is intentionally incomplete; its expected failures must not be confused with a broken baseline.
+
+### 4.3 Reproduce the baseline
+
+Run each command and inspect its result before continuing:
+
+```bash
+uv sync --locked
+uv run --locked python main.py
+uv run --locked python -m pytest -q
+uv run --locked ruff check .
+uv run --locked ruff format --check .
+```
+
+`uv sync --locked` prepares the environment from the declarations and existing lockfile, requiring them to agree. A missing or stale lockfile is an error; the command should not silently change the resolution and call that reproduction. The first run may download Python or packages, so setup logs vary by machine and cache state.
+
+The application should print:
+
+```text
+Tasks: 3 | Done: 1 | Pending: 2
+```
+
+The default suite has **six passing test cases**. Timing and progress formatting can vary. A successful exit and no failures matter more than an identical terminal screenshot.
+
+Ruff checks a different boundary. Formatting does not prove task counts are correct, and passing business tests does not prove consistent imports and formatting. Each command has a purpose.
+
+If setup fails, use section 10. Changing the interpreter, upgrading dependencies, and editing the application simultaneously destroys the evidence needed to identify the cause.
+
+## 5. Four configuration files, explained individually
+
+### 5.1 `.python-version`: interpreter selection
+
+<Code language="text">{getU00Example('.python-version')}</Code>
+
+This selects Python 3.13 for uv in this project. It is neither Python source nor a dependency list. Changing it alone does not establish compatibility with another interpreter version.
+
+### 5.2 `pyproject.toml`: declarations, not installed results
+
+<Code language="toml">{getU00Example('pyproject.toml')}</Code>
+
+Read the sections as separate decisions rather than a template to memorize:
+
+- `[project]` describes this project. Its version is not the Python or FastAPI version.
+- `requires-python = ">=3.13,<3.14"` declares the supported range for this lab. It differs from the local interpreter preference in `.python-version`.
+- `dependencies = []` means the application currently uses only the standard library. FastAPI becomes an application dependency when the course actually introduces it.
+- The `dev` dependency group contains development tools. pytest and Ruff are not required by the task-counting function itself.
+- `[tool.pytest.ini_options]` restricts default test discovery to `tests`, excluding your intentionally incomplete challenge.
+- Ruff settings configure project tooling, not Python's language semantics.
+
+The directory name does not have to equal the project name. A distribution name containing hyphens also does not mean you can write `import js2py-u00-environment`. Distribution names, directories, and import names are different layers, revisited in the modules chapter.
+
+### 5.3 `uv.lock`: resolved dependency decisions
+
+A version range can permit several releases. Resolving it at different times may select different versions, including different indirect dependencies. `uv.lock` records uv's resolution and related metadata so another environment can follow those decisions.
+
+You do not need to hand-edit every lockfile entry. Inspect the dependency graph instead:
+
+```bash
+uv tree
+```
+
+A package you did not explicitly add may be a dependency of pytest. Check the graph before interpreting every unfamiliar name as contamination.
+
+A lockfile is not a machine snapshot. Operating systems, CPU architectures, external databases, system libraries, and Python patch versions can still affect behavior. Reproducibility combines constraints and verification; one file does not replace all of them.
+
+### 5.4 `.gitignore`: declarations versus generated state
+
+<Code language="text">{getU00Example('.gitignore')}</Code>
+
+Commit source, configuration declarations, `.python-version`, and the lockfile. Do not commit `.venv`, caches, or a real `.env`. Share configuration structure later through examples containing placeholders, not personal secrets.
+
+Sending a colleague your compressed virtual environment is not the same as a reproducible project. It can contain machine-specific paths and platform-specific files. Handoff should consist of declarations, a lockfile, and checks that establish the recreated environment works.
+
+## 6. Rebuild from an empty directory
+
+A known-good lab helps isolate setup failures. Rebuilding it checks whether you understand its parts.
+
+Use a new practice location rather than overwrite the working reference:
+
+```bash
+uv init --bare --vcs none --python 3.13 taskboard-lab
+cd taskboard-lab
+uv python pin 3.13
+```
+
+`--bare` creates the minimal project declaration. `--vcs none` avoids creating an additional Git repository inside an existing learning workspace. Add version control according to your own workflow afterward.
+
+Save the complete `pyproject.toml` from section 5, then create `main.py`, `tasks.json`, and `tests/test_main.py` from the following sections. A lockfile does not exist yet, so run:
+
+```bash
+uv sync
+```
+
+This operation is **creating** a dependency resolution, not checking an existing one. After it succeeds, use `uv sync --locked` for subsequent reproduction. Do not permanently remove `--locked` merely to hide inconsistencies; decide whether you intend to change dependencies or reproduce an established state.
+
+Alternatively, `uv add --dev pytest ruff` can populate a new project's development dependencies. Its selected ranges may differ from the reference. The downloadable lockfile represents the tested lab, not a promise that every future dependency release behaves identically.
+
+## 7. A complete program, followed through its execution
+
+### 7.1 Input: `tasks.json`
+
+<Code language="json">{getU00Example('tasks.json')}</Code>
+
+JSON uses lowercase `true` and `false`; Python literals are `True` and `False`. The lowercase forms work here because a JSON parser reads the file. It is not being executed as Python source.
+
+This is why file types matter. Data, dependency declarations, and programs may all be plain text, yet different rules interpret them.
+
+### 7.2 Business logic and entry point: `main.py`
+
+<Code language="python">{getU00Example('main.py')}</Code>
+
+Follow the execution rather than memorize the entire listing.
+
+**First, import standard-library modules.** `json` parses JSON text into Python objects; `Path` expresses filesystem paths. They ship with Python. Do not install unrelated packages named json or pathlib to run this example.
+
+**Second, locate the data file.** `__file__` identifies this module file. `Path(__file__).with_name("tasks.json")` selects its sibling data file instead of assuming the terminal always starts in the right directory. This rule belongs to the local layout used here, not every possible deployment or packaged-resource format.
+
+**Third, define the business function.** Defining `build_report` does not immediately traverse tasks. `completed` is a local variable, the loop visits each dictionary, and indentation defines the block structure. There is no `self`: this is an ordinary function, not an instance method.
+
+**Fourth, return a value rather than print inside the calculation.** `build_report` returns a string; `main` handles output. Tests can compare the returned value without launching a terminal process for every business case.
+
+**Fifth, read and parse.** `read_text(encoding="utf-8")` returns a string. `json.loads` converts it into a list of dictionaries. File content, parsed objects, and the report are distinct stages rather than interchangeable names for the same thing.
+
+**Finally, decide when to call the entry point.** Direct execution gives `__name__` the value `"__main__"`, so the bottom condition calls `main()`. Importing the module still executes its top-level statements and defines the functions, but that condition is false. It does not automatically read tasks or print the report.
+
+An entry-point guard does **not** mean imports execute no code. A network request or file operation placed outside the guard can still happen during import.
+
+### 7.3 The same business function in familiar JavaScript
+
+This is a static language comparison using trusted input. The full local execution path was already established. Neither side is a server or database application.
+
+<PythonEditor title="The same task list, two counting implementations (local comparison)" compare={true} canRun={false} height={430}>
+```javascript !! js
+function buildReport(tasks) {
+  let completed = 0;
+  for (const task of tasks) {
+    if (task.done) {
+      completed += 1;
+    }
+  }
+  const total = tasks.length;
+  return `Tasks: ${total} | Done: ${completed} | Pending: ${total - completed}`;
+}
+
+console.log(buildReport([{ done: true }, { done: false }]));
+```
+
+```python !! py
+def build_report(tasks):
+    completed = 0
+    for task in tasks:
+        if task["done"]:
+            completed += 1
+    total = len(tasks)
+    return f"Tasks: {total} | Done: {completed} | Pending: {total - completed}"
+
+print(build_report([{"done": True}, {"done": False}]))
+```
+</PythonEditor>
+
+Both print `Tasks: 2 | Done: 1 | Pending: 1`. Notice dictionary lookup, Boolean literals, `len`, indentation, and f-strings. Do not reduce Python to JavaScript without semicolons: the next chapter covers truth values, defaults, and object-sharing behavior that cannot simply be translated token by token.
+
+### 7.4 What the program does not establish
+
+The lab trusts its supplied JSON fixture, including valid `done` fields. It does not validate arbitrary input or persist modifications. It is a **complete environment-and-execution exercise**, not a complete task-management product.
+
+A missing field may raise `KeyError`; malformed JSON fails to parse. We address error handling and input boundaries in later lessons. A broad `except Exception: pass` would conceal those limitations rather than fix them.
+
+## 8. Tests establish behavior, not just successful startup
+
+Here is the full test file. You do not need to memorize every pytest API yet; first understand the failures each check is meant to detect.
+
+<Code language="python">{getU00Example('tests/test_main.py')}</Code>
+
+### 8.1 Why six cases are not redundant
+
+The first four cover empty input, all-completed, all-pending, and mixed states. `@pytest.mark.parametrize` sends several inputs through the same acceptance logic. You can use it now and study decorator mechanics later; advanced function metaprogramming is not a prerequisite for your first test.
+
+The fifth case starts the script from a different working directory to check file location. The sixth imports the module and checks that importing does not print the report. These are engineering behaviors, not repeated counting tests.
+
+`sys.executable` gives subprocesses the same interpreter as the test environment. It avoids accidentally selecting another machine-wide `python`. pytest's `tmp_path` supplies a temporary directory; the test does not delete or move real project files.
+
+### 8.2 Why use `python -m pytest`?
+
+It runs the pytest module with the interpreter selected by uv, making the relationship between the environment and the testing tool explicit. In this simple root-directory layout, it also makes importing `main` from the project root straightforward.
+
+This does not make a direct `pytest` invocation universally wrong. We are selecting one easy-to-diagnose path while you learn the ecosystem. The modules chapter revisits entry points and import paths.
+
+### 8.3 Introduce a failure you can undo
+
+In a practice copy, temporarily change `pending = total - completed` to `pending = total`. Run the default suite.
+
+Inspect the assertion difference, identify which input reveals the error, then restore the implementation and run again. If no test fails, check whether you edited another copy or ran tests in another directory.
+
+**Do not change expected values to accommodate the bug.** Tests represent the agreed requirement here. When the requirement itself changes, review the rule, implementation, and acceptance criteria together.
+
+## 9. Dependency maintenance is not global installation by trial and error
+
+When a later application needs a library, use `uv add package-name` in its project. Development tools use `uv add --dev package-name`. The purpose is both to install packages and update the declarations that let another developer reconstruct the environment.
+
+This chapter needs no HTTP library. To inspect dependency changes, you can use `uv add httpx` in a **separate practice copy**, inspect the manifest and `uv tree`, then restore the state with `uv remove httpx`. Installing an HTTP client does not automatically turn this program into a backend service.
+
+Distinguish three operations:
+
+1. **Synchronizing:** make an environment match the declaration and existing lockfile.
+2. **Adding dependencies:** intentionally change the required libraries and review the declaration and resolution.
+3. **Upgrading:** intentionally change selected or permitted versions and rerun tests.
+
+Upgrading everything while diagnosing an import failure combines two different investigations. Establish the missing package and running interpreter first, then make the smallest appropriate change.
+
+A uv-created environment also need not include pip. `python -m pip` reporting a missing module does not prove Python is broken; uv manages packages in this workflow. Configure pip according to the needs of a pip-based project when you encounter one.
+
+## 10. Debugging as a chain of evidence
+
+### 10.1 A repeatable first inspection
+
+Record the working directory, exact command, interpreter, and final error line before drawing conclusions:
+
+```bash
+pwd
+uv run --locked python -c "import os, sys; print(os.getcwd()); print(sys.executable); print(sys.version)"
+uv tree
+```
+
+On macOS/Linux, `command -v uv` identifies the tool path. In PowerShell use `Get-Location` and `Get-Command uv`. An editor screenshot without the actual command and interpreter leaves important evidence missing.
+
+### 10.2 Symptom, hypothesis, verification
+
+| Symptom | Initial hypothesis | Verification |
+| --- | --- | --- |
+| `uv: command not found` | Missing installation or stale shell PATH | Inspect the installation and command path; reopen the terminal if required |
+| Missing project declaration or unexpected project selected | Wrong working directory | Inspect the current directory and enter the directory containing this lab's manifest |
+| `--locked` rejects the lockfile | Changed declaration, missing lockfile, or inconsistency | Compare the files and decide whether to restore the baseline or intentionally resolve changes |
+| `No module named pytest` | Development dependencies missing or wrong interpreter | Synchronize the project and use its `python -m pytest` |
+| Editor imports work but terminal imports fail | Different interpreters | Compare `sys.executable` with the editor's selected `.venv` interpreter |
+| `FileNotFoundError` | Missing data or misunderstood relative paths | Inspect the path in the exception and whether the data file is present beside the source |
+| `JSONDecodeError` | Invalid JSON | Use the reported line and column to inspect quotes, commas, and literals |
+| `NameError` | Missing definition, typo, or import | Inspect the current file rather than depend on a previously executed snippet |
+| `IndentationError` | Invalid block structure | Check neighboring blocks and tabs/spaces, not just the indicated line |
+
+### 10.3 Reading a traceback
+
+In a practice copy, temporarily change `json.loads(...)` to `jsno.loads(...)`. The final error line identifies an undefined name. Read upward for the file and line that used it, fix the spelling, and rerun. Wrapping the whole program in a broad exception handler does not solve the problem.
+
+A traceback is evidence of an execution path, not noise to hide. Later we distinguish information useful in server logs from details that must not be exposed to clients. For now, reading and explaining an error is a learning goal; never seeing an error is not.
+
+## 11. Three levels of practice
+
+### Exercise 1: explain execution without editing code
+
+Record the interpreter path, version, working directory, and baseline test result. Then answer:
+
+1. Why synchronize a project with no third-party runtime dependencies?
+2. Why not send a colleague your `.venv`?
+3. Why does `import main` print nothing without proving that imports execute no code?
+4. What does neither `.python-version` nor `uv.lock` guarantee by itself?
+
+<details>
+<summary>Reasoning guide—try explaining it yourself first</summary>
+
+Synchronization also prepares the environment and development tools. A virtual environment contains generated, potentially machine-specific state and should be recreated. Import still executes top-level statements; the guarded entry-point call does not run. Interpreter selection does not lock packages, and a dependency lockfile does not capture the operating system, interpreter patch release, or external services.
+
+</details>
+
+### Exercise 2: predict, modify, verify
+
+Add an unfinished task to `tasks.json`. **Predict the report before running the application.** Mark that new task as completed and predict again.
+
+The supplied subprocess test expects the original three-task fixture. Intentionally changing that fixture can therefore make that test fail even when counting is correct. Distinguish an implementation bug from a changed input contract. Restore the original data at the end and confirm the six baseline cases pass.
+
+<details>
+<summary>Reference results</summary>
+
+Adding an unfinished task produces `Tasks: 4 | Done: 1 | Pending: 3`. Marking it complete produces `Tasks: 4 | Done: 2 | Pending: 2`. Neither change requires modifying the counting function. A function that needs editing for a fourth task was incorrectly coupled to the fixture's size.
+
+</details>
+
+### Exercise 3: implement the next unfinished task
+
+Complete `next_task.py` using these requirements:
+
+- Return the title of the first unfinished task, preserving list order.
+- Return `No pending tasks` when the list is empty or every task is complete.
+- Do not mutate the list or its dictionaries.
+
+The starter's `NotImplementedError` is an explicit exercise placeholder, not an omitted implementation presented as complete:
+
+<Code language="python">{getU00Example('next_task.py')}</Code>
+
+Run its separate acceptance suite:
+
+```bash
+uv run --locked python -m pytest exercises/test_next_task.py -q
+```
+
+The starter should fail four cases. Your implementation should pass all four. Keeping these separate from the six baseline checks makes unfinished work distinguishable from regressions.
+
+<details>
+<summary>Hint: use only control flow already shown</summary>
+
+Visit tasks in order and inspect `done`. Return immediately when the first unfinished task is found. Return the fallback only after the loop finishes. Do not remove completed entries, sort the input, introduce async code, or install another library.
+
+</details>
+
+<details>
+<summary>Reference implementation—open after attempting the task</summary>
+
+<Code language="python">{getU00Example('solutions/next_task.py')}</Code>
+
+Early return preserves the original order without mutation. Run the tests yourself and explain why the fallback return belongs outside the loop. Placing it inside can stop the search before reaching an unfinished task later in the list.
+
+</details>
+
+If the syntax still feels unfamiliar, finish the first two exercises and return after the next chapter's control-flow work. Record that the third exercise remains unfinished; reading an answer is not the same as implementing it independently.
+
+## 12. Readiness for the next chapter
+
+Use evidence rather than the number of headings read:
+
+- [ ] Recreate the downloaded environment and pass its six baseline checks.
+- [ ] Build the same application from an empty directory and explain each file.
+- [ ] Identify what reads source code, data, configuration, and the lockfile.
+- [ ] Verify the interpreter used by both your terminal and editor.
+- [ ] Introduce and repair a controlled failure, recording the command and diagnosis.
+- [ ] Explain entry-point protection and working directories rather than merely memorize a launch command.
+
+Learning time may be irregular. End a session with a resumable checkpoint:
+
+```text
+Steps completed today:
+Last successful command:
+Checks currently passing:
+Concepts still unclear:
+First action for the next session:
+```
+
+When returning, enter the project, restore the environment, and rerun its baseline before continuing. You do not need to reinstall every tool or restart the entire chapter after a break.
+
+The next chapter focuses on Python semantics: names and values, containers, parameters, scope, exceptions, and differences hidden behind familiar-looking JS patterns. Databases, authentication, and deployment are still ahead, introduced once their prerequisites are in place.
+
+## 13. Read official documentation with a question in mind
+
+You do not need to read every reference end to end. Choose a question, find the relevant section, and test your understanding:
+
+- Environment isolation: [Python's virtual environments and packages tutorial](https://docs.python.org/3.13/tutorial/venv.html).
+- Project creation and synchronization: [uv projects](https://docs.astral.sh/uv/guides/projects/) and [locking and syncing](https://docs.astral.sh/uv/concepts/projects/sync/).
+- Imports and entry points: [Python's modules tutorial](https://docs.python.org/3.13/tutorial/modules.html).
+- Test invocation: [pytest usage](https://docs.pytest.org/en/stable/how-to/usage.html).
+- Formatting versus other checks: [Ruff Formatter](https://docs.astral.sh/ruff/formatter/).
+
+References checked on September 23, 2026. The lab locks dependency resolution; upstream documentation and future tool releases can change. Rerun the reproduction and acceptance steps when upgrading.

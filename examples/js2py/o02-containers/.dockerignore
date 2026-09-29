@@ -1,0 +1,10 @@
+**
+!Dockerfile
+!.dockerignore
+!.python-version
+!pyproject.toml
+!uv.lock
+!app.py
+!config.py
+!volume_probe.py
+!healthcheck.py

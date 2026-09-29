@@ -1,0 +1,185 @@
+---
+title: 持续集成、发布与回退：先证明兼容，再切换代码
+description: 用独占 PostgreSQL 和真实应用进程走完测试门禁、带数据迁移、发布与应用回退，分清环境、迁移权限、向前兼容和数据库降级的不同风险。
+---
+
+import { getReleaseExample } from '@/lib/js2py-examples'
+
+## 1. “测试通过”离发布还差哪些证据？
+
+H06 能检查 API，D05/D06 能检查迁移和真实数据库，O01—O03 建立进程、容器、网络入口的边界。把这些命令放进一个 YAML 还不等于安全发布：测试可能连错库，多个 worker 可能同时改表，旧程序可能读不了新结构，回退代码也不会自动撤销新版本写入的数据。
+
+本章用一个小而真实的发布序列把责任分开：检查候选代码 → 在独占测试库验证迁移和接口 → 审查兼容矩阵 → 单独执行迁移 → 启动候选版本并做就绪验收 → 才允许切换流量。任何一步失败，后面的动作都不应假装继续成功。
+
+| 章节契约 | 范围 |
+| --- | --- |
+| 前置 | O03 入口/生产配置、D05 迁移、D06 真实 PG 测试、S01—S03 认证授权 |
+| 新能力 | 同一检查脚本的本地/CI入口、环境隔离、迁移时机、版本与结构兼容、有数据应用回退 |
+| 独立验收 | v1→扩展结构→v2写入→退回v1，证明新数据保留；做真实结构预检 |
+| 不承诺 | 已运行托管 CI、容器发布、真实域名流量切换、生产回退或可随意降级数据库 |
+
+下载 [O04 独立实验](/learning-assets/js2py/o04-release.zip)，进入 `o04-release`。源码、SQL、完整 Alembic 历史、测试、参考答案都在包内，不导入其他实验。这里只生成无真实用户数据的短命 PostgreSQL 集群。
+
+## 2. 保留 D/S 契约，但不伪装整套产品
+
+本包保留 users/projects/project_members/tasks、auth_sessions 和 task_operations 的 D/S 字段：任务是 status/description/priority，而不是 H 阶段的 done/note。认证使用 opaque Bearer token，仅存 SHA-256 摘要；每次读会话时检查到期、撤销、用户启用和 auth_version。随机 token 的摘要不是密码哈希；合成用户密码仍由 Argon2id 库生成哈希。
+
+实验的**接口切片**只有健康检查、受保护的项目读取和创建，用来验收发布。它没有重新实现登录、密码修改、成员管理或整个 S03 幂等服务；测试操作员在私有库中生成合成会话，绝不是新增一个绕过登录的公网入口。不能把这份切片替换完整生产应用后声称功能都在。
+
+v1 返回项目 id/name；v2 增加可空 description。旧程序按列名读写，忽略新列；新列允许旧写入省略。这里的 v1/v2 是两份应用行为，不是 PostgreSQL 版本。
+
+<Code language="python">{getReleaseExample('ops/app.py')}</Code>
+
+启动工厂只读取已存在的 alembic_version 并检查兼容性，不运行迁移。迁移失败发生在开流量之前；运行时角色没有 ALTER 权限，也不需要成为数据库超级用户。404 隐藏不存在或无成员关系的项目，恢复和回退时也不能放弃这个边界。
+
+## 3. 环境分离先落实到连接与所有权
+
+“测试数据库”不只是把名字改成 test。测试必须拥有创建和清理权限，不能接受一个误指生产的默认 DATABASE_URL。本实验不读取环境里的业务 DSN，只允许自建 `/tmp/ls-ops-*` 目录下的私有 Unix socket，数据库名字也采用固定 allowlist。
+
+<details>
+<summary>完整隔离工具：创建、启动与只清理自己拥有的集群</summary>
+
+<Code language="python">{getReleaseExample('ops/cluster.py')}</Code>
+
+</details>
+
+mkdtemp 给每次运行独占目录；0700 限制目录访问，标记记录 UID 和随机所有权值；停止前重新核对路径、所有者、模式与标记，不允许 symlink 把清理指向别处。PG 不监听 TCP，API 只监听 127.0.0.1 临时端口。private socket 下的 trust 是本机短命教学政策，**不是生产认证配置**；同一操作系统账户仍是信任边界。
+
+开发、自动测试、预发布、生产应使用不同数据库、账户和秘密，部署账户与应用账户也分开。这里真实验证的是隔离测试环境，不把它叫成已经部署好的预发布环境。若工具版本不符或路径检查失败，就停下来定位，不能改脚本去连接已有用户库“先跑通”。
+
+传入私有 socket 的 host 还不够：libpq 仍可能从 `PGHOSTADDR`、`PGSERVICE`、`PGSERVICEFILE` 等环境变量取得另一个连接默认值。`reject_connection_environment` 在创建临时目录之前，以及每次直接连接、迁移和服务启动之前，拒绝继承的全部 `PG*` 变量，唯一例外是只定位可执行文件的 `PG_BIN`。错误只列变量名，不打印值，也不修改调用者环境。Python 连接、SQLAlchemy 的连接创建器和 PG 子命令都使用自有目录内的空白 0600 `empty.pgpass`，不读取用户的默认密码文件。直接运行 `demo.py` 或 `ci.py` 也执行这些防护，不依赖仓库总 runner 先替它清理。
+
+启动 API 不再先探测空闲端口、关闭探测 socket，再要求另一个进程抢占同一号码。Uvicorn 自己用 `--port 0` 完成绑定；控制器从**该子进程自己的私有启动日志**读取实际端口，再请求 readiness。`--no-access-log` 不关闭 info 级启动 banner；控制器固定无颜色日志和单 worker。两个同版本服务也使用不同日志文件。测试实际同时启动两个服务，核对两个不同端口、各自 banner、真实请求和退出清理。这消除了选端口后释放再绑定的窗口，不是对任意并发故障的保证；未来 Uvicorn 改变 banner 格式时会超时拒绝，不猜测端口。
+
+## 4. 同一个检查入口，分别记录本地与托管结果
+
+固定基线为 2026-09-28 实测的 CPython 3.13.15、uv 0.12.13、pytest 8.4.2、FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、HTTPX 0.28.1、SQLAlchemy 2.0.54、Alembic 1.20.0、psycopg 3.3.6、PostgreSQL 工具 18.6。Starlette/AnyIO 也固定，避免测试客户端兼容漂移。
+
+<Code language="toml">{getReleaseExample('pyproject.toml')}</Code>
+
+仓库总 runner 为子进程重建环境：丢弃继承的 `UV_*`、虚拟环境选择与 Python 注入设置，再固定课程 cache/Python 安装目录、public PyPI 和 `UV_NO_CONFIG=1`；`PG*` 也只保留 `PG_BIN`。实测使用自己创建的“外部虚拟环境”诱饵、错误解释器路径和无效用户 uv 配置，确认安装只发生在当前干净副本的 `.venv`，诱饵目录内容不变。不要把这些防护误解为能修复已经在脚本启动前运行的外层 uv：手动执行下方 uv 命令前，应退出其他虚拟环境并使用干净终端；清除 `VIRTUAL_ENV`、`UV_PROJECT_ENVIRONMENT`、`UV_ACTIVE`、`UV_PYTHON`、`UV_CONFIG_FILE` 等覆盖项，并设置 `UV_NO_CONFIG=1`。若直接 Python 入口拒绝 PG 变量，只在本次实验环境中移除它报告的名字，不修改生产配置、更不打印其值。
+
+```bash
+uv sync --locked
+uv run --locked python ci.py
+```
+
+<Code language="python">{getReleaseExample('ci.py')}</Code>
+
+入口先做语法检查，再跑 7 项正常测试（原有 4 项与新增 3 项环境/端口测试），最后实际启动服务完成发布演练。check=True 使子命令失败时整个门禁失败。语法检查不是数据库测试；真实 PG 测试不是生产部署；三种证据要分开写。public PyPI 的 uv.lock 与 Python 小版本一起记录，不能在验证后发布前偷偷 uv upgrade。
+
+<Code language="python">{getReleaseExample('tests/test_release.py')}</Code>
+
+测试实际创建 PG 集群、保留旧数据、验证旧列写入、拒绝重复 owner，并证明运行角色无法 ALTER 表。异常断言放在事务块内，失败后事务回滚，随后连接还能使用；不把失败事务留给下一项测试。
+
+<Code language="yaml">{getReleaseExample('.github/workflows/check.yml')}</Code>
+
+工作流是**可审查但未在托管环境运行**的入口。它使用只读仓库权限、已核对的 checkout 提交 SHA、不持久化仓库凭证，只允许人工 workflow_dispatch，要求预配置且隔离的 Linux/PG18.6 runner。当前没有这个 runner，所以不能报告托管 CI 成功。不能让这种自托管 runner 执行不可信 PR 代码；未来换托管 runner 或容器，需要重新验证依赖安装和隔离，不是改一个标签就算完成。
+
+## 5. 迁移由谁执行、什么时候执行？
+
+保留的 001—006 历史建立 D/S 模型与约束；本章新增 007_project_description。每个 revision 的 SQL 与版本文件都在本包中，Alembic 不靠 create_all 猜当前状态。
+
+<Code language="python">{getReleaseExample('ops/migrate.py')}</Code>
+
+<Code language="python">{getReleaseExample('migrations/env.py')}</Code>
+
+<Code language="sql">{getReleaseExample('sql/007_project_description.sql')}</Code>
+
+<Code language="python">{getReleaseExample('migrations/versions/007_project_description.py')}</Code>
+
+迁移控制器用管理身份和事务执行，设置 lock_timeout，失败应回滚并停止发布；普通 worker 不在启动时争抢 DDL。我们的演练由一个操作员串行执行，**不宣称这个函数实现了跨部署系统的分布式迁移锁**。真实流水线还要保证只有一个发布协调者，并根据表大小、锁等待和兼容窗口决定执行时机。
+
+downgrade 明确拒绝自动破坏性回退。删掉 description 列会丢失新版本已写的数据；即使技术上可以写 DROP COLUMN，也不能把它当作普通代码回退的一部分。备份与恢复也会丢失快照之后的数据，O06 恢复流程会单独计算这个窗口。
+
+<details>
+<summary>解释题答案：为什么“每个 worker 启动时 upgrade head”不是方便的默认？</summary>
+
+多个 worker 可能并发读版本、等待或争抢锁；部分新进程已经对外服务，另一部分仍卡在迁移。应用账户还被迫持有 DDL 权限。把迁移作为受控发布步骤，可以先观察失败并停止后续动作，再启动通过兼容检查的进程。它不是保证迁移必定无锁、无停机；这些仍由具体变更与数据规模决定。
+
+</details>
+
+## 6. 用矩阵描述兼容，不靠“应该没问题”
+
+| 应用 / 数据结构 | 006，无 description | 007，description 可空 |
+| --- | --- | --- |
+| v1，按 id/name 读写 | 可用 | 可用，新列省略为 null |
+| v2，需要 description | 拒绝启动 | 可用 |
+
+向前兼容在本次回退语境里，是旧应用能继续面对已经扩展的新结构。新增可空列只解决这个例子，并不意味着所有 ADD COLUMN 都安全：新约束、默认值、枚举、新请求格式或数据含义都可能让旧程序失败。
+
+切换 v2 后如果客户端已强制依赖 description，退回 v1 的响应就可能不满足客户端。因此回退计划还需要前后端兼容窗口、功能开关或协调停止新功能写入；不能只验证数据库列存在。本实验明确由控制客户端分别使用对应版本的契约，不冒称真实用户切换零影响。
+
+## 7. 真实发布与有数据的应用回退
+
+<Code language="python">{getReleaseExample('ops/release.py')}</Code>
+
+<Code language="python">{getReleaseExample('ops/server.py')}</Code>
+
+```bash
+uv run --locked python demo.py
+```
+
+```text
+PASS v1: real authenticated HTTP and committed baseline data
+PASS expected migration failure: old rows and revision preserved
+PASS v2: reviewed nullable expansion and new-data write
+PASS rollback: v1 reads/writes expanded schema; v2 data retained; no downgrade
+CLEANUP PASS: owned API processes and isolated PostgreSQL cluster removed
+```
+
+演练不是换一个字符串然后直接调用业务函数：它启动、请求、停止实际 Uvicorn 子进程。先让 v1 写入项目，再故意尝试给已有数据添加无默认的 NOT NULL 列，观察失败；修成经过审查的可空扩展后运行 v2，写入 description；最后停止 v2，启动 v1，继续读写同一数据库。
+
+回退后检查 description 仍是 Preserve this value、项目总数为 5、alembic_version 仍是 007。旧应用忽略新列而不是清空它。进程切换时的短暂停机在此演练中存在；没有负载均衡器，也未验证零停机切流。
+
+## 8. 失败不是重建数据库的理由
+
+NOT NULL 失败的根因是历史记录没有值，不是 Alembic “坏了”。修复顺序是审查需求：先增加可空列；部署兼容代码；按业务规则回填；验证无空值；另一个受控版本才加约束。不能把用户数据删除重建来让 migration 变绿。
+
+其他故障要分阶段定位：版本不符在环境门禁失败；错误 revision 在迁移/兼容检查失败；角色不足在数据库授权失败；就绪超时在应用启动或 DB 路径失败；公网连不通则属于当前实验没有覆盖的入口层。打印整个环境、SQL 参数或 Bearer token 都不是合理诊断手段。
+
+<details>
+<summary>带提示修复答案：如何证明失败没有留下半迁移？</summary>
+
+不要只检查异常类型。重新连接，确认项目仍为原来的三条、alembic_version 仍为 006，再执行经过审查的 007。事务内的失败 DDL 会回滚，但不能由此推断所有外部副作用或所有迁移操作都可回滚。需要逐变更确认；例如并发索引创建、外部调用和长时回填有另外的约束。
+
+</details>
+
+## 9. 独立变式：部署前检查真实结构
+
+不看答案，写 check_release：连接当前**独占测试库**读取真实 alembic_version；只允许矩阵中的组合，未知应用/未知结构一律拒绝。验证 v2 在 006 被拒绝，升级到 007 后 v1/v2 都通过。不要只给函数传一个写死的 "007" 来假装查过数据库。
+
+<details>
+<summary>独立参考实现与真实 PG 测试</summary>
+
+<Code language="python">{getReleaseExample('solutions/check_matrix.py')}</Code>
+
+<Code language="python">{getReleaseExample('solutions/preflight.py')}</Code>
+
+<Code language="python">{getReleaseExample('solutions/test_matrix.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions
+```
+
+```text
+2 passed
+```
+
+其中一项检查规则，一项创建真实库、迁移前拒绝、迁移后通过。这个预检只是门禁；最终仍需启动应用与真实请求，不能把版本字符串相同视为业务正确证明。
+
+</details>
+
+## 10. 发布记录与暂停恢复
+
+记录候选代码标识、锁文件哈希、应用版本、目标环境身份、迁移前后 revision、检查命令及结果、谁批准迁移、就绪结果、回退版本与兼容条件。实验没有执行 Git 提交、推送或正式制品发布，不能编造提交 SHA 或发布地址。
+
+暂停记录最后成功阶段、是否仍有自己的进程、数据库是否已清理、故障是否刻意、下次从哪个干净状态重放。这里 demo/ci 退出会停止自己的 API/PG 并删除临时目录，因此恢复时重新运行，不去找一个已经删除的 socket。下载清单只包含源码/SQL/锁/文档；环境、日志、数据库目录、备份和秘密全排除。
+
+真实发布仍需 O03 的受控 HTTPS 入口、生产秘密与权限、已运行的 CI、监控、备份恢复演练和回退演习。当前完成的是本地可重复的数据库与应用交付机制，不是 V4 已向用户上线。
+
+## 11. 一手资料与核验
+
+2026-09-28 核对 [Alembic 官方教程](https://alembic.sqlalchemy.org/en/latest/tutorial.html)、[PostgreSQL 权限](https://www.postgresql.org/docs/18/ddl-priv.html)、[GitHub Actions 工作流语法](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)、[checkout v4.2.2 官方标签对应提交](https://api.github.com/repos/actions/checkout/git/ref/tags/v4.2.2)。运行版本以本实验锁和实际 PG18.6 工具为准，不把会更新的文档主页当永久兼容保证。
+
+7 项基础、2 项独立题、真实 v1/v2/回退进程和带数据迁移均实际执行。托管 CI、容器构建、Linux 服务管理、公网切流、真实用户流量与生产回退没有环境，明确 pending。

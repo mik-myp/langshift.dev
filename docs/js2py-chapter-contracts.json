@@ -1,0 +1,715 @@
+{
+  "schema_version": 2,
+  "updated_at": "2026-09-28",
+  "reader": "成熟前端工程师，未实践Python、服务端、数据库和运维；允许慢速、间断学习。",
+  "status_note": "39章三语正文与配套材料齐备。33章完成其声明的本地参考材料验收；O01—O06的本地可执行部分已通过，但6章保持environment_pending，外部部署/运维门槛未执行。G01 implemented仅指需求与材料格式检查包，24个学生业务场景仍not_run。教材状态不代表读者通过先修、毕业或公网服务已可用。原URL保持不变。",
+  "chapters": [
+    {
+      "id": "L00",
+      "title": "认识 Python 与第一次运行",
+      "prerequisites": [],
+      "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+      "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+      "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L01",
+      "title": "名称、值与基本运算",
+      "prerequisites": [
+        "L00"
+      ],
+      "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+      "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+      "boundary": "不引入复杂容器、作用域或类型体操",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L02",
+      "title": "容器、引用与修改",
+      "prerequisites": [
+        "L01"
+      ],
+      "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+      "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+      "boundary": "不依赖循环或自定义函数完成首次容器实验",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L03",
+      "title": "条件、循环与遍历",
+      "prerequisites": [
+        "L02"
+      ],
+      "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+      "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+      "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L04",
+      "title": "函数、参数与作用域",
+      "prerequisites": [
+        "L03"
+      ],
+      "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+      "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+      "boundary": "不以装饰器或类封装作为练习要求",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L05",
+      "title": "异常与调试",
+      "prerequisites": [
+        "L04"
+      ],
+      "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+      "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+      "boundary": "不把assert当作不可信输入的生产校验",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L06",
+      "title": "模块与标准库",
+      "prerequisites": [
+        "L05"
+      ],
+      "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+      "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+      "boundary": "不先要求发布包、动态导入或框架架构",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L07",
+      "title": "文件、JSON 与资源使用",
+      "prerequisites": [
+        "L06"
+      ],
+      "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+      "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+      "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L08",
+      "title": "环境与依赖管理",
+      "prerequisites": [
+        "L06",
+        "L07"
+      ],
+      "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+      "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+      "boundary": "不在入门章考核；不同时比较所有包管理器",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L09",
+      "title": "基础自动化测试",
+      "prerequisites": [
+        "L04",
+        "L05",
+        "L06",
+        "L08"
+      ],
+      "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+      "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+      "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L10",
+      "title": "第一个独立可复现项目",
+      "prerequisites": [
+        "L07",
+        "L08",
+        "L09"
+      ],
+      "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+      "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+      "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L11",
+      "title": "基础类型注解",
+      "prerequisites": [
+        "L02",
+        "L04",
+        "L06",
+        "L10"
+      ],
+      "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+      "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+      "boundary": "不要求复杂泛型、协议或零Any指标",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L12",
+      "title": "类与数据模型",
+      "prerequisites": [
+        "L04",
+        "L06",
+        "L11"
+      ],
+      "teach": "实例、self、初始化、组合、简单继承、dataclass",
+      "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+      "boundary": "不要求元类、深继承或框架内部实现",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L13",
+      "title": "装饰器与声明式接口",
+      "prerequisites": [
+        "L04",
+        "L06",
+        "L12"
+      ],
+      "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+      "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+      "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "L14",
+      "title": "生成器与资源生命周期",
+      "prerequisites": [
+        "L05",
+        "L07",
+        "L12",
+        "L13"
+      ],
+      "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+      "acceptance": "跟踪资源获取、使用、正常及异常释放",
+      "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed"
+    },
+    {
+      "id": "H01",
+      "title": "从客户端到持续运行的服务",
+      "prerequisites": [
+        "L10",
+        "L14"
+      ],
+      "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+      "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+      "boundary": "不假定有Express、数据库或服务器管理经验",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-h01-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "H02",
+      "title": "HTTP 与接口契约",
+      "prerequisites": [
+        "H01"
+      ],
+      "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+      "acceptance": "先写可联调的任务接口契约及失败场景",
+      "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-h02-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "H03",
+      "title": "第一个同步 FastAPI 服务",
+      "prerequisites": [
+        "H02",
+        "L13"
+      ],
+      "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+      "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+      "boundary": "不引入数据库或未教过的异步lifespan",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-h03-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "H04",
+      "title": "Pydantic 与输入输出边界",
+      "prerequisites": [
+        "H03",
+        "L11",
+        "L12"
+      ],
+      "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+      "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+      "boundary": "内存存储不是上线版本；不默认信任客户端",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-h04-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "H05",
+      "title": "应用组织、配置与依赖",
+      "prerequisites": [
+        "H04",
+        "L14"
+      ],
+      "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+      "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+      "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-h05-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "H06",
+      "title": "API 测试与前后端联调",
+      "prerequisites": [
+        "H05",
+        "L09",
+        "L13"
+      ],
+      "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+      "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+      "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-h06-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "D01",
+      "title": "关系模型与 PostgreSQL 入门",
+      "prerequisites": [
+        "H06"
+      ],
+      "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+      "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+      "boundary": "不把安装成功当掌握数据模型",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-d01-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "D02",
+      "title": "SQL 与参数化查询",
+      "prerequisites": [
+        "D01"
+      ],
+      "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+      "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+      "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-d02-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "D03",
+      "title": "事务、约束与并发冲突",
+      "prerequisites": [
+        "D02"
+      ],
+      "teach": "原子性、提交回滚、约束失败、隔离和竞争、事务边界",
+      "acceptance": "制造两步写入的后一步失败，证明前一步未残留",
+      "boundary": "不仅背ACID；不以单进程内存检查代替约束",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-d03-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "D04",
+      "title": "同步 SQLAlchemy 与 Session",
+      "prerequisites": [
+        "D03",
+        "H05"
+      ],
+      "teach": "映射、连接池与Session、事务所有权、查询、提交失败后的恢复",
+      "acceptance": "把API接入真实数据库并验证成功/失败都释放资源",
+      "boundary": "不第一次学数据库就加入异步ORM",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-d04-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "D05",
+      "title": "Alembic 与已有数据迁移",
+      "prerequisites": [
+        "D04"
+      ],
+      "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+      "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+      "boundary": "不删库重建；不承诺任意降级都无损",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-d05-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "D06",
+      "title": "数据库测试与查询诊断",
+      "prerequisites": [
+        "D05",
+        "H06"
+      ],
+      "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+      "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+      "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-d06-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "S01",
+      "title": "身份与凭证生命周期",
+      "prerequisites": [
+        "D06"
+      ],
+      "teach": "用户、密码哈希、登录、凭证验证/失效、禁用用户、日志脱敏",
+      "acceptance": "拒绝错误/过期/篡改凭证并验证撤销策略",
+      "boundary": "不自创密码学；登录成功不等于有对象权限",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-s01-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "S02",
+      "title": "对象级授权与多用户隔离",
+      "prerequisites": [
+        "S01"
+      ],
+      "teach": "角色和成员关系、所有权、默认拒绝、越权与负向测试",
+      "acceptance": "Alice知道Bob对象ID仍无法读取/修改，角色不能由请求体自授",
+      "boundary": "前端隐藏按钮和CORS都不是服务端授权",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-s02-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "S03",
+      "title": "可靠业务操作与幂等",
+      "prerequisites": [
+        "S02",
+        "D03"
+      ],
+      "teach": "业务冲突、重复提交、事务与幂等范围、日期时间/标识/精确数值的必要标准库",
+      "acceptance": "复现重复请求或并发冲突并验证约定行为",
+      "boundary": "不承诺仅靠重试就能实现恰好一次；按业务需要教学数据表示",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-s03-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "A01",
+      "title": "Python 异步执行模型",
+      "prerequisites": [
+        "S03"
+      ],
+      "teach": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制",
+      "acceptance": "通过可观察实验选择同步/异步边界，并验证取消行为",
+      "boundary": "JS熟悉async不代表Python自动调度；不机械改全部async",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-a01-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "A02",
+      "title": "外部服务与异步资源生命周期",
+      "prerequisites": [
+        "A01",
+        "L14",
+        "H05"
+      ],
+      "teach": "客户端复用、lifespan、超时、重试与幂等、故障替身、清理",
+      "acceptance": "外部依赖失败不拖垮核心CRUD；正常/异常/取消均释放资源",
+      "boundary": "不把进程内队列或BackgroundTasks当持久任务系统",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "declared_local_scope_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-a02-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "O01",
+      "title": "操作系统与服务运行基础",
+      "prerequisites": [
+        "A02"
+      ],
+      "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+      "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+      "boundary": "不先让初学者背Docker命令绕过OS基础",
+      "status": "environment_pending",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "local_scope_passed_external_gates_pending",
+      "learner_acceptance": "not_assessed",
+      "pending_environment_gates": [
+        "实际Linux/systemd生命周期与专用服务账户验证"
+      ],
+      "review_evidence": "docs/reviews/js2py-o01-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "O02",
+      "title": "容器与可部署应用",
+      "prerequisites": [
+        "O01",
+        "L08"
+      ],
+      "teach": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查",
+      "acceptance": "从干净环境构建运行并重启，确认数据和秘密边界",
+      "boundary": "不在镜像写密钥；不把容器健康等同于业务正确",
+      "status": "environment_pending",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "local_scope_passed_external_gates_pending",
+      "learner_acceptance": "not_assessed",
+      "pending_environment_gates": [
+        "实际Docker构建/启动/停止/重建",
+        "非root与只读根文件系统",
+        "实际卷与网络隔离"
+      ],
+      "review_evidence": "docs/reviews/js2py-o02-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "O03",
+      "title": "网络入口、HTTPS 与生产配置",
+      "prerequisites": [
+        "O02"
+      ],
+      "teach": "域名/DNS、反向代理、TLS终止、可信代理、生产错误与凭证/CORS/CSRF边界",
+      "acceptance": "验证HTTPS、错误响应、请求来源与凭证传递策略",
+      "boundary": "公开前需按实际认证方案检查CSRF等风险",
+      "status": "environment_pending",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "local_scope_passed_external_gates_pending",
+      "learner_acceptance": "not_assessed",
+      "pending_environment_gates": [
+        "Caddy实际反向代理",
+        "自有域名/DNS/防火墙/公网CA与续期",
+        "按完整认证方案验证浏览器凭证、CORS/CSRF及可信代理"
+      ],
+      "review_evidence": "docs/reviews/js2py-o03-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "O04",
+      "title": "持续集成、发布与回退",
+      "prerequisites": [
+        "O03",
+        "D05",
+        "D06"
+      ],
+      "teach": "检查/测试流水线、环境分离、迁移执行时机、发布兼容与应用回退",
+      "acceptance": "完成一次成功发布和一次有数据的兼容回退演练",
+      "boundary": "不把危险数据库降级当作普通应用回退",
+      "status": "environment_pending",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "local_scope_passed_external_gates_pending",
+      "learner_acceptance": "not_assessed",
+      "pending_environment_gates": [
+        "托管CI与隔离runner",
+        "完整S03服务整合、生产权限收敛",
+        "实际流量切换与数据兼容回退"
+      ],
+      "review_evidence": "docs/reviews/js2py-o04-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "O05",
+      "title": "日志、监控与故障定位",
+      "prerequisites": [
+        "O04"
+      ],
+      "teach": "结构化日志、关联ID、错误和耗时、指标/告警、脱敏与容量观察",
+      "acceptance": "从一次错误请求追踪原因并证明日志不泄露凭证",
+      "boundary": "不是安装一个仪表盘就完成可观测性",
+      "status": "environment_pending",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "local_scope_passed_external_gates_pending",
+      "learner_acceptance": "not_assessed",
+      "pending_environment_gates": [
+        "真实告警投递、确认、抑制与恢复通知",
+        "完整服务的脱敏/容量/饱和监测",
+        "按路由/作业收窄DML和序列授权并做拒绝测试"
+      ],
+      "review_evidence": "docs/reviews/js2py-o05-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "O06",
+      "title": "备份、恢复与受控上线",
+      "prerequisites": [
+        "O05"
+      ],
+      "teach": "备份范围、恢复目标、隔离恢复、数据验证、访问控制和操作手册",
+      "acceptance": "实际恢复数据库并验证数据后允许受邀用户使用",
+      "boundary": "只有备份文件不算通过；不直接扩展到开放注册",
+      "status": "environment_pending",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "local_scope_passed_external_gates_pending",
+      "learner_acceptance": "not_assessed",
+      "pending_environment_gates": [
+        "加密异地备份与跨主机恢复",
+        "角色/配置/秘密恢复策略",
+        "生产RPO/RTO与负载",
+        "明确批准后的受邀真实试用"
+      ],
+      "review_evidence": "docs/reviews/js2py-o06-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    },
+    {
+      "id": "G01",
+      "title": "独立需求与毕业验收",
+      "prerequisites": [
+        "O06"
+      ],
+      "teach": "仅给需求/验收/约束，不给实现步骤；设计、迁移、权限、测试、发布和维护",
+      "acceptance": "独立完成新功能并说明权衡、失败处理和恢复证据",
+      "boundary": "阅读完毕不等于毕业；以毕业项目规格的交付范围为准",
+      "status": "implemented",
+      "authoring_status": "complete",
+      "reference_verified_date": "2026-09-28",
+      "reference_validation": "material_format_only_passed",
+      "learner_acceptance": "not_assessed",
+      "review_evidence": "docs/reviews/js2py-g01-implementation-review-2026-09-28.json",
+      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+    }
+  ],
+  "status_definitions": {
+    "implemented": "教学包已完成，声明范围内的本地参考验收、源码/下载一致性和页面检查通过；不代表学生已完成练习，不证明公共服务可用。G01仅验收材料格式工具。",
+    "environment_pending": "正文、源码、下载完整且本地子集已验收，但章节列出的目标环境门槛未执行；不得按完整部署/运维验收通过汇报。",
+    "planned": "尚未完成上述教学包交付；当前39章已无此状态。"
+  },
+  "completion_claims": {
+    "authored_chapters": 39,
+    "localized_chapter_pages": 117,
+    "localized_indexes": 3,
+    "implemented_local_scope": 33,
+    "environment_pending": 6,
+    "learner_graduation": "not_assessed",
+    "public_deployment": "not_performed",
+    "student_G01_scenarios_not_run": 24
+  },
+  "acceptance_policy": "prerequisites描述读者需要实际获得的能力，不是文件存在即可跳过的门槛。教师参考实验、教学包实现、学生验收与真实上线分开记录。"
+}

@@ -1,0 +1,202 @@
+---
+title: 事务、连接与并发：失败后数据库究竟剩下什么
+description: 从项目与负责人两步写入出发，追踪事务状态、提交与回滚；用真实 PostgreSQL 双连接观察快照、丢失更新、锁等待、唯一竞争和重试边界。
+---
+
+import { getTransactionExample } from '@/lib/js2py-examples'
+
+## 1. 两条正确 SQL，仍然可能完成一件错误的业务
+
+建立项目需要两件事：写 projects，然后写负责人 project_members。两条 SQL 各自都合法，不代表业务整体可靠。第一条成功后第二条失败，若第一条已独立提交，就留下无人负责的项目。try/except 能改变 Python 控制流，不能撤销一个已经提交给另一个进程的修改；`Promise.all` 也不是数据库的“全部成功或全部失败”。
+
+事务是数据库接受的一组操作边界：要么提交其中全部可提交修改，要么回滚整个未提交单位。边界由业务调用者决定，数据库约束负责判定写入是否有效，驱动负责传送命令和暴露错误。三个职责不能互相替代。
+
+| 章节契约 | 可检查的能力 |
+| --- | --- |
+| 前置 | D02 的 SQL、参数、同步驱动、连接和游标；D01 四表关系与隔离集群 |
+| 新能力 | 提交/回滚、失败事务状态、连接生命周期、隔离快照、并发竞争与约束 |
+| 独立验收 | 制造第二步失败，用另一连接证明第一步无残留；独立扩成三步；解释双连接结果 |
+| 暂不要求 | ORM Session、连接池、分布式事务、认证系统、生产重试中间件 |
+
+下载 [D03 完整实验](/learning-assets/js2py/d03-transactions.zip)，进入 `d03-transactions`。沿用 `d01-d03-v1` 的四表模型，`minutes` 是估时扩展，`status` 替代旧 done，description 替代 note。没有把未来 capstone 的 users/projects 冒充成 H 系列一直存在的字段。
+
+## 2. 从自己的干净数据库开始
+
+核验日期 **2026-09-28**；固定 **PostgreSQL 18.6、Python 3.13.15、uv 0.12.13、pytest 8.4.2、psycopg 3.3.6**。下列 start 会初始化本目录独占的私有 cluster，或恢复自己的已有 cluster；绝不接入默认服务。只有 reset 会有损重建本实验表。
+
+**连接环境检查点。** libpq 除了读取连接串，还会读取环境默认值，例如 `PGHOSTADDR` 指定网络地址，`PGSERVICE` 加载保存的连接配置。因此控制器在启动或 SQL 之前，拒绝除 `PG_BIN`（工具目录）与 `PGHOST`（被显式私有 socket 覆盖）以外的全部 `PG*`，报错只列变量名，不列值。被拒绝时，在本实验终端中检查并移除报出的设置，再重试；不要改填生产连接串，也不要盲目重置已有数据库。`DATABASE_URL` 仍被忽略。控制器使用自己创建的空白、0600 权限密码文件，不读取用户凭证文件，并清理子进程的数据库默认配置。即使环境已污染，仍能用 `status`/`stop` 清理自有集群；stop 仍须验证保存的服务器身份。三语 README 有同样的政策说明。
+
+**测试计数。** 本章有 13 项业务／SQL 测试与 50 项环境边界测试，共 63 项。后者包括参数化的拒绝设置、私有密码文件检查与自有回环监听实验，保护的是学习环境；不等于新增了 50 个 SQL 知识点，更不等于生产安全认证。
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+uv sync --locked
+uv run --locked python labctl.py start
+uv run --locked python labctl.py reset --yes-reset
+```
+
+记住 D01 的对象层次：服务器进程拥有数据目录，cluster 内有数据库和角色，连接串选中 socket/数据库/角色。`labctl` 检查私有目录标记和服务端系统标识，关闭 TCP、忽略 DATABASE_URL。启动安全不等于事务正确；二者都要验证。
+
+## 3. 连接不是事务，游标不是另一个会话
+
+一条连接代表一个服务端会话，可以依次完成多个事务；同一连接上的游标共用当前事务。只有另一条独立连接，才适合观察“外部现在是否能看到修改”。重用连接不是重用已提交事务；关闭游标也不会自动提交。
+
+SQL 中 `BEGIN` 开始显式事务，`COMMIT` 请求整体提交，`ROLLBACK` 丢弃未提交修改。在本章 psycopg 默认 `autocommit=False` 下，第一次查询会隐式开始事务，**SELECT 也会**。创建连接或游标本身不等于已经执行 BEGIN；第一次语句才使事务进入活动状态。提交/回滚后，连接仍可用，下一次语句可开始新事务。
+
+```text
+connected, no transaction
+  -> first statement / BEGIN
+  -> active transaction
+       -> COMMIT succeeds -> no transaction, connection reusable
+       -> SQL error -> failed transaction -> ROLLBACK -> reusable
+       -> close before commit -> uncommitted work discarded
+```
+
+D02 的 autocommit 使每条语句各自完成，并不是让数据库“没有事务”。如果把两步写入分别放在这种模式下，第一步已提交后，第二步的 rollback 无法把它撤回。反过来，默认连接做了一次 SELECT 后长时间不结束，也可能保持快照和锁、占用资源，形成 idle in transaction。不要边等用户点击、边持有业务事务。
+
+`with conn.cursor()` 只管理游标；`with psycopg.connect(...) as conn` 在正常退出时提交、异常退出时回滚，并关闭连接。关闭连接不等于提交：没有完成提交的工作不会因为 `.close()` 变成成功。`conn.execute` 是创建并返回游标的便捷方式，不是新的连接。
+
+<details>
+<summary>解释题答案：两个函数各自 with connect，能组成一个事务吗？</summary>
+
+不能。两个连接各有事务，第二个失败不回滚第一个已提交的操作。业务函数应拥有一条连接，把它传给多个 SQL helper，helper 不自行 commit；最外层决定整体成败。一个 HTTP 请求也未必等于一个事务，边界要按业务一致性需要设计，而不是按函数数量或游标数量设计。
+
+</details>
+
+## 4. 先看成功路径，再把第二步故意破坏
+
+<Code language="python">{getTransactionExample('transactions.py')}</Code>
+
+`insert_project_and_owner` 先拿到服务器生成的项目 ID，再用该 ID 写成员；它不提交。`create_project` 在同一连接里调用两步，离开 with 成功提交后才返回 ID。**return 位于事务上下文外**，因为提交本身也可能失败；在提交完成前给客户端报告“成功”会让接口承诺超过数据库事实。
+
+实验调用较底层 helper，把 creator_id 保持 1，却让 owner_id 变成不存在的 9999。第一步的 created_by 外键合法，第二步的 user_id 外键才报 `23503`。异常穿过 with，驱动回滚并关闭连接。新的观察连接查 Broken 项目数量为 0，成员数量仍为种子的 4。这比只断言 Python 抛错多证明了一层：实际数据库没有第一步残留。
+
+为什么拿“另一个连接”检查？同事务可以看见自己的未提交写入；若在错误前先查到项目，不代表其他事务能看见，更不代表已经提交。测试分别验证提交前观察者看不到、提交后看得到，以及 owner 行一并存在。
+
+## 5. 错误后为什么连 SELECT 都失败
+
+下面文件故意在同一 psql 连接执行两步写入、后续查询、回滚和恢复查询。预期错误被明确标记，只有这个实验允许 psql 遇错继续。
+
+<Code language="sql">{getTransactionExample('sql/failed_transaction.sql')}</Code>
+
+```bash
+uv run --locked python labctl.py psql --file sql/failed_transaction.sql
+```
+
+第二步报 `23503`；接着 SELECT 报 `25P02`，因为事务已失败，服务端不接受继续正常执行。ROLLBACK 后 Broken SQL 数量为 0，SELECT 1 成功。这不是连接被永久损坏，而是连接上的当前事务必须结束。
+
+在 Python 中，如果你在 with 内吞掉异常，又继续执行 SQL，也会得到 `InFailedSqlTransaction`。推荐让异常先穿过事务边界，在外层转换为友好业务错误；如果确实手动管理连接，必须显式 rollback 后才复用。不要仅 `except Exception: return None`，那会隐藏真正故障，还可能把失败会话交回后续代码。
+
+数据库约束仍是最后防线：API 预先检查“用户存在”有助于错误提示，但另一连接可以在检查与写入之间改变状态。不能因为有 Python 验证就删除外键。也不能把所有数据库错误都当输入错误：连接中断、磁盘故障、约束冲突需要不同处理。
+
+## 6. ACID 的可用含义与不可承诺的事
+
+| 性质 | 在本实验中的证据 | 不是这个承诺 |
+| --- | --- | --- |
+| 原子性 | 第二步失败，第一步也无残留 | 不能回滚已发出的邮件或外部 HTTP 请求 |
+| 一致性 | CHECK、外键、唯一性约束拒绝坏状态 | 数据库不会自动知道“必须有一个负责人”的全部业务规则 |
+| 隔离性 | 并发事务按隔离级别看到数据、等待或冲突 | 不是所有事务都像一个全局串行锁 |
+| 持久性 | 已提交数据在正常停启后保留 | 不是不需要备份，也不是本实验已证明硬件故障恢复 |
+
+identity 数字的分配不随事务回滚倒退：失败或回滚后编号有空洞正常，不能以“少了一个号”认定残留记录。ID 用来标识，不用来统计数量或证明操作次数。外部副作用也不参与 PostgreSQL 回滚；不要在重试块里随意发送通知或收款。
+
+还有一个恢复边界：如果提交时网络断了，客户端看到异常不总能知道服务端是否已提交。本实验没有演练断网提交结果不明；生产需要幂等键或可核对的业务标识与状态查询，不能无脑重放一个可能已经成功的操作。
+
+## 7. 两个连接看到哪一版：快照不是 Python 对象缓存
+
+PostgreSQL 用多版本机制让读取按快照判断可见记录，而不是每个读者都锁住整张表。下面的完整程序每次实验前重置数据，创建真实独立连接，并把关键结果打印出来。
+
+<Code language="python">{getTransactionExample('concurrency.py')}</Code>
+
+先看 snapshot：reader 第一次读 task 1 得 30；writer 加 10 并提交；reader 在同一事务第二次读取。在默认 Read Committed 下，每条语句获取新的可见快照，得到 `[30, 40]`；Repeatable Read 的后续读取使用同一事务快照，得到 `[30, 30]`。第一次读取决定本例观察的起点，不要假设只是建立连接就冻结了数据库。
+
+这不是“哪个级别更快”的比较，也不是读取永远不会等待。更强隔离可能因并发更新而拒绝事务，让应用重新做决定；你不能同时要求任意旧快照都成功写入、又要求没有冲突。Serializable 提供更强的一致执行语义，但仍可能要求重试，本章未运行 Serializable 的完整异常矩阵，不把 Repeatable Read 实验冒称成它的验收。
+
+## 8. 丢失更新：只加 BEGIN 并不能修好读后写
+
+lost_update 让 A、B 都先读到 30。A 在 Python 算 35 并提交；B 用自己的旧读值算 37，再提交。最后是 37，不是 42。两次 UPDATE 都是合法事务，数据库没法知道 B 传入的 37 其实意图为“最新值加 7”。问题是应用把相对修改变成了过时的绝对替换。
+
+修复这个具体计数需求的方法是把运算放进单条 SQL：`SET minutes = minutes + %s`。A 未提交时 B 更新同一行要等锁；A 提交后，Read Committed 下 B 对当前可更新版本加 7，最终 42。程序不是靠 sleep 猜 B 慢：第三条观察连接读取 pg_stat_activity，确认 B 的 wait_event_type 为 Lock 后，才让 A 提交；设置超时避免实验无限挂起。
+
+当业务真的需要“先读多个字段、再做复杂决定”时，可在同一短事务里 `SELECT ... FOR UPDATE` 锁定相应行再判断，或者使用带旧版本条件的乐观更新并检查影响行数。行锁不是锁住所有相关业务：两个不同项目的限制条件可能涉及多行甚至无行，不能照搬一个 FOR UPDATE 就声称解决所有竞争。
+
+<details>
+<summary>带提示修改答案：把 lost_update 的两个 SELECT 改成 FOR UPDATE 就结束了吗？</summary>
+
+不能在原单线程交错顺序里直接这样改：A 拿锁，B 的 SELECT 等 A，而脚本还没走到 A commit，可能一直等到超时。要改变调度，让 A 完成后 B 继续，或用本实验的工作线程构造真实重叠。本例仅做加法，原子 UPDATE 更直接；如果用锁，读取、判断、写入必须在持锁的同一事务内，而且锁尽快释放。
+
+</details>
+
+## 9. 约束竞争、锁超时和完整重试
+
+unique_race 中 A 插入 login=race 尚未提交，B 也尝试同值。B 会等待 A 的结果；A 成功提交后 B 报 `23505`，最终恰好一行。先在应用 SELECT 看看“还没有”，无法阻止两个连接都通过检查；UNIQUE 才覆盖所有写入者。本实验的 CHECK/FK/UNIQUE 不是“单进程锁”的替身。
+
+lock_timeout 由 A 的 FOR UPDATE 持有行锁，B 设置本事务 200ms 锁等待上限，再更新同一行。真实结果是 `55P03`，B rollback 后重新查询成功，minutes 仍为 30。该错误不是网络超时，不应该靠修改 host 修复。生产中超时政策要按需求设定；本例数值只为快速、可恢复地观察失败。
+
+serialization_conflict 中，两连接先以 Repeatable Read 读旧版本；A 加 5 提交，B 再尝试更新旧快照关联行，报 `40001`。B rollback 后开启**新事务**，重新读取并作决定，再加 7，得到 42。只重试最后一条 SQL 不够，因为原来的读取与判断已经过时。
+
+这次受控实验只重试一次来展示完整单位。生产应对明确可重试的错误实行有限次数、退避和总时间预算，最终仍失败就返回可理解错误；别重试所有约束错误，也别在同一失败事务里循环。事务彼此以不同顺序拿多个锁还可能死锁；统一顺序和短事务能降低风险，死锁检测与完整重试策略需要另行测试，本章没有死锁实测承诺。
+
+## 10. 运行证据：预测后再执行
+
+<Code language="python">{getTransactionExample('demo.py')}</Code>
+
+```bash
+uv run --locked python demo.py
+uv run --locked pytest -q
+```
+
+```text
+failed_second_step {"memberships": 4, "projects_remaining": 0, "sqlstate": "23503"}
+read_committed [30, 40]
+repeatable_read [30, 30]
+lost_update 37
+atomic_increment {"lock_wait_observed": true, "value": 42, "worker": "committed"}
+unique_race {"lock_wait_observed": true, "value": 1, "worker": "23505"}
+lock_timeout {"minutes_after_rollback": 30, "sqlstate": "55P03"}
+serialization_conflict {"after_full_retry": 42, "sqlstate": "40001"}
+```
+
+这是本次 PostgreSQL 18.6 真实输出，不是模拟器或 SQLite。全部 63 项中的 13 项业务测试还验证提交前后可见性、关闭未提交连接、25P02 后恢复、identity 空洞和下面三步变式。demo 每个场景都重置自己数据库，因此不能在里面保留个人练习数据；测试也同样有损重置。不要并行运行两个测试进程复用同一实验目录。
+
+## 11. 独立变式：项目、负责人和首项任务一起成功
+
+独立实现创建项目、添加负责人、创建第一项任务三个步骤。需求只有这些：成功时外部连接能查到三者；第三步标题全是空格时数据库拒绝，前两步也不能留下；SQL helper 不得中途提交；错误后下一次合法调用仍成功。先写接受标准，再实现，不把回滚后手动 DELETE 当作答案。
+
+<details>
+<summary>独立变式参考答案与失败验收</summary>
+
+<Code language="python">{getTransactionExample('answers/variant.py')}</Code>
+
+调用者把整个 helper 放进一个连接上下文；第三条 INSERT 触发 CHECK 失败，异常必须离开该上下文。测试从新连接验证名为 Three steps 的项目为 0，成员总数仍 4、任务总数仍 5，再用合法标题运行并查回新任务的项目 ID。手动补偿 DELETE 可能自己失败、也给并发读取暴露半成品，不能替代这里的单库事务。
+
+</details>
+
+## 12. 谁恢复、谁释放，以及交给 ORM 的契约
+
+恢复时先识别失败层：输入错误在发 SQL 前处理；约束错误由当前业务事务回滚后解释；25P02 要找到更早的 SQL 错误；40001 要重做整个业务单位；连接故障要关闭不可用连接并处理结果不明，而不是继续发查询。测试使用短超时，工作线程的 finally 会释放 A 的锁，连接上下文关闭双方资源；超时或断言失败不是留下后台连接的理由。
+
+```bash
+uv run --locked python labctl.py stop
+uv run --locked python labctl.py status
+```
+
+stop 的范围只有所有权匹配的 cluster，使用明确数据目录、fast 模式和等待退出；证据是 status 返回 `running: false`、`pg_ctl_status: 3`。原始数据与日志保留，下一次 start 可恢复；如需回到已知种子才使用 reset。记录本次最后输出、失败 SQLSTATE、哪个连接先开始/提交、通过的测试和下次第一步；学习中断后据此重建时间线，而不是背一遍 ACID。
+
+后续 ORM 必须保留 DDL 字段与约束、timestamptz 策略、非自动 updated_at 和这组失败测试。ORM Session 是另一个抽象，不能拿它代替今天已建立的“连接/事务/业务单位”区分。认证、至少/恰好一个负责人、创建者成员身份和对象权限仍需服务规则及后续测试；当前外键只验证存在性。不把这些缺口藏在“数据库会处理”的一句话里。
+
+## 13. 独立验收与官方依据
+
+交卷应包含：两步后步失败的 SQLSTATE 与外部计数、成功事务前后可见性、丢失更新和修复的时间线、两个隔离级别的读结果、三步变式及失败后资源恢复。能解释机制并改变需求，才算达到本章契约；编译文件不是事务验收。
+
+官方依据核验于 **2026-09-28**：
+
+- [PostgreSQL 18 事务入门](https://www.postgresql.org/docs/18/tutorial-transactions.html)、[事务隔离](https://www.postgresql.org/docs/18/transaction-iso.html)。
+- [显式锁](https://www.postgresql.org/docs/18/explicit-locking.html)、[约束](https://www.postgresql.org/docs/18/ddl-constraints.html)、[错误码](https://www.postgresql.org/docs/18/errcodes-appendix.html)。
+- [psycopg 3.3.6 官方事务文档源码](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/transactions.rst)：默认隐式事务、上下文和错误恢复；官方文档站本次 403，固定标签源码可读取。
+- [PostgreSQL 18.6 发布说明](https://www.postgresql.org/docs/release/18.6/)。
+
+未运行和不承诺：崩溃/断电恢复、提交时断网、Serializable 全矩阵、真实死锁、生产吞吐、外部副作用幂等和 HTTP/认证整合。本章的真实并发证据只覆盖列出的 PostgreSQL 场景。

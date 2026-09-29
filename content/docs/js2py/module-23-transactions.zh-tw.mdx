@@ -1,0 +1,202 @@
+---
+title: 事務、連接與併發：失敗後數據庫究竟剩下什麼
+description: 從項目與負責人兩步寫入出發，追蹤事務狀態、提交與回滾；用真實 PostgreSQL 雙連接觀察快照、丟失更新、鎖等待、唯一競爭和重試邊界。
+---
+
+import { getTransactionExample } from '@/lib/js2py-examples'
+
+## 1. 兩條正確 SQL，仍然可能完成一件錯誤的業務
+
+建立項目需要兩件事：寫 projects，然後寫負責人 project_members。兩條 SQL 各自都合法，不代表業務整體可靠。第一條成功後第二條失敗，若第一條已獨立提交，就留下無人負責的項目。try/except 能改變 Python 控制流，不能撤銷一個已經提交給另一個進程的修改；`Promise.all` 也不是數據庫的“全部成功或全部失敗”。
+
+事務是數據庫接受的一組操作邊界：要麼提交其中全部可提交修改，要麼回滾整個未提交單位。邊界由業務調用者決定，數據庫約束負責判定寫入是否有效，驅動負責傳送命令和暴露錯誤。三個職責不能互相替代。
+
+| 章節契約 | 可檢查的能力 |
+| --- | --- |
+| 前置 | D02 的 SQL、參數、同步驅動、連接和遊標；D01 四表關係與隔離集群 |
+| 新能力 | 提交/回滾、失敗事務狀態、連接生命週期、隔離快照、併發競爭與約束 |
+| 獨立驗收 | 製造第二步失敗，用另一連接證明第一步無殘留；獨立擴成三步；解釋雙連接結果 |
+| 暫不要求 | ORM Session、連接池、分佈式事務、認證系統、生產重試中間件 |
+
+下載 [D03 完整實驗](/learning-assets/js2py/d03-transactions.zip)，進入 `d03-transactions`。沿用 `d01-d03-v1` 的四表模型，`minutes` 是估時擴展，`status` 替代舊 done，description 替代 note。沒有把未來 capstone 的 users/projects 冒充成 H 系列一直存在的字段。
+
+## 2. 從自己的乾淨數據庫開始
+
+核驗日期 **2026-09-28**；固定 **PostgreSQL 18.6、Python 3.13.15、uv 0.12.13、pytest 8.4.2、psycopg 3.3.6**。下列 start 會初始化本目錄獨佔的私有 cluster，或恢復自己的已有 cluster；絕不接入默認服務。只有 reset 會有損重建本實驗表。
+
+**連接環境檢查點。** libpq 除了讀取連接串，還會讀取環境默認值，例如 `PGHOSTADDR` 指定網絡地址，`PGSERVICE` 加載保存的連接配置。因此控制器在啟動或 SQL 之前，拒絕除 `PG_BIN`（工具目錄）與 `PGHOST`（被顯式私有 socket 覆蓋）以外的全部 `PG*`，報錯只列變量名，不列值。被拒絕時，在本實驗終端中檢查並移除報出的設置，再重試；不要改填生產連接串，也不要盲目重置已有數據庫。`DATABASE_URL` 仍被忽略。控制器使用自己創建的空白、0600 權限密碼文件，不讀取用戶憑證文件，並清理子進程的數據庫默認配置。即使環境已污染，仍能用 `status`/`stop` 清理自有集群；stop 仍須驗證保存的服務器身份。三語 README 有同樣的政策說明。
+
+**測試計數。** 本章有 13 項業務／SQL 測試與 50 項環境邊界測試，共 63 項。後者包括參數化的拒絕設置、私有密碼文件檢查與自有迴環監聽實驗，保護的是學習環境；不等於新增了 50 個 SQL 知識點，更不等於生產安全認證。
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+uv sync --locked
+uv run --locked python labctl.py start
+uv run --locked python labctl.py reset --yes-reset
+```
+
+記住 D01 的對象層次：服務器進程擁有數據目錄，cluster 內有數據庫和角色，連接串選中 socket/數據庫/角色。`labctl` 檢查私有目錄標記和服務端系統標識，關閉 TCP、忽略 DATABASE_URL。啟動安全不等於事務正確；二者都要驗證。
+
+## 3. 連接不是事務，遊標不是另一個會話
+
+一條連接代表一個服務端會話，可以依次完成多個事務；同一連接上的遊標共用當前事務。只有另一條獨立連接，才適合觀察“外部現在是否能看到修改”。重用連接不是重用已提交事務；關閉遊標也不會自動提交。
+
+SQL 中 `BEGIN` 開始顯式事務，`COMMIT` 請求整體提交，`ROLLBACK` 丟棄未提交修改。在本章 psycopg 默認 `autocommit=False` 下，第一次查詢會隱式開始事務，**SELECT 也會**。創建連接或遊標本身不等於已經執行 BEGIN；第一次語句才使事務進入活動狀態。提交/回滾後，連接仍可用，下一次語句可開始新事務。
+
+```text
+connected, no transaction
+  -> first statement / BEGIN
+  -> active transaction
+       -> COMMIT succeeds -> no transaction, connection reusable
+       -> SQL error -> failed transaction -> ROLLBACK -> reusable
+       -> close before commit -> uncommitted work discarded
+```
+
+D02 的 autocommit 使每條語句各自完成，並不是讓數據庫“沒有事務”。如果把兩步寫入分別放在這種模式下，第一步已提交後，第二步的 rollback 無法把它撤回。反過來，默認連接做了一次 SELECT 後長時間不結束，也可能保持快照和鎖、佔用資源，形成 idle in transaction。不要邊等用戶點擊、邊持有業務事務。
+
+`with conn.cursor()` 只管理遊標；`with psycopg.connect(...) as conn` 在正常退出時提交、異常退出時回滾，並關閉連接。關閉連接不等於提交：沒有完成提交的工作不會因為 `.close()` 變成成功。`conn.execute` 是創建並返回遊標的便捷方式，不是新的連接。
+
+<details>
+<summary>解釋題答案：兩個函數各自 with connect，能組成一個事務嗎？</summary>
+
+不能。兩個連接各有事務，第二個失敗不回滾第一個已提交的操作。業務函數應擁有一條連接，把它傳給多個 SQL helper，helper 不自行 commit；最外層決定整體成敗。一個 HTTP 請求也未必等於一個事務，邊界要按業務一致性需要設計，而不是按函數數量或遊標數量設計。
+
+</details>
+
+## 4. 先看成功路徑，再把第二步故意破壞
+
+<Code language="python">{getTransactionExample('transactions.py')}</Code>
+
+`insert_project_and_owner` 先拿到服務器生成的項目 ID，再用該 ID 寫成員；它不提交。`create_project` 在同一連接裡調用兩步，離開 with 成功提交後才返回 ID。**return 位於事務上下文外**，因為提交本身也可能失敗；在提交完成前給客戶端報告“成功”會讓接口承諾超過數據庫事實。
+
+實驗調用較底層 helper，把 creator_id 保持 1，卻讓 owner_id 變成不存在的 9999。第一步的 created_by 外鍵合法，第二步的 user_id 外鍵才報 `23503`。異常穿過 with，驅動回滾並關閉連接。新的觀察連接查 Broken 項目數量為 0，成員數量仍為種子的 4。這比只斷言 Python 拋錯多證明了一層：實際數據庫沒有第一步殘留。
+
+為什麼拿“另一個連接”檢查？同事務可以看見自己的未提交寫入；若在錯誤前先查到項目，不代表其他事務能看見，更不代表已經提交。測試分別驗證提交前觀察者看不到、提交後看得到，以及 owner 行一併存在。
+
+## 5. 錯誤後為什麼連 SELECT 都失敗
+
+下面文件故意在同一 psql 連接執行兩步寫入、後續查詢、回滾和恢復查詢。預期錯誤被明確標記，只有這個實驗允許 psql 遇錯繼續。
+
+<Code language="sql">{getTransactionExample('sql/failed_transaction.sql')}</Code>
+
+```bash
+uv run --locked python labctl.py psql --file sql/failed_transaction.sql
+```
+
+第二步報 `23503`；接著 SELECT 報 `25P02`，因為事務已失敗，服務端不接受繼續正常執行。ROLLBACK 後 Broken SQL 數量為 0，SELECT 1 成功。這不是連接被永久損壞，而是連接上的當前事務必須結束。
+
+在 Python 中，如果你在 with 內吞掉異常，又繼續執行 SQL，也會得到 `InFailedSqlTransaction`。推薦讓異常先穿過事務邊界，在外層轉換為友好業務錯誤；如果確實手動管理連接，必須顯式 rollback 後才複用。不要僅 `except Exception: return None`，那會隱藏真正故障，還可能把失敗會話交回後續代碼。
+
+數據庫約束仍是最後防線：API 預先檢查“用戶存在”有助於錯誤提示，但另一連接可以在檢查與寫入之間改變狀態。不能因為有 Python 驗證就刪除外鍵。也不能把所有數據庫錯誤都當輸入錯誤：連接中斷、磁盤故障、約束衝突需要不同處理。
+
+## 6. ACID 的可用含義與不可承諾的事
+
+| 性質 | 在本實驗中的證據 | 不是這個承諾 |
+| --- | --- | --- |
+| 原子性 | 第二步失敗，第一步也無殘留 | 不能回滾已發出的郵件或外部 HTTP 請求 |
+| 一致性 | CHECK、外鍵、唯一性約束拒絕壞狀態 | 數據庫不會自動知道“必須有一個負責人”的全部業務規則 |
+| 隔離性 | 併發事務按隔離級別看到數據、等待或衝突 | 不是所有事務都像一個全局串行鎖 |
+| 持久性 | 已提交數據在正常停啟後保留 | 不是不需要備份，也不是本實驗已證明硬件故障恢復 |
+
+identity 數字的分配不隨事務回滾倒退：失敗或回滾後編號有空洞正常，不能以“少了一個號”認定殘留記錄。ID 用來標識，不用來統計數量或證明操作次數。外部副作用也不參與 PostgreSQL 回滾；不要在重試塊裡隨意發送通知或收款。
+
+還有一個恢復邊界：如果提交時網絡斷了，客戶端看到異常不總能知道服務端是否已提交。本實驗沒有演練斷網提交結果不明；生產需要冪等鍵或可核對的業務標識與狀態查詢，不能無腦重放一個可能已經成功的操作。
+
+## 7. 兩個連接看到哪一版：快照不是 Python 對象緩存
+
+PostgreSQL 用多版本機制讓讀取按快照判斷可見記錄，而不是每個讀者都鎖住整張表。下面的完整程序每次實驗前重置數據，創建真實獨立連接，並把關鍵結果打印出來。
+
+<Code language="python">{getTransactionExample('concurrency.py')}</Code>
+
+先看 snapshot：reader 第一次讀 task 1 得 30；writer 加 10 並提交；reader 在同一事務第二次讀取。在默認 Read Committed 下，每條語句獲取新的可見快照，得到 `[30, 40]`；Repeatable Read 的後續讀取使用同一事務快照，得到 `[30, 30]`。第一次讀取決定本例觀察的起點，不要假設只是建立連接就凍結了數據庫。
+
+這不是“哪個級別更快”的比較，也不是讀取永遠不會等待。更強隔離可能因併發更新而拒絕事務，讓應用重新做決定；你不能同時要求任意舊快照都成功寫入、又要求沒有衝突。Serializable 提供更強的一致執行語義，但仍可能要求重試，本章未運行 Serializable 的完整異常矩陣，不把 Repeatable Read 實驗冒稱成它的驗收。
+
+## 8. 丟失更新：只加 BEGIN 並不能修好讀後寫
+
+lost_update 讓 A、B 都先讀到 30。A 在 Python 算 35 並提交；B 用自己的舊讀值算 37，再提交。最後是 37，不是 42。兩次 UPDATE 都是合法事務，數據庫沒法知道 B 傳入的 37 其實意圖為“最新值加 7”。問題是應用把相對修改變成了過時的絕對替換。
+
+修復這個具體計數需求的方法是把運算放進單條 SQL：`SET minutes = minutes + %s`。A 未提交時 B 更新同一行要等鎖；A 提交後，Read Committed 下 B 對當前可更新版本加 7，最終 42。程序不是靠 sleep 猜 B 慢：第三條觀察連接讀取 pg_stat_activity，確認 B 的 wait_event_type 為 Lock 後，才讓 A 提交；設置超時避免實驗無限掛起。
+
+當業務真的需要“先讀多個字段、再做複雜決定”時，可在同一短事務裡 `SELECT ... FOR UPDATE` 鎖定相應行再判斷，或者使用帶舊版本條件的樂觀更新並檢查影響行數。行鎖不是鎖住所有相關業務：兩個不同項目的限制條件可能涉及多行甚至無行，不能照搬一個 FOR UPDATE 就聲稱解決所有競爭。
+
+<details>
+<summary>帶提示修改答案：把 lost_update 的兩個 SELECT 改成 FOR UPDATE 就結束了嗎？</summary>
+
+不能在原單線程交錯順序裡直接這樣改：A 拿鎖，B 的 SELECT 等 A，而腳本還沒走到 A commit，可能一直等到超時。要改變調度，讓 A 完成後 B 繼續，或用本實驗的工作線程構造真實重疊。本例僅做加法，原子 UPDATE 更直接；如果用鎖，讀取、判斷、寫入必須在持鎖的同一事務內，而且鎖儘快釋放。
+
+</details>
+
+## 9. 約束競爭、鎖超時和完整重試
+
+unique_race 中 A 插入 login=race 尚未提交，B 也嘗試同值。B 會等待 A 的結果；A 成功提交後 B 報 `23505`，最終恰好一行。先在應用 SELECT 看看“還沒有”，無法阻止兩個連接都通過檢查；UNIQUE 才覆蓋所有寫入者。本實驗的 CHECK/FK/UNIQUE 不是“單進程鎖”的替身。
+
+lock_timeout 由 A 的 FOR UPDATE 持有行鎖，B 設置本事務 200ms 鎖等待上限，再更新同一行。真實結果是 `55P03`，B rollback 後重新查詢成功，minutes 仍為 30。該錯誤不是網絡超時，不應該靠修改 host 修復。生產中超時政策要按需求設定；本例數值只為快速、可恢復地觀察失敗。
+
+serialization_conflict 中，兩連接先以 Repeatable Read 讀舊版本；A 加 5 提交，B 再嘗試更新舊快照關聯行，報 `40001`。B rollback 後開啟**新事務**，重新讀取並作決定，再加 7，得到 42。只重試最後一條 SQL 不夠，因為原來的讀取與判斷已經過時。
+
+這次受控實驗只重試一次來展示完整單位。生產應對明確可重試的錯誤實行有限次數、退避和總時間預算，最終仍失敗就返回可理解錯誤；別重試所有約束錯誤，也別在同一失敗事務裡循環。事務彼此以不同順序拿多個鎖還可能死鎖；統一順序和短事務能降低風險，死鎖檢測與完整重試策略需要另行測試，本章沒有死鎖實測承諾。
+
+## 10. 運行證據：預測後再執行
+
+<Code language="python">{getTransactionExample('demo.py')}</Code>
+
+```bash
+uv run --locked python demo.py
+uv run --locked pytest -q
+```
+
+```text
+failed_second_step {"memberships": 4, "projects_remaining": 0, "sqlstate": "23503"}
+read_committed [30, 40]
+repeatable_read [30, 30]
+lost_update 37
+atomic_increment {"lock_wait_observed": true, "value": 42, "worker": "committed"}
+unique_race {"lock_wait_observed": true, "value": 1, "worker": "23505"}
+lock_timeout {"minutes_after_rollback": 30, "sqlstate": "55P03"}
+serialization_conflict {"after_full_retry": 42, "sqlstate": "40001"}
+```
+
+這是本次 PostgreSQL 18.6 真實輸出，不是模擬器或 SQLite。全部 63 項中的 13 項業務測試還驗證提交前後可見性、關閉未提交連接、25P02 後恢復、identity 空洞和下面三步變式。demo 每個場景都重置自己數據庫，因此不能在裡面保留個人練習數據；測試也同樣有損重置。不要並行運行兩個測試進程複用同一實驗目錄。
+
+## 11. 獨立變式：項目、負責人和首項任務一起成功
+
+獨立實現創建項目、添加負責人、創建第一項任務三個步驟。需求只有這些：成功時外部連接能查到三者；第三步標題全是空格時數據庫拒絕，前兩步也不能留下；SQL helper 不得中途提交；錯誤後下一次合法調用仍成功。先寫接受標準，再實現，不把回滾後手動 DELETE 當作答案。
+
+<details>
+<summary>獨立變式參考答案與失敗驗收</summary>
+
+<Code language="python">{getTransactionExample('answers/variant.py')}</Code>
+
+調用者把整個 helper 放進一個連接上下文；第三條 INSERT 觸發 CHECK 失敗，異常必須離開該上下文。測試從新連接驗證名為 Three steps 的項目為 0，成員總數仍 4、任務總數仍 5，再用合法標題運行並查回新任務的項目 ID。手動補償 DELETE 可能自己失敗、也給併發讀取暴露半成品，不能替代這裡的單庫事務。
+
+</details>
+
+## 12. 誰恢復、誰釋放，以及交給 ORM 的契約
+
+恢復時先識別失敗層：輸入錯誤在發 SQL 前處理；約束錯誤由當前業務事務回滾後解釋；25P02 要找到更早的 SQL 錯誤；40001 要重做整個業務單位；連接故障要關閉不可用連接並處理結果不明，而不是繼續發查詢。測試使用短超時，工作線程的 finally 會釋放 A 的鎖，連接上下文關閉雙方資源；超時或斷言失敗不是留下後臺連接的理由。
+
+```bash
+uv run --locked python labctl.py stop
+uv run --locked python labctl.py status
+```
+
+stop 的範圍只有所有權匹配的 cluster，使用明確數據目錄、fast 模式和等待退出；證據是 status 返回 `running: false`、`pg_ctl_status: 3`。原始數據與日誌保留，下一次 start 可恢復；如需回到已知種子才使用 reset。記錄本次最後輸出、失敗 SQLSTATE、哪個連接先開始/提交、通過的測試和下次第一步；學習中斷後據此重建時間線，而不是背一遍 ACID。
+
+後續 ORM 必須保留 DDL 字段與約束、timestamptz 策略、非自動 updated_at 和這組失敗測試。ORM Session 是另一個抽象，不能拿它代替今天已建立的“連接/事務/業務單位”區分。認證、至少/恰好一個負責人、創建者成員身份和對象權限仍需服務規則及後續測試；當前外鍵只驗證存在性。不把這些缺口藏在“數據庫會處理”的一句話裡。
+
+## 13. 獨立驗收與官方依據
+
+交卷應包含：兩步後步失敗的 SQLSTATE 與外部計數、成功事務前後可見性、丟失更新和修復的時間線、兩個隔離級別的讀結果、三步變式及失敗後資源恢復。能解釋機制並改變需求，才算達到本章契約；編譯文件不是事務驗收。
+
+官方依據核驗於 **2026-09-28**：
+
+- [PostgreSQL 18 事務入門](https://www.postgresql.org/docs/18/tutorial-transactions.html)、[事務隔離](https://www.postgresql.org/docs/18/transaction-iso.html)。
+- [顯式鎖](https://www.postgresql.org/docs/18/explicit-locking.html)、[約束](https://www.postgresql.org/docs/18/ddl-constraints.html)、[錯誤碼](https://www.postgresql.org/docs/18/errcodes-appendix.html)。
+- [psycopg 3.3.6 官方事務文檔源碼](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/transactions.rst)：默認隱式事務、上下文和錯誤恢復；官方文檔站本次 403，固定標籤源碼可讀取。
+- [PostgreSQL 18.6 發佈說明](https://www.postgresql.org/docs/release/18.6/)。
+
+未運行和不承諾：崩潰/斷電恢復、提交時斷網、Serializable 全矩陣、真實死鎖、生產吞吐、外部副作用冪等和 HTTP/認證整合。本章的真實併發證據只覆蓋列出的 PostgreSQL 場景。

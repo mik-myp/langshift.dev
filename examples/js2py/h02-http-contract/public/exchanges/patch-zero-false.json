@@ -1,0 +1,38 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "patch-zero-false",
+  "precondition": {
+    "seed_tasks": [
+      {
+        "title": "  Read HTTP  ",
+        "minutes": 25,
+        "done": true,
+        "note": "keep me"
+      }
+    ]
+  },
+  "request": {
+    "method": "PATCH",
+    "target": "/tasks/1",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "minutes": 0,
+      "done": false
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "id": 1,
+      "title": "  Read HTTP  ",
+      "minutes": 0,
+      "done": false,
+      "note": "keep me"
+    }
+  }
+}

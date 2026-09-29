@@ -1,0 +1,1150 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "Full English + full non-lock text files distributed across bounded slices; all lock bytes deterministically checked. No claim that a single slice viewed other slices.",
+  "slices": [
+    {
+      "batch": "review-57",
+      "metadata": {
+        "started_at_utc": "2026-09-28T05:34:03.753495+00:00",
+        "elapsed_seconds": 1.207,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "c4315ff0a07bc9deec3375b6fa42b8c783a3c7b5476571fcfea9f75ce0a21e69",
+        "usage": {
+          "input_tokens": 22746,
+          "output_tokens": 344
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "h05-dependencies",
+          "current_contract": {
+            "id": "H05",
+            "title": "应用组织、配置与依赖",
+            "prerequisites": [
+              "H04",
+              "L14"
+            ],
+            "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+            "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+            "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            }
+          ],
+          "declared_transitive_prior_capabilities": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            }
+          ],
+          "prerequisite_scope": "Current direct edges plus their transitive contracts are included. Contracts describe curriculum capabilities, not proof that a particular learner has passed; review required concepts against actual lesson explanation, not absence of transitive detail from earlier rounds.",
+          "actual_english_lesson": "---\ntitle: Application Structure, Configuration, and Dependencies\ndescription: Give creation, use, and cleanup explicit owners; evolve the in-memory API with APIRouter, explained Depends mechanics, synchronous resource scopes, configuration diagnostics, and an independent summary route.\n---\n\nimport { getDependencyExample } from '@/lib/js2py-examples'\n\n## 1. More files are not the goal; clear responsibilities are\n\nH04 kept validation, response filtering, and in-memory CRUD together so that you could follow your first requests. Now changing a page limit, creating an empty application, or adding a route brings you back to the same global variables. The problem is not simply a long file. It is unclear **who owns state, who supplies it, and who releases temporary resources**.\n\nWe preserve the HTTP behavior and separate only responsibilities we actually have. A useful frontend analogy is an application entry point composing modules and passing objects to consumers. Its limit matters: there is no React render tree, hook order, or browser component unmount here. The framework calls a function for a request; the service process continues afterwards. Depends is not a Python useEffect.\n\n| Chapter contract | Scope |\n| --- | --- |\n| Prerequisites | H04 request/response models and memory CRUD; L06 modules; L12 instances; L14 synchronous yield/with/finally |\n| New capabilities | APIRouter, application factories, dependency providers and consumers, per-request caching, synchronous cleanup, configuration diagnostics |\n| Independent acceptance | Explain a complete request; observe success/error cleanup; reproduce two configuration failures; add a summary route sharing existing state |\n| Not required yet | TestClient/fixtures (H06); asynchronous lifespan (A02); databases, login, permissions, generic architectural frameworks |\n\nDownload the [complete independent H05 lab](/learning-assets/js2py/h05-dependencies.zip), extract it, and enter `h05-dependencies`. All files are included; you do not copy H04 code or import another lab. This is a local multi-file API, not a server you can start inside the browser Python editor.\n\n## 2. Preserve the business contract before splitting code\n\nThe server still assigns positive integer IDs. A title has 1..120 characters, cannot be all whitespace, and retains valid spelling, capitalization, and surrounding spaces. Minutes are ordinary nonnegative JSON integers, not booleans, strings, or floats. Done is a strict boolean defaulting to false. Note is nullable text of at most 1000 characters, defaulting to null. PATCH merges explicitly supplied fields only; only note accepts null. Clients cannot supply id or extra fields, and responses must not expose internal_tag.\n\nPOST /tasks returns 201; listing, reading, and PATCH return 200; DELETE returns 204 without a body. A valid positive ID that does not exist returns 404; invalid input returns 422. Pages contain items/limit/offset/total, ordered by ID. Defaults are limit=20 and offset=0; limit is 1..100 and offset is nonnegative. Offset counts **existing records** to skip, not an ID at which to begin.\n\nRefactoring must not quietly start storing title.strip(), or merge every default from model_dump into a PATCH. Keep the models and explain the separate input contract and output allowlist:\n\n<Code language=\"python\">{getDependencyExample('task_api/models.py')}</Code>\n\nTaskPatch's title/minutes defaults are valid placeholders for omitted fields. Only `exclude_unset=True` may supply the merge; those defaults are not replacement business values. TaskPublic does not inherit the storage model with internal fields, making the output permission list explicit.\n\n## 3. A small directory with six real responsibilities\n\n```text\ntask_api/\n  __init__.py\n  config.py\n  models.py\n  store.py\n  dependencies.py\n  routes.py\n  main.py\n```\n\nConfig interprets configuration; models define data boundaries; store owns records and their sequence; dependencies connect a request to required objects; routes interpret HTTP; main composes the application. `__init__.py` marks the importable package and contains only a description here. Imports roughly flow main → routes → dependencies/store/models; store must not import main back.\n\n**Do not add repository/service/interface/base-manager layers.** We do not yet have another storage implementation or complex business coordination to justify them. A small class is useful because tasks and next_id belong to one instance, not because every function should become a method.\n\n<Code language=\"python\">{getDependencyExample('task_api/store.py')}</Code>\n\nEach MemoryStore creates its own dictionary and sequence. Neither a class attribute nor a module-level singleton owns the records. Get returns a record or None; it knows nothing about 404. The route decides how absence becomes HTTP. Patch constructs and validates a candidate before replacing the old record. That ordering avoids partial updates on these paths; it is not a database transaction.\n\n## 4. APIRouter registers routes; it does not start a server\n\nAPIRouter is a composable route registry. `prefix=\"/tasks\"` plus `@router.get(\"\")` produces /tasks; adding `/{task_id}` produces `/tasks/{task_id}`. Repeating /tasks in both places produces /tasks/tasks. We use an empty suffix instead of a trailing slash so the exercise does not accidentally depend on a redirect.\n\nDecorators register functions during module import. Main then calls `app.include_router(router)` to add them to the application. Neither step listens on a port; Uvicorn still starts the service. Forget include_router and imports may succeed, with /health working while /tasks returns 404. That is a registration problem, not model validation.\n\nOne notation needs an explanation before the complete route file: `Depends(get_store)` declares work for the framework. It is not an ordinary call that already returns a store.\n\n## 5. Depends: function values, callers, and returned objects\n\nRecall L13: get_store is a function value; get_store(...) invokes it immediately. `Depends(get_store)` records which provider the framework should call when handling a request. FastAPI inspects the route parameters, finds dependencies, prepares their arguments, calls them, and passes their results into the route.\n\nFollow a list request: query text arrives → get_page validates it and obtains settings → get_store obtains the current app's MemoryStore → list_tasks uses both → a dictionary is returned → response_model validates and filters it → an HTTP response is sent. Providers may themselves have dependencies that must be satisfied first. This is a small call graph, not a mysterious global-variable lookup.\n\n`Request` is the current request object supplied by FastAPI, not a JSON body model. `request.app.state` is a container on **this application instance**. State does not automatically create or validate the store. Our factory writes those objects explicitly. Settings and store are application-level objects; they are not recreated per request.\n\nBy default, repeated uses of the same dependency within one request reuse its resolved result. Here create_task requests request_trace directly, and get_store also requests it. Both use function scope, so one trace resource is acquired. A subsequent request acquires a new resource rather than reusing a closed file. This cache is not cross-request data caching and does not share stores between applications.\n\n<details>\n<summary>Explanation answer: why not replace Depends(get_store) with Depends(get_store())?</summary>\n\nThe first supplies the function to the framework. The second tries to invoke get_store during module import without the current Request, failing before serving traffic or supplying the wrong result as a provider. Conversely, calling a route directly from ordinary Python does not trigger injection: its Depends defaults remain declaration objects. Calling a business function and going through framework request resolution are distinct entry points.\n\n</details>\n\n## 6. Synchronous yield: acquire a temporary resource, then return control\n\nWe do not use a pretend database resource. Each dependency acquires a real TemporaryFile text handle, routes write action names, and finally closes it. Terminal messages show acquire/use/release without printing request bodies. The temporary file is not a durable audit record; nothing reads it after closure.\n\n<Code language=\"python\">{getDependencyExample('task_api/dependencies.py')}</Code>\n\nRequest_trace is an ordinary synchronous generator function. The framework advances it to yield, supplies its RequestTrace to consumers, and later resumes it so finally closes the handle. L14's pause/resume mechanics have not changed; ownership of advancing and exiting has moved from a handwritten with to the framework. Do not decorate this provider with `@contextmanager`: FastAPI expects the generator function and manages it itself.\n\nIf opening the file fails before yield, no fake resource reaches the route. Once acquisition succeeds and control enters try, normal return and exception propagation pass through finally. We neither swallow HTTPException nor turn failures into empty successful lists. Forced termination, interpreter crashes, and power loss are outside any guarantee that Python finally runs.\n\nMark uses the handle; close releases it. Get_store merely borrows it to record an action and must not close it itself. Different owners and consumers are exactly why lifecycle handling is useful. Releasing a handle does not roll back task mutations or prove delivery to the client.\n\n## 7. Version and scope determine when cleanup happens\n\nThis lab pins FastAPI 0.135.1. Support for `Depends(..., scope=\"function\")` was added in 0.121.0. We explicitly choose function because the response is ordinary JSON data that no longer needs the temporary file: cleanup happens after normal route execution and before sending the response.\n\nThe default scope for a yield dependency is request. On a **normal response path**, cleanup happens after sending. There is no universal rule that code after yield always runs before sending. Historical versions changed behavior, so an old timing diagram is insufficient. A handled HTTPException unwinds dependencies before its error response is produced; do not apply the normal-success sequence mechanically to every failure.\n\n```text\nfunction, success: acquire -> use -> release -> response send\nrequest, success:  acquire -> use -> response send -> release\nhandled HTTPException: acquire -> use -> release -> error response send\n```\n\nA request-scoped yield dependency cannot depend on a shorter-lived function-scoped yield dependency: its exit code may still need that child. A function-scoped dependency can use either scope. Get_store itself does not yield here; all temporary trace declarations explicitly use the same function scope rather than mixing lifetimes.\n\nOn 2026-09-28 the maintainer check observed actual ASGI response.start/body sends, not just printed lines, confirming both scopes on success and handled errors: four cases. That probe involves the underlying asynchronous protocol and stays in the maintainer script, not in the reader prerequisites. **Seeing closed=True after a client call returns cannot distinguish cleanup before sending from cleanup after sending.**\n\n<details>\n<summary>Prediction answer: does one POST open two traces? Does a failed GET leak?</summary>\n\nTwo declarations do not acquire two resources: they reuse one resolved dependency in that request. A normal POST records acquire, get_store, create_task, release. A valid missing ID acquires the store and then require_task raises 404; finally still closes the acquired trace. If a failure occurs before acquisition, there is no such resource to close. Do not expect every 422 to resolve exactly the same dependencies.\n\n</details>\n\n## 8. Environment variables are strings, not validated configuration\n\nConfiguration comes from whoever starts the process, not from the request body. TASKS_APP_NAME is required public display text and cannot be blank. TASKS_MAX_PAGE_SIZE defaults to 100 and accepts ASCII decimal integers from 20 through 100. The lower bound keeps the default list size of 20 valid. That is our product rule, not a framework requirement.\n\n<Code language=\"python\">{getDependencyExample('task_api/config.py')}</Code>\n\nSeparate reading, parsing, and range checks. The string \"20\" can become an integer; \"3.0\", \"true\", and empty text should not be guessed into valid values. Missing app_name causes a clear error rather than a convenient default that hides an omitted configuration. Diagnostics name the variable and required repair, without echoing its raw value. These settings are not secrets, but avoiding an environment dump is still a good boundary.\n\nLoad_settings accepts a dictionary for ordinary L09-style tests; only an omitted argument reads os.environ. Settings is a frozen dataclass to discourage casual reassignment, not automatic validation of internal constructor values. Passing explicit Settings to the factory is a trusted-code entry point. Real startup configuration must still go through load_settings. No pydantic-settings, automatic .env loading, or hidden precedence rules are involved.\n\n## 9. An application factory makes creation time explicit\n\n<Code language=\"python\">{getDependencyExample('task_api/main.py')}</Code>\n\nCreate_app loads configuration first and stops on failure. It then creates FastAPI, assigns settings and a new MemoryStore, includes routes, and returns the app. Calling the factory twice creates two applications with two stores. Multiple requests to one application keep using its store; data is not cleared per request.\n\nIn `uvicorn task_api.main:create_app --factory`, the left side names a module and the right side a function. --factory asks Uvicorn to call it to obtain the application. We neither read the environment during module import nor introduce asynchronous lifespan just to parse strings. Changing the environment after an app has been constructed does not mutate its Settings; restarting calls the factory again.\n\n<Code language=\"python\">{getDependencyExample('task_api/routes.py')}</Code>\n\nNow follow each route: create passes the validated payload to the store; list orders before slicing; read and update require an existing task; delete explicitly returns an empty Response. Routes do not read the environment or close the trace; dependencies do not decide how titles are updated; the store does not import FastAPI. Separation makes each change affect only the responsibilities it needs.\n\n## 10. Lock the environment, start the service, and send requests\n\nThe tested baseline on 2026-09-28 is CPython 3.13.15, uv 0.12.13, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, Starlette 0.52.1, and pytest 8.4.2. It is not a promise to remain the newest stack. Starlette is pinned so a newer transitive version cannot silently change HTTPX compatibility in the next chapter.\n\n<Code language=\"toml\">{getDependencyExample('pyproject.toml')}</Code>\n\nThe real public-PyPI uv.lock records transitive dependencies and artifact hashes. Requires-python selects 3.13; package=false means this is an application rather than an installable distribution of itself. From the lab root:\n\n```bash\nuv sync --locked\nuv run --locked python -m pytest -q\nTASKS_APP_NAME=\"Learning tasks\" uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\n```\n\nThe ordinary suite has 17 cases: 15 configuration/store cases and two bounded maintainer regressions using their own faulty local servers. Those two cases test client cleanup, not the complete healthy service contract. Leave the server running and use a second terminal in the same directory against this freshly started empty service:\n\n```bash\nuv run --locked python live_client.py --port 8005\n```\n\n```text\nLIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nLIVE PASS: cleanup and subsequent 404\n```\n\n<Code language=\"python\">{getDependencyExample('live_client.py')}</Code>\n\nA finally block is not a guarantee that every statement in it will succeed. The client tries each ID it created in a separate try/except, records that ID's failure, and continues with the other owned IDs. It never clears the whole service. At the end it prints CLEANUP FAILED with the unconfirmed IDs and individual diagnostics. “Unconfirmed” does not assert whether a timed-out deletion took effect; inspect only those IDs before replaying. If the body completed, cleanup failure raises RuntimeError so the process exits nonzero. If the body was already failing, body_succeeded remains false: cleanup is still reported, but finally neither raises a replacement exception nor returns, so the original traceback continues. Catching each cleanup error does not turn the run into success. This simple flag keeps both diagnoses without introducing an exception-group framework.\n\nThis independent urllib client connects to a real port rather than calling Python route functions. HTTPError still carries a status and body, so the client treats it as an inspectable HTTP response. Connection refusal produces no HTTP response at all. On failure, inspect the request and server logs rather than treating a zero exit code as the whole contract. It only uses an empty disposable service and deletes its recorded IDs in finally, not every record belonging to other callers.\n\nFor manual inspection of status lines and bodies, restart an empty service and use this request collection. It leaves records behind: do not immediately run the empty-state acceptance client afterwards. Stop and restart first.\n\n<Code language=\"bash\">{getDependencyExample('requests.sh')}</Code>\n\nA successful creation should produce these trace-related lines:\n\n```text\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\n```\n\nStop your server with Ctrl-C. Synchronous def and one worker do not imply requests can never overlap. We exercise this MemoryStore sequentially; it has no concurrency locks, persistence, or user permissions.\n\n## 11. Deliberate failures: locate the stage before changing code\n\nStop the running server before trying each expected failure:\n\n```bash\nenv -u TASKS_APP_NAME uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\nTASKS_APP_NAME=\"Learning tasks\" TASKS_MAX_PAGE_SIZE=bad uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\n```\n\n```text\nValueError: TASKS_APP_NAME is required and must not be blank\nValueError: TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100\n```\n\nThese are the final diagnostic lines, not promises about machine-specific traceback paths. Both commands exit nonzero in the application factory; neither produces an HTTP 422. Restart with valid configuration and /health should return 200 again. With TASKS_MAX_PAGE_SIZE=20, /tasks?limit=20 returns 200 and /tasks?limit=21 returns 422 with detail equal to limit exceeds TASKS_MAX_PAGE_SIZE.\n\n| Observation | First place to investigate | Recovery |\n| --- | --- | --- |\n| No module named task_api | Working directory, extracted files, environment | Return to the lab root, sync the lock, restart |\n| address already in use | An earlier process owns the port | Stop your own process or change both client/server ports; do not kill an unknown process |\n| /health is 200, /tasks is 404 | include_router and actual prefix | Restore registration, restart, request the actual path |\n| Input returns 422 | body/query/path detail.loc or configured page cap | Fix the caller rather than deleting validation |\n| Missing ID is 404 but no release | Whether acquisition happened and finally remains intact | Restore cleanup and replay the same request |\n| Tasks vanish on restart | In-memory ownership, not a routing defect | Accept the boundary; persistence belongs to the database stage |\n\n<Code language=\"python\">{getDependencyExample('tests/test_basics.py')}</Code>\n\nThe 15 cases in tests/test_basics.py use familiar ordinary and L13-parameterized tests: dictionaries go to configuration code, models to the store, and two factories' state is compared. These 15 cases do not use TestClient, fixtures, or HTTP, so they cannot replace the real-client evidence above.\n\nThe two additional cases in tests/test_live_client_cleanup.py are maintainer regressions, not an independent-exercise prerequisite. They launch their own temporary fault app on an OS-selected loopback port, use pytest's temporary-directory fixture only to hold diagnostic logs, run the real client, and stop their own process in finally. One makes DELETE of the first owned ID return 503; the other also makes a body assertion fail. Both require the second ID to be deleted, the first to be explicitly reported as unconfirmed, and a nonzero client exit. When the body fails, its original traceback must remain. No async test code or user server is required:\n\n```bash\nuv run --locked python -m pytest -q tests/test_live_client_cleanup.py\n```\n\n```text\n2 passed\n```\n\nHere two passing outer tests mean their deliberately failing client subprocesses produced the required evidence. The leftover ID exists only inside the disposable fault app, which is then stopped; this is not a promise that an unavailable service can always be cleaned.\n\n## 12. Guided changes that reveal ownership mistakes\n\nTemporarily move MemoryStore() to module scope and have both factories reuse it. Predict where test_factory_owns_state fails, run it, then restore the implementation. Next remove exclude_unset=True from patch: find a minimal PATCH that overwrites an existing note or done with defaults. Restore and replay that input. Why is creating a store on every request not a solution to test contamination?\n\n<details>\n<summary>Guided-change check</summary>\n\nA global store makes the right app observe records created by the left. Move construction back into the factory instead of deleting the assertion. Without exclude_unset, even an empty PATCH includes default title/minutes/done/note and overwrites existing values. A fresh store per request might satisfy an empty-state assertion but breaks POST followed by GET. The intended lifetimes are one store per application and one temporary trace per request.\n\n</details>\n\n## 13. Independent variation: a summary, not a second store\n\nDo not open the solution yet. Add a separate APIRouter with GET /summary, returning three integers: total counts all current tasks, done counts completed tasks, and minutes sums current minutes. Reuse get_store; do not derive the summary from one page or expose internal fields. Explicitly include the new router in a composition entry point, preserving existing task endpoints.\n\nCheck an empty all-zero result; create tasks of 30 and 0 minutes; PATCH completion and minutes; delete a task. The summary must follow those changes. Also prove /summary uses the same application store as /tasks and releases its trace. Testing summarize alone does not prove the route was registered.\n\n<details>\n<summary>Independent implementation, function tests, and real HTTP acceptance</summary>\n\n<Code language=\"python\">{getDependencyExample('solutions/summary.py')}</Code>\n\n<Code language=\"python\">{getDependencyExample('solutions/test_summary.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q solutions/test_summary.py\nTASKS_APP_NAME=\"Summary tasks\" uv run --locked python -m uvicorn solutions.summary:create_summary_app --factory --host 127.0.0.1 --port 8005\n```\n\nStop the original server before starting this factory. In another terminal:\n\n```bash\nuv run --locked python live_client.py --port 8005 --summary\n```\n\n```text\nLIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nSUMMARY PASS: empty, populated, updated, deleted\nLIVE PASS: cleanup and subsequent 404\n```\n\nThe solution has two function tests, while the real client checks the composed HTTP application. It summarizes current records, without promising persistent snapshots, database aggregation, or concurrent consistency.\n\n</details>\n\n## 14. Acceptance and a resumable record\n\nFinished means more than splitting files. Without the solution, draw the relationship between requests, dependencies, application state, temporary resources, and responses. Explain why per-request caching differs from application state. Reproduce startup configuration failures and exception cleanup. Independently complete the summary and prove shared data through HTTP.\n\nWhen pausing, record the directory, Python/uv/framework versions, factory entry point, variable names and non-secret example values, last successful command and result, whether the 17 base and two solution tests actually ran, server PID/port and stopped status, disposable data state, remaining defect, and the next action. Resume with locked sync, ordinary tests, and a newly started empty service. Do not guess that an old server is still running.\n\nDownloads include only allowlisted source, READMEs, and the lock. Environments, caches, .env, logs, secrets, and temporary files are excluded. Closing a file is not persistence; correct dependency wiring is not authorization. H06 next teaches automated API-boundary testing and how it differs from real-process and browser integration.\n\n## 15. Primary sources and verification limits\n\nChecked live on 2026-09-28 against official versioned material: [APIRouter and larger applications](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/bigger-applications.md), [Depends mechanics](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/index.md), [yield and scope](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/dependencies-with-yield.md), [historical timing changes](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/advanced/advanced-dependencies.md), [Uvicorn factories and startup options](https://github.com/Kludex/uvicorn/blob/0.42.0/docs/settings.md), and [Python TemporaryFile](https://docs.python.org/3.13/library/tempfile.html). A TLS fetch failure on the Uvicorn documentation site was handled by checking its official tagged repository, not a third-party summary.\n\nActual checks include installing clean allowlist copies, ordinary tests, the independent variation, missing/invalid configuration processes, real Uvicorn clients, success/404 cleanup, and ASGI send timing. They do not cover databases, production concurrency, authorization, TLS, forced-process recovery, or production deployment. MDX or Python syntax checks do not substitute for those runtime boundaries.\n",
+          "mechanism_focus": "APIRouter and ownership, Depends graph/value injection/cache, explicit function vs request scope and actual yield cleanup relative to response sending on FastAPI0.135.1, per-app vs per-request state, validated environment config and failure, actual handles not imaginary transactions.",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "20eab946162a3af02bb88995b5b82f6fd8aa1a6a2218efd61760060b2f41d083",
+              "bytes": 19004,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".gitignore",
+            ".python-version",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "SOURCES.md",
+            "live_client.py",
+            "pyproject.toml",
+            "requests.sh",
+            "solutions/__init__.py",
+            "solutions/summary.py",
+            "solutions/test_summary.py",
+            "task_api/__init__.py",
+            "task_api/config.py",
+            "task_api/dependencies.py",
+            "task_api/main.py",
+            "task_api/models.py",
+            "task_api/routes.py",
+            "task_api/store.py",
+            "tests/test_basics.py",
+            "tests/test_live_client_cleanup.py",
+            "uv.lock"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "After independently reproduced cleanup short-circuit, both real clients now try every owned ID and retain primary failure diagnostics. Actual fault server DELETE-first503 proves second ID still cleaned, final failure visible; tests17+2. Immutable business source and lock unchanged; mainline rerun in progress; browser/API scopes unchanged.",
+          "slice": {
+            "index": 1,
+            "count": 2,
+            "source_paths_here": [
+              ".gitignore",
+              ".python-version",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "SOURCES.md",
+              "live_client.py",
+              "pyproject.toml",
+              "requests.sh",
+              "solutions/__init__.py",
+              "solutions/summary.py",
+              "solutions/test_summary.py",
+              "task_api/__init__.py",
+              "task_api/config.py",
+              "task_api/dependencies.py",
+              "task_api/main.py",
+              "task_api/models.py"
+            ],
+            "source_paths_elsewhere": [
+              "task_api/routes.py",
+              "task_api/store.py",
+              "tests/test_basics.py",
+              "tests/test_live_client_cleanup.py"
+            ]
+          },
+          "actual_download_files": {
+            ".gitignore": ".venv/\n__pycache__/\n.pytest_cache/\n*.pyc\n.env\n.env.*\n*.log\n",
+            ".python-version": "3.13.15\n",
+            "README.md": "# h05-dependencies: complete local lab\n\nRead the matching H05/H06 lesson first. This folder is independent: it does not\nimport H04 or the sibling lab. Canonical Python, HTML and test files are displayed\nby the textbook loader and included through the sibling `-files.json` allowlist.\n\n## Environment and first run\n\nTested 2026-09-28: CPython 3.13.15, uv 0.12.13, FastAPI 0.135.1,\nUvicorn 0.42.0, Pydantic 2.12.5, Starlette 0.52.1, pytest 8.4.2.\nThe learner-facing H05 exercises require neither TestClient nor writing a pytest fixture.\nThe bounded maintainer subprocess regression uses tmp_path only for temporary logs.\nRequires Python >=3.13,<3.14; this is an application, so uv package=false.\nUse a terminal in this extracted directory. The lock resolves from public PyPI.\nDo not replace `uv sync --locked` with an unreviewed upgrade.\n\n```bash\nuv sync --locked\nuv run --locked python -m pytest -q\nTASKS_APP_NAME=\"Learning tasks\" uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\n```\n\nThe server stays running. Use a second terminal **in this same directory**:\n\n```bash\nuv run --locked python live_client.py --port 8005\n```\n\nThe live client requires an empty disposable server, creates test records and\nremoves them in finally. It checks real sockets, strict rejection, PATCH states,\npagination, output filtering and 204/404 cleanup. Stop the server with Ctrl-C.\nA repeated client run works because data is removed; IDs need not restart at 1.\nA process restart does reset the in-memory data and ID sequence.\n\nThe urllib client attempts each owned ID separately. A failed DELETE or readback\nis recorded without skipping later IDs. It reports CLEANUP FAILED with unconfirmed\nIDs; inspect only those records before replaying. Cleanup failure exits nonzero.\nIf the body also failed, its original traceback is preserved and cleanup diagnostics\nare printed separately; neither error is silently turned into success. It does\nnot delete unrelated records or promise success when the service is unavailable.\n\n## Responsibilities and configuration\n\n`task_api/main.py` composes the app and owns one store per app. `config.py` reads\nand validates environment strings. `models.py` is the input/output boundary;\n`store.py` changes memory without HTTP; `routes.py` maps HTTP to those operations;\n`dependencies.py` supplies the store/settings/page and owns a temporary trace\nfile per request. No async lifespan, database, login or permission code is hidden.\n\nTASKS_APP_NAME is required nonblank public display text, **not a secret**.\nTASKS_MAX_PAGE_SIZE defaults to 100 and accepts ASCII decimal integers from 20\nto 100; the lower bound preserves the default page size of 20. The configuration\nis read once per factory call, not per request. A `.env` file is not loaded.\nTo change running configuration, stop and restart with the changed environment.\nDirect Settings objects are trusted internal test inputs, not a validation API.\n\n```bash\nenv -u TASKS_APP_NAME uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\nTASKS_APP_NAME=\"Learning tasks\" TASKS_MAX_PAGE_SIZE=bad uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\n```\n\nThese two commands are **expected startup failures**, not successful API tests.\nThe final diagnostic names TASKS_APP_NAME or TASKS_MAX_PAGE_SIZE without echoing\nits raw value. Correct the variable and repeat the first successful start command.\nIf the address is in use, stop your own previous server or choose another port;\ndo not kill an unknown process. Import errors usually mean the wrong directory\nor an incomplete `task_api` folder; changing CORS will not repair those errors.\n\n## Contract and limits\n\nPOST /tasks -> 201; GET /tasks and GET/PATCH /tasks/{id} -> 200;\nDELETE -> 204 with no body. A missing positive ID is 404; invalid input is 422.\nThe server allocates integer IDs. Titles are 1..120 characters, nonblank, and keep\ntheir spelling/whitespace. Minutes are ordinary nonnegative JSON integers, not\nbooleans, strings or floats. Done is strict bool, default false. Note is nullable\ntext, <=1000 characters, default null. PATCH distinguishes omission, assignment\nand null; only note permits null. Extra request fields are rejected; internal_tag\nnever leaves the output model. GET /tasks returns items/limit/offset/total sorted\nby ID; offset counts records, not ID values. limit is 1..100 and obeys the cap.\n\nTRACE acquire/use/release messages describe a real TemporaryFile handle, not a\npersistent audit log or database transaction. Explicit function scope releases\nbefore normal response send. A clean release does not roll back mutations.\nNo production concurrency, durability, isolation between users, deployment,\nnetwork security, authentication or authorization claim is made. All listeners\nare 127.0.0.1 only; there is no real user data or credential in this lab.\n\n## H05 independent variation\n\nBefore opening solutions, add a separately included GET /summary router with\n{total, done, minutes}, sharing the same store dependency. Count all records, not\na paginated subset. Test empty state, create, PATCH and delete. No global second\nstore or hard-coded summary. The ordinary suite has 17 tests (15 configuration/store + 2 cleanup regressions); the solution has 2\nfunction tests, plus a real HTTP scenario below. Stop the first server before\nstarting the solution on its port; run the client in a second terminal.\n\n```bash\nuv run --locked python -m pytest -q solutions/test_summary.py\nTASKS_APP_NAME=\"Summary tasks\" uv run --locked python -m uvicorn solutions.summary:create_summary_app --factory --host 127.0.0.1 --port 8005\n```\n\n```bash\nuv run --locked python live_client.py --port 8005 --summary\n```\n\n## Bounded maintainer regressions\n\n```bash\nuv run --locked python -m pytest -q tests/test_live_client_cleanup.py\n```\n\nExpected: `2 passed`. Both tests launch an owned fault server on an OS-selected\nloopback port and run the actual client. A first DELETE=503 must not skip the\nsecond ID; only the first remains and the client exits nonzero. The second test\nalso fails the body and checks its original traceback survives. Servers stop in\nfinally; no user server is touched. This harness is not an independent-exercise\nprerequisite and requires no async test code.\n\n## Packaging, recovery and evidence\n\nOnly files in the sibling allowlist belong to the downloadable lab. Explicitly\nexcluded: .venv, __pycache__, .pytest_cache, .env/.env.*, logs, credentials, editor\nstate, temporary files and local caches. Do not build a ZIP by recursively adding\nthis directory. The lock is included; interpreter installs and cache directories\nare not. README translations preserve commands and outputs.\n\nWhen pausing, record current directory, versions, last command and actual result,\nserver PID/port and whether you stopped it, data state, remaining failure and the\nnext action. Restart from the locked sync and the ordinary suite, then replay the\nspecific failed request. Passing Python syntax is not HTTP acceptance.\n\nSee SOURCES.md for live-verified official sources and version/scope details.\nThe optional repository maintainer script `scripts/test-js2py-http-foundations.py`\nchecks clean allowlist copies, both suites, expected failures, real local servers,\nresource send timing and process cleanup. It is not a reader prerequisite and\ndoes not replace the real-browser check. Production/database/TLS/load behavior\nis deliberately unverified.\n",
+            "README.zh-cn.md": "# h05-dependencies：完整本地实验\n\n先阅读对应 H05/H06 正文。本目录独立运行，不导入 H04 或旁边实验。\nPython、HTML、测试源文件是唯一真源；网页 loader 与下载包使用旁边的\n`-files.json` 明确清单，不从整个目录递归收集文件。\n\n## 环境与第一次运行\n\n2026-09-28 实测：CPython 3.13.15、uv 0.12.13、FastAPI 0.135.1、\nUvicorn 0.42.0、Pydantic 2.12.5、Starlette 0.52.1、pytest 8.4.2。\nH05 面向学习者的练习不要求 TestClient，也不要求编写 pytest fixture。\n有界维护子进程回归仅用 tmp_path 管理临时日志。\n要求 Python >=3.13,<3.14；这是应用，因此 uv package=false。\n终端进入当前解压目录。锁来自 public PyPI；不要用未经复核的升级替代锁定同步。\n\n```bash\nuv sync --locked\nuv run --locked python -m pytest -q\nTASKS_APP_NAME=\"Learning tasks\" uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\n```\n\n服务会持续运行。另开终端，**仍进入本目录**：\n\n```bash\nuv run --locked python live_client.py --port 8005\n```\n\n真实客户端要求空的、可丢弃的教学服务，创建测试数据并在 finally 删除。\n它检查真实网络、严格拒绝、PATCH 三态、分页、输出过滤及 204/404 清理。\n用 Ctrl-C 停服务。清理后可以重跑客户端，但 ID 不必回到 1；只有重启进程才\n重建内存数据和编号。不要对已有业务数据执行这个验收。\n\nurllib 客户端逐个尝试自有 ID；某次 DELETE 或读回检查失败会记录下来，\n不会跳过后续 ID。结束输出 CLEANUP FAILED 和清理未确认的 ID，重跑前只检查\n这些记录。清理失败使程序非零退出；若主体也失败，保留原 traceback 并单独\n报告清理诊断，不把任何一种失败伪装成功。不删除其他记录，也不承诺服务不可用\n时仍可删净。\n\n## 职责与配置\n\n`task_api/main.py` 组装应用，每个 app 拥有自己的 store；`config.py` 读取和\n校验环境字符串；`models.py` 负责输入输出；`store.py` 修改内存而不处理 HTTP；\n`routes.py` 将 HTTP 映射为操作；`dependencies.py` 供应 store/settings/page，\n并管理每请求一个临时跟踪文件。没有隐藏异步 lifespan、数据库、登录或权限。\n\nTASKS_APP_NAME 是必填非空白的公开显示文本，**不是秘密**。\nTASKS_MAX_PAGE_SIZE 默认 100，接受 20..100 的 ASCII 十进制整数；下界保证\n默认分页 20 始终合法。配置在每次调用工厂时读取一次，不在每请求读取。\n不会自动加载 `.env`。修改运行配置需要停止并以新环境重启。\n直接构造 Settings 是可信内部测试输入，不是外部配置校验接口。\n\n```bash\nenv -u TASKS_APP_NAME uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\nTASKS_APP_NAME=\"Learning tasks\" TASKS_MAX_PAGE_SIZE=bad uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\n```\n\n这两条是**预期启动失败**，不是 API 验收通过。末行诊断指出 TASKS_APP_NAME\n或 TASKS_MAX_PAGE_SIZE，但不回显原值。修好变量，重放第一条成功启动命令。\n端口占用时停止自己的旧服务或换端口，不杀不明进程。导入错误先查工作目录与\n`task_api` 文件是否完整，改 CORS 不能修复导入错误。\n\n## 契约与局限\n\nPOST /tasks 返回 201；列表和 GET/PATCH /tasks/{id} 返回 200；DELETE 返回\n204 空正文。不存在的正整数 ID 返回 404，非法输入返回 422。ID 由服务器分配。\n标题 1..120 字符、拒绝全空白、保留原字形和空格；minutes 是普通非负 JSON\n整数，拒绝 bool/str/float；done 是严格 bool，默认 false；note 是可空文本，\n最多 1000 字符，默认 null。PATCH 区分遗漏/赋值/null，只有 note 可以 null。\n拒绝多余请求字段；输出不含 internal_tag。列表返回 items/limit/offset/total，\n按 ID 排序；offset 数的是记录而不是 ID。limit 为 1..100 并遵守配置上限。\n\nTRACE acquire/use/release 对应真实 TemporaryFile 句柄，不是持久审计日志或\n数据库事务。显式 function scope 在正常响应发送前释放；关闭资源不回滚修改。\n不承诺生产并发、持久化、用户隔离、部署、网络安全、身份验证或授权。\n只监听 127.0.0.1；实验没有真实用户数据和凭证。\n\n## H05 独立变式\n\n不看 solutions，添加独立 include 的 GET /summary 路由，返回 total/done/minutes，\n复用同一 store 依赖，统计全部记录而不是一页。验收空数据、创建、PATCH、删除；\n不能新建第二份全局 store 或硬编码汇总。正常套件 17 项（15 项配置/store + 2 项清理回归）；答案 2 项函数测试，\n还必须运行下面的真实 HTTP 场景。先停止原服务，再用同端口启动答案；第二个\n终端执行客户端。\n\n```bash\nuv run --locked python -m pytest -q solutions/test_summary.py\nTASKS_APP_NAME=\"Summary tasks\" uv run --locked python -m uvicorn solutions.summary:create_summary_app --factory --host 127.0.0.1 --port 8005\n```\n\n```bash\nuv run --locked python live_client.py --port 8005 --summary\n```\n\n## 有界维护回归\n\n```bash\nuv run --locked python -m pytest -q tests/test_live_client_cleanup.py\n```\n\n预期 `2 passed`。两项在操作系统分配的本地端口启动自有故障服务器，运行真实\n客户端。首个 DELETE=503 不能跳过第二个 ID；只剩第一个且客户端非零退出。\n第二项还让主体失败，并检查原 traceback 保留。finally 停自己的服务器，\n不接触用户已有服务。这个维护工具不是独立练习先修，不要求异步测试代码。\n\n## 打包、暂停恢复与证据\n\n只有旁边 allowlist 中的文件进入下载包。明确排除 .venv、__pycache__、\n.pytest_cache、.env/.env.*、日志、凭证、编辑器状态、临时文件及本地缓存。\n不要递归压缩目录。包含 uv.lock，但不包含解释器安装和缓存。三语 README\n保持命令与输出不变。\n\n暂停记录工作目录、版本、最后命令及真实结果、服务 PID/端口与是否停止、\n数据现状、未解决失败及下次第一步。恢复先锁定同步与正常测试，再重放具体\n失败请求。Python 语法通过不是 HTTP 验收。\n\nSOURCES.md 记录实时核验的一手来源与版本/scope 细节。仓库可选维护脚本\n`scripts/test-js2py-http-foundations.py` 检查 allowlist 干净副本、两套测试、\n预期失败、真实本地服务、资源发送时序和进程清理；它不是读者先修，也不替代\n真实浏览器检查。生产、数据库、TLS、压测行为均不在本实验的验证范围。\n",
+            "README.zh-tw.md": "# h05-dependencies：完整本地實驗\n\n先閱讀對應 H05/H06 正文。本目錄獨立運行，不導入 H04 或旁邊實驗。\nPython、HTML、測試源文件是唯一真源；網頁 loader 與下載包使用旁邊的\n`-files.json` 明確清單，不從整個目錄遞歸收集文件。\n\n## 環境與第一次運行\n\n2026-09-28 實測：CPython 3.13.15、uv 0.12.13、FastAPI 0.135.1、\nUvicorn 0.42.0、Pydantic 2.12.5、Starlette 0.52.1、pytest 8.4.2。\nH05 面向學習者的練習不要求 TestClient，也不要求編寫 pytest fixture。\n有界維護子進程迴歸僅用 tmp_path 管理臨時日誌。\n要求 Python >=3.13,<3.14；這是應用，因此 uv package=false。\n終端進入當前解壓目錄。鎖來自 public PyPI；不要用未經複核的升級替代鎖定同步。\n\n```bash\nuv sync --locked\nuv run --locked python -m pytest -q\nTASKS_APP_NAME=\"Learning tasks\" uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\n```\n\n服務會持續運行。另開終端，**仍進入本目錄**：\n\n```bash\nuv run --locked python live_client.py --port 8005\n```\n\n真實客戶端要求空的、可丟棄的教學服務，創建測試數據並在 finally 刪除。\n它檢查真實網絡、嚴格拒絕、PATCH 三態、分頁、輸出過濾及 204/404 清理。\n用 Ctrl-C 停服務。清理後可以重跑客戶端，但 ID 不必回到 1；只有重啟進程才\n重建內存數據和編號。不要對已有業務數據執行這個驗收。\n\nurllib 客戶端逐個嘗試自有 ID；某次 DELETE 或讀回檢查失敗會記錄下來，\n不會跳過後續 ID。結束輸出 CLEANUP FAILED 和清理未確認的 ID，重跑前只檢查\n這些記錄。清理失敗使程序非零退出；若主體也失敗，保留原 traceback 並單獨\n報告清理診斷，不把任何一種失敗偽裝成功。不刪除其他記錄，也不承諾服務不可用\n時仍可刪淨。\n\n## 職責與配置\n\n`task_api/main.py` 組裝應用，每個 app 擁有自己的 store；`config.py` 讀取和\n校驗環境字符串；`models.py` 負責輸入輸出；`store.py` 修改內存而不處理 HTTP；\n`routes.py` 將 HTTP 映射為操作；`dependencies.py` 供應 store/settings/page，\n並管理每請求一個臨時跟蹤文件。沒有隱藏異步 lifespan、數據庫、登錄或權限。\n\nTASKS_APP_NAME 是必填非空白的公開顯示文本，**不是秘密**。\nTASKS_MAX_PAGE_SIZE 默認 100，接受 20..100 的 ASCII 十進制整數；下界保證\n默認分頁 20 始終合法。配置在每次調用工廠時讀取一次，不在每請求讀取。\n不會自動加載 `.env`。修改運行配置需要停止並以新環境重啟。\n直接構造 Settings 是可信內部測試輸入，不是外部配置校驗接口。\n\n```bash\nenv -u TASKS_APP_NAME uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\nTASKS_APP_NAME=\"Learning tasks\" TASKS_MAX_PAGE_SIZE=bad uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\n```\n\n這兩條是**預期啟動失敗**，不是 API 驗收通過。末行診斷指出 TASKS_APP_NAME\n或 TASKS_MAX_PAGE_SIZE，但不回顯原值。修好變量，重放第一條成功啟動命令。\n端口占用時停止自己的舊服務或換端口，不殺不明進程。導入錯誤先查工作目錄與\n`task_api` 文件是否完整，改 CORS 不能修復導入錯誤。\n\n## 契約與侷限\n\nPOST /tasks 返回 201；列表和 GET/PATCH /tasks/{id} 返回 200；DELETE 返回\n204 空正文。不存在的正整數 ID 返回 404，非法輸入返回 422。ID 由服務器分配。\n標題 1..120 字符、拒絕全空白、保留原字形和空格；minutes 是普通非負 JSON\n整數，拒絕 bool/str/float；done 是嚴格 bool，默認 false；note 是可空文本，\n最多 1000 字符，默認 null。PATCH 區分遺漏/賦值/null，只有 note 可以 null。\n拒絕多餘請求字段；輸出不含 internal_tag。列表返回 items/limit/offset/total，\n按 ID 排序；offset 數的是記錄而不是 ID。limit 為 1..100 並遵守配置上限。\n\nTRACE acquire/use/release 對應真實 TemporaryFile 句柄，不是持久審計日誌或\n數據庫事務。顯式 function scope 在正常響應發送前釋放；關閉資源不回滾修改。\n不承諾生產併發、持久化、用戶隔離、部署、網絡安全、身份驗證或授權。\n只監聽 127.0.0.1；實驗沒有真實用戶數據和憑證。\n\n## H05 獨立變式\n\n不看 solutions，添加獨立 include 的 GET /summary 路由，返回 total/done/minutes，\n複用同一 store 依賴，統計全部記錄而不是一頁。驗收空數據、創建、PATCH、刪除；\n不能新建第二份全局 store 或硬編碼彙總。正常套件 17 項（15 項配置/store + 2 項清理迴歸）；答案 2 項函數測試，\n還必須運行下面的真實 HTTP 場景。先停止原服務，再用同端口啟動答案；第二個\n終端執行客戶端。\n\n```bash\nuv run --locked python -m pytest -q solutions/test_summary.py\nTASKS_APP_NAME=\"Summary tasks\" uv run --locked python -m uvicorn solutions.summary:create_summary_app --factory --host 127.0.0.1 --port 8005\n```\n\n```bash\nuv run --locked python live_client.py --port 8005 --summary\n```\n\n## 有界維護迴歸\n\n```bash\nuv run --locked python -m pytest -q tests/test_live_client_cleanup.py\n```\n\n預期 `2 passed`。兩項在操作系統分配的本地端口啟動自有故障服務器，運行真實\n客戶端。首個 DELETE=503 不能跳過第二個 ID；只剩第一個且客戶端非零退出。\n第二項還讓主體失敗，並檢查原 traceback 保留。finally 停自己的服務器，\n不接觸用戶已有服務。這個維護工具不是獨立練習先修，不要求異步測試代碼。\n\n## 打包、暫停恢復與證據\n\n只有旁邊 allowlist 中的文件進入下載包。明確排除 .venv、__pycache__、\n.pytest_cache、.env/.env.*、日誌、憑證、編輯器狀態、臨時文件及本地緩存。\n不要遞歸壓縮目錄。包含 uv.lock，但不包含解釋器安裝和緩存。三語 README\n保持命令與輸出不變。\n\n暫停記錄工作目錄、版本、最後命令及真實結果、服務 PID/端口與是否停止、\n數據現狀、未解決失敗及下次第一步。恢復先鎖定同步與正常測試，再重放具體\n失敗請求。Python 語法通過不是 HTTP 驗收。\n\nSOURCES.md 記錄實時核驗的一手來源與版本/scope 細節。倉庫可選維護腳本\n`scripts/test-js2py-http-foundations.py` 檢查 allowlist 乾淨副本、兩套測試、\n預期失敗、真實本地服務、資源發送時序和進程清理；它不是讀者先修，也不替代\n真實瀏覽器檢查。生產、數據庫、TLS、壓測行為均不在本實驗的驗證範圍。\n",
+            "SOURCES.md": "# Verified primary sources — 2026-09-28\n\nThis is a tested baseline, not a claim to use the newest releases. CPython 3.13.15,\nuv 0.12.13, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5,\nStarlette 0.52.1, AnyIO 4.12.1 (locked transitive dependency), pytest 8.4.2; H06 adds HTTPX 0.28.1.\n\n- [FastAPI 0.135.1: larger applications and APIRouter](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/bigger-applications.md)\n- [FastAPI 0.135.1: dependency injection](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/index.md)\n- [FastAPI 0.135.1: yield dependency scopes](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/dependencies-with-yield.md)\n- [FastAPI 0.135.1: historical lifecycle changes](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/advanced/advanced-dependencies.md)\n- [FastAPI 0.135.1: dependency overrides](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/advanced/testing-dependencies.md)\n- [FastAPI 0.135.1: CORS](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/cors.md)\n- [Starlette 0.52.1: TestClient](https://github.com/Kludex/starlette/blob/0.52.1/docs/testclient.md)\n- [pytest 8.4.2: fixtures and teardown](https://github.com/pytest-dev/pytest/blob/8.4.2/doc/en/how-to/fixtures.rst)\n- [HTTPX 0.28.1: transports](https://github.com/encode/httpx/blob/0.28.1/docs/advanced/transports.md)\n- [Uvicorn 0.42.0: factory, host and port](https://github.com/Kludex/uvicorn/blob/0.42.0/docs/settings.md)\n- [Pydantic 2.12.5: strict mode](https://github.com/pydantic/pydantic/blob/v2.12.5/docs/concepts/strict_mode.md)\n- [uv 0.12.13: locked sync](https://github.com/astral-sh/uv/blob/0.12.13/docs/concepts/projects/sync.md)\n- [Python 3.13: temporary files](https://docs.python.org/3.13/library/tempfile.html)\n\nOfficial tagged documentation was fetched live on the verification date. The\nPydantic documentation site returned 403 and the Uvicorn site had a TLS fetch\nfailure; their official tagged repository documents were used instead. Public\nPyPI metadata and a real public-PyPI uv lock were also checked.\n\nCompatibility finding: initially resolving the unbounded transitive Starlette\nselected 1.7.0, which passed but warned that its HTTPX adapter is deprecated in\nfavor of httpx2. These labs deliberately pin Starlette 0.52.1, whose published\nfull-extra contract supports HTTPX >=0.27,<0.29. Do not suppress this warning and\npretend the same combination was tested. Revalidate if upgrading.\n\nThe maintainer-only ASGI probe observed release before response start/body for\nfunction scope, and after normal response send for request scope. A handled\nHTTPException unwinds both scopes before the exception response is sent. Merely\nobserving cleanup after TestClient.get returns cannot establish send timing.\n\nAnyIO lock refinement: AnyIO 4.15.1 warned about Starlette 0.52.1 using\nits deprecated BlockingPortal alias. The public-PyPI lock selects AnyIO 4.12.1;\n`uv sync --locked` plus the full suite was rerun without filtering warnings.\n",
+            "live_client.py": "\"\"\"Checks a REAL, already running local API, not an in-process application.\"\"\"\nimport argparse\nimport json\nimport sys\nfrom urllib.error import HTTPError\nfrom urllib.request import Request, urlopen\n\n\ndef check(port: int, summary: bool = False) -> None:\n    if not 1 <= port <= 65535:\n        raise ValueError(\"port must be from 1 to 65535\")\n    base = f\"http://127.0.0.1:{port}\"\n\n    def send(method: str, path: str, payload=None):\n        data = None if payload is None else json.dumps(payload).encode(\"utf-8\")\n        request = Request(base + path, data=data, method=method,\n                          headers={\"Content-Type\": \"application/json\"})\n        try:\n            response = urlopen(request, timeout=5)\n        except HTTPError as error:\n            response = error  # HTTP rejection still has a status and a response body.\n        with response:\n            raw = response.read()\n            return response.status, json.loads(raw) if raw else None\n\n    assert send(\"GET\", \"/health\") == (200, {\"status\": \"ok\"})\n    initial = send(\"GET\", \"/tasks\")[1]\n    assert initial[\"total\"] == 0, \"Use a fresh server; never run against existing data\"\n    if summary:\n        assert send(\"GET\", \"/summary\") == (200, {\"total\": 0, \"done\": 0, \"minutes\": 0})\n    ids = []\n    body_succeeded = False\n    try:\n        for title, minutes in [(\"  Read Python  \", 30), (\"Write\", 0)]:\n            status, task = send(\"POST\", \"/tasks\", {\"title\": title, \"minutes\": minutes, \"note\": \"keep\"})\n            assert status == 201\n            ids.append(task[\"id\"])\n            assert task == {\"id\": task[\"id\"], \"title\": title, \"minutes\": minutes, \"done\": False, \"note\": \"keep\"}\n        first = ids[0]\n        assert send(\"GET\", \"/tasks?limit=1&offset=1\")[1][\"items\"][0][\"id\"] == ids[1]\n        assert send(\"PATCH\", f\"/tasks/{first}\", {})[1][\"note\"] == \"keep\"\n        assert send(\"PATCH\", f\"/tasks/{first}\", {\"note\": \"changed\"})[1][\"note\"] == \"changed\"\n        assert send(\"PATCH\", f\"/tasks/{first}\", {\"note\": None})[1][\"note\"] is None\n        before = send(\"GET\", f\"/tasks/{first}\")[1]\n        assert send(\"PATCH\", f\"/tasks/{first}\", {\"title\": \"Changed\", \"minutes\": True})[0] == 422\n        assert send(\"GET\", f\"/tasks/{first}\")[1] == before\n        for invalid in [True, \"3\", 3.0, -1]:\n            assert send(\"POST\", \"/tasks\", {\"title\": \"Bad\", \"minutes\": invalid})[0] == 422\n        for path in [\"/tasks?limit=0\", \"/tasks?offset=-1\", \"/tasks/0\", \"/tasks/no\"]:\n            assert send(\"GET\", path)[0] == 422\n        assert send(\"GET\", \"/tasks/99999\") == (404, {\"detail\": \"Task not found\"})\n        if summary:\n            assert send(\"GET\", \"/summary\") == (200, {\"total\": 2, \"done\": 0, \"minutes\": 30})\n            assert send(\"PATCH\", f\"/tasks/{first}\", {\"done\": True, \"minutes\": 5})[0] == 200\n            assert send(\"GET\", \"/summary\") == (200, {\"total\": 2, \"done\": 1, \"minutes\": 5})\n        print(\"LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\")\n        body_succeeded = True\n    finally:\n        cleanup_errors = []\n        for task_id in ids:\n            try:\n                deleted = send(\"DELETE\", f\"/tasks/{task_id}\")\n                assert deleted == (204, None), f\"DELETE expected (204, None), got {deleted!r}\"\n                missing = send(\"GET\", f\"/tasks/{task_id}\")\n                assert missing[0] == 404, f\"GET after DELETE expected 404, got {missing!r}\"\n            except Exception as error:\n                # A failure for one owned ID must not skip the other owned IDs.\n                cleanup_errors.append(f\"id={task_id}: {type(error).__name__}: {error}\")\n        if cleanup_errors:\n            message = \"CLEANUP FAILED (unconfirmed owned IDs): \" + \"; \".join(cleanup_errors)\n            print(message, file=sys.stderr)\n            if body_succeeded:\n                raise RuntimeError(message)\n            # Otherwise the original body exception is already propagating.\n            # Do not raise/return here: preserve that traceback AND report cleanup.\n    assert send(\"GET\", \"/tasks\")[1][\"total\"] == 0\n    if summary:\n        assert send(\"GET\", \"/summary\")[1] == {\"total\": 0, \"done\": 0, \"minutes\": 0}\n        print(\"SUMMARY PASS: empty, populated, updated, deleted\")\n    print(\"LIVE PASS: cleanup and subsequent 404\")\n\n\nif __name__ == \"__main__\":\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--port\", type=int, default=8005)\n    parser.add_argument(\"--summary\", action=\"store_true\")\n    args = parser.parse_args()\n    check(args.port, args.summary)\n",
+            "pyproject.toml": "[project]\nname = \"js2py-h05-dependencies\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = [\"fastapi==0.135.1\", \"uvicorn==0.42.0\", \"pydantic==2.12.5\", \"starlette==0.52.1\"]\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\"]\n\n[tool.uv]\npackage = false\n\n[[tool.uv.index]]\nname = \"pypi\"\nurl = \"https://pypi.org/simple\"\ndefault = true\n\n[tool.pytest.ini_options]\npythonpath = [\".\"]\ntestpaths = [\"tests\"]\n",
+            "requests.sh": "#!/bin/sh\n# Run against a fresh local server. No API-test framework is required.\nset -eu\nbase=http://127.0.0.1:8005\ncurl -i \"$base/health\"\ncurl -i -X POST \"$base/tasks\" -H 'Content-Type: application/json' \\\n  -d '{\"title\":\"  Read Python  \",\"minutes\":30,\"note\":\"keep\"}'\ncurl -i \"$base/tasks?limit=1&offset=0\"\ncurl -i -X PATCH \"$base/tasks/1\" -H 'Content-Type: application/json' -d '{}'\ncurl -i -X PATCH \"$base/tasks/1\" -H 'Content-Type: application/json' -d '{\"note\":null}'\ncurl -i -X POST \"$base/tasks\" -H 'Content-Type: application/json' -d '{\"title\":\"Bad\",\"minutes\":true}'\ncurl -i \"$base/tasks/99999\"\n",
+            "solutions/__init__.py": "\"\"\"Open these files only after attempting the independent exercise.\"\"\"\n",
+            "solutions/summary.py": "from fastapi import APIRouter, Depends\nfrom pydantic import BaseModel\n\nfrom task_api.dependencies import get_store\nfrom task_api.main import create_app\nfrom task_api.store import MemoryStore\n\nrouter = APIRouter()\n\n\nclass Summary(BaseModel):\n    total: int\n    done: int\n    minutes: int\n\n\ndef summarize(store: MemoryStore) -> dict[str, int]:\n    records = store.ordered()\n    return {\n        \"total\": len(records),\n        \"done\": sum(1 for record in records if record.done),\n        \"minutes\": sum(record.minutes for record in records),\n    }\n\n\n@router.get(\"/summary\", response_model=Summary)\ndef read_summary(store: MemoryStore = Depends(get_store)):\n    return summarize(store)\n\n\ndef create_summary_app():\n    app = create_app()\n    app.include_router(router)\n    return app\n",
+            "solutions/test_summary.py": "from solutions.summary import summarize\nfrom task_api.models import TaskCreate, TaskPatch\nfrom task_api.store import MemoryStore\n\n\ndef test_empty_summary():\n    assert summarize(MemoryStore()) == {\"total\": 0, \"done\": 0, \"minutes\": 0}\n\n\ndef test_summary_tracks_changes():\n    store = MemoryStore()\n    first = store.create(TaskCreate(title=\"Read\", minutes=30))\n    second = store.create(TaskCreate(title=\"Write\", minutes=0, done=True))\n    assert summarize(store) == {\"total\": 2, \"done\": 1, \"minutes\": 30}\n    store.patch(first, TaskPatch(done=True, minutes=5))\n    assert summarize(store) == {\"total\": 2, \"done\": 2, \"minutes\": 5}\n    store.delete(second.id)\n    assert summarize(store) == {\"total\": 1, \"done\": 1, \"minutes\": 5}\n",
+            "task_api/__init__.py": "\"\"\"A synchronous, single-process teaching API; not a production store.\"\"\"\n",
+            "task_api/config.py": "import os\nfrom dataclasses import dataclass\n\n\n@dataclass(frozen=True)\nclass Settings:\n    app_name: str\n    max_page_size: int = 100\n\n\ndef load_settings(environ: dict[str, str] | None = None) -> Settings:\n    source = os.environ if environ is None else environ\n    name = source.get(\"TASKS_APP_NAME\", \"\").strip()\n    if not name:\n        raise ValueError(\"TASKS_APP_NAME is required and must not be blank\")\n    raw_limit = source.get(\"TASKS_MAX_PAGE_SIZE\", \"100\")\n    # Environment values are strings, not already validated Python integers.\n    if not raw_limit.isascii() or not raw_limit.isdecimal():\n        raise ValueError(\"TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100\")\n    try:\n        limit = int(raw_limit)\n    except ValueError:\n        raise ValueError(\"TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100\") from None\n    if not 20 <= limit <= 100:\n        raise ValueError(\"TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100\")\n    return Settings(app_name=name, max_page_size=limit)\n",
+            "task_api/dependencies.py": "from collections.abc import Iterator\nfrom dataclasses import dataclass\nfrom tempfile import TemporaryFile\nfrom typing import TextIO\n\nfrom fastapi import Depends, HTTPException, Query, Request\n\nfrom task_api.config import Settings\nfrom task_api.store import MemoryStore\n\n\n@dataclass\nclass RequestTrace:\n    label: str\n    stream: TextIO\n\n    def mark(self, action: str) -> None:\n        self.stream.write(action + \"\\n\")\n        print(f\"TRACE use {self.label} {action}\", flush=True)\n\n\ndef request_trace(request: Request) -> Iterator[RequestTrace]:\n    # This is a real, temporary file handle, NOT a database session or audit log.\n    stream = TemporaryFile(mode=\"w+t\", encoding=\"utf-8\")\n    label = f\"{request.method} {request.url.path}\"\n    try:\n        print(f\"TRACE acquire {label}\", flush=True)\n        yield RequestTrace(label, stream)\n    finally:\n        stream.close()\n        print(f\"TRACE release {label} closed={stream.closed}\", flush=True)\n\n\ndef get_settings(request: Request) -> Settings:\n    return request.app.state.settings\n\n\ndef get_store(\n    request: Request,\n    trace: RequestTrace = Depends(request_trace, scope=\"function\"),\n) -> MemoryStore:\n    trace.mark(\"get_store\")\n    return request.app.state.store\n\n\n@dataclass(frozen=True)\nclass Page:\n    limit: int\n    offset: int\n\n\ndef get_page(\n    limit: int = Query(default=20, ge=1, le=100),\n    offset: int = Query(default=0, ge=0),\n    settings: Settings = Depends(get_settings),\n) -> Page:\n    if limit > settings.max_page_size:\n        raise HTTPException(status_code=422, detail=\"limit exceeds TASKS_MAX_PAGE_SIZE\")\n    return Page(limit, offset)\n",
+            "task_api/main.py": "from fastapi import FastAPI\n\nfrom task_api.config import Settings, load_settings\nfrom task_api.routes import router\nfrom task_api.store import MemoryStore\n\n\ndef create_app(settings: Settings | None = None) -> FastAPI:\n    # Called once per application, before Uvicorn starts accepting requests.\n    settings = load_settings() if settings is None else settings\n    app = FastAPI(title=settings.app_name)\n    app.state.settings = settings\n    app.state.store = MemoryStore()\n    app.include_router(router)\n\n    @app.get(\"/health\")\n    def health():\n        return {\"status\": \"ok\"}\n\n    return app\n",
+            "task_api/models.py": "from pydantic import BaseModel, ConfigDict, Field, field_validator\n\n\nclass TaskCreate(BaseModel):\n    model_config = ConfigDict(strict=True, extra=\"forbid\", validate_default=True)\n\n    title: str = Field(min_length=1, max_length=120)\n    minutes: int = Field(ge=0)\n    done: bool = False\n    note: str | None = Field(default=None, max_length=1000)\n\n    @field_validator(\"title\")\n    @classmethod\n    def reject_blank_title(cls, value: str) -> str:\n        if not value.strip():\n            raise ValueError(\"title must not be blank\")\n        return value  # Check a stripped copy, but preserve the original spelling.\n\n\nclass TaskPatch(TaskCreate):\n    # Valid placeholders for omitted fields, NOT replacement values for storage.\n    # Only model_dump(exclude_unset=True) may be merged into an existing task.\n    title: str = Field(default=\"Untitled\", min_length=1, max_length=120)\n    minutes: int = Field(default=0, ge=0)\n\n\nclass TaskStored(TaskCreate):\n    id: int = Field(gt=0)\n    internal_tag: str = \"learning-memory-only\"\n\n\nclass TaskPublic(BaseModel):\n    # A deliberately separate output allowlist; never use this as an input model.\n    model_config = ConfigDict(strict=True, extra=\"ignore\", validate_default=True)\n\n    id: int = Field(gt=0)\n    title: str = Field(min_length=1, max_length=120)\n    minutes: int = Field(ge=0)\n    done: bool\n    note: str | None\n\n\nclass TaskPage(BaseModel):\n    items: list[TaskPublic]\n    limit: int\n    offset: int\n    total: int\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.33
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 1.0,
+            "probabilities": {
+              "API_CATALOGUE": 0.0,
+              "PARTIAL": 0.0,
+              "SUBSTANTIVE": 1.0,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.88,
+            "probabilities": {
+              "NECESSARY_GAP": 0.02,
+              "MATERIAL_ERROR": 0.06,
+              "ACCURATE_AND_BOUNDED": 0.92,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.95,
+            "probabilities": {
+              "NECESSARY_GAP": 0.01,
+              "MATERIAL_ERROR": 0.02,
+              "ACCURATE_AND_BOUNDED": 0.97,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.82,
+            "probabilities": {
+              "UNDERSPECIFIED": 0.01,
+              "CONTRADICTORY": 0.1,
+              "COHERENT_AND_TESTABLE": 0.87,
+              "UNCERTAIN": 0.02
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.86
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "TARGETED_REVIEW",
+            "confidence": 0.48,
+            "probabilities": {
+              "REVISE": 0.03,
+              "PROCEED": 0.31,
+              "TARGETED_REVIEW": 0.66
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 22746,
+          "output_tokens": 344
+        }
+      },
+      "raw_response_sha256": "5899f74ca731748980027242b66ec141e0901228f71590b8d74ad914332f1841"
+    },
+    {
+      "batch": "review-58",
+      "metadata": {
+        "started_at_utc": "2026-09-28T05:34:05.011992+00:00",
+        "elapsed_seconds": 0.95,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "0167ec5cc65f91841255544b49fe4eb768a21461825faa6fc7bb3e3015063093",
+        "usage": {
+          "input_tokens": 14003,
+          "output_tokens": 344
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "h05-dependencies",
+          "current_contract": {
+            "id": "H05",
+            "title": "应用组织、配置与依赖",
+            "prerequisites": [
+              "H04",
+              "L14"
+            ],
+            "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+            "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+            "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            }
+          ],
+          "declared_transitive_prior_capabilities": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            }
+          ],
+          "prerequisite_scope": "Current direct edges plus their transitive contracts are included. Contracts describe curriculum capabilities, not proof that a particular learner has passed; review required concepts against actual lesson explanation, not absence of transitive detail from earlier rounds.",
+          "actual_english_lesson": "---\ntitle: Application Structure, Configuration, and Dependencies\ndescription: Give creation, use, and cleanup explicit owners; evolve the in-memory API with APIRouter, explained Depends mechanics, synchronous resource scopes, configuration diagnostics, and an independent summary route.\n---\n\nimport { getDependencyExample } from '@/lib/js2py-examples'\n\n## 1. More files are not the goal; clear responsibilities are\n\nH04 kept validation, response filtering, and in-memory CRUD together so that you could follow your first requests. Now changing a page limit, creating an empty application, or adding a route brings you back to the same global variables. The problem is not simply a long file. It is unclear **who owns state, who supplies it, and who releases temporary resources**.\n\nWe preserve the HTTP behavior and separate only responsibilities we actually have. A useful frontend analogy is an application entry point composing modules and passing objects to consumers. Its limit matters: there is no React render tree, hook order, or browser component unmount here. The framework calls a function for a request; the service process continues afterwards. Depends is not a Python useEffect.\n\n| Chapter contract | Scope |\n| --- | --- |\n| Prerequisites | H04 request/response models and memory CRUD; L06 modules; L12 instances; L14 synchronous yield/with/finally |\n| New capabilities | APIRouter, application factories, dependency providers and consumers, per-request caching, synchronous cleanup, configuration diagnostics |\n| Independent acceptance | Explain a complete request; observe success/error cleanup; reproduce two configuration failures; add a summary route sharing existing state |\n| Not required yet | TestClient/fixtures (H06); asynchronous lifespan (A02); databases, login, permissions, generic architectural frameworks |\n\nDownload the [complete independent H05 lab](/learning-assets/js2py/h05-dependencies.zip), extract it, and enter `h05-dependencies`. All files are included; you do not copy H04 code or import another lab. This is a local multi-file API, not a server you can start inside the browser Python editor.\n\n## 2. Preserve the business contract before splitting code\n\nThe server still assigns positive integer IDs. A title has 1..120 characters, cannot be all whitespace, and retains valid spelling, capitalization, and surrounding spaces. Minutes are ordinary nonnegative JSON integers, not booleans, strings, or floats. Done is a strict boolean defaulting to false. Note is nullable text of at most 1000 characters, defaulting to null. PATCH merges explicitly supplied fields only; only note accepts null. Clients cannot supply id or extra fields, and responses must not expose internal_tag.\n\nPOST /tasks returns 201; listing, reading, and PATCH return 200; DELETE returns 204 without a body. A valid positive ID that does not exist returns 404; invalid input returns 422. Pages contain items/limit/offset/total, ordered by ID. Defaults are limit=20 and offset=0; limit is 1..100 and offset is nonnegative. Offset counts **existing records** to skip, not an ID at which to begin.\n\nRefactoring must not quietly start storing title.strip(), or merge every default from model_dump into a PATCH. Keep the models and explain the separate input contract and output allowlist:\n\n<Code language=\"python\">{getDependencyExample('task_api/models.py')}</Code>\n\nTaskPatch's title/minutes defaults are valid placeholders for omitted fields. Only `exclude_unset=True` may supply the merge; those defaults are not replacement business values. TaskPublic does not inherit the storage model with internal fields, making the output permission list explicit.\n\n## 3. A small directory with six real responsibilities\n\n```text\ntask_api/\n  __init__.py\n  config.py\n  models.py\n  store.py\n  dependencies.py\n  routes.py\n  main.py\n```\n\nConfig interprets configuration; models define data boundaries; store owns records and their sequence; dependencies connect a request to required objects; routes interpret HTTP; main composes the application. `__init__.py` marks the importable package and contains only a description here. Imports roughly flow main → routes → dependencies/store/models; store must not import main back.\n\n**Do not add repository/service/interface/base-manager layers.** We do not yet have another storage implementation or complex business coordination to justify them. A small class is useful because tasks and next_id belong to one instance, not because every function should become a method.\n\n<Code language=\"python\">{getDependencyExample('task_api/store.py')}</Code>\n\nEach MemoryStore creates its own dictionary and sequence. Neither a class attribute nor a module-level singleton owns the records. Get returns a record or None; it knows nothing about 404. The route decides how absence becomes HTTP. Patch constructs and validates a candidate before replacing the old record. That ordering avoids partial updates on these paths; it is not a database transaction.\n\n## 4. APIRouter registers routes; it does not start a server\n\nAPIRouter is a composable route registry. `prefix=\"/tasks\"` plus `@router.get(\"\")` produces /tasks; adding `/{task_id}` produces `/tasks/{task_id}`. Repeating /tasks in both places produces /tasks/tasks. We use an empty suffix instead of a trailing slash so the exercise does not accidentally depend on a redirect.\n\nDecorators register functions during module import. Main then calls `app.include_router(router)` to add them to the application. Neither step listens on a port; Uvicorn still starts the service. Forget include_router and imports may succeed, with /health working while /tasks returns 404. That is a registration problem, not model validation.\n\nOne notation needs an explanation before the complete route file: `Depends(get_store)` declares work for the framework. It is not an ordinary call that already returns a store.\n\n## 5. Depends: function values, callers, and returned objects\n\nRecall L13: get_store is a function value; get_store(...) invokes it immediately. `Depends(get_store)` records which provider the framework should call when handling a request. FastAPI inspects the route parameters, finds dependencies, prepares their arguments, calls them, and passes their results into the route.\n\nFollow a list request: query text arrives → get_page validates it and obtains settings → get_store obtains the current app's MemoryStore → list_tasks uses both → a dictionary is returned → response_model validates and filters it → an HTTP response is sent. Providers may themselves have dependencies that must be satisfied first. This is a small call graph, not a mysterious global-variable lookup.\n\n`Request` is the current request object supplied by FastAPI, not a JSON body model. `request.app.state` is a container on **this application instance**. State does not automatically create or validate the store. Our factory writes those objects explicitly. Settings and store are application-level objects; they are not recreated per request.\n\nBy default, repeated uses of the same dependency within one request reuse its resolved result. Here create_task requests request_trace directly, and get_store also requests it. Both use function scope, so one trace resource is acquired. A subsequent request acquires a new resource rather than reusing a closed file. This cache is not cross-request data caching and does not share stores between applications.\n\n<details>\n<summary>Explanation answer: why not replace Depends(get_store) with Depends(get_store())?</summary>\n\nThe first supplies the function to the framework. The second tries to invoke get_store during module import without the current Request, failing before serving traffic or supplying the wrong result as a provider. Conversely, calling a route directly from ordinary Python does not trigger injection: its Depends defaults remain declaration objects. Calling a business function and going through framework request resolution are distinct entry points.\n\n</details>\n\n## 6. Synchronous yield: acquire a temporary resource, then return control\n\nWe do not use a pretend database resource. Each dependency acquires a real TemporaryFile text handle, routes write action names, and finally closes it. Terminal messages show acquire/use/release without printing request bodies. The temporary file is not a durable audit record; nothing reads it after closure.\n\n<Code language=\"python\">{getDependencyExample('task_api/dependencies.py')}</Code>\n\nRequest_trace is an ordinary synchronous generator function. The framework advances it to yield, supplies its RequestTrace to consumers, and later resumes it so finally closes the handle. L14's pause/resume mechanics have not changed; ownership of advancing and exiting has moved from a handwritten with to the framework. Do not decorate this provider with `@contextmanager`: FastAPI expects the generator function and manages it itself.\n\nIf opening the file fails before yield, no fake resource reaches the route. Once acquisition succeeds and control enters try, normal return and exception propagation pass through finally. We neither swallow HTTPException nor turn failures into empty successful lists. Forced termination, interpreter crashes, and power loss are outside any guarantee that Python finally runs.\n\nMark uses the handle; close releases it. Get_store merely borrows it to record an action and must not close it itself. Different owners and consumers are exactly why lifecycle handling is useful. Releasing a handle does not roll back task mutations or prove delivery to the client.\n\n## 7. Version and scope determine when cleanup happens\n\nThis lab pins FastAPI 0.135.1. Support for `Depends(..., scope=\"function\")` was added in 0.121.0. We explicitly choose function because the response is ordinary JSON data that no longer needs the temporary file: cleanup happens after normal route execution and before sending the response.\n\nThe default scope for a yield dependency is request. On a **normal response path**, cleanup happens after sending. There is no universal rule that code after yield always runs before sending. Historical versions changed behavior, so an old timing diagram is insufficient. A handled HTTPException unwinds dependencies before its error response is produced; do not apply the normal-success sequence mechanically to every failure.\n\n```text\nfunction, success: acquire -> use -> release -> response send\nrequest, success:  acquire -> use -> response send -> release\nhandled HTTPException: acquire -> use -> release -> error response send\n```\n\nA request-scoped yield dependency cannot depend on a shorter-lived function-scoped yield dependency: its exit code may still need that child. A function-scoped dependency can use either scope. Get_store itself does not yield here; all temporary trace declarations explicitly use the same function scope rather than mixing lifetimes.\n\nOn 2026-09-28 the maintainer check observed actual ASGI response.start/body sends, not just printed lines, confirming both scopes on success and handled errors: four cases. That probe involves the underlying asynchronous protocol and stays in the maintainer script, not in the reader prerequisites. **Seeing closed=True after a client call returns cannot distinguish cleanup before sending from cleanup after sending.**\n\n<details>\n<summary>Prediction answer: does one POST open two traces? Does a failed GET leak?</summary>\n\nTwo declarations do not acquire two resources: they reuse one resolved dependency in that request. A normal POST records acquire, get_store, create_task, release. A valid missing ID acquires the store and then require_task raises 404; finally still closes the acquired trace. If a failure occurs before acquisition, there is no such resource to close. Do not expect every 422 to resolve exactly the same dependencies.\n\n</details>\n\n## 8. Environment variables are strings, not validated configuration\n\nConfiguration comes from whoever starts the process, not from the request body. TASKS_APP_NAME is required public display text and cannot be blank. TASKS_MAX_PAGE_SIZE defaults to 100 and accepts ASCII decimal integers from 20 through 100. The lower bound keeps the default list size of 20 valid. That is our product rule, not a framework requirement.\n\n<Code language=\"python\">{getDependencyExample('task_api/config.py')}</Code>\n\nSeparate reading, parsing, and range checks. The string \"20\" can become an integer; \"3.0\", \"true\", and empty text should not be guessed into valid values. Missing app_name causes a clear error rather than a convenient default that hides an omitted configuration. Diagnostics name the variable and required repair, without echoing its raw value. These settings are not secrets, but avoiding an environment dump is still a good boundary.\n\nLoad_settings accepts a dictionary for ordinary L09-style tests; only an omitted argument reads os.environ. Settings is a frozen dataclass to discourage casual reassignment, not automatic validation of internal constructor values. Passing explicit Settings to the factory is a trusted-code entry point. Real startup configuration must still go through load_settings. No pydantic-settings, automatic .env loading, or hidden precedence rules are involved.\n\n## 9. An application factory makes creation time explicit\n\n<Code language=\"python\">{getDependencyExample('task_api/main.py')}</Code>\n\nCreate_app loads configuration first and stops on failure. It then creates FastAPI, assigns settings and a new MemoryStore, includes routes, and returns the app. Calling the factory twice creates two applications with two stores. Multiple requests to one application keep using its store; data is not cleared per request.\n\nIn `uvicorn task_api.main:create_app --factory`, the left side names a module and the right side a function. --factory asks Uvicorn to call it to obtain the application. We neither read the environment during module import nor introduce asynchronous lifespan just to parse strings. Changing the environment after an app has been constructed does not mutate its Settings; restarting calls the factory again.\n\n<Code language=\"python\">{getDependencyExample('task_api/routes.py')}</Code>\n\nNow follow each route: create passes the validated payload to the store; list orders before slicing; read and update require an existing task; delete explicitly returns an empty Response. Routes do not read the environment or close the trace; dependencies do not decide how titles are updated; the store does not import FastAPI. Separation makes each change affect only the responsibilities it needs.\n\n## 10. Lock the environment, start the service, and send requests\n\nThe tested baseline on 2026-09-28 is CPython 3.13.15, uv 0.12.13, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, Starlette 0.52.1, and pytest 8.4.2. It is not a promise to remain the newest stack. Starlette is pinned so a newer transitive version cannot silently change HTTPX compatibility in the next chapter.\n\n<Code language=\"toml\">{getDependencyExample('pyproject.toml')}</Code>\n\nThe real public-PyPI uv.lock records transitive dependencies and artifact hashes. Requires-python selects 3.13; package=false means this is an application rather than an installable distribution of itself. From the lab root:\n\n```bash\nuv sync --locked\nuv run --locked python -m pytest -q\nTASKS_APP_NAME=\"Learning tasks\" uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\n```\n\nThe ordinary suite has 17 cases: 15 configuration/store cases and two bounded maintainer regressions using their own faulty local servers. Those two cases test client cleanup, not the complete healthy service contract. Leave the server running and use a second terminal in the same directory against this freshly started empty service:\n\n```bash\nuv run --locked python live_client.py --port 8005\n```\n\n```text\nLIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nLIVE PASS: cleanup and subsequent 404\n```\n\n<Code language=\"python\">{getDependencyExample('live_client.py')}</Code>\n\nA finally block is not a guarantee that every statement in it will succeed. The client tries each ID it created in a separate try/except, records that ID's failure, and continues with the other owned IDs. It never clears the whole service. At the end it prints CLEANUP FAILED with the unconfirmed IDs and individual diagnostics. “Unconfirmed” does not assert whether a timed-out deletion took effect; inspect only those IDs before replaying. If the body completed, cleanup failure raises RuntimeError so the process exits nonzero. If the body was already failing, body_succeeded remains false: cleanup is still reported, but finally neither raises a replacement exception nor returns, so the original traceback continues. Catching each cleanup error does not turn the run into success. This simple flag keeps both diagnoses without introducing an exception-group framework.\n\nThis independent urllib client connects to a real port rather than calling Python route functions. HTTPError still carries a status and body, so the client treats it as an inspectable HTTP response. Connection refusal produces no HTTP response at all. On failure, inspect the request and server logs rather than treating a zero exit code as the whole contract. It only uses an empty disposable service and deletes its recorded IDs in finally, not every record belonging to other callers.\n\nFor manual inspection of status lines and bodies, restart an empty service and use this request collection. It leaves records behind: do not immediately run the empty-state acceptance client afterwards. Stop and restart first.\n\n<Code language=\"bash\">{getDependencyExample('requests.sh')}</Code>\n\nA successful creation should produce these trace-related lines:\n\n```text\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\n```\n\nStop your server with Ctrl-C. Synchronous def and one worker do not imply requests can never overlap. We exercise this MemoryStore sequentially; it has no concurrency locks, persistence, or user permissions.\n\n## 11. Deliberate failures: locate the stage before changing code\n\nStop the running server before trying each expected failure:\n\n```bash\nenv -u TASKS_APP_NAME uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\nTASKS_APP_NAME=\"Learning tasks\" TASKS_MAX_PAGE_SIZE=bad uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005\n```\n\n```text\nValueError: TASKS_APP_NAME is required and must not be blank\nValueError: TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100\n```\n\nThese are the final diagnostic lines, not promises about machine-specific traceback paths. Both commands exit nonzero in the application factory; neither produces an HTTP 422. Restart with valid configuration and /health should return 200 again. With TASKS_MAX_PAGE_SIZE=20, /tasks?limit=20 returns 200 and /tasks?limit=21 returns 422 with detail equal to limit exceeds TASKS_MAX_PAGE_SIZE.\n\n| Observation | First place to investigate | Recovery |\n| --- | --- | --- |\n| No module named task_api | Working directory, extracted files, environment | Return to the lab root, sync the lock, restart |\n| address already in use | An earlier process owns the port | Stop your own process or change both client/server ports; do not kill an unknown process |\n| /health is 200, /tasks is 404 | include_router and actual prefix | Restore registration, restart, request the actual path |\n| Input returns 422 | body/query/path detail.loc or configured page cap | Fix the caller rather than deleting validation |\n| Missing ID is 404 but no release | Whether acquisition happened and finally remains intact | Restore cleanup and replay the same request |\n| Tasks vanish on restart | In-memory ownership, not a routing defect | Accept the boundary; persistence belongs to the database stage |\n\n<Code language=\"python\">{getDependencyExample('tests/test_basics.py')}</Code>\n\nThe 15 cases in tests/test_basics.py use familiar ordinary and L13-parameterized tests: dictionaries go to configuration code, models to the store, and two factories' state is compared. These 15 cases do not use TestClient, fixtures, or HTTP, so they cannot replace the real-client evidence above.\n\nThe two additional cases in tests/test_live_client_cleanup.py are maintainer regressions, not an independent-exercise prerequisite. They launch their own temporary fault app on an OS-selected loopback port, use pytest's temporary-directory fixture only to hold diagnostic logs, run the real client, and stop their own process in finally. One makes DELETE of the first owned ID return 503; the other also makes a body assertion fail. Both require the second ID to be deleted, the first to be explicitly reported as unconfirmed, and a nonzero client exit. When the body fails, its original traceback must remain. No async test code or user server is required:\n\n```bash\nuv run --locked python -m pytest -q tests/test_live_client_cleanup.py\n```\n\n```text\n2 passed\n```\n\nHere two passing outer tests mean their deliberately failing client subprocesses produced the required evidence. The leftover ID exists only inside the disposable fault app, which is then stopped; this is not a promise that an unavailable service can always be cleaned.\n\n## 12. Guided changes that reveal ownership mistakes\n\nTemporarily move MemoryStore() to module scope and have both factories reuse it. Predict where test_factory_owns_state fails, run it, then restore the implementation. Next remove exclude_unset=True from patch: find a minimal PATCH that overwrites an existing note or done with defaults. Restore and replay that input. Why is creating a store on every request not a solution to test contamination?\n\n<details>\n<summary>Guided-change check</summary>\n\nA global store makes the right app observe records created by the left. Move construction back into the factory instead of deleting the assertion. Without exclude_unset, even an empty PATCH includes default title/minutes/done/note and overwrites existing values. A fresh store per request might satisfy an empty-state assertion but breaks POST followed by GET. The intended lifetimes are one store per application and one temporary trace per request.\n\n</details>\n\n## 13. Independent variation: a summary, not a second store\n\nDo not open the solution yet. Add a separate APIRouter with GET /summary, returning three integers: total counts all current tasks, done counts completed tasks, and minutes sums current minutes. Reuse get_store; do not derive the summary from one page or expose internal fields. Explicitly include the new router in a composition entry point, preserving existing task endpoints.\n\nCheck an empty all-zero result; create tasks of 30 and 0 minutes; PATCH completion and minutes; delete a task. The summary must follow those changes. Also prove /summary uses the same application store as /tasks and releases its trace. Testing summarize alone does not prove the route was registered.\n\n<details>\n<summary>Independent implementation, function tests, and real HTTP acceptance</summary>\n\n<Code language=\"python\">{getDependencyExample('solutions/summary.py')}</Code>\n\n<Code language=\"python\">{getDependencyExample('solutions/test_summary.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q solutions/test_summary.py\nTASKS_APP_NAME=\"Summary tasks\" uv run --locked python -m uvicorn solutions.summary:create_summary_app --factory --host 127.0.0.1 --port 8005\n```\n\nStop the original server before starting this factory. In another terminal:\n\n```bash\nuv run --locked python live_client.py --port 8005 --summary\n```\n\n```text\nLIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nSUMMARY PASS: empty, populated, updated, deleted\nLIVE PASS: cleanup and subsequent 404\n```\n\nThe solution has two function tests, while the real client checks the composed HTTP application. It summarizes current records, without promising persistent snapshots, database aggregation, or concurrent consistency.\n\n</details>\n\n## 14. Acceptance and a resumable record\n\nFinished means more than splitting files. Without the solution, draw the relationship between requests, dependencies, application state, temporary resources, and responses. Explain why per-request caching differs from application state. Reproduce startup configuration failures and exception cleanup. Independently complete the summary and prove shared data through HTTP.\n\nWhen pausing, record the directory, Python/uv/framework versions, factory entry point, variable names and non-secret example values, last successful command and result, whether the 17 base and two solution tests actually ran, server PID/port and stopped status, disposable data state, remaining defect, and the next action. Resume with locked sync, ordinary tests, and a newly started empty service. Do not guess that an old server is still running.\n\nDownloads include only allowlisted source, READMEs, and the lock. Environments, caches, .env, logs, secrets, and temporary files are excluded. Closing a file is not persistence; correct dependency wiring is not authorization. H06 next teaches automated API-boundary testing and how it differs from real-process and browser integration.\n\n## 15. Primary sources and verification limits\n\nChecked live on 2026-09-28 against official versioned material: [APIRouter and larger applications](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/bigger-applications.md), [Depends mechanics](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/index.md), [yield and scope](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/dependencies-with-yield.md), [historical timing changes](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/advanced/advanced-dependencies.md), [Uvicorn factories and startup options](https://github.com/Kludex/uvicorn/blob/0.42.0/docs/settings.md), and [Python TemporaryFile](https://docs.python.org/3.13/library/tempfile.html). A TLS fetch failure on the Uvicorn documentation site was handled by checking its official tagged repository, not a third-party summary.\n\nActual checks include installing clean allowlist copies, ordinary tests, the independent variation, missing/invalid configuration processes, real Uvicorn clients, success/404 cleanup, and ASGI send timing. They do not cover databases, production concurrency, authorization, TLS, forced-process recovery, or production deployment. MDX or Python syntax checks do not substitute for those runtime boundaries.\n",
+          "mechanism_focus": "APIRouter and ownership, Depends graph/value injection/cache, explicit function vs request scope and actual yield cleanup relative to response sending on FastAPI0.135.1, per-app vs per-request state, validated environment config and failure, actual handles not imaginary transactions.",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "20eab946162a3af02bb88995b5b82f6fd8aa1a6a2218efd61760060b2f41d083",
+              "bytes": 19004,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".gitignore",
+            ".python-version",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "SOURCES.md",
+            "live_client.py",
+            "pyproject.toml",
+            "requests.sh",
+            "solutions/__init__.py",
+            "solutions/summary.py",
+            "solutions/test_summary.py",
+            "task_api/__init__.py",
+            "task_api/config.py",
+            "task_api/dependencies.py",
+            "task_api/main.py",
+            "task_api/models.py",
+            "task_api/routes.py",
+            "task_api/store.py",
+            "tests/test_basics.py",
+            "tests/test_live_client_cleanup.py",
+            "uv.lock"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "After independently reproduced cleanup short-circuit, both real clients now try every owned ID and retain primary failure diagnostics. Actual fault server DELETE-first503 proves second ID still cleaned, final failure visible; tests17+2. Immutable business source and lock unchanged; mainline rerun in progress; browser/API scopes unchanged.",
+          "slice": {
+            "index": 2,
+            "count": 2,
+            "source_paths_here": [
+              "task_api/routes.py",
+              "task_api/store.py",
+              "tests/test_basics.py",
+              "tests/test_live_client_cleanup.py"
+            ],
+            "source_paths_elsewhere": [
+              ".gitignore",
+              ".python-version",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "SOURCES.md",
+              "live_client.py",
+              "pyproject.toml",
+              "requests.sh",
+              "solutions/__init__.py",
+              "solutions/summary.py",
+              "solutions/test_summary.py",
+              "task_api/__init__.py",
+              "task_api/config.py",
+              "task_api/dependencies.py",
+              "task_api/main.py",
+              "task_api/models.py"
+            ]
+          },
+          "actual_download_files": {
+            "task_api/routes.py": "from fastapi import APIRouter, Depends, HTTPException, Path, Response\n\nfrom task_api.dependencies import Page, RequestTrace, get_page, get_store, request_trace\nfrom task_api.models import TaskCreate, TaskPage, TaskPatch, TaskPublic, TaskStored\nfrom task_api.store import MemoryStore\n\nrouter = APIRouter(prefix=\"/tasks\", tags=[\"tasks\"])\n\n\ndef require_task(store: MemoryStore, task_id: int) -> TaskStored:\n    record = store.get(task_id)\n    if record is None:\n        raise HTTPException(status_code=404, detail=\"Task not found\")\n    return record\n\n\n@router.post(\"\", response_model=TaskPublic, status_code=201)\ndef create_task(\n    payload: TaskCreate,\n    store: MemoryStore = Depends(get_store),\n    trace: RequestTrace = Depends(request_trace, scope=\"function\"),\n):\n    trace.mark(\"create_task\")\n    return store.create(payload).model_dump()\n\n\n@router.get(\"\", response_model=TaskPage)\ndef list_tasks(\n    page: Page = Depends(get_page),\n    store: MemoryStore = Depends(get_store),\n):\n    ordered = store.ordered()\n    return {\n        \"items\": [record.model_dump() for record in ordered[page.offset:page.offset + page.limit]],\n        \"limit\": page.limit,\n        \"offset\": page.offset,\n        \"total\": len(ordered),\n    }\n\n\n@router.get(\"/{task_id}\", response_model=TaskPublic)\ndef read_task(\n    task_id: int = Path(gt=0),\n    store: MemoryStore = Depends(get_store),\n):\n    return require_task(store, task_id).model_dump()\n\n\n@router.patch(\"/{task_id}\", response_model=TaskPublic)\ndef patch_task(\n    payload: TaskPatch,\n    task_id: int = Path(gt=0),\n    store: MemoryStore = Depends(get_store),\n):\n    current = require_task(store, task_id)\n    return store.patch(current, payload).model_dump()\n\n\n@router.delete(\"/{task_id}\", status_code=204)\ndef delete_task(\n    task_id: int = Path(gt=0),\n    store: MemoryStore = Depends(get_store),\n):\n    require_task(store, task_id)\n    store.delete(task_id)\n    return Response(status_code=204)\n",
+            "task_api/store.py": "from task_api.models import TaskCreate, TaskPatch, TaskStored\n\n\nclass MemoryStore:\n    \"\"\"Sequential exercises only: no durable data, locks or user permissions.\"\"\"\n\n    def __init__(self) -> None:\n        self.tasks: dict[int, TaskStored] = {}\n        self.next_id = 1\n\n    def create(self, payload: TaskCreate) -> TaskStored:\n        record = TaskStored(id=self.next_id, **payload.model_dump())\n        self.tasks[record.id] = record\n        self.next_id += 1\n        return record\n\n    def ordered(self) -> list[TaskStored]:\n        return [self.tasks[key] for key in sorted(self.tasks)]\n\n    def get(self, task_id: int) -> TaskStored | None:\n        return self.tasks.get(task_id)\n\n    def patch(self, current: TaskStored, payload: TaskPatch) -> TaskStored:\n        candidate = current.model_dump()\n        candidate.update(payload.model_dump(exclude_unset=True))\n        updated = TaskStored.model_validate(candidate)\n        self.tasks[current.id] = updated\n        return updated\n\n    def delete(self, task_id: int) -> None:\n        del self.tasks[task_id]\n",
+            "tests/test_basics.py": "import pytest\nfrom pydantic import ValidationError\n\nfrom task_api.config import load_settings\nfrom task_api.main import create_app\nfrom task_api.models import TaskCreate, TaskPatch\nfrom task_api.store import MemoryStore\n\n\ndef test_default_settings():\n    assert load_settings({\"TASKS_APP_NAME\": \"  Learning  \"}).app_name == \"Learning\"\n    assert load_settings({\"TASKS_APP_NAME\": \"Learning\"}).max_page_size == 100\n\n\n@pytest.mark.parametrize(\"name\", [None, \"\", \"  \"])\ndef test_missing_name(name):\n    environ = {} if name is None else {\"TASKS_APP_NAME\": name}\n    with pytest.raises(ValueError, match=\"TASKS_APP_NAME is required\"):\n        load_settings(environ)\n\n\n@pytest.mark.parametrize(\"value\", [\"19\", \"101\", \"3.0\", \"true\", \"\", \" 20\", \"２０\"])\ndef test_bad_limit_does_not_echo_value(value):\n    with pytest.raises(ValueError) as captured:\n        load_settings({\"TASKS_APP_NAME\": \"Learning\", \"TASKS_MAX_PAGE_SIZE\": value})\n    assert str(captured.value) == \"TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100\"\n\n\ndef test_custom_limit():\n    assert load_settings({\"TASKS_APP_NAME\": \"Learning\", \"TASKS_MAX_PAGE_SIZE\": \"20\"}).max_page_size == 20\n\n\ndef test_factory_owns_state():\n    settings = load_settings({\"TASKS_APP_NAME\": \"Test\"})\n    left, right = create_app(settings), create_app(settings)\n    left.state.store.create(TaskCreate(title=\"Read\", minutes=3))\n    assert len(left.state.store.ordered()) == 1\n    assert right.state.store.ordered() == []\n    assert right.state.store.next_id == 1\n\n\ndef test_patch_states_without_http():\n    store = MemoryStore()\n    task = store.create(TaskCreate(title=\"  Read  \", minutes=0, note=\"keep\"))\n    assert store.patch(task, TaskPatch()).note == \"keep\"\n    task = store.patch(task, TaskPatch(note=\"replace\"))\n    assert task.note == \"replace\"\n    assert store.patch(task, TaskPatch(note=None)).note is None\n    assert task.title == \"  Read  \"\n\n\ndef test_invalid_candidate_cannot_mutate_store():\n    store = MemoryStore()\n    record = store.create(TaskCreate(title=\"Read\", minutes=3))\n    with pytest.raises(ValidationError):\n        patch = TaskPatch(title=\"Changed\", minutes=True)\n        store.patch(record, patch)\n    assert store.get(record.id).title == \"Read\"\n",
+            "tests/test_live_client_cleanup.py": "\"\"\"Maintainer regression: real sockets, temporary fault app, never a user server.\"\"\"\nimport json\nimport os\nfrom pathlib import Path\nimport re\nimport subprocess\nimport sys\nimport time\nfrom urllib.request import ProxyHandler, build_opener\n\nimport pytest\n\n\nFAULT_APP = \"\"\"\nimport sys\nimport uvicorn\nfrom fastapi import HTTPException, Request\nfrom task_api.config import Settings\nfrom task_api.dependencies import get_store\nfrom task_api.main import create_app\n\napp = create_app(Settings(\"Owned cleanup regression\"))\nbody_failure = sys.argv[1] == \"1\"\n\ndef controlled_store(request: Request):\n    if request.method == \"DELETE\":\n        print(f\"DELETE ATTEMPT {request.url.path}\", flush=True)\n        if request.url.path == \"/tasks/1\":\n            raise HTTPException(status_code=503, detail=\"Deliberate first-delete failure\")\n    if body_failure and request.url.path == \"/tasks/99999\":\n        raise HTTPException(status_code=503, detail=\"Deliberate body failure\")\n    return app.state.store\n\napp.dependency_overrides[get_store] = controlled_store\n# Port 0 lets the OS choose an unused port; no bind-close-rebind race.\nuvicorn.run(app, host=\"127.0.0.1\", port=0, log_level=\"info\")\n\"\"\"\n\n\n@pytest.mark.parametrize(\"body_failure\", [False, True], ids=[\"cleanup-only\", \"body-and-cleanup\"])\ndef test_cleanup_continues_and_preserves_primary_failure(tmp_path, body_failure):\n    root = Path(__file__).resolve().parents[1]\n    log_path = tmp_path / \"owned-server.log\"\n    environment = {**os.environ, \"PYTHONPATH\": str(root),\n                   \"NO_PROXY\": \"127.0.0.1,localhost\", \"no_proxy\": \"127.0.0.1,localhost\"}\n    opener = build_opener(ProxyHandler({}))\n    with log_path.open(\"w\", encoding=\"utf-8\") as log:\n        server = subprocess.Popen(\n            [sys.executable, \"-u\", \"-c\", FAULT_APP, str(int(body_failure))],\n            cwd=root, env=environment, stdout=log, stderr=subprocess.STDOUT,\n        )\n        try:\n            deadline = time.monotonic() + 15\n            while True:\n                output = log_path.read_text(encoding=\"utf-8\")\n                assert server.poll() is None, output\n                address = re.search(r\"Uvicorn running on http://127[.]0[.]0[.]1:(\\d+)\", output)\n                if address:\n                    port = int(address.group(1))\n                    break\n                assert time.monotonic() < deadline, output\n                time.sleep(0.03)\n            base = f\"http://127.0.0.1:{port}\"\n            # The startup log precedes serving very slightly; bound readiness too.\n            while True:\n                try:\n                    with opener.open(base + \"/health\", timeout=1) as response:\n                        assert response.status == 200\n                    break\n                except OSError:\n                    assert time.monotonic() < deadline, log_path.read_text(encoding=\"utf-8\")\n                    time.sleep(0.03)\n            result = subprocess.run(\n                [sys.executable, \"live_client.py\", \"--port\", str(port)],\n                cwd=root, env=environment, capture_output=True, text=True, timeout=20,\n            )\n            assert result.returncode != 0, result.stdout + result.stderr\n            assert \"CLEANUP FAILED (unconfirmed owned IDs): id=1:\" in result.stderr\n            assert \"503\" in result.stderr\n            assert \"id=2:\" not in result.stderr\n            assert \"LIVE PASS: cleanup and subsequent 404\" not in result.stdout\n            with opener.open(base + \"/tasks\", timeout=2) as response:\n                remaining = json.load(response)\n            assert remaining[\"total\"] == 1\n            assert [task[\"id\"] for task in remaining[\"items\"]] == [1]\n            attempts = [line for line in log_path.read_text(encoding=\"utf-8\").splitlines()\n                        if line.startswith(\"DELETE ATTEMPT \")]\n            assert attempts == [\"DELETE ATTEMPT /tasks/1\", \"DELETE ATTEMPT /tasks/2\"]\n            if body_failure:\n                # Cleanup is printed, but must not replace the original traceback.\n                assert 'assert send(\"GET\", \"/tasks/99999\")' in result.stderr\n                assert result.stderr.rstrip().endswith(\"AssertionError\")\n                assert \"RuntimeError: CLEANUP FAILED\" not in result.stderr\n            else:\n                assert \"LIVE PASS: CRUD\" in result.stdout\n                assert \"RuntimeError: CLEANUP FAILED\" in result.stderr\n        finally:\n            if server.poll() is None:\n                server.terminate()\n            try:\n                server.wait(timeout=5)\n            except subprocess.TimeoutExpired:\n                server.kill()\n                server.wait(timeout=5)\n        assert server.poll() is not None\n    print(json.dumps({\n        \"regression\": \"owned-client-cleanup\", \"body_failure\": body_failure,\n        \"port\": port, \"server_pid\": server.pid, \"server_stopped\": True,\n        \"server_returncode\": server.returncode, \"client_returncode\": result.returncode,\n        \"client_stdout\": result.stdout, \"client_stderr\": result.stderr,\n        \"delete_attempts\": attempts, \"remaining_ids_before_server_stop\": [1],\n        \"note\": \"Remaining task belongs only to this stopped in-memory fault app.\",\n    }))\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.35
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 1.0,
+            "probabilities": {
+              "PARTIAL": 0.0,
+              "API_CATALOGUE": 0.0,
+              "UNCERTAIN": 0.0,
+              "SUBSTANTIVE": 1.0
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.9,
+            "probabilities": {
+              "UNCERTAIN": 0.0,
+              "MATERIAL_ERROR": 0.06,
+              "NECESSARY_GAP": 0.01,
+              "ACCURATE_AND_BOUNDED": 0.93
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.93,
+            "probabilities": {
+              "UNCERTAIN": 0.0,
+              "NECESSARY_GAP": 0.01,
+              "MATERIAL_ERROR": 0.03,
+              "ACCURATE_AND_BOUNDED": 0.96
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.81,
+            "probabilities": {
+              "UNCERTAIN": 0.02,
+              "CONTRADICTORY": 0.12,
+              "COHERENT_AND_TESTABLE": 0.86,
+              "UNDERSPECIFIED": 0.0
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.87
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "TARGETED_REVIEW",
+            "confidence": 0.25,
+            "probabilities": {
+              "PROCEED": 0.47,
+              "REVISE": 0.03,
+              "TARGETED_REVIEW": 0.5
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 14003,
+          "output_tokens": 344
+        }
+      },
+      "raw_response_sha256": "56ab71da4780309ee9ad22a9ba8a2d38e9fe87c219e62a810e2a9aa59d7af108"
+    }
+  ],
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-19-application-dependencies.mdx",
+    "examples/js2py/h05-dependencies/.gitignore",
+    "examples/js2py/h05-dependencies/.python-version",
+    "examples/js2py/h05-dependencies/README.md",
+    "examples/js2py/h05-dependencies/README.zh-cn.md",
+    "examples/js2py/h05-dependencies/README.zh-tw.md",
+    "examples/js2py/h05-dependencies/SOURCES.md",
+    "examples/js2py/h05-dependencies/live_client.py",
+    "examples/js2py/h05-dependencies/pyproject.toml",
+    "examples/js2py/h05-dependencies/requests.sh",
+    "examples/js2py/h05-dependencies/solutions/__init__.py",
+    "examples/js2py/h05-dependencies/solutions/summary.py",
+    "examples/js2py/h05-dependencies/solutions/test_summary.py",
+    "examples/js2py/h05-dependencies/task_api/__init__.py",
+    "examples/js2py/h05-dependencies/task_api/config.py",
+    "examples/js2py/h05-dependencies/task_api/dependencies.py",
+    "examples/js2py/h05-dependencies/task_api/main.py",
+    "examples/js2py/h05-dependencies/task_api/models.py",
+    "examples/js2py/h05-dependencies/task_api/routes.py",
+    "examples/js2py/h05-dependencies/task_api/store.py",
+    "examples/js2py/h05-dependencies/tests/test_basics.py",
+    "examples/js2py/h05-dependencies/tests/test_live_client_cleanup.py"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-19-application-dependencies.mdx": "13d6db81ba8333abf99062474fba1d2469d6508162ec2c7bf82fa8ca5f64bbd7",
+    "examples/js2py/h05-dependencies/.gitignore": "34b9af89b8f5d720380cd80173e192d8e2cc225efeda084f08a197d38c50bfba",
+    "examples/js2py/h05-dependencies/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/h05-dependencies/README.md": "8c13acc178b5fda7e002e8b0d63b1baedad78da6307945f158021a40bb4ce91f",
+    "examples/js2py/h05-dependencies/README.zh-cn.md": "d3acb5471cd11e1ea6d7c447b7d5152cb5e6004e91809e1dc3f223175301334a",
+    "examples/js2py/h05-dependencies/README.zh-tw.md": "98bf5c50fe7fdb2022514abbaa011d27efd1bc8314698fb10effad619784d8cb",
+    "examples/js2py/h05-dependencies/SOURCES.md": "b7d3bceae6f3e8debb8debc7362b02241c079e92e986a77a4e147bd4a40f7762",
+    "examples/js2py/h05-dependencies/live_client.py": "e144c9e694e27f3e40c0fc0e319aae21cef9248a196e3198f17f3fb29bd37298",
+    "examples/js2py/h05-dependencies/pyproject.toml": "2223011435a537f22e71dcc89c1a01c2b1531cdf168b6c2ebd8b82b5fdb8c558",
+    "examples/js2py/h05-dependencies/requests.sh": "433ebde154168337705570890e86fc76b2b4bc40ecd32b6504e3e73536191a9b",
+    "examples/js2py/h05-dependencies/solutions/__init__.py": "09242c83c26a4902373546a06a4544ecd7c987bf7fcee2c6443bf37cf85c7efe",
+    "examples/js2py/h05-dependencies/solutions/summary.py": "0ab73df07abddbb00643e31d3310916c239e271a69972f3e37080ff9cf61fcd1",
+    "examples/js2py/h05-dependencies/solutions/test_summary.py": "61527714c684da914cdb172e2a646d58c54ff89d2c0d3b027a79f14ec2d66342",
+    "examples/js2py/h05-dependencies/task_api/__init__.py": "06208f3c6c8fa4e0a44a2ade0a0fa8aabb61fe12ddea023e84cc7f459c976c15",
+    "examples/js2py/h05-dependencies/task_api/config.py": "e11a940b2458000f459dc32e51547d4f093beee16686061944722e9d0ac6d136",
+    "examples/js2py/h05-dependencies/task_api/dependencies.py": "503e924ebce6a67d491188ede2b2928bea151b990a81fc8f984e28609f174076",
+    "examples/js2py/h05-dependencies/task_api/main.py": "09ce53947aabfab84e54b33cdb536f92ea74e11a43bae3862bbf92c055f6c159",
+    "examples/js2py/h05-dependencies/task_api/models.py": "089e2060f77c0b568a37f64aba8b6262cde3d30490968d4f824057072a23f08b",
+    "examples/js2py/h05-dependencies/task_api/routes.py": "af3e00bd92d33101b3d7593f6734a6f9b2ef26560831e00c9d4cc989ecf274b4",
+    "examples/js2py/h05-dependencies/task_api/store.py": "9a0d19fc112828aa071329656dbc773ce5c6f960760314d20a2688bb85e9d1db",
+    "examples/js2py/h05-dependencies/tests/test_basics.py": "ce84920baa8e13d3394cb9a33d3c2a56a5604a76fa16532827affb29e9a8d7b7",
+    "examples/js2py/h05-dependencies/tests/test_live_client_cleanup.py": "c7f7fde2bfc0ee4bfeaf955cf9cfa90719d40bbed97554b1ae62897d65235b7f",
+    "content/docs/js2py/module-19-application-dependencies.zh-cn.mdx": "043c9ee9c3363e02bb33ba8650c6f06d5357652ce4244e7d20005f48a4501b2b",
+    "content/docs/js2py/module-19-application-dependencies.zh-tw.mdx": "2e4755d0b6d15a6477f811fe34e6d47b627748fcb3f9a70a8907dd74e602e1f0",
+    "examples/js2py/h05-dependencies-files.json": "83fd2384c5e52f76b922c42409fffcffdd0ad9be40c6160415b9cf3289187303",
+    "public/learning-assets/js2py/h05-dependencies.zip": "9485c5a9222f0b468aaf50597c60006f5686a4be7a091c889db191ddf564c69b",
+    "examples/js2py/h05-dependencies/uv.lock": "20eab946162a3af02bb88995b5b82f6fd8aa1a6a2218efd61760060b2f41d083"
+  },
+  "deterministically_checked_lock_files": {
+    "uv.lock": {
+      "sha256": "20eab946162a3af02bb88995b5b82f6fd8aa1a6a2218efd61760060b2f41d083",
+      "bytes": 19004,
+      "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+    }
+  },
+  "interface_failures": [],
+  "post_review_changes": [],
+  "submitted_source_sha256": {
+    "content/docs/js2py/module-19-application-dependencies.mdx": "13d6db81ba8333abf99062474fba1d2469d6508162ec2c7bf82fa8ca5f64bbd7",
+    "examples/js2py/h05-dependencies/.gitignore": "34b9af89b8f5d720380cd80173e192d8e2cc225efeda084f08a197d38c50bfba",
+    "examples/js2py/h05-dependencies/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/h05-dependencies/README.md": "8c13acc178b5fda7e002e8b0d63b1baedad78da6307945f158021a40bb4ce91f",
+    "examples/js2py/h05-dependencies/README.zh-cn.md": "d3acb5471cd11e1ea6d7c447b7d5152cb5e6004e91809e1dc3f223175301334a",
+    "examples/js2py/h05-dependencies/README.zh-tw.md": "98bf5c50fe7fdb2022514abbaa011d27efd1bc8314698fb10effad619784d8cb",
+    "examples/js2py/h05-dependencies/SOURCES.md": "b7d3bceae6f3e8debb8debc7362b02241c079e92e986a77a4e147bd4a40f7762",
+    "examples/js2py/h05-dependencies/live_client.py": "e144c9e694e27f3e40c0fc0e319aae21cef9248a196e3198f17f3fb29bd37298",
+    "examples/js2py/h05-dependencies/pyproject.toml": "2223011435a537f22e71dcc89c1a01c2b1531cdf168b6c2ebd8b82b5fdb8c558",
+    "examples/js2py/h05-dependencies/requests.sh": "433ebde154168337705570890e86fc76b2b4bc40ecd32b6504e3e73536191a9b",
+    "examples/js2py/h05-dependencies/solutions/__init__.py": "09242c83c26a4902373546a06a4544ecd7c987bf7fcee2c6443bf37cf85c7efe",
+    "examples/js2py/h05-dependencies/solutions/summary.py": "0ab73df07abddbb00643e31d3310916c239e271a69972f3e37080ff9cf61fcd1",
+    "examples/js2py/h05-dependencies/solutions/test_summary.py": "61527714c684da914cdb172e2a646d58c54ff89d2c0d3b027a79f14ec2d66342",
+    "examples/js2py/h05-dependencies/task_api/__init__.py": "06208f3c6c8fa4e0a44a2ade0a0fa8aabb61fe12ddea023e84cc7f459c976c15",
+    "examples/js2py/h05-dependencies/task_api/config.py": "e11a940b2458000f459dc32e51547d4f093beee16686061944722e9d0ac6d136",
+    "examples/js2py/h05-dependencies/task_api/dependencies.py": "503e924ebce6a67d491188ede2b2928bea151b990a81fc8f984e28609f174076",
+    "examples/js2py/h05-dependencies/task_api/main.py": "09ce53947aabfab84e54b33cdb536f92ea74e11a43bae3862bbf92c055f6c159",
+    "examples/js2py/h05-dependencies/task_api/models.py": "089e2060f77c0b568a37f64aba8b6262cde3d30490968d4f824057072a23f08b",
+    "examples/js2py/h05-dependencies/task_api/routes.py": "af3e00bd92d33101b3d7593f6734a6f9b2ef26560831e00c9d4cc989ecf274b4",
+    "examples/js2py/h05-dependencies/task_api/store.py": "9a0d19fc112828aa071329656dbc773ce5c6f960760314d20a2688bb85e9d1db",
+    "examples/js2py/h05-dependencies/tests/test_basics.py": "ce84920baa8e13d3394cb9a33d3c2a56a5604a76fa16532827affb29e9a8d7b7",
+    "examples/js2py/h05-dependencies/tests/test_live_client_cleanup.py": "c7f7fde2bfc0ee4bfeaf955cf9cfa90719d40bbed97554b1ae62897d65235b7f"
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not gpt-6-astra; independent reasoning assistants are separate.",
+    "decision": "Original slice choices unchanged. New targeted audits, reproduced repairs, real runtime/browser evidence and exact new source deltas support conditional ACCEPT_WITH_EXPLICIT_ENVIRONMENT_GATES; see closure record for outstanding/final deterministic gates. Never a production or learner approval.",
+    "scope": "Full English in every slice; union of slices covers every non-lock allowlisted file. Only the original H01 request included lock text. Other opaque locks were checked by registry/hash/locked reconstruction rather than semantic inference. No single slice is presented as whole-chapter review.",
+    "uncertainty": "Raw unfavorable branches preserved. Confidence is distribution concentration, not factual correctness or learner outcomes. Initial direct predecessor contracts omit transitive detail; follow-up audits must examine the actual full path rather than assume missing learner capability.",
+    "snapshot": "Submitted source hashes and full requests remain unchanged. Effective source_sha256 includes each explicitly recorded post-review repair; closure delta review binds the final D03 assertion and O privilege wording changes. Locale/locks/manifests/ZIP are deterministic evidence, not semantic translation review."
+  },
+  "credential_persisted": false,
+  "prior_review_rounds": [
+    {
+      "lab": "h05-dependencies",
+      "prior_plan": {
+        "lab": "h05-dependencies",
+        "slug": "module-19-application-dependencies",
+        "batches": [
+          "review-27"
+        ],
+        "scope": "Full English + full non-lock text files distributed across bounded slices; all lock bytes deterministically checked. No claim that a single slice viewed other slices.",
+        "lock_files": {
+          "uv.lock": {
+            "sha256": "20eab946162a3af02bb88995b5b82f6fd8aa1a6a2218efd61760060b2f41d083",
+            "bytes": 19004,
+            "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+          }
+        }
+      },
+      "archive": "docs/reviews/js2py-h05-initial-review-2026-09-28.json",
+      "reason": "New concrete source/pedagogy repair after independent reproduction; this is review of changed evidence, not resampling an accepted judgment."
+    }
+  ],
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+}

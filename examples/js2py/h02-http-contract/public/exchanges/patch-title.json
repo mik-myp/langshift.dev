@@ -1,0 +1,37 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "patch-title",
+  "precondition": {
+    "seed_tasks": [
+      {
+        "title": "  Read HTTP  ",
+        "minutes": 25,
+        "done": false,
+        "note": "keep me"
+      }
+    ]
+  },
+  "request": {
+    "method": "PATCH",
+    "target": "/tasks/1",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "title": "Read it twice"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "id": 1,
+      "title": "Read it twice",
+      "minutes": 25,
+      "done": false,
+      "note": "keep me"
+    }
+  }
+}

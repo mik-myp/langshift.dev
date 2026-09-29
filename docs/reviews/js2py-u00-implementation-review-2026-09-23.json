@@ -1,0 +1,143 @@
+{
+  "review_date": "2026-09-23",
+  "scope": "Actual revised introductory lesson only; not all planned chapters, runtime correctness or proven educational outcomes.",
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "reader": {
+        "experience": "Experienced enterprise frontend engineer; independently sets up frontend projects; comfortable with JavaScript, Promise and async/await; basic TypeScript; has consumed and integrated backend APIs.",
+        "new_to": "Python language, implementing server-side applications, databases, and operations; has never written a backend. Do not presume Express or SQL experience.",
+        "goal": "Independently implement, test, deploy and maintain a backend usable by real users.",
+        "pace": "No fixed schedule; willing to learn slowly and thoroughly. Wants sequential chapters with sufficient conceptual explanation, not terse API lists.",
+        "question_verbatim": "00章一上来就直接建立第一个可复现项目是不是太早了，对于没学过 python 的读者来说"
+      },
+      "approved_contract": "Chapter 00 must teach a small fully explained script with local running, modification and simple error diagnosis. Independent reconstruction of a configured multi-file tested project is deferred until language/modules/files/test foundations. Tool installation is allowed if narrowly explained and not a separate engineering mastery gate.",
+      "actual_english_lesson": "---\ntitle: \"Meet Python: understand and run your first script\"\ndescription: \"For experienced frontend engineers new to Python: understand a few lines, run them locally, make changes, diagnose failures, and write a small script independently before building a full project.\"\n---\n\nimport { getFirstScriptExample } from '@/lib/js2py-examples'\n\n## 1. Cross one learning boundary at a time\n\nYou already organize frontend projects, write JavaScript, and integrate APIs. You do not need another introduction to programming itself. That experience does not, however, automatically explain Python's names, syntax, or execution model, and it does not imply that you have implemented a backend.\n\nThis chapter therefore does **not** begin by scaffolding a complete Python project. Its smaller but substantive goal is to **create a Python file, explain every line, run and modify it, and repair an error you deliberately introduce**.\n\nLater chapters build language knowledge, files and modules, testing and environments, then HTTP, FastAPI, databases, and deployment. The destination is unchanged; its requirements simply do not become prerequisites for starting.\n\n### Prerequisites, outcomes, and exclusions\n\n| Item | This chapter's contract |\n| --- | --- |\n| Prior knowledge | Using an editor and terminal; the general JS ideas of assignment, strings, and function calls |\n| New knowledge | Python names versus strings, assignment, calling `print`, sequential execution, running a `.py` file, and locating simple errors |\n| Independent outcome | Write a similarly small script without the answer, predict its output, and explain and fix a failure |\n| Not yet required | `import`, defining functions, reading JSON files, virtual-environment mechanisms, lockfiles, pytest, entry guards, or API servers |\n\nThese excluded subjects have not been removed from the curriculum. They will receive full treatment after their prerequisites. **Exercises and exit checks in this chapter will not quietly require them.**\n\n## 2. Understand three lines before dealing with installation\n\nDo not run anything yet or open a collection of configuration files. This is the complete program, saved as `first_steps.py`:\n\n<Code language=\"python\">{getFirstScriptExample('first_steps.py')}</Code>\n\nIt is expected to print two lines:\n\n```text\nHello!\nPython\n```\n\n“Expected” matters: explain the result from the code first, then run it to check your prediction. A terminal without errors is not sufficient evidence of understanding.\n\n### 2.1 `course = \"Python\"`: assign a value to a name\n\n`\"Python\"` is a string literal representing text. Its surrounding quotes are source-code syntax, not part of the text itself.\n\n`course` is the name we chose. After the assignment executes, later code can use this name to retrieve the corresponding value. This assignment does not start with `let`, `const`, or `var`.\n\nFirst establish the observable behavior: after assignment, `course` can be read; a different spelling is a different name. Mutable objects, copying, and scope are not prerequisites here. Subsequent chapters give those topics their own examples.\n\n### 2.2 `print(\"Hello!\")`: call an existing function\n\n`print` is a Python built-in function; this example does not need to import it. Parentheses perform a call, and `\"Hello!\"` is the supplied content. Here it writes that text to standard output, visible in the terminal during normal local execution, followed by a newline.\n\n**Calling an existing function** does not require **learning how to define your own function immediately**. Your understanding of JS calls helps; the new task is to understand this particular Python call.\n\n### 2.3 `print(course)`: retrieve the value, then output it\n\nThere are no quotes around `course`. Python looks up that name's value and passes the value to `print`. The result is `Python`, not `course`.\n\nThe distinction can be checked independently:\n\n```python\ncourse = \"Python\"\nprint(course)\nprint(\"course\")\n```\n\nExpected result:\n\n```text\nPython\ncourse\n```\n\nThe second line reads a name; the third directly uses a literal. Similar-looking text in an editor does not necessarily mean the same thing to Python.\n\n### 2.4 Trace execution instead of memorizing output\n\n| Position | What happens | New output |\n| --- | --- | --- |\n| Line 1 | The name `course` receives the value `\"Python\"` | None |\n| Line 2 | `print` is called with `\"Hello!\"` | `Hello!` |\n| Line 3 | The value of `course` is retrieved and passed to `print` | `Python` |\n\nSaving an assignment does not automatically display its value. We are executing a script file and explicitly printing what we want to observe. Do not transfer the browser developer console's interactive feedback directly to file execution.\n\nBlank lines can separate code and produce no output. Outside a string, `#` can start a line comment. The last line below is a note for the reader:\n\n```python\ncourse = \"Python\"\nprint(course)\n# This comment does not print anything.\n```\n\n## 3. Use JS experience without erasing differences\n\nThis comparison is for reading syntax. The required execution work happens in your local terminal, not in the webpage editor's runtime.\n\n<PythonEditor title=\"Read a name and print its value\" compare={true} canRun={false}>\n```javascript !! js\nconst name = \"Python\";\nconsole.log(name);\n```\n\n```python !! py\nname = \"Python\"\nprint(name)\n```\n</PythonEditor>\n\nBoth print `Python` in this example. That does not make `const` equivalent to Python assignment or make every feature of `console.log` and `print` identical.\n\nA Python name can be assigned a new value later. Observe that behavior first:\n\n```python\ncourse = \"Python\"\nprint(course)\ncourse = \"FastAPI\"\nprint(course)\n```\n\nOutput:\n\n```text\nPython\nFastAPI\n```\n\nThe first output occurs before reassignment. A later assignment does not go back and change text already printed. These are ordinary strings: **writing `\"FastAPI\"` does not install a framework or start a server.**\n\n## 4. What executes a `.py` file?\n\nIn frontend development, an editor changes files while a browser or a runtime such as Node.js executes code. Distinguish these responsibilities for Python too:\n\n- **Editor:** creates, changes, and saves source. Syntax highlighting does not mean execution happened.\n- **Python language:** defines what these statements mean and how they are written.\n- **Python interpreter:** the program that reads and executes the code. The local course uses CPython, one implementation of Python.\n- **Terminal:** lets you issue startup commands and see output or errors. Shell commands are not Python source.\n\nThe minimal sequence is:\n\n```text\nSave first_steps.py\n        ↓\nStart the Python interpreter in the terminal and name the file\n        ↓\nThe interpreter reads the file, checks syntax, then executes it\n        ↓\nObserve output or an error in the terminal\n```\n\n`.py` is the conventional extension for Python source. Renaming a JavaScript file to that extension does not translate its contents into Python.\n\nSome documentation shows an interactive Python session with a `>>>` prompt. That prompt is not source to paste into your file. This chapter consistently runs files rather than switching between execution modes.\n\n## 5. Prepare only what this chapter needs\n\nThe course uses **CPython 3.13** as its teaching baseline, not as a claim about the latest release. This script has no third-party Python dependencies and needs neither project configuration nor FastAPI.\n\nWe use **uv to obtain and select the interpreter**, reducing differences between machines. Here it is a running tool: understand each command's purpose without learning the full dependency-management workflow. If uv already works, skip its installation.\n\n### 5.1 Install and check uv\n\nVerify installation commands against the [official uv installation guide](https://docs.astral.sh/uv/getting-started/installation/). The following commands fetch and execute an official installer. Follow your organization's software policies on managed devices; do not apply this pattern to an untrusted address.\n\n**macOS / Linux terminal:**\n\n```bash\ncurl -LsSf https://astral.sh/uv/install.sh | sh\n```\n\n**Windows PowerShell:**\n\n```powershell\npowershell -ExecutionPolicy ByPass -c \"irm https://astral.sh/uv/install.ps1 | iex\"\n```\n\nAfter installation, open a new terminal and run:\n\n```bash\nuv --version\n```\n\nA uv version shows that the new terminal can find the tool. If the command is still missing, follow the installer output and check your terminal/path setup. Python source has not started executing, so editing it will not fix this failure.\n\n### 5.2 Obtain and identify the interpreter\n\nRun these lines in the terminal, not inside a `.py` file:\n\n```bash\nuv python install 3.13\nuv run --no-project --python 3.13 python --version\n```\n\nThe first prepares Python 3.13 and can reuse an existing installation. The second selects that interpreter and asks it for its version. Expect a result beginning with `Python 3.13.`; the patch number may differ.\n\nInitial installation may require network downloads. Download progress and uv diagnostics come from the tool, not from your program. Once installed, this particular script performs no network requests.\n\n### 5.3 Create an ordinary practice folder\n\nFrom a location where you keep exercises, run:\n\n```bash\nmkdir js2py-first-steps\ncd js2py-first-steps\n```\n\nThis creates and enters a folder; **it does not scaffold an application**. If it already exists from an earlier session, enter it without deleting and recreating it.\n\nOpen that folder in your editor, create `first_steps.py`, enter the three lines from section 2, and save. Make sure it was not saved as `first_steps.py.txt`, particularly on systems that hide filename extensions.\n\nAlternatively, [download the chapter files](/learning-assets/js2py/u00-first-script.zip), extract them, and open a terminal in the resulting `u00-first-script` folder. Writing and downloading are two ways to obtain the same file, not two required tasks. Downloading does not replace understanding. Leave the `solutions` folder closed until you attempt the independent exercise.\n\n## 6. Run the file and understand the command\n\nWith `first_steps.py` in the terminal's current directory, run:\n\n```bash\nuv run --no-project --python 3.13 python first_steps.py\n```\n\nRead the command in parts:\n\n| Part | Role here |\n| --- | --- |\n| `uv run` | Start a command through uv |\n| `--no-project` | Do not use a uv project in the current or parent directories as the execution context |\n| `--python 3.13` | Select a Python 3.13 interpreter |\n| `python` | The program to run is the Python interpreter |\n| `first_steps.py` | The file for that interpreter, located relative to the terminal's current directory |\n\nThis is not a parameter table to memorize. A fixed path avoids ambiguity about which Python your machine selects. **Do not run `uv init`, create a lockfile, or install a test framework for this lesson.** A later engineering chapter will explain why environments and dependencies need isolation.\n\nNormal program output:\n\n```text\nHello!\nPython\n```\n\nNext, change the first line's `\"Python\"` to `\"FastAPI\"`, **save**, and run the same command again. The second output line changes; the first remains `Hello!`. Restore the original file afterward.\n\nIf nothing changes, compare three things: the file saved by the editor, the terminal's current directory, and the file named in the command. Do not immediately reinstall Python; you may be editing and executing different files.\n\n## 7. Two reversible failure experiments\n\nMake a backup copy of `first_steps.py` inside this practice folder. Change one thing at a time, observe the result, and restore it before the next experiment. Leave other projects alone.\n\n### 7.1 Misspelled name: valid syntax, failed lookup during execution\n\nChange only `course` in the last line to `cours`:\n\n```python expected-error=NameError\ncourse = \"Python\"\nprint(\"Hello!\")\nprint(cours)\n```\n\nYou will see `Hello!`, followed by an error containing `NameError`. The first two lines have executed. Execution cannot proceed normally when the third line tries to retrieve a name that has not been assigned.\n\nRead the error type and message at the end, find your own filename and line number above it, then inspect that source line. `course` and `cours` are different names. Fix the spelling; do not install a package named `cours`.\n\nYou do not need to memorize every traceback field. Locate your own file and understand this failure's immediate cause. After repairing it, rerun and check that both normal output lines return.\n\n### 7.2 Missing quote: the file cannot be parsed before execution\n\nRemove the closing double quote on the first line:\n\n```python expected-error=SyntaxError\ncourse = \"Python\nprint(\"Hello!\")\nprint(course)\n```\n\nThis produces `SyntaxError`, and neither `print` in the file executes. The interpreter finds invalid syntax before it starts executing the statements.\n\nExact wording and caret placement can vary between patch versions. You do not need to memorize them. Restore the quote, save, and rerun to complete the experiment.\n\n### 7.3 Identify the failing layer first\n\n| Symptom | Check first | Do not start by |\n| --- | --- | --- |\n| `uv` command not found | Installation and whether a new terminal can find it | Editing Python business logic |\n| Cannot open `first_steps.py` | Directory, filename, and accidental `.txt` extension | Installing a Python package |\n| `SyntaxError` | Highlighted source, including quotes and parentheses | Switching frameworks |\n| `NameError` | Whether that name was assigned and spelled consistently | Reinstalling the environment |\n| Old output remains | Saved file and the actual file being executed | Assuming program output is a cache problem |\n\nThis is a guide to these experiments, not an exhaustive explanation of every error with the same name. Preserve the actual command and message rather than guessing from an error type alone.\n\n## 8. Exercises: explain, modify, and write independently\n\n### Exercise 1: predict before executing\n\nWithout running it, write down the three output lines and explain why a later assignment cannot change text that was already printed.\n\n```python\ntopic = \"Python\"\nprint(topic)\ntopic = \"FastAPI\"\nprint(\"topic\")\nprint(topic)\n```\n\n<details>\n<summary>Read the explanation after your attempt</summary>\n\n```text\nPython\ntopic\nFastAPI\n```\n\nThe first call reads the old value, the second prints the literal `\"topic\"`, and the third reads the reassigned value. Previously printed terminal text is not a frontend component that automatically updates when a name changes.\n\n</details>\n\n### Exercise 2: change one thing\n\nStarting from the original `first_steps.py`, change only the last line to `print(\"course\")`. Predict both output lines, save and verify, then restore the original.\n\nExplain why this no longer retrieves the value assigned on the first line. Go beyond “the quotes make it different”: what does the quoted content represent, and what would the interpreter do without quotes?\n\n<details>\n<summary>Check the result after your attempt</summary>\n\nThe lines are `Hello!` and `course`. The final call directly receives a string literal, not a value obtained through a name. Restoring `print(course)` makes it read that assigned value again.\n\n</details>\n\n### Exercise 3: create another file independently\n\nCreate `about_me.py` in the same folder. Follow these requirements without copying the answer:\n\n1. Assign `\"Python\"` to the name `subject`.\n2. Print `My next skill:`, then the current value of `subject`.\n3. Reassign the same name to `\"FastAPI\"`, then print its new value.\n\nDo not hard-code all three output lines to bypass reading and reassigning the name. No imports, loops, custom functions, or additional tools are needed.\n\nRun:\n\n```bash\nuv run --no-project --python 3.13 python about_me.py\n```\n\nExpected output:\n\n```text\nMy next skill:\nPython\nFastAPI\n```\n\n<details>\n<summary>See a reference implementation after trying independently</summary>\n\n<Code language=\"python\">{getFirstScriptExample('solutions/about_me.py')}</Code>\n\nThere can be other valid implementations, but assignment, lookup, and reassignment must actually occur. Change the first assigned value to `\"Python basics\"`: only the second output line should change. Explaining this variation provides better evidence of understanding than matching the reference visually.\n\n</details>\n\n## 9. When are you ready to continue?\n\n- [ ] Distinguish terminal commands from Python source and identify what executes the source.\n- [ ] Create and run a `.py` file in an ordinary folder, not only from a download.\n- [ ] Explain names, quoted strings, assignment, and `print` in this example.\n- [ ] Predict and verify output before and after reassignment.\n- [ ] Write `about_me.py` and a variation independently rather than hard-coding all output.\n- [ ] Introduce and repair one of this chapter's failures, locating the file, position, and cause.\n\n**Passing pytest, explaining four configuration files, and reconstructing a complete application are not exit requirements.** Those skills have their own learning stages.\n\nWhen pausing, leave a recovery note:\n\n```text\nCurrent practice folder:\nLast saved and executed file:\nLast successful command and output:\nA line I cannot yet explain:\nThe first small action for my next session:\n```\n\nNext time, run that file, explain each line aloud, then try one small variation. There is no daily streak requirement and no need to reinstall everything after a break.\n\n## 10. What comes next, and where to look things up\n\nThe new route next develops **names, values, and basic operations**, followed by separate chapters on containers, control flow, functions, exceptions, modules, and files. Small practical programs continue throughout; you do not wait through a long theory-only phase.\n\n> **Rewrite status (2026-09-23):** This chapter follows the new small-script contract. [The current chapter 01](/en/docs/js2py/module-01-syntax-comparison) remains the older combined chapter, not the new single-topic lesson. Its assignment and basic-data-type sections can be read first; the later topics are not hidden prerequisites omitted from this chapter. Subsequent lessons will be rewritten one at a time.\n\nConsult official references for a specific question rather than reading their entire sites before starting:\n\n- Basic expressions and interaction: [Python 3.13 tutorial](https://docs.python.org/3.13/tutorial/introduction.html).\n- Complete parameters and behavior of `print`: [Python built-ins](https://docs.python.org/3.13/library/functions.html#print). This lesson uses only its simplest form.\n- Syntax errors versus execution-time exceptions: [Python errors and exceptions](https://docs.python.org/3.13/tutorial/errors.html). Full exception handling comes later.\n- The execution command: [uv script guide](https://docs.astral.sh/uv/guides/scripts/). This dependency-free script does not need a uv project first.\n",
+      "shared_sources": {
+        "first_steps.py": "course = \"Python\"\nprint(\"Hello!\")\nprint(course)\n",
+        "solutions/about_me.py": "subject = \"Python\"\nprint(\"My next skill:\")\nprint(subject)\nsubject = \"FastAPI\"\nprint(subject)\n"
+      },
+      "next_chapter_contract": {
+        "id": "L01",
+        "title": "名称、值与基本运算",
+        "prerequisites": [
+          "L00"
+        ],
+        "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+        "acceptance": "预测基本表达式并解释结果；说明重新赋值不改变过去的输出",
+        "boundary": "不引入复杂容器、作用域或类型体操",
+        "status": "planned"
+      },
+      "rules": [
+        "Judge actual required exercises and exit requirements, not merely words mentioning future topics.",
+        "The MDX shared-file calls display the code in shared_sources.",
+        "Do not assume this implementation is correct; distinguish a prerequisite gap from an adequately taught new concept within the chapter.",
+        "This evaluation is not an execution test or proof of educational effectiveness."
+      ]
+    },
+    "questions": {
+      "intro_alignment": {
+        "type": "choice",
+        "instructions": "Does the actual lesson satisfy the approved introductory learning contract for this reader? Choose the best overall disposition.",
+        "criteria": {
+          "ALIGNED": "The required scope is a comprehensible small script rather than premature independent engineering; core contract is met.",
+          "REVISE_SCOPE": "Required teaching or assessment still overloads the introductory contract and should be re-scoped before publication.",
+          "INSUFFICIENT": "Not enough evidence to judge."
+        }
+      },
+      "unexplained_prerequisite": {
+        "type": "noul",
+        "instructions": "Does a mandatory exercise or exit requirement in the actual lesson depend on a substantive Python/backend capability that is neither reasonably provided by reader experience nor taught before that requirement?",
+        "criteria": {
+          "true": "There is a substantive unexplained prerequisite in a mandatory task.",
+          "false": "The required tasks can reasonably be performed using prior frontend experience and what this lesson actually teaches."
+        }
+      },
+      "explanation_depth": {
+        "type": "choice",
+        "instructions": "For the reader and the deliberately narrow introductory scope, assess the explanatory depth of the actual lesson, not its coverage of later Python topics.",
+        "criteria": {
+          "SUBSTANTIVE": "Concepts, execution, analogy boundaries, changes and failures are sufficiently explained for the stated introductory tasks.",
+          "TOO_TERSE": "It mostly names concepts or commands without enough causal explanation for its tasks.",
+          "INSUFFICIENT": "Cannot assess from the material."
+        }
+      },
+      "next_authoring_step": {
+        "type": "choice",
+        "instructions": "Given the actual lesson and next_chapter_contract, what is the appropriate next authoring step after code/page validation?",
+        "criteria": {
+          "PROCEED_L01": "Proceed to the narrowly scoped names/values/basic-operations chapter; later topics still need separate teaching.",
+          "REWORK_L00": "Rework the introductory learning design before authoring the next chapter.",
+          "ASK_READER": "An essential reader requirement is missing and must be clarified first.",
+          "INSUFFICIENT": "Cannot choose from the provided evidence."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "intro_alignment": {
+        "type": "choice",
+        "choice": "ALIGNED",
+        "confidence": 0.88,
+        "probabilities": {
+          "INSUFFICIENT": 0.0,
+          "REVISE_SCOPE": 0.08,
+          "ALIGNED": 0.92
+        }
+      },
+      "unexplained_prerequisite": {
+        "type": "noul",
+        "noul": 0.1
+      },
+      "explanation_depth": {
+        "type": "choice",
+        "choice": "SUBSTANTIVE",
+        "confidence": 1.0,
+        "probabilities": {
+          "INSUFFICIENT": 0.0,
+          "SUBSTANTIVE": 1.0,
+          "TOO_TERSE": 0.0
+        }
+      },
+      "next_authoring_step": {
+        "type": "choice",
+        "choice": "PROCEED_L01",
+        "confidence": 0.99,
+        "probabilities": {
+          "INSUFFICIENT": 0.0,
+          "REWORK_L00": 0.01,
+          "ASK_READER": 0.0,
+          "PROCEED_L01": 0.99
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 5591,
+      "output_tokens": 187
+    }
+  },
+  "metadata": {
+    "started_at_utc": "2026-09-23T10:54:21.530354+00:00",
+    "elapsed_seconds": 1.47,
+    "http_status": 200,
+    "endpoint": "https://api.typesafe.ai/v1/systemone",
+    "requested_model": "jev-latest",
+    "returned_model": "jev-1.13.0",
+    "questions": 4,
+    "request_sha256": "f086a7521a29fa3399a91365d957f69cc242e31e1c9f65046ff1d90347e53c04",
+    "usage": {
+      "input_tokens": 5591,
+      "output_tokens": 187
+    },
+    "credential_persisted": false
+  },
+  "source_sha256": {
+    "content/docs/js2py/module-00-python-introduction.mdx": "be22e6ba54e74019d983e66e5214989816d895fb713309f95bffbf79b39ba227",
+    "content/docs/js2py/module-00-python-introduction.zh-cn.mdx": "d9af638a853e0108a73872750611186d3dd44cf659186f552feda6fcd4838f7c",
+    "content/docs/js2py/module-00-python-introduction.zh-tw.mdx": "049539824c6d0fd601bf747b9a3c974faa8a82261e42b5a551b37cda818bb26d",
+    "examples/js2py/u00-first-script/first_steps.py": "5570f888c416ff10be0c33a78bbac7ce8d45a518cfbbdcbfea26feaaefbd3ead",
+    "examples/js2py/u00-first-script/solutions/about_me.py": "74383eeaeaf3f064b732bb3d632fe443ed5e3e5a0d7b924c98ca866a3f806f04"
+  }
+}

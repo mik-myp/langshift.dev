@@ -1,0 +1,245 @@
+---
+title: External services and async resource lifetimes — keep optional dependencies optional
+description: Build asynccontextmanager and FastAPI lifespan from L14's yield/finally, reuse HTTPX clients, and verify fault isolation and cleanup through a local fault service and real TCP.
+---
+
+import { getExternalServiceExample } from '@/lib/js2py-examples'
+
+## 1. A hint may fail; saving a task must not fail with it
+
+Suppose tasks can display an optional priority hint. Putting a remote request inside the task-creation transaction can keep requests, connections and transactions occupied when that service slows down. Worse, a timeout does not establish that a remote effect never happened. Blind retries can duplicate notifications or bills.
+
+We start with ownership: **core CRUD completes independently; hints have a separate endpoint; one application lifetime owns one outbound client; requests borrow it**. We contact no third party, transmit no user task text, and need no credentials.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | A01 coroutines/Tasks, cancellation and budgets; L14 context managers and yield/finally; H05 service lifetimes; this chapter follows S03 |
+| New capability | asynccontextmanager, lifespan, reusable HTTPX clients, phase timeouts versus total budgets, bounded retries and response validation |
+| Independent acceptance | CRUD works while the dependency fails or stalls; normal/error/cancel exits release actual resources; explain an idempotency variation |
+| Not claimed | The full capstone, SQL persistence, authentication/authorization, production queues, load/deployment certification or arbitrary third-party integrations |
+
+The lab deliberately uses an in-memory dictionary rather than the SQL you already learned. This avoids depending on unstable code from other chapters and keeps attention on the external boundary. Restart loses data, and there is no identity or object authorization. Use synthetic local data only; this reduced lab does not replace your earlier reliable-business implementation.
+
+## 2. Complete project, pinned versions and a first real run
+
+[Download the independent lab](/learning-assets/js2py/a02-external-services.zip). Enter the extracted `a02-external-services` directory; its repository location is `examples/js2py/a02-external-services`. Source, commands and expected output are loaded from that one directory, not reimplemented for each translation. This is a local multi-file API and socket lab, not a browser execution exercise.
+
+Verified **2026-09-28**: CPython **3.13.15**, uv **0.12.13**, pytest **8.4.2**, FastAPI **0.135.1**, HTTPX **0.28.1**, AnyIO **4.12.1**, Uvicorn **0.42.0**, Pydantic **2.12.5**. The public-PyPI `uv.lock` records the complete resolution and hashes. The framework baseline matches H03–H06. None of these APIs requires a FastAPI/Uvicorn/Pydantic upgrade, so this chapter does not silently migrate the framework. AnyIO 4.12.1 and Starlette 0.52.1 also follow the H05–H06 lifecycle/testing baseline and are pinned explicitly to avoid transitive drift. This is a tested combination, not a claim to be perpetually “latest.”
+
+<Code language="toml">{getExternalServiceExample('pyproject.toml')}</Code>
+
+With the specified uv installed, run from the lab root. socket_lab chooses free loopback ports and starts/stops only its own servers. It neither takes over fixed ports nor kills unrelated processes.
+
+<Code language="bash">{getExternalServiceExample('commands.sh')}</Code>
+
+Expect **32 passed** in the main suite and **4 passed** in the independent answer. Five main tests use actual sockets; network behavior is not all mocked. Checkpoint C0: record your directory, versions, last successful command and first socket output. Merely seeing an API documentation page is not a replacement for those tests.
+
+## 3. Follow one request and identify each owner
+
+Caller → local FastAPI → hint service → shared HTTPX client and pool → local fault service. On the return path, validate the dependency's data again and expose only approved states and enum values.
+
+- The application owns the client, pool and dependency-wide semaphore. Requests borrow them.
+- Each attempt owns a response stream and closes it on every exit. Closing a response is not closing the client; a connection may return to the pool for reuse.
+- One hint operation owns the budget for queuing, attempts and backoff. Core CRUD never enters this call chain.
+- Application shutdown closes the application client. One request must not close an object other requests are still borrowing.
+
+This resembles sharing an API client in frontend code, but the server must handle concurrent borrowers, pool shutdown and cancellation. Creating the client at module import obscures ownership, loop affinity and test isolation. Creating a new AsyncClient in every request instead repeatedly rebuilds its pool and prevents reuse across requests.
+
+## 4. From L14's with to async with: protocol before decorator
+
+In L14, `@contextmanager` adapts an ordinary generator to with's entry/exit protocol. The necessary change here is that acquisition or release may await, so entry and exit await `__aenter__` and `__aexit__`. Merely writing async with does not make an arbitrary synchronous close nonblocking; the implementation must provide suitable asynchronous behavior.
+
+Because managed_client is an async def containing yield, it is an **async generator function**, not the ordinary result-producing coroutine function from A01. `@asynccontextmanager` adapts it into an async context-manager factory. Use that manager with async with, rather than trying to await it directly.
+
+<Code language="python">{getExternalServiceExample('lifecycle.py')}</Code>
+
+Trace one lifetime:
+
+1. validate_origin checks configuration before acquisition. On failure there is no client and no entered block to clean up later.
+2. Constructing AsyncClient configures a pool; it normally does not establish a network connection yet. Connections are opened as requests need them.
+3. The single yield lends the client to the async with body. The manager is suspended but retains ownership.
+4. Normal block completion resumes after yield; an exception or cancellation resumes the exceptional path at that suspension point. Finally handles release in either case.
+5. Exiting waits for client.aclose. Cleanup is not business rollback; effects that reached the remote system are not undone.
+
+The adapter requires exactly one yield. Zero or multiple yields violate its protocol. When acquiring multiple resources, establish their cleanup boundaries progressively instead of acquiring everything first and hoping one final finally covers every partial failure. Async changes the ability to wait during entry/exit, not L14's ownership principles.
+
+## 5. Cleanup can await too: why finally has a small shield
+
+FastAPI/Starlette's concurrency foundations use AnyIO. We need only its cancellation-scope concept here, not another task-management API. Within an already-cancelled AnyIO scope, cancellation can be delivered again at each waiting checkpoint. Reaching finally therefore does not automatically make an awaited close safe.
+
+`with anyio.move_on_after(2, shield=True)` creates a **bounded, synchronous context-manager cancellation scope**, so the syntax is with, not async with. The shield temporarily blocks cancellation from outer AnyIO scopes while aclose runs. Its own two-second cleanup budget remains effective. If that budget fires, cancel_called is true and we raise an explicit cleanup failure instead of claiming a successful close.
+
+This does not make the whole request uncancellable. Only release is shielded; request cancellation still propagates. Nor does an AnyIO shield defend against arbitrary repeated raw Task.cancel calls, process termination or machine failure. Tests cover the asyncio backend, one Task cancellation and an already-cancelled AnyIO scope, not other backends or forced shutdown.
+
+`client.is_closed` is useful but insufficient: an implementation may set its flag before finishing underlying cleanup. Later tests also require a real TCP peer to observe EOF and a closed client to reject reuse. A property or log message alone is not proof of connection release.
+
+<details>
+<summary>Explanation check: which object should a failed request close?</summary>
+
+Close that request's response stream, return its permit, and propagate cancellation or return the defined fallback. Do not close the shared AsyncClient. The application closes that client on exit. Normal, exceptional and cancelled owner scopes all need cleanup. The manager's yield lends a resource; it does not permanently transfer ownership. Closing a connection also does not reverse a remote effect.
+
+</details>
+
+## 6. Lifespan runs once in and once out, not once per request
+
+<Code language="python">{getExternalServiceExample('app.py')}</Code>
+
+create_app is an application factory. Its lifespan enters managed_client during startup, stores the client and HintService, prepares the lab dictionary, and yields. The application then serves multiple requests. Shutdown resumes the lifespan and exits managed_client, closing the client. Each worker process has its own lifetime and pool; this is not cross-process sharing.
+
+Startup does not probe the optional dependency, and liveness does not call it. Otherwise an optional outage could prevent the core service from starting, contradicting the boundary. Production readiness should consider genuinely critical dependencies such as a database, not automatically include every suggestion API.
+
+CRUD makes no external calls, and the pure require_task helper stays synchronous. Small dictionary operations in these async routes contain no await and run on one loop, making the isolation relationship easy to observe. This is not multi-worker consistency or durability. Keep the transaction and driver boundaries from your earlier SQL work; do not mechanically convert them to async. FastAPI runs ordinary def routes in a thread pool, but that does not mean arbitrary synchronous libraries called inside an async route are automatically offloaded.
+
+HTTPX ASGITransport does not run application lifespan automatically, so its tests explicitly enter `app.router.lifespan_context(app)`. The real-Uvicorn tests let the server own startup and shutdown. If app.state.hints is missing, first check whether lifespan ran; do not hide the error by introducing an import-time global client.
+
+## 7. Four timeout phases versus one operation deadline
+
+HTTPX connect concerns establishing a connection; read concerns waiting for the next response-data chunk; write concerns sending data; pool concerns waiting to acquire a pool connection. The values are neither a summed overall duration nor a promise that `Timeout(0.2)` ends the entire operation within 0.2 seconds. A peer that keeps sending small chunks inside the read-idle window can sustain a response for much longer.
+
+The lifecycle spells out all four values. Connection limits constrain transport connections; HintService's semaphore limits whole logical operations, which can include two attempts and a backoff. These are related but distinct controls.
+
+The outer `asyncio.timeout(self.deadline)` covers **semaphore wait → pool acquisition → network → bounded retries → backoff**. A timeout placed only inside _once leaves queuing and backoff outside the user-facing budget. One test occupies all permits and verifies that expiry occurs without sending a request. Another makes backoff exceed the remaining budget and verifies that no second attempt starts. These assert budget scope, not unstable millisecond performance thresholds.
+
+The tiny values are teaching parameters. Cancellation remains cooperative: blocked loop code or slow cleanup may delay actual exit. A real system derives budgets from dependency SLOs, load, remaining request budget and failure policy rather than copying 0.2 or 0.7.
+
+## 8. The complete adapter: narrow retries, untrusted responses, propagated cancellation
+
+**First understand the async for that reads the body below.** `response.aiter_raw()` provides an asynchronous iterator of byte chunks, not an already-downloaded list. `async for` requests the next chunk and awaits that retrieval: it runs the loop body only after obtaining a chunk, then requests the next one after processing it. Waiting for unavailable data can yield to the event loop; already-ready data means an await need not switch tasks. This neither creates a Task per chunk nor downloads chunks in parallel.
+
+An ordinary `for` uses the synchronous iteration protocol and cannot directly traverse this asynchronous-only object. Adding await inside an ordinary for body does not make its next-item retrieval asynchronous. The iterator signals exhaustion with `StopAsyncIteration`; async for handles that end signal and continues after the loop. Exhaustion is not invalid JSON or a network error to retry. Cancellation and other exceptions are not normal exhaustion.
+
+The `_once` implementation below accumulates bytes in a `bytearray`. For each chunk it checks the retained length plus the new chunk's length against 1024 before calling `extend`. Suppose chunks contain 700 and then 400 bytes: the first leaves 700 retained bytes; the second is rejected before appending, so the buffer never reaches 1100. The limit counts bytes, not characters. A chunk is not a complete JSON message, and characters or JSON fragments may span chunks, so normal completion precedes validating `bytes(body)` with the model. This limit bounds the body retained here, not every larger allocation the underlying network stack might make.
+
+Cancellation while awaiting the next chunk propagates out of the loop; async for itself does not close the response or shared client. The enclosing `async with client.stream(...)` exits this response's scope, then the outer permit scope returns the semaphore permit. The application lifespan still owns the shared client and closes the entire pool only at application exit. Do not convert cancellation into `StopAsyncIteration` or successful fallback, and do not mistake asynchronous cleanup for protection against forced termination.
+
+Before reading the source, explain why 700 + 400 is rejected and how many bytes remain retained. If cancellation arrives while waiting for the second chunk, which scopes exit, and why must the client borrowed by other requests stay open? Then check your explanation against the nested scopes below.
+
+<Code language="python">{getExternalServiceExample('service.py')}</Code>
+
+Read from hint's outer scope into _once. Within the overall budget, hint takes a shared permit and tracks admitted work using active/peak. Finally decrements active; async with returns the permit. _once owns a response stream while checking status and body; success, invalid data and transient failure all leave that response scope.
+
+This lab permits at most two attempts, and only for a read-only GET with 502/503/504 or specified ConnectError/ConnectTimeout/ReadTimeout failures. The first failure yields during a short backoff; a second returns unavailable. A 401 is an authentication/authorization problem, not permission to hammer retries. A 429 requires a rate-limit/Retry-After policy; we do not automatically retry it. Pool timeout indicates local capacity pressure rather than an invitation to amplify traffic. Production policies may also need jitter, rate limiting and shared retry budgets.
+
+An external 200 is still untrusted. Require JSON, refuse redirects and encoded bodies, retain at most 1024 raw body bytes, and use a strict Pydantic model allowing only low/normal/high with no extra fields. This bounds **the body retained by our adapter**, not every peak allocation inside the network stack. Invalid JSON, wrong enums, HTML and oversized bodies become the same small fallback. Do not send the original body, URL or exception message to the caller.
+
+InvalidHint represents non-retryable boundary data failure. TransientFailure names the narrow retry set; neither is a bucket for all exceptions. TimeoutError and HTTPX RequestError can become unavailable at this business boundary, but CancelledError is deliberately outside that catch set. Owner cancellation must stop the work, not silently retry or masquerade as a successful fallback.
+
+## 9. Controlled local faults, without paid services or user data
+
+<Code language="python">{getExternalServiceExample('faults.py')}</Code>
+
+The fake supplies normal responses, persistent 503, fail-then-succeed, malformed JSON, wrong fields, oversized data, slow responses and a gated hold. `/control` switches local test scenarios only; never mount it in production. Hold's entered/release Events establish that a request was accepted and has not returned, rather than guessing network state after an arbitrary sleep.
+
+The origin allowlist accepts only explicit `http://127.0.0.1:<port>`, rejecting even localhost, credentials, paths and queries. This keeps name resolution, remote addresses and credentials outside the lab. `trust_env=False` prevents HTTPX inheriting environment proxy settings, and `follow_redirects=False` prevents a response from moving the request to another site. Configuration errors omit their input. The outbound request uses fixed `/hint` with no task text, user identity or Authorization.
+
+For manual exploration, use two terminals from the same lab root. Stop only those processes with Ctrl-C; do not use pkill or kill an unknown process by port. These fixed ports are for manual mode; socket_lab selects free ports automatically.
+
+```bash
+uv run --locked uvicorn faults:create_fault_app --factory --host 127.0.0.1 --port 8766
+```
+
+```bash
+uv run --locked uvicorn app:create_app --factory --host 127.0.0.1 --port 8765
+```
+
+Use a third terminal for synthetic requests:
+
+```bash
+curl --noproxy '*' -sS -X POST http://127.0.0.1:8765/tasks -H 'Content-Type: application/json' -d '{"title":"Synthetic task"}'
+curl --noproxy '*' -sS -X POST http://127.0.0.1:8766/control -H 'Content-Type: application/json' -d '{"mode":"unavailable"}'
+curl --noproxy '*' -sS http://127.0.0.1:8765/tasks/1/hint
+curl --noproxy '*' -sS http://127.0.0.1:8765/tasks/1
+```
+
+With fresh processes, these create task id 1, select mode unavailable, return hint state unavailable/priority null, and still read the same task. If IDs have advanced, use the created response's ID; always receiving 1 is not an API promise.
+
+## 10. A service proof that is not a mock — and what it does not prove
+
+<Code language="python">{getExternalServiceExample('socket_lab.py')}</Code>
+
+serve binds only ephemeral 127.0.0.1 ports and owns its socket and Server Task. Finally requests that specific server's exit and awaits it. Five-second startup/shutdown guards prevent hangs; they are not performance targets. The transcript contains stable observations, not assertions about port numbers, elapsed time or incidental scheduling noise.
+
+<Code language="text">{getExternalServiceExample('expected-socket-output.txt')}</Code>
+
+For the first two hints, the fake observes the same peer port: an actual HTTP/1.1 connection was reused, not merely the same Python object. The next scenarios exercise controlled fallback for bad data and slow responses. Hold temporarily uses generous test budgets. After upstream entry and before release, create/update/read/delete all finish. “CRUD under 50 ms” is not our isolation criterion. Separated call paths and cooperative I/O establish this small behavior; it is not a load-capacity certificate.
+
+The following tests separately inspect real TCP resources, not just HTTP response status.
+
+<Code language="python">{getExternalServiceExample('tests/test_socket.py')}</Code>
+
+For normal exit, an internal LookupError and Task cancellation, the peer must observe EOF, the client must be closed, and later use must fail. Another test cancels only a hint attempt: its connection ends and active returns to zero, but the application client remains open and succeeds on the next call. **Ending a borrow and closing the entire pool are different operations.**
+
+We do not promise that a caller disconnect automatically cancels a FastAPI handler; the test explicitly cancels the owner Task. TLS, real DNS, HTTP/2, write backpressure, multiple workers, forced termination and production load are untested. Do not extrapolate these socket results into general network certification.
+
+## 11. Fakes verify policy; sockets verify connections
+
+<Code language="python">{getExternalServiceExample('tests/test_service.py')}</Code>
+
+MockTransport precisely supplies 401, 429, connection failures and pool timeouts for retry-count, response and data-minimization assertions. It does not exercise real TCP or HTTPX network-timeout timing, so it cannot establish actual connect/write/pool behavior. ASGITransport invokes the application directly for routes and lifecycle checks, also without server sockets.
+
+There are 32 main tests: 27 policy/ASGI/diagnostic tests and five real-TCP tests. The concurrency test uses three requests and two permits, witnesses the third remaining outside, then cancels the first and witnesses the third enter. Active is zero at exit. The AnyIO test genuinely awaits inside aclose, ensuring that a synchronous pretend-close does not conceal a cancellation bug.
+
+Guided change: set HintService's default concurrency to 1 and allow only one attempt. Unavailable remains explicit, cancellation propagates, active returns to zero and core CRUD stays unchanged. Update assertions that represent the **new policy**; do not delete all attempt-count checks just to obtain green tests.
+
+<details>
+<summary>Guided answer and re-verification</summary>
+
+Change the default concurrency to 1, range(2) to range(1), and the terminal attempt index to 0. Flaky now returns unavailable because it requires a second attempt. 503/connect/read cases expect one attempt; two ASGI hint requests produce two upstream calls instead of four. Keep the explicit concurrency=2 mechanism test: it checks configurability, not the default. Rerun the suite and socket_lab. Do not modify the fake to fabricate success after deliberately removing retries.
+
+</details>
+
+## 12. Actual failures: separate startup, validation and runtime fallback
+
+Run `uv run --locked python -m errors.config`. Application construction exits nonzero; the final exception explains the loopback origin requirement and says `value omitted`. The input is deliberately credential-shaped but fake. A redacted final message does not make the whole traceback safe: Python may print the source line containing configuration. Never publish raw tracebacks or request URLs in public errors/logs.
+
+<Code language="python">{getExternalServiceExample('errors/config.py')}</Code>
+
+Run `uv run --locked python -m errors.untrusted`. The bytes are parseable JSON, but priority violates the contract and an extra field is present, producing ValidationError. This is a validation failure, not network unavailability. Retrying the same invalid body is not a repair. The adapter converts it to a controlled unavailable response instead of exposing Pydantic's raw input-bearing error.
+
+<Code language="python">{getExternalServiceExample('errors/untrusted.py')}</Code>
+
+In manual mode, stop the fault server and request a hint to observe bounded connection-failure fallback; task reads/writes remain independent. For address-already-in-use, inspect your own terminals or use automatic ephemeral ports, never kill an unfamiliar process. Missing app.state in an otherwise passing project suggests lifespan was bypassed. An unexpected closed-client error during a request suggests a borrower closed the shared pool.
+
+C1: an ownership diagram and the first successful socket transcript. C2: local fault → unavailable hint → usable core. C3: EOF assertions for all three exits. Record the scenario, failing stage, last successful command and next focused test. Reinstalling everything is not a diagnosis.
+
+## 13. Independent variation: a lost reply and duplicate side effects
+
+Keep the answer closed initially. Build a local receipt client and fake provider. The provider's first attempt commits an effect and stores a receipt, then raises ReadTimeout to simulate a lost reply. The client gets at most two attempts, reusing the same Idempotency-Key and body for one logical operation. Reusing a key with different data returns 409; a new key denotes a new operation.
+
+Acceptance: lost-reply retry and repeated access with the same key produce one effect; changed data cannot reuse the key; cancellation does not retry; a new key creates a new effect. Then recreate an empty provider and demonstrate that lost in-memory state allows another effect. Explain why merely adding a key header does not establish idempotency and why an ordinary POST cannot inherit the GET retry policy.
+
+<details>
+<summary>Complete independent implementation and tests</summary>
+
+<Code language="python">{getExternalServiceExample('solutions/receipts.py')}</Code>
+
+<Code language="python">{getExternalServiceExample('solutions/test_receipts.py')}</Code>
+
+`uv run --locked python -m pytest -q solutions` reports 4 passed. This provider is a single-process in-memory MockTransport fake, not another production service. “Effect committed, reply lost” disproves the assumption that timeout means no effect. A real provider must durably and atomically associate key, caller scope, request digest, business effect and replayable result, with concurrency and retention rules. The fake's await-free dictionary section is not crash safety; its restart test is deliberate evidence of non-durability.
+
+</details>
+
+## 14. Background execution is not reliable delivery
+
+FastAPI BackgroundTasks can run work after a response has been sent, but that work remains in-process. Shutdown, failure or restart can lose it. An asyncio.Queue in memory does not become durable because its name includes “queue.” Neither is a persistent task system with acknowledgements, retry, deduplication and recovery semantics.
+
+Consequently, this lab does not quietly send a must-deliver notification after saving a task, nor launch an unobserved create_task. If notification delivery becomes a requirement, separately design consistency between database commit and task recording, durable delivery and recoverable consumers. One background-call line appended to this adapter cannot provide those guarantees.
+
+## 15. Exit criteria, recovery card and download boundaries
+
+Without opening the answer, implement one new fault and explain which boundary rejects it, whether it retries, who cleans up, and why CRUD avoids that call chain. Distinguish phase timeouts from overall budgets, real-TCP evidence from mock policy tests, and response lifetime from pool lifetime and remote effects. Record **versions, current file, which of the 32+4 tests passed, last successful command, unresolved issue and next action**.
+
+The download allowlist contains complete source/configuration, a real lock, tests, answers, three README translations and stable transcripts. It excludes environments, caches, credentials and user data. All traffic is synthetic loopback traffic; no secret is read and no paid or third-party API is contacted. Site integration will publish the documented ZIP path. Clean-extraction validation does not claim navigation, TypeSafe or a full-site build has been completed.
+
+## 16. Official sources and verification date
+
+Verified **2026-09-28**; the lock records installed versions. Keep the mechanisms separate from the teaching parameters and rerun both policy and socket verification when upgrading.
+
+- [Python 3.13: asynccontextmanager](https://docs.python.org/3.13/library/contextlib.html#contextlib.asynccontextmanager) and [async with](https://docs.python.org/3.13/reference/compound_stmts.html#the-async-with-statement): extending L14's protocol to async resources.
+- [FastAPI: lifespan](https://fastapi.tiangolo.com/advanced/events/) and [async technical details](https://fastapi.tiangolo.com/async/#technical-details): application lifetime and route execution boundaries.
+- [HTTPX: Async support](https://www.python-httpx.org/async/) and [Clients](https://www.python-httpx.org/advanced/clients/): pool reuse, response closure and client closure.
+- [HTTPX: Timeouts](https://www.python-httpx.org/advanced/timeouts/), [Resource limits](https://www.python-httpx.org/advanced/resource-limits/) and [Transports](https://www.python-httpx.org/advanced/transports/): phase budgets, capacity, fakes and ASGI lifespan limitations.
+- [AnyIO: Cancellation and timeouts](https://anyio.readthedocs.io/en/stable/cancellation.html): level cancellation, bounded shields and finalization.
+- [FastAPI: BackgroundTasks caveat](https://fastapi.tiangolo.com/tutorial/background-tasks/#caveat): boundaries of in-process background work.
+- [Pydantic: Models](https://docs.pydantic.dev/latest/concepts/models/) and [strict mode](https://docs.pydantic.dev/latest/concepts/strict_mode/): external structure validation.
+- [Uvicorn: Server behavior](https://uvicorn.dev/server-behavior/) and [settings](https://uvicorn.dev/settings/): local server lifetime and binding configuration.

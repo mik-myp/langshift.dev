@@ -1,0 +1,282 @@
+---
+title: 應用組織、配置與依賴：讓創建、使用、清理各有主人
+description: 從已完成的內存 CRUD 拆出清楚的路由和狀態職責，先理解 Depends 的調用機制，再實測同步 yield 的生命週期、啟動配置失敗與獨立彙總路由。
+---
+
+import { getDependencyExample } from '@/lib/js2py-examples'
+
+## 1. 文件變多不是目標，責任清楚才是
+
+H04 把請求驗證、響應過濾和內存 CRUD 放在一個服務裡，便於第一次跟蹤請求。現在改變一個分頁上限、重新建立一份空數據、增加一個路由，都會碰到同一組全局變量。難點不是“文件太長”，而是**誰擁有狀態、誰提供狀態、誰負責釋放臨時資源**沒有被明確表達。
+
+本章保留全部 HTTP 行為，只把必要的職責分開。前端可以類比“應用入口組裝模塊，組件接收外部提供的對象”；但這裡沒有 React 渲染樹、hook 調用順序或瀏覽器組件卸載。一次 HTTP 請求由框架調用函數，服務進程則繼續存在。不要把 Depends 當作 Python 版 useEffect。
+
+| 本章契約 | 範圍 |
+| --- | --- |
+| 前置 | H04 請求/響應模型與內存 CRUD；L06 模塊；L12 實例；L14 同步 yield/with/finally |
+| 新能力 | APIRouter、應用工廠、Depends 的提供者與使用者、每請求緩存、同步資源退出、環境配置診斷 |
+| 獨立驗收 | 解釋完整請求路徑；觀察成功/失敗清理；復現兩種配置失敗；獨立增加共享同一狀態的彙總路由 |
+| 暫不要求 | TestClient/fixture（H06）；異步 lifespan（A02）；數據庫、登錄、權限、通用分層框架 |
+
+下載 [H05 完整獨立實驗](/learning-assets/js2py/h05-dependencies.zip)。解壓進入 `h05-dependencies`。所有文件都在這個目錄，不需要複製 H04 的源碼，也不導入別的實驗。這裡是本地多文件 API，不能在瀏覽器 Python 編輯器裡啟動。
+
+## 2. 先固定不變的業務，再決定如何拆
+
+任務仍由服務端生成正整數 id；title 長度 1..120，拒絕全空白，但保留合法文本原有大小寫和首尾空格；minutes 是普通非負 JSON 整數，拒絕 bool、字符串、浮點；done 是嚴格 bool，默認 false；note 是最多 1000 字符的可空文本，默認 null。PATCH 只合並顯式傳入的字段，只有 note 可以賦 null。客戶端不能提交 id 或額外字段，響應不洩露 internal_tag。
+
+POST /tasks 返回 201；列表、單項讀取和 PATCH 返回 200；DELETE 返回沒有正文的 204。合法但不存在的正整數 ID 返回 404，非法輸入返回 422。列表形狀是 items/limit/offset/total，按 id 排序；默認 limit=20、offset=0，limit 為 1..100，offset 非負。offset 是跳過多少條**現存記錄**，不是從哪個 ID 開始。
+
+這次拆分不能悄悄把 title.strip() 的結果寫回數據，也不能用 `model_dump()` 的全部默認值覆蓋 PATCH。保留模型，先讀清楚輸入模型與輸出白名單為什麼分開：
+
+<Code language="python">{getDependencyExample('task_api/models.py')}</Code>
+
+TaskPatch 的 title/minutes 默認值是為“未提供字段”準備的合法佔位，只有 `exclude_unset=True` 的結果才允許合併；它們不是更新時自動寫回的業務值。TaskPublic 不繼承含內部字段的存儲模型，讓允許輸出什麼一眼可查。
+
+## 3. 一個小目錄，六種實際職責
+
+```text
+task_api/
+  __init__.py
+  config.py
+  models.py
+  store.py
+  dependencies.py
+  routes.py
+  main.py
+```
+
+config 只解釋配置，models 只定義輸入輸出形狀，store 擁有內存記錄及編號，dependencies 把一次請求連接到需要的對象，routes 解釋 HTTP，main 組裝應用。`__init__.py` 標記可導入包，本例裡面只有說明文字。導入方向大體是 main → routes → dependencies/store/models，不讓 store 反向導入 main。
+
+**不額外建立 repository/service/interface/base-manager 層。** 目前沒有第二種存儲和複雜業務協調，這些名字只會增加跳轉。把存儲放到一個小類，是因為 tasks 與 next_id 屬於同一份實例狀態，不是因為每個函數都必須變成類方法。
+
+<Code language="python">{getDependencyExample('task_api/store.py')}</Code>
+
+構造 MemoryStore 時建立自己的字典和編號，不使用類屬性共享列表，也不在模塊頂層構造唯一全局 store。get 返回記錄或 None；它不知道 404。路由決定“查不到”在 HTTP 中怎樣表達。patch 先組裝候選記錄並驗證，成功後才替換舊記錄；這不是數據庫事務，只是當前代碼避免半更新的順序安排。
+
+## 4. APIRouter 登記路由，不負責啟動服務
+
+APIRouter 像一張可組裝的路由登記表。`prefix="/tasks"` 與 `@router.get("")` 合成 /tasks；`@router.get("/{task_id}")` 合成 `/tasks/{task_id}`。不要在裝飾器裡再寫一遍 /tasks，否則得到 /tasks/tasks。這裡使用空字符串而不是末尾 /，避免實驗無意依賴重定向。
+
+模塊導入時裝飾器登記函數；main 調用 `app.include_router(router)` 時把路由加入應用。兩步都不是在監聽端口。Uvicorn 仍負責啟動服務。忘記 include_router 時，Python 導入可能成功，/health 也可能正常，但 /tasks 是 404；這不是模型驗證錯誤。
+
+先認識接下來源碼裡尚未展開的記號：`Depends(get_store)` 是交給框架的聲明，不是拿到 store 的普通函數調用。下一節先拆解機制，再閱讀整個路由文件。
+
+## 5. Depends：函數值、調用者與返回值
+
+回憶 L13：寫 get_store 是傳函數對象，寫 get_store(...) 才立即調用。`Depends(get_store)` 保存“處理請求時需要調用哪個提供者”的元數據。FastAPI 檢查路由參數，找出依賴，準備依賴所需參數，調用依賴，再把結果當成路由參數傳入。
+
+一次列表請求的路徑是：請求攜帶查詢文本 → get_page 校驗查詢參數並獲得 settings → get_store 獲得當前 app 的 MemoryStore → list_tasks 使用兩者 → 返回字典 → response_model 驗證和過濾 → HTTP 響應。若提供者還有依賴，框架先滿足它們；這形成一張小的調用關係圖，不是一個讀取全局魔法變量的黑箱。
+
+`Request` 是 FastAPI 提供的當前請求對象，不是 JSON 請求體模型。`request.app.state` 是我們掛在**當前應用實例**上的狀態容器。state 不會自動建立 store，也不會驗證其類型；這些對象由工廠顯式寫進去。settings 是應用級配置，store 是應用級內存；它們不是每請求重建的對象。
+
+在同一次請求中，相同依賴按默認策略複用解析結果。本例 create_task 直接請求 request_trace，get_store 也請求同一個 request_trace；兩處使用相同 function scope，因此只獲得一個跟蹤資源。下一次請求會重新創建這個資源，不會複用已經關閉的文件。這個緩存不是跨請求數據緩存，也不讓多個應用共享 store。
+
+<details>
+<summary>解釋題答案：為何不能把 Depends(get_store) 改成 Depends(get_store())？</summary>
+
+前者把函數交給框架，後者在模塊導入時就嘗試調用 get_store，而且沒有本次 Request。它會在服務啟動前失敗，或把錯誤的調用結果當提供者。反過來，直接從普通 Python 調用一個帶 Depends 默認參數的路由，也不會觸發自動注入：默認參數仍是聲明對象。調用普通業務函數進行單元測試，與走框架請求解析，是兩個不同入口。
+
+</details>
+
+## 6. 同步 yield：取得一份臨時資源，然後交還控制權
+
+這次不用數據庫冒充教學資源。每個依賴創建一個真實 TemporaryFile 文本句柄，路由寫入動作名，finally 關閉它；只在終端輸出不含請求體的 acquire/use/release 信息。臨時文件不是長期審計記錄，關掉後不再讀取它。
+
+<Code language="python">{getDependencyExample('task_api/dependencies.py')}</Code>
+
+request_trace 是普通同步生成器函數。框架開始處理依賴時推進到 yield；yield 的 RequestTrace 對象交給使用者；退出時恢復生成器，讓 finally 關閉文件。L14 的暫停/恢復沒有改變，只是推進與退出的主人從手寫 with 變成框架。不要再給這個提供者加 `@contextmanager`：FastAPI 需要這裡的生成器函數，並負責管理它。
+
+文件創建失敗時尚未 yield，路由拿不到假資源；已經成功獲取且進入 try 的資源，正常返回或異常傳播時都會經過 finally。本例沒有 except 吞掉 HTTPException，也沒有“失敗後返回空列表”偽裝成功。如果強制殺進程、解釋器崩潰或機器斷電，不能承諾 Python finally 一定運行。
+
+RequestTrace 的 mark 使用文件，close 負責釋放。get_store 只是借用這個資源記錄一次動作，不能自行 close。資源的所有者與使用者不同，正是需要依賴生命週期的原因。但釋放不回滾任務修改，也不證明響應已送達客戶端。
+
+## 7. 版本和 scope 決定“清理在什麼時候”
+
+本實驗固定 FastAPI 0.135.1。自 0.121.0 起支持這裡使用的 `Depends(..., scope="function")`。本例明確選 function，因為響應已是普通 JSON 數據，不需要繼續讀臨時文件：正常路由完成後、響應發往客戶端之前清理。
+
+對 yield 依賴，未指定 scope 的默認值是 request：**正常響應路徑**會在響應發送之後清理。這不是“yield 總在發送前執行”的通則。歷史版本變過行為，不能只引用一張舊時序圖。若在依賴或路由拋出受處理的 HTTPException，異常展開會先清理，再由異常處理器發送錯誤響應；不要把正常成功時序機械套到所有錯誤。
+
+```text
+function, success: acquire -> use -> release -> response send
+request, success:  acquire -> use -> response send -> release
+handled HTTPException: acquire -> use -> release -> error response send
+```
+
+一個 request-scope 的 yield 依賴不能依賴更早關閉的 function-scope yield 子依賴，因為它自己的退出代碼可能仍需要子依賴。function-scope 依賴則可以使用 function 或 request 子依賴。本例 get_store 本身不 yield；所有臨時 trace 的聲明顯式使用相同 function scope，不製造混合壽命。
+
+2026-09-28 維護驗收不僅觀察打印，還截取了實際 ASGI response.start/body 的發送位置，分別確認兩種 scope 的成功和受處理錯誤，共四種時序。該探針涉及底層異步協議，只在維護腳本里，不把它變成讀者的前置要求。**客戶端已經收到響應後才查看“closed=True”，無法單獨證明關閉發生在發送前還是發送後。**
+
+<details>
+<summary>預測題答案：一次 POST 會打開兩份 trace 嗎？失敗的 GET 會漏清理嗎？</summary>
+
+不會因兩處依賴聲明打開兩份：本次請求中它們共享同一個已解析依賴。正常 POST 的動作順序是 acquire、get_store、create_task、release。合法但不存在的 ID 會先取得 store，再由 require_task 拋出 404；已經取得的 trace 仍經 finally 關閉。如果錯誤發生在取得資源之前，就沒有那個資源需要關閉。不要要求所有 422 都必須執行相同依賴集合。
+
+</details>
+
+## 8. 環境變量是字符串，不是已經驗證的配置
+
+配置不是從請求體讀取，而是啟動這個進程的人提供的環境。TASKS_APP_NAME 是必填的公開顯示名稱，空白無效；TASKS_MAX_PAGE_SIZE 默認 100，只接受 20..100 的 ASCII 十進制整數。下界為 20，是為了不讓默認列表請求 limit=20 被管理員配置意外禁用。這是一條本實驗的產品規則，不是框架強制規定。
+
+<Code language="python">{getDependencyExample('task_api/config.py')}</Code>
+
+讀取、解析、範圍判斷分開做：字符串 "20" 可以變成整數；"3.0"、"true" 和空字符串不應該靠猜測轉換。對缺失 app_name 直接報錯，不用一個貌似成功的默認值掩蓋部署配置遺漏。錯誤文字指出變量名和修復要求，不回顯原始值；本章變量不是秘密，但同樣練習不把整份環境打印到日誌的習慣。
+
+load_settings 接受可選字典，便於用 L09 普通函數測試配置邏輯；未傳時才讀取 os.environ。Settings 是 frozen dataclass，避免隨手重寫字段，但它不自動驗證內部構造值。工廠接受顯式 Settings 是可信代碼入口，實際啟動環境仍必須經過 load_settings。沒有 pydantic-settings、.env 自動加載或隱藏配置優先級要背。
+
+## 9. 應用工廠把“何時創建”寫成一個普通函數
+
+<Code language="python">{getDependencyExample('task_api/main.py')}</Code>
+
+create_app 先加載配置，失敗就不繼續組裝；隨後建立 FastAPI、寫入 settings 和一個新的 MemoryStore、include 路由，最後返回 app。兩個工廠調用得到兩個應用和兩份存儲；同一個應用處理多次請求時繼續使用同一份存儲。這不是在每請求清空任務。
+
+`uvicorn task_api.main:create_app --factory` 的左邊是模塊，右邊是函數名；--factory 告訴 Uvicorn 調用該函數獲得應用。不用在模塊導入時讀環境，也不用為了讀取幾個字符串引入異步 lifespan。程序已導入後修改環境不會改變已經創建的 Settings；重啟並重新調用工廠才會加載新配置。
+
+<Code language="python">{getDependencyExample('task_api/routes.py')}</Code>
+
+現在逐個追蹤路由：創建把驗證後的 payload 交給 store；列表先取有序記錄再切片；讀取和修改都先 require_task；刪除顯式返回空 Response。路由不自己從環境拿值，也不負責關閉 trace；依賴不自己決定怎樣更新 title；store 不導入 FastAPI。職責分開不是為了讓讀者來回找答案，而是讓一種改變隻影響必要部分。
+
+## 10. 鎖定環境，真的啟動，再看請求
+
+2026-09-28 實測固定基線：CPython 3.13.15、uv 0.12.13、FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、Starlette 0.52.1、pytest 8.4.2。它不是“永遠最新”的保證。Starlette 顯式固定，避免較新的傳遞依賴無聲改變下一章 HTTPX 的兼容行為。
+
+<Code language="toml">{getDependencyExample('pyproject.toml')}</Code>
+
+uv.lock 來自真實 public PyPI，包含傳遞依賴和文件哈希。requires-python 限定 3.13，package=false 表示運行應用而非安裝自己為分發包。在實驗根目錄執行：
+
+```bash
+uv sync --locked
+uv run --locked python -m pytest -q
+TASKS_APP_NAME="Learning tasks" uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005
+```
+
+普通測試為 17 項：15 項配置/store 測試，加 2 項使用自有故障服務器的有界維護迴歸。後兩項驗證客戶端清理，不代表健康服務的完整 HTTP 契約。服務持續運行，另開終端進入同目錄，對一個新啟動的空服務執行：
+
+```bash
+uv run --locked python live_client.py --port 8005
+```
+
+```text
+LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist
+LIVE PASS: cleanup and subsequent 404
+```
+
+<Code language="python">{getDependencyExample('live_client.py')}</Code>
+
+finally 不是“裡面每條語句都會成功”的保證。客戶端對本次創建的每個 ID 單獨 try/except：記錄該 ID 的清理失敗，再嘗試其他自有 ID，不清空整個服務。循環結束輸出 CLEANUP FAILED、清理未確認的 ID 及各自診斷。“未確認”不聲稱超時刪除到底有沒有生效；重放前只檢查這些自有 ID。主體已完成時，清理失敗拋出 RuntimeError，進程非零退出；主體本來就失敗時，body_succeeded 仍為 false，清理錯誤照樣報告，但 finally 不再拋替代異常，也不 return，因此原 traceback 繼續傳播。逐項捕獲清理錯誤不等於把整次運行偽裝成功；一個簡單標誌即可保留兩類診斷，不需要異常組框架。
+
+這是通過 urllib 訪問真正端口的獨立客戶端，沒有調用 Python 路由函數。HTTPError 仍攜帶錯誤狀態和正文，因此客戶端把它當可檢查的 HTTP 響應；連接拒絕則連 HTTP 響應都沒有。斷言失敗時先看對應請求和服務端日誌，不把“程序沒拋異常”當唯一標準。它只在空的可丟棄服務運行，記錄本次創建的 ID 並在 finally 刪除；不會清空不屬於它的全部記錄。
+
+如果想手動觀察狀態行和正文，重啟空服務後執行下面請求集合。它會留下記錄，不能緊接著拿要求空數據的客戶端驗收；先停服務並重新啟動。
+
+<Code language="bash">{getDependencyExample('requests.sh')}</Code>
+
+正常創建時終端中與 trace 有關的四行應是：
+
+```text
+TRACE acquire POST /tasks
+TRACE use POST /tasks get_store
+TRACE use POST /tasks create_task
+TRACE release POST /tasks closed=True
+```
+
+用 Ctrl-C 停自己啟動的服務。不要因為同步 def 或只有一個 worker 就假定請求絕不重疊；本實驗按順序訪問，MemoryStore 沒有併發鎖，也沒有持久化或用戶權限。
+
+## 11. 故意失敗：定位階段，而不是盲改代碼
+
+先停正在運行的服務，再逐條執行以下預期失敗：
+
+```bash
+env -u TASKS_APP_NAME uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005
+TASKS_APP_NAME="Learning tasks" TASKS_MAX_PAGE_SIZE=bad uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005
+```
+
+```text
+ValueError: TASKS_APP_NAME is required and must not be blank
+ValueError: TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100
+```
+
+這裡列出 traceback 的最後診斷行，不承諾路徑和完整棧完全相同。兩次都應退出非零，發生在應用工廠階段，而不是發出一個 422。恢復後用正確環境啟動，/health 應再次 200；再用 TASKS_MAX_PAGE_SIZE=20 啟動，/tasks?limit=20 為 200，/tasks?limit=21 為 422，正文 detail 為 limit exceeds TASKS_MAX_PAGE_SIZE。
+
+| 觀察 | 先定位哪裡 | 恢復動作 |
+| --- | --- | --- |
+| No module named task_api | 工作目錄、解壓結構、當前環境 | 回到實驗根目錄，鎖定同步後重新啟動 |
+| address already in use | 舊進程仍持有端口 | 停自己的進程或更換服務與客戶端雙方端口，不殺未知進程 |
+| /health 200，/tasks 404 | 是否 include_router；實際前綴 | 恢復註冊，重啟，重新請求真實路徑 |
+| 輸入 422 | body/query/path 的 detail.loc 或配置上限 | 修正調用方；別刪除驗證來換成功 |
+| 未知 ID 404 但沒有 release | 先確認依賴是否 acquire、finally 是否被破壞 | 恢復 finally；重放該請求，檢查配對 |
+| 第二次啟動任務消失 | 內存生命週期，而非路由故障 | 承認邊界；數據庫持久化留到 D 階段 |
+
+<Code language="python">{getDependencyExample('tests/test_basics.py')}</Code>
+
+tests/test_basics.py 的 15 項沿用熟悉的普通測試與 L13 參數化：對配置傳字典，對 store 傳模型，比較兩個工廠的狀態。這 15 項沒有 TestClient、fixture 或真實 HTTP，不能代替上一節的客戶端結果。
+
+新增的 tests/test_live_client_cleanup.py 兩項是維護迴歸，不是獨立練習的先修要求。它們在操作系統分配的本地端口啟動自有臨時故障應用，只借 pytest 的臨時目錄 fixture 保存診斷日誌，運行真實客戶端，並在 finally 停止自己的進程。一項讓第一個自有 ID 的 DELETE 返回 503；另一項還讓主體斷言失敗。兩項均要求第二個 ID 仍被刪除、第一個被明確報告為清理未確認、客戶端非零退出；主體失敗時原 traceback 必須保留。不要求異步測試代碼，也不連接用戶已有服務：
+
+```bash
+uv run --locked python -m pytest -q tests/test_live_client_cleanup.py
+```
+
+```text
+2 passed
+```
+
+這裡外層兩項通過，表示故意失敗的客戶端子進程給出了預期證據。剩餘 ID 只存在於隨即停止的可丟棄故障應用中，不承諾服務不可用時也一定能刪淨。
+
+## 12. 帶提示修改：讓錯誤暴露狀態歸屬
+
+暫時把 MemoryStore() 移到模塊頂層，再讓兩個工廠引用它。預測 test_factory_owns_state 會在哪裡失敗，運行驗證，隨後恢復。另把 patch 的 exclude_unset=True 去掉，找出一個最小 PATCH 使原 note 或 done 被默認值覆蓋，恢復後重放同一輸入。最後解釋：為什麼不能靠“每次請求重建 store”解決測試汙染？
+
+<details>
+<summary>帶提示修改的核對</summary>
+
+全局 store 會讓右應用看到左應用創建的數據；應把實例創建恢復到工廠，不是把失敗斷言刪掉。若去掉 exclude_unset，空 PATCH 就會帶上默認 title/minutes/done/note，覆蓋已有內容。每請求新建 store 雖讓空數據斷言通過，卻讓 POST 後的 GET 找不到任務；正確生命週期是每應用一份存儲，每請求一份臨時 trace。
+
+</details>
+
+## 13. 獨立變式：增加彙總，不增加第二份狀態
+
+先不打開答案。新增獨立 APIRouter，提供 GET /summary，返回三個整數：total 為全部當前任務數，done 為已完成任務數，minutes 為全部當前分鐘和。使用已經存在的 get_store，不從某個分頁結果推導彙總，不暴露內部字段。讓組合入口顯式 include 這個路由，保持現有任務接口不變。
+
+自己驗收空列表全為 0；創建 30 分鐘和 0 分鐘任務；PATCH 完成狀態與分鐘；刪除一個任務；彙總隨之變化。還要證明 /summary 使用與 /tasks 相同的應用存儲並正常清理 trace。只測試 summarize 函數不能證明路由已經註冊。
+
+<details>
+<summary>獨立參考實現、函數測試和真實 HTTP 驗收</summary>
+
+<Code language="python">{getDependencyExample('solutions/summary.py')}</Code>
+
+<Code language="python">{getDependencyExample('solutions/test_summary.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_summary.py
+TASKS_APP_NAME="Summary tasks" uv run --locked python -m uvicorn solutions.summary:create_summary_app --factory --host 127.0.0.1 --port 8005
+```
+
+停掉原服務後再啟動上述工廠。另一個終端執行：
+
+```bash
+uv run --locked python live_client.py --port 8005 --summary
+```
+
+```text
+LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist
+SUMMARY PASS: empty, populated, updated, deleted
+LIVE PASS: cleanup and subsequent 404
+```
+
+答案有 2 項函數測試，真實客戶端還檢查完整接口組合。彙總按當前全部記錄計算；沒有持久化快照、數據庫聚合或併發一致性的承諾。
+
+</details>
+
+## 14. 驗收與可恢復記錄
+
+合格不是文件都拆完：你應能不看答案畫出請求、依賴、狀態、臨時資源、響應的關係；解釋默認緩存與應用狀態不同；重現配置啟動失敗和資源異常清理；獨立完成彙總並用真實請求證明它和 /tasks 共用數據。
+
+暫停時寫下工作目錄、Python/uv/框架版本、工廠入口、當前環境變量名及非秘密示例值、最後成功命令與結果、17 項基礎/2 項獨立測試是否實際通過、服務 PID/端口與停止狀態、當前數據是否可丟棄、未解決故障、下次第一步。恢復先 uv sync --locked，再普通測試，然後重新啟動空服務重放失敗請求；不要猜服務還在運行。
+
+下載只包含明確 allowlist 的源碼、README 和鎖；.venv、緩存、.env、日誌、秘密與臨時文件都不打包。關閉文件不是持久化，正確依賴不是權限。下一章 H06 才學習如何自動走完整 API 解析路徑，以及這種測試與真實進程、瀏覽器聯調的區別。
+
+## 15. 一手資料與核驗範圍
+
+2026-09-28 實時核對官方同版本資料：[APIRouter 與多文件應用](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/bigger-applications.md)、[Depends 機制](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/index.md)、[yield 與 scope](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/dependencies-with-yield.md)、[歷史時序變更](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/advanced/advanced-dependencies.md)、[Uvicorn 工廠與啟動參數](https://github.com/Kludex/uvicorn/blob/0.42.0/docs/settings.md)、[Python TemporaryFile](https://docs.python.org/3.13/library/tempfile.html)。Uvicorn 文檔站本次抓取有 TLS 錯誤，使用官方 tag 文檔，而不是第三方摘要。
+
+實際驗證包含乾淨 allowlist 副本安裝、普通測試、獨立題、缺失/錯誤配置進程、真實 Uvicorn 客戶端、成功/404 清理及 ASGI 發送時序。不包含數據庫、生產併發、鑑權、TLS、強制殺進程恢復或生產部署；也不以 MDX/Python 語法檢查替代這些運行證據。

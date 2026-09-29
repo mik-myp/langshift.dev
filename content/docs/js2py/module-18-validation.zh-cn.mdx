@@ -1,0 +1,311 @@
+---
+title: Pydantic 输入输出边界：严格验证与不会误清空的 PATCH
+description: 从不可信 JSON 到请求模型、内存记录和公开响应，完整实现任务 CRUD，解释默认值、nullable、exclude_unset、响应过滤及内存存储边界。
+---
+
+import { getValidationExample } from '@/lib/js2py-examples'
+
+## 1. 类型注解不够，真实请求需要运行时边界
+
+TypeScript 的接口不能阻止外部客户端发送任意 JSON；Python 函数上的普通类型注解也不会自动拒绝错误值。H03 中参数能被拦截，是 FastAPI 主动读取声明并执行验证，而不是 Python 的 int 注解突然变成了运行时检查器。本章把这个边界扩展到整个请求体，并增加另一条同样重要的边界：服务器知道的数据不一定可以全部返回。
+
+| 本章契约 | 范围 |
+| --- | --- |
+| 前置 | H03 的同步服务与实际请求；L11 类型注解；L12 模型基础；已有字典、继承、装饰器知识 |
+| 新能力 | 请求验证及转换策略；必填、缺省、nullable；请求/存储/公开模型；安全合并部分更新；输出过滤 |
+| 独立验收 | 从空内存完成 CRUD，用实际 HTTP 证明字段规则、PATCH 不误清空、内部字段不泄露 |
+| 明确排除 | 数据库、并发正确性保证、认证授权、DI、异步生命周期、API 自动测试 fixture |
+
+下载 [H04 完整实验](/learning-assets/js2py/h04-validation.zip)。它包含独立的 app.py、models.py 和锁文件，不导入 H03、L10 或其他章节文件。只允许本机、可丢弃数据、顺序操作。API 自动测试到 H06 正式教学；现在用可解释的 curl 完成真实验收，不能拿模型构造成功代替网络请求。
+
+这是 capstone V1 的局部契约，不是最终多人项目模型。我们保留语言阶段的 title、minutes、done，增加 note 和服务 id；后续的 project_id、创建者、状态枚举必须在相应章节显式演进，不可假设已经存在。
+
+## 2. 先写字段和路由契约，再选择实现
+
+| 字段 | 创建要求 | PATCH 含义 | 公开响应 |
+| --- | --- | --- | --- |
+| title | 必填 str，1–120 字符，不能全为空白；保留原字形与两侧空白 | 遗漏保留，传合法字符串替换，null 拒绝 | 原字符串 |
+| minutes | 必填普通非负 int；拒 bool、text、float | 遗漏保留，含 0 的合法整数替换，null 拒绝 | 整数 |
+| done | 严格 bool，遗漏为 False | 遗漏保留；true/false 都必须被应用；null 拒绝 | 布尔值 |
+| note | str 或 None，最多 1000 字符；遗漏为 None，空串合法 | 遗漏保留，字符串替换，null 清空 | 字符串或 null |
+| id | 客户端不可提供；服务按进程内递增正整数生成 | 不可修改 | 正整数 |
+| internal_tag | 客户端不可提供；服务填 h04-memory-only | 不可修改 | 永不返回 |
+
+字符数按 Python 字符串长度，不是 UTF-8 字节数或视觉字形数。不调用 strip 后保存：验证非空白和主动规范化是两种业务决定，本章只做前者。客户端多传 id、user_id 或拼错字段名都返回 422；**拒绝 user_id 不等于已经验证身份**，这里根本没有可信用户概念。
+
+| 路由 | 成功 | 主要失败与语义 |
+| --- | --- | --- |
+| GET /health | 200 | 只表示本进程能响应 |
+| POST /tasks | 201，完整公开任务 | 正文缺字段、类型错误、未知字段或规则失败为 422 |
+| GET /tasks | 200，items/limit/offset/total | limit 默认 20，范围 1–100；offset 默认 0，非负；非法为 422 |
+| GET `/tasks/{task_id}` | 200，公开任务 | 合法但不存在的 id 为 404；非法路径参数为 422 |
+| PATCH `/tasks/{task_id}` | 200，更新后的完整公开任务 | 空对象为不改变数据；非法字段为 422；不存在为 404 |
+| DELETE `/tasks/{task_id}` | 204，无正文 | 不存在为 404；重复删除也为 404 |
+
+列表按 id 升序，total 是全体记录数。没有 PUT、用户隔离、筛选状态或写入幂等键。本章只承诺单独构造的失败场景；同一请求同时带非法正文和不存在 id 时，不应依赖“总先返回 404”的猜测。
+
+## 3. 三种形状，对应三种不同信任
+
+```text
+untrusted JSON -> TaskCreate / TaskPatch -> handler
+                                               |
+                           TaskStored -> in-memory tasks
+                                               |
+                           TaskPublic / TaskPage -> JSON response
+```
+
+请求模型只允许客户端决定的字段；存储模型增加服务生成的数据；公开模型列出允许出站的字段。它们并不是给同一个字典取三个名字。即使今天字段大多相同，也要让以后新增内部信息时，公开契约不会自动扩大。
+
+<Code language="python">{getValidationExample('models.py')}</Code>
+
+BaseModel 是 Pydantic 提供的模型基类，继承它之后，字段注解才会由库在构造或 model_validate 时执行。Field 加上长度或数值限制；它不是数据库字段。ConfigDict 是配置声明：strict=True 选择严格类型策略，extra="forbid" 拒绝请求额外字段，validate_default=True 连模型自己的默认值也验证，防止作者写错默认值而绕过规则。
+
+title 的“不能全为空白”不是 min_length=1 能完成的：一个空格长度也是 1。field_validator("title") 默认在基础类型与 Field 约束通过之后执行，所以 value 已经是字符串。classmethod 表示 cls 收到模型类而不是某个请求实例；上面的装饰器把这条检查登记给 Pydantic。检查失败抛 ValueError，Pydantic 收集为 ValidationError，FastAPI 再转成 422。检查通过必须 return value；返回 value.strip() 会偷偷改变我们的原字形契约。
+
+TaskPatch 与 TaskStored 继承 TaskCreate，复用规则和验证器，再覆盖或增加特定字段。TaskPublic 刻意单独定义，并以 extra="ignore" 忽略内部多余键；这与输入端拒绝额外字段是不同政策。TaskPage 的 items 是 list[TaskPublic]，因此列表里每条记录也必须经过相同的公开字段边界，不只是顶层过滤。
+
+## 4. 转换不是免费正确，严格也不是“拒绝所有格式变化”
+
+先不启动服务器，执行一个可以独立理解的模型实验：
+
+<Code language="python">{getValidationExample('probe_models.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python probe_models.py
+```
+
+```text
+loose: 25
+True int_type
+'25' int_type
+25.0 int_type
+-1 greater_than_equal
+strict: {'title': '  Read HTTP  ', 'minutes': 0, 'done': False, 'note': None}
+nullable but missing: missing
+nullable and present: {'note': None}
+```
+
+LooseMinutes 没配置严格模式，会把文本 "25" 转成整数 25。这可以适合某些表单边界，但不符合我们的 JSON 任务契约。TaskCreate 的 strict=True 阻止本章这些类型转换：即便 Python 中 bool 是 int 的子类，true 也不是合法 minutes；25.0 数值等于 25，仍是浮点数，必须拒绝。ge=0 是另外的数值规则，因此 -1 的类型正确仍失败。done 不接受 "false" 或 0/1 来代替真正的布尔值。
+
+probe 中的 show_error 只执行传入的小操作，捕获 ValidationError，打印第一项错误类型；lambda 是一个此刻立即交给它调用的无参函数，不是队列或后台任务。最后两行专门证明 nullable 与缺省不同，下一节继续拆开。
+
+严格规则限定在请求模型。URL 中 limit=20 必然先是文本；我们继续让 Query/Path 把它解析成整数。不能给查询参数机械设置 strict=True 然后奇怪合法数字为什么被拒绝。Pydantic 严格模式对不同类型、Python 输入与直接 JSON 输入还有具体差别，不能从这几个基础类型的结果推导成“全库绝无转换”。
+
+## 5. 必填、默认值和 nullable 是三条独立轴
+
+读模型时分别问：字段可以省略吗？传了 null 可以吗？遗漏后值是什么？
+
+| 声明的含义 | 遗漏 | 显式 null |
+| --- | --- | --- |
+| note: str | 缺少必填字段 | 类型错误 |
+| note: str 或 None，没有默认值 | 仍然缺少必填字段 | 合法 None |
+| note: str 或 None，默认 None | 得到 None | 合法 None |
+| done: bool，默认 False | 得到 False | 类型错误 |
+
+JSON null 进入 Python 后是 None，但“根本没发这个键”不是发送了 None。创建时，note 遗漏和显式 null 的最终值都为 None；更新时它们的意图不同，必须保留“客户端究竟发了哪些键”这条信息。不要用 if value 判断是否提供，它会同时丢掉 False、0 和空字符串这些合法值。
+
+<details>
+<summary>解释性检查答案：为什么 required nullable 仍然能报 missing？</summary>
+
+联合类型只扩大允许的值集合，不提供默认值。调用 RequiredNullable() 没有提交 note，所以 missing；RequiredNullable(note=None) 提交了一个合法空值。与 TypeScript optional 属性类比时，也要分开“键可省略”与“键的值可为 null”。在 TaskPublic 中 note 必须出现但可以为空；公开响应会稳定包含 note 键，而不是碰巧有值才出现。
+
+</details>
+
+## 6. 完整同步 CRUD：何时允许修改内存
+
+固定基线于 **2026-09-28** 实测：CPython 3.13.15、uv 0.12.13、FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5。公开 PyPI 的真实 uv.lock 同时固定间接依赖；不是用版本区间假装复现。
+
+<Code language="toml">{getValidationExample('pyproject.toml')}</Code>
+
+<Code language="python">{getValidationExample('app.py')}</Code>
+
+终端 A 的工作目录是解压的 h04-validation；在仓库内是 examples/js2py/h04-validation：
+
+```bash
+uv python install 3.13.15
+uv sync --locked
+uv run --locked python -m uvicorn app:app --host 127.0.0.1 --port 8004 --workers 1
+```
+
+POST 参数 payload: TaskCreate 告诉框架从 JSON 正文建立请求模型；它不是路径参数或 DI。验证通过才进入处理函数。payload.model_dump() 把已验证字段变成普通 Python 字典；`**` 两个星号把字典展开为关键字实参，由 TaskStored(id=next_id, ...) 添加服务 id 和内部默认值。记录构造成功之后才写 tasks，然后递增 next_id，所以本章顺序请求中的非法创建不消耗 id。
+
+global next_id 让函数对计数器的赋值作用于模块变量，而不是新建局部变量；它不是线程锁。存储是 id 到 TaskStored 实例的字典，仅活在这个进程的内存里。require_task 是普通辅助函数，由路由直接调用；它既不是 Depends，也不提供用户授权。
+
+PATCH 先取旧记录，在临时字典里合并已提交字段，对完整候选值重新 model_validate，成功后才替换存储。这样单次顺序请求的验证失败不会写入半个修改。这不是数据库事务，也不能解决两个请求同时读取旧值后相互覆盖。
+
+DELETE 先确认存在再删除，显式返回 Response(status_code=204)，因为 204 不能带 JSON 正文；返回 None 不是“顺便发送 JSON null”的理由。普通任务路由则返回字典，让声明的 response_model 执行验证与过滤，不自行构造绕过它的 Response。
+
+## 7. PATCH 的核心：依据“提交过”，不依据“看起来非空”
+
+TaskPatch 的所有字段都能省略，但 title/minutes/done 并没有因此变成 nullable。为了让模型能在字段遗漏时构造，title 采用合法占位值 Untitled，minutes 采用 0，done 继承 False，note 继承 None。它们仅是模型内部的缺省值，**不是更新时要填进存储的值**。文档可能显示这些默认值；PATCH 契约仍是“未提交不修改”。新建任务的 title/minutes 仍然必填。
+
+model_dump(exclude_unset=True) 根据字段是否在输入里被设置来筛选，而不是根据值是否等于默认值。这样空对象得到空 changes；显式发 done=false，即便等于默认值也保留；显式 note=null 也保留。title="Untitled" 是合法的显式修改，不应该因恰好等于占位值而被忽略。
+
+<Code language="python">{getValidationExample('probe_patch.py')}</Code>
+
+```bash
+uv run --locked python probe_patch.py
+```
+
+每轮都从同一个 original 开始，先看 sent，再看 changes 和 merged。末尾三个故意错误的结果是：
+
+```text
+WRONG dump of empty patch: {'title': 'Untitled', 'minutes': 0, 'done': False, 'note': None}
+WRONG exclude_none: {}
+WRONG exclude_defaults: {}
+```
+
+第一种如果直接 update，会把旧字段全部盖成占位值；第二种会丢失“清空 note”的明确要求；第三种会丢失把 done 从 True 改回 False 的要求。exclude_unset、exclude_none、exclude_defaults 回答的不是同一个问题，不能凭名字相似互换。
+
+这里合并完整字典后用 TaskStored.model_validate 重新验证，而不把 model_copy(update=...) 当作自动重新验证步骤。Pydantic 的 copy 更新数据并不自动校验；也不要直接赋 current.minutes 再期待全模型自动检查。对于未来的跨字段约束，重新验证合并结果尤其重要，但本章不提前引入高级验证器。
+
+<details>
+<summary>带提示修改答案：怎样证明遗漏、值、null 真有三种意图？</summary>
+
+先创建 note="keep me" 的任务。只 PATCH done=true 后读取，note 仍为 "keep me"；PATCH note="new" 后是 "new"；PATCH note=null 后必须为 null。再将 done 从 true 改回 false、minutes 改成 0，确认这些“假值”也被应用。补发空对象应为 200 且不变。不能只检查响应状态 200，要检查字段值，随后 GET 再确认存储结果。
+
+</details>
+
+## 8. 第一次实际创建与错误输入：把状态和正文一起保存
+
+终端 B 执行，要求终端 A 是刚启动的空服务：
+
+```bash
+curl -sS -i http://127.0.0.1:8004/tasks
+curl -sS -i -X POST http://127.0.0.1:8004/tasks \
+  -H 'Content-Type: application/json' \
+  --data-binary '{"title":"  Read HTTP  ","minutes":25,"note":"keep me"}'
+```
+
+-X 选择方法，-H 声明正文是 JSON，--data-binary 发送给定正文。单引号保护 JSON 内的双引号；true/null 是 JSON 字面量，不是 Python True/None。-i 显示状态头，不能只看正文判断是 200 还是 201。
+
+实际创建响应（省略动态头）：
+
+```http
+HTTP/1.1 201 Created
+content-type: application/json
+
+{"id":1,"title":"  Read HTTP  ","minutes":25,"done":false,"note":"keep me"}
+```
+
+然后把 minutes 改成 true：
+
+```bash
+curl -sS -i -X POST http://127.0.0.1:8004/tasks \
+  -H 'Content-Type: application/json' \
+  --data-binary '{"title":"Bad","minutes":true}'
+```
+
+实际状态 422，正文：
+
+```json
+{"detail":[{"type":"int_type","loc":["body","minutes"],"msg":"Input should be a valid integer","input":true}]}
+```
+
+loc 指向 body/minutes，而不是 path/task_id。修复客户端类型后重发；不要通过删除 strict=True 来迎合错误请求。验证失败不会进入 create_task，因此不会增加记录。错误响应可能回显无效输入，本实验只使用虚构数据；生产系统仍需日志脱敏与错误策略，模型并不会替你自动保护秘密。
+
+## 9. 出站也有边界：存了什么与能返回什么
+
+创建后记录实际带 internal_tag。为了让过滤可被验证，本实现每个任务处理函数有意返回完整存储字典，包括该字段；response_model=TaskPublic 才是最终 HTTP 输出的白名单。列表通过 TaskPage.items 的嵌套 TaskPublic 执行同一规则。分别检查 POST、GET 单项、PATCH 和列表，不要只检查其中一个接口。
+
+为什么不直接使用 TaskCreate 当响应模型？它没有 id；为什么不使用 TaskStored？它会公开内部字段。为什么不把所有输入未知字段忽略？客户端拼写错误可能悄悄“成功”，身份伪造尝试也不再清楚被拒绝。输入 forbid、输出 ignore 是本例有意选择的不同职责。
+
+如果返回的公开必填字段缺少或类型错误，响应验证会表现为服务端错误，而不是客户端 422：发送者是服务代码，需要修实现。不要通过取消 response_model 掩盖问题。手工返回 Response 等路径可能绕开正常模型处理，本章只有无正文的 204 使用它。
+
+内部字段不是秘密存储示范；过滤只控制响应形状，不证明请求者有权读取这些任务。即使完全过滤 internal_tag，没有认证和对象级授权的 API 仍不能向真实用户开放。
+
+<details>
+<summary>边界检查答案：响应里没有 user_id，是否就有了权限隔离？</summary>
+
+没有。模型只能判断形状与本章规则，不能证明“调用者是谁”或“任务属于谁”。本例不接受 user_id，更不根据它决定授权；所有本机请求共享同一字典。输出过滤防止额外字段出站，但任何能访问此服务的调用者仍可操作所有任务。认证和成员关系必须在后续章节实现并单独验收。
+
+</details>
+
+## 10. 完整请求工作单与失败恢复
+
+退出并重新启动自己的 H04 服务以获得空内存，然后执行工作单。此前创建过数据时不要假装 id 仍为 1。
+
+<Code language="bash">{getValidationExample('requests.sh')}</Code>
+
+```bash
+bash requests.sh
+```
+
+这是 25 次可见 HTTP 请求，不是 pytest 套件；它只打印响应，**不会替你断言成功**。先逐条读，再整体重放。关键检查点：
+
+1. 第 1–4 条：空列表、两次 201、id=2 的第二页；title 两侧空白保留，默认 done=false、note=null。
+2. 第 5–9 条：更新 done 不动 note；空对象不变；false 与 0 被应用；note 字符串替换与 null 清空。
+3. 第 10–17 条：空白 title、三种非法 minutes、负数、文本 done、title=null、user_id 均为 422，没有新增记录。
+4. 第 18–20 条：分页/路径验证为 422；合法但不存在 id 为 404。
+5. 第 21–25 条：GET 与更新一致；DELETE 是 204 且正文零字节；读取和重复删除为 404；最后仅 id=2 留下。各任务响应均没有 internal_tag。
+
+再自行补发缺 title、缺 minutes、done=1、note=1、minutes=null、done=null、额外 id、internal_tag、超长 title/note 和畸形 JSON，并记录状态和失败位置。非法 PATCH 后 GET 原任务，证明拒绝的请求没有部分修改。边界长度 120/1000 必须通过，121/1001 必须失败；可以在本地正文文件中准备长字符串，用 --data-binary @payload.json 发送，不必在命令行数字符。
+
+**破坏性失败实验（仅这个可丢弃服务）：** 保持最后 id=2 存在，Ctrl-C 退出，再按同样启动命令启动。GET /tasks 应变为 items=[]、total=0；GET /tasks/2 为 404；下一次创建的 id 又为 1。这是实际观察到的数据丢失与 id 重用，不是持久化成功。
+
+恢复不是“找回旧内存”：本实验没有备份或数据库，无法恢复旧数据。恢复学习状态的方法是重新启动空服务并重放工作单，重建虚构种子。保存请求与观察记录才能继续；换成 --reload 只会让代码修改更容易触发同样的数据丢失。
+
+## 11. 独立重建与业务变式
+
+**独立重建：** 从新目录只保留环境文件与上述字段/路由表，自己写 models.py 和 app.py；不导入参考实现，也不把 app.py 改名就算重建。可以查官方文档，但需要解释每个模型的职责，独立完成第 10 节验收。对照答案前，写下一次自己定位的失败：现象、所属层、根因、修改和复验结果。
+
+**独立变式：** 加 GET /reports/remaining?max_minutes=20，统计 done=false 且 minutes 不超过阈值的任务，返回 count/minutes。阈值默认 60、允许 0、拒负数。它查询整个集合，不受 /tasks 分页影响，不修改任务，输出也不能包含 internal_tag。自己定义公开报告模型。
+
+用 POST 创建四条：Zero/0/false、Short/15/false、Long/90/false、Finished/10/true。阈值 20 应得到 count=2、minutes=15；阈值 0 应得到 count=1、minutes=0；负数应为 422。答案必须在真正 HTTP 请求里证明，不能只在 Python 里打印求和。
+
+<details>
+<summary>独立变式参考答案与运行方式</summary>
+
+<Code language="python">{getValidationExample('solutions/remaining_app.py')}</Code>
+
+此文件明确复用本下载包的 app 和 tasks，仅在同一个应用登记新路由；它不依赖其他章节。先退出旧服务，再从本实验根目录运行：
+
+```bash
+uv run --locked python -m uvicorn solutions.remaining_app:app --host 127.0.0.1 --port 8004 --workers 1
+```
+
+启动后内存为空。用已有 POST 命令的相同结构依次创建上述四条，再在另一终端请求：
+
+```bash
+curl -sS -i 'http://127.0.0.1:8004/reports/remaining?max_minutes=20'
+curl -sS -i 'http://127.0.0.1:8004/reports/remaining?max_minutes=0'
+curl -sS -i 'http://127.0.0.1:8004/reports/remaining?max_minutes=-1'
+```
+
+新路由返回经过 RemainingReport 的两个聚合值，没有把存储对象顺带返回。重建 CRUD 的完整参考仍是前面的 models.py 与 app.py；先独立交付自己的版本，再按请求行为逐项比较，不要求逐字相同。
+
+</details>
+
+## 12. 诚实的内存边界与可恢复检查点
+
+普通 def 会在线程池中执行，workers=1 不表示没有并发。next_id 的读取、写字典与递增不是一个业务级原子操作；两个 PATCH 都读旧值后合并也可能丢更新。增加多个工作进程更会得到多份不同的字典。没有数据库约束、事务或锁方案，不能声称具有并发正确性，也不能把 L11–L14 的类型、模型和资源释放函数当成这些保证。
+
+本章验证的是**顺序请求下的输入输出契约**。未验证：并发压测、进程间一致性、持久化、身份与对象权限、幂等重试、浏览器 CORS、代理、HTTPS、生产错误脱敏、容量与内存上限。单次候选记录验证完成再替换，只是避免本请求在验证失败前写入，不是事务系统。
+
+暂停时记录：
+
+```text
+checkpoint: H04 PATCH and output boundary
+cwd: <my extracted h04-validation directory>
+entry: app:app
+last_success: PATCH note=null -> 200; GET shows null; no internal_tag
+memory: disposable; restarting loses tasks and resets ids
+server: stopped with Ctrl-C in terminal A
+next: restart empty, replay requests.sh, inspect each response
+open_question: distinguish exclude_unset from exclude_defaults
+```
+
+出口是能独立写出并解释 CRUD、保留实际失败与恢复记录、证明出站过滤和三态 PATCH，并主动说明没有权限/持久化/并发保证。维护者的额外验收在 VERIFICATION.md；不把语法检查、模型探针或 API 文档能打开称为 HTTP 验收通过。
+
+## 13. 官方依据与版本追踪
+
+核验日期 2026-09-28。动态文档可能变化，锁定版本和实验结果限定本章承诺；实验的 SOURCES.md 给出完整来源，VERIFICATION.md 记录真实执行。
+
+- [FastAPI Request Body](https://fastapi.tiangolo.com/tutorial/body/)：模型与请求正文绑定。
+- [Pydantic Strict Mode](https://docs.pydantic.dev/latest/concepts/strict_mode/)：严格与转换、输入形式差别。
+- [Pydantic Fields](https://docs.pydantic.dev/latest/concepts/fields/) 与 [Validators](https://docs.pydantic.dev/latest/concepts/validators/)：缺省、nullable、默认验证与字段验证器。
+- [Pydantic Serialization](https://docs.pydantic.dev/latest/concepts/serialization/)：exclude_unset、exclude_none、exclude_defaults。
+- [Pydantic 2.12.5 BaseModel](https://github.com/pydantic/pydantic/blob/v2.12.5/pydantic/main.py)：model_validate、model_copy 的更新验证边界。
+- [FastAPI Body Updates](https://fastapi.tiangolo.com/tutorial/body-updates/) 与 [Response Model](https://fastapi.tiangolo.com/tutorial/response-model/)：部分更新和公开字段过滤。
+- [Pydantic Config](https://docs.pydantic.dev/latest/api/config/)：extra 和 strict 配置。

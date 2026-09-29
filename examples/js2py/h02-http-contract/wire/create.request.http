@@ -1,0 +1,6 @@
+POST /tasks HTTP/1.1
+Host: 127.0.0.1:8767
+Content-Type: application/json
+Accept: application/json
+
+{"title":"  Ship the draft  ","minutes":15}

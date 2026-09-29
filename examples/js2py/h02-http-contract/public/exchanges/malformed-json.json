@@ -1,0 +1,37 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "malformed-json",
+  "precondition": {
+    "seed_tasks": []
+  },
+  "request": {
+    "method": "POST",
+    "target": "/tasks",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"title\":"
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "detail": [
+        {
+          "type": "json_invalid",
+          "loc": [
+            "body",
+            9
+          ],
+          "msg": "JSON decode error",
+          "input": {},
+          "ctx": {
+            "error": "Expecting value"
+          }
+        }
+      ]
+    }
+  }
+}

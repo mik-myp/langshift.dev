@@ -1,0 +1,23 @@
+[
+  ".env.example",
+  ".gitignore",
+  ".python-version",
+  "FILES.json",
+  "README.md",
+  "README.zh-cn.md",
+  "README.zh-tw.md",
+  "answers/variant.sql",
+  "conftest.py",
+  "labctl.py",
+  "model-contract.json",
+  "pyproject.toml",
+  "sources.json",
+  "sql/expected_failures.sql",
+  "sql/inspect.sql",
+  "sql/schema.sql",
+  "sql/seed.sql",
+  "tests/test_environment.py",
+  "tests/test_relations.py",
+  "tests/test_variant.py",
+  "uv.lock"
+]

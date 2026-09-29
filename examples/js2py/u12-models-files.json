@@ -1,0 +1,18 @@
+[
+  ".python-version",
+  "README.md",
+  "README.zh-cn.md",
+  "README.zh-tw.md",
+  "app.py",
+  "errors/__init__.py",
+  "errors/missing_self.py",
+  "errors/no_validation.py",
+  "errors/shared_state.py",
+  "models.py",
+  "pyproject.toml",
+  "solutions/__init__.py",
+  "solutions/test_work_log.py",
+  "solutions/work_log.py",
+  "tests/test_models.py",
+  "uv.lock"
+]

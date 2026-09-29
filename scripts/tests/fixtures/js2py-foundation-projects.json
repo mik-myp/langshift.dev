@@ -1,0 +1,68 @@
+[
+  {
+    "lab": "u08-environments",
+    "loader": "getEnvironmentExample",
+    "slug": "module-08-projects",
+    "sections": 13,
+    "refs": [
+      ".python-version",
+      "pyproject.toml",
+      "probe.py",
+      "app.py",
+      "uv.lock",
+      "exercises/missing-declaration/pyproject.toml",
+      "exercises/missing-declaration/app.py",
+      "errors/humanize.py",
+      "errors/show_shadow.py",
+      "solutions/size-report/pyproject.toml",
+      "solutions/size-report/.python-version",
+      "solutions/size-report/report.py"
+    ]
+  },
+  {
+    "lab": "u09-testing",
+    "loader": "getTestingExample",
+    "slug": "module-09-advanced-topics",
+    "sections": 12,
+    "refs": [
+      "study.py",
+      "first_check.py",
+      "wrong_check.py",
+      "pyproject.toml",
+      "tests/test_study.py",
+      "errors/test_false_green.py",
+      "errors/test_wrong_expectation.py",
+      "errors/not_discovered/check_totals.py",
+      "errors/test_import_failure.py",
+      "exercises/broken_study.py",
+      "exercises/test_broken_study.py",
+      "solutions/budget/budget.py",
+      "solutions/budget/tests/test_budget.py"
+    ]
+  },
+  {
+    "lab": "u10-local-project",
+    "loader": "getProjectExample",
+    "slug": "module-10-common-pitfalls",
+    "sections": 13,
+    "refs": [
+      "fixtures/initial.json",
+      "pyproject.toml",
+      ".python-version",
+      "demo_resource.py",
+      "task_app/__init__.py",
+      "task_app/validation.py",
+      "task_app/rules.py",
+      "task_app/storage.py",
+      "task_app/app.py",
+      "check_import.py",
+      "run_tasks.py",
+      "tests/test_rules.py",
+      "tests/test_storage.py",
+      "fixtures/broken.json",
+      "fixtures/wrong-shape.json",
+      "solutions/new_requirement.py",
+      "solutions/test_new_requirement.py"
+    ]
+  }
+]

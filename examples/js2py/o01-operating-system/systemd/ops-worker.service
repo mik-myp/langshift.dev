@@ -1,0 +1,27 @@
+# Linux/systemd template. Not installed or runtime-verified on macOS.
+# Requires an operator-created unprivileged langshift-ops user and /opt deployment.
+[Unit]
+Description=Langshift disposable operations worker (NOT the capstone API)
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=langshift-ops
+Group=langshift-ops
+WorkingDirectory=/opt/langshift/o01-operating-system
+ExecStart=/opt/langshift/o01-operating-system/.venv/bin/python worker.py
+Environment=OPS_DATA_DIR=/var/lib/langshift-ops
+StateDirectory=langshift-ops
+UMask=0077
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=5
+KillSignal=SIGTERM
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

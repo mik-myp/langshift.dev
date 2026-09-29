@@ -1,0 +1,17 @@
+{
+  "kind": "unfilled-human-review",
+  "reviewed_at": null,
+  "reviewer": null,
+  "student_revision": null,
+  "o06_evidence_reviewed": false,
+  "artifact_integrity_reviewed": false,
+  "hard_gate_findings": [],
+  "dimension_scores": [],
+  "unseen_requirement": null,
+  "learner_explanation": null,
+  "assistance_disclosure": null,
+  "decision": "not_assessed",
+  "graduation_awarded": false,
+  "public_operation_approved": false,
+  "follow_up": []
+}

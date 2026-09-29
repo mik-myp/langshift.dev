@@ -1,267 +1,801 @@
 ---
-title: "Python 数据处理与自动化"
-description: "从 JavaScript 开发者视角，学习 Python 在文件处理、正则表达式和数据分析（Pandas）方面的强大功能。"
+title: "文件、JSON 与资源使用"
+description: "从内存数据走向小型本地文件：逐步理解路径、文本与字节、编码、读写模式、资源生命周期和 JSON。按层定位失败，再独立实现拒绝覆盖损坏输入的任务存储程序。"
 ---
 
-## 1. 引言
+import { getFileExample } from '@/lib/js2py-examples'
 
-### Python: 数据处理的瑞士军刀
+## 1. 函数返回的字典，不会自动留到下一次运行
 
-虽然 JavaScript (特别是 Node.js) 能够处理文件和执行脚本，但 Python 在数据处理、科学计算和自动化任务方面拥有更强大、更成熟的生态系统。对于许多开发者来说，这正是他们学习 Python 的主要原因之一。
+L06 把规则、汇总和入口拆开了，但每次启动仍然重新建立输入。函数返回的字典存在于当前进程中；它有变量名、被打印到终端，都不等于已经保存。
 
-本模块将向你展示 Python 如何轻松应对各种数据处理挑战，从简单的文件 I/O 到复杂的数据分析。
+持久化意味着把数据记录到进程结束之后仍能重新读取的地方。本章从**实验自己拥有的小型本地文件**开始，不引入数据库或服务器。目标是把 Python 值、文本、编码后的字节、文件系统路径和已经打开的资源之间的边界逐个解释清楚。
 
-**核心概念类比**
+### 本章契约
 
-| Python | JavaScript | 主要功能 |
+| 项目 | 约定 |
+| --- | --- |
+| 前置能力 | L00—L06：值与容器、函数、控制流、异常、模块、工作目录与入口 |
+| 新能力 | 路径、文本/字节与 UTF-8、读写模式和读取位置、with 与关闭、JSON 序列化、数据校验和分层错误处理 |
+| 独立验收 | 保存任务，在新进程中读回；拒绝坏数据而不覆盖原文件；解释取得的文件何时关闭 |
+| 暂不要求 | 自定义上下文管理协议、数据库、异步 I/O、原子保存协议、依赖工程、pytest、Pandas 或 FastAPI |
+
+下载 [L07 源码、输入文件与答案](/learning-assets/js2py/u07-files.zip)，解压后在编辑器和终端打开 `u07-files`。继续使用 [L00 环境](/zh-cn/docs/js2py/module-00-python-introduction)：CPython 3.13，无需第三方包。实际验证基线为 **2026-09-24 的 3.13.15**，不是“当前最新版本”的承诺。
+
+```bash
+uv run --no-project --python 3.13 python paths.py
+```
+
+除非明确写出 `cd`，命令都从解压后的实验根目录执行。下载包含 **31 份 Python 文件和六份输入样本**；部分文件是包中的辅助模块，不是独立启动入口。保持目录结构。本章在本机运行，不在浏览器的临时文件系统里验收。
+
+### 先划定写入范围
+
+- `fixtures/` 是已知输入，其中包含刻意损坏的 JSON 和无效 UTF-8。不要在原位置修复它们，这些失败本身就是实验内容。
+- 生成文件只放在解压实验或自己作业内部、明确标出的 `_output/` 目录里。把这些目录视为可丢弃的实验空间，不要放重要文件。
+- 有些演示会故意**替换甚至破坏自己生成的文件**。不要把目标改成真实文档；变式实验请在副本中做。
+- 多数演示会重置自己的输出。`create_once.py` 刻意在第二次运行时表现不同，独立程序也会区分文件不存在与已经存在。我们会说明条件，不承诺每次输出都相同。
+
+## 2. 路径描述位置，不等于已经打开文件
+
+L06 中，当前目录与脚本目录可以不同。文件操作也一样：相对路径以进程的当前工作目录为基准，不会自动以写出这行代码的源文件为基准。
+
+本章使用标准库的 `Path`。`Path("fixtures")` 创建路径对象，不会创建目录，也不会打开文件。你已经使用过列表和字典的方法；现在只是使用库提供的现成类型与方法，不要求自己编写类。
+
+文件：`paths.py`。
+
+<Code language="python">{getFileExample('paths.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python paths.py
+```
+
+下面用 `<LAB>` 代表你实际解压目录的绝对路径。这是输出中的占位表示，不是要输入的命令：
+
+```text
+Cwd: <LAB>
+Relative: fixtures/notes.txt
+Absolute: True
+Name: notes.txt
+Parent name: fixtures
+Target: <LAB>/fixtures/notes.txt
+```
+
+这些操作承担不同职责：
+
+1. `Path.cwd()` 观察进程当前工作的目录。
+2. 左边是 Path 时，`/` 拼接路径组成部分，这里不是数值除法；不用手动拼不同平台的分隔符。
+3. `Path(__file__).resolve().parent` 从当前源文件出发，解析绝对位置，再取得所在目录。`resolve()` 还会解析符号链接；它不保证目标存在、可以读取或满足安全要求。
+4. `.name` 是最后一段名称的字符串；`.parent` 是另一个路径对象。它们都没有包含文件内容。
+
+如果右边的组成部分是绝对路径，它可能替换前面的路径，而不是继续留在前面的目录之下。本章只使用固定、可信的路径组成部分。**路径拼接不是任意用户输入路径的安全沙箱**；这类输入需要在后面的服务端安全边界中另行处理。
+
+只改变当前目录，再执行同一个文件：
+
+```bash
+cd fixtures
+uv run --no-project --python 3.13 python ../paths.py
+cd ..
+```
+
+只有 `Cwd:` 变成 `<LAB>/fixtures`，固定到脚本位置的 `Target:` 不变。这里的 macOS 实测路径用 `/` 展示，你的系统可能显示其他分隔符。把数据放在脚本旁边适合这个可写的本地实验，不代表安装后的应用源码目录永远适合存放生产数据。
+
+## 3. 完整读取一个文件，观察资源边界
+
+UTF-8 输入 `fixtures/notes.txt` 有两行。第二行**开头和结尾各有两个空格**，两行都以换行符结束。我们用 `repr` 观察不可见字符，而不是不加判断地清理它们。
+
+文件：`read_text.py`。
+
+<Code language="python">{getFileExample('read_text.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python read_text.py
+```
+
+```text
+Inside closed: False
+Text: 'Python 学习\n  keep spaces  \n'
+After closed: True
+```
+
+把 `with path.open("r", encoding="utf-8") as stream:` 按执行顺序理解：
+
+1. `path.open(...)` 请求操作系统以读取方式打开这个路径。如果失败，缩进块不会执行。
+2. 成功进入后，`stream` 指向一个**文件对象**，它关联已打开的资源以及当前读取位置。它不是 Path，也不是文件中的文本。
+3. `.read()` 通过这个资源取得文本；`encoding` 指定文本流怎样把存储的字节解码。
+4. 离开这个文件的 with 块时关闭资源；后面会具体观察普通异常与 return 路径。`.closed` 用于查看关闭状态。
+
+`text` 已经是读取到内存中的独立字符串。关闭流不会清空它，也不会删除文件。`stream` 名称在块外仍然存在，只是对应资源已经关闭；这不是 JavaScript 式的块级局部名称创建。
+
+`Path.open(...)` 与内置的 `open(path, ...)` 承担类似的基本作用；本章统一使用前者，让路径操作始终可见。`with` 用于管理资源的使用范围，不是导入、循环，也不是把失败自动变成成功的异常处理器。
+
+因为路径固定到脚本位置，这样也会读取同一份输入：
+
+```bash
+cd fixtures
+uv run --no-project --python 3.13 python ../read_text.py
+cd ..
+```
+
+## 4. 读取会移动位置，逐行遍历也不等于清理数据
+
+文件：`read_cursor.py`。
+
+<Code language="python">{getFileExample('read_cursor.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python read_cursor.py
+```
+
+```text
+First: 'Python'
+Rest: ' 学习\n  keep spaces  \n'
+At end: ''
+Reopened: 'Python'
+```
+
+`read(6)` 在这个文本流中最多读取六个字符，并向前移动位置。随后的 `read()` 从那里继续，而不是重新开始；到文件末尾后，无限制读取会返回空字符串。重新打开一个读取流，才得到一个从开头开始的新位置。理解顺序读取，不需要先学随机定位。
+
+不指定数量的 `.read()` 可能把整个文件读进内存。这适合这些小样本，不是处理任意大上传文件或日志的无限内存方案。对于顺序文本，可以直接遍历文件：
+
+<Code language="python">{getFileExample('read_lines.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python read_lines.py
+```
+
+```text
+1 'Python 学习\n'
+2 '  keep spaces  \n'
+```
+
+循环使用文件提供的迭代行为，每次取得一行。存在的行结束符通常也包含在结果中，最后一行则未必有换行；不能因为这个输入有，就假设所有文件都如此。
+
+`.strip()` 会把第二行有意义的空格与换行一起删掉。它是数据变换，不是读取文件必须执行的动作。`print(line)` 还可能产生额外空行，因为原行已经带有 `\n`，print 又补了一个。使用 `repr`，可以在不修改输入的情况下观察这些机制。
+
+**暂停点 A：** 在新终端里预测读取位置实验，再从两个目录读取输入。记录哪个位置保持不变、哪个改变了，之后再进入写入。
+
+## 5. 文本不是字节，编码也不是显示偏好
+
+Python 的 `str` 表示 Unicode 文本，文件存储的是字节。编码把文本变成字节，解码把字节解释为文本；两者都不是 JSON 操作。本章明确约定 UTF-8，使文件含义不依赖机器上隐含的默认编码。
+
+文件：`encoding_bytes.py`。
+
+<Code language="python">{getFileExample('encoding_bytes.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python encoding_bytes.py
+```
+
+```text
+Text length: 2
+Byte length: 6
+Bytes: b'\xe5\xad\xa6\xe4\xb9\xa0'
+Decoded: 学习
+```
+
+这两个汉字各占三个 UTF-8 字节。`b'...'` 表示 bytes 值，不是给普通字符串加一个装饰性前缀。`len(str)` 统计 Unicode 码点；复杂的可见符号可能由多个码点组成，所以它并非普遍意义上的“用户眼中的字数”。`len(bytes)` 统计字节数。
+
+文本流替你完成解码，而二进制模式返回字节。文件：`read_binary.py`。
+
+<Code language="python">{getFileExample('read_binary.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python read_binary.py
+```
+
+```text
+Is bytes: True
+Decoded: 'Python 学习\n  keep spaces  \n'
+```
+
+`"rb"` 表示读取二进制数据。二进制打开时不传 `encoding`，确认格式后再明确解码。文本写入需要 str，二进制写入需要 bytes。这里用小对照建立边界，不扩展成二进制文件格式课程。
+
+现在在 `error_wrong_encoding.py` 中故意选择错误的解码器：
+
+<Code language="python">{getFileExample('error_wrong_encoding.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python error_wrong_encoding.py
+```
+
+先打印 `After error closed: True`，随后以 **UnicodeDecodeError** 退出：ASCII 无法解码输入中的汉字字节。打开成功，读取时解码失败，离开 with 仍先关闭文件，外层处理器才运行。这里是在已知打开成功后的解码失败中引用 `stream`，不是宣称任意打开错误之后这个名称都已经绑定。
+
+换一个编码声明，不会自动把损坏的字节恢复为正确文本。不要为了藏起异常就加 `errors="ignore"`：被丢弃的字节可能有实际意义。应先确定来源编码，或者拒绝输入。下载中还有 `invalid-utf8.bin`，只含单个字节 `0xff`，它不是有效的独立 UTF-8 序列，后面会用它定位错误发生的层次。
+
+## 6. 写入模式是在做数据损失决策
+
+写之前先确认目标。下面的程序用 `.mkdir(exist_ok=True)` 创建 `_output/`，而它的父目录已经存在。`exist_ok=True` 允许目录已经存在，不会把文件变成目录，也不会忽略权限。中间目录不存在时，需要明确决定是否创建，而不是假设 open 会自动补齐。
+
+文件：`write_text.py`。
+
+<Code language="python">{getFileExample('write_text.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python write_text.py
+```
+
+```text
+Characters written: 10
+Read back: '学习 Python\n'
+```
+
+`write` 不会自动补换行，所以字符串自己包含一个。这里返回的 10 是文本字符数，**不是字节数**；生成的 UTF-8 文件有 14 字节。`newline="\n"` 避免写入的换行被按平台转换，使实验输出字节保持一致。文本读取采用默认换行行为时，会把常见行结束形式统一成 `\n`；二进制读取不会做这种转换。
+
+| 本章使用的模式 | 目标不存在 | 目标已经存在 | 主要风险 |
+| --- | --- | --- | --- |
+| `r` | 失败 | 读取，不主动写入 | 路径/编码错误，或无限制读取 |
+| `w` | 父目录存在则创建 | 打开时即截断，早于第一次 write | 后续操作失败也可能已经丢失旧内容 |
+| `a` | 父目录存在则创建 | 从末尾追加写入 | 重复执行会增加数据，不是整份 JSON 的更新协议 |
+| `x` | 创建新文件 | 抛出 FileExistsError | 调用方要明确决定如何处理已有文件 |
+
+`write_modes.py` 只重置自己的 `_output/modes.txt`，对比追加和替换：
+
+<Code language="python">{getFileExample('write_modes.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python write_modes.py
+```
+
+```text
+Appended: 'First\nNext\n'
+Replaced: 'Reset\n'
+```
+
+接着由 `create_once.py` 使用独占创建：
+
+<Code language="python">{getFileExample('create_once.py')}</Code>
+
+在新解压、尚不存在 `_output/once.txt` 的实验中，**按顺序执行两条命令**：
+
+```bash
+uv run --no-project --python 3.13 python create_once.py
+uv run --no-project --python 3.13 python create_once.py
+```
+
+第一次打印 `Created once`；第二次是**预期的 FileExistsError**，不会打印成功提示，也不会改变第一次留下的文件字节。如果之前做过这个实验，第一条命令就可能遇到已有文件。要重新开始，请使用新的解压副本，不要删除无关文件，也不要不理解后果就改成 `w`。
+
+独占创建把“只允许新建”的决策表达在打开操作自身。先 `exists()`，再单独写入，不能保证这两个动作之间文件系统不发生变化。本章不实现多进程协调。
+
+## 7. 关闭是明确的清理，不是回滚
+
+文件对象关联操作系统资源和缓冲状态。不要依赖变量被丢弃或解释器“总有一天会清理”；应明确约束资源的取得与使用范围。
+
+先运行 `closed_stream.py`，这是一个**预期失败**：
+
+<Code language="python">{getFileExample('closed_stream.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python closed_stream.py
+```
+
+程序先打印已经读出的字符串，再抛出 **ValueError: I/O operation on closed file**。字符串仍能使用，关闭的流却不能继续读。读取函数返回数据很合理；返回一个已经在函数内部关闭的资源，通常不是调用方想要的结果。
+
+### 正常结束、return、块内异常和取得资源失败
+
+`cleanup_paths.py` 把每条路径都变得可见。`stream = None` 记录尚未取得文件，避免观察代码本身在打开失败时又使用未绑定名称。
+
+<Code language="python">{getFileExample('cleanup_paths.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python cleanup_paths.py
+```
+
+```text
+Mode: normal
+Inside closed: False
+After block closed: True
+Finally closed: True
+Result: normal
+Mode: return
+Inside closed: False
+Finally closed: True
+Result: early
+Mode: error
+Inside closed: False
+Finally closed: True
+Caught: ValueError
+Mode: missing
+No stream acquired
+Caught: FileNotFoundError
+```
+
+正常路径会到达 with 后面的语句；return 路径不会，但离开 with 仍会先关闭文件，外层 finally 才执行。异常路径先关闭，再把 ValueError 传播给调用方。文件缺失时，既没有进入块体，也没有取得流。观察用的 finally 不负责再次关闭，只报告已经形成的状态。
+
+这里教的是**使用内置文件资源**，不是实现自定义上下文管理协议。其他上下文管理器可能采取不同的异常处理策略；本章也不承诺进程被强行终止或断电之后一定清理。缓冲写出与关闭自身也可能失败，一次 write 调用成功不等于已经获得抗崩溃持久性保证。
+
+### 文件关闭了，数据仍然可能错了
+
+`pitfall_truncate.py` 故意准备并破坏**自己的临时实验文件**，不是修改输入样本：
+
+<Code language="python">{getFileExample('pitfall_truncate.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python pitfall_truncate.py
+```
+
+```text
+Closed: True
+Remaining: ''
+```
+
+用 `w` 打开已有目标时，原内容已经被移除。随后虽然在 write 之前就抛出异常，关闭也不会恢复旧字节。**资源清理与数据回滚解决的是不同问题。** 能提前完成的计算和校验，应放在破坏性打开之前；第 11 节会把这个顺序应用到序列化，但它仍不会因此变成原子保存或事务。
+
+## 8. 先定位文件操作的失败，再解释文件内容
+
+下面是刻意失败的完整文件，不依赖你先执行过其他脚本。
+
+`error_missing_file.py`：
+
+<Code language="python">{getFileExample('error_missing_file.py')}</Code>
+
+`error_missing_parent.py`：
+
+<Code language="python">{getFileExample('error_missing_parent.py')}</Code>
+
+`error_directory.py`：
+
+<Code language="python">{getFileExample('error_directory.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python error_missing_file.py
+uv run --no-project --python 3.13 python error_missing_parent.py
+uv run --no-project --python 3.13 python error_directory.py
+```
+
+第一条抛出 FileNotFoundError，不打印 `Entered block`，因为 `fixtures/absent.txt` 刻意不存在。第二条同样是 FileNotFoundError：以 `w` 打开新文件，不会替它创建缺失的父目录 `absent-folder`。第三条把目录当成文件；实测 macOS 抛出 IsADirectoryError，某些平台可能对同一操作报告 PermissionError，所以还要检查路径和操作，不能只机械地看类别。
+
+| 失败 | 应检查什么 | 不能直接推导什么 |
 | --- | --- | --- |
-| **内置文件操作** | `fs` 模块 | 文件读写 |
-| **`pathlib`** | `path` 模块 | 跨平台路径操作 |
-| **`re` 模块** | `RegExp` 对象 | 正则表达式 |
-| **`pandas`** | `lodash`, `danfo.js` | 高性能数据分析 |
-| **`csv` 模块** | `csv-parser`, `papaparse` | CSV 文件读写 |
+| FileNotFoundError | 实际解析目标、缺少哪一段路径 | 不是所有缺失路径都代表“新的空用户数据” |
+| FileExistsError | 独占创建政策和已有目标 | 不应静默切换到破坏性覆盖 |
+| IsADirectoryError / NotADirectoryError | 路径各段究竟是文件还是目录 | 扩展名拼写不能决定文件系统类型 |
+| PermissionError | 访问权限与预期可写位置 | 它不表示文件不存在 |
+| UnicodeDecodeError | 字节内容与约定的文本编码 | 它不自动等于 JSON 语法损坏 |
 
-> 💡 **学习策略**：将 Python 的这些工具视为你现有 JavaScript/Node.js 工作流的“超级升级版”。你会发现 Python 在处理结构化数据和大型数据集时更加得心应手。
+对真正需要的资源执行操作，只处理你有能力恢复的失败。不要用一次 `exists()` 预检查替代异常处理，也不要为了让例子运行就给文件授予过大的权限。未知 OSError 应继续暴露。
 
-## 2. 文件操作
+## 9. JSON 把值转换成文本，保存是另一步
 
-Python 提供了非常简洁直观的文件操作语法。
+JSON 是数据交换格式，不是 Python 源码，也不是数据库。名为 `tasks.json` 的文件仍然存放字节，扩展名不会校验它们。语法正确的 JSON 文档，也可能包含程序不接受的值。
 
-### 2.1 读写文件
+完整过程是：
 
-<PythonEditor title="文件读写对比" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript (Node.js)
-const fs = require('fs');
-
-// 写文件
-fs.writeFileSync('hello.txt', 'Hello from Node.js!');
-
-// 读文件
-const content = fs.readFileSync('hello.txt', 'utf8');
-console.log(content);
-
-// 异步读写
-fs.writeFile('hello_async.txt', 'Async hello!', (err) => {
-  if (err) throw err;
-  fs.readFile('hello_async.txt', 'utf8', (err, data) => {
-    if (err) throw err;
-    console.log(data);
-  });
-});
+```text
+Python values -> JSON text (str) -> UTF-8 bytes in a file
+file bytes -> decoded text -> parsed Python values -> business validation
 ```
 
-```python !! py
-# Python
-# 写文件
-with open("hello.txt", "w", encoding="utf-8") as f:
-    f.write("Hello from Python!")
+`json_values.py` 只做值与文本之间的转换，不创建文件：
 
-# 读文件
-with open("hello.txt", "r", encoding="utf-8") as f:
-    content = f.read()
-    print(content)
+<Code language="python">{getFileExample('json_values.py')}</Code>
 
-# pathlib (更现代的方式)
-from pathlib import Path
-
-Path("hello_pathlib.txt").write_text("Hello from Pathlib!", encoding="utf-8")
-content_pathlib = Path("hello_pathlib.txt").read_text(encoding="utf-8")
-print(content_pathlib)
-```
-</PythonEditor>
-
-### 2.2 处理 JSON 文件
-
-<PythonEditor title="JSON 文件处理对比" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript
-const data = { name: "Alice", age: 30 };
-
-// 写入 JSON 文件
-fs.writeFileSync('data.json', JSON.stringify(data, null, 2));
-
-// 读取 JSON 文件
-const rawData = fs.readFileSync('data.json');
-const parsedData = JSON.parse(rawData);
-console.log(parsedData.name); // Alice
+```bash
+uv run --no-project --python 3.13 python json_values.py
 ```
 
-```python !! py
-# Python
+```text
+Is text: True
+{
+  "title": "学习",
+  "minutes": 20,
+  "done": false,
+  "note": null
+}
+Equal value: True
+Same object: False
+Escaped: "\u5b66\u4e60"
+```
+
+`dumps` 返回 JSON 字符串，`loads` 把字符串解析为 Python 值。带 `s` 的版本处理字符串，而不是已经打开的文件。恢复得到的字典是新对象。`indent=2` 控制展示格式，不会让文档“更有效”。
+
+`ensure_ascii=False` 让“学习”这样的字符直接出现在 JSON 文本里。默认的转义写法 `"\u5b66\u4e60"` 解析后表示同一个 JSON 字符串。**转义不是文件编码。** 两种文本表示都可以采用 UTF-8 写入。`allow_nan=False` 则拒绝输出非有限数，下一节会解释。
+
+下面是静态浏览器语言对照，以本机验证为准，不借此操作浏览器文件：
+
+<PythonEditor title="JSON 文本不等于已经保存的文件" compare={true} canRun={false}>
+```javascript case=json-text-comparison
+const value = { title: "学习", done: false };
+const text = JSON.stringify(value, null, 2);
+console.log(text);
+console.log(JSON.parse(text).title);
+```
+
+```python case=json-text-comparison
 import json
 
-data = {"name": "Alice", "age": 30}
-
-# 写入 JSON 文件
-with open("data.json", "w", encoding="utf-8") as f:
-    json.dump(data, f, indent=2)
-
-# 读取 JSON 文件
-with open("data.json", "r", encoding="utf-8") as f:
-    parsed_data = json.load(f)
-    print(parsed_data["name"])  # Alice
+value = {"title": "学习", "done": False}
+text = json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False)
+print(text)
+print(json.loads(text)["title"])
 ```
 </PythonEditor>
 
-## 3. 正则表达式
+两边都显示：
 
-Python 的 `re` 模块提供了强大的正则表达式功能。
-
-<PythonEditor title="正则表达式对比" compare={true}>
-```javascript !! js
-// JavaScript
-const text = "My email is test@example.com";
-const regex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
-const match = text.match(regex);
-if (match) {
-  console.log(match[0]); // test@example.com
+```text
+{
+  "title": "学习",
+  "done": false
 }
-
-// 替换
-const newText = text.replace(/email/g, 'address');
-console.log(newText); // My address is test@example.com
+学习
 ```
 
-```python !! py
-# Python
-import re
+可以迁移你对 `JSON.parse`、`JSON.stringify` 的经验，但要把序列化与存储分开。这两组调用本身都没有保存数据。
 
-text = "My email is test@example.com"
-regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
-match = re.search(regex, text);
-if match:
-    print(match.group(0))  # test@example.com
+## 10. JSON 不是任意 Python 对象的通用复制品
 
-# 替换
-new_text = re.sub(r"email", "address", text)
-print(new_text)  # My address is test@example.com
-```
-</PythonEditor>
+| JSON 值 | 默认解码后常见的 Python 值 |
+| --- | --- |
+| 成员名称为字符串的 object | 键为 str 的 dict |
+| array | list |
+| string | str |
+| 整数 / 带小数部分的数 | 默认解码下的 int / float |
+| true / false | True / False |
+| null | None |
 
-## 4. Pandas: Python 数据分析利器
+JSON 不保留 Python 的元组身份，不直接表示集合、函数或任意对象。可互操作的 JSON 对象使用字符串成员名称；Python 编码器会把部分其他类型的键转换成字符串，这可能改变含义或产生冲突，所以我们的任务格式只使用固定字符串键。
 
-`pandas` 是 Python 数据科学生态系统的核心库，它提供了 `DataFrame` 和 `Series` 两种强大的数据结构，使得数据清洗、转换、分析和可视化变得异常简单。
+文件：`json_limits.py`。
 
-### 4.1 Series: 一维数据
+<Code language="python">{getFileExample('json_limits.py')}</Code>
 
-`Series` 类似于一个带标签的数组。
-
-<PythonEditor title="Pandas Series 基础" compare={true}>
-```javascript !! js
-// JavaScript (类似数组)
-const data = [10, 20, 30, 40];
-data.forEach(d => console.log(d));
-
-const filteredData = data.filter(d => d > 20);
-console.log(filteredData); // [30, 40]
+```bash
+uv run --no-project --python 3.13 python json_limits.py
 ```
 
-```python !! py
-# Python (Pandas Series)
-import pandas as pd
-
-data = pd.Series([10, 20, 30, 40])
-print(data)
-
-filtered_data = data[data > 20]
-print(filtered_data)
-```
-</PythonEditor>
-
-### 4.2 DataFrame: 二维数据
-
-`DataFrame` 是 `pandas` 的核心，它是一个二维表格型数据结构，可以看作是 `Series` 的容器。
-
-<PythonEditor title="Pandas DataFrame 基础" compare={true}>
-```javascript !! js
-// JavaScript (数组对象)
-const users = [
-  { name: 'Alice', age: 30, city: 'New York' },
-  { name: 'Bob', age: 25, city: 'Paris' },
-  { name: 'Charlie', age: 35, city: 'London' },
-];
-
-// 筛选
-const youngUsers = users.filter(u => u.age < 30);
-console.log(youngUsers);
-
-// 添加新列
-users.forEach(u => u.is_senior = u.age > 30);
-console.log(users);
+```text
+Restored: {'pair': [20, 35], 'labels': {'1': 'one'}}
+Equal: False
+Set is not JSON-serializable
+Non-finite output rejected
+Default decoder accepts NaN: True
+Repeated key: {'minutes': 20}
+Python repr is not JSON
 ```
 
-```python !! py
-# Python (Pandas DataFrame)
-import pandas as pd
+逐项追踪，而不是假设所有对象来回转换后都完全相等：
 
-data = {
-    'name': ['Alice', 'Bob', 'Charlie'],
-    'age': [30, 25, 35],
-    'city': ['New York', 'Paris', 'London']
-}
-df = pd.DataFrame(data)
+- 元组变成列表，整数键变成字符串。
+- 默认编码器不支持集合。不要在尚未约定格式时，通过随意转换来掩盖错误。
+- 标准 JSON 不包含 NaN 或 Infinity。Python 默认 JSON 行为带有扩展；`allow_nan=False` 控制的是**编码**，不是 `loads`。默认解码器仍可能接受 NaN。JavaScript 的 `JSON.stringify(NaN)` 则得到 `null`，不能照搬失败行为。
+- Python 默认解码器遇到重复成员名称会保留最后的值，并不是检测重复项。
+- 字典的 `str`/`repr` 可能带单引号和 Python 的 False，不能充当 JSON 编码器。更不能用 `eval` 解析 JSON。
 
-# 筛选
-young_users = df[df['age'] < 30]
-print(young_users)
+后面的任务校验把 minutes 限定为普通非负整数，因此会拒绝 bool 和 float，包括 NaN。但它**不会**检测原文中的重复键，不是通用严格 JSON 解码器，也没有实现大小/深度限制。本章是小型自有文件格式，不是任意不可信上传的处理政策；后者需要在后端边界明确制定限制和解析策略。
 
-# 添加新列
-df['is_senior'] = df['age'] > 30
-print(df)
-```
-</PythonEditor>
+## 11. 保存一份 JSON 文档，并在打开 w 前完成可能失败的准备
 
-### 4.3 从 CSV 读取数据
+文件版本接收的是**已经打开的文件对象**，不是路径字符串。文件：`json_file.py`。
 
-`pandas` 可以非常方便地从各种数据源（CSV, Excel, SQL 等）读取数据。
+<Code language="python">{getFileExample('json_file.py')}</Code>
 
-<PythonEditor title="从 CSV 读取数据对比" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript (Node.js with csv-parser)
-const fs = require('fs');
-const csv = require('csv-parser');
-
-const results = [];
-
-fs.createReadStream('data.csv')
-  .pipe(csv())
-  .on('data', (data) => results.push(data))
-  .on('end', () => {
-    console.log(results);
-  });
+```bash
+uv run --no-project --python 3.13 python json_file.py
 ```
 
-```python !! py
-# Python (Pandas)
-import pandas as pd
-
-# 假设有一个 data.csv 文件
-# name,age,city
-# Alice,30,New York
-# Bob,25,Paris
-
-df = pd.read_csv("data.csv")
-print(df)
-
-# 对于非常大的文件，可以分块读取以节省内存
-# chunk_iter = pd.read_csv("large_data.csv", chunksize=1000)
-# for chunk in chunk_iter:
-#     process(chunk)
-
-# 数据分析示例
-print("\nAverage age:", df["age"].mean())
-print("\nUsers from New York:")
-print(df[df["city"] == "New York"])
+```text
+dump returned: None
+Title: 学习
+Equal value: True
 ```
-</PythonEditor>
 
-## 5. 总结
+`dump(value, stream)` 把 JSON 文本写进文本流，返回 None，不返回生成的文本。`load(stream)` 读取并解析一份 JSON 文档。流负责 UTF-8，JSON 函数负责 JSON 语法和值。它们都不会替调用方自动关闭传入的流，生命周期由外面的 with 管理。dump 不会替我们补最后的换行，因此明确多写一次。
 
-Python 在数据处理和自动化方面的能力远不止于此，但本模块已经为你打下了坚实的基础。你现在已经了解了如何：
+| 操作组 | 输入与输出 | 本章中的资源责任 |
+| --- | --- | --- |
+| dumps / loads | Python 值 ↔ 字符串 | 调用本身不打开文件 |
+| dump / load | 值 → 可写流；可读流 → 值 | 调用方打开并关闭文件 |
 
-*   使用 Python 进行基本的文件操作。
-*   利用 `re` 模块进行强大的文本匹配和处理。
-*   使用 `pandas` 库进行高效的数据分析。
+### 追加两个文档，不等于更新数组
 
-这些技能将为你打开一扇新的大门，让你能够利用 Python 解决各种复杂的数据问题，编写强大的自动化脚本。
+`pitfall_two_documents.py` 是一个**预期失败**，只写自己的 `_output/two-documents.json`：
+
+<Code language="python">{getFileExample('pitfall_two_documents.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python pitfall_two_documents.py
+```
+
+在因多余数据而抛出 JSONDecodeError 之前，先打印：
+
+```text
+Written: {"part": 1}{"part": 2}
+```
+
+两个相邻 JSON 对象不是一份 JSON 文档。追加模式也不会自动插入数组标点或合并对象。要把小列表保存为一份文档，应在内存里建立列表，再整体序列化一次。按行分隔 JSON 是另一种需要约定的格式和读取方式，不是 `json.load` 暗中提供的能力。
+
+### 先准备，后破坏性打开，但不承诺原子性
+
+`serialize_before_open.py` 先建立自己实验用的正确基线，再尝试保存包含集合的不支持值：
+
+<Code language="python">{getFileExample('serialize_before_open.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python serialize_before_open.py
+```
+
+```text
+Serialization refused
+Unchanged: True
+```
+
+`save_json` 在用 `w` 打开目标之前，先算出完整字符串，所以这次 TypeError 出现在截断之前。反过来，向已经打开的写入流执行 `json.dump`，可能在打开之后才失败，甚至已经输出了一部分文档。仅仅把它包进 with，不能保住旧文件。
+
+这个顺序保护的是**本实验中写入前的序列化失败**，不是所有保存失败。一旦 w 已打开，磁盘空间不足、写出/关闭失败或进程崩溃，仍可能留下空文件或部分数据；它也不会协调两个写入者。因此这里不把它叫作原子保存、备份方案或数据库事务。保持小数据和自有实验目录，后面在完整项目与运维背景下再学习更强的持久化保证。
+
+**暂停点 B：** 解释为什么序列化实验保留了旧文件，而前面的截断实验没有。如果你的解释仍然只是“都用了 with，所以都安全”，请先重新比较两次观察。
+
+## 12. 解析成功不是业务校验：按层定位失败
+
+正确输入 `fixtures/tasks.json` 是记录数组，包含一个已完成和一个未完成任务：
+
+<Code language="json">{getFileExample('fixtures/tasks.json')}</Code>
+
+这个带提示的例子只统计全部分钟数，**尚未校验 title/done，也不筛选已完成任务**；独立作业会另行定义完整形状。
+
+文件：`validate_data.py`。
+
+<Code language="python">{getFileExample('validate_data.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python validate_data.py
+```
+
+```text
+Total: 20
+Rejected: root must be a list
+Rejected: row 1 minutes must be a non-negative integer
+Rejected: row 1 minutes must be a non-negative integer
+```
+
+四段输入都可以被 JSON 解析。第二段根形状不对，第三段把格式要求的整数写成了字符串，第四段用了布尔值；不能让布尔值冒充整数混过去，`type(minutes) is int` 表达的就是这个严格边界。不同于 L05 的表单式文本输入，本章文件格式要求数字本身就是数字，自动调用 `int` 会掩盖契约不匹配。
+
+接着在不修改输入文件的前提下检查六种情况。`inspect_documents.py` 导入刚刚解释过的函数：
+
+<Code language="python">{getFileExample('inspect_documents.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python inspect_documents.py
+```
+
+```text
+tasks.json: total=55
+absent.json: missing file
+invalid-utf8.bin: invalid UTF-8
+malformed.json: invalid JSON at line 1, column 2
+wrong-root.json: invalid data: root must be a list
+wrong-types.json: invalid data: row 1 minutes must be a non-negative integer
+```
+
+沿边界追踪：
+
+1. 打开可能在任何内容可用之前失败。
+2. 把字节解码为文本可能失败，此时还没有有效文本。
+3. 解析文本可能抛出 `json.JSONDecodeError`；`.lineno` 和 `.colno` 帮助定位语法位置，不负责校验业务含义。
+4. 业务校验在读取的 with 块之后执行，此时文件已经关闭；它仍可能拒绝完全可解析的值。
+
+JSONDecodeError 和 UnicodeDecodeError 都属于 ValueError 的子类。把一个宽泛 ValueError 处理器放在前面，会丢失这些区别。这里读取阶段使用具体处理器，校验阶段的 ValueError 则属于另外一次函数调用。PermissionError 与未知故障不会被重新解释成“没有数据”或“成功得到零”。
+
+检查器报告坏文件后继续，是因为检查一组已知输入就是它的职责。任务保存程序承担的是另一种责任：**读取损坏输入后，必须在覆盖该输入之前停止。** 不要脱离用途照抄恢复政策。
+
+## 13. 三层练习
+
+### A. 预测数据与生命周期
+
+再次运行之前，先回答：
+
+1. 一个已经读到末尾的流，再做一次无限制读取得到什么？重新打开后有什么变化？
+2. with 会删除名称 stream、清空已经读出的字符串，或者恢复被截断的内容吗？
+3. `json.loads` 能否成功解析任务程序必须拒绝的值？给出具体例子。
+4. 为什么 dumps 与 dump 的返回值和资源要求不同？
+5. `cleanup_paths.py` 中哪些路径到达 with 后的一行？哪些仍然关闭文件？
+
+<details>
+<summary>预测核对——先写自己的答案，再对照机制</summary>
+
+读到末尾后返回空字符串，新读取流从开头开始。with 关闭取得的流，不删除 Python 名称或文件，不清空已经返回的文本，也不撤销写入。`{"minutes": "20"}` 这样的 JSON 可以解析，却违反数值契约。dumps 返回文本，不打开文件；dump 通过传入的流写入，返回 None。只有正常观察路径到达 with 后的那行；正常、return 和异常路径都关闭已经取得的文件，打开失败则根本没有取得文件。
+
+</details>
+
+### B. 修复把失败伪装成空数据的恢复
+
+`exercises/unsafe_load.py` 刻意写错了。main 在 **`exercises/_output/`** 准备损坏的实验文件，宽泛的恢复政策却把失败变成空列表，再覆盖掉证据：
+
+<Code language="python">{getFileExample('exercises/unsafe_load.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python exercises/unsafe_load.py
+```
+
+```text
+Stored: []
+```
+
+正常退出正是这个 bug，不是验收通过。请修复：
+
+- 只有确实不存在的文件，才允许得到初始空列表。
+- 已有但 JSON 损坏、UTF-8 无效、根值不是列表或无访问权限，都不能变成空结果。
+- 读取失败必须阻止随后的写入，保留旧字节；不能只打印警告然后继续。
+- 新进程里仅仅导入模块，不应运行这段演示。
+
+这道修复题的辅助函数只要求根值是列表，不负责完整的任务条目模式。明确这个边界，不要声称它校验了所有记录。
+
+<details>
+<summary>修复参考——区分辅助函数的政策与演示程序</summary>
+
+`solutions/recover_missing_only.py`：
+
+<Code language="python">{getFileExample('solutions/recover_missing_only.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python solutions/recover_missing_only.py
+```
+
+```text
+Refused damaged JSON
+Unchanged: True
+```
+
+辅助函数只恢复 FileNotFoundError。调用者为了演示保留行为，明确捕获 JSONDecodeError，然后在**任何保存之前**返回。辅助函数仍会把语法、编码、形状和权限失败传播给调用方。再分别用不存在的路径、合法空数组和合法非空数组尝试；不存在与合法空值即使返回相等的值，也不是同一事件。
+
+</details>
+
+### C. 独立实现小型本地任务存储
+
+在**下载实验之外**新建一个真正的空目录，自己建立下面的布局。输出目录只能在程序入口运行时创建，不能导入时就创建：
+
+```text
+my_tasks/
+  check_import.py
+  run_store.py
+  task_store/
+    __init__.py
+    validation.py
+    storage.py
+    app.py
+```
+
+使用 L06 的普通模块与函数，不加入类、数据库或框架。
+
+**数据契约：** 一份 JSON 数组，每项必须是字典，并且**恰好**具有 title、minutes、done 三个键。title 必须是 str，不能只有空白；保留原始文字，不静默修剪。minutes 必须是普通非负 int，拒绝 bool、float、数字文本和 None。done 必须是 bool，不接受 0、1 或字符串。空数组和零分钟有效。保持条目顺序；本章没有把标题定义成 ID，因此允许重复任务标题。
+
+**责任划分：**
+
+- `validation.py`：`validate_tasks(value)` 返回新的任务字典和新列表，不修改来源。错误根值、条目、缺失/多余键与非法字段用 ValueError 拒绝，消息指出行号或字段。这是在校验约定的小格式，不是实现通用 schema 工具。
+- `storage.py`：`load_tasks(path)` 使用 with 打开 UTF-8 文本，解析一份文档，关闭后校验；必须传播 FileNotFoundError，不能由库替所有调用方决定初始化政策。
+- `save_tasks(path, value)` 在打开 w **之前**完成校验和序列化；输出两空格缩进、直接保留 Unicode 字符、没有非有限数、末尾一个换行的 UTF-8 JSON。调用方传入 Path，并负责父目录创建。非法值不能改变已有目标，也不能创建原本不存在的目标。
+- `app.py`：目录创建、初始化、读取、修改、保存和展示都放进受保护的 main。使用 my_tasks 下的 `_output/tasks.json`，不随 cwd 漂移。只有文件缺失才允许使用后面的两项初始数据；已有文件损坏或不符合格式时，必须在保存前明确失败，不能静默重置。
+- 每次合法运行，把所有标题为 `Read` 的任务标记为完成，保存一次，再统计未完成任务的分钟数。合法空数组应继续保持空，不能被当成文件不存在。
+- `run_store.py`：另一个文件入口，从 `task_store.app` 导入 main，并在自己的入口保护条件下调用。这个薄入口利用 L06 的机制，让直接文件命令通过入口所在目录找到包，不需要改变搜索路径。
+- `check_import.py`：导入 app 与 storage，只打印 `Imported: task_store.app task_store.storage`；不能因为导入就创建 `_output`、读取数据或启动业务。
+
+文件不存在时，初始化 Read / 20 / False 与 练习 / 35 / False。在自己的 **`my_tasks` 目录**执行：
+
+```bash
+uv run --no-project --python 3.13 python check_import.py
+uv run --no-project --python 3.13 python -m task_store.app
+uv run --no-project --python 3.13 python -m task_store.app
+```
+
+探针输出：
+
+```text
+Imported: task_store.app task_store.storage
+```
+
+第一次应用进程输出：
+
+```text
+Source: new file
+Saved: 2
+Pending minutes: 35
+Tasks: [{'title': 'Read', 'minutes': 20, 'done': True}, {'title': '练习', 'minutes': 35, 'done': False}]
+```
+
+下一次应用进程输出：
+
+```text
+Source: existing file
+Saved: 2
+Pending minutes: 35
+Tasks: [{'title': 'Read', 'minutes': 20, 'done': True}, {'title': '练习', 'minutes': 35, 'done': False}]
+```
+
+第二个进程证明数据确实持久化了，不是在复用上个进程的变量。用编辑器打开生成文件，核对小写 JSON 布尔值、保留的 Unicode 和已经更新的 Read 条目，再改变输入。只操作这份可丢弃的练习副本，每次破坏实验前保留一份正确数据。
+
+| 变式 | 应观察到什么 |
+| --- | --- |
+| 保存文件内容是 `[]` | 走已有文件分支，保存零项、总计零，不恢复初始任务 |
+| 未完成任务为零分钟 | 仍然是合法条目，不能因假值判断被丢弃 |
+| 把“练习”的分钟数改为 36 | 新进程输出未完成 36，不修改统计代码 |
+| 全部完成、重新排序、Unicode 标题 | 零值、顺序和文本都正确保留 |
+| 损坏 JSON / 无效 UTF-8 / 根值或字段错误 | 明确失败，目标字节不变，不显示保存成功 |
+| minutes 为 True、`20.0`、`"20"`、None 或负数 | 拒绝，不隐式转换成有效估时 |
+| 缺键/多键、空白标题、非 bool 的 done | 拒绝，能定位字段或行号 |
+| 向已有 / 不存在的目标保存非法值 | 旧字节不变 / 不创建新文件 |
+| 读取两次后修改其中一份结果 | 另一份结果和文件不变，直到明确执行保存 |
+| 父目录缺失或权限失败 | 传播 I/O 失败，不当成空数据 |
+| 新进程里导入 | 只有探针标记，没有输出目录和业务动作 |
+| 换 cwd，但包外层目录仍可被发现 | 使用同一个固定数据位置，不意外生成另一份文件 |
+
+最后一个上下文检查，在 **`my_tasks` 的父目录**运行薄入口：
+
+```bash
+uv run --no-project --python 3.13 python my_tasks/run_store.py
+```
+
+它像 L06 一样通过入口文件的目录导入，然后明确调用 app 的 main。数据仍在 `my_tasks/_output/tasks.json`，不能在终端当前目录生成 `_output`。使用模块入口时，则先切回 my_tasks，再执行 `-m task_store.app`。直接执行 `task_store/app.py` 仍然缺少相对导入需要的包上下文，不要用 sys.path 补丁修复。
+
+在自己的探针中添加临时调用，以不同 Path 检查 load/save，并使用 L05 的具体异常处理器观察预期拒绝。自动化测试在这里是维护证据，不是突然追加给读者的前置知识。
+
+<details>
+<summary>独立参考包——完成自己的实现后再展开</summary>
+
+`solutions/independent/task_store/__init__.py`：
+
+<Code language="python">{getFileExample('solutions/independent/task_store/__init__.py')}</Code>
+
+`validation.py`：
+
+<Code language="python">{getFileExample('solutions/independent/task_store/validation.py')}</Code>
+
+`storage.py`：
+
+<Code language="python">{getFileExample('solutions/independent/task_store/storage.py')}</Code>
+
+`app.py`：
+
+<Code language="python">{getFileExample('solutions/independent/task_store/app.py')}</Code>
+
+`solutions/independent/check_import.py`：
+
+<Code language="python">{getFileExample('solutions/independent/check_import.py')}</Code>
+
+`solutions/independent/run_store.py`：
+
+<Code language="python">{getFileExample('solutions/independent/run_store.py')}</Code>
+
+从下载实验根目录切到参考答案自己的外层目录，执行：
+
+```bash
+cd solutions/independent
+uv run --no-project --python 3.13 python check_import.py
+uv run --no-project --python 3.13 python -m task_store.app
+uv run --no-project --python 3.13 python -m task_store.app
+cd ../..
+uv run --no-project --python 3.13 python solutions/independent/run_store.py
+```
+
+参考实现只使用自己的 `solutions/independent/_output/`。校验不修改参数，读取在校验前已经关闭，保存在截断前完成可能失败的准备。初始化没有被偷放进存储库或导入过程；app 输出具体读取错误之后重新抛出原异常，拒绝坏数据不会伪装成保存成功。
+
+默认 JSON 解码器的重复键行为仍然存在，成功写入也仍然不是原子或抗崩溃保存。这些限制属于契约，而不是 with 或形状校验暗中替你解决了的问题。
+
+</details>
+
+## 14. 退出条件、中断后恢复与下一章
+
+能够独立完成以下事项，再继续：
+
+- 区分 Path、打开的流、文本、字节和解码后的业务数据。
+- 预测读取位置、模式效果，以及改变 cwd 后实际使用的位置。
+- 解释编码与 JSON 转义、序列化与保存的区别。
+- 追踪成功、return、异常和取得失败时的关闭过程，而不承诺回滚。
+- 找到失败发生的层次，说明哪个调用方有理由恢复，而不是把所有错误都当空数据。
+- 从空目录重建任务存储，使用新进程运行，并验证拒绝输入时旧数据不变。
+
+暂停时记录**当前目录、最后命令、目前已有的输出文件、这是首次还是重复运行、观察结果和下一个尚未验证的变式**。已有 `_output/once.txt` 或 `_output/tasks.json` 会改变下次运行的前提。回来先检查这些状态，再预测一个小实验，不要盲目清空，也不用重建整个环境。
+
+下一章是 [L08：环境与依赖管理](/zh-cn/docs/js2py/module-08-projects)。语言、模块和文件建立之后，才解释解释器定位、隔离、依赖声明、锁文件和环境重建。下一页已按该契约重编。基础自动化测试仍在 L09，第一个独立可复现应用仍在 L10。本章的本地任务存储不是已部署服务，也不是生产持久化系统。
+
+## 15. 资料来源与刻意保留的边界
+
+以下资料于 2026-09-24 按 Python 3.13 基线核对：
+
+- [文件读写教程](https://docs.python.org/3.13/tutorial/inputoutput.html#reading-and-writing-files)：文本/二进制操作、读取位置、迭代、关闭和序列化。
+- [pathlib](https://docs.python.org/3.13/library/pathlib.html)：路径构造、resolve、parent、open 和明确创建目录。
+- [内置 open](https://docs.python.org/3.13/library/functions.html#open) 与 [I/O](https://docs.python.org/3.13/library/io.html)：模式、编码、换行转换、缓冲流与关闭。
+- [Unicode HOWTO](https://docs.python.org/3.13/howto/unicode.html)：码点、编码和解码。
+- [with 语句](https://docs.python.org/3.13/reference/compound_stmts.html#the-with-statement) 与 [内置异常](https://docs.python.org/3.13/library/exceptions.html)：取得/退出和错误类别。
+- [Python JSON](https://docs.python.org/3.13/library/json.html)、[RFC 8259](https://www.rfc-editor.org/rfc/rfc8259) 与 [MDN JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)：转换规则、单文档边界、非有限数、重复名称和 JavaScript 差异。
+
+自定义上下文协议、生成器、异步文件 API、原子替换、锁、备份、数据库事务、任意上传校验、CSV、正则和数据分析不作为本章必修。它们需要各自的问题背景与完整讲解，不能在已经密集的基础章节末尾附上一行 API 清单就算教完。

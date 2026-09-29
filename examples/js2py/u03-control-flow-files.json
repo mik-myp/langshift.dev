@@ -1,0 +1,23 @@
+[
+  "README.md",
+  "branches.py",
+  "truthiness.py",
+  "logical.py",
+  "for_tasks.py",
+  "loop_binding.py",
+  "errors/empty_loop.py",
+  "ranges.py",
+  "errors/zero_step.py",
+  "unpacking.py",
+  "errors/unpack_pair.py",
+  "numbered_tasks.py",
+  "dict_iteration.py",
+  "while_budget.py",
+  "loop_controls.py",
+  "pitfalls/mutation_skip.py",
+  "safe_filter.py",
+  "comprehensions.py",
+  "task_summary.py",
+  "solutions/fix_total.py",
+  "solutions/study_queue.py"
+]

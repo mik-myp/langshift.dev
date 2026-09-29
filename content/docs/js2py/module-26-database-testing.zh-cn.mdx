@@ -1,0 +1,284 @@
+---
+title: 数据库测试与查询诊断：用隔离 PostgreSQL 证明失败、恢复和改进
+description: 设计不会误接真实用户数据的 fixture，实测约束、事务、迁移与清理；用六万行任务读取 EXPLAIN，再评估复合索引而非背诵固定成本。
+---
+
+import { getDatabaseTestingExample } from '@/lib/js2py-examples'
+
+## 1. HTTP 测试通过，不等于数据库承诺成立
+
+H06 可以用依赖替换验证路由怎么处理成功/错误，D05 验证了版本变化。但字典替身不会执行外键，SQLite 也不是 PostgreSQL 的事务、类型、默认值与规划器。用它们测某些纯应用规则有价值，不能据此声称真实 PostgreSQL 的提交失败、迁移或索引行为已经通过。
+
+本章不追求一个好看的覆盖率数字，而要为每个承诺安排能把它推翻的实验：第二次写入失败后还能找到第一行吗？提交失败的 Session 能不恢复就继续用吗？fixture 建立到一半异常会留下连接吗？已有文字在自动候选迁移中会消失吗？索引是否真的减少了无关数据的访问，而不是查询碰巧跑得快？
+
+| 本章契约 | 内容 |
+| --- | --- |
+| 前置 | D05 的迁移历史与回退限制；H06 的 pytest fixture、依赖替换和测试断言 |
+| 新能力 | 专用真实库隔离、fixture 资源安全、约束/事务/迁移测试、查询计划与索引证据 |
+| 独立验收 | 不接开发/生产库，测试可重复且不靠顺序；故障能恢复/清理；解释一项实际查询改进 |
+| 不要求 | SQLite 替代验收、生产压测结论、固定成本数字、完整性能工程或备份恢复演练 |
+
+下载 [D06 完整实验](/learning-assets/js2py/d06-database-testing.zip)，进入 d06-database-testing。本包包含 D05 的冻结历史与最终模型，不需要相邻目录；完整 canonical 源码和 ZIP 使用同一 allowlist。
+
+## 2. 先建立拒绝危险目标的运行环境
+
+PostgreSQL 服务端必须真实安装；Python 的 psycopg/binary 只提供客户端。首次先安装 uv 和 PostgreSQL 18 的 postgres/initdb/pg_ctl/psql。实测是 macOS arm64，四个程序在 /opt/homebrew/bin。其他 POSIX 环境调整 PG_BIN；不要用 root、brew services 或现有数据库目录，也不用 Docker；Windows 未验证。
+
+在实验根目录执行：
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+"$PG_BIN/postgres" --version
+uv python install 3.13.15
+uv sync --locked
+uv run --locked python pg_sandbox.py --evidence /tmp/d06-database-testing-cleanup.json -- python -m pytest -q
+LAB_PLAN_EVIDENCE=/tmp/d06-plan.json uv run --locked python pg_sandbox.py -- python query_plan.py
+```
+
+实测基线：Python 3.13.15、uv 0.12.13、PostgreSQL 18.6、SQLAlchemy 2.0.54、Alembic 1.20.0、psycopg/binary 3.3.6、pytest 8.4.2。Web 依赖固定 FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、HTTPX 0.28.1，与 H03–H06 统一。Starlette 0.52.1、AnyIO 4.12.1 也对齐 H05/H06 锁。SQLAlchemy 2.0.54 是明确的维护线选择，不把已存在的 2.1 系列说成未来。requires-python 为 `>=3.13,<3.14`；package=false；public PyPI 锁文件真实生成。
+
+<Code language="toml">{getDatabaseTestingExample('pyproject.toml')}</Code>
+
+缺少工具时先修安装/路径，而不是把 URL 改接正在运行的开发库。只给数据库起名 test 不够安全：一个拼错的环境变量可能让清理 SQL 命中真实数据。本实验宁可因没有所有权标记失败，也不自动回退到 DATABASE_URL。
+
+## 3. 隔离不是一句“测试前清空数据”
+
+<Code language="python">{getDatabaseTestingExample('safety.py')}</Code>
+
+wrapper 在 mkdtemp 创建独占集群目录和 0700 私有 Unix socket，不监听 TCP。它移除继承的 PG 设置与常见数据库 URL，创建非超级用户 lab_owner，再把随机 LAB_DATABASE_URL 和 marker 仅传给子命令。护栏检查目录、标记、驱动、用户名、socket、端口、库名格式和进程标记，不允许手工给任意开发 URL 换个变量名就绕过。
+
+local trust 只适用于这份同一 OS 用户掌控的短命集群；它不是生产认证。marker 防误操作而不防同一 OS 用户恶意进程。lab_owner 的 CREATEDB 也只用于此集群建立隔离数据库，不建议把生产 API 账号授予建库权限。
+
+每项测试得到一个新数据库，名称含随机 UUID；DROP 只接收内部生成的标识符，并通过 psycopg Identifier 正确引用。不是用外部请求字符串拼表名。使用结束先关闭 Session/Connection，再 dispose，最后 DROP DATABASE；不加 FORCE，避免泄漏被强制踢连接掩盖。
+
+验收还查询真实服务版本、current_database、当前角色不是 superuser、inet_server_addr 为 NULL（Unix socket）。SQLite、共享开发库或 mock 不会通过这些条件。安全护栏属于实验工具，不是为任意 URL 提供破坏性清理的通用管理脚本。
+
+## 4. Fixture 在 yield 前失败，也必须释放资源
+
+<Code language="python">{getDatabaseTestingExample('testing.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('tests/conftest.py')}</Code>
+
+pytest 的 yield fixture 很像 H05 的请求依赖：前半获取，后半清理。但如果获取到连接之后、执行到 yield 之前迁移失败，仅在 yield 后面写清理未必会执行。migrated_engine 把 prepare/upgrade 也放进 try/finally，先建立退出边界，再开始可能失败的准备工作。
+
+资源是逐层拥有的：fresh_database 拥有数据库，migrated_engine 拥有 Engine，Session/Connection 的 with 块拥有借出的连接。内层先结束，外层才能安全销毁。dispose 只关池内空闲连接，不能替仍在测试代码手里的 Session 还债，因此先检查 checkedout==0，再删除库。数据库删除失败也应保留失败信号，不扩大清理目标。
+
+<Code language="python">{getDatabaseTestingExample('tests/test_resource_safety.py')}</Code>
+
+测试故意在 prepare 阶段创建 CHECK 表并插入 -1，使 yield 根本不发生；仍要看到物理连接 close 事件、该数据库从 pg_database 消失。另一个测试在主体中抛错，验证退出顺序相同。这比测试结束没抛异常更能说明资源政策成立。
+
+## 5. 为什么本章不把每个测试包进一个永不提交的大事务
+
+外层事务 + SAVEPOINT 可让某些数据库测试更快，但如果被测 API 的 commit 实际只结束保存点，数据库真正的 COMMIT 延迟约束、连接释放和跨连接可见性就未必被测试到。它不是错误技术，只是不适合替代本章的关键验收。
+
+这里为每个测试建立独立数据库，允许被测代码真的 commit/rollback，再在新连接中观察结果。代价是建库与迁移更慢，优点是提交语义不被测试工具改写。跨测试不共享已修改的数据，不依赖某个测试先创建 alice；每项自己 seed。当前 runner 串行重复执行；没有把未跑过的 xdist 并行或任意随机顺序称为已验证。
+
+## 6. 约束测试绕过 API，才知道最后一道防线还在
+
+<Code language="python">{getDatabaseTestingExample('tests/test_database.py')}</Code>
+
+API 可以先拒绝空标题和非法状态，但导入脚本、旧版本服务或另一个连接仍可能绕过它。参数化测试直接 UPDATE 真实任务：bogus 状态、负分钟、空白标题、不存在的用户/项目、越界或 NULL 的 priority 都必须触发 IntegrityError；用新连接确认原行仍正确。
+
+另测 users.login 唯一性、成员复合主键、RESTRICT 删除。不要只断言“抛了异常”：语法拼错也会失败，却没证明业务约束在工作。这里断言明确的完整性错误，并验证回滚后的状态与资源。
+
+模型仍为 D01 的 User/Project/ProjectMember/Task，加 D05 priority。H done→todo/done、note→description、minutes 保留；status 仍有 doing，updated_at 仍需应用显式更新。没有因为进入测试章就改成另一套字段，也没有把外键当作授权：查询限定项目不证明当前请求者属于它。
+
+## 7. 事务验收必须离开原来的失败工作单元
+
+项目+负责人测试在第二次 flush 注入非法 role；新的 Session 必须看见两表都是 0，随后新事务能正常建立项目。不能只检查失败函数没有返回，或者 Python list 为空。
+
+<Code language="python">{getDatabaseTestingExample('commit_failure.py')}</Code>
+
+```bash
+uv run --locked python pg_sandbox.py -- python commit_failure.py
+```
+
+```text
+two INSERT values accepted; deferred check awaits COMMIT
+COMMIT failed
+Session refuses reuse before rollback
+rollback restored Session; next transaction committed one row
+checked out: 0
+```
+
+deferred UNIQUE 把错误推迟到真实 COMMIT，不是把 flush 失败换个名字。rollback 前继续查询必须失败，恢复后新事务写 8 并提交，新连接只看到 8。新借出的 Connection 可能复用池内同一物理连接；这里证明的是离开失效 Session 后的新事务状态，不是每次必须建立新 socket。清理、回滚与成功持久化是三项不同事实，测试要分别观察。网络中断导致的未知提交结果未在此验收，不能据此承诺所有错误都可盲目重试。
+
+## 8. 迁移测试必须从旧结构与旧数据出发
+
+D06 的一般 engine fixture 自动升到 head，但迁移历史测试特意覆盖它，取得真正空库，再按各测试要求从 001/002 开始。如果总用最终 schema 的 create_all，便根本没有测试迁移链。
+
+<Code language="python">{getDatabaseTestingExample('tests/test_migration_history.py')}</Code>
+
+测试带数据升级保留、旧写入兼容、越界数据让版本/DDL/回填全部回滚、拒绝丢数据降级，以及真实 autogenerate 的改名候选。重放冻结 migration 文件，不导入当前模型代替历史定义。Alembic check 是支持范围内的 metadata 比较，不会证明历史文字没有丢失，也不证明所有 CHECK 表达式等价。
+
+D05 的普通事务 DDL 可回滚结论仍有限定；生产大表锁影响、非事务操作和备份恢复没有由这些单元场景覆盖。
+
+## 9. 查询的正确性先于查询速度
+
+先检验任务列表只包含指定项目、status 筛选正确、按 id 排序分页、空结果与不筛选情况正确。把另一个项目的任务混进去，即使只有 1 毫秒也不是优化成功。offset 分页在静态数据集稳定，不承诺并发写入时每页永远不漂移。
+
+接着问数据库如何得到这些结果。数据库并不是看到 WHERE 就天然只读匹配行：缺少合适索引时，可能扫描很多行再筛掉。主键已经是索引，也不代表所有列表查询都有适用索引。读 EXPLAIN 要看实际使用哪个索引、何处筛选，而不只是搜到 Index Scan 三个字。
+
+## 10. 构造有意义的数据量，再读取计划
+
+<Code language="python">{getDatabaseTestingExample('query_plan.py')}</Code>
+
+实验建立 200 个项目、60,000 个任务，每项目 300 个、其中 30 个 doing。任务交错分布，附带一定长度的描述，避免只用三行数据便宣称任何索引都值得加。目标查询限定 project_id 和 status，按 id 取 20 条。数据库 identity 不被假设从 1 开始，实际返回的项目 ID 用作绑定参数。
+
+先 ANALYZE 更新统计，再保存未加复合索引时的结果和 JSON 计划；创建 `(project_id, status, id)` 索引并再次 ANALYZE，取得第二份结果与计划。没有 SET enable_seqscan=off 强迫规划器“证明”索引有用。测试首先比较结果完全相等，再确认规划器确实使用了实验索引。
+
+本次 18.6 观察到的输出如下；它是观察样本，不是所有机器/版本必须固定的计划树：
+
+```text
+plan before: [('Limit', None), ('Index Scan', 'tasks_pkey')]
+plan after: [('Limit', None), ('Index Scan', 'ix_tasks_project_status_id')]
+same result rows: 20
+```
+
+两次都有 Index Scan，却不是同样工作：之前按主键顺序扫描并过滤大量无关项目/状态；之后复合索引先缩小到一个项目和状态，再沿 id 顺序取得结果。只看节点名称会错过真正变化。索引前并不保证总是 Seq Scan。
+
+## 11. 逐个读 EXPLAIN 字段，不背成本数字
+
+EXPLAIN 显示规划器的估计；EXPLAIN ANALYZE 真正执行 SQL 并加入实际观测。因此对写语句加 ANALYZE 会真的写，不应随手用于生产破坏性语句。本实验只解释 SELECT，且在专用测试库中。
+
+| 观察项 | 怎样解释，怎样避免误读 |
+| --- | --- |
+| Startup Cost / Total Cost | 规划器内部相对单位，不是毫秒或账单；父节点成本包含子节点，不逐层相加 |
+| Plan Rows 与 Actual Rows | 估计与实际可不同；循环节点还要结合 Actual Loops，不只看一个 rows 数 |
+| Index Cond 与 Filter | 前者用索引缩小候选，后者还需筛选；Rows Removed by Filter 揭示丢弃的工作 |
+| Buffers 的 shared hit/read | 数据块已在缓存或需要读取的观测，不直接等于物理磁盘时延或用户耗时 |
+| Planning/Execution Time | 本次仪器测量，会受缓存、机器负载与测量开销影响，不能据一次运行做容量承诺 |
+
+测试不比较某个精确 cost 或固定毫秒阈值。证据 JSON 保存两份完整计划，可查看不同环境的估计、索引名、过滤行和 buffers。本机观测原计划过滤了 38,180 行，新计划通过复合索引直接定位；这属于本次样本，正文不把它当作永恒常数。
+
+小表、低选择性过滤或取大部分行时，顺序扫描可能更便宜。索引占空间，并增加 INSERT/UPDATE/DELETE 的维护工作；前导列顺序和查询条件有关，不是把所有列都加索引就好。若新环境不选择索引，先检查数据分布、统计、条件、排序和代价，再解释差异，不关闭规划器路径伪造成功。
+
+此索引仅在独立实验数据库创建，不是 D05 默认 migration head 的一部分。后续服务若采用它，应提交受审查的 index migration，并评估锁/写入成本；不能以测试里存在过索引为由声称生产结构已经升级。
+
+## 12. 三层练习：解释、修改、独立查询
+
+**解释题。** 为什么“所有测试最后 rollback”可能掩盖提交失败？为什么 fixture 只把清理写在 yield 后不够？
+
+<details>
+<summary>答案：测试工具不能改掉要验证的边界</summary>
+
+如果被测 commit 只结束保存点，真正 COMMIT 的 deferred 约束可能直到外层事务结束才执行；最后测试又只 rollback，就错过了故障。fixture 若在获取资源后、yield 前抛错，尚未建立的后半清理不能被假设执行。把获取后的全部准备放进 try/finally，并允许独立库里的真实提交。
+
+</details>
+
+**带提示修改。** 在完整实验的临时副本中把计划实验改成 **3 个项目、12 个任务**，观察小表计划，再回到未修改的 60,000 行基线。仍通过 pg_sandbox 运行；不换成现有数据库，也不修改正式样例来迁就这次练习。这里不是只把一个 60000 改成 12：
+
+1. 项目生成范围由 `generate_series(1, 200)` 改为 `generate_series(1, 3)`；任务范围由 `generate_series(1, 60000)` 改为 `generate_series(1, 12)`。分配项目的 `(g-1) % 200` 同步改成 `(g-1) % 3`；否则数组下标与项目集合不匹配。
+2. 状态条件由 `((g-1)/200) % 10 = 0` 改成 `((g-1)/3) % 2 = 0`。每个项目由此有 4 个任务，其中 2 个 doing、2 个 todo。继续以实际返回的 `projects[-1]` 为目标，不猜数据库 ID 从 1 开始；该项目的 doing 标题应为 `Task 3` 和 `Task 9`，其他项目/状态不能混入。
+3. 保留查询的 `ORDER BY id LIMIT 20`。20 是上限，不是必须凑满的数量；本样本只能返回 2 行。在仍打开的 connection 块里，把总行数断言由 60000 改为 12；两次查询后，用下面的断言替换原先固定返回 20 行的组合断言。相等、预期内容、顺序和无重复仍须通过，不能删除所有 assert 来获得绿灯。
+
+```python
+assert before_rows == after_rows
+assert len(after_rows) == 2
+assert [row.title for row in after_rows] == ["Task 3", "Task 9"]
+ids = [row.id for row in after_rows]
+assert ids == sorted(ids) and len(ids) == len(set(ids))
+```
+
+4. 保留“建索引前没有使用实验索引”的检查；仅把“建索引后必须采用实验索引”的断言改为观察并记录两份计划。两次 ANALYZE、实际建索引、结果正确性检查都保留。不设置 `enable_seqscan=off`，也不强求小表必须出现 Seq Scan。
+5. 把 report 的 `rows_seeded` 改为 12、`projects` 改为 3，`returned` 继续使用实际结果长度；将 `note` 标明小样本观察。证据写到临时集群外的独立文件，不覆盖六万行证据。结束后确认 wrapper 的停止/删除记录，丢弃练习副本；正式六万行基线及其索引断言保持不变。
+
+在练习副本根目录只运行这个小样本脚本；不要把改过的样本拿去冒充整套正式基线验收：
+
+```bash
+LAB_PLAN_EVIDENCE=/tmp/d06-small-plan.json uv run --locked python pg_sandbox.py --evidence /tmp/d06-small-cleanup.json -- python query_plan.py
+```
+
+本次 PostgreSQL 18.6 小样本实测中，索引前后都选择 `Limit → Sort → Seq Scan`，仍正确返回上述两行。小表扫描和排序可能比索引访问更便宜；另一个环境选择不同计划也可以，前提是相同的正确性断言成立，而不是强迫复现这个节点序列。
+
+先预测这两行结果，再观察：不同计划是否仍给出同样、正确且有序的任务？计划选择可以变，业务正确性不能放宽。
+
+<details>
+<summary>答案：索引使用不是与数据量无关的正确性条件</summary>
+
+少量数据顺序读几页的开销可能比索引查找更低。先保证结果正确，再对照估计、统计和实际访问。当前参考测试刻意针对有选择性的六万行基线验证索引被选中；若独立改变数据规模，也应重新设计其观察断言，而不是保留不适用的性能假设。
+
+</details>
+
+**独立变式。** 为指定项目集合返回 done 任务的 minutes 总和。空项目也应返回 0；todo/doing 不计入；集合外项目不混入。先写真实库测试，特别是空项目与零行输入，再比较 SQL 和计划。不要把此函数称为已实现鉴权。
+
+<details>
+<summary>参考实现与测试：LEFT JOIN 的条件位置很重要</summary>
+
+<Code language="python">{getDatabaseTestingExample('solutions/project_totals.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('solutions/test_project_totals.py')}</Code>
+
+status 条件放在连接条件中，保留没有匹配任务的项目；若放进 WHERE，NULL 扩展的行可能被过滤，空项目消失。coalesce 把空聚合结果变成 0。调用者仍负责只传已经授权的项目集合；正确聚合不等于权限正确。独立添加一个只有 doing 任务的项目，并解释它为什么也是 0。
+
+</details>
+
+## 13. 完整冻结结构和支撑源码
+
+<details>
+<summary>最终模型、服务查询、连接与迁移配置</summary>
+
+<Code language="python">{getDatabaseTestingExample('models.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('services.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('db.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('migrate.py')}</Code>
+
+<Code language="ini">{getDatabaseTestingExample('alembic.ini')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('migrations/env.py')}</Code>
+
+</details>
+
+<details>
+<summary>三个历史版本、历史样本与候选模板</summary>
+
+<Code language="python">{getDatabaseTestingExample('migrations/versions/001_base.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('migrations/versions/002_expand.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('migrations/versions/003_contract.py')}</Code>
+
+<Code language="python">{getDatabaseTestingExample('history_data.py')}</Code>
+
+<Code language="text">{getDatabaseTestingExample('migrations/script.py.mako')}</Code>
+
+</details>
+
+<details>
+<summary>私有集群的全部生命周期与完整依赖锁</summary>
+
+<Code language="python">{getDatabaseTestingExample('pg_sandbox.py')}</Code>
+
+<Code language="toml">{getDatabaseTestingExample('uv.lock')}</Code>
+
+</details>
+
+下载还保留 history_demo.py 便于单独重放 D05 历史；README 三语列出环境、命令、排错。下载只含 allowlist 源码，不含 .venv、pytest/Python 缓存、数据库 data、.env、日志或秘密。
+
+## 14. 验收证据、暂停记录与没有验证的事
+
+完整套件实测 **26 项通过**：参数化约束反例、重复关系、原子失败/恢复、真正 commit 失败、查询过滤/分页、RESTRICT、迁移与候选审查、fixture 两种失败清理、真实版本/角色、索引与独立聚合。再次执行应在新数据库得到同样业务结论，而不是复用上次数据。
+
+证据中 PostgreSQL server_version_num 为 180006。每次 wrapper 退出应见 stopped=true、status_after_stop=3、removed=true；停止失败保留路径和日志。finally 无法处理 SIGKILL/断电，所以不能据正常退出证明一切灾难都自动清理。只停自己的精确目录，不动 brew services 或其他 postgres。
+
+暂停记录写：已通过测试名/参数、最后命令、当前迁移版本、数据量和分布、计划文件位置、未解决问题、下次第一步。临时数据库随 wrapper 退出清理；计划证据要写到外部指定 /tmp 文件，生成数据可重放，不保存真实用户数据。
+
+尚未验证 Windows/其他硬件、生产负载与并发容量、网络分区/未知提交结果、生产备份恢复、权限体系、无停机迁移、xdist 并行。把这些边界写出来，不会减损已完成测试的价值，反而防止拿一个局部绿灯当作上线许可。
+
+## 15. 官方依据与核验日期
+
+核验日期 **2026-09-28**，实际 pins 与记录见包内 SOURCES.md/README。官网获取受限时使用同一项目的官方版本标签源码，不以第三方教程推断行为。
+
+- [pytest fixture 安全清理](https://docs.pytest.org/en/stable/how-to/fixtures.html#safe-teardowns) 与 [8.4.2 官方源码文档](https://github.com/pytest-dev/pytest/blob/8.4.2/doc/en/how-to/fixtures.rst)。
+- [SQLAlchemy Session Basics](https://docs.sqlalchemy.org/en/20/orm/session_basics.html)、[Pooling](https://docs.sqlalchemy.org/en/20/core/pooling.html)：事务状态与借用归还。
+- [PostgreSQL 18 EXPLAIN](https://www.postgresql.org/docs/18/using-explain.html)：成本单位、执行观测与解读限制。
+- [PostgreSQL 18 约束](https://www.postgresql.org/docs/18/ddl-constraints.html)、[initdb](https://www.postgresql.org/docs/18/app-initdb.html)、[pg_ctl](https://www.postgresql.org/docs/18/app-pg-ctl.html)：真实库隔离和生命周期。
+- [Alembic autogenerate](https://alembic.sqlalchemy.org/en/latest/autogenerate.html)：候选与 drift 检查的能力边界。
+- [psycopg 3.3.6 支持范围](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/install.rst)、[PostgreSQL 18.6](https://www.postgresql.org/docs/18/release-18-6.html)：本章的版本依据。
+- [uv 安装](https://docs.astral.sh/uv/getting-started/installation/)、[PostgreSQL 下载](https://www.postgresql.org/download/)：先装二进制，服务交给独占 wrapper。

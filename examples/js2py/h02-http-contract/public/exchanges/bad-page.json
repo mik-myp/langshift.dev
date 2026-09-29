@@ -1,0 +1,34 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "bad-page",
+  "precondition": {
+    "seed_tasks": []
+  },
+  "request": {
+    "method": "GET",
+    "target": "/tasks?offset=-1&limit=2",
+    "headers": {}
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "detail": [
+        {
+          "type": "greater_than_equal",
+          "loc": [
+            "query",
+            "offset"
+          ],
+          "msg": "Input should be greater than or equal to 0",
+          "input": "-1",
+          "ctx": {
+            "ge": 0
+          }
+        }
+      ]
+    }
+  }
+}

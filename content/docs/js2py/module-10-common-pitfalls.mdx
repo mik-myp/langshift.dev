@@ -1,284 +1,245 @@
 ---
-title: "Module 10: Common Pitfalls"
-description: "From a JavaScript developer's perspective, this module analyzes common conceptual pitfalls and error-prone points in Python."
+title: Your First Independent Reproducible Project
+description: Combine functions, modules, files, environments and tests from requirements; verify persistence, rejected-data preservation and clean recovery, then implement an unguided variation.
 ---
 
-## 1. Introduction
+import { getProjectExample } from '@/lib/js2py-examples'
 
-When you switch from one language to another, the trickiest parts are often not the new syntax, but the "gotchas" that seem similar but behave completely differently. These subtle differences can lead to hard-to-detect bugs and confusion.
+## 1. This is not another framework scaffold to copy
 
-This module is specifically designed for you—a developer transitioning from JavaScript to Python—to sort out some of the most common conceptual pitfalls.
+You now know values, containers, control flow, functions, exceptions, modules, files, environments and plain automated tests. Combine those capabilities: **start with requirements and acceptance, implement independently, then compare responsibilities with a reference.** You may consult earlier chapters and official documentation instead of memorizing every API.
 
-> 💡 **Learning Strategy**: Don't just memorize. Understand the "why" behind each pitfall and compare it to JavaScript's behavior. This way, you will naturally avoid them in your actual coding.
+The deliverable is a local task application, not a Web backend or production persistence system. It is small enough to trace every data change while still requiring real input contracts, file-failure behavior, environment recovery, tests and a changed requirement. Databases, authorization and deployment retain their later dedicated teaching.
 
-## 2. Truthy vs. Falsy
+| Contract | Scope |
+| --- | --- |
+| Prerequisites | L07 files/JSON, L08 environments, L09 plain tests, earlier language/module foundations |
+| Deliverable | Multi-file application, run instructions, declaration/lock, success and failure checks |
+| Independent acceptance | Empty-directory implementation, second-directory recovery, corrupt-data preservation and an unguided variation |
+| Not introduced | Web, databases, class design, decorators, async or custom context protocols |
 
-In Python, empty collection types (like lists, dictionaries, tuples) are considered "falsy." This is a significant difference from JavaScript's behavior, where an empty array `[]` and an empty object `{}` are both "truthy."
+The [L10 reference project and inputs](/learning-assets/js2py/u10-local-project.zip) are available for comparison, but **start your own empty directory outside the download**. References are folded below. Verified baseline on 2026-09-28: CPython 3.13.15, uv 0.12.13 and pytest 8.4.2. Business execution uses only the standard library.
 
-<PythonEditor title="Truthy vs. Falsy Comparison" compare={true}>
-```javascript !! js
-// JavaScript
-if ([]) {
-  console.log("Empty array is truthy in JS"); // This will be printed
-}
+## 2. Specify the data and behavior before coding
 
-if ({}) {
-  console.log("Empty object is truthy in JS"); // This will be printed
-}
+The file contains one JSON array. Each item has exactly title, minutes and done. Title is non-whitespace str with spelling preserved; minutes is an ordinary nonnegative int, rejecting bool, float and numeric strings; done is bool only. Empty arrays, zero minutes and duplicate titles are valid. Preserve order and reject missing/extra fields.
 
-if ("") {
-  console.log("Empty string is falsy"); // This will not be printed
-}
+Only a **missing** destination initializes this data. An existing empty array is not absence:
 
-if (0) {
-  console.log("0 is falsy"); // This will not be printed
-}
+<Code language="json">{getProjectExample('fixtures/initial.json')}</Code>
+
+Every successful run marks all unfinished tasks whose title exactly equals Read as done. Already-complete items do not increase changed. Save once, then report changed count, total tasks and unfinished minutes. Titles are not unique IDs; matching duplicates are all processed rather than silently adopting a first-match rule.
+
+A missing file and a damaged existing file are different events. Invalid encoding, malformed JSON or invalid business shape must produce a visible nonzero failure while preserving the original bytes. Do not initialize, save an empty array or merely warn and continue. Permission and unknown I/O errors cannot become “a new user with no tasks.”
+
+## 3. Separate responsibilities along data flow
+
+Draw the flow: **path → open file → parsed text → validated data → business change → summary → serialization → save → display**. At each boundary ask who guarantees input and who interprets or propagates failure.
+
+- Validation returns a fresh list of fresh dictionaries. Mutating the result must not mutate the original input.
+- Rules complete tasks and compute summaries without opening files, printing or creating directories. There is no global mutable task database.
+- Storage reads/writes and validates. Load propagates absence instead of choosing initialization policy. Save validates/serializes before a destructive open.
+- The app chooses its owned fixed path, creates its parent, decides when initialization is allowed, orders calls and stops after damaged input.
+
+These are ordinary modules/functions, not an invitation to memorize enterprise architecture terms. Equivalent names are fine if responsibilities remain explainable. A small program still must not read or write user files merely on import; more directories do not automatically establish better boundaries.
+
+Write your module sketch and each function's inputs, outputs and errors before opening the reference. Type annotations are not required until their dedicated L11 lesson.
+
+## 4. Make the environment explainable too
+
+Use this declaration shape with your own project name. Do not bring the reference's installed environment into your implementation:
+
+<Code language="toml">{getProjectExample('pyproject.toml')}</Code>
+
+<Code language="text">{getProjectExample('.python-version')}</Code>
+
+```bash
+uv lock
+uv sync --locked
+uv run --locked python -m pytest -q
 ```
 
-```python !! py
-# Python
-if []:
-    print("Empty list is Falsy in Python")  # This will not be printed
-else:
-    print("Empty list is falsy")
+No third-party runtime dependency is a valid choice. Do not force an ecosystem package into a problem the standard library already solves. Pytest remains in dev, with tool dependencies that still need a recoverable lock.
 
-if {}:
-    print("Empty dictionary is Falsy in Python")  # This will not be printed
-else:
-    print("Empty dictionary is falsy")
+Generate the lock from your own declaration, then synchronize in locked mode. Before you write tests, the final command may report no tests; L09 taught why this is not acceptance. Record that state and add real checks. The reference download already has a lock, so restore it with sync --locked rather than silently updating a mismatch first.
 
-if "":
-    print("Empty string is Falsy")  # This will not be printed
-else:
-    print("Empty string is falsy")
+Do not edit lock internals manually. Empty-directory recovery includes source, declaration, lock, version selection and required fixtures. Caches, personal secrets and real user data have different ownership and recovery responsibilities.
 
-if 0:
-    print("0 is Falsy")  # This will not be printed
-else:
-    print("0 is falsy")
-```
-</PythonEditor>
+## 5. Define acceptance before implementing
 
-## 3. `this` vs. `self`
+First and second process runs should respectively print:
 
-In JavaScript class methods, `this` is a keyword whose value is determined when the function is called. In Python instance methods, the first parameter (named `self` by convention) explicitly represents the instance itself, and it is not a keyword.
-
-<PythonEditor title="this vs. self Comparison" compare={true}>
-```javascript !! js
-// JavaScript
-class Counter {
-  constructor() {
-    this.count = 0;
-  }
-
-  increment() {
-    this.count++;
-    console.log(this.count);
-  }
-}
-
-const counter = new Counter();
-counter.increment(); // 1
+```text
+Source: new file
+Changed: 1
+Tasks: 3
+Pending minutes: 35
 ```
 
-```python !! py
-# Python
-class Counter:
-    def __init__(self):
-        self.count = 0
-
-    def increment(self):  # `self` must be explicitly passed as the first parameter
-        self.count += 1
-        print(self.count)
-
-counter = Counter()
-counter.increment()  # 1
-```
-</PythonEditor>
-
-## 4. Variable Scope
-
-JavaScript (ES6+) has block-level scope (defined by `{}`), while Python's scope is based on functions (or classes, modules). Variables defined in code blocks like `for` loops will "leak" into the outer scope in Python.
-
-<PythonEditor title="Scope Comparison" compare={true}>
-```javascript !! js
-// JavaScript (Block Scope)
-for (let i = 0; i < 3; i++) {
-  console.log(i);
-}
-// console.log(i); // ReferenceError: i is not defined
-
-if (true) {
-  const blockVar = 'hello';
-}
-// console.log(blockVar); // ReferenceError: blockVar is not defined
+```text
+Source: existing file
+Changed: 0
+Tasks: 3
+Pending minutes: 35
 ```
 
-```python !! py
-# Python (Function Scope)
-for i in range(3):
-    print(i)
+Use fresh Python processes. Retaining a list in one process does not demonstrate persistence. Changed becoming zero follows this particular completion operation's contract; it does not mean every repeated program run is universally side-effect free.
 
-print(f"After the loop, i still exists: {i}") # Output: After the loop, i still exists: 2
+Also verify:
 
-if True:
-    block_var = 'hello'
+| Situation | Required observation |
+| --- | --- |
+| Import app/storage | Only the probe's output; no directory creation, data I/O or business entry |
+| Existing empty array | Remains empty; counts and minutes are zero |
+| Duplicate Read titles, some already done | All match, but count only newly completed items |
+| Change Practice to 36 minutes | A new process reports 36 rather than hard-coded 35 |
+| Malformed JSON, invalid encoding or shape | Visible failure, unchanged original bytes, no success report |
+| Missing parent | App creates its owned parent; storage does not silently create arbitrary directories |
+| Different cwd | Same anchored project data, no accidental second dataset under the caller |
 
-print(f"After the if block, the variable still exists: {block_var}") # Output: After the if block, the variable still exists: hello
-```
-</PythonEditor>
+Invalid values rejected before saving must preserve the old file. **A failure during writing can still damage it.** Retain L07's explicit limits instead of turning with, tests or one-document formatting into a database transaction claim.
 
-## 5. Mutable Default Arguments
+## 6. Give file tests their own disposable directory
 
-This is a very classic and notorious "gotcha" in Python. If a function's default argument is a mutable object (like a list or dictionary), that object will be shared across all calls. This is completely different from JavaScript's behavior.
+Tests must not damage your working task file, and fixture knowledge is not a prerequisite. Introduce one small standard-library utility: TemporaryDirectory creates an owned temporary directory; leaving its with scope cleans up that directory and contents on normal or exceptional exit.
 
-<PythonEditor title="Mutable Default Argument Comparison" compare={true}>
-```javascript !! js
-// JavaScript
-function append(item, arr = []) {
-  arr.push(item);
-  return arr;
-}
+<Code language="python">{getProjectExample('demo_resource.py')}</Code>
 
-console.log(append(1)); // [1]
-console.log(append(2)); // [2] (A new empty array is created for each call)
+```bash
+uv run --locked python demo_resource.py
 ```
 
-```python !! py
-# Python (The wrong way)
-def append_bad(item, arr=[]):
-    arr.append(item)
-    return arr
-
-print(append_bad(1))  # [1]
-print(append_bad(2))  # [1, 2] (The list is shared across all calls!)
-
-# The correct way
-def append_good(item, arr=None):
-    if arr is None:
-        arr = []
-    arr.append(item)
-    return arr
-
-print(append_good(1)) # [1]
-print(append_good(2)) # [2]
-```
-</PythonEditor>
-
-## 6. `null`/`undefined` vs. `None`
-
-JavaScript has two values to represent "nothing": `null` (representing an "intentionally set empty value") and `undefined` (representing "not defined"). In Python, there is only one corresponding concept: `None`.
-
-<PythonEditor title="null/undefined vs. None" compare={true}>
-```javascript !! js
-// JavaScript
-let a; // undefined
-let b = null; // null
-
-function greet(name) {
-  // If no argument is passed, name is undefined
-  console.log(name);
-}
+```text
+Inside: True
+After: False
 ```
 
-```python !! py
-# Python
-a = None  # Only None
+Directory is a string path; Path turns it into the familiar object. Create only test-owned files beneath that temporary directory, never supply a real user's location. After exit, the path name still exists but the location is cleaned up, extending L07's distinction between a name and an available resource.
 
-def greet(name=None):
-    # Usually use None as the default value
-    print(name)
+Each file test creates its own directory. A reader need not know it is being tested: it accepts a Path. Similarly, main(path) can accept a test-owned location while the normal entry chooses its fixed default. This is an ordinary function parameter, not premature framework dependency injection or a security promise for arbitrary uploaded paths.
 
-# Check if it is None
-if a is None:
-    print("a is None")
-```
-</PythonEditor>
+## 7. Work in observable stages rather than one large leap
 
+Use small verifiable steps while deciding the implementation yourself:
 
-## 7. Loop Variable Capture
+1. Build pure validation/rules and plain tests for empty, zero, duplicates and non-mutation.
+2. Add storage and round-trip in temporary directories; two saves still produce one document.
+3. Add orchestration and the fixed path; verify first/repeated/existing-empty behavior.
+4. Copy bad input into an owned disposable destination and compare bytes before/after failure; never repair fixtures in place.
+5. Use an outer entry from another cwd and probe imports without business execution.
+6. Recover in a second clean directory, rerun the whole acceptance table, then attempt the variation.
 
-This is a side effect of Python's scoping rules, often occurring in closures or lambda functions.
+For a red step, identify its layer before changing Python, registries, JSON and assertions simultaneously. Run focused checks after each small change and the complete suite afterward, preserving explainable progress.
 
-<PythonEditor title="Loop Variable Capture" compare={true}>
-```javascript !! js
-// JavaScript (ES6 let)
-const funcs = [];
-for (let i = 0; i < 3; i++) {
-    funcs.push(() => console.log(i));
-}
+## 8. Reference implementation: inspect responsibilities
 
-funcs[0](); // 0
-funcs[1](); // 1
-funcs[2](); // 2
-// Because let has block scope, a new binding is created for each iteration
-```
+<details>
+<summary>Complete application reference — after your module sketch and first acceptance</summary>
 
-```python !! py
-# Python
-funcs = []
-for i in range(3):
-    funcs.append(lambda: print(i))
+Files below are package initialization, validation, rules, storage, app, import probe and outer entry, in that order. Keep the downloaded paths; package-internal files are not arbitrary standalone commands:
 
-funcs[0]()  # 2
-funcs[1]()  # 2
-funcs[2]()  # 2
-# Why? Because the lambda function captures the reference to variable i, not the value.
-# When the function executes, the loop has finished, and the value of i is 2.
+<Code language="python">{getProjectExample('task_app/__init__.py')}</Code>
 
-# Fix: Use a default argument to bind the current value
-funcs_fixed = []
-for i in range(3):
-    funcs_fixed.append(lambda x=i: print(x))
+<Code language="python">{getProjectExample('task_app/validation.py')}</Code>
 
-funcs_fixed[0]()  # 0
-funcs_fixed[1]()  # 1
-funcs_fixed[2]()  # 2
-```
-</PythonEditor>
+<Code language="python">{getProjectExample('task_app/rules.py')}</Code>
 
-## 8. Assignment vs Copying
+<Code language="python">{getProjectExample('task_app/storage.py')}</Code>
 
-In Python, assignment (`=`) never copies an object; it only creates a new reference (alias). This is consistent with JavaScript's object assignment behavior, but can be a trap for developers used to certain C++ behaviors.
+<Code language="python">{getProjectExample('task_app/app.py')}</Code>
 
-<PythonEditor title="Assignment vs Copying" compare={true}>
-```javascript !! js
-// JavaScript
-const list1 = [1, 2, 3];
-const list2 = list1; // Reference assignment
+<Code language="python">{getProjectExample('check_import.py')}</Code>
 
-list2.push(4);
-console.log(list1); // [1, 2, 3, 4] (Also modified)
+<Code language="python">{getProjectExample('run_tasks.py')}</Code>
 
-// Shallow copy
-const list3 = [...list1];
-list3.push(5);
-console.log(list1); // [1, 2, 3, 4] (Unaffected)
+```bash
+uv sync --locked
+uv run --locked python check_import.py
+uv run --locked python -m task_app.app
+uv run --locked python -m task_app.app
 ```
 
-```python !! py
-# Python
-list1 = [1, 2, 3]
-list2 = list1  # Reference assignment
+Main(path=None) selects the default only when no test path is supplied. App owns parent creation and the explicit missing-file recovery policy; load_tasks itself continues to propagate absence. Validation returns fresh data, so rule mutation cannot contaminate the caller.
 
-list2.append(4)
-print(list1)  # [1, 2, 3, 4] (Also modified)
+The app calculates its summary before saving and prints successful counts only after saving succeeds. Bad inputs fail first; write failures remain visible, and no atomicity guarantee has appeared. Title matching is not a general CRUD, user-ID or authorization system.
 
-# Shallow copy
-list3 = list1.copy()  # Or list1[:]
-list3.append(5)
-print(list1)  # [1, 2, 3, 4] (Unaffected)
+From the downloaded reference root, enter its parent, explicitly select the project and run the outer entry, then return. --project selects the project without changing the caller's working directory, so the script path is also relative to that parent. Expect the repeated-run output, with no second _output in the parent. For your own renamed project, adjust both directory names rather than patching sys.path.
 
-# Deep copy (for nested objects)
-import copy
-nested1 = [[1, 2], [3, 4]]
-nested2 = copy.deepcopy(nested1)
-nested2[0][0] = 999
-print(nested1[0][0])  # 1 (Unaffected)
+```bash
+cd ..
+uv run --project u10-local-project --locked python u10-local-project/run_tasks.py
+cd u10-local-project
 ```
-</PythonEditor>
 
-## 8. Summary
+</details>
 
+## 9. Reference tests: business and file evidence are different
 
-Understanding and mastering these differences will help you write robust, unsurprising Python code more quickly. When you encounter unexpected behavior, it's a good idea to come back to this list and check if you've fallen into one of these "traps."
+<details>
+<summary>Open reference tests — after writing your expectation matrix</summary>
+
+<Code language="python">{getProjectExample('tests/test_rules.py')}</Code>
+
+<Code language="python">{getProjectExample('tests/test_storage.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q
+uv run --locked python -m pytest --collect-only -q
+```
+
+The main suite has **15 cases**, not the 17 obtained by adding the separate solution tests. The first covers current requirements; select variation tests explicitly after attempting the new requirement. Tests use owned temporary directories, never the app's live _output/tasks.json. A cache does not preserve correctness after source or expectations change.
+
+Beyond round-trip equality, checks verify independent results, one-document replacement, pre-save rejection without truncation/creation, and original bytes preserved after damaged input. Merely asserting an exception cannot prove data was not already destroyed.
+
+Main accepts a test path without fixtures or mocks. Fresh-process and other-cwd acceptance remain additional checks: calling main twice within a test process alone does not prove restart persistence. Keep these types of evidence distinct.
+
+</details>
+
+## 10. Diagnose damaged data instead of deleting the evidence
+
+Two supplied bad inputs are:
+
+<Code language="text">{getProjectExample('fixtures/broken.json')}</Code>
+
+<Code language="json">{getProjectExample('fixtures/wrong-shape.json')}</Code>
+
+In a disposable project copy, first create normal output and preserve a backup. Copy a bad fixture to that copy's _output/tasks.json. Run the same entry, observe nonzero failure, then compare the destination with the injected bytes using an editor or familiar read_bytes. Original fixtures remain unchanged.
+
+The first is invalid JSON; the second parses but violates the array-root contract. Neither permits initialization. After observing failure, deliberately restore the good backup and rerun. Deleting damaged data until the app starts is not successful corruption handling. Data recovery, code repair and fresh initialization are different actions.
+
+Likewise, do not reinterpret PermissionError as an empty list or broadly relax system permissions to make a demo work. Unknown failures should remain diagnosable instead of producing a misleading successful new file.
+
+## 11. Independent variation: choose a plan within a budget
+
+No line-by-line recipe: add a pure function over valid tasks and an ordinary nonnegative int budget. Consider unfinished tasks in original order. Skip an item that does not fit but keep considering later items. Exact fits and zero-minute items are valid. Return fresh selected records plus used minutes; preserve input and perform no file I/O.
+
+This is not a globally optimal knapsack algorithm. Do not reorder tasks to maximize packing. First choose a signature and write tests that distinguish break/continue, equality, completed items, bool budgets and shared references. Then implement it, keeping the original 15 tests green.
+
+<details>
+<summary>Variation reference — compare only after your own implementation</summary>
+
+<Code language="python">{getProjectExample('solutions/new_requirement.py')}</Code>
+
+<Code language="python">{getProjectExample('solutions/test_new_requirement.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_new_requirement.py
+```
+
+Two reference tests cover related boundaries but are a starting point, not a comprehensive certificate. Extend them for your implementation. Check continued search after a skip, acceptance of zero, and mutation isolation. Used minutes must come from selected records rather than the entire original input.
+
+</details>
+
+## 12. Graduating from this stage is not deployment readiness
+
+Exit this stage when you can explain your design from requirements, implement source/environment from an empty directory, detect a deliberate business defect, read data in a fresh process, preserve rejected input, recover in a second directory, complete the variation, and state the remaining concurrency, authorization, transaction and service-operation limits.
+
+Your README must specify command working directories, versions, first/repeated outputs, intentional failures, owned output paths and recovery steps. A pause record includes source changes, last test command/count, whether data is currently damaged, backup location and the next behavior to prove—not merely the last page read.
+
+L11 adds annotations to functions/containers whose behavior you already understand, separating static checking from runtime validation. Types, models, decorators and resource protocols then prepare HTTP and FastAPI; this integration assignment is not a shortcut past server foundations.
+
+## 13. Sources and reuse boundaries
+
+Checked on 2026-09-28: [Python temporary directories](https://docs.python.org/3.13/library/tempfile.html#tempfile.TemporaryDirectory), [pathlib](https://docs.python.org/3.13/library/pathlib.html), [JSON](https://docs.python.org/3.13/library/json.html), [modules/packages](https://docs.python.org/3.13/tutorial/modules.html), [pytest assertions](https://docs.pytest.org/en/8.4.x/how-to/assert.html) and [uv synchronization](https://docs.astral.sh/uv/concepts/projects/sync/).
+
+We reuse explained mechanisms and introduce safe temporary-directory usage, not unexplained fixtures or async resources. A library's ability to perform an operation does not transfer responsibility for data recovery, trust boundaries or deployment to that library.

@@ -1,0 +1,276 @@
+---
+title: Synchronous SQLAlchemy — own the transaction, return the connection
+description: Connect an API to real PostgreSQL while separating Engine, pool, Connection and Session; prove atomic writes, recovery after a failed COMMIT, and cleanup on every path.
+---
+
+import { getOrmExample } from '@/lib/js2py-examples'
+
+## 1. The requirement is one completed operation, not two attempted INSERTs
+
+Creating a project requires a projects row and a project_members row identifying its owner. If the second insert fails but the first survives, the UI can list a project that nobody owns. A nicer error message cannot repair this state. D03 expressed all-or-nothing behavior with SQL transactions. Now we must preserve it across an HTTP request, Python objects and a borrowed database connection.
+
+An ORM maps objects to tables and coordinates SQL for tracked changes. It does not replace the database, choose your business transaction boundary, establish permissions, or make integrity errors impossible. Learning add and commit without identifying their owner leaves the most important question unanswered.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | D03 transactions/rollback; H05 request/dependency lifetime; local uv projects, pytest, with and exceptions |
+| New capability | Synchronous mappings, pools/connections, Session units of work, queries, API transaction ownership and recovery |
+| Independent acceptance | A real PostgreSQL-backed API; no residue after a two-step failure; resource return on success/failure; reuse after deliberate recovery |
+| Exclusions | Async ORM, authentication, every relationship-loading strategy, production sizing; this local API must not be deployed |
+
+Download the [complete D04 lab](/learning-assets/js2py/d04-sqlalchemy.zip) and work in d04-sqlalchemy. Displayed files come from that canonical directory. This is a local multi-file server exercise, not browser/Pyodide code.
+
+## 2. Installing a driver does not start a database server
+
+Python executes the program; uv installs Python packages; psycopg is the client driver. PostgreSQL's postgres runs the server, initdb initializes a new cluster directory, pg_ctl manages the server for that directory, and psql sends SQL. A cluster can contain multiple databases. Each test owns a newly named database within our disposable cluster.
+
+The verified host is macOS arm64 with CPython 3.13.15, uv 0.12.13 and PostgreSQL 18.6 binaries in /opt/homebrew/bin. If tools are missing, use the official installation pages at the end to install uv and PostgreSQL 18 binaries first. Do not start a system service, initialize an existing directory, or run as root. On another POSIX host, change PG_BIN to its actual binary directory. Windows is not verified; Docker is not required.
+
+Run from the extracted lab directory:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+"$PG_BIN/postgres" --version
+uv python install 3.13.15
+uv sync --locked
+uv run --locked python pg_sandbox.py --evidence /tmp/d04-sqlalchemy-cleanup.json -- python demo.py
+uv run --locked python pg_sandbox.py -- python -m pytest -q
+```
+
+Pins are SQLAlchemy 2.0.54, psycopg/binary 3.3.6, Alembic 1.20.0, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, HTTPX 0.28.1 and pytest 8.4.2. Starlette 0.52.1 and AnyIO 4.12.1 also match the H05/H06 lock. SQLAlchemy 2.0.54 deliberately follows the 2.0 maintenance line: 2.1.1 was available on September 28, 2026. We do not call the maintenance line the newest feature series. Package metadata accepts this Python baseline; the live tests below establish more than dependency resolution alone.
+
+<Code language="toml">{getOrmExample('pyproject.toml')}</Code>
+
+The included uv.lock was genuinely resolved from public PyPI. `--locked` rejects unexpected lock changes. Python is restricted to `>=3.13,<3.14`; package=false makes this a script project rather than an installable distribution. Alembic is pinned for continuity with D05 but does not yet own schema upgrades here.
+
+## 3. Make the H-to-database model transition explicit
+
+Moving from one person's in-memory tasks to persistent project tasks is a model change, not merely swapping a storage adapter.
+
+| H field | Database equivalent | Meaning |
+| --- | --- | --- |
+| id | tasks.id, bigint identity | Database assigned; no automatic import of old IDs; sequence gaps are normal |
+| title | title varchar(120) | Retained, with API and database validation |
+| minutes | integer, nonnegative, default 0 | Retained estimate; an optional capstone extension |
+| done | status | false→todo, true→done; doing is a new state |
+| note | nullable description | Renamed; NULL differs from a supplied empty string |
+
+As in D01–D03, users has id/login; projects has name/created_by/created_at; project_members has a composite project_id/user_id primary key; tasks adds project/creator references, deadlines and timestamps. All foreign keys use RESTRICT. Do not silently replace that policy with ORM deletion cascades. Login comparison is currently case-sensitive.
+
+Password hashes, active state, auth_version and user timestamps are intentionally absent. S chapters must add them through migrations, not fake password defaults. The exact-one-owner/creator-is-owner invariant is a service responsibility not fully enforced by this DDL. A valid foreign key establishes existence, not membership or authorization.
+
+## 4. Four layers: Engine, pool, Connection, Session
+
+A request borrows a Session. When SQL is required, the Session obtains a Connection through the Engine; its pool supplies a psycopg connection, and a PostgreSQL backend executes the transaction. Object tracking and physical connection ownership are related, but distinct.
+
+| Layer | Responsibility | Lifetime owner |
+| --- | --- | --- |
+| Engine | Dialect/driver configuration and pool entry point | Usually once per application process; dispose at shutdown |
+| Pool | Reusable physical client connections | Engine; not all connections are opened immediately |
+| Connection | A checked-out connection and transaction access | Session or an explicit with block; close normally returns it |
+| Session | Identity map, pending changes, transaction bookkeeping | One request/unit of work; never shared concurrently |
+
+An identity map resembles retaining an object by key inside a component tree, but is not a React store or a global cache subscribed to every database change. Separate Sessions can observe different database states. SQL isolation rules still apply.
+
+A pool avoids repeatedly establishing connections; it does not let one connection host unrelated simultaneous transactions. pool_size=2 and max_overflow=0 make leaks easy to see, not a production sizing recommendation. Each worker has its own pool. pool_pre_ping can detect a stale connection when checking it out; it cannot rescue a transaction whose connection dies midway or safely retry an operation with an unknown commit outcome.
+
+<Code language="python">{getOrmExample('db.py')}</Code>
+
+## 5. A unit of work has several distinct milestones
+
+Constructing a Project creates only a Python object. add enrolls it in Session tracking. flush sends pending SQL, obtains generated IDs and may raise CHECK/FK errors. A successful flush is not a durable commit: a subsequent rollback can still remove every inserted row.
+
+commit normally flushes, then asks PostgreSQL to finish the transaction. Deferred constraints and other failures can occur at that point. Queries may trigger autoflush too; explicit flush is not the only line that can fail because of pending writes.
+
+Session autobegin means the first database operation, including a SELECT, can begin a transaction and borrow a connection. An unclosed read can remain idle in transaction. `with Session(...)` closes the Session but does not automatically commit successful work. `with session.begin()` commits on success and rolls back on exception. Place begin outside the first read/write; blindly calling it after a SELECT may encounter an already-started transaction.
+
+By default, expire_on_commit=True expires object attributes, so later access can issue another query. Detached objects should not be handed to a serializer that might try to load them after cleanup. This example copies plain dictionaries while the transaction is active and returns only after commit succeeds. Constructing a dict before commit is not sending it to the client; a commit failure prevents the return path entirely.
+
+## 6. Read the complete mapping against the SQL contract
+
+<Code language="python">{getOrmExample('models.py')}</Code>
+
+The empty Base body is the complete declarative-base definition, not an unfinished implementation. Mapped describes a Python attribute; mapped_column describes its database representation. `str | None` maps a nullable description. BigInteger with Identity(always=True) avoids pretending timestamps are unique IDs. DateTime(timezone=True) maps PostgreSQL timestamptz, which represents an instant rather than preserving the original timezone label.
+
+server_default is applied by PostgreSQL when a column is omitted. It is not necessarily present on a newly constructed Python object and does not replace an explicit NULL. created_at and updated_at start with defaults, but there is no update trigger: later edit operations must update updated_at explicitly. Python strip rejects more Unicode whitespace than SQL's default btrim; these checks are not equivalent.
+
+D04 uses create_all only for the first structure of an empty disposable database. It neither alters existing columns nor records schema history. D05 replaces this initialization path instead of making deletion the upgrade procedure.
+
+## 7. Business functions borrow the Session; callers own the transaction
+
+<Code language="python">{getOrmExample('services.py')}</Code>
+
+create_project flushes the project to obtain its ID, then flushes its owner membership. Both remain inside the caller's transaction. If a helper committed the project first, an outer rollback could not undo it. Adding another catch block cannot repair ownership split across two commits.
+
+owner_role exists for controlled failure injection; it is not an API input. Ordinary requests always use owner. Helpers do not create their own Sessions or commit, so a higher-level operation can compose project, owner and first task into one transaction. Do not put an email or another external side effect into that transaction and expect database rollback to undo it.
+
+list_tasks builds select/where/order_by/limit/offset expressions and consumes scalars while the Session is alive. Values are bound parameters rather than SQL text fragments. Ordering by id stabilizes pagination for an unchanged dataset, not during arbitrary concurrent insertions/deletions. Filtering by project avoids a wrong query scope but does not authorize the requester.
+
+## 8. At the HTTP boundary, success follows commit
+
+<Code language="python">{getOrmExample('api.py')}</Code>
+
+get_session owns creation and closure, not a hidden commit after yield. Write endpoints own begin. Returning happens after the transaction manager has successfully committed, so a deferred constraint cannot turn an already-announced 201 into a late database failure. IntegrityError is caught outside begin, after rollback handling, and translated into a sanitized 409.
+
+Not every exception is an integrity conflict. Connection failure and programming errors must retain their separate failure/observability paths rather than becoming 409 indiscriminately. Pydantic rejects malformed input with 422; missing parents produce 404. A real product should further classify known constraint names into business errors instead of returning database internals.
+
+The endpoints use ordinary def and synchronous database operations. The asynccontextmanager in lifespan is the ASGI startup/shutdown wrapper, not async ORM. Never let concurrent requests or tasks share a Session. The application factory takes responsibility for disposing its Engine at shutdown.
+
+owner_id and created_by are temporary, local-only teaching inputs. S chapters must derive both from validated identity and check project membership; the public input models must stop accepting self-reported identity. Bind this unauthenticated example to loopback only and never publish it.
+
+## 9. Run the complete flow, then inspect real HTTP manually
+
+<Code language="python">{getOrmExample('bootstrap.py')}</Code>
+
+<Code language="python">{getOrmExample('demo.py')}</Code>
+
+TestClient bypasses network transport, not the router, SQL, constraints or commits. Excluding sandbox messages and random paths, the demo prints:
+
+```text
+second write rejected; transaction rolled back
+projects after failure: 0
+members after failure: 0
+API status: 201
+API projects: ['Study']
+checked out: 0
+```
+
+For browser/API-client access, keep one sandbox shell alive in terminal one:
+
+```bash
+uv run --locked python pg_sandbox.py -- bash
+python bootstrap.py
+python -m uvicorn api:application --factory --host 127.0.0.1 --port 8000
+```
+
+In a fresh cluster bootstrap prints alice_id=1. If you modified data in that shell, use its actual printed ID. From terminal two:
+
+```bash
+curl -i http://127.0.0.1:8000/projects -H 'Content-Type: application/json' -d '{"name":"Study","owner_id":1}'
+curl http://127.0.0.1:8000/projects
+```
+
+Expect 201 and a list containing the new project. If the port is occupied, choose another unused port rather than killing an unrelated process. Stop Uvicorn with Ctrl-C, then exit the sandbox shell to clean up the cluster. To observe an application restart, stop and restart Uvicorn within that same shell: a new sandbox invocation creates a different database. Automated tests also read committed rows through a new Engine; that is not a database-crash-recovery test.
+
+Acceptance also opens a real loopback HTTP socket rather than relying only on TestClient. This script reserves an OS-assigned port, starts its own Uvicorn child, verifies 201→409→200, and stops that child. It neither competes for a fixed port nor terminates another service.
+
+<Code language="python">{getOrmExample('http_smoke.py')}</Code>
+
+```bash
+uv run --locked python pg_sandbox.py -- python http_smoke.py
+```
+
+```text
+alice_id=1
+loopback HTTP: 201 then 409 then 200; committed project preserved
+uvicorn stopped: True
+```
+
+## 10. Failure lab: rejection at COMMIT, not just during flush
+
+<Code language="python">{getOrmExample('commit_failure.py')}</Code>
+
+```bash
+uv run --locked python pg_sandbox.py -- python commit_failure.py
+```
+
+```text
+two INSERT values accepted; deferred check awaits COMMIT
+COMMIT failed
+Session refuses reuse before rollback
+rollback restored Session; next transaction committed one row
+checked out: 0
+```
+
+commit_probe is a separate lab-only table. Its unique constraint is DEFERRABLE INITIALLY DEFERRED. Two values of 7 are accepted initially and rejected when committing. This proves an actual commit-time failure; a CHECK failure during flush is a different event.
+
+Attempting another SELECT before recovery is rejected by the Session's failed transaction state. Explicit rollback resets that bookkeeping as well as ending the failed unit of work. A new transaction can then insert 8 and commit. Discarding the failed Session and creating a fresh one for the next request is also valid. Previously tracked objects must not be treated as successfully persisted simply because they still exist in Python.
+
+This server explicitly rejected the commit, so zero residue is a valid assertion. A lost network response during COMMIT is different: the client may not know whether the server committed. Do not equate “no success response” with “definitely no write.” Idempotency and outcome reconciliation are outside this lab.
+
+## 11. Verify return of resources, not merely the presence of finally
+
+<Code language="python">{getOrmExample('tests/conftest.py')}</Code>
+
+<Code language="python">{getOrmExample('tests/test_orm.py')}</Code>
+
+The tests cover atomic success, two-table zero residue, close-without-commit rollback, failed flush recovery, commit-time recovery, API 409 followed by 201, task filtering/pagination, persistence across Engines, and refusal of arbitrary URLs. Each database is real PostgreSQL and isolated from other tests.
+
+Matching checkout/checkin events and checkedout=0 establish return of borrowed connections. Idle physical connections can remain in the pool for reuse; that is not a leak. dispose closes idle pooled connections at shutdown, but does not replace closing checked-out borrowers. Fixtures therefore inspect outstanding checkouts before disposal.
+
+Including the independent variation, the live suite reports 10 passed. Web dependencies match H03–H06 rather than introducing an unrelated framework upgrade. These results do not establish production capacity or authorization safety.
+
+## 12. Three exercise levels — attempt before expanding
+
+**Explain.** The first flush assigned a project ID. Why can a later failure still remove the project? Why may the sequence now have a gap?
+
+<details>
+<summary>Answer: obtaining an ID is not committing a transaction</summary>
+
+The INSERT ran inside an uncommitted transaction. Rolling it back removes the row. Identity sequences need not return allocated values on rollback, so gaps are expected and must not be interpreted as lost business records. Test row contents, not consecutive IDs.
+
+</details>
+
+**Guided change.** In a scratch copy, remove the reliable Session-close boundary and send repeated requests. Keep pool_size=2 and overflow disabled; observe both HTTP failure and outstanding checkouts. Restore the canonical cleanup afterward.
+
+<details>
+<summary>Answer: find the borrower instead of enlarging the pool</summary>
+
+Even a read transaction can retain a connection. Once all are borrowed, the next operation waits until pool_timeout rather than failing a CHECK constraint. Reinstate with/dependency cleanup on both success and exception, then prove checkedout returns to zero. Accidental garbage collection is not an ownership policy; one apparently successful run cannot establish safety.
+
+</details>
+
+**Independent variation.** Copy a list of titles into an existing project's tasks. Every copy must succeed together or none from that batch survive; previous tasks remain. The helper must not commit. Write success, invalid-second-title and recovery tests before reading the solution.
+
+<details>
+<summary>Reference implementation and acceptance</summary>
+
+<Code language="python">{getOrmExample('solutions/atomic_tasks.py')}</Code>
+
+<Code language="python">{getOrmExample('solutions/test_atomic_tasks.py')}</Code>
+
+The caller wraps the entire batch in one begin; per-row flush is not per-row commit. Query through a new Session rather than inspecting only returned objects. The test seeds Existing before the failure. Independently change the history to three tasks and prove that rollback preserves all of them.
+
+</details>
+
+## 13. The sandbox is also complete, inspectable source
+
+<details>
+<summary>Owned cluster startup, target protection and cleanup</summary>
+
+<Code language="python">{getOrmExample('pg_sandbox.py')}</Code>
+
+<Code language="python">{getOrmExample('safety.py')}</Code>
+
+</details>
+
+The wrapper owns a mkdtemp directory and a 0700 Unix socket, with no TCP listener. It removes inherited PostgreSQL connection settings and passes the random database/ownership marker only to its child. lab_owner is a non-superuser with CREATEDB solely for this cluster's fixtures. Local trust is a same-OS-user disposable-lab choice, not production authentication; marker checks prevent accidents, not hostile processes under your own user account.
+
+Cleanup proof must show stopped=true, status_after_stop=3 and removed=true. Stop failure preserves the directory/log instead of deleting a running server's data. Ordinary exceptions can execute finally; SIGKILL and power loss cannot. Inspect only the exact owned path in the output, never kill all postgres processes.
+
+<details>
+<summary>Complete dependency lock</summary>
+
+<Code language="toml">{getOrmExample('uv.lock')}</Code>
+
+</details>
+
+## 14. Pause and resume deliberately
+
+Record your code changes, last successful command, passed tests, unresolved question and first next action. Explain create/flush/commit/close in your own words. Since wrapper exit deletes the disposable cluster, retain data-generation scripts rather than copying database files into the project.
+
+Before continuing, draw request→Session→Connection/pool→database ownership and explain why a helper's commit prevents composition. If you still expect close to commit, return to the test. D05 changes an existing database's structure without treating create_all as a migration system.
+
+## 15. Official sources and verification boundary
+
+Reviewed **2026-09-28**. Three README editions and SOURCES.md repeat the reproducible baseline and limitations. The psycopg documentation website returned 403 during review; its official repository's 3.3.6 documentation was checked instead of substituting a third-party tutorial.
+
+- [SQLAlchemy Session Basics](https://docs.sqlalchemy.org/en/20/orm/session_basics.html): work units, transaction framing, rollback, expiration and closing.
+- [SQLAlchemy Pooling](https://docs.sqlalchemy.org/en/20/core/pooling.html): return/reset, pre-ping limits and disposal.
+- [PostgreSQL psycopg dialect](https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg): synchronous postgresql+psycopg URLs.
+- [psycopg 3.3.6 installation source](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/install.rst) and [transaction source](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/transactions.rst): compatibility and driver behavior.
+- [PostgreSQL 18 initdb](https://www.postgresql.org/docs/18/app-initdb.html), [pg_ctl](https://www.postgresql.org/docs/18/app-pg-ctl.html), [18.6 release notes](https://www.postgresql.org/docs/18/release-18-6.html): server lifecycle and tested release.
+- [uv installation](https://docs.astral.sh/uv/getting-started/installation/) and [PostgreSQL downloads](https://www.postgresql.org/download/): install binaries; the wrapper owns the experimental service.

@@ -1,0 +1,43 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "null-title",
+  "precondition": {
+    "seed_tasks": [
+      {
+        "title": "  Read HTTP  ",
+        "minutes": 25,
+        "done": false,
+        "note": "keep me"
+      }
+    ]
+  },
+  "request": {
+    "method": "PATCH",
+    "target": "/tasks/1",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "title": null
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "detail": [
+        {
+          "type": "string_type",
+          "loc": [
+            "body",
+            "title"
+          ],
+          "msg": "Input should be a valid string",
+          "input": null
+        }
+      ]
+    }
+  }
+}

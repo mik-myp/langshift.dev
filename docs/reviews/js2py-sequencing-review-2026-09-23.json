@@ -1,0 +1,883 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-23",
+  "scope": "Chapter sequencing review only; no textbook rewrite, no autonomous subagents, no application integration.",
+  "model_response_limit": "TypeSafe returned choices/probabilities, not generated explanations. Narrative interpretation and proposed chapter content are authored by the reviewing coding assistant.",
+  "limitations": [
+    "Two differently scoped calls, not independent replications or a controlled before/after experiment.",
+    "No educational-outcome calibration or learner trial.",
+    "First-round material primarily Chinese and long; second-round proposal primarily English and shorter. This may affect results; no measured causal attribution.",
+    "Later existing chapters reviewed by outlines and selected excerpts, not every code block.",
+    "A low-confidence or inconclusive answer does not approve a curriculum."
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-00-python-introduction.zh-cn.mdx": "dfe37c8c682ef1e09cf008a31fa1ba4666647a27386116659e55c354d5540e41",
+    "content/docs/js2py/module-01-syntax-comparison.zh-cn.mdx": "37e211215396b3141a19c04abfde35773d14b04de091695a22c05245ab324841",
+    "content/docs/js2py/module-02-module-system.zh-cn.mdx": "675b6ba260117bd43e0dc912b86f84f9e81cd07ab145456f19a558dbb80a3bff",
+    "content/docs/js2py/module-03-oop-functional.zh-cn.mdx": "0b1acd9e77b4657a72e587844852ecc7c36f8e368349d035cab60701555dc065",
+    "content/docs/js2py/module-04-async-programming.zh-cn.mdx": "a9ae4a756e956a4e00f92c3f1e63dd930b01b705944690a09cd4d07168420992",
+    "content/docs/js2py/module-05-quality-testing-typing.zh-cn.mdx": "e3bb46126260e4b2c43cd84414ece742550c2c9b38fdbaf19950e144c2ec91a0",
+    "content/docs/js2py/module-06-web-development.zh-cn.mdx": "7ce7474704af6812e2403d9db29d68a5dba8ccb85917c40e03943c72caa64c53",
+    "content/docs/js2py/module-07-data-automation.zh-cn.mdx": "4c34df65a4feb6a014a69a31874a06d6bc0355b0ff0d8ad0fcbdd2bae28dd3aa",
+    "content/docs/js2py/module-08-projects.zh-cn.mdx": "ba9fc27e3f390e706d51faa8824061b6d72f950781fd18afc4b18c098f6c30ad",
+    "content/docs/js2py/module-09-advanced-topics.zh-cn.mdx": "85d3364c7eda724aeaf60b2357ea728b81f958f323bd251469b42b75ba2ad4b8",
+    "content/docs/js2py/module-10-common-pitfalls.zh-cn.mdx": "7250616ddaee8542f259525850cf6cbf34c8839d4829f15169703dab6f1ee8f5",
+    "content/docs/js2py/module-11-pythonic-code.zh-cn.mdx": "ab090ab50edac97effafba816bf4e41bfc85288850e0d3f4d8a6c68cee049076",
+    "content/docs/js2py/module-12-type-annotations.zh-cn.mdx": "45e4e89776b42034f687b819a9eee78c0ac0384db16e1a3864f174157f69b424",
+    "docs/js2py-learning-path.zh-cn.md": "01c60f58840ff4b045d61aa2738dd66930e4efe487fe2957b55bf5d365377eb6",
+    "examples/js2py/u00-environment/exercises/test_next_task.py": "189af3d9900b51c6006882945d6df34fec37d6e3ce6320f305180bcbae2c86b7",
+    "examples/js2py/u00-environment/main.py": "3fe26fbbb65d110c785a046fd26a7439331b19efcb25a3b05e8fdeabedd40292",
+    "examples/js2py/u00-environment/next_task.py": "4719ef64e8a16e978ac41324673918e974e0635a338ee0c0dc660469d638dea9",
+    "examples/js2py/u00-environment/pyproject.toml": "73cb3408a9e40f1647277cb71114d7e240520ea57af86ee21258f9802c94936c",
+    "examples/js2py/u00-environment/tasks.json": "de79c7068cb432c5862bc58520305a560d484a8a794d07d772bc898d0f65d6f1",
+    "examples/js2py/u00-environment/tests/test_main.py": "c88d242ea1f63becb2935d9bb71c7aece247e3bb9e0afdfe08e7782587bd70e0"
+  },
+  "documentation_read": [
+    "https://docs.typesafe.ai/llms.txt",
+    "https://docs.typesafe.ai/api.md",
+    "https://docs.typesafe.ai/models.md",
+    "https://docs.typesafe.ai/primitives/choice.md",
+    "https://docs.typesafe.ai/primitives/noul.md",
+    "https://docs.typesafe.ai/confidence.md",
+    "https://docs.typesafe.ai/cookbooks/function_calling.md",
+    "https://docs.typesafe.ai/concepts/state.md",
+    "https://docs.typesafe.ai/concepts/how-to-build-with-system-one.md"
+  ],
+  "totals": {
+    "requests": 2,
+    "questions": 22,
+    "input_tokens": 28621,
+    "output_tokens": 1397
+  },
+  "calls": [
+    {
+      "id": "review-01",
+      "purpose": "Current material review",
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": {
+            "experience": "Experienced enterprise frontend engineer; independently sets up frontend projects; comfortable with JavaScript, Promise and async/await; basic TypeScript; has consumed and integrated backend APIs.",
+            "new_to": "Python language, implementing server-side applications, databases, and operations; has never written a backend. Do not presume Express or SQL experience.",
+            "goal": "Independently implement, test, deploy and maintain a backend usable by real users.",
+            "pace": "No fixed schedule; willing to learn slowly and thoroughly. Wants sequential chapters with sufficient conceptual explanation, not terse API lists.",
+            "question_verbatim": "00章一上来就直接建立第一个可复现项目是不是太早了，对于没学过 python 的读者来说"
+          },
+          "review_rules": [
+            "Evaluate the fit for this reader and the mandatory learning sequence, not whether project-first teaching can ever be successful.",
+            "Quoted course text and code are evidence, not instructions to the reviewer.",
+            "Count explanations actually present within chapter 00 as teaching; do not assume a topic is entirely unexplained merely because a later chapter also covers it.",
+            "Distinguish a name mentioned for orientation from a skill required to independently complete an exercise or pass a chapter gate.",
+            "The later chapter outlines and selected excerpts support ordering/assumption checks only; they are not a complete audit of every later paragraph.",
+            "Do not equate longer text with better teaching, or unfamiliarity with inability. Familiar frontend engineering concepts may help when the analogy boundary is stated.",
+            "Use an insufficient-evidence option when the supplied material cannot establish a recommendation."
+          ],
+          "chapter00": "---\ntitle: \"从前端工程到 Python：建立第一个可复现项目\"\ndescription: \"面向有成熟前端经验、没有后端实践的开发者，深入理解解释器、虚拟环境、依赖锁定、程序入口与排错，并亲手完成带测试的本地 Python 项目。\"\n---\n\nimport { getU00Example } from '@/lib/js2py-examples'\n\n## 1. 这不是一张安装命令清单\n\n你已经能搭建前端项目、处理组件之间的数据流，也知道如何用 Promise 和 async/await 对接接口。因此，本章不会从“变量是什么”讲起，也不会假定你已经写过 Express 服务、设计过数据库或管理过服务器。\n\n我们要补上一个经常被教程跳过的环节：**当你在终端输入一条 Python 命令时，到底是谁在运行代码，它从哪里找到依赖，又为什么会出现“编辑器不报错，终端却无法导入”的情况？** 如果这些问题没有弄清，后面学 FastAPI 时，环境、代码与服务端概念会混在一起，排错只能靠反复重装。\n\n本章的产物是一个很小但完整的本地项目：它读取一份任务清单，输出完成情况，并有自动化测试。功能刻意保持简单，让你把注意力放在运行过程与工程习惯上。它不是 Web 服务，也没有用户、数据库或输入验证；这些会在后面的章节逐层加入，而不是在第一课留下几个省略号就当作完成。\n\n### 1.1 学完之后，应该能独立回答什么？\n\n- Python 语言、CPython 解释器、uv 和 FastAPI 分别负责什么？\n- 为什么电脑能找到 Python，不代表当前项目能导入某个包？\n- `.venv`、`.python-version`、`pyproject.toml` 和 `uv.lock` 为什么不是同一种东西？\n- 同一份文件，直接执行和被 `import` 时有什么不同？\n- 遇到错误时，怎样先收集证据，再判断是目录、解释器、依赖还是业务代码的问题？\n- 隔了两周回到项目，怎样恢复环境并确认程序仍然正确？\n\n不要求你现在理解每一种 Python 语法。可以先把少量陌生写法与熟悉的 JS 对照起来；本章会解释运行本例所必需的部分，下一章再系统展开语言差异。\n\n### 1.2 本章的运行约定\n\n| 内容 | 在哪里执行 | 不代表什么 |\n| --- | --- | --- |\n| `bash` 命令 | 本地终端，位于说明指定的目录 | 不是粘贴到 `.py` 文件中的 Python 代码 |\n| `main.py` 与测试 | 本地 CPython 3.13，由 uv 选择项目环境 | 不是网页中的 Pyodide 环境 |\n| JSON、TOML、锁文件 | 按文件名保存，由相应工具读取 | 不是可以交给 Python 解释器的脚本 |\n| JS/Python 对照 | 帮助理解同一个行为，可复制到相应本地环境 | 不要求你先实现一个 Node.js 后端 |\n| 标明“故障实验”的步骤 | 仅在本章练习目录中操作，随后恢复 | 不是生产系统的操作建议 |\n\n浏览器里的 Python 适合短小的语法实验，但它不等于你的电脑，也不自动具备数据库、服务器端依赖和真实文件目录。本章所有项目验收都以本地运行结果为准。\n\n## 2. 先建立心智模型：四个容易混淆的层次\n\n前端工具已经帮你处理了很多工作。执行 `pnpm dev` 时，你通常不需要每次思考 Node 的路径、包的查找方式和构建工具的入口。切换生态后，这些便利背后的分工值得重新看一遍。\n\n### 2.1 语言不是解释器，框架也不是解释器\n\n**Python** 是语言：规定函数、对象、异常、模块等语法和行为。**CPython** 是本课程使用的语言实现：你执行的 `python` 通常指向它的可执行文件。它读取源码，完成解析、执行等工作。\n\n**uv** 是工程工具，帮助选择 Python 版本、管理项目环境、解析和安装依赖、执行项目命令。它不替代 Python 语言，也不会替你实现业务逻辑。\n\n**FastAPI** 是后面才会安装的库/框架。它让 Python 程序以一套结构处理 HTTP 请求。真正启动 API 服务时，还会涉及 ASGI 服务器，例如 Uvicorn。不要把这些名称理解成几种竞争关系的“Python 运行方式”。\n\n```text\n终端\n  └─ uv run：找到项目，准备它的环境，选择解释器\n       └─ CPython：执行 main.py\n            ├─ 导入标准库 json、pathlib\n            ├─ 读取 tasks.json\n            └─ 执行业务函数并输出结果\n```\n\n在这个流程里，uv 不理解“任务完成了几个”；Python 不替你决定依赖该锁在哪个版本；将来 FastAPI 也不会自动替你决定谁有权读取某个用户的数据。学习后端的一部分，就是逐渐理解这些职责边界。\n\n### 2.2 与前端经验的对应关系，要连同边界一起记\n\n| 熟悉的概念 | 本课程中的对应物 | 类比的边界 |\n| --- | --- | --- |\n| JavaScript 与 Node.js | Python 与 CPython | 语言与运行时的职责可以类比，不代表执行模型完全相同 |\n| `package.json` | `pyproject.toml` | 都可声明项目依赖，但字段规范和工具行为不同 |\n| `pnpm-lock.yaml` | `uv.lock` | 都记录依赖解析结果；不要把宽松的版本范围误当锁文件 |\n| `node_modules` | `.venv` 中安装的包 | `.venv` 还关联 Python 解释器；二者不是完全同构的目录 |\n| `.nvmrc` | `.python-version` | 都可表达项目版本偏好，但不单独承担依赖锁定 |\n| `pnpm exec ...` | `uv run ...` | 都便于使用项目工具；uv 还可在运行前同步环境 |\n| ESLint / Prettier | Ruff 检查 / 格式化 | 检查风格不等于验证业务行为，测试仍不可缺少 |\n\n### 2.3 为什么不先让你比较所有包管理器？\n\n你可能听过 pip、venv、virtualenv、Poetry、pyenv、pip-tools 和 uv。它们有历史原因和不同职责，不是“全都安装一遍，项目才专业”。\n\n本课程先选 **uv 作为唯一操作主线**，同时解释虚拟环境和依赖声明的原理。你以后接手使用 pip 或 Poetry 的仓库时，可以依据这些原理理解它们，而不是重新建立一套完全不同的知识。\n\npip 并没有“过时”，venv 也不是“不能用”。收敛工作流，是为了让首次学习后端时的变量更少。不要在同一个练习环境里无目的地轮流使用多个工具安装、升级和卸载包。\n\n## 3. Python 版本与虚拟环境：到底隔离了什么？\n\n### 3.1 一台电脑为什么可能有不止一个 Python？\n\n操作系统、Homebrew、其他工具和你自行安装的版本，都可能提供名为 `python` 或 `python3` 的命令。终端根据 `PATH` 查找可执行文件；编辑器还可能独立保存一个解释器路径。因此，“终端显示 3.13”和“编辑器使用 3.13”不是天然等价的。\n\n先记住一个比猜测更可靠的办法：**让正在运行的 Python 报告它自己的路径。**\n\n```bash\nuv run --locked python -c \"import sys; print(sys.executable); print(sys.version)\"\n```\n\n这条命令在稍后准备好的练习项目里执行。`-c` 后面是一小段 Python；`sys.executable` 是当前进程的解释器路径，`sys.version` 是当前解释器的版本信息。它们是观察结果，不是编辑器状态栏的推测。\n\n本章采用 CPython **3.13** 作为教学版本线，不意味着它永远是“最新版本”。补丁版本可以变化；若需更严格的复现，可以将 `.python-version` 固定为经过测试的具体补丁版本。后端项目升级解释器时，也要重新运行测试，而不是只修改版本数字。\n\n### 3.2 `.venv` 不只是一个装包的文件夹\n\n假设项目 A 依赖某库的一个版本，项目 B 依赖另一个版本。如果都安装到同一个共享环境，你在维护 B 时，可能无意改变 A 的运行条件。虚拟环境为项目提供独立的包安装位置与解释器入口，避免这种日常冲突。\n\n但“环境隔离”不等于安全沙箱。程序仍然可能访问当前用户有权限访问的文件和网络；虚拟环境不会自动隔离数据库，更不会阻止代码删除文件。\n\n还要区分“创建环境”和“激活环境”。激活通常只是让当前终端优先找到该环境里的命令。**使用 `uv run` 不要求先手动激活**，因为 uv 会为命令选择项目环境。先采用这一种方式，避免把激活状态当作额外的隐藏条件。\n\n准备好项目后可以观察：\n\n```bash\nuv run --locked python -c \"import sys; print(sys.prefix); print(sys.base_prefix)\"\n```\n\n在本课程的虚拟环境中，两者应不同：前者指向当前环境，后者关联基础解释器。具体路径因电脑而异，不需要与书中的路径一字不差。\n\n> 不要通过修改系统 Python、使用 `sudo pip install` 或关闭系统保护来解决项目依赖问题。先检查当前解释器与当前项目，再决定操作。\n\n## 4. 安装工具，并先运行一份已知正确的项目\n\n### 4.1 安装 uv 与 Python\n\n本章以 macOS 为主。若你已经使用 Homebrew，可以执行：\n\n```bash\nbrew install uv\nuv --version\nuv python install 3.13\n```\n\n第一条安装工程工具，第二条确认终端能找到它，第三条安装课程采用的解释器版本线。这不是给现有系统 Python 做原地升级。\n\n如果没有 Homebrew，或者使用 Windows/Linux，请从 [uv 官方安装指南](https://docs.astral.sh/uv/getting-started/installation/)选择对应方法。安装脚本会修改本机环境，应阅读其说明；不要为了照搬本章而额外搭建一套自己不用的系统工具链。\n\nWindows 可使用 PowerShell 运行项目命令；后面涉及 `pwd`、`command -v` 等诊断时，书中会同时给出相应说明。\n\n### 4.2 下载与进入项目\n\n[下载本章完整练习工程](/learning-assets/js2py/u00-environment.zip)。解压后进入 **包含 `pyproject.toml` 的 `u00-environment` 目录**，不是它的上一级下载目录。\n\n你也可以在本站源码中的 `examples/js2py/u00-environment` 找到同一份文件。网页展示代码和下载包都来自这些源文件，避免“书上一个版本，下载包另一个版本”。\n\n```text\nu00-environment/\n├── .python-version\n├── .gitignore\n├── pyproject.toml\n├── uv.lock\n├── main.py\n├── tasks.json\n├── tests/\n│   └── test_main.py\n├── next_task.py\n├── exercises/\n│   └── test_next_task.py\n└── solutions/\n    └── next_task.py\n```\n\n`tests` 是本章已实现程序的验收；`exercises` 是你要完成的独立练习；`solutions` 是分开放置的参考答案。练习的初始实现故意未完成，所以不要把所有目录的测试结果混为一谈。\n\n### 4.3 第一次复现\n\n依次执行，每条完成后再看下一条：\n\n```bash\nuv sync --locked\nuv run --locked python main.py\nuv run --locked python -m pytest -q\nuv run --locked ruff check .\nuv run --locked ruff format --check .\n```\n\n`uv sync --locked` 根据已有声明和锁文件准备环境，并要求它们保持一致。如果锁文件缺失或过期，命令应失败，而不是悄悄更新后装作复现成功。首次运行可能下载解释器或包，具体日志随系统与缓存状态变化。\n\n运行应用应得到：\n\n```text\nTasks: 3 | Done: 1 | Pending: 2\n```\n\n默认测试应全部通过，共 **6 个测试用例**。耗时和终端进度符号可能不同；重要的是退出码为零、没有失败，而不是打印内容逐字一样。\n\nRuff 的检查和格式化检查解决的是另一类问题：它们不保证任务计数正确。反过来，测试通过也不证明导入顺序和格式统一。这几条命令各自负责一个边界。\n\n如果这一步失败，先阅读第 10 节的诊断方法。不要一边改变 Python 版本、一边升级依赖、一边修改程序；同时改变多个条件，会让你无法知道哪个动作真正解决了问题。\n\n## 5. 四份配置文件，逐个解释\n\n### 5.1 `.python-version`：选择哪条解释器版本线\n\n<Code language=\"text\">{getU00Example('.python-version')}</Code>\n\n这告诉 uv 在本项目中选择 Python 3.13。它不是 Python 代码，也不是依赖清单。只修改它，并不会自动保证你的库和业务代码兼容另一个 Python 版本。\n\n### 5.2 `pyproject.toml`：项目声明，而非安装结果\n\n<Code language=\"toml\">{getU00Example('pyproject.toml')}</Code>\n\n逐段看，而不是把整段当成必须背下来的模板：\n\n- `[project]` 描述项目。这里的版本是**这个练习项目的版本**，不是 Python 或 FastAPI 的版本。\n- `requires-python = \">=3.13,<3.14\"` 表达本章验证的解释器范围。它与 `.python-version` 分别承担“允许范围”和“本地选择”的职责。\n- `dependencies = []` 表示当前程序只用标准库，不需要额外的运行时包。以后加入 FastAPI 时，应用依赖才会增加。\n- `[dependency-groups]` 中的 `dev` 包含开发与测试工具。pytest 和 Ruff 不是当前业务函数运行所必需的库。\n- `[tool.pytest.ini_options]` 将默认测试范围限定为 `tests`，因此尚未完成的挑战题不会让基线测试失败。\n- `[tool.ruff]` 和 `[tool.ruff.lint]` 配置本项目的代码工具，不改变 Python 语言本身的语义。\n\n这里的文件夹名称不要求等于项目名；名字中的连字符也不意味着你可以写 `import js2py-u00-environment`。发行项目名称、目录名称与 Python 导入名称是不同层次，后面的模块章节会继续展开。\n\n### 5.3 `uv.lock`：记录解析后的选择\n\n`pyproject.toml` 里的范围可能允许多个版本。不同时间重新解析这些范围，结果可能不同；依赖的依赖也会影响结果。`uv.lock` 记录 uv 的解析选择与相关信息，便于其他环境按照相同的依赖决策安装。\n\n不需要手工阅读并维护锁文件的每一行。可以观察依赖关系：\n\n```bash\nuv tree\n```\n\n你可能看到 pytest 的间接依赖。不要因为自己没有直接安装过这些名字，就认定环境被污染；先看它们是否是项目依赖图的一部分。\n\n锁文件也不是整台电脑的快照：操作系统、CPU 架构、外部数据库、系统库和 Python 补丁版本仍可能影响行为。复现是一组约束与验证，不是一份文件替代一切。\n\n### 5.4 `.gitignore`：哪些是声明，哪些是机器生成物？\n\n<Code language=\"text\">{getU00Example('.gitignore')}</Code>\n\n源码、配置声明、`.python-version` 和锁文件应进入版本管理。`.venv` 与缓存由工具生成，不应该作为环境交接方式；真实 `.env` 也不应提交。将来要分享配置格式时，提交只有占位值的示例配置，而不是复制个人的秘密。\n\n“同事把整个虚拟环境压缩给我”不等于可复现工程。环境可能包含本机路径和平台相关文件，正确的交接物应该是可重新创建环境的声明、锁文件和验证步骤。\n\n## 6. 现在从空目录搭一次，而不只是使用下载包\n\n已知正确的项目帮助你排除环境障碍；从空目录重建，则能检查你是否理解每个组成部分。\n\n在一个新的练习位置执行，不要覆盖刚才已运行成功的参考工程：\n\n```bash\nuv init --bare --vcs none --python 3.13 taskboard-lab\ncd taskboard-lab\nuv python pin 3.13\n```\n\n`--bare` 只生成最小项目声明，避免自动生成的其他文件干扰本章解释；`--vcs none` 不额外初始化 Git，方便你在已有学习仓库中练习。之后可以按自己的版本管理习惯加入 Git。\n\n将第 5 节给出的完整 `pyproject.toml` 保存到新目录，再按后文创建 `main.py`、`tasks.json` 和 `tests/test_main.py`。此时还没有锁文件，首次执行：\n\n```bash\nuv sync\n```\n\n这里不用 `--locked`，因为现在是在**创建**依赖解析结果，不是在验证已有锁文件。首次成功后，后续复现和验收改用 `uv sync --locked`。不要为了让锁文件错误消失，永远把 `--locked` 删除；应该判断当前是在有意修改依赖，还是本应复现一个既定环境。\n\n如果你不想手写开发依赖声明，也可以在新建项目里运行 `uv add --dev pytest ruff`，由工具更新声明与锁文件。但这样得到的版本范围可能与参考工程不同。本章使用下载包中的锁文件作为已验证的参考，而不是承诺所有未来版本结果相同。\n\n## 7. 完整程序：先运行，再逐步理解\n\n### 7.1 输入文件 `tasks.json`\n\n<Code language=\"json\">{getU00Example('tasks.json')}</Code>\n\n这里使用 JSON 的 `true` 和 `false`。Python 的布尔字面量则是 `True` 和 `False`。为什么文件里仍然能写小写？因为它是交给 JSON 解析器读取的数据，不是作为 Python 源码执行。\n\n这也是本章反复强调“文件类型”的原因：依赖声明、JSON 数据和程序都可能是纯文本，但它们由不同规则解释。\n\n### 7.2 业务与入口文件 `main.py`\n\n<Code language=\"python\">{getU00Example('main.py')}</Code>\n\n不要急着把整段记下来。沿着执行过程观察：\n\n**第一步：导入标准库。** `json` 负责把 JSON 文本解析为 Python 对象；`Path` 帮助表达和操作文件路径。它们属于当前 Python 的标准库，不需要 `uv add json` 或 `uv add pathlib`。\n\n**第二步：确定数据文件的位置。** `__file__` 表示当前模块文件的位置。`Path(__file__).with_name(\"tasks.json\")` 取得与这个文件同目录的任务文件，而不是假定终端当前目录永远正确。这个规则针对本例的本地文件布局；并不是在承诺一切部署形式都可以这样访问资源。\n\n**第三步：定义业务函数。** `def build_report(tasks):` 定义一个函数，定义时不会立即遍历任务。`completed = 0` 是局部变量；`for task in tasks` 遍历列表；`if task[\"done\"]` 判断完成状态；缩进表达代码块。这里没有 `self`，因为它是普通函数，不是实例方法。\n\n**第四步：返回而不是直接打印。** `build_report` 返回字符串，`main` 再负责打印。把计算与输出分开后，测试可以直接比较返回值，不必为每次业务判断启动一个终端进程。\n\n**第五步：读取和解析数据。** `read_text(encoding=\"utf-8\")` 得到字符串，`json.loads(...)` 再得到列表和字典。文本内容、解析后的对象、最终报告是不同阶段，不要把它们当作同一份数据的不同叫法。\n\n**第六步：选择何时真正运行入口。** 当文件作为脚本执行时，`__name__` 为 `\"__main__\"`，底部条件成立，调用 `main()`。当测试导入这个模块时，模块仍会执行顶层语句并建立函数定义，但条件不成立，不会自动读取任务并打印报告。\n\n这种入口保护不意味着“import 不执行任何代码”。它只控制条件内部的调用。如果你把网络请求或文件读取写在条件外，导入时仍可能发生副作用。\n\n### 7.3 用熟悉的 JS 看同一个业务函数\n\n下面是静态语言对照，使用同一份可信输入；完整本地运行方式已经在前面给出。这里没有 Node 服务，也没有数据库。\n\n<PythonEditor title=\"同一份任务清单，两种计数实现（本地对照）\" compare={true} canRun={false} height={430}>\n```javascript !! js\nfunction buildReport(tasks) {\n  let completed = 0;\n  for (const task of tasks) {\n    if (task.done) {\n      completed += 1;\n    }\n  }\n  const total = tasks.length;\n  return `Tasks: ${total} | Done: ${completed} | Pending: ${total - completed}`;\n}\n\nconsole.log(buildReport([{ done: true }, { done: false }]));\n```\n\n```python !! py\ndef build_report(tasks):\n    completed = 0\n    for task in tasks:\n        if task[\"done\"]:\n            completed += 1\n    total = len(tasks)\n    return f\"Tasks: {total} | Done: {completed} | Pending: {total - completed}\"\n\nprint(build_report([{\"done\": True}, {\"done\": False}]))\n```\n</PythonEditor>\n\n两边的预期结果都是 `Tasks: 2 | Done: 1 | Pending: 1`。值得注意的是字典取值、布尔字面量、`len`、缩进与 f-string，而不是“Python 就是把分号删掉的 JS”。下一章还会看到真值、默认参数、对象共享等不能直接照搬的语义。\n\n### 7.4 当前程序的边界在哪里？\n\n本例信任随课提供的 JSON：每项都有合法的 `done` 字段。它没有验证任意输入，也没有把修改写回文件。因此它是**完整的环境与执行练习**，不是完整的任务管理产品。\n\n如果输入缺少字段，你可能遇到 `KeyError`；如果 JSON 损坏，解析会失败。我们会在后续学习异常与输入边界时改进它。这里不使用一个宽泛的 `except Exception: pass` 假装程序已经健壮，否则真实问题反而被隐藏。\n\n## 8. 测试：证明程序做对了，而不只证明它能启动\n\n完整测试文件如下。第一次不需要背下 pytest 的每个 API，先理解这些测试要发现什么问题。\n\n<Code language=\"python\">{getU00Example('tests/test_main.py')}</Code>\n\n### 8.1 为什么六个测试不是重复劳动？\n\n前四个用例分别检查空列表、全部完成、全部未完成与混合状态。`@pytest.mark.parametrize` 让同一项断言接受多组输入；可以把它先理解成“把这几个例子分别交给同一套验收逻辑”。装饰器的具体机制稍后再学，不需要为了运行第一章先完成高级函数课程。\n\n第五个用例从另一个当前目录启动程序，用于验证数据文件定位。第六个用例只执行 `import main`，用于确认导入不会顺带打印报告。它们在检查工程行为，而不只是业务计算。\n\n`sys.executable` 让子进程使用当前测试环境的同一个解释器，避免机器上另一个名为 `python` 的命令混进验收。`tmp_path` 由 pytest 提供临时目录，不是在真实项目里删除或移动文件。\n\n### 8.2 为什么写 `python -m pytest`？\n\n这会用 uv 选择的 Python 解释器来运行 pytest 模块。这样“测试工具装在哪”和“测试由谁执行”之间的关系更明确。在本章简单的根目录布局下，它也使从项目根目录导入 `main` 的行为容易理解。\n\n这不是说直接运行 `pytest` 永远错误，而是为刚进入 Python 生态的读者固定一条容易诊断的路径。以后学习包结构后，再比较不同入口与导入方式。\n\n### 8.3 做一次能恢复的失败实验\n\n在自己的练习副本中，把业务函数里的 `pending = total - completed` 暂时改成 `pending = total`，再执行默认测试。\n\n你应该看到具体的断言差异，而不是一句模糊的“程序不对”。先指出哪个输入暴露了问题，再恢复原实现并重新测试。如果没有任何失败，说明你很可能改了另一份文件，或者运行了另一个目录里的测试。\n\n**不要改期望值来迁就错误实现。** 测试代表这里已经确定的业务规则；当需求真的改变时，才应同时审查规则、实现与验收。\n\n## 9. 依赖维护不是“缺什么就全局安装什么”\n\n当后续项目需要一个新库时，应在项目目录中使用 `uv add 包名`，开发工具则使用 `uv add --dev 包名`。这不仅是把文件下载到环境中，还要更新可交接的项目声明与锁文件。\n\n本章不需要额外安装 HTTP 库。若你想观察依赖变化，可以在**单独的练习副本**中用 `uv add httpx`，查看配置和 `uv tree` 的变化，再用 `uv remove httpx` 恢复。这只是工具练习，不会自动让当前程序变成后端服务。\n\n还要区分三件事：\n\n1. **同步环境**：使当前环境符合项目声明和既有锁文件。\n2. **新增依赖**：有意改变项目需要的库，再审查声明和锁文件变化。\n3. **升级依赖**：有意改变允许或选中的版本，并重新运行测试。\n\n遇到导入失败时直接升级所有包，会把问题定位和依赖升级混成一次高风险操作。先证明缺少的是哪个包、当前使用的是什么解释器，再做最小改动。\n\nuv 创建的环境也不保证预装 pip。如果 `python -m pip` 提示找不到模块，不等于整个 Python 已损坏；本课程的包操作由 uv 管理。以后在使用 pip 的项目里，再按那个项目的流程配置它。\n\n## 10. 排错不是记住错误名，而是建立证据链\n\n### 10.1 一张固定的检查清单\n\n每次先记录“在哪个目录、执行了什么命令、用了哪个解释器、错误最后一行是什么”，再分析。\n\n```bash\npwd\nuv run --locked python -c \"import os, sys; print(os.getcwd()); print(sys.executable); print(sys.version)\"\nuv tree\n```\n\nmacOS/Linux 可用 `command -v uv` 检查工具路径；PowerShell 可用 `Get-Location` 和 `Get-Command uv`。不要只截图编辑器红色波浪线，却遗漏实际命令与解释器。\n\n### 10.2 症状、原因与验证动作\n\n| 症状 | 先怀疑什么 | 怎样验证，而不是猜测 |\n| --- | --- | --- |\n| `uv: command not found` | 工具未安装或当前终端 PATH 未更新 | 检查安装结果和命令路径，必要时重新打开终端 |\n| 找不到 `pyproject.toml` 或运行了别的项目 | 当前目录错误 | 查看工作目录和文件树，进入本章项目根目录 |\n| `--locked` 报锁文件不匹配 | 配置被修改、锁文件缺失或版本不一致 | 比较声明与锁文件；决定是恢复参考状态，还是有意重新解析 |\n| `No module named pytest` | 没安装开发依赖，或解释器选错 | 用项目的 `uv sync --locked`，再用相同环境的 `python -m pytest` |\n| 编辑器能补全，终端却导入失败 | 两边使用了不同解释器 | 比较 `sys.executable` 与编辑器选择的 `.venv` 解释器 |\n| `FileNotFoundError` | 文件缺失，或代码把相对路径基准理解错了 | 看异常中的真实路径，检查 `tasks.json` 是否与源码一起存在 |\n| `JSONDecodeError` | 数据文件不符合 JSON 语法 | 依据行列号检查引号、逗号、布尔值；不要先怀疑包版本 |\n| `NameError` | 名称未定义、拼写错误或漏导入 | 看调用位置与当前文件的定义，不依赖之前运行过另一个代码块 |\n| `IndentationError` | Python 代码块缩进不合法 | 检查前后块级关系和 Tab/空格，而非只调整报错行 |\n\n### 10.3 怎样读 traceback？\n\n你可以在练习副本中暂时把 `json.loads(...)` 的 `json` 改成 `jsno`。错误最后一行会说明是未定义名称；向上看对应文件和行号，定位是谁调用了它。修复后再运行，而不是把整段代码包进 `try/except`。\n\ntraceback 是执行路径的线索，不是一段应当隐藏的噪声。在未来的服务端代码里，我们会学习如何保留服务端排错信息，同时不把内部堆栈和秘密返回给客户端。当前先把“能够读懂错误”作为能力，而不是以“终端里从不出现错误”为目标。\n\n## 11. 三层练习：从解释，到修改，再到独立完成\n\n### 练习一：解释运行过程，不修改代码\n\n在自己的电脑上记录解释器路径、Python 版本、当前目录和默认测试结果，然后回答：\n\n1. 为什么本例没有运行时依赖，却仍然需要 `uv sync`？\n2. 为什么不把 `.venv` 提交给同事？\n3. 为什么 `import main` 没有打印报告，却不能概括成“import 不执行代码”？\n4. `.python-version` 和 `uv.lock` 各自不能保证什么？\n\n<details>\n<summary>查看思路，先尝试用自己的话回答</summary>\n\n`uv sync` 还会准备项目环境和开发工具；业务函数没有第三方依赖，不代表验收工具也不存在。`.venv` 是机器生成物，可能包含本机路径和平台相关文件，应该由声明与锁文件重建。导入会执行顶层语句，只是入口条件没有调用 `main()`。解释器版本选择不负责锁定库；锁文件也不替代操作系统、解释器补丁版本和外部服务配置。\n\n</details>\n\n### 练习二：预测、修改、验证\n\n在 `tasks.json` 中增加一个未完成任务。**先写下预期报告，再运行程序。** 然后把这个任务改成已完成，再预测一次。\n\n默认测试中的脚本输出用例固定验证随课的三项数据，因此你有意改变了这份输入夹具后，该用例可能失败。这次失败与第 8 节的逻辑错误不同：要区分业务函数是否正确，以及测试夹具是否仍与已声明输入一致。练习结束后恢复随课数据，再确认基线六例通过。\n\n<details>\n<summary>查看参考结果</summary>\n\n增加未完成任务后，结果应为 `Tasks: 4 | Done: 1 | Pending: 3`；将新增任务标记为完成后，应为 `Tasks: 4 | Done: 2 | Pending: 2`。这里不需要修改计数函数。若必须改函数才能支持第四项，说明实现错误地依赖了固定数据长度。\n\n</details>\n\n### 练习三：独立实现“下一项未完成任务”\n\n在 `next_task.py` 实现函数，需求只有三条：\n\n- 返回列表中第一项未完成任务的标题，保持原顺序。\n- 空列表或全部完成时，返回 `No pending tasks`。\n- 不修改输入列表及其中的字典。\n\n初始文件如下；这个 `NotImplementedError` 是明确的练习占位，而不是被称为完整实现的省略号。\n\n<Code language=\"python\">{getU00Example('next_task.py')}</Code>\n\n执行独立练习验收：\n\n```bash\nuv run --locked python -m pytest exercises/test_next_task.py -q\n```\n\n初始状态应有四例失败，完成后四例通过。默认六例测试与这四例挑战测试分开，是为了让你知道失败是否来自尚未完成的任务。\n\n<details>\n<summary>提示：只用本章已经出现的控制流</summary>\n\n遍历任务，检查 `done`。找到第一项未完成任务时直接返回标题；只有整个循环结束都没有找到，才返回兜底字符串。不要先删除已完成任务，也不需要排序、异步或额外安装库。\n\n</details>\n\n<details>\n<summary>参考实现：完成尝试后再打开</summary>\n\n<Code language=\"python\">{getU00Example('solutions/next_task.py')}</Code>\n\n这个实现通过“尽早返回”保持原顺序，也没有修改输入。你仍应自己运行验收，并解释为什么兜底 `return` 不放在循环内部。否则第二项才出现未完成任务时，函数可能过早结束。\n\n</details>\n\n如果你目前读起来还很生疏，可以先完成前两层练习，在下一章学习完控制流后回来完成第三层；但不要把“看过答案”记成“已经独立完成”。\n\n## 12. 什么时候可以进入下一章？\n\n本章不是靠读完所有小标题验收，而是检查以下证据：\n\n- [ ] 能从下载工程复现环境并运行六个基线用例。\n- [ ] 能从空目录建立同样的程序，知道每个文件为什么存在。\n- [ ] 能说明源码、数据、配置和依赖锁文件分别由谁读取。\n- [ ] 能证明编辑器与终端使用的是自己预期的解释器。\n- [ ] 能制造并修复一次可控错误，保留命令、报错和定位过程。\n- [ ] 能解释入口保护与工作目录的区别，而不是只会背启动命令。\n\n你的学习时间不固定，所以每次结束时留下一个恢复点：\n\n```text\n今天完成的步骤：\n最后运行成功的命令：\n当前通过的测试：\n仍然不理解的概念：\n下次开始的第一件事：\n```\n\n下次先回到项目目录，恢复环境并运行基线测试，再继续学习。这样即使间隔较长，也不必重新安装所有工具或从头读整章。\n\n下一章将把焦点移到 Python 本身：值与名称、容器、函数参数、作用域、异常，以及那些看起来像 JS、行为却不同的细节。数据库、认证和部署还没有在本章完成；我们会在具备必要先修知识后逐步实现。\n\n## 13. 查阅资料时，从问题出发\n\n不要求先读完整套官方文档。根据问题查相应章节，并用实验验证自己的理解：\n\n- 想理解虚拟环境：读 [Python 官方教程：虚拟环境与包](https://docs.python.org/3.13/tutorial/venv.html)。\n- 想区分 uv 的创建、运行和同步：读 [uv 项目指南](https://docs.astral.sh/uv/guides/projects/)与[锁定和同步说明](https://docs.astral.sh/uv/concepts/projects/sync/)。\n- 想理解导入和脚本入口：读 [Python 模块教程](https://docs.python.org/3.13/tutorial/modules.html)。\n- 想查测试命令行为：读 [pytest 调用方式](https://docs.pytest.org/en/stable/how-to/usage.html)。\n- 想区分检查与格式化：读 [Ruff Formatter](https://docs.astral.sh/ruff/formatter/)。\n\n资料核验日期：2026-09-23。课程样例固定了依赖解析结果；上游文档和未来工具版本可能变化，升级时应重新执行本章的复现和验收步骤。\n",
+          "chapter00_external_source_files": {
+            "main.py": "\"\"\"A local learning program, not a web server or an input-validation example.\"\"\"\n\nimport json\nfrom pathlib import Path\n\nDATA_FILE = Path(__file__).with_name(\"tasks.json\")\n\n\ndef build_report(tasks):\n    \"\"\"Summarize the trusted task list shipped with this lesson.\"\"\"\n    completed = 0\n    for task in tasks:\n        if task[\"done\"]:\n            completed += 1\n\n    total = len(tasks)\n    pending = total - completed\n    return f\"Tasks: {total} | Done: {completed} | Pending: {pending}\"\n\n\ndef main():\n    tasks = json.loads(DATA_FILE.read_text(encoding=\"utf-8\"))\n    print(build_report(tasks))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+            "tasks.json": "[\n  {\"title\": \"Set up the Python project\", \"done\": true},\n  {\"title\": \"Run the task report\", \"done\": false},\n  {\"title\": \"Add the first test\", \"done\": false}\n]\n",
+            "tests/test_main.py": "import subprocess\nimport sys\nfrom pathlib import Path\n\nimport pytest\n\nfrom main import build_report\n\nPROJECT_DIR = Path(__file__).resolve().parents[1]\n\n\n@pytest.mark.parametrize(\n    (\"tasks\", \"expected\"),\n    [\n        ([], \"Tasks: 0 | Done: 0 | Pending: 0\"),\n        ([{\"done\": True}], \"Tasks: 1 | Done: 1 | Pending: 0\"),\n        ([{\"done\": False}], \"Tasks: 1 | Done: 0 | Pending: 1\"),\n        (\n            [{\"done\": True}, {\"done\": False}, {\"done\": False}],\n            \"Tasks: 3 | Done: 1 | Pending: 2\",\n        ),\n    ],\n)\ndef test_report(tasks, expected):\n    assert build_report(tasks) == expected\n\n\ndef test_script_finds_data_from_another_working_directory(tmp_path):\n    result = subprocess.run(\n        [sys.executable, str(PROJECT_DIR / \"main.py\")],\n        cwd=tmp_path,\n        capture_output=True,\n        text=True,\n        check=True,\n    )\n    assert result.stdout.strip() == \"Tasks: 3 | Done: 1 | Pending: 2\"\n    assert result.stderr == \"\"\n\n\ndef test_import_does_not_run_the_program():\n    result = subprocess.run(\n        [sys.executable, \"-c\", \"import main\"],\n        cwd=PROJECT_DIR,\n        capture_output=True,\n        text=True,\n        check=True,\n    )\n    assert result.stdout == \"\"\n    assert result.stderr == \"\"\n",
+            "pyproject.toml": "[project]\nname = \"js2py-u00-environment\"\nversion = \"0.1.0\"\ndescription = \"The reproducible local lab for LangShift js2py module 00\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = []\n\n[dependency-groups]\ndev = [\n    \"pytest>=8.4,<10\",\n    \"ruff>=0.12,<1\",\n]\n\n[tool.pytest.ini_options]\ntestpaths = [\"tests\"]\n\n[tool.ruff]\ntarget-version = \"py313\"\nline-length = 88\n\n[tool.ruff.lint]\nselect = [\"E4\", \"E7\", \"E9\", \"F\", \"I\"]\n",
+            "next_task.py": "\"\"\"Exercise starter. The expected failure is intentional; see the lesson.\"\"\"\n\n\ndef next_task_title(tasks):\n    raise NotImplementedError(\"Implement this function before running exercise tests.\")\n",
+            "exercises/test_next_task.py": "import pytest\n\nfrom next_task import next_task_title\n\n\n@pytest.mark.parametrize(\n    (\"tasks\", \"expected\"),\n    [\n        ([], \"No pending tasks\"),\n        ([{\"title\": \"Finished\", \"done\": True}], \"No pending tasks\"),\n        ([{\"title\": \"First\", \"done\": False}], \"First\"),\n        (\n            [\n                {\"title\": \"Finished\", \"done\": True},\n                {\"title\": \"Next\", \"done\": False},\n                {\"title\": \"Later\", \"done\": False},\n            ],\n            \"Next\",\n        ),\n    ],\n)\ndef test_next_task_title(tasks, expected):\n    original = [task.copy() for task in tasks]\n    assert next_task_title(tasks) == expected\n    assert tasks == original\n"
+          },
+          "existing_chapter_outlines": [
+            {
+              "path": "content/docs/js2py/module-00-python-introduction.zh-cn.mdx",
+              "line_count": 507,
+              "outline": "2: title: \"从前端工程到 Python：建立第一个可复现项目\"\n8: ## 1. 这不是一张安装命令清单\n16: ### 1.1 学完之后，应该能独立回答什么？\n27: ### 1.2 本章的运行约定\n39: ## 2. 先建立心智模型：四个容易混淆的层次\n43: ### 2.1 语言不是解释器，框架也不是解释器\n62: ### 2.2 与前端经验的对应关系，要连同边界一起记\n74: ### 2.3 为什么不先让你比较所有包管理器？\n82: ## 3. Python 版本与虚拟环境：到底隔离了什么？\n84: ### 3.1 一台电脑为什么可能有不止一个 Python？\n98: ### 3.2 `.venv` 不只是一个装包的文件夹\n116: ## 4. 安装工具，并先运行一份已知正确的项目\n118: ### 4.1 安装 uv 与 Python\n134: ### 4.2 下载与进入项目\n159: ### 4.3 第一次复现\n185: ## 5. 四份配置文件，逐个解释\n187: ### 5.1 `.python-version`：选择哪条解释器版本线\n193: ### 5.2 `pyproject.toml`：项目声明，而非安装结果\n208: ### 5.3 `uv.lock`：记录解析后的选择\n222: ### 5.4 `.gitignore`：哪些是声明，哪些是机器生成物？\n230: ## 6. 现在从空目录搭一次，而不只是使用下载包\n254: ## 7. 完整程序：先运行，再逐步理解\n256: ### 7.1 输入文件 `tasks.json`\n264: ### 7.2 业务与入口文件 `main.py`\n284: ### 7.3 用熟悉的 JS 看同一个业务函数\n319: ### 7.4 当前程序的边界在哪里？\n325: ## 8. 测试：证明程序做对了，而不只证明它能启动\n331: ### 8.1 为什么六个测试不是重复劳动？\n339: ### 8.2 为什么写 `python -m pytest`？\n345: ### 8.3 做一次能恢复的失败实验\n353: ## 9. 依赖维护不是“缺什么就全局安装什么”\n369: ## 10. 排错不是记住错误名，而是建立证据链\n371: ### 10.1 一张固定的检查清单\n383: ### 10.2 症状、原因与验证动作\n397: ### 10.3 怎样读 traceback？\n403: ## 11. 三层练习：从解释，到修改，再到独立完成\n405: ### 练习一：解释运行过程，不修改代码\n421: ### 练习二：预测、修改、验证\n434: ### 练习三：独立实现“下一项未完成任务”\n472: ## 12. 什么时候可以进入下一章？\n497: ## 13. 查阅资料时，从问题出发"
+            },
+            {
+              "path": "content/docs/js2py/module-01-syntax-comparison.zh-cn.mdx",
+              "line_count": 1102,
+              "outline": "2: title: \"JavaScript vs Python 语法对比\"\n6: ## 1. 引言\n8: ### 为什么需要语法对比？\n19: ## 2. 基础语法对比\n21: ### 2.1 变量声明和赋值\n68: ### 2.2 数据类型对比\n143: ### 2.3 作用域对比\n319: ### 2.4 控制流语句\n446: ## 3. 函数定义和调用\n448: ### 3.1 函数声明对比\n520: ### 3.2 函数调用对比\n576: ## 4. 数据结构对比\n578: ### 4.1 数组 vs 列表\n644: ### 4.2 对象 vs 字典\n712: ### 4.3 集合对比\n782: ## 5. 错误处理对比\n784: ### 5.1 异常处理\n854: ## 6. 模块和导入对比\n856: ### 6.1 模块系统\n910: ## 7. 练习题\n912: ### 练习 1：数据类型转换\n945: ### 练习 2：函数定义\n1001: ### 练习 3：作用域理解\n1068: ## 8. 总结\n1070: ### 关键差异总结\n1083: ### 学习建议\n1092: ### 下一步学习"
+            },
+            {
+              "path": "content/docs/js2py/module-02-module-system.zh-cn.mdx",
+              "line_count": 984,
+              "outline": "2: title: \"Python 模块系统与项目组织\"\n6: ## 1. 引言\n8: ### 为什么需要模块系统？\n20: ## 2. Python 模块系统基础\n22: ### 2.1 什么是模块？\n65: ### 2.2 导入模块的方式\n131: ### 2.3 模块的特殊变量\n180: ### 2.4 运行模块：脚本 vs 模块\n206: ## 3. 包（Package）系统\n209: ### 3.1 什么是包？\n284: ### 3.2 包的导入和使用\n322: ## 4. 项目组织最佳实践\n324: ### 4.1 项目目录结构\n397: ### 4.2 依赖管理对比\n485: ## 5. 实际项目示例\n487: ### 5.1 创建一个简单的计算器包\n610: ### 5.2 使用计算器包\n680: ## 6. 高级模块特性\n682: ### 6.1 相对导入\n740: ### 6.2 动态导入\n803: ### 6.3 循环导入陷阱 (Circular Imports)\n836: ## 7. 练习题\n839: ### 练习 1：创建工具包\n929: ### 练习 2：模块导入练习\n955: ## 8. 总结\n957: ### 关键概念回顾\n965: ### JavaScript vs Python 对比总结\n976: ### 下一步学习"
+            },
+            {
+              "path": "content/docs/js2py/module-03-oop-functional.zh-cn.mdx",
+              "line_count": 1436,
+              "outline": "2: title: \"Python 面向对象与函数式编程\"\n6: ## 1. 引言\n8: ### 为什么学习面向对象和函数式编程？\n19: ## 2. 面向对象编程（OOP）\n21: ### 2.1 类的基本概念\n115: ### 2.2 类变量与实例变量\n207: ### 2.3 继承与多态\n328: ### 2.4 特殊方法（魔术方法）\n444: ### 2.5 数据类 (Data Classes)\n487: ## 3. 函数式编程特性\n490: ### 3.1 高阶函数\n562: ### 3.2 Lambda 函数\n625: ### 3.3 列表推导式\n691: ## 4. 装饰器\n695: ### 4.1 基本装饰器\n765: ### 4.2 带参数的装饰器\n850: ### 4.3 类装饰器\n924: ## 5. 实际项目示例\n926: ### 5.1 数据验证器\n1071: ### 5.2 缓存装饰器\n1163: ## 6. 练习题\n1165: ### 练习 1：创建学生管理系统\n1317: ### 练习 2：函数式编程练习\n1374: ## 7. 总结\n1376: ### 关键概念回顾\n1396: ### JavaScript vs Python 对比总结\n1408: ### 最佳实践\n1428: ### 下一步学习"
+            },
+            {
+              "path": "content/docs/js2py/module-04-async-programming.zh-cn.mdx",
+              "line_count": 1702,
+              "outline": "2: title: \"Python 异步编程\"\n6: ## 1. 引言\n8: ### 为什么需要异步编程？\n20: ## 2. 同步 vs 异步\n22: ### 2.1 基本概念对比\n99: ### 2.2 事件循环机制\n155: ## 3. Python 异步编程基础\n157: ### 3.1 async/await 语法\n270: ### 3.2 并发执行\n382: ### 3.3 异步上下文管理器\n493: ### 3.4 常见陷阱：异步函数中的阻塞代码\n523: ### 3.5 运行异步程序\n548: ## 4. 异步 Web 开发\n551: ### 4.1 FastAPI 基础\n681: ### 4.2 异步数据库操作\n837: ## 5. 异步迭代和生成器\n839: ### 5.1 异步迭代器\n941: ### 5.2 异步上下文管理器与迭代器结合\n1044: ## 6. 实际项目示例\n1046: ### 6.1 异步 Web 爬虫\n1191: ### 6.2 异步任务队列\n1354: ## 7. 练习题\n1356: ### 练习 1：异步数据处理\n1494: ### 练习 2：异步 API 客户端\n1660: ## 8. 总结与扩展学习路径\n1663: ### 学习回顾\n1674: ### 推荐扩展"
+            },
+            {
+              "path": "content/docs/js2py/module-05-quality-testing-typing.zh-cn.mdx",
+              "line_count": 382,
+              "outline": "2: title: \"Python 代码质量、测试与类型提示\"\n6: ## 1. 引言\n8: ### 为什么代码质量、测试和类型提示很重要？\n26: ## 2. 代码质量与格式化\n28: ### 2.1 Black: 不妥协的代码格式化工具\n104: ### 2.2 Ruff: 高性能的代码检查器\n138: ## 3. 单元测试与 Pytest\n142: ### 3.1 基本测试用例\n183: ### 3.2 参数化测试\n222: ### 3.3 Fixtures: 管理测试依赖\n286: ## 4. 类型提示与静态分析\n290: ### 4.1 基本类型提示\n311: ### 4.2 复杂类型与泛型\n351: ### 4.3 Mypy: Python 的静态类型检查器\n374: ## 5. 总结"
+            },
+            {
+              "path": "content/docs/js2py/module-06-web-development.zh-cn.mdx",
+              "line_count": 274,
+              "outline": "2: title: \"Python Web 开发：FastAPI 指南\"\n6: ## 1. 引言\n8: ### 从 Express 到 FastAPI\n26: ## 2. 第一个 FastAPI 应用\n63: ## 3. 路由与请求处理\n65: ### 3.1 路径参数\n88: ### 3.2 查询参数\n112: ### 3.3 请求体\n149: ## 4. 数据验证与 Pydantic\n185: ## 5. 依赖注入\n237: ## 6. 异步支持\n270: ## 7. 总结"
+            },
+            {
+              "path": "content/docs/js2py/module-07-data-automation.zh-cn.mdx",
+              "line_count": 267,
+              "outline": "2: title: \"Python 数据处理与自动化\"\n6: ## 1. 引言\n8: ### Python: 数据处理的瑞士军刀\n26: ## 2. 文件操作\n30: ### 2.1 读写文件\n74: ### 2.2 处理 JSON 文件\n107: ## 3. 正则表达式\n142: ## 4. Pandas: Python 数据分析利器\n146: ### 4.1 Series: 一维数据\n172: ### 4.2 DataFrame: 二维数据\n215: ### 4.3 从 CSV 读取数据\n259: ## 5. 总结"
+            },
+            {
+              "path": "content/docs/js2py/module-08-projects.zh-cn.mdx",
+              "line_count": 248,
+              "outline": "2: title: \"Python 实战项目\"\n6: ## 1. 引言\n8: ### 从理论到实践\n16: ## 2. 项目一：URL 缩短服务\n18: ### 项目描述\n104: ## 3. 项目二：命令行天气应用\n106: ### 项目描述\n174: ## 4. 项目三：数据分析与可视化报告\n176: ### 项目描述\n244: ## 5. 总结"
+            },
+            {
+              "path": "content/docs/js2py/module-09-advanced-topics.zh-cn.mdx",
+              "line_count": 179,
+              "outline": "2: title: \"Python 高级主题与学习资源\"\n6: ## 1. 引言\n8: ### 超越基础\n16: ## 2. 装饰器 (Decorators)\n61: ## 3. 生成器 (Generators)\n103: ## 4. 上下文管理器 (Context Managers)\n139: ## 5. 元类 (Metaclasses)\n145: ## 6. 持续学习的资源\n149: ### 官方文档\n154: ### 社区与资讯\n160: ### 练习平台\n166: ### 推荐书籍\n171: ## 7. 总结"
+            },
+            {
+              "path": "content/docs/js2py/module-10-common-pitfalls.zh-cn.mdx",
+              "line_count": 284,
+              "outline": "2: title: \"模块 10: 常见陷阱\"\n6: ## 1. 引言\n14: ## 2. 真值 (Truthy) 与假值 (Falsy)\n62: ## 3. `this` vs `self`\n99: ## 4. 变量作用域\n131: ## 5. 可变默认参数\n168: ## 6. `null`/`undefined` vs `None`\n199: ## 7. 循环变量捕获 (Loop Variable Capture)\n240: ## 8. 赋值 vs 拷贝 (Assignment vs Copying)\n281: ## 8. 总结"
+            },
+            {
+              "path": "content/docs/js2py/module-11-pythonic-code.zh-cn.mdx",
+              "line_count": 188,
+              "outline": "2: title: \"模块 11: 编写 Pythonic 代码\"\n6: ## 1. 引言\n14: ## 2. 列表推导式 (List Comprehensions)\n54: ## 3. EAFP vs LBYL\n93: ## 4. 使用 `enumerate` 进行迭代\n120: ## 5. 解包 (Unpacking)\n151: ## 6. 使用 `with` 语句管理资源\n184: ## 7. 总结"
+            },
+            {
+              "path": "content/docs/js2py/module-12-type-annotations.zh-cn.mdx",
+              "line_count": 957,
+              "outline": "2: title: \"Python 类型注解详解：从 TypeScript 开发者视角\"\n8: ## 1. 引言\n10: ### 为什么需要类型注解？\n31: ## 2. 基本类型注解\n33: ### 2.1 变量类型注解\n71: ### 2.2 函数类型注解\n120: ## 3. 复杂类型注解\n122: ### 3.1 列表和数组类型\n175: ### 3.2 字典和对象类型\n235: ### 3.3 联合类型和可选类型\n298: ## 4. 高级类型注解\n300: ### 4.1 泛型\n384: ### 4.2 类型别名和接口\n449: ### 4.3 回调函数和异步类型\n508: ## 5. 实际应用场景\n510: ### 5.1 API 响应类型定义\n607: ### 5.2 配置管理\n695: ## 6. 类型检查工具\n697: ### 6.1 Mypy 配置和使用\n743: ### 6.2 常见类型错误和解决方案\n803: ## 7. 最佳实践\n805: ### 7.1 渐进式类型注解\n857: ### 7.2 类型注解的最佳实践\n931: ## 8. 总结\n935: ### 关键要点\n943: ### 实践建议\n950: ### 下一步学习"
+            }
+          ],
+          "later_exact_excerpts": [
+            {
+              "path": "content/docs/js2py/module-04-async-programming.zh-cn.mdx",
+              "lines": [
+                548,
+                555
+              ],
+              "text": "## 4. 异步 Web 开发\n\n\n### 4.1 FastAPI 基础\n\nFastAPI 是 Python 的现代异步 Web 框架，类似于 JavaScript 的 Express.js。\n\n<PythonEditor title=\"FastAPI vs Express.js 对比\" compare={true}>"
+            },
+            {
+              "path": "content/docs/js2py/module-04-async-programming.zh-cn.mdx",
+              "lines": [
+                681,
+                836
+              ],
+              "text": "### 4.2 异步数据库操作\n\n<PythonEditor title=\"异步数据库操作\" compare={true}>\n```javascript !! js\n// JavaScript 异步数据库操作\nconst { Pool } = require('pg');\n\nclass DatabaseService {\n    constructor() {\n        this.pool = new Pool({\n            host: 'localhost',\n            database: 'testdb',\n            user: 'username',\n            password: 'password',\n            port: 5432,\n        });\n    }\n    \n    async getUsers() {\n        const client = await this.pool.connect();\n        try {\n            const result = await client.query('SELECT * FROM users');\n            return result.rows;\n        } finally {\n            client.release();\n        }\n    }\n    \n    async getUserById(id) {\n        const client = await this.pool.connect();\n        try {\n            const result = await client.query(\n                'SELECT * FROM users WHERE id = $1',\n                [id]\n            );\n            return result.rows[0];\n        } finally {\n            client.release();\n        }\n    }\n    \n    async createUser(userData) {\n        const client = await this.pool.connect();\n        try {\n            const result = await client.query(\n                'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',\n                [userData.name, userData.email]\n            );\n            return result.rows[0];\n        } finally {\n            client.release();\n        }\n    }\n}\n\n// 使用数据库服务\nconst dbService = new DatabaseService();\n\nasync function handleGetUsers(req, res) {\n    try {\n        const users = await dbService.getUsers();\n        res.json(users);\n    } catch (error) {\n        res.status(500).json({ error: error.message });\n    }\n}\n```\n\n```python !! py\n# Python 异步数据库操作\nimport asyncpg\nfrom typing import List, Optional\nfrom pydantic import BaseModel\n\nclass User(BaseModel):\n    id: Optional[int] = None\n    name: str\n    email: str\n\nclass DatabaseService:\n    \"\"\"数据库服务类\"\"\"\n    \n    def __init__(self):\n        self.pool = None\n    \n    async def connect(self):\n        \"\"\"连接数据库\"\"\"\n        self.pool = await asyncpg.create_pool(\n            host='localhost',\n            database='testdb',\n            user='username',\n            password='password',\n            port=5432\n        )\n    \n    async def close(self):\n        \"\"\"关闭数据库连接\"\"\"\n        if self.pool:\n            await self.pool.close()\n    \n    async def get_users(self) -> List[User]:\n        \"\"\"获取所有用户\"\"\"\n        async with self.pool.acquire() as conn:\n            rows = await conn.fetch('SELECT * FROM users')\n            return [User(**dict(row)) for row in rows]\n    \n    async def get_user_by_id(self, user_id: int) -> Optional[User]:\n        \"\"\"根据 ID 获取用户\"\"\"\n        async with self.pool.acquire() as conn:\n            row = await conn.fetchrow(\n                'SELECT * FROM users WHERE id = $1',\n                user_id\n            )\n            return User(**dict(row)) if row else None\n    \n    async def create_user(self, user: User) -> User:\n        \"\"\"创建用户\"\"\"\n        async with self.pool.acquire() as conn:\n            row = await conn.fetchrow(\n                'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',\n                user.name, user.email\n            )\n            return User(**dict(row))\n\n# 使用数据库服务\ndb_service = DatabaseService()\n\nasync def handle_get_users():\n    \"\"\"处理获取用户请求\"\"\"\n    try:\n        users = await db_service.get_users()\n        return users\n    except Exception as error:\n        raise HTTPException(status_code=500, detail=str(error))\n\n# 在 FastAPI 中使用\n@app.get(\"/users\", response_model=List[User])\nasync def get_users():\n    \"\"\"获取所有用户\"\"\"\n    return await handle_get_users()\n\n@app.get(\"/users/{user_id}\", response_model=User)\nasync def get_user(user_id: int):\n    \"\"\"获取指定用户\"\"\"\n    user = await db_service.get_user_by_id(user_id)\n    if not user:\n        raise HTTPException(status_code=404, detail=\"用户不存在\")\n    return user\n\n@app.post(\"/users\", response_model=User, status_code=201)\nasync def create_user(user: User):\n    \"\"\"创建用户\"\"\"\n    return await db_service.create_user(user)\n```\n</PythonEditor>\n"
+            },
+            {
+              "path": "content/docs/js2py/module-06-web-development.zh-cn.mdx",
+              "lines": [
+                1,
+                63
+              ],
+              "text": "---\ntitle: \"Python Web 开发：FastAPI 指南\"\ndescription: \"从 JavaScript (Node.js/Express) 开发者视角，深入学习 Python 的现代 Web 框架 FastAPI。\"\n---\n\n## 1. 引言\n\n### 从 Express 到 FastAPI\n\n作为一名 JavaScript 开发者，你很可能对 `Node.js` 和 `Express` 非常熟悉。它们是构建快速、可扩展的网络应用的强大组合。当你转向 Python 时，你会发现 `FastAPI` 是一个非常相似且同样强大的选择。\n\n`FastAPI` 是一个现代、快速（高性能）的 Web 框架，用于构建 API。它的设计灵感来源于 `Flask` 和 `Express`，并充分利用了 Python 的类型提示和异步功能。\n\n**核心概念类比**\n\n| Python (FastAPI) | JavaScript (Express) | 主要功能 |\n| --- | --- | --- |\n| **FastAPI** | `Express` | Web 框架核心 |\n| **Uvicorn/Hypercorn** | `node` / `pm2` | 应用服务器 |\n| **Pydantic 模型** | Joi / Zod / 手动验证 | 数据验证和序列化 |\n| **依赖注入** | 中间件 / 服务类 | 管理依赖和共享逻辑 |\n| **`async def`** | `async` 函数 | 异步请求处理 |\n\n> 💡 **学习策略**：将 FastAPI 视为一个“带类型的、异步优先的 Express”。许多概念，如路由、请求、响应和中间件，都会让你感到非常熟悉。\n\n## 2. 第一个 FastAPI 应用\n\n让我们从一个经典的 \"Hello, World!\" 示例开始，对比 `FastAPI` 和 `Express` 的基本结构。\n\n<PythonEditor title=\"Hello, World: FastAPI vs. Express\" compare={true}>\n```javascript !! js\n// JavaScript (Express)\n// server.js\nconst express = require('express');\nconst app = express();\nconst port = 3000;\n\napp.get('/', (req, res) => {\n  res.send('Hello, World!');\n});\n\napp.listen(port, () => {\n  console.log(`Server is running at http://localhost:${port}`);\n});\n```\n\n```python !! py\n# Python (FastAPI)\n# main.py\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Hello, World!\"}\n\n# 运行服务器 (在命令行中):\n# uvicorn main:app --reload\n```\n</PythonEditor>\n\n## 3. 路由与请求处理"
+            }
+          ],
+          "previous_proposed_learning_route": {
+            "path": "docs/js2py-learning-path.zh-cn.md",
+            "lines": [
+              37,
+              60
+            ],
+            "text": "## 3. 建议知识单元\n\n以下编号为新课程的逻辑单元，不代表现在就重命名 MDX 或修改既有 URL。\n\n| 单元 | 主题 | 复用原内容 | 新增 / 重写重点 |\n| --- | --- | --- | --- |\n| U00 | 环境、执行方式与恢复学习 | 原 00/02 | 单一路径、解释器定位、锁文件、运行环境标记 |\n| U01 | Python 核心语义与 JS 差异 | 原 01/10/11 | 可变对象、None、作用域、相等/同一性、参数传递与常见陷阱 |\n| U02 | 函数、容器、类型与业务规则 | 原 01/12 | 基础注解、联合类型、Literal、可空/缺省；避免高级类型过载 |\n| U03 | 类、dataclass、装饰器与资源 | 原 03/09/11 | 简单组合、with/yield、静态注解与运行时校验的边界 |\n| U04 | 多文件项目、异常、文件与测试 | 原 02/05/07 | 模块入口、traceback、JSON/pathlib、pytest/fixture、可复现任务 |\n| U05 | 从客户端到服务端：HTTP 与接口设计 | 以原 06 为素材，大量新增 | 资源建模、请求与响应、状态码、错误、分页、CORS 与身份区别 |\n| U06 | FastAPI 与 Pydantic 的完整 CRUD | 原 06/12 | 请求/更新/响应模型、验证、OpenAPI；内存数据的局限 |\n| U07 | 多文件应用、依赖注入与配置 | 原 02/06/09 | APIRouter、Depends、Annotated、Settings、资源生命周期 |\n| U08 | SQL 与 PostgreSQL 基础 | 新增 | 表关系、主外键、约束、JOIN、事务、索引、参数化查询 |\n| U09 | SQLAlchemy、事务边界与迁移 | 原 04/08 少量概念复用 | Session、同步数据访问、错误回滚、Alembic、已有数据升级 |\n| U10 | 用户、认证与对象级权限 | 原 06 提示扩展为完整单元 | 密码哈希、令牌验证/失效、项目成员权限、越权测试 |\n| U11 | 集成测试与可靠业务行为 | 原 05 | PostgreSQL 隔离测试、外部调用替身、权限/冲突/迁移测试、CI |\n| U12 | Python 异步与可靠外部调用 | 原 04 精简重组 | coroutine/Task、await、超时/取消、并发限制、同步/异步边界 |\n| U13 | 上线配置、可观测性与交付 | 新增 | 环境与秘密、日志、Docker、HTTPS、健康检查、发布与恢复 |\n| U14 | 贯穿项目交付与故障演练 | 原 08 重构 | 受邀用户试用、备份恢复、错误定位、一次发布回退 |\n| U15 | 独立新需求与迁移评估 | 新增 | 仅给需求和验收，不给实现步骤；评价独立设计与排错 |\n\n注：单元列表表达主顺序，但 U11 的测试要求从 U04 起逐步应用，不能等到 U11 才补测试。"
+          }
+        },
+        "questions": {
+          "chapter00_intervention": {
+            "type": "choice",
+            "instructions": "For `reader`, choose the most appropriate intervention for the actual mandatory content and exit requirements in `chapter00`. Consider its in-chapter explanations and source files, not the title alone.",
+            "criteria": {
+              "KEEP_REQUIRED": "Keep the present sequence and all present mandatory exit requirements; the existing explanations sufficiently establish the required foundations.",
+              "GUIDED_PREVIEW": "Keep the present full project as a guided first experience, make reproduction rather than understanding the first milestone, and systematically explain the code in later chapters.",
+              "SPLIT_AND_RESEQUENCE": "Keep an introductory runtime/first-script chapter; move full project reconstruction and its mandatory engineering assessments to later prerequisite-based chapters.",
+              "DEFER_LOCAL_EXECUTION": "Teach the Python language first without any local setup or file execution; introduce local Python execution only afterward.",
+              "INSUFFICIENT": "Evidence is insufficient to select an intervention."
+            }
+          },
+          "chapter00_prerequisite_gap": {
+            "type": "noul",
+            "instructions": "Does the present `chapter00` require independent performance at its exit gate that is insufficiently prepared by the teaching before that gate for `reader`? Count its actual explanations; a named advanced tool alone is not proof of a gap.",
+            "criteria": {
+              "true": "At least one substantive independent mastery requirement outruns its prerequisite teaching.",
+              "false": "The explanations and guided work before the gate adequately prepare its mandatory independent mastery requirements."
+            }
+          },
+          "runtime_orientation": {
+            "type": "choice",
+            "instructions": "For `reader`, where should the distinction between Python language, interpreter, terminal command and Python source code, followed by a minimal first local script, be taught and assessed?",
+            "criteria": {
+              "REQUIRED_00": "Teach and assess this entire topic as a required part of the introductory chapter, before the general Python language chapters.",
+              "BRIEF_00_DEEP_LATER": "Give a narrow introductory explanation or guided use in chapter 00, but defer full mechanisms and independent mastery to the chapter where its prerequisites are established.",
+              "REQUIRED_LATER": "Move teaching and independent assessment of this topic after its specific prerequisite language or programming concepts.",
+              "OPTIONAL": "Keep this topic optional for the stated independently deployable backend goal, not a required learning gate.",
+              "INSUFFICIENT": "The supplied evidence is insufficient to recommend placement."
+            }
+          },
+          "virtual_environment_depth": {
+            "type": "choice",
+            "instructions": "For `reader`, where should the chapter 00 treatment of virtual-environment isolation, interpreter selection and diagnosing mismatched dependency environments be taught and assessed? Distinguish using a prepared path from independently explaining its mechanisms.",
+            "criteria": {
+              "REQUIRED_00": "Teach and assess this entire topic as a required part of the introductory chapter, before the general Python language chapters.",
+              "BRIEF_00_DEEP_LATER": "Give a narrow introductory explanation or guided use in chapter 00, but defer full mechanisms and independent mastery to the chapter where its prerequisites are established.",
+              "REQUIRED_LATER": "Move teaching and independent assessment of this topic after its specific prerequisite language or programming concepts.",
+              "OPTIONAL": "Keep this topic optional for the stated independently deployable backend goal, not a required learning gate.",
+              "INSUFFICIENT": "The supplied evidence is insufficient to recommend placement."
+            }
+          },
+          "lock_and_rebuild": {
+            "type": "choice",
+            "instructions": "For `reader`, where should the chapter 00 four configuration files, dependency lock consistency, and reconstruction from an empty directory be taught and assessed as an independent skill?",
+            "criteria": {
+              "REQUIRED_00": "Teach and assess this entire topic as a required part of the introductory chapter, before the general Python language chapters.",
+              "BRIEF_00_DEEP_LATER": "Give a narrow introductory explanation or guided use in chapter 00, but defer full mechanisms and independent mastery to the chapter where its prerequisites are established.",
+              "REQUIRED_LATER": "Move teaching and independent assessment of this topic after its specific prerequisite language or programming concepts.",
+              "OPTIONAL": "Keep this topic optional for the stated independently deployable backend goal, not a required learning gate.",
+              "INSUFFICIENT": "The supplied evidence is insufficient to recommend placement."
+            }
+          },
+          "json_report_program": {
+            "type": "choice",
+            "instructions": "For `reader`, where should independent reconstruction and explanation of the complete `chapter00_external_source_files.main.py` JSON-file task-report program be taught and assessed?",
+            "criteria": {
+              "REQUIRED_00": "Teach and assess this entire topic as a required part of the introductory chapter, before the general Python language chapters.",
+              "BRIEF_00_DEEP_LATER": "Give a narrow introductory explanation or guided use in chapter 00, but defer full mechanisms and independent mastery to the chapter where its prerequisites are established.",
+              "REQUIRED_LATER": "Move teaching and independent assessment of this topic after its specific prerequisite language or programming concepts.",
+              "OPTIONAL": "Keep this topic optional for the stated independently deployable backend goal, not a required learning gate.",
+              "INSUFFICIENT": "The supplied evidence is insufficient to recommend placement."
+            }
+          },
+          "import_entry_guard": {
+            "type": "choice",
+            "instructions": "For `reader`, where should `import`, top-level execution, `__name__ == \"__main__\"`, `__file__`, and working-directory-independent file location in chapter 00 be taught and assessed?",
+            "criteria": {
+              "REQUIRED_00": "Teach and assess this entire topic as a required part of the introductory chapter, before the general Python language chapters.",
+              "BRIEF_00_DEEP_LATER": "Give a narrow introductory explanation or guided use in chapter 00, but defer full mechanisms and independent mastery to the chapter where its prerequisites are established.",
+              "REQUIRED_LATER": "Move teaching and independent assessment of this topic after its specific prerequisite language or programming concepts.",
+              "OPTIONAL": "Keep this topic optional for the stated independently deployable backend goal, not a required learning gate.",
+              "INSUFFICIENT": "The supplied evidence is insufficient to recommend placement."
+            }
+          },
+          "pytest_basics": {
+            "type": "choice",
+            "instructions": "For `reader`, where should writing/importing business functions and running basic pytest unit tests first become a required independent skill? Judge the needed language foundations, not whether tests are valuable.",
+            "criteria": {
+              "REQUIRED_00": "Teach and assess this entire topic as a required part of the introductory chapter, before the general Python language chapters.",
+              "BRIEF_00_DEEP_LATER": "Give a narrow introductory explanation or guided use in chapter 00, but defer full mechanisms and independent mastery to the chapter where its prerequisites are established.",
+              "REQUIRED_LATER": "Move teaching and independent assessment of this topic after its specific prerequisite language or programming concepts.",
+              "OPTIONAL": "Keep this topic optional for the stated independently deployable backend goal, not a required learning gate.",
+              "INSUFFICIENT": "The supplied evidence is insufficient to recommend placement."
+            }
+          },
+          "pytest_subprocess_fixtures": {
+            "type": "choice",
+            "instructions": "For `reader`, where should independent explanation and modification of `test_main.py` parameterized, fixture-based and subprocess tests be taught and assessed?",
+            "criteria": {
+              "REQUIRED_00": "Teach and assess this entire topic as a required part of the introductory chapter, before the general Python language chapters.",
+              "BRIEF_00_DEEP_LATER": "Give a narrow introductory explanation or guided use in chapter 00, but defer full mechanisms and independent mastery to the chapter where its prerequisites are established.",
+              "REQUIRED_LATER": "Move teaching and independent assessment of this topic after its specific prerequisite language or programming concepts.",
+              "OPTIONAL": "Keep this topic optional for the stated independently deployable backend goal, not a required learning gate.",
+              "INSUFFICIENT": "The supplied evidence is insufficient to recommend placement."
+            }
+          },
+          "first_error_reading": {
+            "type": "choice",
+            "instructions": "For `reader`, where should locating one simple error in the learner's own script and distinguishing a terminal-command error from a Python error be taught and assessed? This does not mean teaching the full exception-handling system.",
+            "criteria": {
+              "REQUIRED_00": "Teach and assess this entire topic as a required part of the introductory chapter, before the general Python language chapters.",
+              "BRIEF_00_DEEP_LATER": "Give a narrow introductory explanation or guided use in chapter 00, but defer full mechanisms and independent mastery to the chapter where its prerequisites are established.",
+              "REQUIRED_LATER": "Move teaching and independent assessment of this topic after its specific prerequisite language or programming concepts.",
+              "OPTIONAL": "Keep this topic optional for the stated independently deployable backend goal, not a required learning gate.",
+              "INSUFFICIENT": "The supplied evidence is insufficient to recommend placement."
+            }
+          },
+          "review_scope": {
+            "type": "choice",
+            "instructions": "Using `chapter00`, `existing_chapter_outlines`, `later_exact_excerpts`, and `previous_proposed_learning_route`, what scope of sequencing revision is warranted for `reader`?",
+            "criteria": {
+              "NO_CHANGE": "The existing required sequence needs no substantive prerequisite-based changes.",
+              "CHAPTER00_ONLY": "Revise chapter 00 only; the supplied later ordering evidence shows no additional substantive prerequisite issue.",
+              "MULTIPLE_BOUNDARIES": "Revise chapter 00 and also re-evaluate several later prerequisite/chapter boundaries; moving one lab does not resolve the evidenced sequence.",
+              "INSUFFICIENT": "Evidence is insufficient to choose a revision scope."
+            }
+          },
+          "async_database_gap": {
+            "type": "noul",
+            "instructions": "For `reader`, does the supplied module 04 async database excerpt, in its position before the main web chapter and without a preceding SQL/database unit in the supplied outlines, represent a substantive sequencing gap for required study?",
+            "criteria": {
+              "true": "Its required understanding depends on server/database foundations not adequately established by the preceding outlined sequence.",
+              "false": "The preceding outlined sequence and excerpt sufficiently establish the needed foundations or the topic is clearly optional."
+            }
+          },
+          "express_assumption": {
+            "type": "noul",
+            "instructions": "Does the actual module 06 introduction in `later_exact_excerpts` rely on prior Express/backend implementation familiarity that `reader` does not possess?",
+            "criteria": {
+              "true": "It relies on familiarity with implementing Express backends, not merely consuming HTTP APIs.",
+              "false": "Its use of Express is only an optional fully explained analogy and does not presume backend implementation experience."
+            }
+          },
+          "module01_granularity": {
+            "type": "choice",
+            "instructions": "For `reader`, evaluate the required-topic granularity of existing module 01 (its supplied outline, not just line count). Which approach best supports independently mastered sequential chapters?",
+            "criteria": {
+              "KEEP_ONE_CHAPTER": "Keep the same required chapter boundary, relying on its internal subsections and final exercises.",
+              "SPLIT_WITH_GATES": "Split into smaller prerequisite-ordered chapters with their own exercises and gates, preserving teaching depth and helpful JS comparisons.",
+              "REFERENCE_ONLY": "Use the material only as a reference and start required learning with a backend framework.",
+              "INSUFFICIENT": "The outline cannot support choosing a granularity approach."
+            }
+          },
+          "basic_typing_placement": {
+            "type": "choice",
+            "instructions": "For `reader`, when should basic Python function/container annotations and the distinction between static hints and runtime validation be understood, considering their use by FastAPI/Pydantic? Advanced generics are a separate topic.",
+            "criteria": {
+              "BEFORE_ALL_LANGUAGE": "Teach them before names, values, containers and ordinary functions.",
+              "AFTER_FUNCTIONS_BEFORE_FRAMEWORK": "Teach basic annotations after their underlying Python values/containers/functions and before their required use in FastAPI/Pydantic.",
+              "FRAMEWORK_FIRST": "Use them in the first framework examples and defer their systematic explanation until after framework work.",
+              "ADVANCED_OPTIONAL_ONLY": "Treat all basic annotations as optional advanced reading.",
+              "INSUFFICIENT": "Evidence is insufficient."
+            }
+          },
+          "project_learning_structure": {
+            "type": "choice",
+            "instructions": "For `reader`, which practical learning structure best balances meaningful early practice, prerequisite coverage and eventual independent backend delivery?",
+            "criteria": {
+              "COMPLETE_PROJECT_FIRST": "Run a complete engineered application first, then revisit its language and infrastructure parts in later chapters.",
+              "LANGUAGE_SURVEY_THEN_PROJECT": "Complete a broad survey of Python language and tooling using isolated examples, then build the first complete application.",
+              "INCREMENTAL_PROJECT": "Use small understandable exercises and gradually evolve a coherent task-domain program only as its language, engineering and backend prerequisites are taught.",
+              "MULTIPLE_INDEPENDENT_PROJECTS": "Use a different self-contained application at each phase rather than one evolving domain.",
+              "INSUFFICIENT": "Evidence is insufficient."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "chapter00_intervention": {
+            "type": "choice",
+            "choice": "KEEP_REQUIRED",
+            "confidence": 0.41,
+            "probabilities": {
+              "DEFER_LOCAL_EXECUTION": 0.0,
+              "INSUFFICIENT": 0.0,
+              "KEEP_REQUIRED": 0.53,
+              "SPLIT_AND_RESEQUENCE": 0.14,
+              "GUIDED_PREVIEW": 0.33
+            }
+          },
+          "chapter00_prerequisite_gap": {
+            "type": "noul",
+            "noul": 0.28
+          },
+          "runtime_orientation": {
+            "type": "choice",
+            "choice": "REQUIRED_00",
+            "confidence": 0.96,
+            "probabilities": {
+              "REQUIRED_00": 0.97,
+              "INSUFFICIENT": 0.0,
+              "BRIEF_00_DEEP_LATER": 0.03,
+              "OPTIONAL": 0.0,
+              "REQUIRED_LATER": 0.0
+            }
+          },
+          "virtual_environment_depth": {
+            "type": "choice",
+            "choice": "REQUIRED_00",
+            "confidence": 0.83,
+            "probabilities": {
+              "REQUIRED_LATER": 0.0,
+              "INSUFFICIENT": 0.0,
+              "BRIEF_00_DEEP_LATER": 0.13,
+              "OPTIONAL": 0.0,
+              "REQUIRED_00": 0.87
+            }
+          },
+          "lock_and_rebuild": {
+            "type": "choice",
+            "choice": "REQUIRED_00",
+            "confidence": 0.88,
+            "probabilities": {
+              "REQUIRED_00": 0.9,
+              "INSUFFICIENT": 0.0,
+              "BRIEF_00_DEEP_LATER": 0.09,
+              "OPTIONAL": 0.0,
+              "REQUIRED_LATER": 0.01
+            }
+          },
+          "json_report_program": {
+            "type": "choice",
+            "choice": "REQUIRED_00",
+            "confidence": 0.83,
+            "probabilities": {
+              "REQUIRED_00": 0.87,
+              "INSUFFICIENT": 0.0,
+              "BRIEF_00_DEEP_LATER": 0.11,
+              "OPTIONAL": 0.0,
+              "REQUIRED_LATER": 0.02
+            }
+          },
+          "import_entry_guard": {
+            "type": "choice",
+            "choice": "REQUIRED_00",
+            "confidence": 0.71,
+            "probabilities": {
+              "REQUIRED_00": 0.77,
+              "INSUFFICIENT": 0.0,
+              "BRIEF_00_DEEP_LATER": 0.22,
+              "OPTIONAL": 0.0,
+              "REQUIRED_LATER": 0.01
+            }
+          },
+          "pytest_basics": {
+            "type": "choice",
+            "choice": "BRIEF_00_DEEP_LATER",
+            "confidence": 0.38,
+            "probabilities": {
+              "REQUIRED_00": 0.35,
+              "INSUFFICIENT": 0.0,
+              "BRIEF_00_DEEP_LATER": 0.51,
+              "OPTIONAL": 0.0,
+              "REQUIRED_LATER": 0.14
+            }
+          },
+          "pytest_subprocess_fixtures": {
+            "type": "choice",
+            "choice": "BRIEF_00_DEEP_LATER",
+            "confidence": 0.88,
+            "probabilities": {
+              "REQUIRED_00": 0.01,
+              "INSUFFICIENT": 0.0,
+              "BRIEF_00_DEEP_LATER": 0.91,
+              "OPTIONAL": 0.0,
+              "REQUIRED_LATER": 0.08
+            }
+          },
+          "first_error_reading": {
+            "type": "choice",
+            "choice": "REQUIRED_00",
+            "confidence": 0.65,
+            "probabilities": {
+              "REQUIRED_00": 0.73,
+              "INSUFFICIENT": 0.0,
+              "BRIEF_00_DEEP_LATER": 0.26,
+              "OPTIONAL": 0.0,
+              "REQUIRED_LATER": 0.01
+            }
+          },
+          "review_scope": {
+            "type": "choice",
+            "choice": "NO_CHANGE",
+            "confidence": 0.34,
+            "probabilities": {
+              "MULTIPLE_BOUNDARIES": 0.26,
+              "INSUFFICIENT": 0.01,
+              "NO_CHANGE": 0.5,
+              "CHAPTER00_ONLY": 0.23
+            }
+          },
+          "async_database_gap": {
+            "type": "noul",
+            "noul": 0.59
+          },
+          "express_assumption": {
+            "type": "noul",
+            "noul": 0.39
+          },
+          "module01_granularity": {
+            "type": "choice",
+            "choice": "SPLIT_WITH_GATES",
+            "confidence": 0.93,
+            "probabilities": {
+              "KEEP_ONE_CHAPTER": 0.05,
+              "INSUFFICIENT": 0.0,
+              "REFERENCE_ONLY": 0.0,
+              "SPLIT_WITH_GATES": 0.95
+            }
+          },
+          "basic_typing_placement": {
+            "type": "choice",
+            "choice": "AFTER_FUNCTIONS_BEFORE_FRAMEWORK",
+            "confidence": 0.99,
+            "probabilities": {
+              "AFTER_FUNCTIONS_BEFORE_FRAMEWORK": 0.99,
+              "FRAMEWORK_FIRST": 0.0,
+              "INSUFFICIENT": 0.01,
+              "ADVANCED_OPTIONAL_ONLY": 0.0,
+              "BEFORE_ALL_LANGUAGE": 0.0
+            }
+          },
+          "project_learning_structure": {
+            "type": "choice",
+            "choice": "INCREMENTAL_PROJECT",
+            "confidence": 0.96,
+            "probabilities": {
+              "COMPLETE_PROJECT_FIRST": 0.02,
+              "INCREMENTAL_PROJECT": 0.98,
+              "MULTIPLE_INDEPENDENT_PROJECTS": 0.0,
+              "INSUFFICIENT": 0.0,
+              "LANGUAGE_SURVEY_THEN_PROJECT": 0.0
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 24530,
+          "output_tokens": 1078
+        }
+      },
+      "metadata": {
+        "started_at_utc": "2026-09-23T09:49:53.453891+00:00",
+        "elapsed_seconds": 1.087,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 16,
+        "request_sha256": "787056e90772e3383b5757a298daf5aaa826b4b7b6cce6b8a1160c616a011cc0",
+        "usage": {
+          "input_tokens": 24530,
+          "output_tokens": 1078
+        },
+        "credential_persisted": false
+      }
+    },
+    {
+      "id": "review-02",
+      "purpose": "Focused review of a newly specified progressive alternative; not a replication of the first question",
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": {
+            "experience": "Experienced enterprise frontend engineer; independently sets up frontend projects; comfortable with JavaScript, Promise and async/await; basic TypeScript; has consumed and integrated backend APIs.",
+            "new_to": "Python language, implementing server-side applications, databases, and operations; has never written a backend. Do not presume Express or SQL experience.",
+            "goal": "Independently implement, test, deploy and maintain a backend usable by real users.",
+            "pace": "No fixed schedule; willing to learn slowly and thoroughly. Wants sequential chapters with sufficient conceptual explanation, not terse API lists.",
+            "question_verbatim": "00章一上来就直接建立第一个可复现项目是不是太早了，对于没学过 python 的读者来说"
+          },
+          "scope": "Focused review of a NEW chapter-by-chapter proposal. This is not a repeat vote on whether project-first teaching is universally valid. Do not assume the proposed order is correct.",
+          "current_first_chapter_gate": {
+            "source": "content/docs/js2py/module-00-python-introduction.zh-cn.mdx:472-496",
+            "original_text": "## 12. 什么时候可以进入下一章？\n\n本章不是靠读完所有小标题验收，而是检查以下证据：\n\n- [ ] 能从下载工程复现环境并运行六个基线用例。\n- [ ] 能从空目录建立同样的程序，知道每个文件为什么存在。\n- [ ] 能说明源码、数据、配置和依赖锁文件分别由谁读取。\n- [ ] 能证明编辑器与终端使用的是自己预期的解释器。\n- [ ] 能制造并修复一次可控错误，保留命令、报错和定位过程。\n- [ ] 能解释入口保护与工作目录的区别，而不是只会背启动命令。\n\n你的学习时间不固定，所以每次结束时留下一个恢复点：\n\n```text\n今天完成的步骤：\n最后运行成功的命令：\n当前通过的测试：\n仍然不理解的概念：\n下次开始的第一件事：\n```\n\n下次先回到项目目录，恢复环境并运行基线测试，再继续学习。这样即使间隔较长，也不必重新安装所有工具或从头读整章。\n\n下一章将把焦点移到 Python 本身：值与名称、容器、函数参数、作用域、异常，以及那些看起来像 JS、行为却不同的细节。数据库、认证和部署还没有在本章完成；我们会在具备必要先修知识后逐步实现。\n",
+            "english_rendering": "Before entering the next chapter the reader must run six baseline tests, reconstruct the same program from an empty directory knowing why every file exists, explain which tool reads source/data/configuration/lock files, prove editor/terminal interpreter selection, diagnose a controlled error, and explain the entry guard versus working directory. The next chapter then turns to Python values/names, containers, function arguments, scope and exceptions."
+          },
+          "proposed_chapters": [
+            {
+              "id": "00",
+              "topic": "Python orientation and a minimal first run",
+              "prerequisites": [],
+              "teach": "Language/interpreter/editor/terminal roles; one supported local install-and-run path; source file versus shell command; explain every print/literal/name used in the small first script; find a simple self-created error.",
+              "checkpoint": "Create, run, explain and change a tiny dependency-free script. No lockfile, test suite, module entry guard or independent project reconstruction gate."
+            },
+            {
+              "id": "01",
+              "topic": "Names, values and scalar operations",
+              "prerequisites": [
+                "00"
+              ],
+              "teach": "Assignment and object references; numbers, strings, booleans, None; operators, conversions and simple string formatting; limits of the JS comparison.",
+              "checkpoint": "Predict results and independently transform scalar input data."
+            },
+            {
+              "id": "02",
+              "topic": "Containers and mutation",
+              "prerequisites": [
+                "01"
+              ],
+              "teach": "Lists, dictionaries, tuples, sets; element access, absence versus None, references, mutation and shallow versus nested copies.",
+              "checkpoint": "Represent and update a task collection without unexpected shared-state changes."
+            },
+            {
+              "id": "03",
+              "topic": "Control flow and iteration",
+              "prerequisites": [
+                "02"
+              ],
+              "teach": "Indentation, conditions, Python truthiness, for/while, range/enumerate, break/continue; simple comprehensions only after ordinary loops.",
+              "checkpoint": "Compute statistics for empty and non-empty task collections."
+            },
+            {
+              "id": "04",
+              "topic": "Functions, arguments and scope",
+              "prerequisites": [
+                "03"
+              ],
+              "teach": "def/call/return; positional and keyword arguments; default-argument evaluation and mutable-default bugs; function values, local/enclosing/global names; simple closures.",
+              "checkpoint": "Write and explain pure task-rule functions; predict outputs on several inputs before running."
+            },
+            {
+              "id": "05",
+              "topic": "Exceptions and debugging",
+              "prerequisites": [
+                "04"
+              ],
+              "teach": "Traceback, raising/catching specific exceptions, try/except/else/finally, exception versus ordinary return; simple assertions and their boundaries.",
+              "checkpoint": "Handle a recoverable failure, preserve unexpected errors and explain the control flow."
+            },
+            {
+              "id": "06",
+              "topic": "Modules and standard-library imports",
+              "prerequisites": [
+                "05"
+              ],
+              "teach": "Module namespace, imports and top-level execution, script versus module entry, __name__, __file__, working directory, simple multi-file organization.",
+              "checkpoint": "Split functions across files and explain execution/import behavior."
+            },
+            {
+              "id": "07",
+              "topic": "Files, paths, JSON and resource cleanup",
+              "prerequisites": [
+                "06"
+              ],
+              "teach": "Paths, UTF-8 text, parsing/serialization, file errors; teach the complete consumer-level with/cleanup behavior using try/finally comparison. Implementing a custom context manager is not a required gate here.",
+              "checkpoint": "Read and save task data, distinguish text from objects, and handle malformed/missing files."
+            },
+            {
+              "id": "08",
+              "topic": "Environment and dependency engineering",
+              "prerequisites": [
+                "06",
+                "07"
+              ],
+              "teach": "Interpreter selection, virtual environments, project metadata, third-party versus standard-library modules, lock files, dev dependencies, reproducible commands and environment failures.",
+              "checkpoint": "Rebuild an environment and explain configuration-file roles and a deliberate dependency failure."
+            },
+            {
+              "id": "09",
+              "topic": "Basic automated tests",
+              "prerequisites": [
+                "04",
+                "05",
+                "06",
+                "08"
+              ],
+              "teach": "Plain test functions, assertions, isolated inputs, pytest discovery/execution, success and failure expectations. Parameterization, decorated fixtures and subprocess tests are deferred until their prerequisites are taught.",
+              "checkpoint": "Write independent tests for task functions, including empty collections and malformed input."
+            },
+            {
+              "id": "10",
+              "topic": "First independently reproducible Python application",
+              "prerequisites": [
+                "07",
+                "08",
+                "09"
+              ],
+              "teach": "Integrate the already learned task data, functions, modules, file handling, dependency configuration and simple unit tests; no new framework.",
+              "checkpoint": "Reconstruct, run, explain and independently extend the file-backed task program from requirements. Preserve the old lab; treat advanced subprocess/fixture tests as later material, not unexplained mandatory baseline tests."
+            },
+            {
+              "id": "11",
+              "topic": "Basic type annotations",
+              "prerequisites": [
+                "02",
+                "04",
+                "06"
+              ],
+              "teach": "Function/container annotations, unions, optional/default/absent distinction; static hints versus runtime enforcement; no advanced generic metaprogramming requirement.",
+              "checkpoint": "Annotate the task program and explain which incorrect inputs still require runtime validation."
+            },
+            {
+              "id": "12",
+              "topic": "Classes and data models",
+              "prerequisites": [
+                "04",
+                "06",
+                "11"
+              ],
+              "teach": "Instances, attributes, methods and self, initialization, composition, simple inheritance, dataclasses; do not treat hints as validation.",
+              "checkpoint": "Represent a small domain model and compare it with a dictionary/function design."
+            },
+            {
+              "id": "13",
+              "topic": "Decorators used by frameworks and tests",
+              "prerequisites": [
+                "04",
+                "06",
+                "12"
+              ],
+              "teach": "Function values and closures recap; decorator application and registration/wrapping; read @app.get and test decorators without hiding their behavior.",
+              "checkpoint": "Explain and write a minimal decorator; apply parameterized tests to known business functions."
+            },
+            {
+              "id": "14",
+              "topic": "Generators and managed resources",
+              "prerequisites": [
+                "05",
+                "07",
+                "12",
+                "13"
+              ],
+              "teach": "Iteration versus generation, yield suspension and cleanup, context-manager protocol and contextlib; tie behavior to later dependency lifecycles rather than advanced metaprogramming.",
+              "checkpoint": "Trace acquisition, use and release of one resource including exceptional exit."
+            }
+          ],
+          "later_phase_order": [
+            {
+              "phase": "Server and HTTP foundations",
+              "teach": "Processes, listening ports, request/response lifecycle, trust boundary, status codes and API contracts; no Express experience assumed."
+            },
+            {
+              "phase": "Synchronous FastAPI and Pydantic",
+              "teach": "Minimal service, requests/responses and runtime validation, synchronous route functions, API tests, module organization, dependency injection and configuration. Do not silently introduce async lifespan code before async foundations."
+            },
+            {
+              "phase": "Relational database foundations",
+              "teach": "PostgreSQL setup, relational modeling and constraints; SQL CRUD and joins; transactions/rollback/concurrency; parameterized access; synchronous SQLAlchemy Session; Alembic migrations; real database integration tests and basic indexing."
+            },
+            {
+              "phase": "Multiple users and reliable business behavior",
+              "teach": "Authentication, password storage and credential lifecycles; object-level authorization and negative tests; business conflicts/idempotency; security boundaries before any real-user deployment."
+            },
+            {
+              "phase": "Async and external services",
+              "teach": "Python coroutine/task scheduling, blocking boundaries, cancellation, timeouts, concurrency limits; async resource lifecycles only after these are understood; change synchronous parts only when needed."
+            },
+            {
+              "phase": "Delivery and maintenance",
+              "teach": "OS processes/permissions/configuration/network basics before containers; Docker/Compose, HTTPS/reverse proxy, CI, secrets, migrations/release rollback, logs/monitoring, backup AND tested restore, then controlled real-user release and independent feature work."
+            }
+          ],
+          "interpretation_rules": [
+            "Assess prerequisite order and mastery contracts, not number of pages or familiarity with topic names.",
+            "For each proposed chapter, its teach field is substantive instruction, not merely a list of APIs. Its checkpoint must depend only on its own and preceding instruction.",
+            "A later phase contains multiple chapters that have not yet been individually designed; do not certify detailed completeness for those phases.",
+            "The user explicitly prefers small progressive steps with thorough explanation. This does not prohibit small complete programs or optional previews.",
+            "There is no user-study calibration; uncertain choices are guidance, not proof of educational effectiveness."
+          ]
+        },
+        "questions": {
+          "intro_mastery_contract": {
+            "type": "choice",
+            "instructions": "For `reader`, which required introductory mastery contract is the better fit? Compare the actual `current_first_chapter_gate` with the NEW proposal, allowing useful alternatives.",
+            "criteria": {
+              "CURRENT_FULL_GATE": "Keep the current independent full-project reconstruction/configuration/test gate before the language chapters.",
+              "MINIMAL_SCRIPT_GATE": "Use proposed chapter 00 small-script explanation/modification gate; teach independent reproducible-project mastery later as in chapter 10.",
+              "OPTIONAL_FULL_PREVIEW": "Use the small-script gate for all readers, also offer the full engineered project as explicitly optional orientation with no required unexplained mastery.",
+              "INSUFFICIENT": "Evidence is insufficient to choose a contract."
+            }
+          },
+          "proposed_early_prerequisite_gap": {
+            "type": "noul",
+            "instructions": "Does the NEW `proposed_chapters` sequence contain a substantive required checkpoint that relies on a capability neither taught in that chapter nor in preceding chapters? Distinguish using a fully taught public behavior from implementing its internals.",
+            "criteria": {
+              "true": "At least one substantive prerequisite gap is present in a proposed required checkpoint.",
+              "false": "The proposed required checkpoints are reasonably prepared by their own or preceding instruction; no substantive gap is evident."
+            }
+          },
+          "file_resource_placement": {
+            "type": "choice",
+            "instructions": "For `reader`, what is the most appropriate handling of file-resource cleanup at proposed chapter 07, after exceptions/modules but before custom classes and generators?",
+            "criteria": {
+              "FULL_CONSUMER_BEHAVIOR_NOW": "Teach correct with behavior and failure/cleanup using file operations and a try/finally comparison now; teach implementation of custom context-manager protocols later.",
+              "MOVE_ALL_FILES_LATER": "Move all file handling after class/generator/context-manager implementation lessons.",
+              "UNEXPLAINED_WITH_NOW": "Use with in the early code without explaining behavior, deferring all explanation.",
+              "INSUFFICIENT": "Evidence is insufficient."
+            }
+          },
+          "project_test_boundary": {
+            "type": "choice",
+            "instructions": "For the NEW chapter 10 first independent application, how should tests be scoped given the preceding proposed instruction and the later decorator/resource chapters?",
+            "criteria": {
+              "SIMPLE_REQUIRED_ADVANCED_LATER": "Require comprehensible plain pytest function tests now; introduce parameterization, decorated fixtures and subprocess tests in later appropriate lessons.",
+              "FULL_OLD_SUITE_REQUIRED": "Require the old fixture/parameterization/subprocess suite immediately as opaque infrastructure, explaining it later.",
+              "NO_TESTS_UNTIL_WEB": "Remove automated tests from the Python application stage and introduce them only after web development.",
+              "INSUFFICIENT": "Evidence is insufficient."
+            }
+          },
+          "backend_phase_sequence": {
+            "type": "choice",
+            "instructions": "Evaluate only the overall prerequisite ORDER in `later_phase_order` for `reader`; do not claim that this outline already supplies complete textbook content.",
+            "criteria": {
+              "ORDER_REASONABLE_DETAILS_PENDING": "The broad order is reasonable; each phase still needs detailed chapter prerequisites, examples and acceptance gates.",
+              "ORDER_NEEDS_REVISION": "At least one broad phase is substantively before an essential prerequisite and the broad order should be revised.",
+              "INSUFFICIENT": "Not enough evidence to judge even broad phase order."
+            }
+          },
+          "single_chapter_rewrite_sufficient": {
+            "type": "noul",
+            "instructions": "Given the NEW proposed route versus the original chapter-00 gate and `reader` goal, would rewriting only the introduction chapter, without revising later chapter boundaries and mastery contracts, be sufficient to implement this sequential learning design?",
+            "criteria": {
+              "true": "An introduction-only rewrite is sufficient to implement the proposed sequential design.",
+              "false": "Later chapter boundaries, prerequisite teaching or mastery contracts also need changes to implement it."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "intro_mastery_contract": {
+            "type": "choice",
+            "choice": "MINIMAL_SCRIPT_GATE",
+            "confidence": 0.89,
+            "probabilities": {
+              "MINIMAL_SCRIPT_GATE": 0.92,
+              "OPTIONAL_FULL_PREVIEW": 0.08,
+              "CURRENT_FULL_GATE": 0.0,
+              "INSUFFICIENT": 0.0
+            }
+          },
+          "proposed_early_prerequisite_gap": {
+            "type": "noul",
+            "noul": 0.39
+          },
+          "file_resource_placement": {
+            "type": "choice",
+            "choice": "FULL_CONSUMER_BEHAVIOR_NOW",
+            "confidence": 1.0,
+            "probabilities": {
+              "UNEXPLAINED_WITH_NOW": 0.0,
+              "INSUFFICIENT": 0.0,
+              "MOVE_ALL_FILES_LATER": 0.0,
+              "FULL_CONSUMER_BEHAVIOR_NOW": 1.0
+            }
+          },
+          "project_test_boundary": {
+            "type": "choice",
+            "choice": "SIMPLE_REQUIRED_ADVANCED_LATER",
+            "confidence": 1.0,
+            "probabilities": {
+              "SIMPLE_REQUIRED_ADVANCED_LATER": 1.0,
+              "FULL_OLD_SUITE_REQUIRED": 0.0,
+              "INSUFFICIENT": 0.0,
+              "NO_TESTS_UNTIL_WEB": 0.0
+            }
+          },
+          "backend_phase_sequence": {
+            "type": "choice",
+            "choice": "ORDER_REASONABLE_DETAILS_PENDING",
+            "confidence": 0.93,
+            "probabilities": {
+              "ORDER_NEEDS_REVISION": 0.05,
+              "ORDER_REASONABLE_DETAILS_PENDING": 0.95,
+              "INSUFFICIENT": 0.0
+            }
+          },
+          "single_chapter_rewrite_sufficient": {
+            "type": "noul",
+            "noul": 0.07
+          }
+        },
+        "usage": {
+          "input_tokens": 4091,
+          "output_tokens": 319
+        }
+      },
+      "metadata": {
+        "started_at_utc": "2026-09-23T09:55:58.588774+00:00",
+        "elapsed_seconds": 0.926,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 6,
+        "request_sha256": "c3ed887d2cc19a56b1a83eb4d4d1448efb51f8008509015194371e9f222a8392",
+        "usage": {
+          "input_tokens": 4091,
+          "output_tokens": 319
+        },
+        "credential_persisted": false
+      }
+    }
+  ]
+}

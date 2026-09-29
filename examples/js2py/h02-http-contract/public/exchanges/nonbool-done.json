@@ -1,0 +1,38 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "nonbool-done",
+  "precondition": {
+    "seed_tasks": []
+  },
+  "request": {
+    "method": "POST",
+    "target": "/tasks",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "title": "Wrong done",
+      "minutes": 15,
+      "done": 1
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "detail": [
+        {
+          "type": "bool_type",
+          "loc": [
+            "body",
+            "done"
+          ],
+          "msg": "Input should be a valid boolean",
+          "input": 1
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+[
+  ".python-version",
+  "README.md",
+  "README.zh-cn.md",
+  "README.zh-tw.md",
+  "app.py",
+  "baseline.py",
+  "errors/__init__.py",
+  "errors/annotation_only.py",
+  "errors/bad_json.py",
+  "errors/bool_static.py",
+  "errors/mypy-default.ini",
+  "errors/static_errors.py",
+  "errors/unchecked.py",
+  "estimates.py",
+  "exercises/first_over.py",
+  "pyproject.toml",
+  "solutions/__init__.py",
+  "solutions/first_over.py",
+  "solutions/test_first_over.py",
+  "tests/test_estimates.py",
+  "uv.lock"
+]

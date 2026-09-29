@@ -1,0 +1,3 @@
+import missing_js2py_l06_module
+
+print(missing_js2py_l06_module)

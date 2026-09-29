@@ -1,0 +1,18 @@
+{
+  "archived_on": "2026-09-23",
+  "source": "Current working-tree module 02, preserving earlier corrections; not Git HEAD.",
+  "files": [
+    {
+      "file": "module-02-module-system.mdx",
+      "sha256": "88169fd42a631d0dea46e22f906d76184d1ec7abd3054aaf9f26c7ba166558bb"
+    },
+    {
+      "file": "module-02-module-system.zh-cn.mdx",
+      "sha256": "675b6ba260117bd43e0dc912b86f84f9e81cd07ab145456f19a558dbb80a3bff"
+    },
+    {
+      "file": "module-02-module-system.zh-tw.mdx",
+      "sha256": "fea5e97614aad611b5efd8fdbf8db9f23599d2c569aa9c9699504e1715dddd19"
+    }
+  ]
+}

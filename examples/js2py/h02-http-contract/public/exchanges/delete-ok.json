@@ -1,0 +1,24 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "delete-ok",
+  "precondition": {
+    "seed_tasks": [
+      {
+        "title": "  Read HTTP  ",
+        "minutes": 25,
+        "done": false,
+        "note": "keep me"
+      }
+    ]
+  },
+  "request": {
+    "method": "DELETE",
+    "target": "/tasks/1",
+    "headers": {}
+  },
+  "response": {
+    "status": 204,
+    "headers": {},
+    "body": null
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "verified_on": "2026-09-28",
+  "sources": [
+    {
+      "url": "https://docs.python.org/3.13/library/contextlib.html#contextlib.asynccontextmanager",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "contextlib — Utilities for with-statement contexts — Python 3.13.15 documentation",
+      "retrieved": true
+    },
+    {
+      "url": "https://docs.python.org/3.13/reference/compound_stmts.html#the-async-with-statement",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "8. Compound statements — Python 3.13.15 documentation",
+      "retrieved": true
+    },
+    {
+      "url": "https://fastapi.tiangolo.com/advanced/events/",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Lifespan Events - FastAPI",
+      "retrieved": true
+    },
+    {
+      "url": "https://fastapi.tiangolo.com/async/#technical-details",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Concurrency and async / await - FastAPI",
+      "retrieved": true
+    },
+    {
+      "url": "https://www.python-httpx.org/async/",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Async Support - HTTPX",
+      "retrieved": true
+    },
+    {
+      "url": "https://www.python-httpx.org/advanced/clients/",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Clients - HTTPX",
+      "retrieved": true
+    },
+    {
+      "url": "https://www.python-httpx.org/advanced/timeouts/",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Timeouts - HTTPX",
+      "retrieved": true
+    },
+    {
+      "url": "https://www.python-httpx.org/advanced/resource-limits/",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Resource Limits - HTTPX",
+      "retrieved": true
+    },
+    {
+      "url": "https://www.python-httpx.org/advanced/transports/",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Transports - HTTPX",
+      "retrieved": true
+    },
+    {
+      "url": "https://anyio.readthedocs.io/en/stable/cancellation.html",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Cancellation and timeouts — AnyIO 4.15.1 documentation",
+      "retrieved": true
+    },
+    {
+      "url": "https://fastapi.tiangolo.com/tutorial/background-tasks/#caveat",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Background Tasks - FastAPI",
+      "retrieved": true
+    },
+    {
+      "url": "https://docs.pydantic.dev/latest/concepts/models/",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Models | Pydantic Docs",
+      "retrieved": true
+    },
+    {
+      "url": "https://docs.pydantic.dev/latest/concepts/strict_mode/",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Strict Mode | Pydantic Docs",
+      "retrieved": true
+    },
+    {
+      "url": "https://uvicorn.dev/server-behavior/",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Server Behavior - Uvicorn",
+      "retrieved": true
+    },
+    {
+      "url": "https://uvicorn.dev/settings/",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Settings - Uvicorn",
+      "retrieved": true
+    },
+    {
+      "url": "https://pypi.org/pypi/fastapi/0.135.1/json",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "fastapi",
+      "retrieved": true
+    },
+    {
+      "url": "https://pypi.org/pypi/uvicorn/0.42.0/json",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "uvicorn",
+      "retrieved": true
+    },
+    {
+      "url": "https://pypi.org/pypi/pydantic/2.12.5/json",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "pydantic",
+      "retrieved": true
+    },
+    {
+      "url": "https://pypi.org/pypi/httpx/0.28.1/json",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "Example Domain",
+      "retrieved": true
+    },
+    {
+      "url": "https://pypi.org/pypi/anyio/4.12.1/json",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "anyio",
+      "retrieved": true
+    },
+    {
+      "url": "https://pypi.org/pypi/starlette/0.52.1/json",
+      "checked_on": "2026-09-28",
+      "http_status": 200,
+      "title": "starlette",
+      "retrieved": true
+    }
+  ]
+}

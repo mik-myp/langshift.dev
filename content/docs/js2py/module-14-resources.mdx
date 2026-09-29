@@ -1,0 +1,222 @@
+---
+title: Generators and Resource Lifecycles — Suspension, Resumption, and Release
+description: Trace lazy yield execution, exhaustion, and early close, then explain the with protocol and contextlib using real files, acquisition failures, body errors, and partial writes.
+---
+
+import { getResourceExample } from '@/lib/js2py-examples'
+
+## 1. Ask who finishes, not only what a function returns
+
+Earlier, with automatically closed files. Backend code will add connections, sessions, and dependencies, where consumers may fail, read only one item, or fail to acquire a resource at all. Memorizing yield or with can leave you assuming that the end of an operation implies all resources have been released.
+
+We will make lifecycles observable and expand familiar file handling. This is synchronous Python, not database transactions or async context management. Closing a file, rolling back business effects, and successfully persisting data are different promises.
+
+| Contract | Scope |
+| --- | --- |
+| Prerequisites | L05 exceptions, L07 files, L12 classes, L13 decorators, basic tests |
+| New capabilities | yield, suspension/resumption, iteration/exhaustion, explicit close, context protocols, contextlib |
+| Acceptance | Trace acquisition/use/normal and exceptional release, prove break is not closure, verify acquisition failure |
+| Excluded | send/bidirectional generators, complex delegation, async resource protocols, pools, transaction implementations |
+
+Download the [complete L14 lab](/learning-assets/js2py/u14-resources.zip) and enter u14-resources. The baseline is CPython 3.13.15, uv 0.12.13, and pytest 8.4.2. These local file operations do not have misleading browser Run buttons.
+
+## 2. Calling a generator function does not execute its body immediately
+
+An ordinary call typically executes until returning or raising. With yield in its body, calling a generator function creates a generator object; execution starts when a consumer first requests an item. yield supplies a value and suspends, retaining locals and the execution position. The next request resumes after that suspension rather than restarting the body.
+
+The consumer may be next, for, or list. for handles normal exhaustion; manual next raises StopIteration when exhausted. An exhausted generator is not a replayable array. Call the generator function again to establish a new iteration.
+
+<Code language="python">{getResourceExample('sequences.py')}</Code>
+
+tracked_minutes records events to expose mechanics; it does not hold a real system resource. It validates each value only when about to yield it, so earlier items may have been consumed before a later failure. Lazy validation differs from L11's requirement to validate everything before returning a match. Saving memory alone does not justify replacing one policy with the other.
+
+`Generator[int]` and `Generator[str]` describe the actual generator objects, including iteration and close. The single yielded-type parameter form fits the Python 3.13 baseline. These are not lists. Later, `Iterator[TextIO]` describes an iteration yielding a text file for contextmanager to adapt; bidirectional generator type parameters are not required here.
+
+## 3. Draw suspension and cleanup on a timeline
+
+```python
+from collections.abc import Generator
+
+
+def numbers() -> Generator[int]:
+    print("start")
+    try:
+        yield 30
+        print("resume")
+        yield 0
+    finally:
+        print("finish")
+
+
+values = numbers()
+print("created")
+print(next(values))
+print(list(values))
+print(list(values))
+```
+
+```text
+created
+start
+30
+resume
+finish
+[0]
+[]
+```
+
+created precedes start because construction did not enter the body. list(values) consumes the remaining process: resume is printed, normal completion runs finally, then the collected [0] reaches print. The second list is empty; it does not restart the generator.
+
+finally participates in normal completion, exception propagation, and closing a generator suspended within that try block. **Closing a never-started generator does not first execute its body or finally.** Acquiring a resource inside the body therefore means it has not been acquired before starting. Acquiring outside and returning another generator needs a separate ownership design.
+
+<details>
+<summary>Explanation answer: does a generator guarantee all input is valid?</summary>
+
+No. Constructing tracked_minutes([30, -1], events) does not fail; the first next yields 30, and only the second rejects -1 and cleans up. A policy that rejects the whole batch before any effects requires prior validation, not lazy iteration presented as advance validation.
+
+</details>
+
+## 4. break ends a loop, not an ownership protocol
+
+<Code language="python">{getResourceExample('break_demo.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python break_demo.py
+```
+
+```text
+30
+['started', 'yield 30']
+['started', 'yield 30', 'finished']
+```
+
+After break, values still references the suspended generator and finally has not run. Explicit close triggers cleanup here. Do not depend on an interpreter immediately reclaiming an incidental temporary object or on process-exit cleanup as a stable resource policy.
+
+close finishes the suspended generator; later iteration produces no values. Closing before start produces no acquisition/release events, and closing an already closed generator does not repeat cleanup. Ordinary business code need not inject exceptions manually. It does need an explicit consumer and owner responsible for closure.
+
+## 5. A file generator must release even when you read less
+
+lines_from opens the file when iteration actually starts and yields lines with the trailing newline removed, preserving blank lines. While suspended at yield, execution is still inside the file's with block and the handle remains open. Exhaustion exits that block; early stopping requires a reliable consumer-side exit boundary.
+
+`contextlib.closing` accepts an object with close and calls that method when its with block exits, including through break or an exception. It does not turn arbitrary objects into generators or undo business effects. Having yield does not by itself make a raw generator a with-compatible context manager.
+
+The app below includes the complete first-line-only use. There are two ownership layers: closing closes the generator; generator termination exits its internal with and closes the file. Proving that printing stopped is not proof of underlying release.
+
+## 6. Expand with: the manager and the supplied value can differ
+
+The class version implements two special methods. __enter__ acquires the resource and returns the value supplied to the body; __exit__ defines the exit policy. In `with TextFile(...) as handle`, handle is the actual file returned by __enter__, not the TextFile manager itself.
+
+<Code language="python">{getResourceExample('resources.py')}</Code>
+
+Read TextFile first. Entry records acquire-attempt and, after successful open, acquired. Normal body completion supplies three None values to __exit__. A body exception supplies its type, instance, and traceback. The unused traceback parameter carries diagnostic information; its internal structure and advanced annotations are not prerequisites here.
+
+Returning False declines to suppress the body exception. Returning True suppresses it and requires a deliberate policy. If __enter__ fails while opening, the body never runs and __exit__ is not called for that unentered context. When acquiring multiple resources, establish a release boundary for each instead of assuming the final with manages all prior failures.
+
+This simple TextFile is not promised to support nested reuse of the same instance. Construct a fresh manager for each with to avoid overwriting a previous handle. If close itself fails during error handling, another exception can result; this chapter does not claim exhaustive coverage of disk and operating-system failures.
+
+## 7. contextmanager adapts an exactly-one-yield protocol
+
+Now read opened_text. @contextmanager accepts a generator function and produces a factory for with-compatible managers. Entry runs to yield and supplies the file to the body. Exit resumes that suspension: normal exit continues, while exceptional exit throws the body's exception at the suspended yield, allowing finally to close the handle.
+
+This is neither background execution nor coroutine scheduling. Before yield is acquisition, the yielded value is for use, and finally handles release. Successful entry must yield exactly once; yielding zero or twice violates the protocol. An open failure may raise immediately rather than supplying a fake resource to satisfy a yield count.
+
+A manager instance is not a general reentrant object; call opened_text(...) afresh for each use. Logging and reraising an exception can aid diagnosis. Catching without reraising can instead turn failure into success, as the next experiment demonstrates.
+
+## 8. Complete execution: separate normal and exceptional cleanup
+
+<Code language="toml">{getResourceExample('pyproject.toml')}</Code>
+
+<Code language="text">{getResourceExample('fixtures/lines.txt')}</Code>
+
+<Code language="python">{getResourceExample('app.py')}</Code>
+
+```bash
+uv run --locked python app.py
+uv run --locked python -m pytest -q
+```
+
+```text
+[]
+30
+['started', 'yield 30']
+['started', 'yield 30', 'finished']
+alpha
+True ['acquire-attempt', 'acquired', 'released']
+True ['acquire-attempt', 'acquired', 'released']
+alpha
+```
+
+First observe laziness and close. Next, normal exit from the class manager makes handle.closed true. Then the body deliberately fails; the file still closes, and printing occurs only after ValueError reaches the outer except. Finally, closing handles early exit from file iteration. Identical released events do not prove identical business success; inspect exceptions and results too.
+
+## 9. Two real defects: hidden failure and protocol violation
+
+<Code language="python">{getResourceExample('errors/suppressed.py')}</Code>
+
+```bash
+uv run --locked python errors/suppressed.py
+```
+
+It prints hidden and continued and exits successfully. The body failed, but the generator caught the exception and finished normally, so contextmanager treats it as handled. If saving failure must remain visible, repair by reraising, not by changing the log to say “serious error.”
+
+<Code language="python">{getResourceExample('errors/two_yields.py')}</Code>
+
+```bash
+uv run --locked python errors/two_yields.py
+```
+
+It prints first, then raises RuntimeError on exit because it yields a second time. This differs from a missing path, a body error, and a pytest assertion failure. Diagnose whether acquisition, use, or release failed instead of calling every issue a with problem.
+
+## 10. Verify real handles and failure paths, not only logs
+
+<Code language="python">{getResourceExample('tests/test_resources.py')}</Code>
+
+There are twelve cases. Parametrization gives class and generator managers the same normal, exceptional, and acquisition-failure checks. Tests inspect closed, exception propagation, whether the body ran, event order, and subsequent iteration. Logging released can itself be wrong, so a log assertion alone is insufficient.
+
+Acquisition failure uses a missing file inside an owned temporary directory rather than a path that may exist on another machine. The nested test proves the outer handle remains usable after inner exit and closes afterward. This uses already taught TemporaryDirectory and parametrization, not unexplained fixtures.
+
+Guided work: change __exit__ to return True and identify the failing exception test. Remove close from break_demo and explain why a zero process status still does not establish deterministic release.
+
+<details>
+<summary>Guided exercise checks</summary>
+
+pytest.raises expects ValueError to reach the outer test boundary; suppression makes that expectation fail. Without close, inspect events while retaining the generator reference: finished must not yet appear. Waiting for garbage collection or adding sleep is not a repair. Establish an owner and an exit boundary.
+
+</details>
+
+## 11. Independent variation: a new report, not a pretend transaction
+
+Implement new_report(path, events). It may only create a new file; an existing target must be refused without altering its bytes. Yield a writable text handle, close it after normal or exceptional body exit, and propagate body exceptions. Use the same acquire-attempt/acquired/released events. The caller prepares the parent directory; do not silently create or overwrite unrelated directories.
+
+Mode x provides exclusive creation and raises FileExistsError for an existing path, unlike w, which truncates. “Exclusive” describes creation, not a transaction lock covering every subsequent file operation. If the body writes part of a report and fails, partial content may remain. Document and test that policy rather than claiming close provides rollback or atomic replacement.
+
+Independently test normal writes, existing targets, partial-write failure, and real handle closure in temporary directories. Retained effects are part of the requirement; do not silently delete files to make tests green.
+
+<details>
+<summary>Independent reference implementation and tests</summary>
+
+<Code language="python">{getResourceExample('solutions/new_report.py')}</Code>
+
+<Code language="python">{getResourceExample('solutions/test_new_report.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_new_report.py
+```
+
+Two reference tests cover successful acquisition/use, acquisition refusal, and failure during use. Existing files record only the attempt: no body and no invented released event. Partial-write failure closes and propagates while retaining partial content. An all-or-nothing policy requires additional storage design and failure experiments not supplied by this chapter.
+
+</details>
+
+## 12. Acceptance and a lifecycle-based checkpoint
+
+Independently draw creation, first next, suspension, resumption, and exhaustion/close. Prove break does not guarantee release, distinguish unstarted and suspended closure, implement a manager that does not swallow exceptions, make tests catch suppression, and complete the new-report requirement.
+
+Before pausing, record who acquires and closes the resource, whether iteration has started, the last successful/failing commands, retained partial files, the failure stage, and the next step. Resume with temporary data rather than experimenting with overwriting or deleting important files.
+
+Only after these foundations does H01 introduce a continuously running service: why one call ending does not end the process, who listens on a port, and why client input is untrusted. A file demonstration is not suddenly a deployable backend.
+
+## 13. Primary references and the extent of release guarantees
+
+Checked on September 28, 2026: [generator methods](https://docs.python.org/3.13/reference/expressions.html#generator-iterator-methods), the [with protocol](https://docs.python.org/3.13/reference/compound_stmts.html#the-with-statement), [contextlib](https://docs.python.org/3.13/library/contextlib.html), and [Generator annotations](https://docs.python.org/3.13/library/typing.html#typing.Generator).
+
+We verify normal control flow, Python exceptions, and explicit closure—not execution of finally after forced termination, power loss, or filesystem failure. Closing is neither business rollback nor proof that data is durable on storage media. Database and operations chapters will establish those separate responsibilities.

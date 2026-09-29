@@ -1,0 +1,226 @@
+---
+title: "容器与可部署应用：镜像不是数据，健康也不是业务正确"
+description: "解释镜像、构建上下文、非root、网络、卷和健康边界；实跑本地HTTP与静态检查，明确真实容器运行待验收。"
+---
+
+import { getContainerOpsExample } from '@/lib/js2py-examples'
+
+## 1. 为什么“装进容器”不是跳过操作系统
+
+你已经能解释 cwd、环境、权限、端口和信号。容器把这些条件组织成可重复的运行边界，并没有取消它们：错误的目录仍然会找不到文件，非root 仍然可能没权限写卷，发给 PID 1 的停止信号仍然需要正确处理。如果只复制一个 Dockerfile 而不知道状态放在哪里，删除再创建实例可能把唯一的数据一起丢掉。
+
+本章前置 O01 与 L08。目标是解释镜像和实例、限制构建输入、指定运行用户与配置、区分网络命名空间、验证数据生命周期与健康信号。独立验收原本包括干净环境构建、运行、重启/重建；**本机没有容器引擎，这部分必须保留待验收**，而不是改成“文件写好了所以通过”。
+
+[下载完整 O02 实验](/learning-assets/js2py/o02-containers.zip)。这里部署的只是两个健康端点，不含任务、账号、授权或数据库。不能直接接真实用户，也不能拿它替换 S03 完整服务。本章不要求购买云资源、安装重型软件或接受厂商条款；如果已有受控引擎，再显式选择它。
+
+## 2. 镜像、容器、主机与引擎各负责什么
+
+镜像是一组文件系统层与启动元数据，可作为多个实例的共同起点；容器是由它创建的运行实例，有自己的进程视图、网络边界和可写层。它不是“另一台完整电脑”，通常仍共享运行它的 Linux 内核。macOS 上常需要一个 Linux 虚拟机承载这些容器；装有 Python、Homebrew 或一个 Docker CLI，不等于 Linux 引擎已经可用。
+
+Docker CLI 把请求发给引擎；context/DOCKER_HOST 可能指向远端。你在本地敲命令，副作用却可能发生在别人的服务器。因此本实验不运行默认 context，不列出用户全部容器，也不 prune。后面的 runner 要求明确的本地 UNIX socket、受控引擎确认，并用空临时 Docker 配置，避免读取凭证助手。引擎 socket 的访问能力本身就很强，不应挂到普通业务容器里。
+
+镜像 tag 是可移动名字，不是内容校验值。Dockerfile 中固定 Python 版本比 latest 明确，但没有本机实际解析并记录 digest，不能宣称字节级镜像复现或供应链审计已完成。
+
+## 3. 先恢复本地实验，不假装已经有 Docker
+
+从仓库根目录执行；ZIP 用户直接进入解压实验根目录。uv/Python/pytest 与 O01 相同，Web 基线是 FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、HTTPX 0.28.1；Starlette 0.52.1 和 AnyIO 4.12.1 一并锁定。依赖在 Python 虚拟环境恢复，没有增加任何前端依赖。
+
+```bash
+cd examples/js2py/o02-containers
+uv sync --locked
+uv run --locked python -m pytest -q
+uv run --locked python check_config.py
+uv run --locked python local_probe.py
+```
+
+<Code language="toml">{getContainerOpsExample('pyproject.toml')}</Code>
+
+读取已有锁用 `uv sync --locked`；维护者重新解析时使用 `uv lock --default-index https://pypi.org/simple`，本包的锁就是这样实际生成的。重新解析会改变依赖快照，不能作为读者日常恢复的同义命令。实际 case 数与环境缺口在本章末尾分别列出。
+
+## 4. 构建上下文：你没 COPY 的秘密也不该被送进去
+
+`docker build .` 最后的点表示构建上下文，通常是当前目录；COPY 的源路径来自这个范围。把仓库根目录、home 或缓存目录当上下文，可能把无关文件、.env、凭证和大缓存交给构建器。只在 Dockerfile 中写几个 COPY 不是完整边界：构建输入本身也应最小化。
+
+本例 `.dockerignore` 先忽略一切，再明确放行九个文件；没有 `.venv`、测试缓存、真实配置、README 或源码根目录之外的路径。反向例外的前缀 `!` 表示恢复允许。Dockerfile 同样显式 COPY，不使用 `COPY . .`。这是双重可审查边界，但静态字符串检查不是 Docker 的完整模式解析器；实际构建仍需要引擎验证。
+
+<Code language="text">{getContainerOpsExample('.dockerignore')}</Code>
+
+<Code language="dockerfile">{getContainerOpsExample('Dockerfile')}</Code>
+
+第一阶段用固定 uv 恢复生产依赖，不安装 dev 组；第二阶段只带虚拟环境和四个应用文件，避免把构建工具和测试整包带走。相同基础镜像让 /opt/venv 中的解释器路径可用。镜像下载、基础 tag 可用性、目标架构和实际构建缓存都**尚未实测**，不能根据 Dockerfile 的文本推断已经成功。发布时还要审查基础镜像 digest 与更新策略。
+
+## 5. 非root 与只读根：保留真正需要的写入
+
+镜像构建时通常需要权限创建目录与用户，运行时却不必保留这些权力。Dockerfile 建立数字 UID/GID 10001，拥有 /data，但应用源码由构建阶段写入，不归服务用户修改。`USER` 指定默认运行身份；Compose 再声明同一身份便于审查。数字身份会影响卷权限，不能以“容器里叫 app”猜宿主机目录自动可写。
+
+Compose 的 read_only 限制容器根文件系统；命名卷 /data 是明确的持久化写入口，/tmp 是有大小上限的临时内存文件系统。cap_drop ALL 去掉额外 Linux capabilities，no-new-privileges 限制执行时提权。它们降低风险，却不抵御所有内核漏洞，不替代授权。Python 禁止写 bytecode，避免只读源码目录的无意义写入。
+
+<Code language="json">{getContainerOpsExample('compose.json')}</Code>
+
+JSON 是这里显式选用的 Compose 文件格式；Compose 接受这个 YAML 子集，使用时文件参数是 `-f compose.json`，不能假定工具自动寻找它。`init: true` 增加一个小型 init 处理孤儿进程回收与信号转发；exec 形式 CMD 不夹入 shell。stop_grace_period 给正常停止时间，restart=no 表示实验不自动重启，方便观察失败。所有这些仍需在你的受控引擎实跑。
+
+## 6. 普通配置与秘密：不要把 export 当保险箱
+
+OPS_DATA_DIR 是非秘密的路径配置，可以公开写在 Compose 中。数据库密码和 Bearer token 则不同：不能写入 Dockerfile 的 ENV/ARG、镜像层、构建日志、命令行参数或示例 ZIP。即使后一个镜像层删掉文件，也不能证明前一个层里不存在它。把 .env 加入忽略清单只减少构建泄漏，不意味着 .env 内容已安全。
+
+受控平台可以把秘密作为只读文件挂到授权服务，或通过审核过的秘密管理器注入。Docker Compose secrets 提供按服务挂载文件的机制，不自动解决宿主文件保管、备份、轮换和撤销。下面只操作固定虚构字符串，输出布尔观察而不输出内容；它不连接数据库，也不读取用户已有凭证。
+
+<Code language="python">{getContainerOpsExample('secret_demo.py')}</Code>
+
+```bash
+uv run --locked python secret_demo.py
+```
+
+```text
+file_mode=0o600
+fictional_value_loaded=True
+value_is_not_printed=True
+```
+
+## 7. 网络命名空间：两个 loopback 不要混为一谈
+
+宿主机的 127.0.0.1 指向宿主网络，容器里的 127.0.0.1 指向容器自身网络。若应用在容器内只监听它自己的 loopback，Docker 从容器外侧转入的连接通常无法到达这个监听。因此 Dockerfile 里的 Uvicorn 监听 **容器内部** 0.0.0.0:8000；Compose 在**宿主机侧**只发布 127.0.0.1:8033:8000。这不是把宿主改成公网监听，两层边界必须一起解释。
+
+EXPOSE 8000 只是元数据，不会单独发布宿主端口。其他容器也不能用它们自己的 127.0.0.1 找到这个服务，通常要通过受控容器网络和服务名。这里没有数据库容器，也没有让容器访问用户 PostgreSQL。真实部署还要核验宿主防火墙、IPv6 和虚拟机转发，不能只读一行 ports 就宣称所有网络安全。
+
+Docker 官方特别注明：28.0.0 之前的引擎有同 L2 网络访问 localhost 发布端口的例外；因此本实验 runner 要求 Linux Engine >=28。这个版本检查只处理该已知门槛，不是完整安全审计。
+
+## 8. 卷与可写层：重启不等于删除重建
+
+把“容器一重启数据就没了”背成口号是错的。**同一个容器 stop/start 通常保留自己的可写层**；删除该容器再从镜像新建，旧可写层才不会自动跟过来。命名卷有独立生命周期，可以重新挂给新容器，但你仍能显式删除它，宿主磁盘损坏也可能失去它。持久卷不是备份。
+
+本例 volume_probe 在显式数据目录维护一个一次性 counter。两次进程读取同一路径能保留它，不能据此声称 Docker 卷已验收。真正 runner 会分别测试：带卷删除重建仍为 1；无卷同容器 stop/start 仍为 1；无卷删除重建变为 0。文件 replace 不提供并发事务或断电保证；不要对运行中的 PostgreSQL 数据目录使用这个复制办法。
+
+<Code language="python">{getContainerOpsExample('volume_probe.py')}</Code>
+
+## 9. 健康：活着、可接流量、业务正确的三层证据
+
+`/health/live` 返回 200 只说明处理器能回答；`/health/ready` 尝试在数据目录写临时文件，失败返回 503。此处 readiness 的依赖是“教学目录可写”，不是数据库连接。S03 真正 ready 需要它自己的 DB 检查，迁移、权限和业务测试仍分别验证。一个能向 Alice 泄漏 Bob 数据的服务也可能一直 healthy。
+
+Docker HEALTHCHECK 定期执行 healthcheck.py，以退出状态报告健康；普通 Docker 并不会仅因 unhealthy 自动重启这个容器。重启策略主要看进程退出，平台调度/流量切换另有规则。不要用 liveness 因短暂 DB 故障频繁杀进程来放大故障，更不要让健康接口返回连接串或秘密。
+
+<Code language="python">{getContainerOpsExample('app.py')}</Code>
+
+<Code language="python">{getContainerOpsExample('healthcheck.py')}</Code>
+
+本机真实 HTTP 实验用自己创建的 loopback socket 启动 Uvicorn，先测正常端点，再把**自己的临时目录**改为不可写，验证 live=200 而 ready=503，恢复权限后 ready 回到 200。最后确认 /tasks=404，提醒这不是完整业务应用。它有有限超时并只清理自己子进程；没有 Docker 也能完成，但不能改变容器待验收状态。
+
+<Code language="python">{getContainerOpsExample('local_probe.py')}</Code>
+
+```bash
+uv run --locked python local_probe.py
+```
+
+```text
+host_http_live=200
+host_http_ready=200
+unwritable_live=200
+unwritable_ready=503
+restored_ready=200
+tasks_not_implemented=404
+container_runtime=NOT_VERIFIED
+```
+
+## 10. 静态审查与真正容器实验各自的职责
+
+<Code language="python">{getContainerOpsExample('check_config.py')}</Code>
+
+```bash
+uv run --locked python check_config.py
+uv run --locked python container_probe.py
+```
+
+第一条检查选定的可审查不变量：明确上下文、loopback 发布、UID、只读根；最后仍输出 container_runtime=NOT_VERIFIED。第二条没有显式 socket 和确认标记时返回 **77** 并报告 environment_pending；这不是测试失败的掩盖，也不是容器成功。runner 是完整可运行配置的配套工具，但真实 Docker 分支在本机没执行。
+
+若用户有受控本地 Linux Docker Engine >=28，先阅读 runner，确认目标 socket、镜像下载网络/磁盘成本与清理范围，再使用下列**未实跑命令模板**。把占位路径换成自己核验的 UNIX socket，不填远端 TCP/SSH 地址。它使用独有名字，只删除自己建立的容器、卷和镜像；基础镜像与构建缓存可能留下，不会为“清干净”去 prune 共享引擎。
+
+```bash
+uv run --locked python container_probe.py --socket /path/to/controlled/docker.sock --confirm-controlled-engine
+```
+
+<Code language="python">{getContainerOpsExample('container_probe.py')}</Code>
+
+需亲自记录：引擎/系统/CPU架构、实际镜像 digest、构建日志、容器 UID、宿主绑定地址、停止结果、三种状态生命周期的观察，以及清理结果。不能把本章给出的“应当得到”抄为事实；任一步不符先保留证据，再检查权限、卷身份、目标引擎和镜像解析。
+
+## 11. 失败定位：先找边界，不直接加权限
+
+| 失败 | 常见边界 | 正确下一步 |
+| --- | --- | --- |
+| CLI 找不到 / socket 不存在 | 没有本地运行时 | 记录 environment_pending，别偷偷安装或连远端 |
+| 拉镜像/依赖失败 | tag、架构、网络或索引 | 查看具体构建阶段，不能改成 latest 就宣布复现 |
+| 容器应用无法写 /data | UID 与卷 owner 不匹配 | 检查专用卷，不 chmod 用户真实目录 |
+| host 连接失败，容器进程却活着 | 两层监听/发布配置 | 检查内部监听与 host 127.0.0.1 发布，不开放公网 |
+| healthy 但 /tasks=404 | 只部署了 smoke 应用 | 不是 CORS 故障；完整授权业务尚未集成 |
+| 删除重建后计数丢失 | 可写层或错误的新卷 | 对照同容器重启与卷重挂，别先清卷重试 |
+
+不要把镜像、卷和应用版本全部同时替换再猜哪个修好了。一次只改变一个边界，保留最后成功观察；涉及真实数据库时转入后续备份恢复课程，不用此文件玩具实验冒充恢复方案。
+
+## 12. 解释检查：拒绝三个方便但错误的推论
+
+解释：为什么同一个无卷容器 stop/start 可能保留数据，但删除重建不保留？为什么容器内部 0.0.0.0 不必然等于宿主公网开放？为什么 healthy 不说明 Alice/Bob 越权测试通过？每题都写出边界，而不是回答“因为 Docker”。
+
+<details>
+<summary>答案与解释</summary>
+
+同实例保留可写层；新实例从镜像和被挂载的独立状态开始，不自动继承旧层。容器监听属于内部网络命名空间，宿主是否发布到哪些接口另由 ports/引擎/防火墙决定。健康脚本只检查定义好的技术依赖，没有两个人的身份和资源权限证据。每个推论都把一个层面的成功偷换成了另一个层面的保证。
+
+</details>
+
+## 13. 引导练习：让 ready 失败而 live 保持成功
+
+先预测 local_probe 的权限变化会影响哪个端点。要求保持服务进程运行，仅改变自有临时数据目录权限，观察 200/503，再恢复。不要停止服务器模拟“不可写”，也不要在宿主 home 上试 chmod。然后解释如果业务 readiness 依赖数据库，这个文件探针为什么不够。
+
+<details>
+<summary>引导答案与自动检查</summary>
+
+live 不访问数据目录，仍返回 200；ready 捕获写入失败返回 503；恢复写权限后 ready 回到 200。真实 DB readiness 要使用对应连接/查询与有限超时，不是“磁盘能写所以 DB 能用”。这个失败可在普通本地账户重现，root 可能绕过，测试明确拒绝它。
+
+<Code language="python">{getContainerOpsExample('tests/test_container_foundations.py')}</Code>
+
+</details>
+
+## 14. 独立变式：恢复到新目录，不覆盖原状态
+
+只给需求：源目录保存一个已经停止写入的教学 counter；把它恢复到新的空目录，读取结果一致。目标非空必须拒绝，源损坏不能静默重置为 0，不能动原文件。独立写函数与测试，再解释为什么这个练习**不是活跃 PostgreSQL 的备份方案**。有容器环境时另外运行 runner 的重建测试，两个证据不能互相代替。
+
+<details>
+<summary>独立参考实现</summary>
+
+<Code language="python">{getContainerOpsExample('solutions/restore_copy.py')}</Code>
+
+<Code language="python">{getContainerOpsExample('solutions/test_restore_copy.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_restore_copy.py
+```
+
+先验证源内容，再检查并只写新目标，能减少误覆盖，但没有在写入期间提供数据库快照一致性。真实恢复必须在隔离数据库按备份协议演练，并验证业务记录；后续发布/恢复章节负责这个边界。
+
+</details>
+
+## 15. 环境矩阵与交付结论
+
+| 状态 | 本章证据/门槛 |
+| --- | --- |
+| 已实际运行 | macOS 普通用户；标准 14、独立 3 个测试；真实 loopback HTTP 200/503/恢复/404、配置不变量、虚构秘密文件、普通文件恢复 |
+| 本机不可运行 | 未发现 Docker/OrbStack/Podman/Apple container 等 CLI、常见应用或 socket；没有受控 Linux 容器引擎 |
+| 用户需自备 | 受控本地 Linux Docker Engine >=28、明确 UNIX socket、镜像下载许可/网络/存储；实测构建、非root、发布、read-only、health、停止/重建/卷 |
+| 仍需另外验收 | 基础镜像 tag/digest/架构、Compose 实际解析、卷所有权、真实引擎分支、业务集成、DB备份 |
+
+正文、源码、静态检查和本地 HTTP 切片是 implemented；**容器构建与运行环境是 environment_pending**。没有远端 context 连接、全局 prune、用户容器操作、系统软件安装或云资源购买。
+
+## 16. 资料、日期与可恢复记录
+
+一手资料核验日期 **2026-09-28**。`SOURCES.json` 保存地址、核验日期和获取摘要；这是本轮使用的资料，不承诺文档未来不变。实际结果与环境缺口见三语 README，不能把配置的存在当成部署通过。
+
+- [Docker build context](https://docs.docker.com/build/concepts/context/)
+- [Dockerfile reference](https://docs.docker.com/reference/dockerfile/)
+- [Docker volumes](https://docs.docker.com/engine/storage/volumes/)
+- [Docker port publishing](https://docs.docker.com/engine/network/port-publishing/)
+- [Docker Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/)
+- [Docker daemon attack surface](https://docs.docker.com/engine/security/)
+- [Docker Compose service reference](https://docs.docker.com/reference/compose-file/services/)
+- [uv lock and sync](https://docs.astral.sh/uv/concepts/projects/sync/)
+
+恢复记录至少包括：当前源码与锁文件摘要、cwd、最后成功命令、14+3 本地测试结果、引擎是否存在及如何确认、镜像/卷状态哪些实测哪些只是预期、未解决故障和下次动作。不把 credential、token 或 Docker 配置复制进记录。回到本章先恢复锁并跑 local_probe；有了引擎才新建环境验收记录，而不是把旧静态通过改名成容器通过。
+

@@ -1,0 +1,21 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "missing-task",
+  "precondition": {
+    "seed_tasks": []
+  },
+  "request": {
+    "method": "GET",
+    "target": "/tasks/999",
+    "headers": {}
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "detail": "Task not found"
+    }
+  }
+}

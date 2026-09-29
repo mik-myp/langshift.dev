@@ -1,0 +1,86 @@
+{
+  "date": "2026-09-28",
+  "scope": "Real Chromium browser fetch against own H06 Uvicorn and2static servers, not TestClient",
+  "allowed_origin": "http://127.0.0.1:5506",
+  "denied_origin": "http://127.0.0.1:5507",
+  "allowed_results": [
+    "POST201",
+    "GET200",
+    "strict-invalid-input422",
+    "DELETE204 zero body"
+  ],
+  "denied_result": "Browser fetch rejected; server logged OPTIONS400; no task created",
+  "return_to_allowed": "PASS201/200/422 and cleanup204 again",
+  "nonbrowser_get200_after_denial": true,
+  "final_task_count": 0,
+  "server_log_excerpt": [
+    "INFO:     127.0.0.1:49522 - \"OPTIONS /tasks HTTP/1.1\" 200 OK",
+    "TRACE acquire POST /tasks",
+    "TRACE use POST /tasks get_store",
+    "TRACE use POST /tasks create_task",
+    "TRACE release POST /tasks closed=True",
+    "INFO:     127.0.0.1:49522 - \"POST /tasks HTTP/1.1\" 201 Created",
+    "TRACE acquire POST /tasks",
+    "TRACE use POST /tasks get_store",
+    "TRACE release POST /tasks closed=True",
+    "INFO:     127.0.0.1:49522 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content",
+    "INFO:     127.0.0.1:49522 - \"OPTIONS /tasks/1 HTTP/1.1\" 200 OK",
+    "TRACE acquire DELETE /tasks/1",
+    "TRACE use DELETE /tasks/1 get_store",
+    "TRACE release DELETE /tasks/1 closed=True",
+    "INFO:     127.0.0.1:49523 - \"DELETE /tasks/1 HTTP/1.1\" 204 No Content",
+    "INFO:     127.0.0.1:49532 - \"OPTIONS /tasks HTTP/1.1\" 400 Bad Request",
+    "TRACE acquire POST /tasks",
+    "TRACE use POST /tasks get_store",
+    "TRACE use POST /tasks create_task",
+    "TRACE release POST /tasks closed=True",
+    "INFO:     127.0.0.1:49560 - \"POST /tasks HTTP/1.1\" 201 Created",
+    "TRACE acquire POST /tasks",
+    "TRACE use POST /tasks get_store",
+    "TRACE release POST /tasks closed=True",
+    "INFO:     127.0.0.1:49560 - \"POST /tasks HTTP/1.1\" 422 Unprocessable Content",
+    "INFO:     127.0.0.1:49560 - \"OPTIONS /tasks/2 HTTP/1.1\" 200 OK",
+    "TRACE acquire DELETE /tasks/2",
+    "TRACE use DELETE /tasks/2 get_store",
+    "TRACE release DELETE /tasks/2 closed=True",
+    "INFO:     127.0.0.1:49560 - \"DELETE /tasks/2 HTTP/1.1\" 204 No Content"
+  ],
+  "evidence_directory": "/var/folders/m7/zc6hqw3d4rsflyn81ykd_rc00000gn/T/js2py-cors-main-e5__usnp",
+  "screenshots_captured": [
+    "h06-cors-allowed.png",
+    "h06-cors-denied.png"
+  ],
+  "browser_session_closed": true,
+  "server_cleanup_pending": false,
+  "not_verified": [
+    "other browsers",
+    "TLS",
+    "public network",
+    "authentication",
+    "production load"
+  ],
+  "server_cleanup": {
+    "owned_processes": [
+      {
+        "pid": 39185,
+        "returncode": 143,
+        "reaped": true
+      },
+      {
+        "pid": 39195,
+        "returncode": -15,
+        "reaped": true
+      },
+      {
+        "pid": 39196,
+        "returncode": -15,
+        "reaped": true
+      }
+    ],
+    "existing_user_processes_touched": false
+  },
+  "screenshots_actually_viewed": [
+    "h06-cors-allowed.png",
+    "h06-cors-denied.png"
+  ]
+}

@@ -1,0 +1,269 @@
+{
+  "cases": [
+    {
+      "id": "standard-library",
+      "cwd": ".",
+      "args": [
+        "standard_library.py"
+      ],
+      "stdout": "Rounded up: 3\nAverage: 25\nEmpty input has no average\n"
+    },
+    {
+      "id": "first-import",
+      "cwd": ".",
+      "args": [
+        "first_import/report.py"
+      ],
+      "stdout": "task_rules initialized\nDefault: 20\nBuffered: 25\n"
+    },
+    {
+      "id": "import-styles",
+      "cwd": ".",
+      "args": [
+        "first_import/import_styles.py"
+      ],
+      "stdout": "task_rules initialized\nAlias: 20\nDirect names: 20 25\n"
+    },
+    {
+      "id": "import-twice",
+      "cwd": ".",
+      "args": [
+        "first_import/import_twice.py"
+      ],
+      "stdout": "task_rules initialized\nSame module: True\nBuffered: 25\n"
+    },
+    {
+      "id": "missing-caller-binding",
+      "cwd": ".",
+      "args": [
+        "first_import/missing_name.py"
+      ],
+      "stdout": "task_rules initialized\n25\n",
+      "error": "NameError",
+      "stderr_contains": [
+        "task_rules"
+      ]
+    },
+    {
+      "id": "missing-export",
+      "cwd": ".",
+      "args": [
+        "first_import/missing_export.py"
+      ],
+      "stdout": "task_rules initialized\n",
+      "error": "ImportError",
+      "stderr_contains": [
+        "remove_buffer"
+      ]
+    },
+    {
+      "id": "binding-not-live",
+      "cwd": ".",
+      "args": [
+        "bindings/observe.py"
+      ],
+      "stdout": "Initial: 20 20\nRebound: 20 40 40\nShared: ['python', 'modules'] ['python', 'modules']\nLocal tags: ['local'] ['python', 'modules']\n"
+    },
+    {
+      "id": "import-side-effect",
+      "cwd": ".",
+      "args": [
+        "entry_points/use_noisy.py"
+      ],
+      "stdout": "Business total: 55\nCaller total: 15\n"
+    },
+    {
+      "id": "guarded-import",
+      "cwd": ".",
+      "args": [
+        "entry_points/use_quiet.py"
+      ],
+      "stdout": "Caller total: 15\n"
+    },
+    {
+      "id": "guarded-entry",
+      "cwd": ".",
+      "args": [
+        "entry_points/quiet_report.py"
+      ],
+      "stdout": "Business total: 55\n"
+    },
+    {
+      "id": "script-cwd-parent",
+      "cwd": ".",
+      "args": [
+        "locations/show_context.py"
+      ],
+      "stdout": "Name: __main__\nCwd: <LAB>\nFile: <LAB>/locations/show_context.py\nFirst search: <LAB>/locations\n"
+    },
+    {
+      "id": "script-cwd-local",
+      "cwd": "locations",
+      "args": [
+        "show_context.py"
+      ],
+      "stdout": "Name: __main__\nCwd: <LAB>/locations\nFile: <LAB>/locations/show_context.py\nFirst search: <LAB>/locations\n"
+    },
+    {
+      "id": "module-cwd-local",
+      "cwd": "locations",
+      "args": [
+        "-m",
+        "show_context"
+      ],
+      "stdout": "Name: __main__\nCwd: <LAB>/locations\nFile: <LAB>/locations/show_context.py\nFirst search: <LAB>/locations\n"
+    },
+    {
+      "id": "package-entry",
+      "cwd": "package_demo",
+      "args": [
+        "-m",
+        "task_tools.app"
+      ],
+      "stdout": "Package total: 65\n"
+    },
+    {
+      "id": "package-import",
+      "cwd": "package_demo",
+      "args": [
+        "check_import.py"
+      ],
+      "stdout": "App name: task_tools.app\nProbe total: 5\n"
+    },
+    {
+      "id": "package-direct-fails",
+      "cwd": "package_demo",
+      "args": [
+        "task_tools/app.py"
+      ],
+      "stdout": "",
+      "error": "ImportError",
+      "stderr_contains": [
+        "attempted relative import with no known parent package"
+      ]
+    },
+    {
+      "id": "package-wrong-cwd",
+      "cwd": ".",
+      "args": [
+        "-m",
+        "task_tools.app"
+      ],
+      "stdout": "",
+      "error": "ModuleNotFoundError",
+      "stderr_contains": [
+        "task_tools"
+      ]
+    },
+    {
+      "id": "missing-module",
+      "cwd": ".",
+      "args": [
+        "missing_module.py"
+      ],
+      "stdout": "",
+      "error": "ModuleNotFoundError",
+      "stderr_contains": [
+        "missing_js2py_l06_module"
+      ]
+    },
+    {
+      "id": "shadowed-standard-module",
+      "cwd": ".",
+      "args": [
+        "shadowing/show_source.py"
+      ],
+      "stdout": "Loaded: <LAB>/shadowing/statistics.py\n",
+      "error": "AttributeError",
+      "stderr_contains": [
+        "mean"
+      ]
+    },
+    {
+      "id": "circular-import",
+      "cwd": ".",
+      "args": [
+        "cycles/run.py"
+      ],
+      "stdout": "",
+      "error": "ImportError",
+      "stderr_contains": [
+        "cannot import name",
+        "total_minutes",
+        "cycle_a",
+        "cycles/run.py",
+        "cycles/cycle_a.py",
+        "cycles/cycle_b.py"
+      ]
+    },
+    {
+      "id": "cycle-fixed",
+      "cwd": ".",
+      "args": [
+        "cycle_fixed/run.py"
+      ],
+      "stdout": "Total: 55\n"
+    },
+    {
+      "id": "starter-import",
+      "cwd": ".",
+      "args": [
+        "exercises/check_noisy.py"
+      ],
+      "stdout": "Preparing demo\nProbe: 5\n"
+    },
+    {
+      "id": "starter-entry",
+      "cwd": ".",
+      "args": [
+        "exercises/noisy_rules.py"
+      ],
+      "stdout": "Preparing demo\nDemo total: 55\n"
+    },
+    {
+      "id": "solution-import",
+      "cwd": ".",
+      "args": [
+        "solutions/check_fixed_entry.py"
+      ],
+      "stdout": "Probe: 5\n"
+    },
+    {
+      "id": "solution-entry",
+      "cwd": ".",
+      "args": [
+        "solutions/fix_entry.py"
+      ],
+      "stdout": "Preparing demo\nDemo total: 55\n"
+    },
+    {
+      "id": "independent-import",
+      "cwd": "solutions/independent",
+      "args": [
+        "check_import.py"
+      ],
+      "stdout": "Imported: study_plan.app study_plan.summary\n"
+    },
+    {
+      "id": "independent-entry",
+      "cwd": "solutions/independent",
+      "args": [
+        "-m",
+        "study_plan.app"
+      ],
+      "stdout": "Accepted: [{'title': 'Read', 'minutes': 20}, {'title': 'Zero', 'minutes': 0}]\nRejected: [{'row': 2, 'title': 'Typo', 'reason': 'minutes must be an integer'}, {'row': 4, 'title': 'Negative', 'reason': 'minutes must be non-negative'}]\nTotal: 20\nSource first: {'title': 'Read', 'minutes': ' 20 '}\n"
+    },
+    {
+      "id": "independent-direct-fails",
+      "cwd": "solutions/independent",
+      "args": [
+        "study_plan/app.py"
+      ],
+      "stdout": "",
+      "error": "ImportError",
+      "stderr_contains": [
+        "attempted relative import with no known parent package"
+      ]
+    }
+  ]
+}

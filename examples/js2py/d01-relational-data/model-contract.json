@@ -1,0 +1,75 @@
+{
+  "contract_version": "d01-d03-v1",
+  "date": "2026-09-28",
+  "baseline": {
+    "postgresql_runtime": "18.6 (Homebrew); live server_version_num=180006 verified in all three owned clusters",
+    "postgresql_docs": "Official 18.6 release notes fetched 2026-09-28; release date 2026-08-13",
+    "python": "3.13.15",
+    "uv": "0.12.13",
+    "pytest": "8.4.2",
+    "requires_python": ">=3.13,<3.14",
+    "driver": "psycopg[binary]==3.3.6 (public PyPI, released 2026-09-18)"
+  },
+  "schema": "public",
+  "ddl": "-- Teaching contract d01-d03-v1 (2026-09-28). Apply only to the owned lab database.\nCREATE TABLE users (\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    login varchar(80) NOT NULL UNIQUE,\n    CONSTRAINT users_login_nonblank CHECK (length(btrim(login)) > 0)\n);\n\nCREATE TABLE projects (\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    name varchar(120) NOT NULL,\n    created_by bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\n    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    CONSTRAINT projects_name_nonblank CHECK (length(btrim(name)) > 0)\n);\n\nCREATE TABLE project_members (\n    project_id bigint NOT NULL REFERENCES projects(id) ON DELETE RESTRICT,\n    user_id bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\n    role varchar(8) NOT NULL,\n    PRIMARY KEY (project_id, user_id),\n    CONSTRAINT project_members_role_valid CHECK (role IN ('owner', 'member'))\n);\n\nCREATE TABLE tasks (\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    project_id bigint NOT NULL REFERENCES projects(id) ON DELETE RESTRICT,\n    created_by bigint NOT NULL REFERENCES users(id) ON DELETE RESTRICT,\n    title varchar(120) NOT NULL,\n    description varchar(2000),\n    status varchar(8) NOT NULL DEFAULT 'todo',\n    minutes integer NOT NULL DEFAULT 0,\n    due_at timestamptz,\n    created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    CONSTRAINT tasks_title_nonblank CHECK (length(btrim(title)) > 0),\n    CONSTRAINT tasks_status_valid CHECK (status IN ('todo', 'doing', 'done')),\n    CONSTRAINT tasks_minutes_nonnegative CHECK (minutes >= 0)\n);\n",
+  "ddl_sha256": "b94f3559f7b0da1e1897c148176b154b9a1ed557f69182a39eb2933c91f97310",
+  "tables": {
+    "users": {
+      "id": "bigint identity PK",
+      "login": "varchar(80) NOT NULL UNIQUE, case-sensitive, btrim nonblank"
+    },
+    "projects": {
+      "id": "bigint identity PK",
+      "name": "varchar(120) NOT NULL, btrim nonblank",
+      "created_by": "bigint NOT NULL FK users.id RESTRICT",
+      "created_at": "timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP"
+    },
+    "project_members": {
+      "project_id": "bigint NOT NULL FK projects.id RESTRICT",
+      "user_id": "bigint NOT NULL FK users.id RESTRICT",
+      "role": "varchar(8) NOT NULL CHECK owner/member",
+      "primary_key": [
+        "project_id",
+        "user_id"
+      ]
+    },
+    "tasks": {
+      "id": "bigint identity PK",
+      "project_id": "bigint NOT NULL FK projects.id RESTRICT",
+      "created_by": "bigint NOT NULL FK users.id RESTRICT",
+      "title": "varchar(120) NOT NULL btrim nonblank",
+      "description": "varchar(2000) NULL",
+      "status": "varchar(8) NOT NULL DEFAULT todo CHECK todo/doing/done",
+      "minutes": "integer NOT NULL DEFAULT 0 CHECK >=0 (retained estimate extension)",
+      "due_at": "timestamptz NULL",
+      "created_at": "timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP",
+      "updated_at": "timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP; application updates explicitly"
+    }
+  },
+  "evolution": {
+    "id": "DB identity, not the H-series in-memory allocator; no automatic import",
+    "title": "retained with database constraints",
+    "minutes": "retained estimate for aggregation/concurrency, not a capstone mandatory field",
+    "done": "replaced by status: false->todo, true->done; doing is new",
+    "note": "renamed description, NULL means not supplied, empty string is supplied-but-empty",
+    "new": [
+      "users",
+      "projects",
+      "project_members",
+      "created_by",
+      "due_at",
+      "created_at",
+      "updated_at"
+    ]
+  },
+  "orm_handoff": [
+    "Use identical SQLAlchemy table/column/constraint names and bigint identity mapping",
+    "Use timezone-aware DateTime for timestamptz; updated_at is not automatic",
+    "Project+owner membership is one transaction; no nested commit inside repository helper",
+    "Auth columns are deliberately absent, add with later migrations rather than fake password defaults",
+    "FK existence does not imply membership/authorization; no cross-project auth claim",
+    "At least/exactly one owner and creator-is-owner are service invariants, not fully enforced by this DDL",
+    "ON DELETE RESTRICT everywhere; teach ordered explicit child deletion later",
+    "btrim default removes ASCII spaces only; app may reject broader Unicode whitespace; do not claim equivalence"
+  ]
+}

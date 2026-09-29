@@ -1,0 +1,43 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "list-empty",
+  "precondition": {
+    "seed_tasks": [
+      {
+        "title": "  Read HTTP  ",
+        "minutes": 25,
+        "done": false,
+        "note": "keep me"
+      },
+      {
+        "title": "Check the failure path",
+        "minutes": 0,
+        "done": true,
+        "note": null
+      },
+      {
+        "title": "Write an independent case",
+        "minutes": 40,
+        "done": false,
+        "note": "later"
+      }
+    ]
+  },
+  "request": {
+    "method": "GET",
+    "target": "/tasks?offset=99&limit=2",
+    "headers": {}
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "items": [],
+      "limit": 2,
+      "offset": 99,
+      "total": 3
+    }
+  }
+}

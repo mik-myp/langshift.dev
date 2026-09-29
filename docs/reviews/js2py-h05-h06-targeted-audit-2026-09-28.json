@@ -1,0 +1,1106 @@
+{
+  "status": "completed",
+  "date": "2026-09-28",
+  "started_at": "2026-09-28T12:58:54.711049+08:00",
+  "scope": [
+    "H05/H06 three-locale prose, all allowlisted source/test/solution files, H01-H04 prerequisites",
+    "Bounded targeted review; no TypeSafe call; temporary-copy experiments only; authoritative sources remain read-only"
+  ],
+  "provided_signals": {
+    "H06_slice1": {
+      "next_action": "TARGETED_REVIEW",
+      "probability": 0.49,
+      "confidence": 0.25
+    },
+    "H06_slice2": {
+      "next_action": "PROCEED",
+      "probability": 0.49,
+      "confidence": 0.25
+    },
+    "H05": {
+      "next_action": "PROCEED",
+      "probability": 0.56,
+      "confidence": 0.35,
+      "hidden_prerequisite_probability": 0.33
+    }
+  },
+  "signal_policy": "Triage input only, not evidence of defects. Findings require source evidence or bounded reproduction.",
+  "snapshots": {
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies-files.json": {
+      "sha256": "c9c7353e6a11c9129635c8a88a3d1b163ecbf1ab7a871b373e07de9079461ca9",
+      "bytes": 466
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/.gitignore": {
+      "sha256": "34b9af89b8f5d720380cd80173e192d8e2cc225efeda084f08a197d38c50bfba",
+      "bytes": 59
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/.python-version": {
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "bytes": 8
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/README.md": {
+      "sha256": "5a5c38aabcfbdb2377b2656d8ee94d024c99ce622c1ee9229f6c8f0e9fb5458c",
+      "bytes": 6284
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/README.zh-cn.md": {
+      "sha256": "3b8f3f5b03b45e58bade2042d4b1b9a5f7cfa8c0759e158fd1bff0b6df6ff314",
+      "bytes": 5702
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/README.zh-tw.md": {
+      "sha256": "f86ce6361cf79f268ebab5b4a3a52e03fd6e4d0b6cf9f1235a838388268be018",
+      "bytes": 5702
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/SOURCES.md": {
+      "sha256": "b7d3bceae6f3e8debb8debc7362b02241c079e92e986a77a4e147bd4a40f7762",
+      "bytes": 3074
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/live_client.py": {
+      "sha256": "729c9190db01d8beb1ddf1aa1c0c98a9ad0fbe09aca4b8c63fe11ead30c5e1ba",
+      "bytes": 3607
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/pyproject.toml": {
+      "sha256": "2223011435a537f22e71dcc89c1a01c2b1531cdf168b6c2ebd8b82b5fdb8c558",
+      "bytes": 409
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/requests.sh": {
+      "sha256": "433ebde154168337705570890e86fc76b2b4bc40ecd32b6504e3e73536191a9b",
+      "bytes": 603
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/solutions/__init__.py": {
+      "sha256": "09242c83c26a4902373546a06a4544ecd7c987bf7fcee2c6443bf37cf85c7efe",
+      "bytes": 71
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/solutions/summary.py": {
+      "sha256": "0ab73df07abddbb00643e31d3310916c239e271a69972f3e37080ff9cf61fcd1",
+      "bytes": 779
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/solutions/test_summary.py": {
+      "sha256": "61527714c684da914cdb172e2a646d58c54ff89d2c0d3b027a79f14ec2d66342",
+      "bytes": 727
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/__init__.py": {
+      "sha256": "06208f3c6c8fa4e0a44a2ade0a0fa8aabb61fe12ddea023e84cc7f459c976c15",
+      "bytes": 74
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/config.py": {
+      "sha256": "e11a940b2458000f459dc32e51547d4f093beee16686061944722e9d0ac6d136",
+      "bytes": 1008
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/dependencies.py": {
+      "sha256": "503e924ebce6a67d491188ede2b2928bea151b990a81fc8f984e28609f174076",
+      "bytes": 1621
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/main.py": {
+      "sha256": "09ce53947aabfab84e54b33cdb536f92ea74e11a43bae3862bbf92c055f6c159",
+      "bytes": 595
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/models.py": {
+      "sha256": "089e2060f77c0b568a37f64aba8b6262cde3d30490968d4f824057072a23f08b",
+      "bytes": 1473
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/routes.py": {
+      "sha256": "af3e00bd92d33101b3d7593f6734a6f9b2ef26560831e00c9d4cc989ecf274b4",
+      "bytes": 1942
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/task_api/store.py": {
+      "sha256": "9a0d19fc112828aa071329656dbc773ce5c6f960760314d20a2688bb85e9d1db",
+      "bytes": 1063
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/tests/test_basics.py": {
+      "sha256": "ce84920baa8e13d3394cb9a33d3c2a56a5604a76fa16532827affb29e9a8d7b7",
+      "bytes": 2214
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/uv.lock": {
+      "sha256": "20eab946162a3af02bb88995b5b82f6fd8aa1a6a2218efd61760060b2f41d083",
+      "bytes": 19004
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing-files.json": {
+      "sha256": "d280292288c1c1b7d056165d477dbcc4a66e95fd7497953fef43d9aed469247c",
+      "bytes": 667
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/.gitignore": {
+      "sha256": "34b9af89b8f5d720380cd80173e192d8e2cc225efeda084f08a197d38c50bfba",
+      "bytes": 59
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/.python-version": {
+      "sha256": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+      "bytes": 8
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/README.md": {
+      "sha256": "967af2b772894d7fa74278c15502d11a1a252a593167c0202f312a43fe0a3185",
+      "bytes": 7382
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/README.zh-cn.md": {
+      "sha256": "8ea7c80b626152fbe5eaf2421a2f7039ce03ace2d845f6012a0ad3046602382f",
+      "bytes": 6602
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/README.zh-tw.md": {
+      "sha256": "ad3bdee182312a1f00b2c2a103f48d82e11976efca163feca9ec15eb6a171fea",
+      "bytes": 6602
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/SOURCES.md": {
+      "sha256": "b7d3bceae6f3e8debb8debc7362b02241c079e92e986a77a4e147bd4a40f7762",
+      "bytes": 3074
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/browser/index.html": {
+      "sha256": "7d76251c32e921f1bd2c59023f3e5ead7c91723866d007a9539dfbd3c32a03c3",
+      "bytes": 2636
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/experiments/conftest.py": {
+      "sha256": "b7af6de9c5d6140cee5b5af85258bbddc29b5090fae23308449c020f6a3e2005",
+      "bytes": 92
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/experiments/test_fixture_failure.py": {
+      "sha256": "7a20a5b7ba0b024518e346d801e4fb4fdfcf65f5e13aedff31cce2adcbb241c3",
+      "bytes": 614
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/live_client.py": {
+      "sha256": "0d739429afd0652c269255d5d51e70194e6e1a47bcdbd76ed5f2e24ef625a5a3",
+      "bytes": 2949
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/live_httpx.py": {
+      "sha256": "2b63cca7cfd06480d22003313d454399fa1941e4f3eeef1a0bb3e12ecdc2bac5",
+      "bytes": 2061
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/pyproject.toml": {
+      "sha256": "1434f4ae3b7c27f610d7f0b752a8dbf9ebe07fb6778905b911694016de6786b0",
+      "bytes": 425
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/requests.sh": {
+      "sha256": "1f205052c330b5d584303f09beae18a7c2702ad51aaf3202ccc7d5d163efc104",
+      "bytes": 603
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/solutions/test_independent.py": {
+      "sha256": "e5e4020368aa9f224169b30a45a1ce9ffc3b87f15a3ba9cb24614f7af2b933d3",
+      "bytes": 1862
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/__init__.py": {
+      "sha256": "06208f3c6c8fa4e0a44a2ade0a0fa8aabb61fe12ddea023e84cc7f459c976c15",
+      "bytes": 74
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/config.py": {
+      "sha256": "e11a940b2458000f459dc32e51547d4f093beee16686061944722e9d0ac6d136",
+      "bytes": 1008
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/dependencies.py": {
+      "sha256": "503e924ebce6a67d491188ede2b2928bea151b990a81fc8f984e28609f174076",
+      "bytes": 1621
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/main.py": {
+      "sha256": "76908cf199bdb381edada299ba26dec8c93993d6ad08ca78ec9dfc9e74bf749b",
+      "bytes": 880
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/models.py": {
+      "sha256": "089e2060f77c0b568a37f64aba8b6262cde3d30490968d4f824057072a23f08b",
+      "bytes": 1473
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/routes.py": {
+      "sha256": "af3e00bd92d33101b3d7593f6734a6f9b2ef26560831e00c9d4cc989ecf274b4",
+      "bytes": 1942
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/store.py": {
+      "sha256": "9a0d19fc112828aa071329656dbc773ce5c6f960760314d20a2688bb85e9d1db",
+      "bytes": 1063
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/__init__.py": {
+      "sha256": "9f7b30d9f17ae3421ba91256d796135fa4f4fe4b2a2eba505c05a05607ec5842",
+      "bytes": 77
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/conftest.py": {
+      "sha256": "eff300749aaa780c076e80589274c59de572489b99c10dd90a0309e948ad3038",
+      "bytes": 631
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_contract.py": {
+      "sha256": "e7631b833b605bd71afb51c8a2373bc1e656a403d3814032a2dcae65b5e27b37",
+      "bytes": 4188
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_cors.py": {
+      "sha256": "5f69ed616b121b8daf50605fa33577e0ddfc35ac553d0c248b6a0be584070000",
+      "bytes": 1076
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_dependencies.py": {
+      "sha256": "41857a50fad5b9e9552ff5fc090f7010065b41f6340826251b5bc1a8f51a6c22",
+      "bytes": 3015
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_first_request.py": {
+      "sha256": "5671a7facb998c43de8c32ee199800117cfa097f5f2465fa1a9672f5e9540c7c",
+      "bytes": 488
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/uv.lock": {
+      "sha256": "ffb1f6cf79df2cb902513b374161db50a397a39855237d6a1929527530537f6f",
+      "bytes": 21353
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.mdx": {
+      "sha256": "8169703dd04617b468c20b431f0770a4755d6c90d7c60554dd8921a39cb9cc9f",
+      "bytes": 24575
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-cn.mdx": {
+      "sha256": "86f6e72ab123d9650d674f41d7558021973eeb8502c7f93432e41a12d83ec3b7",
+      "bytes": 23180
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-tw.mdx": {
+      "sha256": "0ea92254e6176add49449ef3e57e009fbce4c8a2810162d81f9d52ea652a834f",
+      "bytes": 23180
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.mdx": {
+      "sha256": "0024ce82a0099ea55d7d5f882504fba12012760ac05db065478de138a6a6881f",
+      "bytes": 29090
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx": {
+      "sha256": "e6ae5845d977e61b173932ade7db341c12332ad7cc6be0efe8d0a5849473bab0",
+      "bytes": 26915
+    },
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-tw.mdx": {
+      "sha256": "c3ebff0aa23af13277efb0f410aa300fb8612bfb9ac424bb8b2b8258eba8ca24",
+      "bytes": 26915
+    }
+  },
+  "versions": {
+    "h05-dependencies": {
+      "anyio": "4.12.1",
+      "fastapi": "0.135.1",
+      "pydantic": "2.12.5",
+      "pytest": "8.4.2",
+      "starlette": "0.52.1",
+      "uvicorn": "0.42.0"
+    },
+    "h06-api-testing": {
+      "anyio": "4.12.1",
+      "fastapi": "0.135.1",
+      "httpx": "0.28.1",
+      "pydantic": "2.12.5",
+      "pytest": "8.4.2",
+      "starlette": "0.52.1",
+      "uvicorn": "0.42.0"
+    }
+  },
+  "experiments": [
+    {
+      "id": "baseline-h05-dependencies",
+      "installation": {
+        "command": [
+          "/Users/mikmyp/.local/bin/uv",
+          "sync",
+          "--locked"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "Using CPython 3.13.15\nCreating virtual environment at: .venv\nResolved 20 packages in 3ms\nDownloading pygments (1.2MiB)\nDownloading pydantic-core (1.8MiB)\n Downloaded pygments\n Downloaded pydantic-core\nPrepared 18 packages in 1.47s\nInstalled 18 packages in 14ms\n + annotated-doc==0.0.5\n + annotated-types==0.8.0\n + anyio==4.12.1\n + click==8.5.0\n + fastapi==0.135.1\n + h11==0.16.0\n + idna==3.20\n + iniconfig==2.3.0\n + packaging==26.3\n + pluggy==1.6.0\n + pydantic==2.12.5\n + pydantic-core==2.41.5\n + pygments==2.21.0\n + pytest==8.4.2\n + starlette==0.52.1\n + typing-extensions==4.16.0\n + typing-inspection==0.4.4\n + uvicorn==0.42.0\n"
+      },
+      "base": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q"
+        ],
+        "exit": 0,
+        "stdout": "...............                                                          [100%]\n15 passed in 1.11s\n",
+        "stderr": ""
+      },
+      "independent": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "solutions"
+        ],
+        "exit": 0,
+        "stdout": "..                                                                       [100%]\n2 passed in 0.24s\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "baseline-h06-api-testing",
+      "installation": {
+        "command": [
+          "/Users/mikmyp/.local/bin/uv",
+          "sync",
+          "--locked"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "Using CPython 3.13.15\nCreating virtual environment at: .venv\nResolved 23 packages in 2ms\nPrepared 3 packages in 1.11s\nInstalled 21 packages in 25ms\n + annotated-doc==0.0.5\n + annotated-types==0.8.0\n + anyio==4.12.1\n + certifi==2026.7.22\n + click==8.5.0\n + fastapi==0.135.1\n + h11==0.16.0\n + httpcore==1.0.9\n + httpx==0.28.1\n + idna==3.20\n + iniconfig==2.3.0\n + packaging==26.3\n + pluggy==1.6.0\n + pydantic==2.12.5\n + pydantic-core==2.41.5\n + pygments==2.21.0\n + pytest==8.4.2\n + starlette==0.52.1\n + typing-extensions==4.16.0\n + typing-inspection==0.4.4\n + uvicorn==0.42.0\n"
+      },
+      "base": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q"
+        ],
+        "exit": 0,
+        "stdout": "............................................                             [100%]\n44 passed in 0.21s\n",
+        "stderr": ""
+      },
+      "independent": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "solutions"
+        ],
+        "exit": 0,
+        "stdout": "...                                                                      [100%]\n3 passed in 0.31s\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "expected-fixture-failure",
+      "result": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "experiments/test_fixture_failure.py"
+        ],
+        "exit": 1,
+        "stdout": "F.                                                                       [100%]\n=================================== FAILURES ===================================\n__________________________ test_01_deliberate_failure __________________________\n\napp = <fastapi.applications.FastAPI object at 0x10b7638c0>\noverrides = {<function get_store at 0x10b640ae0>: <function test_01_deliberate_failure.<locals>.<lambda> at 0x10b7a2de0>}\n\n    def test_01_deliberate_failure(app, overrides):\n        seen.append(app)\n        overrides[get_store] = lambda: MemoryStore()\n>       assert False, \"deliberate failure after override\"\nE       AssertionError: deliberate failure after override\nE       assert False\n\nexperiments/test_fixture_failure.py:16: AssertionError\n=========================== short test summary info ============================\nFAILED experiments/test_fixture_failure.py::test_01_deliberate_failure - Asse...\n1 failed, 1 passed in 0.01s\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "startup-h05-dependencies-missing",
+      "result": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/bin/python",
+          "-m",
+          "uvicorn",
+          "task_api.main:create_app",
+          "--factory",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "0"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/__main__.py\", line 4, in <module>\n    uvicorn.main()\n    ~~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/click/core.py\", line 1631, in __call__\n    return self.main(*args, **kwargs)\n           ~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/click/core.py\", line 1552, in main\n    rv = self.invoke(ctx)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/click/core.py\", line 1415, in invoke\n    return ctx.invoke(self.callback, **ctx.params)\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/click/core.py\", line 910, in invoke\n    return callback(*args, **kwargs)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/main.py\", line 433, in main\n    run(\n    ~~~^\n        app,\n        ^^^^\n    ...<47 lines>...\n        h11_max_incomplete_event_size=h11_max_incomplete_event_size,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/main.py\", line 606, in run\n    server.run()\n    ~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 75, in run\n    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/runners.py\", line 196, in run\n    return runner.run(main)\n           ~~~~~~~~~~^^^^^^\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/runners.py\", line 119, in run\n    return self._loop.run_until_complete(task)\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/base_events.py\", line 726, in run_until_complete\n    return future.result()\n           ~~~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 79, in serve\n    await self._serve(sockets)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 86, in _serve\n    config.load()\n    ~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/config.py\", line 447, in load\n    self.loaded_app = self.loaded_app()\n                      ~~~~~~~~~~~~~~~^^\n  File \"/private/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/task_api/main.py\", line 10, in create_app\n    settings = load_settings() if settings is None else settings\n               ~~~~~~~~~~~~~^^\n  File \"/private/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/task_api/config.py\", line 15, in load_settings\n    raise ValueError(\"TASKS_APP_NAME is required and must not be blank\")\nValueError: TASKS_APP_NAME is required and must not be blank\n"
+      },
+      "raw_value_not_echoed": true
+    },
+    {
+      "id": "startup-h05-dependencies-malformed",
+      "result": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/bin/python",
+          "-m",
+          "uvicorn",
+          "task_api.main:create_app",
+          "--factory",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "0"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/__main__.py\", line 4, in <module>\n    uvicorn.main()\n    ~~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/click/core.py\", line 1631, in __call__\n    return self.main(*args, **kwargs)\n           ~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/click/core.py\", line 1552, in main\n    rv = self.invoke(ctx)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/click/core.py\", line 1415, in invoke\n    return ctx.invoke(self.callback, **ctx.params)\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/click/core.py\", line 910, in invoke\n    return callback(*args, **kwargs)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/main.py\", line 433, in main\n    run(\n    ~~~^\n        app,\n        ^^^^\n    ...<47 lines>...\n        h11_max_incomplete_event_size=h11_max_incomplete_event_size,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/main.py\", line 606, in run\n    server.run()\n    ~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 75, in run\n    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/runners.py\", line 196, in run\n    return runner.run(main)\n           ~~~~~~~~~~^^^^^^\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/runners.py\", line 119, in run\n    return self._loop.run_until_complete(task)\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/base_events.py\", line 726, in run_until_complete\n    return future.result()\n           ~~~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 79, in serve\n    await self._serve(sockets)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 86, in _serve\n    config.load()\n    ~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/lib/python3.13/site-packages/uvicorn/config.py\", line 447, in load\n    self.loaded_app = self.loaded_app()\n                      ~~~~~~~~~~~~~~~^^\n  File \"/private/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/task_api/main.py\", line 10, in create_app\n    settings = load_settings() if settings is None else settings\n               ~~~~~~~~~~~~~^^\n  File \"/private/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/task_api/config.py\", line 19, in load_settings\n    raise ValueError(\"TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100\")\nValueError: TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100\n"
+      },
+      "raw_value_not_echoed": true
+    },
+    {
+      "id": "startup-h06-api-testing-missing",
+      "result": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-m",
+          "uvicorn",
+          "task_api.main:create_app",
+          "--factory",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "0"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/__main__.py\", line 4, in <module>\n    uvicorn.main()\n    ~~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/click/core.py\", line 1631, in __call__\n    return self.main(*args, **kwargs)\n           ~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/click/core.py\", line 1552, in main\n    rv = self.invoke(ctx)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/click/core.py\", line 1415, in invoke\n    return ctx.invoke(self.callback, **ctx.params)\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/click/core.py\", line 910, in invoke\n    return callback(*args, **kwargs)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/main.py\", line 433, in main\n    run(\n    ~~~^\n        app,\n        ^^^^\n    ...<47 lines>...\n        h11_max_incomplete_event_size=h11_max_incomplete_event_size,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/main.py\", line 606, in run\n    server.run()\n    ~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 75, in run\n    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/runners.py\", line 196, in run\n    return runner.run(main)\n           ~~~~~~~~~~^^^^^^\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/runners.py\", line 119, in run\n    return self._loop.run_until_complete(task)\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/base_events.py\", line 726, in run_until_complete\n    return future.result()\n           ~~~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 79, in serve\n    await self._serve(sockets)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 86, in _serve\n    config.load()\n    ~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/config.py\", line 447, in load\n    self.loaded_app = self.loaded_app()\n                      ~~~~~~~~~~~~~~~^^\n  File \"/private/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/task_api/main.py\", line 11, in create_app\n    settings = load_settings() if settings is None else settings\n               ~~~~~~~~~~~~~^^\n  File \"/private/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/task_api/config.py\", line 15, in load_settings\n    raise ValueError(\"TASKS_APP_NAME is required and must not be blank\")\nValueError: TASKS_APP_NAME is required and must not be blank\n"
+      },
+      "raw_value_not_echoed": true
+    },
+    {
+      "id": "startup-h06-api-testing-malformed",
+      "result": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-m",
+          "uvicorn",
+          "task_api.main:create_app",
+          "--factory",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "0"
+        ],
+        "exit": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 203, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/__main__.py\", line 4, in <module>\n    uvicorn.main()\n    ~~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/click/core.py\", line 1631, in __call__\n    return self.main(*args, **kwargs)\n           ~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/click/core.py\", line 1552, in main\n    rv = self.invoke(ctx)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/click/core.py\", line 1415, in invoke\n    return ctx.invoke(self.callback, **ctx.params)\n           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/click/core.py\", line 910, in invoke\n    return callback(*args, **kwargs)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/main.py\", line 433, in main\n    run(\n    ~~~^\n        app,\n        ^^^^\n    ...<47 lines>...\n        h11_max_incomplete_event_size=h11_max_incomplete_event_size,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/main.py\", line 606, in run\n    server.run()\n    ~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 75, in run\n    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/runners.py\", line 196, in run\n    return runner.run(main)\n           ~~~~~~~~~~^^^^^^\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/runners.py\", line 119, in run\n    return self._loop.run_until_complete(task)\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^\n  File \"/private/tmp/langshift-js2py-python-20260928/cpython-3.13.15-macos-aarch64-none/lib/python3.13/asyncio/base_events.py\", line 726, in run_until_complete\n    return future.result()\n           ~~~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 79, in serve\n    await self._serve(sockets)\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/server.py\", line 86, in _serve\n    config.load()\n    ~~~~~~~~~~~^^\n  File \"/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/lib/python3.13/site-packages/uvicorn/config.py\", line 447, in load\n    self.loaded_app = self.loaded_app()\n                      ~~~~~~~~~~~~~~~^^\n  File \"/private/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/task_api/main.py\", line 11, in create_app\n    settings = load_settings() if settings is None else settings\n               ~~~~~~~~~~~~~^^\n  File \"/private/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/task_api/config.py\", line 19, in load_settings\n    raise ValueError(\"TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100\")\nValueError: TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100\n"
+      },
+      "raw_value_not_echoed": true
+    },
+    {
+      "id": "actual-resource-failure-and-recovery",
+      "result": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-c",
+          "\nimport json\nfrom fastapi.testclient import TestClient\nfrom task_api.main import create_app\nfrom task_api.config import Settings\nimport task_api.dependencies as deps\nreal = deps.TemporaryFile\nstreams=[]\ndef observed(*a,**kw):\n    stream=real(*a,**kw);streams.append(stream);return stream\napp=create_app(Settings(\"Audit\"))\ndeps.TemporaryFile=observed\ntry:\n    with TestClient(app,raise_server_exceptions=False) as client:\n        assert client.post(\"/tasks\",json={\"title\":\"Read\",\"minutes\":0}).status_code==201\n        assert len(streams)==1 and streams[-1].closed\n        assert client.get(\"/tasks/999\").status_code==404\n        assert len(streams)==2 and streams[-1].closed\n        def acquisition_failure(*a,**kw):raise OSError(\"deliberate acquisition failure\")\n        deps.TemporaryFile=acquisition_failure\n        assert client.get(\"/tasks\").status_code==500\n        class WriteFailure:\n            def __init__(self,inner):self.inner=inner\n            def write(self,value):raise OSError(\"deliberate write failure\")\n            def close(self):self.inner.close()\n            @property\n            def closed(self):return self.inner.closed\n        def write_failure(*a,**kw):\n            stream=real(*a,**kw);streams.append(stream);return WriteFailure(stream)\n        deps.TemporaryFile=write_failure\n        assert client.get(\"/tasks\").status_code==500\n        assert streams[-1].closed\n        deps.TemporaryFile=observed\n        assert client.get(\"/tasks\").status_code==200\n        assert all(s.closed for s in streams)\nfinally:deps.TemporaryFile=real\nprint(json.dumps({\"post_cached_one_handle\":True,\"404_closed\":True,\"acquisition_failure_500\":True,\"write_failure_closed\":True,\"next_request_200\":True,\"all_handles_closed\":all(s.closed for s in streams)}))\n"
+        ],
+        "exit": 0,
+        "stdout": "TRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire GET /tasks/999\nTRACE use GET /tasks/999 get_store\nTRACE release GET /tasks/999 closed=True\nTRACE acquire GET /tasks\nTRACE release GET /tasks closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\n{\"post_cached_one_handle\": true, \"404_closed\": true, \"acquisition_failure_500\": true, \"write_failure_closed\": true, \"next_request_200\": true, \"all_handles_closed\": true}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "empty-patch-state-blind-spot",
+      "temporary_mutation": "        if not payload.model_fields_set:\n            self.tasks[current.id] = TaskStored(id=current.id, title=\"Untitled\", minutes=0, done=False, note=None)\n            return current\n",
+      "base_suite_under_mutation": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q"
+        ],
+        "exit": 0,
+        "stdout": "............................................                             [100%]\n44 passed in 0.24s\n",
+        "stderr": ""
+      },
+      "independent_suite_under_mutation": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "solutions"
+        ],
+        "exit": 0,
+        "stdout": "...                                                                      [100%]\n3 passed in 0.31s\n",
+        "stderr": ""
+      },
+      "direct_followup_get": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-c",
+          "\nimport json\nfrom fastapi.testclient import TestClient\nfrom task_api.main import create_app\nfrom task_api.config import Settings\nwith TestClient(create_app(Settings(\"Audit\"))) as client:\n    before=client.post(\"/tasks\",json={\"title\":\"Keep\",\"minutes\":5,\"done\":True,\"note\":\"keep\"}).json()\n    path=f\"/tasks/{before['id']}\"\n    response=client.patch(path,json={})\n    after=client.get(path).json()\n    print(json.dumps({\"status\":response.status_code,\"original\":before,\"patch_response\":response.json(),\"later_get\":after,\"response_looks_unchanged\":response.json()==before,\"stored_state_corrupted\":after!=before}))\n    assert response.json()==before and after!=before\n"
+        ],
+        "exit": 0,
+        "stdout": "TRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\n{\"status\": 200, \"original\": {\"id\": 1, \"title\": \"Keep\", \"minutes\": 5, \"done\": true, \"note\": \"keep\"}, \"patch_response\": {\"id\": 1, \"title\": \"Keep\", \"minutes\": 5, \"done\": true, \"note\": \"keep\"}, \"later_get\": {\"id\": 1, \"title\": \"Untitled\", \"minutes\": 0, \"done\": false, \"note\": null}, \"response_looks_unchanged\": true, \"stored_state_corrupted\": true}\n",
+        "stderr": ""
+      },
+      "minimal_test_strengthening": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "solutions/test_independent.py"
+        ],
+        "exit": 1,
+        "stdout": "..F                                                                      [100%]\n=================================== FAILURES ===================================\n________________ test_empty_patch_preserves_non_default_values _________________\n\nclient = <starlette.testclient.TestClient object at 0x109754a50>\n\n    def test_empty_patch_preserves_non_default_values(client):\n        original = client.post(\"/tasks\", json={\"title\": \"Keep\", \"minutes\": 5, \"done\": True, \"note\": \"keep\"}).json()\n        response = client.patch(f\"/tasks/{original['id']}\", json={})\n        assert response.status_code == 200\n        assert response.json() == original\n>       assert client.get(f\"/tasks/{original['id']}\").json() == original\nE       AssertionError: assert {'done': Fals...e': None, ...} == {'done': True...: 'keep', ...}\nE         \nE         Omitting 1 identical items, use -vv to show\nE         Differing items:\nE         {'minutes': 0} != {'minutes': 5}\nE         {'note': None} != {'note': 'keep'}\nE         {'title': 'Untitled'} != {'title': 'Keep'}\nE         {'done': False} != {'done': True}\nE         Use -v to get more diff\n\nsolutions/test_independent.py:49: AssertionError\n----------------------------- Captured stdout call -----------------------------\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\n=========================== short test summary info ============================\nFAILED solutions/test_independent.py::test_empty_patch_preserves_non_default_values\n1 failed, 2 passed in 0.35s\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "normal-h05-real-summary-client",
+      "result": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h05-dependencies/.venv/bin/python",
+          "live_client.py",
+          "--port",
+          "61752",
+          "--summary"
+        ],
+        "exit": 0,
+        "stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nSUMMARY PASS: empty, populated, updated, deleted\nLIVE PASS: cleanup and subsequent 404\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "owned-server-cleanup",
+      "lab": "h05-dependencies",
+      "pid": 31133,
+      "port": 61752,
+      "stopped": true,
+      "returncode": -15,
+      "log": "TRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire GET /tasks/0\nTRACE use GET /tasks/0 get_store\nTRACE release GET /tasks/0 closed=True\nTRACE acquire GET /tasks/no\nTRACE use GET /tasks/no get_store\nTRACE release GET /tasks/no closed=True\nTRACE acquire GET /tasks/99999\nTRACE use GET /tasks/99999 get_store\nTRACE release GET /tasks/99999 closed=True\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\nTRACE acquire DELETE /tasks/1\nTRACE use DELETE /tasks/1 get_store\nTRACE release DELETE /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nTRACE acquire DELETE /tasks/2\nTRACE use DELETE /tasks/2 get_store\nTRACE release DELETE /tasks/2 closed=True\nTRACE acquire GET /tasks/2\nTRACE use GET /tasks/2 get_store\nTRACE release GET /tasks/2 closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire GET /summary\nTRACE use GET /summary get_store\nTRACE release GET /summary closed=True\n"
+    },
+    {
+      "id": "normal-h06-real-clients",
+      "httpx": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "live_httpx.py",
+          "--port",
+          "61784"
+        ],
+        "exit": 0,
+        "stdout": "HTTPX LIVE PASS: real socket, 201/200/422, PATCH unchanged, preflight\nHTTPX LIVE PASS: cleanup 204/404\n",
+        "stderr": ""
+      },
+      "urllib": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "live_client.py",
+          "--port",
+          "61784"
+        ],
+        "exit": 0,
+        "stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\nLIVE PASS: cleanup and subsequent 404\n",
+        "stderr": ""
+      }
+    },
+    {
+      "id": "owned-server-cleanup",
+      "lab": "h06-api-testing",
+      "pid": 31135,
+      "port": 61784,
+      "stopped": true,
+      "returncode": -15,
+      "log": "TRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire DELETE /tasks/1\nTRACE use DELETE /tasks/1 get_store\nTRACE release DELETE /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire PATCH /tasks/2\nTRACE use PATCH /tasks/2 get_store\nTRACE release PATCH /tasks/2 closed=True\nTRACE acquire PATCH /tasks/2\nTRACE use PATCH /tasks/2 get_store\nTRACE release PATCH /tasks/2 closed=True\nTRACE acquire PATCH /tasks/2\nTRACE use PATCH /tasks/2 get_store\nTRACE release PATCH /tasks/2 closed=True\nTRACE acquire GET /tasks/2\nTRACE use GET /tasks/2 get_store\nTRACE release GET /tasks/2 closed=True\nTRACE acquire PATCH /tasks/2\nTRACE use PATCH /tasks/2 get_store\nTRACE release PATCH /tasks/2 closed=True\nTRACE acquire GET /tasks/2\nTRACE use GET /tasks/2 get_store\nTRACE release GET /tasks/2 closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire GET /tasks/0\nTRACE use GET /tasks/0 get_store\nTRACE release GET /tasks/0 closed=True\nTRACE acquire GET /tasks/no\nTRACE use GET /tasks/no get_store\nTRACE release GET /tasks/no closed=True\nTRACE acquire GET /tasks/99999\nTRACE use GET /tasks/99999 get_store\nTRACE release GET /tasks/99999 closed=True\nTRACE acquire DELETE /tasks/2\nTRACE use DELETE /tasks/2 get_store\nTRACE release DELETE /tasks/2 closed=True\nTRACE acquire GET /tasks/2\nTRACE use GET /tasks/2 get_store\nTRACE release GET /tasks/2 closed=True\nTRACE acquire DELETE /tasks/3\nTRACE use DELETE /tasks/3 get_store\nTRACE release DELETE /tasks/3 closed=True\nTRACE acquire GET /tasks/3\nTRACE use GET /tasks/3 get_store\nTRACE release GET /tasks/3 closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\n"
+    },
+    {
+      "id": "multi-record-client-cleanup-short-circuit",
+      "injected_fault": "Only DELETE /tasks/1 returns a deliberate JSON 503; all other endpoints stay canonical.",
+      "client_result": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "live_client.py",
+          "--port",
+          "61814"
+        ],
+        "exit": 1,
+        "stdout": "LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist\n",
+        "stderr": "Traceback (most recent call last):\n  File \"/private/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/live_client.py\", line 61, in <module>\n    check(args.port)\n    ~~~~~^^^^^^^^^^^\n  File \"/private/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/live_client.py\", line 51, in check\n    assert send(\"DELETE\", f\"/tasks/{task_id}\") == (204, None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+      },
+      "remaining_before_manual_cleanup": {
+        "items": [
+          {
+            "id": 1,
+            "title": "  Read Python  ",
+            "minutes": 30,
+            "done": false,
+            "note": null
+          },
+          {
+            "id": 2,
+            "title": "Write",
+            "minutes": 0,
+            "done": false,
+            "note": "keep"
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 2
+      },
+      "manual_delete_second_status": 204,
+      "observation": "First DELETE assertion aborts finally loop; DELETE /tasks/2 is not attempted even though it works."
+    },
+    {
+      "id": "owned-server-cleanup",
+      "lab": "h06-api-testing",
+      "pid": 31143,
+      "port": 61814,
+      "stopped": true,
+      "returncode": -15,
+      "log": "TRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE use POST /tasks create_task\nTRACE release POST /tasks closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nTRACE acquire PATCH /tasks/1\nTRACE use PATCH /tasks/1 get_store\nTRACE release PATCH /tasks/1 closed=True\nTRACE acquire GET /tasks/1\nTRACE use GET /tasks/1 get_store\nTRACE release GET /tasks/1 closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire POST /tasks\nTRACE use POST /tasks get_store\nTRACE release POST /tasks closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire GET /tasks/0\nTRACE use GET /tasks/0 get_store\nTRACE release GET /tasks/0 closed=True\nTRACE acquire GET /tasks/no\nTRACE use GET /tasks/no get_store\nTRACE release GET /tasks/no closed=True\nTRACE acquire GET /tasks/99999\nTRACE use GET /tasks/99999 get_store\nTRACE release GET /tasks/99999 closed=True\nTRACE acquire DELETE /tasks/1\nTRACE use DELETE /tasks/1 get_store\nTRACE release DELETE /tasks/1 closed=True\nTRACE acquire GET /tasks\nTRACE use GET /tasks get_store\nTRACE release GET /tasks closed=True\nTRACE acquire DELETE /tasks/2\nTRACE use DELETE /tasks/2 get_store\nTRACE release DELETE /tasks/2 closed=True\n"
+    },
+    {
+      "id": "restored-h06-final-green",
+      "base": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q"
+        ],
+        "exit": 0,
+        "stdout": "............................................                             [100%]\n44 passed in 0.22s\n",
+        "stderr": ""
+      },
+      "independent": {
+        "command": [
+          "/tmp/ls-h05-h06-audit-db_bu4_p/h06-api-testing/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "solutions"
+        ],
+        "exit": 0,
+        "stdout": "...                                                                      [100%]\n3 passed in 0.31s\n",
+        "stderr": ""
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "H06-F01",
+      "priority": "P2",
+      "category": "test_acceptance_blind_spot",
+      "title": "空 PATCH 独立验收只观察响应，未观察之后读取的实际状态",
+      "confirmation": "temporary_copy_mutation_reproduced",
+      "affected_labs": [
+        "h06-api-testing"
+      ],
+      "primary_location": {
+        "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/solutions/test_independent.py",
+        "start_line": 44,
+        "end_line": 48
+      },
+      "related_locations": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/tests/test_contract.py",
+          "start_line": 25,
+          "end_line": 31
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.mdx",
+          "start_line": 104,
+          "end_line": 112
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx",
+          "start_line": 104,
+          "end_line": 112
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-tw.mdx",
+          "start_line": 104,
+          "end_line": 112
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.mdx",
+          "start_line": 194,
+          "end_line": 200
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx",
+          "start_line": 194,
+          "end_line": 200
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-tw.mdx",
+          "start_line": 194,
+          "end_line": 200
+        }
+      ],
+      "description": "独立题要求保留非默认字段，正文第 6 节要求状态、正文及后续读取一起检查。但该答案以 PATCH response.json() == original 结束；基础 note 三态测试也只核对 PATCH 响应。因此“响应返回旧记录、存储却被替换成默认值”的回归能够绕过两个套件。",
+      "not_claimed": "canonical MemoryStore.patch 当前并没有这里注入的错误；这是已确认的验收盲区，不是现有正常 API 会丢数据的结论，也不是要求有限教学套件捕获任意可能的 mutant。",
+      "trigger": "空 PATCH 且记录含非默认 title/minutes/done/note；实现错误地返回旧对象，却写入默认记录。",
+      "reproduction": {
+        "isolation": "仅在由 allowlist 制成的临时副本中注入，未编辑权威源码；原实验临时目录已删除，复跑需重新复制。",
+        "mutation_target": {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/store.py",
+          "start_line": 23,
+          "end_line": 28
+        },
+        "insert_at_start_of_MemoryStore_patch": "if not payload.model_fields_set:\n    self.tasks[current.id] = TaskStored(id=current.id, title=\"Untitled\", minutes=0, done=False, note=None)\n    return current",
+        "steps": [
+          "临时副本执行 uv sync --locked。",
+          "插入上述分支，分别执行 python -m pytest -q 和 python -m pytest -q solutions。",
+          "用 TestClient 创建 title=Keep、minutes=5、done=true、note=keep 的任务；PATCH {} 后再次 GET 同一个 ID。",
+          "只在临时答案末尾补一次 GET 整体相等断言，再运行 python -m pytest -q solutions/test_independent.py。"
+        ],
+        "observed": {
+          "base_suite_under_mutation": "44 passed",
+          "independent_suite_under_mutation": "3 passed",
+          "patch_status": 200,
+          "patch_response": {
+            "id": 1,
+            "title": "Keep",
+            "minutes": 5,
+            "done": true,
+            "note": "keep"
+          },
+          "subsequent_get": {
+            "id": 1,
+            "title": "Untitled",
+            "minutes": 0,
+            "done": false,
+            "note": null
+          },
+          "minimal_strengthening_result": "1 failed, 2 passed；新增 GET 断言精确捕获四字段不一致。"
+        }
+      },
+      "minimal_fix": [
+        "独立答案在空 PATCH 后 GET 同一个 ID，断言状态 200 且完整 JSON 等于 original。",
+        "基础 test_patch_note_states 建议也补 GET 等于 PATCH 响应，使省略/赋值/null 三态都有状态读回证据。",
+        "三语独立契约把“全部非默认值保持”明确为“PATCH 响应与随后 GET 均不变”。不需要重构服务。"
+      ],
+      "minimal_assertion_tested": "assert client.get(f\"/tasks/{original['id']}\").json() == original",
+      "regression_acceptance": "未变异实现保持原基准绿灯；同一临时 mutant 应由新增读回断言变红；恢复临时实现后恢复绿灯。此次实际已证明 mutant 被该断言捕获，恢复原临时文件后原 44+3 再次通过。",
+      "evidence_experiment_ids": [
+        "empty-patch-state-blind-spot",
+        "restored-h06-final-green"
+      ]
+    },
+    {
+      "id": "H05-H06-F02",
+      "priority": "P2",
+      "category": "failure_cleanup_tooling",
+      "title": "多记录真实客户端的 finally 在第一项清理失败后跳过其余自有记录",
+      "confirmation": "h06_real_socket_fault_reproduced_and_h05_matching_source_verified",
+      "affected_labs": [
+        "h05-dependencies",
+        "h06-api-testing"
+      ],
+      "primary_location": {
+        "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/live_client.py",
+        "start_line": 49,
+        "end_line": 52
+      },
+      "related_locations": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h05-dependencies/live_client.py",
+          "start_line": 55,
+          "end_line": 58
+        }
+      ],
+      "description": "两个 urllib live_client 都在 finally 的 for 循环内直接 assert DELETE/GET。任一删除失败或读取检查抛错会退出整个循环，其他已创建且能够正常删除的记录也没有得到清理尝试。失败的客户端会留下额外记录，影响下一次要求空教学服务的复跑。",
+      "not_claimed": "不能要求客户端保证服务拒绝删除的 ID 本身一定被删除；问题是它连其他健康、属于本次运行的 ID 都没有继续尝试。正常客户端路径此次通过。仅 H06 做了动态故障注入，H05 由相同循环结构静态确认，不虚报两次动态复现。",
+      "trigger": "客户端已创建两个任务，第一项 DELETE 返回非 204 或抛异常，而第二项 DELETE 可正常工作。",
+      "reproduction": {
+        "isolation": "临时 H06 副本、独占本地 Uvicorn 进程及动态端口；不访问公共或用户已有服务。",
+        "mutation_target": {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/h06-api-testing/task_api/routes.py",
+          "start_line": 59,
+          "end_line": 66
+        },
+        "injected_before_normal_delete": "if task_id == 1:\n    raise HTTPException(status_code=503, detail=\"Deliberate first-delete failure\")",
+        "steps": [
+          "在新临时副本中仅注入该删除故障，启动其独占 Uvicorn。",
+          "运行原 live_client.py --port <owned-port>。",
+          "客户端退出后 GET /tasks；再单独 DELETE /tasks/2。"
+        ],
+        "observed": {
+          "client_exit": 1,
+          "client_failure": "finally 中第一个 DELETE 的 assert 失败；主体已输出 CRUD 验收成功。",
+          "remaining_ids_before_manual_cleanup": [
+            1,
+            2
+          ],
+          "manual_delete_second_status": 204,
+          "meaning": "第二项本可清理，却因第一项异常被跳过。"
+        }
+      },
+      "minimal_fix": [
+        "每个自有 ID 用单独的 try/except 完成清理尝试，记录失败 ID 和原因，再继续下一个 ID。",
+        "循环完成后统一报告清理失败；如主体已经抛错，也保留其原始诊断，不让清理异常完全遮住它。",
+        "不吞掉错误、不扩大删除范围、不清除其他客户端的数据；不必引入未教过的 ExceptionGroup。",
+        "增加第一个 DELETE 失败、第二个仍被尝试并成功的故障回归；同时确认程序对未清理 ID 非零退出或明确报告失败。"
+      ],
+      "fix_validation_status": "最小修复建议未实施；本 sidecar 只复现故障，留给主线修改并复跑。",
+      "evidence_experiment_ids": [
+        "multi-record-client-cleanup-short-circuit",
+        "normal-h05-real-summary-client",
+        "normal-h06-real-clients"
+      ]
+    }
+  ],
+  "uncovered_boundaries": [
+    "本 sidecar 没有重开真实浏览器进行 5506/5507 Origin 验收；仅审读页面，运行 TestClient CORS 和真实 HTTPX 预检。不得把这些结果标成浏览器执行证据。",
+    "没有重跑维护者底层 ASGI response.start/body 的四种时序探针；只审查版本化说明、官方版本文档与实际依赖关闭证据。",
+    "没有进行全量 fuzz、生产并发/线程竞争、TLS、部署、数据库、鉴权、SIGKILL 或断电恢复验收。多数本就被教材明确排除，未把它们缺席报告成缺陷。",
+    "变异实验只证明指定验收盲区，不表示全部测试无效，也不表示 canonical 默认实现存在注入的错误。",
+    "H05 多记录清理问题由与 H06 相同控制流静态确认；只有 H06 做了真实 socket 删除失败复现。",
+    "英语与简体正文进行了人工语义审查；繁体以全文保护代码后的 OpenCC 等价核对为主，不是专业母语润色认证。",
+    "未运行主线构建、全书总注册或 ZIP 构建集成；未修改 loader、导航、contracts、package、总 runner 或任何教材/lab。",
+    "独立练习覆盖的是指定场景的实现，不是对学习者独立设计能力的实证测评；未开展真实学习者试教。",
+    "H05-H06-F02 的建议修复没有在权威源码实施或验证；主线需要实施并增加故障回归。"
+  ],
+  "locale_checks": [
+    {
+      "slug": "module-19-application-dependencies",
+      "tw_matches_protected_opencc_conversion": true,
+      "executable_output_fences_equal": true,
+      "canonical_refs_equal": true,
+      "default_closed_details": [
+        4,
+        4,
+        4
+      ],
+      "unexpected_open_details": false
+    },
+    {
+      "slug": "module-20-api-testing",
+      "tw_matches_protected_opencc_conversion": true,
+      "executable_output_fences_equal": true,
+      "canonical_refs_equal": true,
+      "default_closed_details": [
+        5,
+        5,
+        5
+      ],
+      "unexpected_open_details": false
+    }
+  ],
+  "experiment_workspace_removed": true,
+  "authoritative_source_hashes_unchanged_after_experiments": true,
+  "official_references_consulted": [
+    {
+      "title": "FastAPI 0.135.1 yield dependency scopes",
+      "url": "https://raw.githubusercontent.com/fastapi/fastapi/0.135.1/docs/en/docs/tutorial/dependencies/dependencies-with-yield.md",
+      "checked_at": "2026-09-28",
+      "sha256": "efb86f4823a15a5a6d04faae998bb6dc0ccad028da41e6475707939339c37cb4",
+      "terms_found": {
+        "scope=\"function\"": true,
+        "scope=\"request\"": true
+      }
+    },
+    {
+      "title": "pytest 8.4.2 fixture teardown",
+      "url": "https://raw.githubusercontent.com/pytest-dev/pytest/8.4.2/doc/en/how-to/fixtures.rst",
+      "checked_at": "2026-09-28",
+      "sha256": "bc4c92211d4ae8851361226898b84df3d1079082f0ec0fbbd594c03a21dc64d0",
+      "terms_found": {
+        "Handling errors for yield fixture": true,
+        "Safe teardowns": true
+      }
+    },
+    {
+      "title": "Starlette 0.52.1 TestClient",
+      "url": "https://raw.githubusercontent.com/Kludex/starlette/0.52.1/docs/testclient.md",
+      "checked_at": "2026-09-28",
+      "sha256": "39187748c0fa936bdf0c3d6c39d96252c68494489954fe2a2db5700cb83f4b76",
+      "terms_found": {
+        "raise_server_exceptions=False": true,
+        "httpx": true
+      }
+    }
+  ],
+  "completed_at": "2026-09-28T13:12:34.679506+08:00",
+  "verdict": {
+    "code": "PROCEED_WITH_TARGETED_TEST_HARDENING",
+    "summary": "在 H01–H04 已学的前提下，未确认阻断性的先修跳跃，也未确认正常 canonical 服务实现存在此次注入的缺陷。发现两个可复现的验收/故障清理薄弱点，建议主线作局部修补后保留当前教学路线，不需要为概率信号重写章节或引入异步 Python。",
+    "confirmed_findings": 2,
+    "blocking_findings": 0,
+    "priority_counts": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 2,
+      "P3": 0
+    },
+    "decision_boundary": "这是限定范围的源码、教材和故障实验审查，不是全栈发布批准或全部边界已覆盖的声明。基准测试绿灯与变异测试漏检分别报告。"
+  },
+  "prerequisite_assessment": {
+    "basis": "以 H01–H04 的 HTTP/CRUD/Pydantic/服务启动内容已经掌握为前提；核对全书先前 L12 dataclass、L13 参数化、L14 Iterator/TextIO/yield 的出处。",
+    "verdict": "未确认阻断性的隐藏先修门槛。",
+    "checks": [
+      {
+        "topic": "H05 应用拆分与依赖",
+        "result": "先解释 APIRouter、函数值与 Depends、Request/app.state，再解释同步 yield 所有权/缓存/scope，并非只给注入 API 清单。",
+        "locations": [
+          {
+            "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.mdx",
+            "start_line": 56,
+            "end_line": 115
+          },
+          {
+            "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-cn.mdx",
+            "start_line": 56,
+            "end_line": 115
+          },
+          {
+            "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-19-application-dependencies.zh-tw.mdx",
+            "start_line": 56,
+            "end_line": 115
+          }
+        ]
+      },
+      {
+        "topic": "H06 测试驱动机制",
+        "result": "先给不使用 fixture 的 TestClient 测试，再解释 fixture/conftest、作用域及 overrides；明确 pytest fixture yield 与 FastAPI dependency yield 由不同框架驱动。",
+        "locations": [
+          {
+            "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.mdx",
+            "start_line": 37,
+            "end_line": 103
+          },
+          {
+            "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx",
+            "start_line": 37,
+            "end_line": 103
+          },
+          {
+            "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-tw.mdx",
+            "start_line": 37,
+            "end_line": 103
+          }
+        ]
+      },
+      {
+        "topic": "异步边界",
+        "result": "普通验收使用同步 TestClient，不要求学习者先会 async Python；精确 ASGI 发送时序的低层探针明确是维护者证据。浏览器 JS async 属于成熟 JS 读者的既有背景，未混为异步 Python 测试。"
+      },
+      {
+        "topic": "证据层级",
+        "result": "TestClient 不等于真实网络，真实 HTTPX 不等于浏览器 CORS，CORS 不等于身份鉴别/授权；这些区别已明确。"
+      }
+    ]
+  },
+  "independent_exercise_assessment": {
+    "H05": {
+      "verdict": "合理的小型迁移练习，未确认契约过窄到没有独立工作。",
+      "rationale": "summary 要求增加 router、复用同一依赖和状态、在组合入口挂接、汇总全部记录；除了函数测试，还明确要求真实 HTTP 观察更新/删除后的共享状态与清理。",
+      "answer_visibility": "参考答案默认折叠，未发现默认展开的解答泄漏。"
+    },
+    "H06": {
+      "verdict": "可作为给定场景的测试编写验收；不能据此宣称已经证明宽泛的独立测试设计能力。",
+      "nonblocking_observation_id": "H06-N01",
+      "observation": "第 11 节独立题 2 与第 7 节折叠的带提示答案采用相同的合法 title + 非法 minutes=true + note=null 场景及 422 后 GET 原记录断言链，迁移距离很小。",
+      "locations": [
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.mdx",
+          "start_line": 114,
+          "end_line": 129
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx",
+          "start_line": 114,
+          "end_line": 129
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-tw.mdx",
+          "start_line": 114,
+          "end_line": 129
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.mdx",
+          "start_line": 194,
+          "end_line": 200
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-cn.mdx",
+          "start_line": 194,
+          "end_line": 200
+        },
+        {
+          "file": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-20-api-testing.zh-tw.mdx",
+          "start_line": 194,
+          "end_line": 200
+        }
+      ],
+      "classification": "非阻塞教学改进，不作为运行时缺陷或默认可见的答案泄漏。",
+      "minimal_optional_improvement": "将重复项标为巩固题，再加一项只给规则、由读者自选边界/反例及受控 mutation 的独立测试设计任务；保持当前同步内存 HTTP 范围，不引入后续数据库、鉴权或异步前置。",
+      "specific_acceptance_gap": "空 PATCH 的状态读回盲区另见 H06-F01。"
+    }
+  },
+  "configuration_resource_and_async_boundary_assessment": {
+    "configuration": "环境变量是字符串、必须验证、.env 不自动加载、显式 Settings 构造是受信任测试代码且绕过环境读取，这些边界已说明。两章各自的缺少应用名/坏分页值均用真实 Uvicorn 验证非零退出，注入原值未被回显。",
+    "dependencies": "原锁在干净临时副本中安装通过；H05 不依赖 HTTPX，H06 以 dev 依赖 pin HTTPX 0.28.1。没有为审查升级版本或改锁。",
+    "resource_cleanup": "H06 与 H05 相同的同步依赖实现通过真实 TemporaryFile 的获取、单请求复用、404、获取失败、写入失败及恢复探针；已取得的文件均关闭。此结论不等于每个可能的异常点都已覆盖。",
+    "fixture_cleanup": "故意在 override 设置后断言失败，预期 1 failed/1 passed；后一个探针证明 override 恢复。它是期望失败实验，不计入正常套件通过数。",
+    "async_boundary": "未用同步 TestClient 返回后的日志冒充精确 ASGI response.start/body 时间证据；本 sidecar 没有重跑维护者低层时序探针。",
+    "fault_cleanup_exception": "正常网络客户端通过，但多记录 finally 的故障清理短路见 H05-H06-F02。"
+  },
+  "verification_summary": {
+    "python_version": "3.13.15",
+    "baseline_tests": [
+      {
+        "lab": "h05-dependencies",
+        "base_passed": 15,
+        "independent_passed": 2,
+        "evidence": "baseline-h05-dependencies"
+      },
+      {
+        "lab": "h06-api-testing",
+        "base_passed": 44,
+        "independent_passed": 3,
+        "evidence": "baseline-h06-api-testing"
+      }
+    ],
+    "baseline_passed_total": 64,
+    "restored_h06_rerun": {
+      "base_passed": 44,
+      "independent_passed": 3,
+      "counted_again_in_total": false
+    },
+    "expected_failures": [
+      {
+        "kind": "fixture cleanup fault",
+        "result": "1 failed, 1 passed，符合预期"
+      },
+      {
+        "kind": "real configuration startup faults",
+        "result": "4 次独立 Uvicorn 启动均非零退出，符合预期"
+      },
+      {
+        "kind": "mutant caught after adding readback assertion",
+        "result": "1 failed, 2 passed，新增断言捕获目标缺陷"
+      },
+      {
+        "kind": "first DELETE fault in real client",
+        "result": "客户端退出 1，发现未尝试清理第二个自有 ID"
+      }
+    ],
+    "mutation_survival": "空 PATCH 写坏存储但返回旧响应：基础 44 与独立 3 都通过；这是薄弱点证据，不计入正确性绿灯。",
+    "real_network": "H05 summary 客户端通过；H06 正常 HTTPX 与 urllib 客户端通过；故障注入在独占真实 Uvicorn 端口验证。",
+    "resource_probe": "POST 单文件复用、404 关闭、获取失败 500、写入失败关闭、下一请求恢复 200、全部句柄关闭。",
+    "experiment_records": 16
+  },
+  "readme_locale_checks": [
+    {
+      "lab": "h05-dependencies",
+      "three_locales_present": true,
+      "tw_matches_protected_opencc_conversion": true,
+      "code_and_command_parity": true,
+      "method": "三语代码/命令对照；繁体与保护代码后的简转繁结果逐篇等价核对。"
+    },
+    {
+      "lab": "h06-api-testing",
+      "three_locales_present": true,
+      "tw_matches_protected_opencc_conversion": true,
+      "code_and_command_parity": true,
+      "method": "三语代码/命令对照；繁体与保护代码后的简转繁结果逐篇等价核对。"
+    }
+  ],
+  "final_integrity_check": {
+    "checked_at": "2026-09-28T13:12:34.679506+08:00",
+    "files_checked": 57,
+    "source_drift": [],
+    "all_snapshotted_source_hashes_unchanged": true,
+    "note": "仅证明所列 57 个只读审查目标在审查期间未漂移；不把主线其他未快照文件的并行工作归因于本 sidecar。"
+  },
+  "cleanup_and_scope_compliance": {
+    "owned_uvicorn_processes": [
+      {
+        "lab": "h05-dependencies",
+        "pid": 31133,
+        "port": 61752,
+        "stopped": true,
+        "returncode": -15
+      },
+      {
+        "lab": "h06-api-testing",
+        "pid": 31135,
+        "port": 61784,
+        "stopped": true,
+        "returncode": -15
+      },
+      {
+        "lab": "h06-api-testing",
+        "pid": 31143,
+        "port": 61814,
+        "stopped": true,
+        "returncode": -15
+      }
+    ],
+    "all_owned_uvicorn_processes_stopped": true,
+    "temporary_workspace": "/tmp/ls-h05-h06-audit-db_bu4_p",
+    "temporary_workspace_exists_at_final_check": false,
+    "persistent_output_files": [
+      "/tmp/langshift-h05-h06-targeted-audit.json"
+    ],
+    "authoritative_source_edits": false,
+    "shared_file_edits": false,
+    "d04_d06_edits_in_this_audit": false,
+    "typesafe_calls": 0,
+    "subagents_created": 0,
+    "database_or_existing_user_service_modified": false,
+    "note": "实验仅在已删除的临时副本进行。保留的审查结论、命令、stdout/stderr、mutation 和清理证据均在本 JSON。"
+  }
+}

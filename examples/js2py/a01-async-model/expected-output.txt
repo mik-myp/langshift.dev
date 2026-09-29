@@ -1,0 +1,8 @@
+creation: called:no-body-yet | A:start | A:end
+sequential: A:start | A:end | B:start | B:end
+scheduled: A:start | B:start | owner:both-entered | B:end | A:end
+blocking: sync:start | sync:end | callback:ran | owner:resumed
+offloaded: loop:responsive-while-thread-waits | thread:returned
+cancelled: file:opened | file:closed | owner:cancelled
+timeout: file:opened | file:closed | owner:timeout
+bounded: peak=2 active=0

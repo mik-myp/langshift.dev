@@ -1,0 +1,241 @@
+---
+title: Your First Synchronous FastAPI Service — From Import to HTTP Response
+description: Separate the framework, ASGI server, and handler; run a local read-only task API and diagnose 404, 422, 500, import failures, and occupied ports with real requests.
+---
+
+import { getFastApiExample } from '@/lib/js2py-examples'
+
+## 1. Move from calling an API to understanding who receives the call
+
+A frontend fetch call exposes one end of a conversation: send a URL, wait for a status and a body. We will implement the other end. A Python function returning a dictionary is not yet an HTTP service. Someone must listen on a port, select the function for a request, and encode its result as JSON. Those are separate responsibilities.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | H02 methods, statuses, resources, and pagination; L13 decorators; earlier modules, functions, and containers |
+| New capability | Explain server/framework responsibilities; import the correct app; write synchronous routes; observe success and failure from another terminal |
+| Independent acceptance | Rebuild the read-only service in an empty file and demonstrate successful requests, missing records, invalid parameters, and a request after shutdown |
+| Not required | async def, application lifespan, databases, dependency injection, authentication, request-body models, or API test fixtures |
+
+Download the [complete H03 lab](/learning-assets/js2py/h03-first-fastapi.zip). This is a **local API lab** that needs an operating-system port and two terminals, not a browser Python editor. Displayed files come from the lab sources. H06 will formally teach API test automation; curl here is a real client, not a hidden testing-framework prerequisite.
+
+This is the first part of capstone V1, not the final collaboration service. There are no projects, users, status enum, or permission relationships: just two read-only tasks. To connect with the language labs, each has a server-provided id, original title, nonnegative minutes, done, and nullable note. This is an explicit local contract, independent of another chapter's code or running process.
+
+## 2. Trace the responsibilities of one request
+
+```text
+curl -> TCP 127.0.0.1:8003 -> Uvicorn -> ASGI -> FastAPI
+                                                  |
+                                      route + validate parameters
+                                                  |
+                                          def read_task(...)
+                                                  |
+client <- HTTP status + JSON bytes <- response serialization
+```
+
+**Uvicorn is the server.** It listens on an address and port, accepts connections, passes HTTP requests to the application, and writes the application's status, headers, and body back to the client. **FastAPI is the framework.** It holds routing rules, extracts and validates arguments, calls your function, and prepares the response. **Your handler owns the business decision**: whether a task exists and which object to return. It does not parse TCP bytes itself.
+
+ASGI is an interface contract between a server and a Python web application, not another service to start. The framework implements it for us. Its support for asynchronous communication does not require every business handler to use async def. All handlers here are ordinary def functions. However, “no await in my code” does not mean “the entire server handles only one request at a time.” FastAPI runs synchronous route functions in a thread pool, so other requests may be in progress. We only read fixed data here; we are not promising safe shared writes.
+
+The transferable frontend-routing intuition is that a method and path select a handler. The limit of that analogy is that this code runs in a service process, has no browser DOM, and can receive curl calls without rendering any page first. The official references at the end explain ASGI and thread-pool dispatch; implementing an event loop is not a prerequisite.
+
+## 3. Pin the environment and distinguish it from the working directory
+
+Official documentation and runtime behavior were checked on **2026-09-28** using CPython 3.13.15, uv 0.12.13, FastAPI 0.135.1, Uvicorn 0.42.0, and Pydantic 2.12.5. FastAPI already uses Pydantic for parameter validation; we will author models in the next chapter. These are tested versions, not a claim to be perpetually latest.
+
+<Code language="toml">{getFastApiExample('pyproject.toml')}</Code>
+
+After extraction, enter h03-first-fastapi; in the repository, enter examples/js2py/h03-first-fastapi. All service commands below assume that working directory. Start with:
+
+```bash
+uv --version
+uv python install 3.13.15
+uv sync --locked
+uv run --locked python --version
+```
+
+.python-version selects the interpreter, while requires-python restricts the project to the 3.13 series. package=false means we run local files rather than build and install this directory as a distribution. The real public-PyPI uv.lock records transitive dependencies and artifact hashes; it was not handwritten. Normal lab execution uses sync --locked, not a fresh dependency resolution. The README also records the maintainer's isolated reproduction directories.
+
+<Code language="python">{getFastApiExample('app.py')}</Code>
+
+Read the complete file, then start it in terminal A:
+
+```bash
+uv run --locked python -m uvicorn app:app --host 127.0.0.1 --port 8003 --workers 1
+```
+
+Understand each part instead of memorizing the command:
+
+- uv run --locked selects this project's environment. python -m uvicorn executes the Uvicorn module using that interpreter, rather than an executable from a different environment.
+- The left side of app:app is the **module name app**, not the path app.py. The right side is the object retrieved after import: app, created by FastAPI(). If the file were service.py, the left side would become service.
+- Uvicorn looks for the application module in the current working directory by default. Finding installed dependencies does not prove it can find app.py. Environment selection and module lookup are distinct problems.
+- --host 127.0.0.1 binds only to local loopback. Do not change it to 0.0.0.0: this unauthenticated lab must not be exposed to the network.
+- --port 8003 is our choice, not a port built into FastAPI. The client must use the same port.
+- --workers 1 explicitly selects one service worker, avoiding an inherited WEB_CONCURRENCY default. We do not use --reload; stop and restart manually after editing so that restarts remain visible.
+
+Startup imports app: it creates the FastAPI object and TASKS, then executes the decorators to register routes. Importing does not perform a call to read_task. The framework calls a handler only when a matching request arrives. Running uv run --locked python app.py directly executes the definitions and exits successfully; this file contains no command that starts listening.
+
+## 4. Locate the framework boundary in decorators and arguments
+
+`@app.get("/tasks/{task_id}")` associates a GET path pattern with read_task. The braces name a URL segment, not a Python dictionary. The matching parameter name tells the framework where to place that segment.
+
+In a request to /tasks/1, the path initially contains the text "1". The framework uses the int annotation to parse and validate it before calling the function with integer 1. Path(gt=0) adds a greater-than-zero constraint. We use this direct declaration form so the first route does not require learning Annotated. Invalid text and nonpositive values are rejected before the function starts looking in TASKS.
+
+limit and offset do not appear in the path template, so these scalar parameters come from the query string. Query(default=20, ge=1, le=100) supplies a default and inclusive lower/upper bounds. Query numbers also arrive as text and require parsing. Do not mechanically apply the next chapter's strict JSON-body integer policy to URL text.
+
+list_tasks orders records by id before slicing offset:offset + limit. total is the size of the entire collection, not the page. An offset beyond the collection yields empty items and a valid 200. The fixed read-only data makes the order stable; this does not prove that offset pagination avoids missing or repeating records during concurrent changes.
+
+read_task checks existence only after receiving a valid integer. Raising HTTPException stops that handler and lets the framework produce a 404. This is an expected business outcome, not a Python crash. Catching every exception and turning it into 404 would disguise programming bugs as missing records.
+
+## 5. Observe a real request from terminal B
+
+Leave terminal A running. Open terminal B and execute:
+
+```bash
+curl -sS -i http://127.0.0.1:8003/health
+curl -sS -i http://127.0.0.1:8003/tasks/1
+curl -sS -i 'http://127.0.0.1:8003/tasks?limit=1&offset=1'
+```
+
+-sS hides the progress meter but retains connection errors; -i includes the HTTP status line and headers. Quote query URLs so the shell does not treat & as a background operator. Do not judge application success solely by curl's process exit code: by default, a received 404 or 422 can still produce exit code 0.
+
+This is the observed status and body for /tasks/1. Variable headers such as Date are omitted; this is not a complete raw transcript:
+
+```http
+HTTP/1.1 200 OK
+content-type: application/json
+
+{"id":1,"title":"Read HTTP","minutes":25,"done":false,"note":null}
+```
+
+The handler returned a Python dict, not a string already sent over the network. FastAPI's response handling encodes it as JSON: False becomes false and None becomes null. The server writes the resulting response onto the connection. Terminal A now records the GET request. Finishing a function does not terminate the service; the process remains available for another request.
+
+The pagination request returns:
+
+```json
+{"items":[{"id":2,"title":"Try curl","minutes":10,"done":true,"note":"local only"}],"limit":1,"offset":1,"total":2}
+```
+
+A 200 from /health establishes only that this process can answer that request. There is no database here, so it says nothing about database readiness, authentication, or all business operations. /docs provides interactive documentation and /openapi.json exposes a machine-readable contract. Opening the documentation is useful exploration, not proof that an API's behavior has passed acceptance.
+
+## 6. Assign each failure to the correct layer
+
+<Code language="bash">{getFastApiExample('requests.sh')}</Code>
+
+Predict each result before running it. Execute requests individually first; bash requests.sh then replays all 11. This is a visible worksheet, not an assertion suite that decides whether you passed.
+
+| Request or action | Expected result | Explanation and next step |
+| --- | --- | --- |
+| GET /tasks/999 | 404; detail is Task not found | Valid argument, absent record; check the id |
+| GET /missing | 404; detail is Not Found | No route matched; check the path |
+| GET /tasks/nope | 422; loc points to path/task_id | Integer parsing failed; supply a valid id |
+| GET /tasks/0 | 422 | Parsing succeeded, but the value is not positive |
+| GET /tasks?limit=0 or offset=-1 | 422 | Query constraints failed; correct pagination |
+| POST /tasks | 405 | No create route is registered yet; this is not a body-model failure |
+| GET /tasks?offset=99 | 200; empty items, total is 2 | A valid empty page is not a missing resource |
+
+The observed body for /tasks/nope is:
+
+```json
+{"detail":[{"type":"int_parsing","loc":["path","task_id"],"msg":"Input should be a valid integer, unable to parse string as an integer","input":"nope"}]}
+```
+
+loc identifies the input source, while type identifies the error category. Do not treat the entire English message as an immutable client protocol. Invalid input, absent resources, and transport failure are different conditions. If curl cannot connect, it has received no HTTP status at all. Check that the service is running on the address and port you requested before investigating the handler.
+
+<details>
+<summary>Explanation checkpoint: why are /tasks/nope and /tasks/999 different?</summary>
+
+The first fails while parsing parameters, before read_task runs. The second enters the handler with integer 999 and fails the business existence check. Calling both “a missing dictionary key” erases the input boundary. Calling read_task(999) directly raises a Python exception; without the server and framework request flow, no HTTP response is sent. A function call and a network request are not equivalent acceptance evidence.
+
+</details>
+
+## 7. A startup failure is not an endpoint's 500
+
+While terminal A is still serving, repeat the same startup command in terminal B. The second process exits nonzero with address already in use. The verified macOS run reported Errno 48; error numbers vary across systems. The original service still answers /health. **Do not kill unrelated processes just to free a port.** Return to the terminal where you started your service and press Ctrl-C, or choose a free port for your own experiment and update the client URL accordingly.
+
+Next, stop your service and try the module-lookup experiment from the parent of the lab directory:
+
+```bash
+uv run --project h03-first-fastapi --locked python -m uvicorn app:app --host 127.0.0.1 --port 8003 --workers 1
+```
+
+The observed error is Could not import module "app". --project finds the project's environment but does not make app.py's directory the current working directory. Recover by entering h03-first-fastapi and running the normal command. Alternatively, from the parent directory, explicitly supply --app-dir h03-first-fastapi. Random sys.path changes should not become the default repair strategy.
+
+Using app:missing instead produces Attribute "missing" not found: the module was found, but the requested object was not. Inspect both sides of the colon instead of reinstalling dependencies for a spelling mistake. These failures occur before service is available, so there is no business HTTP 500 for a client to receive.
+
+<details>
+<summary>Guided diagnosis answer: the environment works, but the application will not import</summary>
+
+Run pwd and ls app.py to confirm the working directory, then check the module and object names in app:app. The command uv run --locked python -c 'import app; print(type(app.app).__name__)' should print FastAPI. Successful import only proves the object is available; starting Uvicorn and requesting /health is still necessary to prove service recovery. For an occupied port, identify the failed second process without terminating someone else's listener.
+
+</details>
+
+## 8. A deliberate 500: different views for the client and the server
+
+<Code language="python">{getFastApiExample('errors/broken_app.py')}</Code>
+
+This is explicitly a failure experiment, not the normal reference app. After stopping your normal service, start it from the lab root:
+
+```bash
+uv run --locked python -m uvicorn errors.broken_app:app --host 127.0.0.1 --port 8003 --workers 1
+```
+
+From the other terminal:
+
+```bash
+curl -sS -i http://127.0.0.1:8003/broken
+```
+
+The observed response is 500 with body Internal Server Error. Terminal A contains the traceback ending in RuntimeError: deliberate failure for H03. The handler ran and failed: this is neither a 422 nor an occupied-port error. Do not return raw tracebacks, configuration, or secrets to clients, or enable a debugging page as a supposed fix.
+
+Recover by stopping this deliberately broken service with Ctrl-C, restarting app:app, and checking that /health and /tasks/1 both return 200. Finally stop your service and request /health again. Observe connection failure, not 404: without a listener there is no HTTP application response.
+
+## 9. Independent reconstruction and a variation
+
+**Reconstruction:** In a new local directory, bring only pyproject.toml, uv.lock, and .python-version. Write app.py yourself. Recreate /health, paginated /tasks, and `/tasks/{task_id}` with the same two seed records. Before consulting the reference file, record how successful requests, missing ids, wrong argument types, out-of-range values, and empty pages differ.
+
+**Variation:** Add GET /summary to return count and minutes for unfinished tasks only. The expected values are 1 and 25. This summary covers the full collection, independently of list pagination. Returning the entire TASKS dictionary is not an implementation of the requirement. Hint: iterate over values, retain tasks whose done is False, and aggregate them.
+
+<details>
+<summary>Independent reconstruction and variation reference</summary>
+
+<Code language="python">{getFastApiExample('solutions/rebuild.py')}</Code>
+
+Run this independent answer from the original lab root. It owns its data and routes rather than importing the answer from app.py:
+
+```bash
+uv run --locked python -m uvicorn solutions.rebuild:app --host 127.0.0.1 --port 8003 --workers 1
+curl -sS -i http://127.0.0.1:8003/summary
+```
+
+Run curl in the other terminal. Expect 200 and `{"count":1,"minutes":25}`. Repeat the normal list, invalid-id, and missing-id requests to ensure the addition preserved the original contract. Do not use “total minus one” as an unfinished-task algorithm just because it happens to work for this seed data.
+
+</details>
+
+## 10. A resumable checkpoint and an honest exit gate
+
+Do not merely record “read section 8.” Keep your working directory, current app file, locked versions, last successful command, port, owning terminal, observed statuses and bodies, unresolved issue, and the first command to run next time. For example:
+
+```text
+checkpoint: H03 request boundaries
+cwd: <my extracted h03-first-fastapi directory>
+entry: app:app
+last_success: GET /tasks/1 -> 200; GET /tasks/nope -> 422
+server: stopped with Ctrl-C in terminal A
+open_question: explain missing route versus missing record
+next: start app:app, request /tasks/999 and /missing
+```
+
+To finish, explain five stages: import, route registration, parameter parsing, handler execution, and serialization. Independently start the service, preserve real successful and failed request evidence, recover from a startup failure, and stop only processes you started. py_compile, successful imports, and successful page compilation cannot substitute for these observations.
+
+Verified scope: local loopback, one service worker, sequential requests, fixed read-only records. This chapter does not verify performance, concurrent writes, permissions, browser CORS behavior, proxies, HTTPS, cross-platform service management, or production deployment. Input/output models and in-memory writes arrive next; they will not automatically remove these limits.
+
+## 11. Primary references and version records
+
+These official sources were checked on 2026-09-28. Documentation may evolve; the lockfile and observed behavior delimit the lab's claims. SOURCES.md and VERIFICATION.md in the lab record URLs and execution evidence.
+
+- [FastAPI First Steps](https://fastapi.tiangolo.com/tutorial/first-steps/): the application, routes, and automatic documentation.
+- [FastAPI synchronous handlers and the thread pool](https://fastapi.tiangolo.com/async/): ordinary def dispatch.
+- [ASGI Introduction](https://asgi.readthedocs.io/en/latest/introduction.html): the server/application interface.
+- [Uvicorn 0.42.0 Settings](https://github.com/Kludex/uvicorn/blob/0.42.0/docs/settings.md): module/object imports, lookup directories, binding, and workers.
+- [Numeric path validation](https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/) and [Handling Errors](https://fastapi.tiangolo.com/tutorial/handling-errors/): parameter constraints and HTTPException.
+- [uv locking and syncing](https://docs.astral.sh/uv/concepts/projects/sync/): rejecting implicit lockfile changes with --locked.

@@ -1,0 +1,74 @@
+[
+  {
+    "title": "Docker build context",
+    "url": "https://docs.docker.com/build/concepts/context/",
+    "scope": "Context and .dockerignore",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.docker.com/build/concepts/context/",
+    "sha256": "4df2962b818ed855eb174adb90c68687605818e1edbfd1f6f7b186b0ba5f4cff"
+  },
+  {
+    "title": "Dockerfile reference",
+    "url": "https://docs.docker.com/reference/dockerfile/",
+    "scope": "USER, COPY, exec CMD, HEALTHCHECK",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.docker.com/reference/dockerfile/",
+    "sha256": "63293c82b052f2f0d9a9accbe4abbe2cc7985cc2cc1ad084f4e48bedbb08c644"
+  },
+  {
+    "title": "Docker volumes",
+    "url": "https://docs.docker.com/engine/storage/volumes/",
+    "scope": "Container writable layer and volume lifecycle",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.docker.com/engine/storage/volumes/",
+    "sha256": "d883272d4a9003cf27a6adf89d8296739ed4ea87739b38e1ad8c1ea2e26c5ce7"
+  },
+  {
+    "title": "Docker port publishing",
+    "url": "https://docs.docker.com/engine/network/port-publishing/",
+    "scope": "Loopback publishing and Engine before28 caveat",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.docker.com/engine/network/port-publishing/",
+    "sha256": "294d35d0df06e94fc92e7f190b1cbaf0a3a640a7e70cd44ca00f834961e302e9"
+  },
+  {
+    "title": "Docker Compose secrets",
+    "url": "https://docs.docker.com/compose/how-tos/use-secrets/",
+    "scope": "Per-service file-mounted secrets, not secrets in image",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.docker.com/compose/how-tos/use-secrets/",
+    "sha256": "664312030e59608f9ad198bc7ed8a124c0a15aaca7dfc20617c761b25f8fd5f1"
+  },
+  {
+    "title": "Docker daemon attack surface",
+    "url": "https://docs.docker.com/engine/security/",
+    "scope": "Engine access is privileged, socket not mounted",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.docker.com/engine/security/",
+    "sha256": "95d76357169c825a92e862fabcb89c051bba04e5b699bd944dda8b4e5ca5948e"
+  },
+  {
+    "title": "Docker Compose service reference",
+    "url": "https://docs.docker.com/reference/compose-file/services/",
+    "scope": "ports, read_only, healthcheck and restart policies",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.docker.com/reference/compose-file/services/",
+    "sha256": "ce0ae417e123c2a4f917217f9269e594491a6b5602667f04009624a8418ab158"
+  },
+  {
+    "title": "uv lock and sync",
+    "url": "https://docs.astral.sh/uv/concepts/projects/sync/",
+    "scope": "Locked resolution and dependency groups",
+    "verified_date": "2026-09-28",
+    "http_status": 200,
+    "resolved_url": "https://docs.astral.sh/uv/concepts/projects/sync/",
+    "sha256": "4bd4a89338543bf671bd036a52bc666a295986c7c72ea175d95d1c2ac228e0cf"
+  }
+]

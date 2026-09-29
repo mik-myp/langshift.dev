@@ -1,1702 +1,769 @@
 ---
-title: "Python 異步編程"
-description: "從 JavaScript 開發者視角學習 Python 的異步編程、事件循環機制和異步 Web 開發"
+title: "函數、參數與作用域"
+description: "先理解定義、調用、返回與參數綁定，再處理默認值、局部名稱、函數值和簡單閉包；把已經學會的任務規則拆成可獨立驗證的函數，而不是提前搭建框架。"
 ---
 
-## 1. 引言
+import { getFunctionExample } from '@/lib/js2py-examples'
 
-### 為什麼需要異步編程？
+## 1. 為什麼現在才把代碼裝進函數？
 
-作為 JavaScript 開發者，你已經熟悉了 Promise、async/await 和事件循環的概念。Python 也有自己的異步編程模型，雖然語法相似，但底層機制有所不同。
+L03 已經能處理任意數量的任務，並說明空輸入、未知時長和零預算怎樣經過控制流。現在出現一個新需求：同一套規則既要用於 20 分鐘的學習安排，也要用於 40 分鐘的安排，還要在修改輸入後重新計算。
 
-**異步編程的核心價值**
-- 提高程序性能：避免阻塞 I/O 操作
-- 更好的資源利用：單線程處理多個併發任務
-- 響應性：保持程序的響應能力
-- 可擴展性：支持大量併發連接
+複製整段腳本雖然能暫時得到結果，卻會把規則複製出多個版本。修改一處、忘記另一處，就可能讓兩個地方對“0 分鐘是否有效”給出不同答案。我們希望給一段已有邏輯命名，明確它需要什麼、返回什麼、是否修改輸入，再從不同地方調用它。
 
-> 💡 **學習策略**：將 Python 的異步編程視為 JavaScript 異步模型的"Python 版本"
+**函數不是讓代碼看起來更工程化的盒子，而是帶著輸入、輸出和副作用約定的可調用對象。** 本章先把執行機制講清，再把它用於任務規則；不會為了學習 def 就提前引入類、裝飾器、模塊拆分或 FastAPI。
 
-## 2. 同步 vs 異步
+### 本章契約
 
-### 2.1 基本概念對比
+| 項目 | 約定 |
+| --- | --- |
+| 前置能力 | L00—L03：獨立運行文件；名稱與值；容器與共享；分支、普通循環、解包和簡單推導式 |
+| 本章新學 | def 與調用；return 與 None；位置/關鍵字實參、默認值與僅限關鍵字參數；參數綁定、局部名稱與外層查找；函數值和簡單閉包 |
+| 獨立驗收 | 獨立實現任務創建、資格判斷、按規則選擇和預算規則工廠；解釋返回值、重複調用、默認值與共享邊界 |
+| 暫不要求 | 類型註解、導入、異常捕獲、遞歸、裝飾器、類、異步、數據庫、Web 框架或複雜函數簽名 |
 
-<PythonEditor title="同步 vs 異步對比" compare={true}>
-```javascript !! js
-// JavaScript 同步操作
-function syncOperation() {
-    console.log("開始同步操作");
-    // 模擬耗時操作
-    const start = Date.now();
-    while (Date.now() - start < 2000) {
-        // 阻塞 2 秒
-    }
-    console.log("同步操作完成");
-    return "同步結果";
-}
+不要求你會 TypeScript 類型體操。這裡的“函數合同”先用自然語言和實際輸入輸出表達；類型註解和運行時校驗分別在後續階段系統學習。
 
-// JavaScript 異步操作
-async function asyncOperation() {
-    console.log("開始異步操作");
-    // 模擬異步操作
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    console.log("異步操作完成");
-    return "異步結果";
-}
+### 文件與運行方式
 
-// 同步調用（會阻塞）
-console.log("調用同步函數");
-const syncResult = syncOperation();
-console.log("同步結果:", syncResult);
+下載 [L04 獨立示例與參考答案](/learning-assets/js2py/u04-functions.zip)，解壓後在編輯器和終端中打開 `u04-functions`。也可以按正文手寫，每份文件都獨立運行，不依賴上一份文件遺留的定義。
 
-// 異步調用（不會阻塞）
-console.log("調用異步函數");
-asyncOperation().then(result => {
-    console.log("異步結果:", result);
-});
-console.log("異步調用後立即執行");
+```bash
+uv run --no-project --python 3.13 python definition_and_call.py
 ```
 
-```python !! py
-import asyncio
-import time
+後面只替換最後的文件名。繼續採用 CPython 3.13，不安裝第三方 Python 包，也不要求項目配置。環境問題回到 [L00](/zh-tw/docs/js2py/module-00-python-introduction)。
 
-# Python 同步操作
-def sync_operation():
-    """同步操作"""
-    print("開始同步操作")
-    # 模擬耗時操作
-    time.sleep(2)  # 阻塞 2 秒
-    print("同步操作完成")
-    return "同步結果"
+`errors/` 中八份文件有意失敗，`pitfalls/` 中一份程序不會報錯但會意外共享狀態。`solutions/` 是練習之後再查看的參考；維護者的測試工具不進入你的先修要求。
 
-# Python 異步操作
-async def async_operation():
-    """異步操作"""
-    print("開始異步操作")
-    # 模擬異步操作
-    await asyncio.sleep(2)  # 非阻塞等待
-    print("異步操作完成")
-    return "異步結果"
+## 2. 定義不等於調用：先建立執行順序
 
-# 同步調用（會阻塞）
-print("調用同步函數")
-sync_result = sync_operation()
-print("同步結果:", sync_result)
+文件：`definition_and_call.py`。
 
-# 異步調用（不會阻塞）
-async def main():
-    print("調用異步函數")
-    result = await async_operation()
-    print("異步結果:", result)
+<Code language="python">{getFunctionExample('definition_and_call.py')}</Code>
 
-# 運行異步函數
-print("異步調用後立即執行")
-asyncio.create_task(main())
-```
-</PythonEditor>
+預期：
 
-### 2.2 事件循環機制
-
-<PythonEditor title="事件循環機制對比" compare={true}>
-```javascript !! js
-// JavaScript 事件循環
-console.log("1. 開始執行");
-
-setTimeout(() => {
-    console.log("4. 定時器回調");
-}, 0);
-
-Promise.resolve().then(() => {
-    console.log("3. Promise 微任務");
-});
-
-console.log("2. 同步代碼結束");
-
-// 輸出順序：
-// 1. 開始執行
-// 2. 同步代碼結束
-// 3. Promise 微任務
-// 4. 定時器回調
+```text
+Before definition
+After definition
+Inside call
+25
 ```
 
-```python !! py
-import asyncio
+這幾行中有兩種不同的動作：
 
-# Python 事件循環
-async def main():
-    print("1. 開始執行")
-    
-    # 創建任務
-    task1 = asyncio.create_task(asyncio.sleep(0))
-    task2 = asyncio.create_task(asyncio.sleep(0))
-    
-    print("2. 任務已創建")
-    
-    # 等待任務完成
-    await task1
-    print("3. 第一個任務完成")
-    
-    await task2
-    print("4. 第二個任務完成")
+- 執行 `def add_buffer(minutes):`，創建函數對象，把名稱 add_buffer 綁定到它。**此時不執行函數體。** 括號中的 minutes 是形參，表示這段邏輯需要接收一個值。
+- 執行 `add_buffer(20)` 才是調用：20 是實參，本次調用把局部名稱 minutes 綁定到這個整數，然後開始執行縮進的函數體。
 
-# 運行事件循環
-# 在 Pyodide 環境中，直接調用異步函數
-asyncio.create_task(main())
+`return minutes + 5` 先計算結果，再結束**當前這次函數調用**，把值交還給調用表達式。於是 `result = add_buffer(20)` 等待這次同步調用完成，將返回的 25 綁定給 result，然後繼續執行下一行。
 
-# 輸出順序：
-# 1. 開始執行
-# 2. 任務已創建
-# 3. 第一個任務完成
-# 4. 第二個任務完成
+可以把執行路徑寫成：頂層語句 → 執行 def → 頂層語句 → 進入調用 → 執行函數體 → return 回到調用處 → 後續頂層語句。示例裡的 Inside call 只是幫助觀察進入時機；計算規則不需要永遠夾帶這些診斷打印。
+
+注意三個細節：
+
+1. 函數體像 if/for 一樣通過冒號和縮進組織，但函數還建立了自己的局部名稱空間，後面會逐步解釋。
+2. 空行用於閱讀分隔，不負責開始或結束函數；退回外層縮進才回到頂層代碼。
+3. 普通函數沒有強制的 self 參數。實例方法屬於後續的類知識，不應把它當作所有 Python 函數的固定模板。
+
+### 2.1 不能假定 Python 會提前綁定後面的函數名
+
+文件：`errors/before_definition.py`。
+
+<Code language="python">{getFunctionExample('errors/before_definition.py')}</Code>
+
+第一行就產生 NameError，沒有標準輸出，因為執行尚未到達 def。Python 會先解析整個文件，但**解析成功不等於所有定義語句都已經執行**。修復時讓 def 在真正調用之前執行，再確認結果為 25。
+
+JS 的函數聲明可以有提升行為，但這不能直接遷移成 Python 的規則；JS 用 const 綁定的函數表達式也不能與函數聲明混為一談。這裡建立的是 Python 的執行模型，不是聲稱“兩種語言所有函數都相反”。
+
+先自己再調用一次 `add_buffer(0)`，預測它會進入幾次函數體、返回什麼。不要通過把變量改名來猜測調用順序。
+
+## 3. return 與 print：一個傳遞結果，一個產生輸出
+
+### 3.1 調用表達式必須有一個結果，即使結果是 None
+
+print 把文字寫到標準輸出；return 把一個對象交給調用方。終端看見某個數字，並不意味著調用方拿到了那個數字。
+
+文件：`return_paths.py`。
+
+<Code language="python">{getFunctionExample('return_paths.py')}</Code>
+
+預期：
+
+```text
+done
+unknown
+pending
+Ready: Read
+None
+None
 ```
-</PythonEditor>
 
-## 3. Python 異步編程基礎
+逐個區分這三個函數：
 
-### 3.1 async/await 語法
+- status_label 在第一個匹配的 return 處立刻結束當前調用。已完成任務返回 done，不再檢查它的時長；0 分鐘待辦返回 pending。這裡返回的是字符串，不是自動打印它。
+- announce 的函數體執行一次 print，但沒有寫 return，走到函數末尾後隱式返回 None。所以 Ready: Read 是函數的輸出，下一行 None 才是調用方隨後打印的返回值。
+- maybe_announce 在空標題時執行不帶表達式的 return，直接返回 None，不打印標題；非空時走到函數末尾，也返回 None，但會產生輸出。這兩個路徑的副作用不同，返回值卻都為 None。
 
-Python 的 async/await 語法與 JavaScript 非常相似，但有一些重要的差異。
+return 不只退出 if 或循環，而是退出當前函數；它也不會直接退出整個腳本。需要得到業務結果的函數，應逐條檢查返回路徑，不能只在一個分支 return 而讓其他分支意外落到 None。
 
-<PythonEditor title="async/await 語法對比" compare={true}>
-```javascript !! js
-// JavaScript async/await
-async function fetchUserData(userId) {
-    try {
-        console.log(`開始獲取用戶 ${userId} 的數據`);
-        
-        // 模擬 API 調用
-        const response = await new Promise((resolve, reject) => {
-            setTimeout(() => {
-                if (userId > 0) {
-                    resolve({
-                        id: userId,
-                        name: `用戶${userId}`,
-                        email: `user${userId}@example.com`
-                    });
-                } else {
-                    reject(new Error("用戶不存在"));
-                }
-            }, 1000);
-        });
-        
-        console.log("數據獲取成功");
-        return response;
-        
-    } catch (error) {
-        console.error("獲取數據失敗:", error.message);
-        throw error;
-    }
+### 3.2 復現“看見數字，卻不能繼續計算”
+
+文件：`errors/printed_result.py`。
+
+<Code language="python">{getFunctionExample('errors/printed_result.py')}</Code>
+
+錯誤發生前的標準輸出：
+
+```text
+25
+```
+
+第六行產生 TypeError：result 是 None，不能與 10 做數值加法。問題不在這次加法的寫法，而在上游函數把“打印結果”誤當成“返回結果”。把函數體中的 print 改為 return，再運行，應只打印最終的 35。
+
+不要用 `result or 0` 把這個錯誤隱藏掉；那會把違反函數合同的情況偽裝成合法結果。也不要為了讓終端出現 35 而在函數里硬編碼打印它。
+
+### 3.3 返回兩個信息時，仍然是返回一個對象
+
+L03 學過元組解包；它可以接收函數返回的元組：
+
+```python case=tuple_result
+def split_minutes(total):
+    hours = total // 60
+    minutes = total % 60
+    return hours, minutes
+
+
+hours, minutes = split_minutes(135)
+print(hours)
+print(minutes)
+```
+
+預期：
+
+```text
+2
+15
+```
+
+`return hours, minutes` 打包成一個二元組，再由調用方解包。不是函數有兩次 return，也不是兩個獨立異步結果。當前輸入約定為非負整數；接口字段更多時，命名字典可能比不斷增加元組位置更易讀。
+
+**暫停點 A**：預測定義與調用的打印順序；修復一次“只打印、不返回”；解釋一次提前 return。記錄調用時傳入的值、返回值和副作用，恢復時分別核對這三項。
+
+## 4. 參數與實參：調用時到底給哪個名稱什麼值？
+
+形參是 def 中的名稱，實參是一次調用提供的對象或表達式。它們不是同一個層次：函數只定義一次，可以接收很多次不同的調用。
+
+文件：`arguments.py`。
+
+<Code language="python">{getFunctionExample('arguments.py')}</Code>
+
+預期：
+
+```text
+25
+45
+20
+40
+```
+
+| 調用 | 本次 minutes / repeats / extra | 解釋 |
+| --- | --- | --- |
+| `estimate(20)` | 20 / 1 / 5 | minutes 必需；其他使用默認值 |
+| `estimate(20, 2)` | 20 / 2 / 5 | 位置實參依照形參順序分配 |
+| `estimate(20, extra=0)` | 20 / 1 / 0 | 用名稱指定 extra，不必先填 repeats |
+| `estimate(repeats=2, minutes=20, extra=0)` | 20 / 2 / 0 | 關鍵字實參按名稱匹配，不按這裡的書寫順序匹配 |
+
+在這個普通簽名裡，必需的位置參數寫在帶默認值的參數之前。`extra=0` 在調用位置是關鍵字實參，不是給調用方創建變量；這是 L03 的 `enumerate(..., start=1)` 所使用的同一種機制。
+
+Python 會在進入這個函數體前完成參數綁定。參數數量或名稱不合適會失敗，但**綁定成功不會替你驗證業務類型或取值範圍**。當前例子約定輸入為合適的數字，不會自動解析 `"20"` 或拒絕負數。
+
+### 4.1 三種常見綁定錯誤，分別實驗
+
+文件：`errors/missing_argument.py`，遺漏必需的 repeats：
+
+<Code language="python">{getFunctionExample('errors/missing_argument.py')}</Code>
+
+文件：`errors/duplicate_argument.py`，先按位置給了 minutes，又按名稱給它一次：
+
+<Code language="python">{getFunctionExample('errors/duplicate_argument.py')}</Code>
+
+文件：`errors/unknown_keyword.py`，把 repeats 拼成 repeat：
+
+<Code language="python">{getFunctionExample('errors/unknown_keyword.py')}</Code>
+
+三份文件分別獨立執行，都在第六行調用處產生 TypeError，且都不打印 Body ran。這不是函數算到一半才發現算術錯誤，而是尚未成功進入函數體。根據錯誤檢查缺了誰、重複給了誰、名稱是否存在，修復後再觀察函數體確實開始執行。
+
+普通位置實參還必須寫在關鍵字實參之前。下面是**預期語法失敗**，不是可運行解法：
+
+```python expected-error=SyntaxError case=positional_after_keyword
+def estimate(minutes, repeats):
+    return minutes * repeats
+
+
+print(estimate(minutes=20, 2))
+```
+
+這裡在執行前就產生 SyntaxError，沒有輸出。把調用改成 `estimate(20, 2)` 或 `estimate(minutes=20, repeats=2)` 都能表達相同輸入。不要把解析階段的失敗和上面三種運行時綁定錯誤混為一談。
+
+### 4.2 用一個星號讓選項必須寫名字
+
+有時 `make_label("Read", True)` 不夠清楚：True 指的是完成、加急，還是隱藏？在函數簽名中放一個獨立的 `*`，它後面的參數只能用關鍵字傳入。
+
+文件：`keyword_only.py`。
+
+<Code language="python">{getFunctionExample('keyword_only.py')}</Code>
+
+預期：
+
+```text
+[todo] Read
+[done] Read
+```
+
+這裡的星號是參數分隔符，不是乘法，也不是叫作 `*` 的變量。done 仍然有默認值；“必須寫名字”不等於“每次必須提供”。若某個僅限關鍵字參數沒有默認值，調用方才必須顯式提供它。
+
+文件：`errors/positional_option.py`。
+
+<Code language="python">{getFunctionExample('errors/positional_option.py')}</Code>
+
+第八行產生 TypeError，沒有 Body ran。改成 `done=True` 才滿足合同。現在只學習這一種明確選項的形式；`/`、`*args`、`**kwargs` 和調用展開另在需要時學習，不要求先背完整簽名語法。
+
+## 5. 參數綁定不自動複製：把 L02 的引用模型帶進函數
+
+調用時，形參這個局部名稱綁定到實參對象。**沒有自動深複製，也不能通過重新綁定形參，讓調用方的名稱自動改指向另一個對象。** 與其爭論“按值／按引用”兩個過於簡短的標籤，不如直接看具體對象和綁定。
+
+文件：`argument_binding.py`。
+
+<Code language="python">{getFunctionExample('argument_binding.py')}</Code>
+
+預期：
+
+```text
+Read
+Local
+False
+None
+['python', 'functions']
+```
+
+| 操作 | 改變了什麼 | 調用方會看到什麼 |
+| --- | --- | --- |
+| 剛進入 replace_local | 局部 task 與 original 指向同一個字典 | 還沒有修改 |
+| `task = {...}` | 僅把局部 task 改綁到新字典 | original 仍是原對象 |
+| `return task` | 把新字典交給調用方保存為 replacement | replacement 與 original 不同 |
+| `task["tags"].append(topic)` | 通過共享字典取得內部列表並修改它 | original 的 tags 內容改變 |
+
+add_topic 以修改傳入對象為目的，這裡返回 None 是明確的設計，而不是忘寫 return。相反，如果函數承諾返回一份可繼續計算的數據，意外返回 None 就是錯誤。不要用“所有函數都必須無副作用”或“返回 None 都是壞寫法”代替具體合同。
+
+一個函數即使使用了局部參數，也不代表與外部完全隔離。返回一個新列表也不保證其中的字典是新的；複製到哪一層，仍按 L02 的數據形狀分析。稍後創建任務時，我們會明確選擇隔離傳入的標籤列表。
+
+## 6. 默認值何時建立？為什麼第二次調用會影響第一次？
+
+### 6.1 默認表達式在執行 def 時求值
+
+文件：`default_values.py`。
+
+<Code language="python">{getFunctionExample('default_values.py')}</Code>
+
+預期：
+
+```text
+20
+0
+None
+35
+```
+
+每次**執行這條 def 語句**時，默認表達式各求值一次，並把得到的對象保留為這個函數的默認值；不是每次調用時重新讀取表達式。這裡執行 def 時 default_minutes 是 20，後面重新綁定為 35，並沒有替換函數已經保存的默認對象。
+
+省略 minutes 才使用默認值。顯式傳 0 就得到 0，顯式傳 None 就得到 None；Python 不會把 None 自動當成“沒傳參數”。最後一次調用明確讀取當前 default_minutes，所以傳入 35。
+
+不要把這個規則理解成“默認值永遠在整個進程中只計算一次”：如果以後在另一個函數里反覆執行 def，會創建不同的函數對象，各自建立默認值。當前先理解每個函數定義與其後多次調用的區別。
+
+### 6.2 默認列表會被多次調用共享
+
+文件：`pitfalls/shared_default.py`。這是可運行但有意展示風險的寫法。
+
+<Code language="python">{getFunctionExample('pitfalls/shared_default.py')}</Code>
+
+實際輸出：
+
+```text
+['python']
+['python', 'functions']
+['python', 'functions']
+True
+```
+
+`tags=[]` 在定義時創建一份列表。兩次調用都省略 tags，所以都把局部 tags 綁定到這同一份默認列表。第二次 append 修改它，first 仍指向它，因此 first 觀察到的內容也改變了。
+
+把輸出畫成時間線：第一次調用追加 python → 返回同一列表給 first → 第二次調用追加 functions → first 與 second 都指向已經有兩項的列表。問題既涉及默認值的建立時機，也涉及返回對象的共享，不能只背“不要用 []”。字典和其他可變默認對象同樣需要分析。
+
+對熟悉 JS 的讀者，這個差異值得單獨對照。下面只展示語法與執行結果，不依賴網頁運行器：
+
+<PythonEditor title="默認對象的建立時機" compare={true} canRun={false}>
+```javascript case=default_comparison
+function remember(history = []) {
+  history.push("step");
+  return history.length;
 }
-
-async function processUsers() {
-    console.log("開始處理用戶數據");
-    
-    try {
-        const user1 = await fetchUserData(1);
-        const user2 = await fetchUserData(2);
-        
-        console.log("用戶1:", user1);
-        console.log("用戶2:", user2);
-        
-        return [user1, user2];
-        
-    } catch (error) {
-        console.error("處理用戶數據失敗:", error.message);
-    }
-}
-
-// 調用異步函數
-processUsers().then(users => {
-    console.log("所有用戶:", users);
-});
+console.log(remember());
+console.log(remember());
 ```
 
-```python !! py
-import asyncio
-import random
+```python case=default_comparison
+def remember(history=[]):
+    history.append("step")
+    return len(history)
 
-# Python async/await
-async def fetch_user_data(user_id):
-    """獲取用戶數據"""
-    try:
-        print(f"開始獲取用戶 {user_id} 的數據")
-        
-        # 模擬 API 調用
-        await asyncio.sleep(1)  # 模擬網絡延遲
-        
-        if user_id > 0:
-            data = {
-                "id": user_id,
-                "name": f"用戶{user_id}",
-                "email": f"user{user_id}@example.com"
-            }
-            print("數據獲取成功")
-            return data
-        else:
-            raise ValueError("用戶不存在")
-            
-    except Exception as error:
-        print(f"獲取數據失敗: {error}")
-        raise error
 
-async def process_users():
-    """處理用戶數據"""
-    print("開始處理用戶數據")
-    
-    try:
-        # 順序執行
-        user1 = await fetch_user_data(1)
-        user2 = await fetch_user_data(2)
-        
-        print("用戶1:", user1)
-        print("用戶2:", user2)
-        
-        return [user1, user2]
-        
-    except Exception as error:
-        print(f"處理用戶數據失敗: {error}")
-
-# 運行異步函數
-async def main():
-    users = await process_users()
-    print("所有用戶:", users)
-
-# 在 Pyodide 環境中，直接調用異步函數
-asyncio.create_task(main())
-```
-</PythonEditor>
-
-### 3.2 併發執行
-
-Python 提供了多種方式來實現併發執行，類似於 JavaScript 的 Promise.all()。
-
-<PythonEditor title="併發執行對比" compare={true}>
-```javascript !! js
-// JavaScript 併發執行
-async function fetchUserData(userId) {
-    console.log(`開始獲取用戶 ${userId} 的數據`);
-    // 模擬隨機延遲
-    const delay = 500 + Math.random() * 1000;
-    await new Promise(resolve => setTimeout(resolve, delay));
-    console.log(`完成獲取用戶 ${userId} 的數據`);
-    return {
-        id: userId,
-        name: `用戶${userId}`,
-        email: `user${userId}@example.com`
-    };
-}
-
-async function processUsersConcurrently() {
-    console.log("開始併發獲取用戶數據 (Promise.all)");
-    const promises = [
-        fetchUserData(1),
-        fetchUserData(2),
-        fetchUserData(3)
-    ];
-    const users = await Promise.all(promises);
-    console.log("所有用戶數據:", users);
-    return users;
-}
-
-// 使用 Promise.race() 獲取最快的結果
-async function getFastestUser() {
-    console.log("\n開始競速獲取用戶數據 (Promise.race)");
-    const promises = [
-        fetchUserData(1),
-        fetchUserData(2),
-        fetchUserData(3)
-    ];
-    const fastestUser = await Promise.race(promises);
-    console.log("最快的用戶:", fastestUser);
-    return fastestUser;
-}
-
-// 調用函數
-processUsersConcurrently();
-getFastestUser();
-```
-
-```python !! py
-import asyncio
-import random
-
-# Python 併發執行
-async def fetch_user_data(user_id):
-    """獲取用戶數據"""
-    print(f"開始獲取用戶 {user_id} 的數據")
-    # 模擬隨機網絡延遲
-    delay = 0.5 + random.random()
-    await asyncio.sleep(delay)
-    print(f"完成獲取用戶 {user_id} 的數據")
-    return {
-        "id": user_id,
-        "name": f"用戶{user_id}",
-        "email": f"user{user_id}@example.com"
-    }
-
-async def process_users_concurrently():
-    """併發處理用戶數據 (類似 Promise.all)"""
-    print("開始併發獲取用戶數據 (asyncio.gather)")
-    tasks = [
-        fetch_user_data(1),
-        fetch_user_data(2),
-        fetch_user_data(3)
-    ]
-    users = await asyncio.gather(*tasks)
-    print("所有用戶數據:", users)
-    return users
-
-async def get_fastest_user():
-    """獲取最快的用戶數據 (類似 Promise.race)"""
-    print("\n開始競速獲取用戶數據 (asyncio.wait)")
-    tasks = [
-        asyncio.create_task(fetch_user_data(1)),
-        asyncio.create_task(fetch_user_data(2)),
-        asyncio.create_task(fetch_user_data(3))
-    ]
-    
-    # 等待第一個任務完成
-    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
-    
-    # 獲取已完成任務的結果
-    fastest_user = done.pop().result()
-    
-    # 取消其他未完成的任務
-    for task in pending:
-        task.cancel()
-        
-    print(f"最快的用戶: {fastest_user}")
-    return fastest_user
-
-# 運行併發函數
-async def main():
-    await process_users_concurrently()
-    await get_fastest_user()
-
-# 在 Pyodide 環境中，直接調用異步函數
-asyncio.create_task(main())
+print(remember())
+print(remember())
 ```
 </PythonEditor>
 
-### 3.3 異步上下文管理器
+Python 輸出：
 
-Python 的異步上下文管理器類似於 JavaScript 的 try-with-resources 模式。
-
-<PythonEditor title="異步上下文管理器" compare={true}>
-```javascript !! js
-// JavaScript 資源管理
-class AsyncResource {
-    constructor(name) {
-        this.name = name;
-        this.isOpen = false;
-    }
-    
-    async open() {
-        console.log(`打開資源: ${this.name}`);
-        this.isOpen = true;
-    }
-    
-    async close() {
-        console.log(`關閉資源: ${this.name}`);
-        this.isOpen = false;
-    }
-    
-    async use() {
-        if (!this.isOpen) {
-            throw new Error("資源未打開");
-        }
-        console.log(`使用資源: ${this.name}`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-}
-
-// 手動資源管理
-async function useResource() {
-    const resource = new AsyncResource("數據庫連接");
-    
-    try {
-        await resource.open();
-        await resource.use();
-    } finally {
-        await resource.close();
-    }
-}
-
-// 使用資源
-useResource();
+```text
+1
+2
 ```
 
-```python !! py
-import asyncio
-from contextlib import asynccontextmanager
+JS 輸出：
 
-# Python 異步上下文管理器
-class AsyncResource:
-    """異步資源類"""
-    
-    def __init__(self, name):
-        self.name = name
-        self.is_open = False
-    
-    async def __aenter__(self):
-        """進入上下文"""
-        print(f"打開資源: {self.name}")
-        self.is_open = True
-        return self
-    
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """退出上下文"""
-        print(f"關閉資源: {self.name}")
-        self.is_open = False
-    
-    async def use(self):
-        """使用資源"""
-        if not self.is_open:
-            raise RuntimeError("資源未打開")
-        print(f"使用資源: {self.name}")
-        await asyncio.sleep(1)
-
-# 使用異步上下文管理器
-async def use_resource():
-    """使用異步資源"""
-    async with AsyncResource("數據庫連接") as resource:
-        await resource.use()
-
-# 使用裝飾器創建異步上下文管理器
-@asynccontextmanager
-async def managed_resource(name):
-    """管理的資源上下文管理器"""
-    print(f"打開資源: {name}")
-    try:
-        yield name
-    finally:
-        print(f"關閉資源: {name}")
-
-async def use_managed_resource():
-    """使用管理的資源"""
-    async with managed_resource("文件連接") as resource:
-        print(f"使用資源: {resource}")
-        await asyncio.sleep(1)
-
-# 運行示例
-async def main():
-    await use_resource()
-    await use_managed_resource()
-
-# 在 Pyodide 環境中，直接調用異步函數
-asyncio.create_task(main())
-```
-</PythonEditor>
-
-
-### 3.4 常見陷阱：異步函數中的阻塞代碼
-
-在異步函數中，絕對不能調用阻塞（同步）的 I/O 操作，否則會阻塞整個事件循環，導致所有併發任務停滯。
-
-**錯誤示例**
-```python
-import time
-import requests  # 同步 HTTP 庫
-
-async def bad_async_function():
-    # ❌ 錯誤：這會阻塞整個事件循環！
-    time.sleep(5)
-    # ❌ 錯誤：這也會阻塞！
-    requests.get("https://example.com")
+```text
+1
+1
 ```
 
-**正確做法**
-```python
-import asyncio
-import httpx  # 異步 HTTP 庫
+JS 此處的默認表達式在需要默認值的調用時求值；Python 此處在定義時建立。參見 [Python 默認參數](https://docs.python.org/3.13/tutorial/controlflow.html#default-argument-values)與 [MDN 默認參數](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Default_parameters)。這不是說 JS 不可能共享對象：顯式傳入同一對象仍然會共享。
 
-async def good_async_function():
-    # ✅ 正確：非阻塞等待
-    await asyncio.sleep(5)
-    
-    # ✅ 正確：使用異步庫
-    async with httpx.AsyncClient() as client:
-        await client.get("https://example.com")
+### 6.3 用 None 表達省略，再決定是否複製輸入
+
+文件：`fresh_defaults.py`。
+
+<Code language="python">{getFunctionExample('fresh_defaults.py')}</Code>
+
+預期：
+
+```text
+['python']
+[]
+False
+['python']
+['python', 'copy']
+False
 ```
 
-### 3.5 運行異步程序
+這裡有兩個不同的設計決定：
 
-在不同的環境中，運行異步代碼的方式略有不同。
+1. tags 為 None 時，在函數體內創建空列表。這段代碼每次調用都會重新執行，因此兩個省略 tags 的任務有各自的列表。
+2. 顯式傳入標籤列表時，先淺複製。因為函數承諾返回可獨立編輯的任務，不應讓之後的任務編輯汙染調用方的標籤列表。
 
-**1. 標準 Python 腳本**
-使用 `asyncio.run()` 作為入口點。
+第一點只解決默認對象共享；不加第二點，調用方顯式傳來的列表仍會被共享。當前標籤都是不可變字符串，因此複製一層列表足夠；如果標籤裡還有可變字典，這不等於通用深複製。
 
-```python
-import asyncio
+本函數把顯式 None 和省略參數同樣解釋為“沒有標籤輸入”，這是主動選擇的政策。需要區分這兩種含義時，None 就不能同時充當兩者的標記；本章不引入自定義哨兵對象。也不使用 `if not tags` 混淆 None 與調用方明確傳來的空列表。
 
-async def main():
-    print("Hello")
-    await asyncio.sleep(1)
-    print("World")
+**暫停點 B**：分別測試省略參數、傳 None、傳 0、傳空列表和傳共享列表時的適用函數。寫明哪些調用合法、默認值何時用到、哪些對象被共享或複製；不要把不屬於某個函數合同的輸入當作它必須支持的情況。
 
-if __name__ == "__main__":
-    # 自動創建並管理事件循環
-    asyncio.run(main())
+## 7. 作用域：名稱從哪裡來，為什麼“外面明明有”仍然報錯？
+
+### 7.1 每次調用有自己的局部綁定
+
+文件：`local_scope.py`。
+
+<Code language="python">{getFunctionExample('local_scope.py')}</Code>
+
+預期：
+
+```text
+local: Read
+module
+20
+35
 ```
 
-**2. Jupyter Notebook / Pyodide (本教程環境)**
-這些環境通常已經有一個正在運行的事件循環，因此不能使用 `asyncio.run()`。
-- 直接 `await async_function()` (如果在支持頂層 await 的環境中)
-- 或者 `asyncio.create_task(async_function())` (後臺運行)
+format_label 的形參 label 是本次調用的局部名稱，遮住了文件頂層的同名 label；prefix 也是局部名稱。調用後頂層 label 仍是 module。兩次函數調用各有自己的局部綁定，不因為名稱相同就自動變成全局狀態。
 
-## 4. 異步 Web 開發
+current_limit 沒有把 limit 定義為局部名稱，因此讀取本文件頂層的 limit。兩次調用之間，頂層把它從 20 改綁成 35，下一次調用就讀到 35。這與上一節**已經求值保存的默認值**不同：這裡在函數體運行時查找名稱。
+
+對本章的普通函數，可以先用下面的查找路線建立模型：
+
+| 層次 | 在哪裡找 | 本章例子 |
+| --- | --- | --- |
+| Local | 當前函數調用的局部綁定，包括形參 | label、prefix |
+| Enclosing | 外層函數的綁定，若函數嵌套定義 | 後面閉包中的預算 |
+| Global | 本文件頂層的名稱，以後會稱模塊級名稱 | limit |
+| Built-in | Python 提供的內置名稱 | len、print |
+
+這常被縮寫為 LEGB，但背縮寫不是驗收。它不是“局部沒值就永遠自動去外層找”的無條件兜底規則；下一小節會驗證例外。這個簡圖也不試圖提前覆蓋類體、註解等後續機制。
+
+局部名稱不會因為調用結束就變成頂層變量。下面是獨立的預期失敗實驗：
+
+```python case=local_unavailable
+def make_label(title):
+    prefix = "Task"
+    return f"{prefix}: {title}"
 
 
-### 4.1 FastAPI 基礎
-
-FastAPI 是 Python 的現代異步 Web 框架，類似於 JavaScript 的 Express.js。
-
-<PythonEditor title="FastAPI vs Express.js 對比" compare={true}>
-```javascript !! js
-// Express.js 服務器
-const express = require('express');
-const app = express();
-const port = 3000;
-
-// 中間件
-app.use(express.json());
-
-// 路由
-app.get('/', (req, res) => {
-    res.json({ message: 'Hello World!' });
-});
-
-app.get('/users/:id', async (req, res) => {
-    try {
-        const userId = parseInt(req.params.id);
-        const user = await fetchUserData(userId);
-        res.json(user);
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
-
-app.post('/users', async (req, res) => {
-    try {
-        const userData = req.body;
-        const newUser = await createUser(userData);
-        res.status(201).json(newUser);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
-
-// 啟動服務器
-app.listen(port, () => {
-    console.log(`服務器運行在 http://localhost:${port}`);
-});
-
-// 模擬異步函數
-async function fetchUserData(userId) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return { id: userId, name: `用戶${userId}` };
-}
-
-async function createUser(userData) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return { id: Date.now(), ...userData };
-}
+print(make_label("Read"))
+print(prefix)
 ```
 
-```python !! py
-# FastAPI 服務器
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import Optional
-import uvicorn
+失敗前輸出：
 
-app = FastAPI(title="用戶 API", version="1.0.0")
-
-# 數據模型
-class User(BaseModel):
-    name: str
-    email: str
-    age: Optional[int] = None
-
-class UserResponse(BaseModel):
-    id: int
-    name: str
-    email: str
-    age: Optional[int] = None
-
-# 路由
-@app.get("/")
-async def root():
-    """根路徑"""
-    return {"message": "Hello World!"}
-
-@app.get("/users/{user_id}", response_model=UserResponse)
-async def get_user(user_id: int):
-    """獲取用戶"""
-    try:
-        user = await fetch_user_data(user_id)
-        return user
-    except ValueError as error:
-        raise HTTPException(status_code=404, detail=str(error))
-
-@app.post("/users", response_model=UserResponse, status_code=201)
-async def create_user(user: User):
-    """創建用戶"""
-    try:
-        new_user = await create_user_data(user)
-        return new_user
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error))
-
-# 模擬異步函數
-async def fetch_user_data(user_id: int) -> UserResponse:
-    """獲取用戶數據"""
-    await asyncio.sleep(0.1)  # 模擬數據庫查詢
-    if user_id <= 0:
-        raise ValueError("用戶不存在")
-    return UserResponse(
-        id=user_id,
-        name=f"用戶{user_id}",
-        email=f"user{user_id}@example.com",
-        age=25
-    )
-
-async def create_user_data(user: User) -> UserResponse:
-    """創建用戶數據"""
-    await asyncio.sleep(0.1)  # 模擬數據庫插入
-    return UserResponse(
-        id=1,  # 實際應用中應該是數據庫生成的 ID
-        name=user.name,
-        email=user.email,
-        age=user.age
-    )
-
-# 啟動服務器
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-```
-</PythonEditor>
-
-### 4.2 異步數據庫操作
-
-<PythonEditor title="異步數據庫操作" compare={true}>
-```javascript !! js
-// JavaScript 異步數據庫操作
-const { Pool } = require('pg');
-
-class DatabaseService {
-    constructor() {
-        this.pool = new Pool({
-            host: 'localhost',
-            database: 'testdb',
-            user: 'username',
-            password: 'password',
-            port: 5432,
-        });
-    }
-    
-    async getUsers() {
-        const client = await this.pool.connect();
-        try {
-            const result = await client.query('SELECT * FROM users');
-            return result.rows;
-        } finally {
-            client.release();
-        }
-    }
-    
-    async getUserById(id) {
-        const client = await this.pool.connect();
-        try {
-            const result = await client.query(
-                'SELECT * FROM users WHERE id = $1',
-                [id]
-            );
-            return result.rows[0];
-        } finally {
-            client.release();
-        }
-    }
-    
-    async createUser(userData) {
-        const client = await this.pool.connect();
-        try {
-            const result = await client.query(
-                'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
-                [userData.name, userData.email]
-            );
-            return result.rows[0];
-        } finally {
-            client.release();
-        }
-    }
-}
-
-// 使用數據庫服務
-const dbService = new DatabaseService();
-
-async function handleGetUsers(req, res) {
-    try {
-        const users = await dbService.getUsers();
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
+```text
+Task: Read
 ```
 
-```python !! py
-# Python 異步數據庫操作
-import asyncpg
-from typing import List, Optional
-from pydantic import BaseModel
+第七行 NameError：返回的是格式化後的字符串，不是把 prefix 這個名稱導出給調用方。對象可以通過 return 繼續被使用，不表示原來的所有局部名稱都對外可見。
 
-class User(BaseModel):
-    id: Optional[int] = None
-    name: str
-    email: str
+### 7.2 局部賦值會影響整個函數體中該名稱的含義
 
-class DatabaseService:
-    """數據庫服務類"""
-    
-    def __init__(self):
-        self.pool = None
-    
-    async def connect(self):
-        """連接數據庫"""
-        self.pool = await asyncpg.create_pool(
-            host='localhost',
-            database='testdb',
-            user='username',
-            password='password',
-            port=5432
-        )
-    
-    async def close(self):
-        """關閉數據庫連接"""
-        if self.pool:
-            await self.pool.close()
-    
-    async def get_users(self) -> List[User]:
-        """獲取所有用戶"""
-        async with self.pool.acquire() as conn:
-            rows = await conn.fetch('SELECT * FROM users')
-            return [User(**dict(row)) for row in rows]
-    
-    async def get_user_by_id(self, user_id: int) -> Optional[User]:
-        """根據 ID 獲取用戶"""
-        async with self.pool.acquire() as conn:
-            row = await conn.fetchrow(
-                'SELECT * FROM users WHERE id = $1',
-                user_id
-            )
-            return User(**dict(row)) if row else None
-    
-    async def create_user(self, user: User) -> User:
-        """創建用戶"""
-        async with self.pool.acquire() as conn:
-            row = await conn.fetchrow(
-                'INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *',
-                user.name, user.email
-            )
-            return User(**dict(row))
+文件：`errors/local_before_binding.py`。
 
-# 使用數據庫服務
-db_service = DatabaseService()
+<Code language="python">{getFunctionExample('errors/local_before_binding.py')}</Code>
 
-async def handle_get_users():
-    """處理獲取用戶請求"""
-    try:
-        users = await db_service.get_users()
-        return users
-    except Exception as error:
-        raise HTTPException(status_code=500, detail=str(error))
+調用進入函數後，第五行產生 `UnboundLocalError`，沒有輸出。它是 NameError 的一種更具體情況：Python 已經把 budget 判定為此函數的局部名稱，卻在給它綁定值之前先讀了它。
 
-# 在 FastAPI 中使用
-@app.get("/users", response_model=List[User])
-async def get_users():
-    """獲取所有用戶"""
-    return await handle_get_users()
+原因在賦值左側：函數體中對 budget 的名稱賦值使它成為局部名稱。執行右邊的 `budget + 5` 時，不能再用文件頂層的 20 作為兜底。不是頂層變量突然消失，也不是整數不能相加。
 
-@app.get("/users/{user_id}", response_model=User)
-async def get_user(user_id: int):
-    """獲取指定用戶"""
-    user = await db_service.get_user_by_id(user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="用戶不存在")
-    return user
+當前更清楚的修復方式是把依賴作為參數，把結果返回：
 
-@app.post("/users", response_model=User, status_code=201)
-async def create_user(user: User):
-    """創建用戶"""
-    return await db_service.create_user(user)
-```
-</PythonEditor>
+```python case=scope_repair
+def increased_budget(budget, extra=5):
+    return budget + extra
 
-## 5. 異步迭代和生成器
 
-### 5.1 異步迭代器
-
-<PythonEditor title="異步迭代器對比" compare={true}>
-```javascript !! js
-// JavaScript 異步迭代器
-class AsyncDataStream {
-    constructor(data) {
-        this.data = data;
-        this.index = 0;
-    }
-    
-    async *[Symbol.asyncIterator]() {
-        for (const item of this.data) {
-            // 模擬異步處理
-            await new Promise(resolve => setTimeout(resolve, 100));
-            yield item;
-        }
-    }
-}
-
-// 使用異步迭代器
-async function processDataStream() {
-    const stream = new AsyncDataStream([1, 2, 3, 4, 5]);
-    
-    for await (const item of stream) {
-        console.log(`處理數據: ${item}`);
-    }
-}
-
-// 異步生成器函數
-async function* asyncGenerator() {
-    for (let i = 0; i < 5; i++) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        yield i;
-    }
-}
-
-async function useAsyncGenerator() {
-    for await (const value of asyncGenerator()) {
-        console.log(`生成的值: ${value}`);
-    }
-}
-
-// 調用函數
-processDataStream();
-useAsyncGenerator();
+budget = 20
+new_budget = increased_budget(budget)
+print(budget)
+print(new_budget)
 ```
 
-```python !! py
-import asyncio
+預期：
 
-# Python 異步迭代器
-class AsyncDataStream:
-    """異步數據流"""
-    
-    def __init__(self, data):
-        self.data = data
-        self.index = 0
-    
-    def __aiter__(self):
-        return self
-    
-    async def __anext__(self):
-        if self.index >= len(self.data):
-            raise StopAsyncIteration
-        
-        # 模擬異步處理
-        await asyncio.sleep(0.1)
-        item = self.data[self.index]
-        self.index += 1
-        return item
-
-# 使用異步迭代器
-async def process_data_stream():
-    """處理異步數據流"""
-    stream = AsyncDataStream([1, 2, 3, 4, 5])
-    
-    async for item in stream:
-        print(f"處理數據: {item}")
-
-# 異步生成器函數
-async def async_generator():
-    """異步生成器"""
-    for i in range(5):
-        await asyncio.sleep(0.1)
-        yield i
-
-async def use_async_generator():
-    """使用異步生成器"""
-    async for value in async_generator():
-        print(f"生成的值: {value}")
-
-# 運行示例
-async def main():
-    await process_data_stream()
-    await use_async_generator()
-
-# 在 Pyodide 環境中，直接調用異步函數
-asyncio.create_task(main())
-```
-</PythonEditor>
-
-### 5.2 異步上下文管理器與迭代器結合
-
-<PythonEditor title="異步上下文管理器與迭代器" compare={true}>
-```javascript !! js
-// JavaScript 異步資源迭代器
-class AsyncFileReader {
-    constructor(filename) {
-        this.filename = filename;
-        this.fileHandle = null;
-    }
-    
-    async open() {
-        this.fileHandle = await open(this.filename, 'r');
-    }
-    
-    async close() {
-        if (this.fileHandle) {
-            await this.fileHandle.close();
-        }
-    }
-    
-    async *readLines() {
-        if (!this.fileHandle) {
-            throw new Error('文件未打開');
-        }
-        
-        for await (const line of this.fileHandle.readLines()) {
-            yield line.trim();
-        }
-    }
-}
-
-// 使用異步文件讀取器
-async function processFile(filename) {
-    const reader = new AsyncFileReader(filename);
-    
-    try {
-        await reader.open();
-        
-        for await (const line of reader.readLines()) {
-            if (line) {
-                console.log(`處理行: ${line}`);
-            }
-        }
-    } finally {
-        await reader.close();
-    }
-}
+```text
+20
+25
 ```
 
-```python !! py
-import asyncio
-import aiofiles
+調用方明確決定是否再把 new_budget 綁定給 budget。Python 也提供 global/nonlocal 來聲明對其他層級綁定的操作，但本章不把修改共享外層狀態當作修復的默認方案，也不要求掌握有狀態閉包。先能通過參數與返回解釋數據流。
 
-# Python 異步文件讀取器
-class AsyncFileReader:
-    """異步文件讀取器"""
-    
-    def __init__(self, filename):
-        self.filename = filename
-        self.file = None
-    
-    async def __aenter__(self):
-        """進入上下文"""
-        self.file = await aiofiles.open(self.filename, mode='r')
-        return self
-    
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """退出上下文"""
-        if self.file:
-            await self.file.close()
-    
-    async def read_lines(self):
-        """讀取文件行"""
-        async for line in self.file:
-            yield line.strip()
+還記得 L03 嗎？if/for 沒有 JS let 式塊級作用域；def 建立函數局部範圍。不要用“所有縮進都產生新作用域”來替換這兩個不同規則。
 
-# 使用異步文件讀取器
-async def process_file(filename):
-    """處理文件"""
-    async with AsyncFileReader(filename) as reader:
-        async for line in reader.read_lines():
-            if line:
-                print(f"處理行: {line}")
+## 8. 函數也是值：傳規則，不一定要立刻執行規則
 
-# 創建示例文件
-async def create_sample_file():
-    """創建示例文件"""
-    async with aiofiles.open('sample.txt', mode='w') as f:
-        await f.write("第一行\n")
-        await f.write("第二行\n")
-        await f.write("第三行\n")
+你在前端熟悉傳遞迴調。Python 同樣可以讓名稱指向函數，並把函數作為實參。關鍵仍然是有沒有調用括號：`is_pending` 是函數對象，`is_pending(task)` 是這次調用的結果。
 
-# 運行示例
-async def main():
-    await create_sample_file()
-    await process_file('sample.txt')
+文件：`function_values.py`。
 
-# 在 Pyodide 環境中，直接調用異步函數
-asyncio.create_task(main())
-```
-</PythonEditor>
+<Code language="python">{getFunctionExample('function_values.py')}</Code>
 
-## 6. 實際項目示例
+預期：
 
-### 6.1 異步 Web 爬蟲
-
-<PythonEditor title="異步 Web 爬蟲示例" compare={true}>
-```javascript !! js
-// JavaScript 異步爬蟲
-const axios = require('axios');
-const cheerio = require('cheerio');
-
-class AsyncWebCrawler {
-    constructor() {
-        this.visited = new Set();
-        this.results = [];
-    }
-    
-    async crawlPage(url) {
-        if (this.visited.has(url)) {
-            return;
-        }
-        
-        this.visited.add(url);
-        console.log(`爬取頁面: ${url}`);
-        
-        try {
-            const response = await axios.get(url);
-            const $ = cheerio.load(response.data);
-            
-            // 提取標題
-            const title = $('title').text();
-            const links = $('a').map((i, el) => $(el).attr('href')).get();
-            
-            this.results.push({
-                url,
-                title,
-                links: links.slice(0, 5) // 限制鏈接數量
-            });
-            
-            console.log(`頁面標題: ${title}`);
-            
-        } catch (error) {
-            console.error(`爬取失敗: ${url}`, error.message);
-        }
-    }
-    
-    async crawlMultiplePages(urls) {
-        const promises = urls.map(url => this.crawlPage(url));
-        await Promise.all(promises);
-        
-        return this.results;
-    }
-}
-
-// 使用爬蟲
-async function main() {
-    const crawler = new AsyncWebCrawler();
-    const urls = [
-        'https://example.com',
-        'https://httpbin.org/get',
-        'https://jsonplaceholder.typicode.com/posts/1'
-    ];
-    
-    const results = await crawler.crawlMultiplePages(urls);
-    console.log('爬取結果:', results);
-}
-
-// main();
+```text
+True
+True
+['Practice']
+False
 ```
 
-```python !! py
-import asyncio
-import aiohttp
-from bs4 import BeautifulSoup
-from typing import List, Dict, Set
-import time
+這裡的職責可以分開看：
 
-class AsyncWebCrawler:
-    """異步 Web 爬蟲"""
-    
-    def __init__(self):
-        self.visited: Set[str] = set()
-        self.results: List[Dict] = []
-    
-    async def crawl_page(self, session: aiohttp.ClientSession, url: str):
-        """爬取單個頁面"""
-        if url in self.visited:
-            return
-        
-        self.visited.add(url)
-        print(f"爬取頁面: {url}")
-        
-        try:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    html = await response.text()
-                    soup = BeautifulSoup(html, 'html.parser')
-                    
-                    # 提取標題
-                    title = soup.title.string if soup.title else "無標題"
-                    links = [a.get('href') for a in soup.find_all('a', href=True)]
-                    
-                    self.results.append({
-                        'url': url,
-                        'title': title,
-                        'links': links[:5]  # 限制鏈接數量
-                    })
-                    
-                    print(f"頁面標題: {title}")
-                else:
-                    print(f"HTTP 錯誤: {response.status}")
-                    
-        except Exception as error:
-            print(f"爬取失敗: {url} - {error}")
-    
-    async def crawl_multiple_pages(self, urls: List[str]):
-        """併發爬取多個頁面"""
-        async with aiohttp.ClientSession() as session:
-            tasks = [
-                self.crawl_page(session, url) 
-                for url in urls
-            ]
-            await asyncio.gather(*tasks)
-        
-        return self.results
+- is_pending 只回答一項任務是否未完成，返回 bool。
+- select_tasks 管理遍歷，每輪通過 `rule(task)` 詢問傳入的函數，把匹配的任務收集到一個新列表。
+- `rule = is_pending` 只是給同一函數對象另起一個名稱，沒有執行它，所以身份比較為 True。
+- 調用 `select_tasks(tasks, rule)` 時傳入的是規則本身；真正執行規則的位置在 select_tasks 的循環內。
 
-# 使用爬蟲
-async def main():
-    crawler = AsyncWebCrawler()
-    urls = [
-        'https://httpbin.org/get',
-        'https://jsonplaceholder.typicode.com/posts/1',
-        'https://api.github.com/users/octocat'
-    ]
-    
-    start_time = time.time()
-    results = await crawler.crawl_multiple_pages(urls)
-    end_time = time.time()
-    
-    print(f"爬取完成，耗時: {end_time - start_time:.2f} 秒")
-    print("爬取結果:", results)
+合同要求 rule 接收一項任務並返回 bool。雖然 if 也會對其他對象做真值判斷，但意外返回 None 或字符串不滿足這裡約定的謂詞含義，可能造成靜默錯誤。新結果列表與 tasks 不同，其中的任務字典仍共享；選擇操作不等於複製任務。
 
-# 運行爬蟲
-# 在 Pyodide 環境中，直接調用異步函數
-asyncio.create_task(main())
-```
-</PythonEditor>
+文件：`errors/not_callable.py`。
 
-### 6.2 異步任務隊列
+<Code language="python">{getFunctionExample('errors/not_callable.py')}</Code>
 
-<PythonEditor title="異步任務隊列示例" compare={true}>
-```javascript !! js
-// JavaScript 異步任務隊列
-class AsyncTaskQueue {
-    constructor(concurrency = 3) {
-        this.concurrency = concurrency;
-        this.running = 0;
-        this.queue = [];
-    }
-    
-    async add(task) {
-        return new Promise((resolve, reject) => {
-            this.queue.push({
-                task,
-                resolve,
-                reject
-            });
-            this.process();
-        });
-    }
-    
-    async process() {
-        if (this.running >= this.concurrency || this.queue.length === 0) {
-            return;
-        }
-        
-        this.running++;
-        const { task, resolve, reject } = this.queue.shift();
-        
-        try {
-            const result = await task();
-            resolve(result);
-        } catch (error) {
-            reject(error);
-        } finally {
-            this.running--;
-            this.process();
-        }
-    }
-    
-    async waitForAll() {
-        while (this.queue.length > 0 || this.running > 0) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-        }
-    }
-}
+第七行 TypeError：這裡 rule 已被綁定為一次判斷得到的 True，而 bool 不是可調用函數。不要只看名稱叫 rule 就以為它保存的是規則。修復為 `rule = is_pending`，再讓 `rule(task)` 執行判斷，預期打印 True。
 
-// 使用任務隊列
-async function processTask(id) {
-    console.log(`開始處理任務 ${id}`);
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-    console.log(`完成處理任務 ${id}`);
-    return `任務 ${id} 的結果`;
-}
+從空列表選擇應得到空列表，且一次也不調用規則。通過輸入決定調用次數，比“回調總是會執行”更準確。本章不要求 lambda、map/filter 或複雜函數組合；普通 def 足以表達這層機制。
 
-async function main() {
-    const queue = new AsyncTaskQueue(2);
-    
-    // 添加任務
-    const promises = [];
-    for (let i = 1; i <= 5; i++) {
-        promises.push(queue.add(() => processTask(i)));
-    }
-    
-    // 等待所有任務完成
-    await queue.waitForAll();
-    const results = await Promise.all(promises);
-    
-    console.log('所有任務完成:', results);
-}
+## 9. 簡單閉包：讓返回的規則記住一次配置
 
-// main();
+### 9.1 先區分兩次調用做了什麼
+
+我們想得到一個 20 分鐘規則和一個 40 分鐘規則，而不是每次判斷都再傳預算。可以讓一個函數接收配置，返回另一個函數。
+
+文件：`closure_factory.py`。
+
+<Code language="python">{getFunctionExample('closure_factory.py')}</Code>
+
+預期：
+
+```text
+False
+True
+True
+False
 ```
 
-```python !! py
-import asyncio
-import random
-from typing import List, Callable, Any
-from dataclasses import dataclass
+按生命週期拆開理解：
 
-@dataclass
-class Task:
-    """任務類"""
-    func: Callable
-    args: tuple = ()
-    kwargs: dict = None
-    future: asyncio.Future = None
-    
-    def __post_init__(self):
-        if self.kwargs is None:
-            self.kwargs = {}
-        if self.future is None:
-            self.future = asyncio.Future()
+1. 調用 `make_budget_rule(20)`，為這次外層調用建立 limit 的局部綁定。
+2. 執行內部 def，創建 fits 函數；它會用到外層的 limit，但此時不執行 fits 的函數體。
+3. `return fits` 把函數對象交給調用方。不是 `return fits(...)`，所以此處沒有提前判斷某個分鐘數。
+4. 外層調用已經結束；之後 `small_rule(25)` 才執行返回的函數，並讀取它所關聯的外層 limit。
+5. 第二次工廠調用另建一套綁定，產生另一個函數對象，所以 20 與 40 的規則能同時存在，彼此不串臺。
 
-class AsyncTaskQueue:
-    """異步任務隊列"""
-    
-    def __init__(self, concurrency: int = 3):
-        self.concurrency = concurrency
-        self.running = 0
-        self.queue: List[Task] = []
-        self.semaphore = asyncio.Semaphore(concurrency)
-    
-    async def add(self, func: Callable, *args, **kwargs) -> asyncio.Future:
-        """添加任務到隊列"""
-        task = Task(func, args, kwargs)
-        self.queue.append(task)
-        asyncio.create_task(self._process_queue())
-        return task.future
-    
-    async def _process_queue(self):
-        """處理隊列中的任務"""
-        if not self.queue or self.running >= self.concurrency:
-            return
-        
-        self.running += 1
-        task = self.queue.pop(0)
-        
-        try:
-            async with self.semaphore:
-                result = await task.func(*task.args, **task.kwargs)
-                task.future.set_result(result)
-        except Exception as error:
-            task.future.set_exception(error)
-        finally:
-            self.running -= 1
-            if self.queue:
-                asyncio.create_task(self._process_queue())
-    
-    async def wait_for_all(self):
-        """等待所有任務完成"""
-        while self.queue or self.running > 0:
-            await asyncio.sleep(0.1)
+這種函數連同它使用的外層函數綁定，形成這裡所說的**閉包**。不必把外層整個運行過程想成一直在後臺執行，也不是把所有局部名稱導出到全局；需要的綁定仍可被返回函數訪問。
 
-# 使用任務隊列
-async def process_task(task_id: int) -> str:
-    """處理任務"""
-    print(f"開始處理任務 {task_id}")
-    await asyncio.sleep(1 + random.random() * 2)
-    print(f"完成處理任務 {task_id}")
-    return f"任務 {task_id} 的結果"
+工廠、內部函數、閉包不是三個額外框架 API：這裡仍只有 def、調用、返回與名稱查找。完整機制來自之前各節的組合。
 
-async def main():
-    queue = AsyncTaskQueue(2)
-    
-    # 添加任務
-    futures = []
-    for i in range(1, 6):
-        future = await queue.add(process_task, i)
-        futures.append(future)
-    
-    # 等待所有任務完成
-    await queue.wait_for_all()
-    results = await asyncio.gather(*futures)
-    
-    print("所有任務完成:", results)
+### 9.2 閉包不是定義那一刻的值快照
 
-asyncio.create_task(main())
-```
-</PythonEditor>
+文件：`closure_binding.py`。
 
-## 7. 練習題
+<Code language="python">{getFunctionExample('closure_binding.py')}</Code>
 
-### 練習 1：異步數據處理
+預期：
 
-<PythonEditor title="練習題 1：異步數據處理" compare={true}>
-```javascript !! js
-// 異步數據處理練習
-async function processData(data) {
-    // 模擬數據處理
-    await new Promise(resolve => setTimeout(resolve, 100));
-    return data.map(item => item * 2);
-}
-
-async function filterData(data) {
-    // 模擬數據過濾
-    await new Promise(resolve => setTimeout(resolve, 50));
-    return data.filter(item => item > 10);
-}
-
-async function aggregateData(data) {
-    // 模擬數據聚合
-    await new Promise(resolve => setTimeout(resolve, 75));
-    return data.reduce((sum, item) => sum + item, 0);
-}
-
-async function processDataPipeline() {
-    const rawData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    
-    console.log("原始數據:", rawData);
-    
-    // 順序處理
-    const processed = await processData(rawData);
-    console.log("處理後數據:", processed);
-    
-    const filtered = await filterData(processed);
-    console.log("過濾後數據:", filtered);
-    
-    const result = await aggregateData(filtered);
-    console.log("最終結果:", result);
-    
-    return result;
-}
-
-// 併發處理版本
-async function processDataConcurrently() {
-    const rawData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    
-    console.log("原始數據:", rawData);
-    
-    // 併發處理
-    const [processed, filtered, aggregated] = await Promise.all([
-        processData(rawData),
-        filterData(rawData),
-        aggregateData(rawData)
-    ]);
-    
-    console.log("併發處理結果:", { processed, filtered, aggregated });
-    return { processed, filtered, aggregated };
-}
-
-// 運行練習
-processDataPipeline();
-processDataConcurrently();
+```text
+True
 ```
 
-```python !! py
-import asyncio
-from typing import List
+fits 創建時 limit 是 10，但同一次外層調用在返回前把 limit 改綁為 30。之後執行 rule 時讀取這個外層綁定，所以 20 能通過。不要把閉包查找與默認表達式在定義時求值混為一談。
 
-# 異步數據處理練習
-async def process_data(data: List[int]) -> List[int]:
-    """處理數據"""
-    await asyncio.sleep(0.1)  # 模擬處理時間
-    return [item * 2 for item in data]
+上個工廠裡沒有再次改綁自己的 limit，因此每個規則保持各自的預算；如果調用方後來把它自己的預算變量重新綁定為別的整數，不會自動改寫工廠這次調用已經建立的參數綁定。若捕獲可變對象，則仍要分析共享修改，閉包並不自動深複製。
 
-async def filter_data(data: List[int]) -> List[int]:
-    """過濾數據"""
-    await asyncio.sleep(0.05)  # 模擬過濾時間
-    return [item for item in data if item > 10]
+現在不要求在循環裡批量嵌套定義函數，也不要求用 nonlocal 實現計數器；不能照搬 JS let 的逐輪綁定假設。先能獨立寫一個返回判斷函數的工廠，並解釋“創建規則”與“應用規則”的兩個調用時刻。
 
-async def aggregate_data(data: List[int]) -> int:
-    """聚合數據"""
-    await asyncio.sleep(0.075)  # 模擬聚合時間
-    return sum(data)
+**暫停點 C**：給兩個規則各試一次邊界內、邊界上與邊界外的值；說明它們為什麼不互相覆蓋。再運行重綁定實驗，分清局部綁定、默認對象和閉包查找三種不同關係。
 
-async def process_data_pipeline():
-    """數據處理管道（順序處理）"""
-    raw_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    
-    print("原始數據:", raw_data)
-    
-    # 順序處理
-    processed = await process_data(raw_data)
-    print("處理後數據:", processed)
-    
-    filtered = await filter_data(processed)
-    print("過濾後數據:", filtered)
-    
-    result = await aggregate_data(filtered)
-    print("最終結果:", result)
-    
-    return result
+## 10. 抽函數之前，先寫清合同
 
-async def process_data_concurrently():
-    """併發數據處理"""
-    raw_data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    
-    print("原始數據:", raw_data)
-    
-    # 併發處理
-    processed, filtered, aggregated = await asyncio.gather(
-        process_data(raw_data),
-        filter_data(raw_data),
-        aggregate_data(raw_data)
-    )
-    
-    print("併發處理結果:", {
-        "processed": processed,
-        "filtered": filtered,
-        "aggregated": aggregated
-    })
-    
-    return {
-        "processed": processed,
-        "filtered": filtered,
-        "aggregated": aggregated
-    }
+不是每幾行都值得包一個函數，也不是每個函數都要接收整個系統的數據。先回答四個問題，再選擇函數邊界：
 
-# 運行練習
-async def main():
-    print("=== 順序處理 ===")
-    await process_data_pipeline()
-    
-    print("\n=== 併發處理 ===")
-    await process_data_concurrently()
+| 問題 | 分類規則的示例答案 |
+| --- | --- |
+| 輸入是什麼？ | 一個 None 或整數時長；bool 和字符串不在合同內 |
+| 返回什麼？ | unknown、invalid、known 三個字符串之一 |
+| 修改誰或打印什麼？ | 不修改調用方對象，也不打印 |
+| 未覆蓋什麼？ | 不負責解析外部文本、捕獲異常或保存數據 |
 
-asyncio.create_task(main())
-```
-</PythonEditor>
+把分類函數與彙總函數分開，是因為前者決定一項數據的含義，後者負責遍歷和累計。顯示結果則交給調用方。以後同一份返回數據可以被其他代碼使用，不必先從打印文字裡再解析出來。
 
-### 練習 2：異步 API 客戶端
+下一份文件使用**文檔字符串**：函數體第一條語句是三引號字符串，簡要寫下用途和合同。它不是運行時校驗，也不是 return；函數繼續執行後面的語句。三引號可以容納多行文本，這裡只寫短說明。我們不要求現在使用文檔生成器或學習類型註解。
 
-<PythonEditor title="練習題 2：異步 API 客戶端" compare={true}>
-```javascript !! js
-// 異步 API 客戶端練習
-class AsyncAPIClient {
-    constructor(baseURL) {
-        this.baseURL = baseURL;
-    }
-    
-    async get(endpoint) {
-        const response = await fetch(`${this.baseURL}${endpoint}`);
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-    }
-    
-    async post(endpoint, data) {
-        const response = await fetch(`${this.baseURL}${endpoint}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        });
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-    }
-    
-    async batchGet(endpoints) {
-        const promises = endpoints.map(endpoint => this.get(endpoint));
-        return Promise.all(promises);
-    }
-}
+這樣的分工提高可驗證性，但不是“所有函數都必須純函數”的教條；例如前面的 add_topic 明確負責修改。重要的是調用方能看見合同、預測副作用，而不是被隱藏狀態影響。
 
-// 使用 API 客戶端
-async function testAPIClient() {
-    const client = new AsyncAPIClient('https://jsonplaceholder.typicode.com');
-    
-    try {
-        // 單個請求
-        const user = await client.get('/users/1');
-        console.log('用戶信息:', user);
-        
-        // 批量請求
-        const [posts, comments, albums] = await client.batchGet([
-            '/posts/1',
-            '/comments/1',
-            '/albums/1'
-        ]);
-        
-        console.log('批量請求結果:', { posts, comments, albums });
-        
-        // POST 請求
-        const newPost = await client.post('/posts', {
-            title: '測試文章',
-            body: '這是測試內容',
-            userId: 1
-        });
-        
-        console.log('新文章:', newPost);
-        
-    } catch (error) {
-        console.error('API 請求失敗:', error.message);
-    }
-}
+## 11. 把 L03 的任務彙總拆成兩個函數
 
-// testAPIClient();
+輸入邊界沿用上章：tasks 為字典列表；每項有字符串 title 與 bool done；minutes 缺失或為 None 表示未知，其他只接受整數；budget 為非負整數。已完成項先排除；預算按每項獨立比較。
+
+文件：`task_rules.py`。
+
+<Code language="python">{getFunctionExample('task_rules.py')}</Code>
+
+預期：
+
+```text
+Pending: 4
+Known: 20 minutes
+Unknown: 1; invalid: 1
+['Read', 'Zero']
+0
+[]
+['Read', 'Zero']
 ```
 
-```python !! py
-import aiohttp
-import asyncio
-from typing import List, Dict, Any
+這次重構沒有偷偷增加框架或更多輸入格式，變化在職責和調用關係：
 
-class AsyncAPIClient:
-    """異步 API 客戶端"""
-    
-    def __init__(self, base_url: str):
-        self.base_url = base_url
-    
-    async def get(self, endpoint: str) -> Dict[str, Any]:
-        """GET 請求"""
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f"{self.base_url}{endpoint}") as response:
-                if response.status != 200:
-                    raise aiohttp.ClientError(
-                        f"HTTP {response.status}: {response.reason}"
-                    )
-                return await response.json()
-    
-    async def post(self, endpoint: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """POST 請求"""
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{self.base_url}{endpoint}",
-                json=data
-            ) as response:
-                if response.status != 201:
-                    raise aiohttp.ClientError(
-                        f"HTTP {response.status}: {response.reason}"
-                    )
-                return await response.json()
-    
-    async def batch_get(self, endpoints: List[str]) -> List[Dict[str, Any]]:
-        """批量 GET 請求"""
-        async with aiohttp.ClientSession() as session:
-            tasks = [
-                self._get_with_session(session, endpoint)
-                for endpoint in endpoints
-            ]
-            return await asyncio.gather(*tasks)
-    
-    async def _get_with_session(self, session: aiohttp.ClientSession, endpoint: str):
-        """使用現有會話的 GET 請求"""
-        async with session.get(f"{self.base_url}{endpoint}") as response:
-            if response.status != 200:
-                raise aiohttp.ClientError(
-                    f"HTTP {response.status}: {response.reason}"
-                )
-            return await response.json()
+- build_report 每次進入函數體時新建 report 和內部 ready_titles；不是把它們放成默認參數或放在函數外共享。
+- 每項待辦調用 classify_minutes，拿到分類字符串再決定哪個計數器變化；0 屬於 known，不被真假判斷排除。
+- `return report` 位於循環之後，不在循環內部。否則只處理第一項就返回，空列表時還可能意外返回 None。
+- 兩個函數都不打印；打印發生在拿到返回值之後。沒有打印不代表函數沒運行，也不代表沒有結果。
+- 第二次用空列表調用得到自己的空報告，第一次返回的標題列表仍然保留。這是重複調用隔離的證據，不只是“程序沒拋異常”。
 
-# 使用 API 客戶端
-async def test_api_client():
-    """測試 API 客戶端"""
-    client = AsyncAPIClient('https://jsonplaceholder.typicode.com')
-    
-    try:
-        # 單個請求
-        user = await client.get('/users/1')
-        print('用戶信息:', user)
-        
-        # 批量請求
-        posts, comments, albums = await client.batch_get([
-            '/posts/1',
-            '/comments/1',
-            '/albums/1'
-        ])
-        
-        print('批量請求結果:', {
-            'posts': posts,
-            'comments': comments,
-            'albums': albums
-        })
-        
-        # POST 請求
-        new_post = await client.post('/posts', {
-            'title': '測試文章',
-            'body': '這是測試內容',
-            'userId': 1
-        })
-        
-        print('新文章:', new_post)
-        
-    except Exception as error:
-        print('API 請求失敗:', error)
+練習時先單獨調用 `classify_minutes(None)`、`classify_minutes(-1)`、`classify_minutes(0)`，檢查三個結果；再改變 build_report 的輸入與預算。不要每次都從整個文件的最後一行開始猜錯在哪裡。
 
-    # 運行測試
-    # 在 Pyodide 環境中，直接調用異步函數
-asyncio.create_task(main())
+驗證三種變式：全部已完成時 pending 為 0；budget 改為 0 時僅保留 Zero，但已知待辦總時長仍為 20；追加 60 分鐘待辦時已知總時長變為 80，候選不變。還應能解釋為什麼修改第一份報告的 ready_titles 不應汙染第二份報告。
+
+這種函數拆分只是本地計算的組織方式，不意味著它已經處理網絡請求、數據庫事務或併發訪問。真正的輸入校驗與錯誤策略隨後單獨學習。
+
+## 12. 三層練習：解釋、修復、獨立組合
+
+### 練習 A：先預測修改與重新綁定
+
+```python case=exercise_alias
+def change_titles(titles):
+    titles.append("Review")
+    titles = ["Local"]
+    return titles
+
+
+source = ["Read"]
+result = change_titles(source)
+print(source)
+print(result)
+print(source is result)
 ```
-</PythonEditor>
 
-## 8. 總結與擴展學習路徑
-Python 的異步編程能力，雖然起步稍晚，但如今已經非常成熟，適用於 I/O 密集型場景、Web 後端、爬蟲、實時數據處理等領域。通過本教程，你已經完成了從基礎語法到實際項目的全面掌握。
+先寫出三個輸出，標記哪一步修改對象、哪一步只是換了局部綁定。再把 source 改成空列表；最後去掉函數中的重新綁定語句，解釋對象關係會如何變化。
 
-### 學習回顧
-理解了 Python 中 async/await 的使用方式及其與 JavaScript 的異同
+<details>
+<summary>完成預測與兩種變式後查看解釋</summary>
 
-熟悉了事件循環、併發執行、異步生成器、上下文管理器等高級特性
+原輸入輸出：
 
-結合 FastAPI 與 asyncpg 實現了完整的異步 Web 服務與數據庫交互
+```text
+['Read', 'Review']
+['Local']
+False
+```
 
-編寫了爬蟲、任務隊列、API 客戶端等實用異步項目示例
+append 通過共享引用修改原列表；後續賦值只讓局部 titles 指向新列表，再把新列表返回。空輸入時 source 變成 `['Review']`，另外兩行不變。去掉重新綁定後，返回的就是修改後的原列表，兩個內容輸出都為 `['Read', 'Review']`，身份比較為 True。
 
-練習了真實場景下的數據處理流程
+</details>
 
-### 推薦擴展
-以下是下一步深入異步編程的學習建議：
+### 練習 B：補齊函數合同，不靠額外打印偽造返回
 
-#### 📚 框架與庫
-FastAPI：深入使用依賴注入、後臺任務、中間件等功能
+以下是完整的錯誤起點：
 
-aiohttp：構建異步 HTTP 客戶端和服務端
+```python case=exercise_missing_return
+def with_buffer(minutes, extra=5):
+    result = minutes + extra
 
-Starlette：FastAPI 的底層異步框架，可實現更低層級的異步 Web 服務
 
-Trio / Curio：另類異步庫，提供結構化併發的編程範式
+first = with_buffer(20)
+second = with_buffer(0, extra=0)
+print(first)
+print(second)
+```
 
-#### 🛠️ 工具與調試
-asyncio.TaskGroup (Python 3.11+)：更安全的併發執行模型
+實際輸出：
 
-aiomonitor / aiodebug：調試異步事件循環
+```text
+None
+None
+```
 
-pytest-asyncio：編寫異步測試用例
+函數合同是“接收非負整數分鐘數與額外分鐘數，返回相加後的整數，不修改外部狀態，也不打印”。獨立修復函數，使調用方保持不變。正確輸出應為 25 和 0。
 
-#### 💡 實踐項目建議
-實現一個 異步微服務架構，通過消息隊列連接多個異步服務
+再驗證 `with_buffer(20, extra=10)` 為 30，`with_buffer(0)` 為 5，同一輸入重複調用不積累額外狀態。提示：函數內算出了一個局部值，不等於調用方自動得到它。
 
-構建一個 基於 WebSocket 的實時聊天室
+<details>
+<summary>完成返回值修復與變式後查看參考</summary>
 
-編寫一個 異步數據聚合器，整合多個 API 的異步響應
+文件：`solutions/fix_return.py`。
 
-🧠 思考題：相比傳統多線程，多進程編程，異步編程有哪些優勢和限制？你會在哪些實際項目中優先選擇異步方案？
+<Code language="python">{getFunctionExample('solutions/fix_return.py')}</Code>
 
-🎉 到這裡，你已經完成了 Python 異步編程的全景入門。如果你是來自 JavaScript 的背景，相信現在你對 Python 的異步世界已經不再陌生。繼續深入探索，異步將成為你開發效率的重要武器！
+預期：
+
+```text
+25
+0
+```
+
+參考把 result 返回給調用方，而不是在函數內追加 print。你也可以直接返回計算表達式；關鍵是返回類型、值和副作用符合合同，而非與參考逐字一致。
+
+</details>
+
+### 練習 C：從空文件實現四個任務規則函數
+
+新建 `study_rules.py`，先用自己的話寫下下面四個函數的合同，再實現。不要複製上面的整段彙總代碼，這次產物是任務創建與規則選擇，而不是相同格式的統計報告。
+
+| 函數 | 要求 |
+| --- | --- |
+| `create_task(title, minutes=None, tags=None)` | 返回含 title、minutes、tags、done 的新字典；done 初始 False；省略 tags 或傳 None 時新建列表；傳列表時複製該層，標籤均為字符串 |
+| `is_ready(task, budget=20)` | 返回 bool；僅未完成、時長已知且非負、時長不超過預算的任務為 True；0 必須可以通過；缺失或 None 不可通過 |
+| `select_tasks(tasks, rule)` | 對每項調用 rule，返回匹配任務組成的新列表，保留相對順序；不修改輸入；內部任務字典仍是原對象 |
+| `make_budget_rule(budget)` | 返回一個接收 task 的函數，複用 is_ready 並關聯本次預算；創建時不提前判斷任務，也不修改全局變量 |
+
+這是受限數據上的練習：title 和標籤是字符串、done 是 bool；minutes 為 None、整數或判斷時缺失，不包含 bool 或字符串；budget 為非負整數。創建函數允許保存負數以供資格規則排除，不意味著它是接受任意公眾輸入的安全創建接口。
+
+建立 `source_tags = ["python"]`，使用 create_task 生成以下六項，而不是手寫六個結果字典：
+
+| 名稱 | 標題 | 分鐘數 | 標籤輸入與隨後修改 |
+| --- | --- | --- | --- |
+| first | Read | 20 | 傳 source_tags；創建完成後給 first 的 tags 追加 review |
+| second | Practice | 35 | 同樣傳 source_tags；不額外追加 |
+| zero | Zero | 0 | 不傳 tags |
+| unknown | Unknown | 省略 minutes | 不傳 tags |
+| finished | Finished | 10 | 不傳 tags；創建後把 done 設為 True |
+| invalid | Invalid | -5 | 不傳 tags |
+
+按表中順序放入 tasks。通過工廠建立 20 分鐘和 40 分鐘兩套規則，用 select_tasks 分別處理同一份 tasks。只在調用方顯示結果，函數內部不打印。
+
+最後依次打印：原標籤、first 標籤、second 標籤、zero 與 unknown 標籤的身份比較；兩組候選標題；20 分鐘結果列表與 tasks 的身份比較；源任務數。原輸入應得到：
+
+```text
+['python']
+['python', 'review']
+['python']
+False
+Within 20: ['Read', 'Zero']
+Within 40: ['Read', 'Practice', 'Zero']
+False
+Source tasks: 6
+```
+
+運行自己的文件：
+
+```bash
+uv run --no-project --python 3.13 python study_rules.py
+```
+
+除了這些顯示結果，還必須完成行為驗收。每次恢復原數據後再改變一個條件：
+
+| 變化或檢查 | 必須成立 |
+| --- | --- |
+| 對空 tasks 選擇 | 返回 []，不是 None；不調用 rule |
+| 全部已完成 | 兩套規則都不選中任務 |
+| 小預算改為 0 | 只選 Zero，仍然不是空結果 |
+| first 時長改為 21 | 不再進入 20 分鐘結果，仍可進入 40 分鐘結果 |
+| 再次調用創建函數且不傳 tags | 得到新的空標籤列表，不帶上任何前一次修改 |
+| 顯式傳入空標籤列表 | 返回任務的 tags 不與輸入列表共享 |
+| 交替使用兩套規則多次 | 各自結果穩定，不因調用另一套規則改變預算 |
+| 給一個選中的任務修改 title | 源 tasks 中對應字典也能看到修改；只是外層結果列表獨立 |
+
+對最後一項先預測，再驗證，之後恢復輸入；這是有意的對象共享，不是選擇函數偷偷修改了數據。若要編輯副本，需要另一個明確的複製合同。
+
+<details>
+<summary>完成獨立實現和行為驗收後查看參考答案</summary>
+
+文件：`solutions/study_rules.py`。
+
+<Code language="python">{getFunctionExample('solutions/study_rules.py')}</Code>
+
+參考將“創建數據”“判斷一項”“按規則遍歷”“配置規則”分開。每個函數用本章已經解釋的機制完成職責，沒有用裝飾器、類、類型註解或異常捕獲隱藏過程。
+
+不用拘泥局部變量名，但必須解釋 return 的位置、默認對象的建立時機、顯式標籤的複製範圍、規則作為值傳遞，以及兩套閉包為何各有預算。能複製輸出卻解釋不了這些關係，不算獨立驗收通過。
+
+</details>
+
+## 13. 離開本章前，應拿得出哪些證據？
+
+- 能解釋執行 def 與執行調用的區別，並畫出返回到調用位置的路徑。
+- 能分開記錄返回值、標準輸出與對輸入對象的修改，不靠終端有數字就判斷函數正確。
+- 能綁定位置與關鍵字實參，診斷缺失、重複、錯名和僅限關鍵字限制，分清語法錯誤與調用失敗。
+- 能解釋定義時建立的默認對象與調用時局部創建的對象；同時驗證省略參數和顯式傳入對象的共享邊界。
+- 能說明局部名稱、外層查找與 UnboundLocalError，不用修改全局狀態來掩蓋輸入輸出設計不清楚。
+- 能傳遞函數對象而不是誤傳一次調用的結果；獨立寫出一個預算規則工廠。
+- 能完成四函數練習，驗證空輸入、零值、未知、邊界、重複調用和兩套規則，而不只執行默認六條數據。
+
+**暫停／恢復記錄**：保存文件、最後一組調用實參、返回值、可見輸出、輸入是否被修改、尚未解釋的綁定關係、下次第一步。時間不固定時，可以分開學習前三個暫停點、綜合重構和獨立練習；無需一次記完所有簽名形式。
+
+下一步是 [L05「異常與調試」](/zh-tw/docs/js2py/module-05-quality-testing-typing)：在能理解函數調用鏈後，再系統講 traceback、raise、具體異常與恢復邊界。目前 L00—L05 按新契約實現；後續舊稿仍需重編。原第 04 章的異步素材已經歸檔，異步仍會在具備必要前置之後講解，不是被刪除。
+
+## 14. 官方資料與本章邊界
+
+本章採用 CPython 3.13 教學基線，不聲稱它是最新版本。以下第一手資料於 2026-09-23 核對；閱讀時只定位對應主題，不要求提前通讀整頁高級簽名、類或裝飾器。
+
+- [定義函數與更多函數定義形式](https://docs.python.org/3.13/tutorial/controlflow.html#defining-functions)：調用、返回、默認值、關鍵字實參與僅限關鍵字參數。
+- [函數定義參考](https://docs.python.org/3.13/reference/compound_stmts.html#function-definitions)：def 是可執行語句，默認表達式求值與函數體執行不是同一時刻。
+- [return 語句](https://docs.python.org/3.13/reference/simple_stmts.html#the-return-statement)：返回對象與結束當前調用。
+- [名稱綁定與作用域](https://docs.python.org/3.13/reference/executionmodel.html#naming-and-binding)：局部綁定、外層查找和 UnboundLocalError。
+- [Python FAQ](https://docs.python.org/3.13/faq/programming.html#why-are-default-values-shared-between-objects)：可變默認值；同頁另有局部變量與閉包相關解釋。
+- [MDN 函數聲明](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function#hoisting)：核對提升類比的適用範圍，不推廣到所有 JS 函數寫法。
+
+我們尚未處理任意外部輸入、模塊導入、持久化、事務、併發或錯誤恢復；返回 False/None 的當前業務規則也不是所有錯誤的通用處理策略。先把輸入、調用、返回、狀態和綁定建立清楚，下一章才有基礎討論哪裡應該拒絕、拋出或恢復。

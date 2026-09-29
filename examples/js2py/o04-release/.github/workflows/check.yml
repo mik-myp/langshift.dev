@@ -1,0 +1,26 @@
+name: owned-postgres-release-gate
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: owned-postgres-release-gate
+  cancel-in-progress: false
+jobs:
+  verify:
+    # Explicitly pre-provisioned isolated runner; no such runner is claimed here.
+    # Never attach this privileged runner to untrusted pull_request code.
+    runs-on: [self-hosted, linux, x64, langshift-pg18-6]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2, verified tag
+        with:
+          persist-credentials: false
+      - name: Check and install locked dependencies
+        working-directory: examples/js2py/o04-release
+        env:
+          PG_BIN: /usr/lib/postgresql/18/bin
+        run: |
+          test "$(uv --version | cut -d' ' -f2)" = "0.12.13"
+          uv sync --locked
+          uv run --locked python ci.py

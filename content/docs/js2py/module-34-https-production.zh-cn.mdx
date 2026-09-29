@@ -1,0 +1,251 @@
+---
+title: "网络入口与 HTTPS：验证连接，也验证你信任了谁"
+description: "以临时CA和loopback代理实测证书、主机名、可信转发、脱敏错误与CORS，连接S阶段Bearer会话边界，明确公网部署待验收。"
+---
+
+import { getHttpsExample } from '@/lib/js2py-examples'
+
+## 1. 发布入口不是把 host 改成 0.0.0.0
+
+在本地看到 JSON，只证明某条本地请求链路工作。让受邀用户可靠、安全地访问，还要回答：域名解析到哪里？谁证明这台服务器的身份？加密在哪一跳终止？应用从哪个代理接收真实客户端信息？错误与日志会不会带出 token？这些问题不能通过打开全部网卡和关闭证书验证来解决。
+
+本章前置 O02；HTTP 与身份概念来自前面的 H/S 阶段。新能力是解释 DNS→连接→TLS→代理→应用的责任分工，验证证书失败、转发信任、生产错误和浏览器来源策略。独立验收是按实际认证方案写可测试的入口约束。本章不购买域名、不申请公签证书、不创建外部可见资源、不替用户部署完整产品。
+
+[下载完整 O03 实验](/learning-assets/js2py/o03-https-production.zip)。Python/Web版本与 O02 一致；本地实测 OpenSSL 3.6.4、curl 8.7.1。源码里的诊断 API、故障端点和标准库转发器都是**本地教学工具**，不是生产反向代理，不含真实登录和任务授权，绝不能接真实用户或真实 token。
+
+## 2. 先把名字、地址、端口、路径分开
+
+`https://lab.test:8443/probe` 中，https 选择加密的 HTTP 连接，lab.test 是主机名，8443 是 TCP 目的端口，/probe 是连接后由 HTTP 应用处理的路径。DNS 常用 A/AAAA 把名字关联到 IPv4/IPv6 地址，不替应用选择 /probe，也不存储你的登录会话。CNAME 是名字之间的别名关系，并不会自动给别名申请证书。
+
+递归解析器和客户端会缓存 DNS 结果；TTL 是缓存寿命的一部分，不是“改完记录所有设备立即更新”的按钮。若发布只检查 A，却留下指向旧主机的 AAAA，部分客户端可能走到不同服务。域名所有权、DNS配置和某台机器的进程都需要分别记录。
+
+本例使用保留的 `.test` 名字，不改系统 hosts/DNS。curl 的 `--resolve` 只给这一次客户端请求提供名字→地址映射，同时保留 URL 主机名用于 TLS SNI、证书主机名校验和 HTTP Host。因此本地成功不证明任何公网 DNS 记录已配置。生产模板用 `.invalid` 占位，不能拿它去真实上线。
+
+## 3. TLS 到底验证什么，不验证什么
+
+TLS 在连接上协商加密与完整性保护，并让客户端校验证书链、有效期、主机名等。服务端持有叶证书对应的私钥；证书中的 subjectAltName 声明它适用的名字。客户端信任某个 CA 并不代表任何名字都能通过：用可信 CA 给 lab.test 签的证书，不能冒充 wrong.test。
+
+TLS 保护的是连接，不负责判断 Bearer token 是否过期、Alice 是否属于项目，也不修复应用越权。HTTPS 的锁标识不是“这个业务可信”的通用认证。代理终止 TLS 后若用 HTTP 连接应用，明文存在于后一跳；本例把这一跳严格留在同主机 loopback。跨主机或不可信网络必须重新设计传输保护，不能照抄这个本地上游地址。
+
+本地临时 CA 只是让实验拥有可控信任链。`--cacert` 对本次 curl 明确指定它；不安装到系统信任库。CA/叶私钥只在自己的 /tmp 临时目录生成，目录 0700、文件 0600，结束后删除；证书有效期一天，每次重建而不打包旧密钥。`-k` 会跳过关键验证，不能当成证书验收。
+
+<Code language="python">{getHttpsExample('certificates.py')}</Code>
+
+这里的 OpenSSL 命令先建立可签发证书的本地 CA，再创建叶私钥与签名请求，最后由 CA 签名并附上 lab.test 的 SAN、服务端用途与非 CA 约束。`-noenc` 意味着临时私钥不加口令；安全边界依赖短暂生命周期、目录权限和不导出，并不是生产长期私钥保管建议。真实证书自动更新与密钥轮换仍是环境门槛。
+
+## 4. 恢复环境，一次执行成功与失败证据
+
+从仓库根目录进入实验目录；ZIP 用户进入解压后的根目录。执行器需要 POSIX、普通用户、支持 req -addext 与 -noenc 的 OpenSSL 3.x 以及 curl。本轮用 OpenSSL 3.6.4；如果平台工具缺失应记录缺口，不通过关闭验证或读取真实证书补救。uv 恢复 Python 依赖不会安装系统 OpenSSL、Caddy 或容器引擎。
+
+```bash
+cd examples/js2py/o03-https-production
+uv sync --locked
+openssl version
+curl --version
+uv run --locked python tls_lab.py
+uv run --locked python -m pytest -q
+```
+
+```text
+trusted_ca_https=200
+unknown_ca_curl_exit=60
+wrong_hostname_curl_exit=60
+edge_overwrites_forged_forwarding=True
+authorization_forwarded_not_authenticated=True
+untrusted_proxy_headers_ignored=True
+trusted_loopback_direct_spoof_possible=True
+sanitized_error=500
+sanitized_validation=422
+teaching_edge_body_limit=413
+owned_processes_stopped_and_temp_keys_removed=True
+```
+
+这些是实际观察，不是预先编写的成功截图。脚本断言 HTTP 状态与响应，也检查 curl 失败退出和临时目录清理。`trusted_loopback_direct_spoof_possible=True` 是**有意暴露的信任缺口**，不是安全通过指标；后面解释为什么同主机其他进程仍然在信任边界内。端口由系统选择，避免占用用户固定服务。
+
+## 5. 双终端请求：curl 是客户端，不是服务器
+
+终端 A 在实验根目录启动；`--serve` 让程序保持前台，`--port 0` 让系统挑空闲端口。程序打印公开 CA 路径以及可复制的 `export CA=...`、`export PORT=...` 两行。这里的省略号是说明运行时值，不是要你输入的路径。把实际打印的两行复制到终端 B，目录仍保持实验根目录。变量是公开信任材料路径和端口，不是私钥或会话 token。
+
+```bash
+uv run --locked python tls_lab.py --serve --port 0
+```
+
+终端 B 先粘贴实际 export 行，再执行以下命令。curl 发起一次请求然后退出，不会创建监听服务。`--noproxy '*'` 避免本机代理环境把教学请求送走；`--resolve` 为指定名字和端口映射 loopback；`--cacert` 选择本地信任 CA；`--max-time` 限制总等待；`--include` 显示 HTTP 响应头；`-H` 添加请求头。Bearer 内容是固定的虚构标记，不是可登录凭证。
+
+```bash
+curl --silent --show-error --include --max-time 5 --noproxy '*'   --resolve "lab.test:$PORT:127.0.0.1" --cacert "$CA"   -H 'Authorization: Bearer demo-not-a-valid-session'   "https://lab.test:$PORT/probe"
+```
+
+预期 HTTP 200，scheme=https、host=lab.test、client=127.0.0.1、authorization_present=true。最后一个字段只证明某个头被转发，**绝不证明已认证**。想观察失败，分别省略 --cacert、把 resolve 和 URL 都改为 wrong.test；本轮 curl 均返回 60，尚未进入业务处理。不要把 60 当 HTTP 状态码。
+
+完成后在终端 A 按 Ctrl+C，程序停止自己的边缘服务与后端进程，删除临时密钥。不要 killall、不要停止机器上所有 uvicorn。终端 B 的 CA 变量此时指向已删除文件，复用它会报本地文件/信任错误；重新启动必须复制新的运行时行。
+
+## 6. 反向代理：沿每一跳追踪请求和凭证
+
+客户端选择一个服务器入口；**反向代理**代表后面的应用接收请求，再发起到上游的连接。对应用来说，直接 TCP 对端通常变成代理，而不是原始浏览器。代理可以终止 TLS、统一入口和限制请求，但不因此自动拥有用户身份。Authorization 必须在需要的路由上原样转交认证层，不得写访问日志或当普通调试字段回显。
+
+本地链路是 curl → loopback TLS 教学边缘 → loopback HTTP Uvicorn → FastAPI。边缘只转发明确允许的头，限制 body 为 4096 字节、超时和响应大小，拒绝不支持的传输形式，覆盖 Forwarded 类信息。这个很小的实现用于观察信任边界，没有 HTTP/2、WebSocket、流式转发、完整抗走私解析或生产限流。**不要把它部署到公网。**
+
+413 只是本教学边缘的已测行为，不能反向宣称 H04 或 S03 已有相同大小限制。生产必须在实际入口独立实现并测试大小限制与登录节流，包括越过正常代理直接打上游时的边界。
+
+<Code language="python">{getHttpsExample('edge.py')}</Code>
+
+## 7. 可信代理：一个头不是网络事实
+
+任何客户端都能发送 `X-Forwarded-For: 203.0.113.9` 或 `X-Forwarded-Proto: https`。若应用无条件相信，就可能把伪造 IP 写进限流/审计，生成错误重定向，或者把 HTTP 当 HTTPS。`--proxy-headers` 只是启用解释，`--forwarded-allow-ips` 才约束允许哪个直接对端提供信息；`*` 意味着信任所有可达对端，不能为了“URL对了”随手开启。
+
+实验分三步：关闭代理信任时，伪造头被忽略，scheme=http、client=127.0.0.1；通过可信边缘时，边缘覆盖客户的伪造值，应用看到 https 和真实的 loopback；直接由本机另一个客户端连接受信 loopback 上游时，伪造 client **能被接受**。第三步揭示关键限制：信任 127.0.0.1 等于信任有能力访问该上游的本机进程，不等于只信任那一个代理。
+
+生产要把可信代理列表与真实网络隔离、socket权限、进程账户、容器网络一起审核。多层代理/托管CDN不能简单套用一跳配置；要明确每跳是否清洗、追加、解释哪个头。来源 IP 即使可信，也不是用户身份，不替代 Bearer 验证和对象授权。
+
+<Code language="python">{getHttpsExample('tls_lab.py')}</Code>
+
+## 8. 生产错误：少返回不等于不记录
+
+debug 页面、traceback、异常 repr、验证错误中的 input/ctx 都可能把路径、SQL参数、密码或 token 送回客户端。生产不应把“方便调试”视为默认公开接口。本地诊断 app 为每次请求生成自己的随机 request id，500 只返回通用 detail，日志只记录安全事件名和关联 id；请求体校验只返回 loc/type，不回显原值。
+
+不要吞掉所有错误然后返回 200。客户端仍看到 500/422，维护者仍能关联事件，只是不把秘密搬进响应。真实运维需要受访问控制的错误观测、必要的安全上下文与告警；这个小型安全日志演示不是完整可观测性方案。本地 /fail 是为了触发失败，真实业务入口不该保留任意人可调用的故障按钮。
+
+<Code language="python">{getHttpsExample('app.py')}</Code>
+
+生产边界中间件在正常请求控制流捕获异常；只为本实验记录脱敏事件，不把异常继续交给带 traceback 的默认服务器错误日志。CORS 包在最外层，使合法前端也能读取脱敏错误，不会把错误误诊为跨域。Host 检查独立于 TLS：证书校验通过也不该允许任意 Host 路由。测试同时检查错误正文和私有运行日志没有虚构敏感标记。
+
+## 9. 与 S01–S03 对齐：不透明 Bearer，不是 JWT 或 Cookie
+
+后续整合使用 S 阶段已经约定的身份方案：服务生成高熵不透明随机会话 token；原值只在登录成功时返回，数据库保存 SHA-256 摘要、过期/撤销状态和会话 auth_version。每次请求查会话、有效期、用户启用状态以及当前版本，再检查项目成员与动作权限。HTTPS 保护运输，代理转发 Authorization，但**不替应用查数据库**。
+
+这不是 JWT 本地验签方案，没有本章要配置的 JWT 公私钥。退出、改密、停用或退出全部会话如何撤销，由 S 阶段的服务逻辑负责，不能因为代理缓存了成功响应就绕过重新检查。S03 创建任务的 UUIDv4 Idempotency-Key 与 Idempotency-Replayed 也需要跨入口保留；幂等回执不是永久访问权限。
+
+本下载只验证 `authorization_present`，没有真实 token 数据库；不能拿它的 200 当 S03 的登录成功。完整上线必须接回 S03 的 DB-backed readiness、授权/撤销/幂等测试，关闭访问日志中的凭证，配置并压测登录节流和请求体边界。不要把“运维切片”替换成后门式简化认证。
+
+## 10. CORS：约束浏览器读响应，不授权调用者
+
+浏览器 origin 是 scheme、host、port 的组合；`https://frontend.lab.test:8444` 与 HTTP、不同端口或不同子域都不相同。前端显式设置 Authorization 或特定内容类型时，浏览器可能先发 OPTIONS 预检，询问这个来源、方法和头是否允许。预检允许之后才发送相应实际请求；CORS 不是给请求体签名，也不阻止非浏览器客户直接调用。
+
+本地 app 只允许精确的演示来源、GET/POST，以及 Authorization/Content-Type/Idempotency-Key 请求头；通过 expose_headers 让前端读到关联 id 与幂等重放头。它不使用 Cookie，allow_credentials=False，也不使用 `*` 放行一切。完整 S API 还包括 PATCH/DELETE 等，整合时必须按真实路由补充方法并测试，不能假装这个诊断 app 的两种方法就是生产策略。
+
+实验分别验证：允许来源预检 200；其他来源预检 400；但直接普通 GET 仍可得到 200，只是没有 Access-Control-Allow-Origin。curl 不执行浏览器的读取限制，因此**CORS 不能替代认证/授权**。实测 HTTP 头也不是所有真实浏览器行为的验收，实际前端联调仍列为待验证。
+
+## 11. CSRF：按实际凭证机制判断，不背“前后端分离就安全”
+
+传统 CSRF 利用浏览器在跨站请求上自动携带环境凭证，例如 Cookie，使恶意页面代替已登录用户发请求。当前不透明 Bearer 由前端显式放进 Authorization，服务不把 Cookie 当会话，因此不直接具有同样的自动 Cookie 附带路径。但这不是“所有 CSRF/XSS 风险消失”：token 若被脚本窃取、来源错误放行、危险跳转或调用逻辑把凭证送到错误地址，仍会失败。
+
+若以后改成 Cookie 会话，必须重新评估 SameSite、Secure、HttpOnly、来源/Referer 校验、反 CSRF token、允许的安全方法和跨站业务流程，不能只把 CORS 的 allow_credentials 改为 true 就上线。HttpOnly 限制脚本读 Cookie，不能阻止浏览器自动发送；Secure 限制 HTTPS 传输，也不证明请求由用户有意发起。
+
+S 阶段演示前端可用短期内存 token，刷新后重新登录；这降低某些持久存储暴露，却不抵御当前页面的 XSS。不要将长期 token 放 localStorage 当作默认万金油，也不要在教学截图、错误报告、代理日志中复制真实 token。本章只使用虚构标记。
+
+## 12. Caddy 配置与公网门槛：模板不是一次成功部署
+
+生产反代应使用受维护的实现，而不是本章标准库工具。提供 Caddy 本地与生产模板便于逐项审查：同一主机的反代连接 127.0.0.1:8034，清除客户 Forwarded，使用 Caddy 默认的 X-Forwarded 处理，不配置宽泛 trusted_proxies，不启用访问日志。本地模板明确 bind loopback 与显式证书路径，关闭自动 HTTPS；生产模板保留 api.example.invalid，**尚未配置真实域名**。
+
+Caddy 自动 HTTPS 通常管理证书申请与续期；需要正确域名解析、可验证域名控制、相应挑战方式的可达性和可写的受保护存储。HTTP/TLS-ALPN 挑战涉及对应端口，DNS 挑战另需受控 DNS 访问；不是所有部署都只靠“开80端口”。我们没有域名/服务器/生产密钥，也未发起这些动作。
+
+本机没有 Caddy。下面文件只通过自定义文本不变量检查，未通过真正 `caddy validate` 或代理运行；命令应在用户批准的受控环境、已准备证书和固定 Caddy 版本后执行。验证通过也还要实测 HTTPS、大小限制、登录节流、续期、真实前端与完整授权应用。模板本身没有声称这些生产策略已实现。
+
+<Code language="text">{getHttpsExample('Caddyfile.local')}</Code>
+
+<Code language="text">{getHttpsExample('Caddyfile.production.template')}</Code>
+
+```bash
+uv run --locked python check_config.py
+```
+
+```text
+same_host_upstream=loopback
+production_domain=reserved_placeholder
+caddy_runtime=NOT_VERIFIED
+public_dns_and_certificate=NOT_VERIFIED
+```
+
+特别注意：这两个模板是**同主机拓扑**。若 Caddy 也放进独立容器，它的 127.0.0.1 不再是应用容器；须选择受控内部网络/服务名并重新配置上游与信任范围，不能随手把后端端口公开。不要带开发 reload、诊断 /fail、宽泛调试日志进入生产。真正面向用户前还必须完成后续迁移、发布回退、备份恢复和试用范围验收。
+
+## 13. 分层排错：不要用 -k 掩盖不同故障
+
+| 观察 | 所在层 | 下一步 |
+| --- | --- | --- |
+| 域名解析失败 | DNS/客户端解析 | 检查记录或本地 --resolve；未到 TLS |
+| Connection refused | 地址/端口/监听 | 检查自己进程和实际端口；不是证书错误 |
+| curl 60 未知 CA | 信任链 | 用本轮公开 CA，检查有效期，不用 -k |
+| curl 60 名字不符 | URL 主机名 vs SAN | 修名字/证书，不改认证代码 |
+| 502 | 代理到上游 | 看上游是否运行、地址/命名空间/超时 |
+| 500/422 | 应用处理/输入 | 对照脱敏 request id、loc/type，不回显秘密 |
+| 浏览器报 CORS，但 curl 有响应 | 浏览器读取策略 | 检查精确 origin、预检头、实际响应头；仍单独查认证 |
+| scheme 错误或来源 IP 可伪造 | 转发信任 | 查直接对端、头清洗和可达性，别把 allow-ips 改成 * |
+
+TLS 握手失败与 HTTP 401/403 是不同阶段。当前诊断 app 没有 401/403 认证逻辑；这些必须在 S03 完整服务里验收。日志只保留可以共享的分类与关联 id，不复制 Authorization、Cookie、数据库 URL 或私钥。
+
+## 14. 解释检查：为什么锁、来源、身份互不替代
+
+不看答案说明：为什么有可信 CA 的 wrong.test 仍失败？为什么 Authorization 被转发不代表登录通过？为什么恶意 Origin 的 curl GET 可能得到 200？为什么可信 loopback 不等于可信代理进程？
+
+<details>
+<summary>答案与解释</summary>
+
+证书链与名字是两项校验，SAN 不含 wrong.test。代理只传递了字节，认证层还需摘要查库、有效期/撤销/版本与授权判断。CORS 约束浏览器可读性，curl 不执行它；无身份保护的诊断端点仍会答复。loopback 是网络地址范围，本机其他可达进程也在里面；实际第三步已经观察到它能提供被接受的伪造转发头。
+
+</details>
+
+## 15. 引导练习：坏输入和故障不得回显虚构秘密
+
+只用虚构标记：POST /probe 的 minutes 改为字符串，要求 HTTP 422、loc/type 仍能定位字段，但响应无 input/ctx；GET /fail 要求 500 通用 detail、随机关联 id。合法 origin 的错误响应仍需 CORS 头。再看日志：保留事件 id，不保留标记或 traceback。提示：只删响应正文不一定阻止框架随后记录原异常，要检查异常控制流。
+
+<details>
+<summary>引导答案与真实 TLS 测试</summary>
+
+请求校验异常有专用处理器，逐项提取允许字段；未知异常由外层边界转成通用 500 并仅记录安全事件。CORS 在整个应用最外侧，避免正常来源看不到错误。下列测试还包括错误主机名、未知 CA、伪造头、body边界和自有资源清理，不只在 TestClient 中假设 TLS 成功。
+
+<Code language="python">{getHttpsExample('tests/test_https.py')}</Code>
+
+</details>
+
+## 16. 独立变式：两个精确来源，不把子串当域名
+
+只给需求：允许 `https://frontend.lab.test:8444` 和 `https://admin.lab.test:8445` 对 /probe 发 POST，允许 Authorization 与 Idempotency-Key，不使用 Cookie，不实现真实认证。错端口、HTTP、带 evil.invalid 后缀、Origin:null 都必须拒绝预检。无 Origin 的直接请求仍要明确返回 authenticated=false，不能把“没有被CORS拦住”标成已登录。先独立写策略和测试，再看答案。
+
+<details>
+<summary>独立参考实现与反例</summary>
+
+<Code language="python">{getHttpsExample('solutions/origin_policy.py')}</Code>
+
+<Code language="python">{getHttpsExample('solutions/test_origin_policy.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_origin_policy.py
+```
+
+精确集合比较避免 `"lab.test" in origin` 的子串漏洞。七个 case 包含两个允许、四个近似来源拒绝、一个非浏览器直接请求。它们只验证 HTTP策略，不替代真实浏览器、TLS和S03身份测试；若换成Cookie，答案必须重新设计，而不是多填一个布尔选项。
+
+</details>
+
+## 17. 环境矩阵：本地 TLS 通过，公网发布仍未验收
+
+| 状态 | 本章证据/门槛 |
+| --- | --- |
+| 已实际运行 | 标准 17、独立 7 个测试；临时 CA/叶证书、curl --cacert 成功、未知CA/错主机名失败、真实loopback TLS代理、可信/不可信转发、500/422脱敏、413教学边界、CORS头与资源清理 |
+| 本机不可运行 | 无 Caddy、无受控 Linux/容器环境；Caddy 配置只做文本不变量检查，未解析/启动 |
+| 用户需自备 | 受控 Linux/入口代理版本、自己的域名/DNS/主机、获准防火墙与端口、生产秘密存储和证书持久存储；禁止把教学密钥搬过去 |
+| 公网/产品待验收 | 真实 A/AAAA、可信公签证书申请/续期、外网与浏览器、代理不可绕过、完整S03授权/撤销/DB ready、body限制与节流、迁移/回退/备份恢复 |
+
+正文、源码、本地 TLS 与策略测试是 implemented；Caddy、Linux、真实浏览器整合与公网部署是 environment_pending。没有证书签发请求、系统信任库修改、云资源或真实 token 操作。标准库边缘、/fail 和诊断 app 都不能直接上线。
+
+## 18. 资料、日期与可恢复记录
+
+一手资料核验日期 **2026-09-28**。`SOURCES.json` 保存地址、核验日期和获取摘要；这是本轮使用的资料，不承诺文档未来不变。实际结果与环境缺口见三语 README，不能把配置的存在当成部署通过。
+
+- [DNS concepts RFC1034](https://www.rfc-editor.org/rfc/rfc1034)
+- [Reserved names RFC2606](https://www.rfc-editor.org/rfc/rfc2606)
+- [TLS1.3 RFC8446](https://www.rfc-editor.org/rfc/rfc8446)
+- [Python SSL](https://docs.python.org/3.13/library/ssl.html)
+- [OpenSSL req](https://docs.openssl.org/3.6/man1/openssl-req/)
+- [OpenSSL x509](https://docs.openssl.org/3.6/man1/openssl-x509/)
+- [curl TLS certificates](https://curl.se/docs/sslcerts.html)
+- [curl command reference](https://curl.se/docs/manpage.html)
+- [Uvicorn settings](https://www.uvicorn.dev/settings/)
+- [Caddy reverse_proxy](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)
+- [Caddy automatic HTTPS](https://caddyserver.com/docs/automatic-https)
+- [FastAPI CORS](https://fastapi.tiangolo.com/tutorial/cors/)
+- [Starlette middleware](https://starlette.dev/middleware/)
+- [OWASP CSRF prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
+
+恢复检查点记录：源码与锁摘要、工具版本、最后成功命令、17+7是否在本机重现、哪些代理信任缺口仍在、来源列表与实际认证方案、环境矩阵、下次第一步。只记公开 CA 文件的生命周期，不保存私钥和真实 token。隔天证书过期时重新运行实验，不用 -k；迁移到新服务器时重新做入口与身份整合验收，不能把本地 TLS 记录标成“已上线”。
+

@@ -1,0 +1,513 @@
+{
+  "review_date": "2026-09-24",
+  "scope": "L07 文件、JSON 与资源使用：完整英文正文、31 份实际 Python 源码、6 份输入（无效 UTF-8 为原始 hex ff）、三语下载 README、读者与先修契约。不是整个教材，不是生产存储认证或实际学习效果评估。",
+  "metadata": {
+    "started_at_utc": "2026-09-24T09:02:54.189243+00:00",
+    "elapsed_seconds": 1.513,
+    "http_status": 200,
+    "endpoint": "https://api.typesafe.ai/v1/systemone",
+    "requested_model": "jev-latest",
+    "returned_model": "jev-1.13.0",
+    "questions": 10,
+    "request_sha256": "55620c21b0bedf10fe0911a61fd44bc48df580263b854aa02961f331d65a3ac7",
+    "usage": {
+      "input_tokens": 20461,
+      "output_tokens": 547
+    },
+    "credential_persisted": false
+  },
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "reader": "Experienced enterprise frontend engineer; strong JavaScript/Promises/async-await, basic TypeScript, originally no Python/backend/database/operations practice. Wants eventual independent deployed backend development. Flexible slow schedule: full mechanism/practice teaching, not terse API catalogues.",
+      "prior_learning": "Completed L00 independent scripts; L01 scalars/names; L02 containers/references; L03 control flow; L04 functions/defaults/scope; L05 exceptions/narrow handlers/else/finally/assert boundaries; L06 modules, imports, main guards, cwd, regular packages and -m. No file/JSON I/O, custom class/protocol, environment management or pytest prerequisite.",
+      "chapter_contracts": [
+        {
+          "id": "L06",
+          "title": "模块与标准库",
+          "prerequisites": [
+            "L05"
+          ],
+          "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+          "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+          "boundary": "不先要求发布包、动态导入或框架架构",
+          "status": "implemented"
+        },
+        {
+          "id": "L07",
+          "title": "文件、JSON 与资源使用",
+          "prerequisites": [
+            "L06"
+          ],
+          "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+          "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+          "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+          "status": "planned"
+        },
+        {
+          "id": "L08",
+          "title": "环境与依赖管理",
+          "prerequisites": [
+            "L06",
+            "L07"
+          ],
+          "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+          "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+          "boundary": "不在入门章考核；不同时比较所有包管理器",
+          "status": "planned"
+        },
+        {
+          "id": "L09",
+          "title": "基础自动化测试",
+          "prerequisites": [
+            "L04",
+            "L05",
+            "L06",
+            "L08"
+          ],
+          "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+          "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+          "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+          "status": "planned"
+        },
+        {
+          "id": "L10",
+          "title": "第一个独立可复现项目",
+          "prerequisites": [
+            "L07",
+            "L08",
+            "L09"
+          ],
+          "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+          "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+          "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+          "status": "planned"
+        },
+        {
+          "id": "L14",
+          "title": "生成器与资源生命周期",
+          "prerequisites": [
+            "L05",
+            "L07",
+            "L12",
+            "L13"
+          ],
+          "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+          "acceptance": "跟踪资源获取、使用、正常及异常释放",
+          "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+          "status": "planned"
+        }
+      ],
+      "actual_english_lesson": "---\ntitle: \"Files, JSON and Resource Use\"\ndescription: \"Move from in-memory data to small local files: paths, text and bytes, encoding, read/write modes, resource lifetime and JSON. Diagnose failures by layer, then independently build a task store that refuses to overwrite damaged input.\"\n---\n\nimport { getFileExample } from '@/lib/js2py-examples'\n\n## 1. A returned dictionary does not survive a restarted program\n\nL06 separated rules, summaries and entry points. The program still recreated its input on each run. A dictionary returned by a function exists in the current process; it is not automatically saved because it has a variable name or appears in the terminal.\n\nPersistence means recording data somewhere it can be retrieved after the process ends. We will start with **small local files owned by this exercise**, not databases or a server. The goal is to explain every boundary between a Python value, text, encoded bytes, a filesystem path and an open resource.\n\n### Chapter contract\n\n| Item | Agreement |\n| --- | --- |\n| Prerequisites | L00–L06: values/containers, functions, control flow, exceptions, modules, working directories and entry points |\n| New capabilities | Paths, text/bytes and UTF-8, file modes/cursors, `with` and closing, JSON serialization, data validation and layered failure handling |\n| Independent acceptance | Save tasks, load them in a new process, refuse malformed data without overwriting it, and explain when acquired files close |\n| Not required | Custom context-manager implementation, databases, async I/O, atomic-save protocols, dependency projects, pytest, Pandas or FastAPI |\n\nDownload [L07 source files, fixtures and answers](/learning-assets/js2py/u07-files.zip). Extract and open `u07-files` in your editor and terminal. Use the [L00 environment](/en/docs/js2py/module-00-python-introduction): CPython 3.13, with no third-party packages. The actual verification baseline is **3.13.15 on 2026-09-24**, not a claim about the newest release.\n\n```bash\nuv run --no-project --python 3.13 python paths.py\n```\n\nUnless `cd` is shown, run from the extracted lab root. There are **31 Python files and six data fixtures**; some files are helpers inside a package, not standalone entry points. Keep the directory structure. The examples run locally, not in a browser's temporary filesystem.\n\n### A deliberate boundary around writes\n\n- `fixtures/` contains known inputs, including deliberately malformed JSON and invalid UTF-8. Do not repair them in place: their failures are part of the lesson.\n- Generated files go only into explicitly named `_output/` directories inside this extracted lab or your own exercise. Treat those directories as disposable lab space; never put valuable files there.\n- Some demonstrations deliberately **replace or damage their own generated files**. Do not substitute a real document path. Make copies when experimenting.\n- Most demonstrations reset their own output. `create_once.py` intentionally behaves differently on its second run; the independent app also distinguishes a missing file from an existing one. We will state those conditions rather than promise every run has identical output.\n\n## 2. A path names a location; it is not an open file\n\nIn L06, current directory and script directory could differ. File operations have the same distinction: a relative path is interpreted against the process's current working directory, not automatically against the source file containing it.\n\nWe will use `Path` from the standard library. `Path(\"fixtures\")` creates a path object; it does not create a directory or open anything. You have already called methods on lists and dictionaries. Here you use an existing library type and its methods; you do not need to implement a class.\n\nFile: `paths.py`.\n\n<Code language=\"python\">{getFileExample('paths.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python paths.py\n```\n\nExpected display below uses `<LAB>` for your real absolute extracted directory. It is a placeholder in output, not a command to type:\n\n```text\nCwd: <LAB>\nRelative: fixtures/notes.txt\nAbsolute: True\nName: notes.txt\nParent name: fixtures\nTarget: <LAB>/fixtures/notes.txt\n```\n\nThe operations have different responsibilities:\n\n1. `Path.cwd()` observes where the process is working.\n2. `/` joins path components when the left operand is a Path. It is not numeric division here. You do not manually concatenate platform separators.\n3. `Path(__file__).resolve().parent` starts from the current source file, resolves its absolute location and selects its containing directory. `resolve()` also resolves symbolic links; it is not a guarantee of existence, readability or security.\n4. `.name` is the final component's string; `.parent` is another path object. The object still does not hold the file's contents.\n\nAn absolute right-hand component can replace the earlier path, rather than stay below it. Our programs use fixed, trusted components. **Path joining is not a sandbox for arbitrary user-supplied paths**; handling those belongs with the later server/security boundary.\n\nChange only the working directory, then run the same file:\n\n```bash\ncd fixtures\nuv run --no-project --python 3.13 python ../paths.py\ncd ..\n```\n\nOnly `Cwd:` changes to `<LAB>/fixtures`; the anchored `Target:` stays the same. Paths use `/` in these macOS verification displays; your system may display separators differently. Anchoring beside the script is suitable for this writable local exercise, not a claim that installed application source directories are always writable places for production data.\n\n## 3. Read one complete file and see the resource boundary\n\nThe UTF-8 fixture `fixtures/notes.txt` has two lines. Its second line has **two leading and two trailing spaces**, and both lines end with a newline. We will use `repr` to make invisible characters observable rather than silently trim them.\n\nFile: `read_text.py`.\n\n<Code language=\"python\">{getFileExample('read_text.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python read_text.py\n```\n\n```text\nInside closed: False\nText: 'Python 学习\\n  keep spaces  \\n'\nAfter closed: True\n```\n\nRead the expression `with path.open(\"r\", encoding=\"utf-8\") as stream:` as a sequence:\n\n1. `path.open(...)` asks the operating system to open that path for reading. If it fails, the indented block does not run.\n2. On successful entry, `stream` refers to a **file object** that tracks the open resource and its current read position. It is not the Path and not the text.\n3. `.read()` obtains text through that resource. The `encoding` setting tells the text stream how to decode stored bytes.\n4. Leaving this file's `with` block closes the resource, even on the ordinary exception and return paths we will examine. `.closed` lets us observe that state.\n\n`text` is an independent string already read into memory; closing the stream does not erase it or delete the file. The name `stream` still exists after the block, but its resource is closed. This is not JavaScript-style block-local name creation.\n\n`Path.open(...)` serves the same basic purpose as built-in `open(path, ...)`. We consistently use the former here to keep path handling visible. `with` is the resource-use construct; it is not an import, loop or exception handler that automatically turns failure into success.\n\nThe path is anchored, so this also reads the same fixture:\n\n```bash\ncd fixtures\nuv run --no-project --python 3.13 python ../read_text.py\ncd ..\n```\n\n## 4. Reads move a cursor; iteration preserves the data you actually read\n\nFile: `read_cursor.py`.\n\n<Code language=\"python\">{getFileExample('read_cursor.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python read_cursor.py\n```\n\n```text\nFirst: 'Python'\nRest: ' 学习\\n  keep spaces  \\n'\nAt end: ''\nReopened: 'Python'\n```\n\n`read(6)` reads up to six characters in this text stream and advances its position. A later `read()` continues from there; it does not start over. At end of file, an unrestricted read returns an empty string. Opening a new read stream starts a new cursor at the beginning. We do not need random-access positioning to understand sequential reading.\n\nCalling `.read()` without a limit can load the entire file. That is acceptable for these tiny fixtures, not an unlimited-memory strategy for uploads or logs. For sequential text, iterate over the file:\n\n<Code language=\"python\">{getFileExample('read_lines.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python read_lines.py\n```\n\n```text\n1 'Python 学习\\n'\n2 '  keep spaces  \\n'\n```\n\nThe loop uses the iterator behavior of the file; each iteration supplies a line. Line endings are generally included when present, and a final line need not have a newline. Do not assume every line is terminated merely because this fixture is.\n\n`.strip()` would remove the second line's meaningful spaces as well as its newline. It is a data transformation, not a compulsory step in reading a file. `print(line)` can also show extra blank lines because the line may already end with `\\n` and print adds another. `repr` makes those mechanisms visible without changing the input.\n\n**Pause point A:** from a new terminal, predict the cursor experiment and read the fixture from two directories. Record which location remained fixed and which changed before continuing to writes.\n\n## 5. Text is not bytes, and encoding is not a cosmetic option\n\nA Python `str` represents Unicode text. A file stores bytes. Encoding maps text to bytes; decoding interprets bytes as text. These are not JSON operations. UTF-8 is the explicit agreement used by our files, so results do not depend on an implicit machine encoding.\n\nFile: `encoding_bytes.py`.\n\n<Code language=\"python\">{getFileExample('encoding_bytes.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python encoding_bytes.py\n```\n\n```text\nText length: 2\nByte length: 6\nBytes: b'\\xe5\\xad\\xa6\\xe4\\xb9\\xa0'\nDecoded: 学习\n```\n\nThese two Chinese characters each take three UTF-8 bytes. `b'...'` denotes a bytes value, not an ordinary text string with a decorative prefix. `len(str)` counts Unicode code points; complex visible symbols can contain more than one code point, so it is not a universal count of what a user perceives as characters. `len(bytes)` counts bytes.\n\nA text stream does the decoding for you. Binary mode returns bytes instead. File: `read_binary.py`.\n\n<Code language=\"python\">{getFileExample('read_binary.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python read_binary.py\n```\n\n```text\nIs bytes: True\nDecoded: 'Python 学习\\n  keep spaces  \\n'\n```\n\n`\"rb\"` means read binary. Do not pass `encoding` to a binary open; decode separately when you actually know the format. Text writes expect str and binary writes expect bytes. This small comparison establishes the boundary; it is not a binary-file-format course.\n\nNow intentionally choose the wrong decoder in `error_wrong_encoding.py`:\n\n<Code language=\"python\">{getFileExample('error_wrong_encoding.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python error_wrong_encoding.py\n```\n\nIt prints `After error closed: True`, then exits with **UnicodeDecodeError**: ASCII cannot decode the fixture's Chinese bytes. Opening succeeded; decoding failed during read; leaving with still closed the file before the outer handler ran. This handler refers to `stream` only for that known post-open decode failure, not for every possible open error.\n\nChanging the declared encoding does not convert a damaged file's bytes into the intended text. Do not add `errors=\"ignore\"` just to hide an exception: discarded bytes may be meaningful. Establish the actual source encoding or refuse the input. The download also includes `invalid-utf8.bin`, a single byte `0xff` deliberately invalid as a standalone UTF-8 sequence, for a later diagnostic experiment.\n\n## 6. Write modes are data-loss decisions\n\nBefore writing, inspect the destination path. The programs below create `_output/` with `.mkdir(exist_ok=True)`. Its parent already exists. `exist_ok=True` accepts an already existing directory; it does not turn a file into a directory or ignore permissions. Missing intermediate directories require a deliberate directory-creation policy, not a magical behavior of open.\n\nFile: `write_text.py`.\n\n<Code language=\"python\">{getFileExample('write_text.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python write_text.py\n```\n\n```text\nCharacters written: 10\nRead back: '学习 Python\\n'\n```\n\n`write` does not add a newline automatically, so the string includes one. The returned 10 counts text characters here, **not bytes**; the generated UTF-8 file is 14 bytes. `newline=\"\\n\"` prevents platform-specific translation of our written newline, keeping the exercise's output bytes deterministic. Text reading with the default newline behavior normalizes common line endings to `\\n`; binary reading does not make that translation.\n\n| Mode used here | Missing target | Existing target | Main risk |\n| --- | --- | --- | --- |\n| `r` | Fails | Reads without intentional writing | Incorrect path/encoding or unbounded reads |\n| `w` | Creates if the parent exists | Truncates on opening, before your first write | Old contents can disappear even if later work fails |\n| `a` | Creates if the parent exists | Appends writes at the end | Repeated runs add data; not a whole-JSON update protocol |\n| `x` | Creates a new file | Fails with FileExistsError | Caller must choose what an existing file means |\n\nFile: `write_modes.py` resets only its own `_output/modes.txt` and compares append with replacement:\n\n<Code language=\"python\">{getFileExample('write_modes.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python write_modes.py\n```\n\n```text\nAppended: 'First\\nNext\\n'\nReplaced: 'Reset\\n'\n```\n\nNow `create_once.py` uses exclusive creation:\n\n<Code language=\"python\">{getFileExample('create_once.py')}</Code>\n\nFrom a fresh extraction where `_output/once.txt` does not exist, run **both commands in order**:\n\n```bash\nuv run --no-project --python 3.13 python create_once.py\nuv run --no-project --python 3.13 python create_once.py\n```\n\nThe first prints `Created once`. The second is an **expected FileExistsError**, prints no success line and leaves the first file's bytes unchanged. If you ran this experiment before, the first command may already encounter that file. To start over, use a new extraction rather than deleting unrelated files or changing the mode to `w` without understanding the consequence.\n\nExclusive creation expresses the decision in the opening operation itself. An `exists()` check followed by a separate write cannot guarantee that the filesystem remains unchanged between the two steps. We do not implement multi-process coordination here.\n\n## 7. Closing is deterministic cleanup, not rollback\n\nA file object holds operating-system resources and buffered state. Do not rely on a variable being discarded or on the interpreter eventually cleaning it up. Put acquisition and use under an explicit lifetime.\n\nFirst run `closed_stream.py`, an **expected failure**:\n\n<Code language=\"python\">{getFileExample('closed_stream.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python closed_stream.py\n```\n\nIt prints the previously read string, then raises **ValueError: I/O operation on closed file**. The string is usable, but the closed stream is not. Returning data from a reading function is useful; returning a resource that has already been closed by that function is usually not.\n\n### Normal completion, return, failure and failed acquisition\n\nFile: `cleanup_paths.py` makes each path observable. `stream = None` records that no file has yet been acquired; it prevents the observer itself from using an unbound name if opening fails.\n\n<Code language=\"python\">{getFileExample('cleanup_paths.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python cleanup_paths.py\n```\n\n```text\nMode: normal\nInside closed: False\nAfter block closed: True\nFinally closed: True\nResult: normal\nMode: return\nInside closed: False\nFinally closed: True\nResult: early\nMode: error\nInside closed: False\nFinally closed: True\nCaught: ValueError\nMode: missing\nNo stream acquired\nCaught: FileNotFoundError\n```\n\nThe normal path reaches the statement after with. The return path does not, but leaving the with block still closes the file before the surrounding finally runs. The error path closes first, then propagates ValueError to the caller. The missing path never enters the body or obtains a stream. The observer's finally does not perform a second close; it only reports the resulting state.\n\nThis teaches **using built-in file resources**, not implementing a custom context-manager protocol. Other context managers can have different exception policies. We also do not promise cleanup after forceful process termination or power loss. Buffered writes and closing can themselves fail; a successful call to write is not a crash-durability guarantee.\n\n### A closed file can still contain the wrong data\n\nFile: `pitfall_truncate.py` deliberately prepares and then damages **its own scratch file**, not a fixture:\n\n<Code language=\"python\">{getFileExample('pitfall_truncate.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python pitfall_truncate.py\n```\n\n```text\nClosed: True\nRemaining: ''\n```\n\nOpening the existing target with `w` removed its previous contents. The subsequent exception occurred before a write, but closing did not restore the old bytes. **Resource cleanup and data rollback solve different problems.** Calculate and validate before a destructive open where possible; section 11 applies that ordering to serialization. It still will not become an atomic or transactional save.\n\n## 8. Locate file failures before interpreting data\n\nThese complete files intentionally fail. They do not need the output of a previous script:\n\n`error_missing_file.py`:\n\n<Code language=\"python\">{getFileExample('error_missing_file.py')}</Code>\n\n`error_missing_parent.py`:\n\n<Code language=\"python\">{getFileExample('error_missing_parent.py')}</Code>\n\n`error_directory.py`:\n\n<Code language=\"python\">{getFileExample('error_directory.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python error_missing_file.py\nuv run --no-project --python 3.13 python error_missing_parent.py\nuv run --no-project --python 3.13 python error_directory.py\n```\n\nThe first raises FileNotFoundError without printing `Entered block`; `fixtures/absent.txt` is intentionally absent. The second also raises FileNotFoundError: opening a new file with `w` does not create its missing parent `absent-folder`. The third uses a directory as a file; the verified macOS run raises IsADirectoryError. Some platforms can report PermissionError for that operation, so inspect the operation and path as well as the category.\n\n| Failure | What to investigate | What not to infer |\n| --- | --- | --- |\n| FileNotFoundError | Exact resolved target and missing path component | Not every missing component means “a brand-new empty user dataset” |\n| FileExistsError | Exclusive-create policy and existing destination | Do not silently switch to destructive overwrite |\n| IsADirectoryError / NotADirectoryError | Whether components are files or directories | Extension spelling does not determine filesystem type |\n| PermissionError | Access rights and intended writable location | It does not mean the file is absent |\n| UnicodeDecodeError | Bytes and expected text encoding | It is not automatically malformed JSON syntax |\n\nOpen the intended resource and handle the failures you can actually recover from. Do not preflight with `exists()` as a replacement for exception handling. Never respond to an access failure by granting broad permissions merely to make an example run. Keep unknown OSError failures visible.\n\n## 9. JSON converts values to text; saving is a separate step\n\nJSON is a data-interchange format, not Python source and not a database. A file called `tasks.json` still contains bytes; its extension does not validate them. A syntactically valid JSON document can also contain the wrong kind of value for your program.\n\nThe complete path is:\n\n```text\nPython values -> JSON text (str) -> UTF-8 bytes in a file\nfile bytes -> decoded text -> parsed Python values -> business validation\n```\n\nFile: `json_values.py` performs only the value/text steps. It does not create a file:\n\n<Code language=\"python\">{getFileExample('json_values.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python json_values.py\n```\n\n```text\nIs text: True\n{\n  \"title\": \"学习\",\n  \"minutes\": 20,\n  \"done\": false,\n  \"note\": null\n}\nEqual value: True\nSame object: False\nEscaped: \"\\u5b66\\u4e60\"\n```\n\n`dumps` returns a JSON string; `loads` parses a string into Python values. The `s` versions operate on a string rather than an already opened file. The restored dictionary is a new object. `indent=2` controls formatting; it does not make the document more valid.\n\n`ensure_ascii=False` keeps characters such as 学习 visibly present in the JSON text. The default escaped spelling `\"\\u5b66\\u4e60\"` represents the same JSON string after parsing. **Escaping is not file encoding.** Both representations can be written using UTF-8. `allow_nan=False` rejects non-finite output numbers, discussed next.\n\nHere is a static browser-language comparison, with local verification rather than browser file access:\n\n<PythonEditor title=\"JSON text is not a saved file\" compare={true} canRun={false}>\n```javascript case=json-text-comparison\nconst value = { title: \"学习\", done: false };\nconst text = JSON.stringify(value, null, 2);\nconsole.log(text);\nconsole.log(JSON.parse(text).title);\n```\n\n```python case=json-text-comparison\nimport json\n\nvalue = {\"title\": \"学习\", \"done\": False}\ntext = json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False)\nprint(text)\nprint(json.loads(text)[\"title\"])\n```\n</PythonEditor>\n\nBoth display:\n\n```text\n{\n  \"title\": \"学习\",\n  \"done\": false\n}\n学习\n```\n\nTransfer your experience with `JSON.parse` and `JSON.stringify`, but keep serialization separate from storage. Neither pair saves data on its own.\n\n## 10. JSON is not a universal copy of every Python object\n\n| JSON value | Typical Python value after decoding |\n| --- | --- |\n| object with string member names | dict with str keys |\n| array | list |\n| string | str |\n| integer / fractional number | int / float under the default decoder |\n| true / false | True / False |\n| null | None |\n\nJSON does not preserve Python tuple identity, set values, functions or arbitrary objects. In portable JSON, object member names are strings. Python's encoder accepts some other key types by converting them; that can change meaning or cause collisions, so our task format uses fixed string keys.\n\nFile: `json_limits.py`:\n\n<Code language=\"python\">{getFileExample('json_limits.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python json_limits.py\n```\n\n```text\nRestored: {'pair': [20, 35], 'labels': {'1': 'one'}}\nEqual: False\nSet is not JSON-serializable\nNon-finite output rejected\nDefault decoder accepts NaN: True\nRepeated key: {'minutes': 20}\nPython repr is not JSON\n```\n\nTrace the differences rather than treating round-trip equality as universal:\n\n- The tuple becomes a list, and the integer key becomes a string.\n- A set is unsupported by the default encoder. Do not silence the error with a generic conversion without defining the data format.\n- Standard JSON does not include NaN or Infinity. Python's default JSON behavior has extensions; `allow_nan=False` controls **encoding**, not `loads`. The default decoder can accept NaN. JavaScript's `JSON.stringify(NaN)` instead produces `null`; do not assume identical failure behavior.\n- Repeated object names keep the last value with Python's default decoder. That is not duplicate detection.\n- `str`/`repr` of a dictionary can contain single quotes and Python False, so they are not JSON encoders. Never use `eval` as a JSON parser.\n\nOur later task validator restricts minutes to ordinary nonnegative integers, rejecting bool and float values, including NaN. It does **not** detect duplicate keys in the original text, implement a general strict JSON decoder or set size/depth limits. This is a small owned-file format, not a policy for arbitrary untrusted uploads. Such input needs explicit limits and parsing policies at the later backend boundary.\n\n## 11. Save one JSON document, and do fallible preparation before opening w\n\nThe file variants take an **open file object**, not a path string. File: `json_file.py`.\n\n<Code language=\"python\">{getFileExample('json_file.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python json_file.py\n```\n\n```text\ndump returned: None\nTitle: 学习\nEqual value: True\n```\n\n`dump(value, stream)` writes JSON text to the text stream. It returns None rather than the generated text. `load(stream)` reads and decodes one JSON document. The stream handles UTF-8, while the JSON functions handle JSON syntax and values. Neither automatically closes a caller-owned stream; its with block owns the lifetime. We add a final newline explicitly because dump does not add one for us.\n\n| Pair | Takes / returns | Resource ownership here |\n| --- | --- | --- |\n| dumps / loads | Python value ↔ string | No file opened by these calls |\n| dump / load | Value → writable stream; readable stream → value | Caller opens and closes the file |\n\n### Appending documents is not updating an array\n\n`pitfall_two_documents.py` is an **expected failure**. It writes only its own `_output/two-documents.json`:\n\n<Code language=\"python\">{getFileExample('pitfall_two_documents.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python pitfall_two_documents.py\n```\n\nBefore JSONDecodeError for extra data, it prints:\n\n```text\nWritten: {\"part\": 1}{\"part\": 2}\n```\n\nTwo adjacent JSON objects are not one JSON document. Opening with append mode does not insert array punctuation or merge objects either. To save a small list as one document, construct the list in memory and serialize that list once. Line-delimited JSON is a different agreed format and reader, not a property that `json.load` silently supplies.\n\n### Prepare before a destructive open, without promising atomicity\n\nFile: `serialize_before_open.py` first creates its own valid scratch baseline, then attempts to save a value containing an unsupported set:\n\n<Code language=\"python\">{getFileExample('serialize_before_open.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python serialize_before_open.py\n```\n\n```text\nSerialization refused\nUnchanged: True\n```\n\n`save_json` computes the full string before opening the destination with `w`. That TypeError therefore occurs before truncation. `json.dump` to an already open write stream can fail after opening, and can even have emitted part of the document. Merely wrapping it in with does not preserve the old file.\n\nThis ordering protects against **the demonstrated pre-write serialization failure**, not every save failure. Once w has opened, a disk-full error, write/close failure or process crash can still leave empty or partial data. It also does not coordinate two writers. We deliberately do not label this an atomic save, backup scheme or database transaction. Keep the data small, use only the owned exercise location, and learn stronger persistence guarantees in their later project/operations context.\n\n**Pause point B:** explain why the serialization experiment keeps the old file while the earlier truncation experiment does not. If your explanation is only “both use with, so both are safe,” repeat the two observations before continuing.\n\n## 12. Parse success is not business validation: identify the failing layer\n\nThe valid fixture `fixtures/tasks.json` is an array of records. It contains one completed and one incomplete task:\n\n<Code language=\"json\">{getFileExample('fixtures/tasks.json')}</Code>\n\nFor this guided example, we only total all minutes; we are **not yet validating title/done or filtering completed tasks**. The independent task later specifies the full shape.\n\nFile: `validate_data.py`:\n\n<Code language=\"python\">{getFileExample('validate_data.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python validate_data.py\n```\n\n```text\nTotal: 20\nRejected: root must be a list\nRejected: row 1 minutes must be a non-negative integer\nRejected: row 1 minutes must be a non-negative integer\n```\n\nAll four input strings are parseable JSON. The second has the wrong root shape. The third uses a string where our format requires an integer. The fourth uses a boolean, which must not sneak through as an integer: `type(minutes) is int` expresses this strict boundary. Unlike L05's form-like text input, this file format stores numbers as numbers. Automatically calling `int` would conceal that contract mismatch.\n\nNow inspect six distinct cases without changing their files. `inspect_documents.py` imports the already explained function:\n\n<Code language=\"python\">{getFileExample('inspect_documents.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python inspect_documents.py\n```\n\n```text\ntasks.json: total=55\nabsent.json: missing file\ninvalid-utf8.bin: invalid UTF-8\nmalformed.json: invalid JSON at line 1, column 2\nwrong-root.json: invalid data: root must be a list\nwrong-types.json: invalid data: row 1 minutes must be a non-negative integer\n```\n\nFollow the boundaries:\n\n1. Opening can fail before any contents are available.\n2. Decoding bytes can fail before there is valid text.\n3. Parsing text can raise `json.JSONDecodeError`; `.lineno` and `.colno` help locate the syntax error, not validate business meaning.\n4. Validation happens after the reading with block, so the file is already closed. It can reject perfectly parseable values.\n\nJSONDecodeError and UnicodeDecodeError are ValueError subclasses. Putting one broad ValueError handler first would erase these distinctions. Here the reading handlers are specific, and the validator's ValueError handler belongs to a separate call. PermissionError and unknown failures are not reinterpreted as missing data or successful zero totals.\n\nThe inspector reports a bad file and continues because inspecting a known batch is its explicit job. A task-saving program has a different responsibility: **after a damaged input, it must stop before overwriting that input**. Do not copy a recovery policy without its purpose.\n\n## 13. Three levels of practice\n\n### A. Predict the data and the lifetime\n\nBefore running again, answer:\n\n1. What does a second unrestricted read on an exhausted stream return? What changes after reopening?\n2. Does with delete the name `stream`, erase a previously read string, or restore truncated file contents?\n3. Can `json.loads` succeed for a value your task program must reject? Give a concrete example.\n4. Why do `dumps` and `dump` have different return values and resource requirements?\n5. In `cleanup_paths.py`, which routes reach the line after with, and which still close a file?\n\n<details>\n<summary>Prediction checkpoint — compare mechanisms after writing your own answers</summary>\n\nThe exhausted read returns an empty string; a new read stream starts at the beginning. With closes the acquired stream but does not remove the Python name, delete the file, erase returned text or undo writes. JSON such as `{\"minutes\": \"20\"}` can parse yet violate a number contract. Dumps returns text without opening a file; dump writes through a supplied stream and returns None. Only the normal observation reaches the line after with; normal, return and error routes close acquired files, while failed opening acquires none.\n\n</details>\n\n### B. Repair the false “empty file” recovery\n\n`exercises/unsafe_load.py` is deliberately wrong. Its main prepares a damaged scratch file under **`exercises/_output/`**, then a broad recovery policy turns the failure into an empty list and overwrites the evidence:\n\n<Code language=\"python\">{getFileExample('exercises/unsafe_load.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python exercises/unsafe_load.py\n```\n\n```text\nStored: []\n```\n\nSuccessful exit is the bug, not acceptance. Repair the behavior:\n\n- Only an actually missing file may produce an initial empty list.\n- Existing malformed JSON, invalid UTF-8, a non-list root and access failures must not become an empty result.\n- Reading failures must prevent the subsequent write. Preserve the old bytes; do not merely print a warning and continue.\n- A new process must not perform this demonstration just because the module is imported.\n\nThe helper in this exercise only requires a list root, not the complete task-item schema. Keep that boundary explicit rather than claiming it validates every record.\n\n<details>\n<summary>Repair reference — distinguish the helper's policy from the demonstration</summary>\n\n`solutions/recover_missing_only.py`:\n\n<Code language=\"python\">{getFileExample('solutions/recover_missing_only.py')}</Code>\n\n```bash\nuv run --no-project --python 3.13 python solutions/recover_missing_only.py\n```\n\n```text\nRefused damaged JSON\nUnchanged: True\n```\n\nThe helper only recovers FileNotFoundError. Its caller deliberately catches JSONDecodeError to demonstrate preservation and then returns **before any saving**. The helper still propagates syntax, encoding, shape and permission failures to its own callers. Try it with an absent path, a valid empty array and a valid nonempty array as separate cases; missing and valid-empty may return equal values without being the same event.\n\n</details>\n\n### C. Independently build a small local task store\n\nCreate a genuinely empty directory **outside the download**, then build this layout yourself. The output directory should be created only when the program entry runs, not on import:\n\n```text\nmy_tasks/\n  check_import.py\n  run_store.py\n  task_store/\n    __init__.py\n    validation.py\n    storage.py\n    app.py\n```\n\nUse plain modules and functions from L06, not classes, a database or a framework.\n\n**Data contract:** one JSON array. Every item is a dictionary with **exactly** `title`, `minutes` and `done`. Title must be str and not whitespace-only; preserve its original spelling rather than silently trimming it. Minutes must be an ordinary nonnegative int, rejecting bool, float, numeric text and None. Done must be bool, not 0, 1 or a string. Empty arrays and zero minutes are valid. Preserve item order; duplicate task titles are allowed because titles are not defined as IDs here.\n\n**Responsibilities:**\n\n- `validation.py`: `validate_tasks(value)` returns fresh task dictionaries in a fresh list, without mutating the source. Reject wrong root/items, missing/extra keys and invalid fields with ValueError messages identifying the row/field. This is validation of the agreed small format, not general schema tooling.\n- `storage.py`: `load_tasks(path)` opens UTF-8 text with with, parses one document, closes it and validates the result. It must propagate FileNotFoundError; the library must not assume that every caller wants initialization.\n- `save_tasks(path, value)` validates and serializes **before** opening w. Write readable UTF-8 JSON with two-space indentation, literal Unicode characters, no non-finite output and one final newline. The caller passes a Path and owns parent-directory creation. Invalid values must leave an existing destination unchanged and must not create a missing one.\n- `app.py`: put directory creation, initialization, reading, mutation, saving and display inside guarded `main`. Use `_output/tasks.json` under the `my_tasks` directory, anchored independently of cwd. Only a missing file permits the two initial tasks below. Existing corrupt/invalid data must cause a visible failure before saving, not a silent reset.\n- On every valid run, mark all tasks titled `Read` as done, save once, and sum the minutes of unfinished tasks. A valid empty array must stay empty rather than being mistaken for a missing file.\n- `run_store.py`: an alternative file entry. Import `main` from `task_store.app` and call it under its own main guard. This wrapper lets a direct file command find the package through the wrapper's directory, using the L06 mechanism, without changing search paths.\n- `check_import.py`: import app and storage and print only `Imported: task_store.app task_store.storage`. Import must not create `_output`, read data or start the business entry.\n\nFor a missing file, initialize Read / 20 / False and 练习 / 35 / False. From your own **`my_tasks` directory**, run:\n\n```bash\nuv run --no-project --python 3.13 python check_import.py\nuv run --no-project --python 3.13 python -m task_store.app\nuv run --no-project --python 3.13 python -m task_store.app\n```\n\nThe probe prints:\n\n```text\nImported: task_store.app task_store.storage\n```\n\nThe first app process prints:\n\n```text\nSource: new file\nSaved: 2\nPending minutes: 35\nTasks: [{'title': 'Read', 'minutes': 20, 'done': True}, {'title': '练习', 'minutes': 35, 'done': False}]\n```\n\nThe next app process prints:\n\n```text\nSource: existing file\nSaved: 2\nPending minutes: 35\nTasks: [{'title': 'Read', 'minutes': 20, 'done': True}, {'title': '练习', 'minutes': 35, 'done': False}]\n```\n\nThe second process proves persistence rather than reuse of the previous process's variables. Open your generated file in an editor and confirm lowercase JSON booleans, preserved Unicode and the updated Read item. Then vary the input. Work only on this disposable exercise copy, keeping a copy of valid data before each corruption experiment.\n\n| Variation | Required observation |\n| --- | --- |\n| Saved file contains `[]` | Existing-file branch; save zero tasks, total zero, do not restore initial tasks |\n| Unfinished task has zero minutes | Valid item preserved, not dropped by truthiness |\n| Change 练习 minutes to 36 | Next fresh run reports pending 36 without changing the calculation code |\n| All done; reordered data; Unicode titles | Correct zero/order/text preservation |\n| Malformed JSON / invalid UTF-8 / wrong root or fields | Visible failure; destination bytes unchanged; no success message |\n| minutes is True, `20.0`, `\"20\"`, None or negative | Reject; no implicit conversion to a valid estimate |\n| Missing/extra key, blank title, non-bool done | Reject with a useful field/row diagnosis |\n| Save invalid data to existing / absent target | Existing bytes unchanged / no new file |\n| Read twice, then mutate one result | Other result and saved file remain unchanged until an explicit save |\n| Missing parent or permission failure | Propagate I/O failure; do not convert it into empty data |\n| Import from a fresh process | Only probe marker; no output directory or business work |\n| Start from a different cwd with the same package containing directory discoverable | The same anchored data location, not a second accidental data file |\n\nFor the final context check, from the **parent of `my_tasks`**, run the wrapper:\n\n```bash\nuv run --no-project --python 3.13 python my_tasks/run_store.py\n```\n\nIt imports through the wrapper's directory as in L06, then explicitly calls the app's main. The app still uses `my_tasks/_output/tasks.json`; it must not create `_output` in the terminal's current directory. For the module entry, change to `my_tasks` before `-m task_store.app`. Directly executing `task_store/app.py` still lacks the relative-import package context; do not introduce sys.path patches to “fix” it.\n\nUse temporary calls in your own probe to exercise load/save with different Path values, and L05's specific exception handlers to inspect expected rejections. Automated tests are maintenance evidence here, not an unexplained learner prerequisite.\n\n<details>\n<summary>Independent reference package — open after your own implementation</summary>\n\n`solutions/independent/task_store/__init__.py`:\n\n<Code language=\"python\">{getFileExample('solutions/independent/task_store/__init__.py')}</Code>\n\n`validation.py`:\n\n<Code language=\"python\">{getFileExample('solutions/independent/task_store/validation.py')}</Code>\n\n`storage.py`:\n\n<Code language=\"python\">{getFileExample('solutions/independent/task_store/storage.py')}</Code>\n\n`app.py`:\n\n<Code language=\"python\">{getFileExample('solutions/independent/task_store/app.py')}</Code>\n\n`solutions/independent/check_import.py`:\n\n<Code language=\"python\">{getFileExample('solutions/independent/check_import.py')}</Code>\n\n`solutions/independent/run_store.py`:\n\n<Code language=\"python\">{getFileExample('solutions/independent/run_store.py')}</Code>\n\nFrom the downloaded lab root, run the reference in its own containing directory:\n\n```bash\ncd solutions/independent\nuv run --no-project --python 3.13 python check_import.py\nuv run --no-project --python 3.13 python -m task_store.app\nuv run --no-project --python 3.13 python -m task_store.app\ncd ../..\nuv run --no-project --python 3.13 python solutions/independent/run_store.py\n```\n\nThe reference only uses its own `solutions/independent/_output/`. Validation does not mutate the argument; reading closes before validation; saving does fallible preparation before truncation. Application initialization is not smuggled into the storage library or import time. The app's specific load messages re-raise the original failure, so refusing corrupted data does not masquerade as a successful save.\n\nThe default JSON decoder's repeated-key behavior still applies, and successful writing is still not atomic or crash-safe. These limits are part of the contract, not problems that with or schema checks secretly solve.\n\n</details>\n\n## 14. Exit gate, recovery after a pause and the next chapter\n\nYou can continue when you can independently:\n\n- Distinguish Path, open stream, text, bytes and decoded business data.\n- Predict cursor position, mode effects and the location used when cwd changes.\n- Explain encoding versus JSON escaping, and serialization versus file saving.\n- Track closing on success, return, exception and failed acquisition without promising rollback.\n- Locate the failing layer and justify which caller can recover, instead of treating every error as empty data.\n- Reconstruct the task store from an empty directory, run it in fresh processes and verify preservation on rejected input.\n\nWhen stopping, record the **current directory, last command, which output files now exist, whether this was a first or repeated run, observed result, and the next unchecked variation**. A saved `_output/once.txt` or `_output/tasks.json` changes the next run's preconditions. Resume by inspecting that state and predicting one small experiment; do not erase it blindly or rebuild the entire environment.\n\nNext is **L08: environments and dependency management**. With language, modules and files understood, we can explain interpreters, isolation, declarations, lock files and environment reconstruction. The historical next page has not yet been rewritten to that contract. Basic automated tests remain L09, and the first independent reproducible application remains L10. This local task store is not a deployed service or a production persistence system.\n\n## 15. Sources and deliberate limits\n\nTechnical sources checked on 2026-09-24 against the Python 3.13 baseline:\n\n- [Reading and writing files](https://docs.python.org/3.13/tutorial/inputoutput.html#reading-and-writing-files): text/binary operations, cursors, iteration, closing and serialization.\n- [pathlib](https://docs.python.org/3.13/library/pathlib.html): path construction, resolve, parent, open and explicit directory creation.\n- [Built-in open](https://docs.python.org/3.13/library/functions.html#open) and [I/O](https://docs.python.org/3.13/library/io.html): modes, encoding, newline translation, buffered streams and closing.\n- [Unicode HOWTO](https://docs.python.org/3.13/howto/unicode.html): code points, encoding and decoding.\n- [with statement](https://docs.python.org/3.13/reference/compound_stmts.html#the-with-statement) and [built-in exceptions](https://docs.python.org/3.13/library/exceptions.html): acquisition/exit and failure categories.\n- [Python JSON](https://docs.python.org/3.13/library/json.html), [RFC 8259](https://www.rfc-editor.org/rfc/rfc8259) and [MDN JSON.stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify): conversion rules, one-document framing, non-finite numbers, repeated names and JavaScript differences.\n\nCustom context-manager protocols, generators, async file APIs, atomic replacement, locking, backups, database transactions, arbitrary upload validation, CSV, regular expressions and data analysis are not mandatory in this chapter. They require their own motivation and full teaching, not a one-line API list attached to an already dense foundation.\n",
+      "actual_shared_python_sources": {
+        "paths.py": "from pathlib import Path\n\nrelative = Path(\"fixtures\") / \"notes.txt\"\nbase = Path(__file__).resolve().parent\ntarget = base / relative\nprint(\"Cwd:\", Path.cwd())\nprint(\"Relative:\", relative)\nprint(\"Absolute:\", target.is_absolute())\nprint(\"Name:\", target.name)\nprint(\"Parent name:\", target.parent.name)\nprint(\"Target:\", target)\n",
+        "read_text.py": "from pathlib import Path\n\npath = Path(__file__).resolve().parent / \"fixtures\" / \"notes.txt\"\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    print(\"Inside closed:\", stream.closed)\n    text = stream.read()\nprint(\"Text:\", repr(text))\nprint(\"After closed:\", stream.closed)\n",
+        "closed_stream.py": "from pathlib import Path\n\npath = Path(__file__).resolve().parent / \"fixtures\" / \"notes.txt\"\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    text = stream.read()\nprint(\"Saved text:\", repr(text))\nprint(stream.read())\n",
+        "read_cursor.py": "from pathlib import Path\n\npath = Path(__file__).resolve().parent / \"fixtures\" / \"notes.txt\"\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    print(\"First:\", repr(stream.read(6)))\n    print(\"Rest:\", repr(stream.read()))\n    print(\"At end:\", repr(stream.read()))\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    print(\"Reopened:\", repr(stream.read(6)))\n",
+        "read_lines.py": "from pathlib import Path\n\npath = Path(__file__).resolve().parent / \"fixtures\" / \"notes.txt\"\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    for number, line in enumerate(stream, start=1):\n        print(number, repr(line))\n",
+        "encoding_bytes.py": "text = \"学习\"\nraw = text.encode(\"utf-8\")\nprint(\"Text length:\", len(text))\nprint(\"Byte length:\", len(raw))\nprint(\"Bytes:\", raw)\nprint(\"Decoded:\", raw.decode(\"utf-8\"))\n",
+        "read_binary.py": "from pathlib import Path\n\npath = Path(__file__).resolve().parent / \"fixtures\" / \"notes.txt\"\nwith path.open(\"rb\") as stream:\n    raw = stream.read()\nprint(\"Is bytes:\", type(raw) is bytes)\nprint(\"Decoded:\", repr(raw.decode(\"utf-8\")))\n",
+        "error_wrong_encoding.py": "from pathlib import Path\n\npath = Path(__file__).resolve().parent / \"fixtures\" / \"notes.txt\"\ntry:\n    with path.open(\"r\", encoding=\"ascii\") as stream:\n        stream.read()\nexcept UnicodeDecodeError:\n    print(\"After error closed:\", stream.closed)\n    raise\n",
+        "write_text.py": "from pathlib import Path\n\noutput = Path(__file__).resolve().parent / \"_output\"\noutput.mkdir(exist_ok=True)\npath = output / \"note.txt\"\nwith path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n    count = stream.write(\"学习 Python\\n\")\nprint(\"Characters written:\", count)\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    print(\"Read back:\", repr(stream.read()))\n",
+        "write_modes.py": "from pathlib import Path\n\noutput = Path(__file__).resolve().parent / \"_output\"\noutput.mkdir(exist_ok=True)\npath = output / \"modes.txt\"\nwith path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n    stream.write(\"First\\n\")\nwith path.open(\"a\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n    stream.write(\"Next\\n\")\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    print(\"Appended:\", repr(stream.read()))\nwith path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n    stream.write(\"Reset\\n\")\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    print(\"Replaced:\", repr(stream.read()))\n",
+        "create_once.py": "from pathlib import Path\n\noutput = Path(__file__).resolve().parent / \"_output\"\noutput.mkdir(exist_ok=True)\npath = output / \"once.txt\"\nwith path.open(\"x\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n    stream.write(\"Created once\\n\")\nprint(\"Created once\")\n",
+        "cleanup_paths.py": "from pathlib import Path\n\n\ndef observe(path, mode):\n    stream = None\n    try:\n        with path.open(\"r\", encoding=\"utf-8\") as stream:\n            print(\"Inside closed:\", stream.closed)\n            if mode == \"return\":\n                return \"early\"\n            if mode == \"error\":\n                raise ValueError(\"inside block\")\n            stream.read()\n        print(\"After block closed:\", stream.closed)\n        return \"normal\"\n    finally:\n        if stream is None:\n            print(\"No stream acquired\")\n        else:\n            print(\"Finally closed:\", stream.closed)\n\n\nbase = Path(__file__).resolve().parent / \"fixtures\"\nfor mode in [\"normal\", \"return\", \"error\", \"missing\"]:\n    print(\"Mode:\", mode)\n    if mode == \"missing\":\n        name = \"absent.txt\"\n    else:\n        name = \"notes.txt\"\n    try:\n        result = observe(base / name, mode)\n    except FileNotFoundError:\n        print(\"Caught: FileNotFoundError\")\n    except ValueError:\n        print(\"Caught: ValueError\")\n    else:\n        print(\"Result:\", result)\n",
+        "pitfall_truncate.py": "from pathlib import Path\n\noutput = Path(__file__).resolve().parent / \"_output\"\noutput.mkdir(exist_ok=True)\npath = output / \"truncation.txt\"\nwith path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n    stream.write(\"Original notes\\n\")\ntry:\n    with path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n        raise ValueError(\"formatting failed before write\")\nexcept ValueError:\n    print(\"Closed:\", stream.closed)\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    print(\"Remaining:\", repr(stream.read()))\n",
+        "error_missing_file.py": "from pathlib import Path\n\npath = Path(__file__).resolve().parent / \"fixtures\" / \"absent.txt\"\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    print(\"Entered block\")\n    print(stream.read())\n",
+        "error_missing_parent.py": "from pathlib import Path\n\npath = Path(__file__).resolve().parent / \"_output\" / \"absent-folder\" / \"note.txt\"\nwith path.open(\"w\", encoding=\"utf-8\") as stream:\n    stream.write(\"This cannot create parent directories\")\n",
+        "error_directory.py": "from pathlib import Path\n\npath = Path(__file__).resolve().parent / \"fixtures\"\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    print(stream.read())\n",
+        "json_values.py": "import json\n\nvalue = {\"title\": \"学习\", \"minutes\": 20, \"done\": False, \"note\": None}\ntext = json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False)\nprint(\"Is text:\", type(text) is str)\nprint(text)\nrestored = json.loads(text)\nprint(\"Equal value:\", restored == value)\nprint(\"Same object:\", restored is value)\nprint(\"Escaped:\", json.dumps(\"学习\"))\n",
+        "json_limits.py": "import json\n\nvalue = {\"pair\": (20, 35), \"labels\": {1: \"one\"}}\nrestored = json.loads(json.dumps(value))\nprint(\"Restored:\", restored)\nprint(\"Equal:\", restored == value)\ntry:\n    json.dumps({\"tags\": {\"python\"}})\nexcept TypeError:\n    print(\"Set is not JSON-serializable\")\ntry:\n    json.dumps(float(\"nan\"), allow_nan=False)\nexcept ValueError:\n    print(\"Non-finite output rejected\")\nprint(\"Default decoder accepts NaN:\", type(json.loads(\"NaN\")) is float)\nprint(\"Repeated key:\", json.loads('{\"minutes\": 10, \"minutes\": 20}'))\ntry:\n    json.loads(str({\"done\": False}))\nexcept json.JSONDecodeError:\n    print(\"Python repr is not JSON\")\n",
+        "json_file.py": "import json\nfrom pathlib import Path\n\noutput = Path(__file__).resolve().parent / \"_output\"\noutput.mkdir(exist_ok=True)\npath = output / \"profile.json\"\nvalue = {\"title\": \"学习\", \"minutes\": 20, \"done\": False, \"note\": None}\nwith path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n    result = json.dump(value, stream, ensure_ascii=False, indent=2, allow_nan=False)\n    stream.write(\"\\n\")\nprint(\"dump returned:\", result)\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    restored = json.load(stream)\nprint(\"Title:\", restored[\"title\"])\nprint(\"Equal value:\", restored == value)\n",
+        "pitfall_two_documents.py": "import json\nfrom pathlib import Path\n\noutput = Path(__file__).resolve().parent / \"_output\"\noutput.mkdir(exist_ok=True)\npath = output / \"two-documents.json\"\nwith path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n    json.dump({\"part\": 1}, stream)\n    json.dump({\"part\": 2}, stream)\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    print(\"Written:\", stream.read())\nwith path.open(\"r\", encoding=\"utf-8\") as stream:\n    json.load(stream)\n",
+        "serialize_before_open.py": "import json\nfrom pathlib import Path\n\n\ndef save_json(path, value):\n    text = json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False)\n    with path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n        stream.write(text + \"\\n\")\n\n\ndef main():\n    output = Path(__file__).resolve().parent / \"_output\"\n    output.mkdir(exist_ok=True)\n    path = output / \"serialization.json\"\n    save_json(path, {\"saved\": True})\n    with path.open(\"r\", encoding=\"utf-8\") as stream:\n        before = stream.read()\n    try:\n        save_json(path, {\"tags\": {\"python\"}})\n    except TypeError:\n        print(\"Serialization refused\")\n    with path.open(\"r\", encoding=\"utf-8\") as stream:\n        print(\"Unchanged:\", stream.read() == before)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "validate_data.py": "import json\n\n\ndef total_minutes(value):\n    if type(value) is not list:\n        raise ValueError(\"root must be a list\")\n    total = 0\n    for number, row in enumerate(value, start=1):\n        if type(row) is not dict or \"minutes\" not in row:\n            raise ValueError(f\"row {number} must be an object with minutes\")\n        minutes = row[\"minutes\"]\n        if type(minutes) is not int or minutes < 0:\n            raise ValueError(f\"row {number} minutes must be a non-negative integer\")\n        total = total + minutes\n    return total\n\n\ndef main():\n    texts = [\n        '[{\"minutes\": 20}, {\"minutes\": 0}]',\n        '{\"minutes\": 20}',\n        '[{\"minutes\": \"20\"}]',\n        '[{\"minutes\": true}]',\n    ]\n    for text in texts:\n        value = json.loads(text)\n        try:\n            total = total_minutes(value)\n        except ValueError as error:\n            print(\"Rejected:\", error)\n        else:\n            print(\"Total:\", total)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "inspect_documents.py": "import json\nfrom pathlib import Path\n\nfrom validate_data import total_minutes\n\nbase = Path(__file__).resolve().parent / \"fixtures\"\nnames = [\n    \"tasks.json\",\n    \"absent.json\",\n    \"invalid-utf8.bin\",\n    \"malformed.json\",\n    \"wrong-root.json\",\n    \"wrong-types.json\",\n]\nfor name in names:\n    try:\n        with (base / name).open(\"r\", encoding=\"utf-8\") as stream:\n            value = json.load(stream)\n    except FileNotFoundError:\n        print(f\"{name}: missing file\")\n    except UnicodeDecodeError:\n        print(f\"{name}: invalid UTF-8\")\n    except json.JSONDecodeError as error:\n        print(f\"{name}: invalid JSON at line {error.lineno}, column {error.colno}\")\n    else:\n        try:\n            total = total_minutes(value)\n        except ValueError as error:\n            print(f\"{name}: invalid data: {error}\")\n        else:\n            print(f\"{name}: total={total}\")\n",
+        "exercises/unsafe_load.py": "import json\nfrom pathlib import Path\n\n\ndef load_or_empty(path):\n    try:\n        with path.open(\"r\", encoding=\"utf-8\") as stream:\n            value = json.load(stream)\n    except (OSError, ValueError):\n        return []\n    if type(value) is not list:\n        raise ValueError(\"tasks must be a list\")\n    return value\n\n\ndef main():\n    output = Path(__file__).resolve().parent / \"_output\"\n    output.mkdir(exist_ok=True)\n    path = output / \"repair.json\"\n    with path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n        stream.write(\"{broken\\n\")\n    tasks = load_or_empty(path)\n    with path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n        json.dump(tasks, stream)\n    with path.open(\"r\", encoding=\"utf-8\") as stream:\n        print(\"Stored:\", stream.read())\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "solutions/recover_missing_only.py": "import json\nfrom pathlib import Path\n\n\ndef load_or_empty(path):\n    try:\n        with path.open(\"r\", encoding=\"utf-8\") as stream:\n            value = json.load(stream)\n    except FileNotFoundError:\n        return []\n    if type(value) is not list:\n        raise ValueError(\"tasks must be a list\")\n    return value\n\n\ndef main():\n    output = Path(__file__).resolve().parent / \"_output\"\n    output.mkdir(exist_ok=True)\n    path = output / \"repair.json\"\n    original = \"{broken\\n\"\n    with path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n        stream.write(original)\n    try:\n        tasks = load_or_empty(path)\n    except json.JSONDecodeError:\n        print(\"Refused damaged JSON\")\n        with path.open(\"r\", encoding=\"utf-8\") as stream:\n            print(\"Unchanged:\", stream.read() == original)\n        return\n    with path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n        json.dump(tasks, stream)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "solutions/independent/task_store/__init__.py": "\"\"\"Small local task persistence exercise; no import-time file operations.\"\"\"\n",
+        "solutions/independent/task_store/validation.py": "def validate_tasks(value):\n    if type(value) is not list:\n        raise ValueError(\"tasks must be a list\")\n    tasks = []\n    for number, row in enumerate(value, start=1):\n        if type(row) is not dict:\n            raise ValueError(f\"task {number} must be an object\")\n        if set(row) != {\"title\", \"minutes\", \"done\"}:\n            raise ValueError(f\"task {number} must contain exactly title, minutes, done\")\n        title = row[\"title\"]\n        minutes = row[\"minutes\"]\n        done = row[\"done\"]\n        if type(title) is not str or title.strip() == \"\":\n            raise ValueError(f\"task {number} title must be non-empty text\")\n        if type(minutes) is not int or minutes < 0:\n            raise ValueError(f\"task {number} minutes must be a non-negative integer\")\n        if type(done) is not bool:\n            raise ValueError(f\"task {number} done must be a boolean\")\n        tasks.append({\"title\": title, \"minutes\": minutes, \"done\": done})\n    return tasks\n",
+        "solutions/independent/task_store/storage.py": "import json\n\nfrom .validation import validate_tasks\n\n\ndef load_tasks(path):\n    with path.open(\"r\", encoding=\"utf-8\") as stream:\n        value = json.load(stream)\n    return validate_tasks(value)\n\n\ndef save_tasks(path, value):\n    tasks = validate_tasks(value)\n    text = json.dumps(tasks, ensure_ascii=False, indent=2, allow_nan=False)\n    with path.open(\"w\", encoding=\"utf-8\", newline=\"\\n\") as stream:\n        stream.write(text + \"\\n\")\n",
+        "solutions/independent/task_store/app.py": "import json\nfrom pathlib import Path\n\nfrom .storage import load_tasks, save_tasks\n\n\ndef main():\n    output = Path(__file__).resolve().parent.parent / \"_output\"\n    output.mkdir(exist_ok=True)\n    path = output / \"tasks.json\"\n    try:\n        tasks = load_tasks(path)\n    except FileNotFoundError:\n        print(\"Source: new file\")\n        tasks = [\n            {\"title\": \"Read\", \"minutes\": 20, \"done\": False},\n            {\"title\": \"练习\", \"minutes\": 35, \"done\": False},\n        ]\n    except json.JSONDecodeError:\n        print(\"Invalid JSON; file unchanged\")\n        raise\n    except UnicodeDecodeError:\n        print(\"Invalid UTF-8; file unchanged\")\n        raise\n    except ValueError:\n        print(\"Invalid task data; file unchanged\")\n        raise\n    else:\n        print(\"Source: existing file\")\n    for task in tasks:\n        if task[\"title\"] == \"Read\":\n            task[\"done\"] = True\n    save_tasks(path, tasks)\n    pending = 0\n    for task in tasks:\n        if not task[\"done\"]:\n            pending = pending + task[\"minutes\"]\n    print(\"Saved:\", len(tasks))\n    print(\"Pending minutes:\", pending)\n    print(\"Tasks:\", tasks)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "solutions/independent/check_import.py": "import task_store.app\nimport task_store.storage\n\nprint(\"Imported:\", task_store.app.__name__, task_store.storage.__name__)\n",
+        "solutions/independent/run_store.py": "from task_store.app import main\n\nif __name__ == \"__main__\":\n    main()\n"
+      },
+      "actual_fixtures": {
+        "fixtures/notes.txt": {
+          "encoding": "utf-8",
+          "content": "Python 学习\n  keep spaces  \n"
+        },
+        "fixtures/tasks.json": {
+          "encoding": "utf-8",
+          "content": "[\n  {\"title\": \"Read\", \"minutes\": 20, \"done\": false},\n  {\"title\": \"练习\", \"minutes\": 35, \"done\": true}\n]\n"
+        },
+        "fixtures/malformed.json": {
+          "encoding": "utf-8",
+          "content": "{broken\n"
+        },
+        "fixtures/wrong-root.json": {
+          "encoding": "utf-8",
+          "content": "{\"tasks\": []}\n"
+        },
+        "fixtures/wrong-types.json": {
+          "encoding": "utf-8",
+          "content": "[{\"title\": \"Read\", \"minutes\": \"20\", \"done\": false}]\n"
+        },
+        "fixtures/invalid-utf8.bin": {
+          "encoding": "hex",
+          "content": "ff"
+        }
+      },
+      "download_readme": "# L07 — 文件、JSON 与资源使用 / Files, JSON and resource use / 文件、JSON 與資源使用\n\n## 简体中文\n\n前置 L00—L06。本实验使用 CPython 3.13 标准库，2026-09-24 用 3.13.15 验证，不需要第三方依赖、测试框架、类、数据库或服务端。下载包含 31 份 Python 源码、六份输入和本说明。保留所有目录；包内辅助模块不是独立入口。\n\n**写入边界：** 仅在本下载副本或自己的练习目录运行。fixtures 为只读教学输入，包括故意损坏的文件；不要在原位修复。所有生成或破坏性演示只使用明确的 `_output/` 目录，里面不能放重要文件。不要把示例目标改成自己的真实文档。with 负责关闭文件，不会回滚截断或失败写入。\n\n从解压的 `u07-files` 根目录执行，除非下方明确 cd。每个普通示例不依赖前一个脚本留下的内存。除了明确的首次/重复运行实验，其余示例会重置自己的实验输出。\n\n```bash\nuv run --no-project --python 3.13 python paths.py\nuv run --no-project --python 3.13 python read_text.py\nuv run --no-project --python 3.13 python read_cursor.py\nuv run --no-project --python 3.13 python read_lines.py\nuv run --no-project --python 3.13 python encoding_bytes.py\nuv run --no-project --python 3.13 python read_binary.py\ncd fixtures\nuv run --no-project --python 3.13 python ../paths.py\nuv run --no-project --python 3.13 python ../read_text.py\ncd ..\nuv run --no-project --python 3.13 python write_text.py\nuv run --no-project --python 3.13 python write_modes.py\nuv run --no-project --python 3.13 python cleanup_paths.py\nuv run --no-project --python 3.13 python pitfall_truncate.py\nuv run --no-project --python 3.13 python json_values.py\nuv run --no-project --python 3.13 python json_limits.py\nuv run --no-project --python 3.13 python json_file.py\nuv run --no-project --python 3.13 python serialize_before_open.py\nuv run --no-project --python 3.13 python validate_data.py\nuv run --no-project --python 3.13 python inspect_documents.py\n```\n\n从新的解压副本连续运行两次，第二次刻意失败，第一次写入的字节不变：\n\n```bash\nuv run --no-project --python 3.13 python create_once.py\nuv run --no-project --python 3.13 python create_once.py\n```\n\n不要为了隐藏第二次的 FileExistsError 就改成 w。使用过的输出会改变下次实验前提，暂停时要记录。\n\n其他**预期失败**如下；在根目录给每个参数前加 `uv run --no-project --python 3.13 python`：\n\n| 最后的参数 | 预期 |\n| --- | --- |\n| closed_stream.py | ValueError：读取已经关闭的流；之前读出的字符串仍然存在 |\n| error_wrong_encoding.py | UnicodeDecodeError：ASCII 解码失败；已取得的流仍关闭 |\n| error_missing_file.py | FileNotFoundError：已知缺失输入，块体不进入 |\n| error_missing_parent.py | FileNotFoundError：w 不会创建缺失父目录 |\n| error_directory.py | macOS 实测 IsADirectoryError；其他平台可能 PermissionError |\n| pitfall_two_documents.py | JSONDecodeError：两个相邻对象不是一份 JSON 文档 |\n\n`pitfall_truncate.py`、`json_limits.py` 和错误练习可能正常退出却暴露错误行为。不能用退出码代替契约核对。JSON 转义不等于文件编码；默认解码可接受非标准 NaN、重复键保留后值。独立任务校验拒绝非整数分钟，但不检测原文重复键，不提供通用严格解析或超大输入限制。\n\n先预测，再修复恢复政策，最后从下载外的空目录重建 task_store。答案运行方式：\n\n```bash\nuv run --no-project --python 3.13 python exercises/unsafe_load.py\nuv run --no-project --python 3.13 python solutions/recover_missing_only.py\ncd solutions/independent\nuv run --no-project --python 3.13 python check_import.py\nuv run --no-project --python 3.13 python -m task_store.app\nuv run --no-project --python 3.13 python -m task_store.app\ncd ../..\nuv run --no-project --python 3.13 python solutions/independent/run_store.py\n```\n\n错误练习写 `exercises/_output/repair.json`，修复示范写 `solutions/_output/repair.json`，独立参考写 `solutions/independent/_output/tasks.json`。其余写入位于实验根目录的 `_output/`。导入探针不得创建数据目录。已有合法空数组不应被重置成初始数据；已有损坏数据必须拒绝且字节不变。不要直接执行包内 app.py，应使用 -m 或外层薄入口。\n\n完整解释、逐条输出、输入变式、两个暂停点与验收在三语正文。保存先校验与序列化，再打开 w，只保护相应的准备阶段失败；真正写入失败仍可能留下空/部分文件，不提供原子性、并发、断电持久性或备份保证。维护用故障注入和测试工具不是读者前置知识。\n\n## English\n\nComplete L00–L06 first. This is a standard-library-only CPython 3.13 lab, verified with 3.13.15 on 2026-09-24: 31 Python files, six fixtures and this README. Keep groups intact and run the commands above from the extracted root except for explicit cd steps. Package helper files are not standalone entries.\n\nTreat fixtures as immutable known inputs; some intentionally contain malformed JSON or invalid UTF-8. All writes are limited to named `_output/` directories in this disposable lab copy. Never put valuable data there or substitute real document paths. Some scripts deliberately truncate their own scratch file. With closes acquired streams; it does not undo writes or restore old bytes.\n\nThe two create_once commands require a fresh copy with no once.txt: the first creates it, the second intentionally raises FileExistsError and preserves it. The failure table lists closed-stream, decode, missing-path, directory-as-file and concatenated-JSON failures. IsADirectoryError was verified on macOS; another platform may report PermissionError. Successful exit from a counterexample is not successful behavior.\n\nAttempt prediction, repair and independent reconstruction before reading solutions. The repair only treats FileNotFoundError as an initial empty list. The full task store validates exact title/minutes/done records, rejects corrupted existing data without rewriting, distinguishes a missing file from a valid empty array, and never performs I/O on import. Run its module entry twice to observe persistence; the external run_store wrapper verifies the anchored location from a different cwd. Each exercise has its own output directory as listed above.\n\nThe default JSON decoder's NaN and last-duplicate-key behavior are explicitly taught. Task validation rejects noninteger minutes but does not detect original duplicate names or implement arbitrary upload limits. Validation/serialization before w preserves an old target for those preparation failures only. A write/close failure or crash may still damage the file; this is not atomic, concurrent or crash-safe production persistence. Full explanations, expected outputs and pause/resume records are in the English lesson.\n\n## 繁體中文\n\n先完成 L00—L06。本實驗僅使用 CPython 3.13 標準庫，於 2026-09-24 使用 3.13.15 驗證，包含 31 份 Python 源碼、六份輸入與本說明。保持目錄結構，依上方命令和明確的 cd 步驟執行；包內輔助模塊不是獨立入口。\n\nfixtures 是不可原位修改的教學輸入，刻意包含損壞 JSON 與無效 UTF-8。所有寫入只發生在本副本內明確的 `_output/` 目錄，不可放重要資料，也不可換成真實文檔路徑。有些反例刻意截斷自己的實驗文件；with 會關閉已取得的流，但不撤銷寫入或恢復舊字節。\n\ncreate_once 的兩條命令需從尚無 once.txt 的新副本開始，第二次預期 FileExistsError 且原文件不變。表中列出關閉流、錯誤解碼、路徑缺失、目錄當文件與串接 JSON 的預期失敗；目錄例在 macOS 驗證為 IsADirectoryError，其他平台可能 PermissionError。反例正常退出不等於行為正確。\n\n先預測，再修復恢復政策，最後從下載外的空目錄獨立建立 task_store。只把 FileNotFoundError 當成初始化，損壞文件不得變成空資料或被覆蓋；合法空陣列也不得恢復初始任務。導入不進行 I/O；連續兩次模塊啟動驗證持久化，外層 run_store 入口驗證不同 cwd 下仍使用相同資料位置。各組只寫自己的輸出目錄。\n\n正文明確解釋預設 JSON 解碼器的 NaN 與重複鍵後值行為；任務校驗拒絕非整數分鐘，但不檢測原文重複名稱或提供任意上傳限制。先校驗和序列化再開 w，只能保護準備階段失敗；寫出、關閉或崩潰仍可能損壞資料，不提供原子性、並發或斷電保證。完整機制、預期輸出、變式與暫停/恢復記錄見繁體正文。\n\n## Maintainer verification (not learner prerequisites)\n\nFrom the repository root:\n\n```bash\npython3 scripts/build-js2py-lab.py --lab u07-files --check\npython3 scripts/test-js2py-files.py\n```\n\nChecks run normal Python import semantics in fresh processes and temporary directories. They verify generated bytes and allowed write locations, preserve every fixture/source and incompatible parent configuration, exercise first/repeated creation and persistence, inject failures to inspect closing and propagation, and reconstruct the independent package outside the download. Bytecode caches may be generated; caches, outputs, credentials, virtual environments and maintainer tooling are excluded from the download allowlist.\n",
+      "validation_and_limits": "These are actual full authored files, not an outline. Preliminary actual CPython 3.13.15 runs observed the guided scripts and independent first/repeated entries. Full fault-injection/unit/integration checks, source-byte and allowed-write-location checks, fresh empty reconstruction, package/JSON edge cases, exact ZIP and three-locale parity, production build and browser QA remain required and are not all complete at submission. Maintainer tests are not learner prerequisites. Official Python 3.13 pathlib/open/io/json/with/Unicode/errors, RFC8259 and MDN stringify documents were read. Evaluate source/prose, not unmeasured learner outcomes."
+    },
+    "questions": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "instructions": "Does required independent L07 work require an essential capability neither previously learned nor explained before use in this actual lesson? Do not treat deliberately deferred topics or maintainer testing as learner prerequisites."
+      },
+      "depth": {
+        "type": "choice",
+        "instructions": "Assess the actual teaching depth for this reader: motivation, mechanisms, observed execution/data flow, errors, graduated practice and acceptance, not sheer length.",
+        "criteria": {
+          "SUBSTANTIVE": "Usable models and independent practice, not an API list.",
+          "PARTIAL": "Significant necessary explanation remains thin.",
+          "API_CATALOGUE": "Predominantly API names/syntax.",
+          "INSUFFICIENT_EVIDENCE": "Actual material insufficient."
+        }
+      },
+      "paths_encoding": {
+        "type": "choice",
+        "instructions": "Assess paths versus open resources, cwd anchoring, mkdir/modes, cursor/line behavior, Unicode str versus bytes, UTF-8, newline translation and JSON escaping distinctions in actual text/source.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Accurate mechanisms with appropriate limits and concrete teaching.",
+          "MISLEADING": "A substantive false claim or unsafe unqualified inference.",
+          "MECHANISM_GAP": "A necessary explanation is missing before required use.",
+          "UNCERTAIN": "Supplied evidence does not justify a firm judgment."
+        }
+      },
+      "resource_lifetime": {
+        "type": "choice",
+        "instructions": "Assess with acquisition/body/exit, normal/return/error/missing paths, continued existence of names/data, closing versus rollback, buffered-write/close failures and explicit limits without requiring custom context-manager implementation.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Accurate mechanisms with appropriate limits and concrete teaching.",
+          "MISLEADING": "A substantive false claim or unsafe unqualified inference.",
+          "MECHANISM_GAP": "A necessary explanation is missing before required use.",
+          "UNCERTAIN": "Supplied evidence does not justify a firm judgment."
+        }
+      },
+      "write_safety": {
+        "type": "choice",
+        "instructions": "Do the actual examples accurately limit destructive writes to owned scratch paths, distinguish w/a/x and initial/repeated runs, refuse overwriting damaged input, and bound validation/serialization-before-open as NOT atomic, concurrent or crash-safe persistence?",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Accurate mechanisms with appropriate limits and concrete teaching.",
+          "MISLEADING": "A substantive false claim or unsafe unqualified inference.",
+          "MECHANISM_GAP": "A necessary explanation is missing before required use.",
+          "UNCERTAIN": "Supplied evidence does not justify a firm judgment."
+        }
+      },
+      "json_and_validation": {
+        "type": "choice",
+        "instructions": "Assess dumps/loads versus dump/load ownership, conversion limitations, one-document framing, NaN/default duplicate-key behavior, JSON syntax versus business validation, exception subtyping and the explicitly limited task schema. Does the text avoid claiming arbitrary upload safety or universal round-trip identity?",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Accurate mechanisms with appropriate limits and concrete teaching.",
+          "MISLEADING": "A substantive false claim or unsafe unqualified inference.",
+          "MECHANISM_GAP": "A necessary explanation is missing before required use.",
+          "UNCERTAIN": "Supplied evidence does not justify a firm judgment."
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "instructions": "Do independent task_store instructions, sources, expected outputs, wrapper cwd behavior and edge cases agree on exact fields/types, missing versus valid-empty versus damaged files, fresh results, import-safe entry, visible unknown failures and pre-write rejection preservation?",
+        "criteria": {
+          "COHERENT_AND_TESTABLE": "Requirements and implementation agree with bounded measurable acceptance.",
+          "CONTRADICTORY": "A material source/output/instruction disagreement.",
+          "UNDERSPECIFIED": "A necessary responsibility or policy is ambiguous.",
+          "UNCERTAIN": "Evidence insufficient."
+        }
+      },
+      "scope": {
+        "type": "choice",
+        "instructions": "Is the required L07 scope appropriate after modules and before environments/tests for a slow learner with pause/resume checkpoints? Judge prerequisite progression, not a one-sitting or one-week deadline.",
+        "criteria": {
+          "BOUNDED": "Coherent file/JSON/resource chapter; no essential earlier split.",
+          "PREREQUISITE_SPLIT_REQUIRED": "Necessary learning must be moved earlier.",
+          "TOO_SHALLOW": "Insufficient for independent small local persistence.",
+          "TARGETED_REVIEW": "A specific uncertainty prevents unqualified progression."
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "instructions": "Does practice require independent explanation, repair and reconstruction with changing inputs and failure preservation rather than copying a fixed success output?"
+      },
+      "next_action": {
+        "type": "choice",
+        "instructions": "Assuming all described deterministic execution, source/output-byte, reconstruction, build, download and browser checks actually pass, choose the next defensible curriculum action for the actual supplied L07 material. This is NOT a claim of textbook perfection, production persistence readiness or learner effectiveness.",
+        "criteria": {
+          "PROCEED_L08": "L07 is sufficiently complete and bounded to proceed to environments/dependencies.",
+          "REVISE_L07": "A material defect or missing mechanism requires revision before proceeding.",
+          "TARGETED_REVIEW": "Evidence uncertainty requires a focused check first."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "noul": 0.21
+      },
+      "depth": {
+        "type": "choice",
+        "choice": "SUBSTANTIVE",
+        "confidence": 1.0,
+        "probabilities": {
+          "SUBSTANTIVE": 1.0,
+          "INSUFFICIENT_EVIDENCE": 0.0,
+          "PARTIAL": 0.0,
+          "API_CATALOGUE": 0.0
+        }
+      },
+      "paths_encoding": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 1.0,
+        "probabilities": {
+          "UNCERTAIN": 0.0,
+          "MECHANISM_GAP": 0.0,
+          "ACCURATE_AND_BOUNDED": 1.0,
+          "MISLEADING": 0.0
+        }
+      },
+      "resource_lifetime": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 1.0,
+        "probabilities": {
+          "UNCERTAIN": 0.0,
+          "MECHANISM_GAP": 0.0,
+          "ACCURATE_AND_BOUNDED": 1.0,
+          "MISLEADING": 0.0
+        }
+      },
+      "write_safety": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 1.0,
+        "probabilities": {
+          "MECHANISM_GAP": 0.0,
+          "UNCERTAIN": 0.0,
+          "ACCURATE_AND_BOUNDED": 1.0,
+          "MISLEADING": 0.0
+        }
+      },
+      "json_and_validation": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 1.0,
+        "probabilities": {
+          "UNCERTAIN": 0.0,
+          "MECHANISM_GAP": 0.0,
+          "ACCURATE_AND_BOUNDED": 1.0,
+          "MISLEADING": 0.0
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "choice": "COHERENT_AND_TESTABLE",
+        "confidence": 0.83,
+        "probabilities": {
+          "UNCERTAIN": 0.01,
+          "UNDERSPECIFIED": 0.01,
+          "CONTRADICTORY": 0.11,
+          "COHERENT_AND_TESTABLE": 0.87
+        }
+      },
+      "scope": {
+        "type": "choice",
+        "choice": "BOUNDED",
+        "confidence": 0.98,
+        "probabilities": {
+          "BOUNDED": 0.98,
+          "TARGETED_REVIEW": 0.01,
+          "TOO_SHALLOW": 0.0,
+          "PREREQUISITE_SPLIT_REQUIRED": 0.01
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "noul": 0.97
+      },
+      "next_action": {
+        "type": "choice",
+        "choice": "PROCEED_L08",
+        "confidence": 0.86,
+        "probabilities": {
+          "TARGETED_REVIEW": 0.06,
+          "PROCEED_L08": 0.91,
+          "REVISE_L07": 0.03
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 20461,
+      "output_tokens": 547
+    }
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not a gpt-6-astra subagent. No subagents were started.",
+    "decision_rule": "Conditional PROCEED_L08 advice is accepted only after deterministic runtime, byte preservation, independent reconstruction, source parity, archive, build and browser checks pass. Model probabilities cannot certify accuracy or learner success.",
+    "uncertainty_audit": "Retained hidden-prerequisite P(yes)=0.21, contradictory-contract probability 0.11 and targeted-review/revise branches. Locally checked capability introduction, known-parent recovery scope, strict schema, missing/empty/corrupt distinctions, actual resource closure, no-write preparation failures and explicitly non-atomic write failure; see companion source-check report. No unchanged-input rerun for higher scores.",
+    "limitations": "Noul has no separate confidence. Choice confidence describes distribution concentration, not correctness, completeness, perfection or educational effectiveness. Translation parity and execution checks are separate from the English semantic review.",
+    "snapshot_timing": "Submission truthfully stated that complete deterministic/site/browser checks were still pending. The original request is retained without retroactively replacing that state; the final verification below records subsequently completed checks.",
+    "source_hash_scope": "39 exact reviewed files bind submitted bytes. Additional hashes bind tested repository artifacts, not extra content read by the semantic service. Earlier L06 review snapshots remain historical after this turn updates only its next-chapter transition."
+  },
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-07-data-automation.mdx",
+    "examples/js2py/u07-files/README.md",
+    "examples/js2py/u07-files/paths.py",
+    "examples/js2py/u07-files/read_text.py",
+    "examples/js2py/u07-files/closed_stream.py",
+    "examples/js2py/u07-files/read_cursor.py",
+    "examples/js2py/u07-files/read_lines.py",
+    "examples/js2py/u07-files/encoding_bytes.py",
+    "examples/js2py/u07-files/read_binary.py",
+    "examples/js2py/u07-files/error_wrong_encoding.py",
+    "examples/js2py/u07-files/write_text.py",
+    "examples/js2py/u07-files/write_modes.py",
+    "examples/js2py/u07-files/create_once.py",
+    "examples/js2py/u07-files/cleanup_paths.py",
+    "examples/js2py/u07-files/pitfall_truncate.py",
+    "examples/js2py/u07-files/error_missing_file.py",
+    "examples/js2py/u07-files/error_missing_parent.py",
+    "examples/js2py/u07-files/error_directory.py",
+    "examples/js2py/u07-files/json_values.py",
+    "examples/js2py/u07-files/json_limits.py",
+    "examples/js2py/u07-files/json_file.py",
+    "examples/js2py/u07-files/pitfall_two_documents.py",
+    "examples/js2py/u07-files/serialize_before_open.py",
+    "examples/js2py/u07-files/validate_data.py",
+    "examples/js2py/u07-files/inspect_documents.py",
+    "examples/js2py/u07-files/exercises/unsafe_load.py",
+    "examples/js2py/u07-files/solutions/recover_missing_only.py",
+    "examples/js2py/u07-files/solutions/independent/task_store/__init__.py",
+    "examples/js2py/u07-files/solutions/independent/task_store/validation.py",
+    "examples/js2py/u07-files/solutions/independent/task_store/storage.py",
+    "examples/js2py/u07-files/solutions/independent/task_store/app.py",
+    "examples/js2py/u07-files/solutions/independent/check_import.py",
+    "examples/js2py/u07-files/solutions/independent/run_store.py",
+    "examples/js2py/u07-files/fixtures/notes.txt",
+    "examples/js2py/u07-files/fixtures/tasks.json",
+    "examples/js2py/u07-files/fixtures/malformed.json",
+    "examples/js2py/u07-files/fixtures/wrong-root.json",
+    "examples/js2py/u07-files/fixtures/wrong-types.json",
+    "examples/js2py/u07-files/fixtures/invalid-utf8.bin"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-07-data-automation.mdx": "524d8eacb6a39a0f1f17ced24ebefa3ffead02a131e7013bcefda8cc539cd901",
+    "examples/js2py/u07-files/README.md": "5a45d1e3131d51aca8fd2706b7acda931475ccd217a6ca16d117ac23958d3b46",
+    "examples/js2py/u07-files/paths.py": "20c123b9b1a56c534de1c77d801da0e8f36a1d2ab5ac910e39d2be1665961572",
+    "examples/js2py/u07-files/read_text.py": "e5b6d757521e572be5f73667683a5fba296ffcfa1ab2afbc2194db8dec433022",
+    "examples/js2py/u07-files/closed_stream.py": "fda9d08d958620ad8d2e2d14090021e82061bd32728241ee00896d420640ae1f",
+    "examples/js2py/u07-files/read_cursor.py": "97e92c8af09fe7f809f8233b3d5c3d86b641ec2b88aeb0c2b9115a670eff06e0",
+    "examples/js2py/u07-files/read_lines.py": "ef8a9ea246c7fada66af8b8d744a0899a628503178852286823744bffea0cc01",
+    "examples/js2py/u07-files/encoding_bytes.py": "0942fc432769c69fc669dcfd9e853c599fa5e0d475379c39e7dc23e7df0d1069",
+    "examples/js2py/u07-files/read_binary.py": "c5c89bc483037dc9a684f65edf2e440dc6c9ccb45cd46e308cd59c46019c6c88",
+    "examples/js2py/u07-files/error_wrong_encoding.py": "36f77c429e644e1dab40bf31e95fbcb69d03dc9f303c0a98de0dbb0708eb4f49",
+    "examples/js2py/u07-files/write_text.py": "421492ab1b7fba7726489f2649497c85b2b9fc7fdf61738aa1f40148d72f4288",
+    "examples/js2py/u07-files/write_modes.py": "6e29d39348698661278d0ab89265ca6c13d414e9971e2aee403b581a3b8bd33c",
+    "examples/js2py/u07-files/create_once.py": "8299b864a291259dd3ac64868333ae2e4765e4b5ec79822e4884251c382f086c",
+    "examples/js2py/u07-files/cleanup_paths.py": "73882af352715b67eb3c91ef8dbdc0a78fc61e8a3951fb11446816c15a2dc84a",
+    "examples/js2py/u07-files/pitfall_truncate.py": "457f1aef527d9fb13cbde7f17980fccf304d71f1b4fcb634e814fb3d50404d52",
+    "examples/js2py/u07-files/error_missing_file.py": "e92ebeb383378444d1febc0b1e9b863bf1e7f4463965956eb7b9c8630e7f9c08",
+    "examples/js2py/u07-files/error_missing_parent.py": "1a77da94827231111db0e5466255af695f575b96fce539a0580c525e129cd7e6",
+    "examples/js2py/u07-files/error_directory.py": "cc0a49199c42375bd868511a07a9ead460a148e5e5a22a86a95d35689072aa5c",
+    "examples/js2py/u07-files/json_values.py": "4a78fd4c39da1959a883d51d45759d7b37f1399ebd0de39381ff7f5630a52a7e",
+    "examples/js2py/u07-files/json_limits.py": "860ac7cb26eadbb1668c18c2878149a88dacd37b79159a626b0b795eca6518d9",
+    "examples/js2py/u07-files/json_file.py": "4f9ae4311ee3d6beceda0d10dd632c2f8df1b3531ffebb53ef238870cad23a54",
+    "examples/js2py/u07-files/pitfall_two_documents.py": "0a8ac8632e952150be53d0e8fd294f36bfde8f570495c3799fbf4ac9f860931c",
+    "examples/js2py/u07-files/serialize_before_open.py": "d08529e32ae5d8b5b74b74cabf589cc7eec24cc4b4e7a69a14fa96f01e9d43af",
+    "examples/js2py/u07-files/validate_data.py": "ea0837e96af97fe6af9e3162087f164da2ad4bfcf7060690049e354c1b43f625",
+    "examples/js2py/u07-files/inspect_documents.py": "bfe4ecde95d0838cd27e40007df1e06511c21bf4003a8af8d752c657169b76a3",
+    "examples/js2py/u07-files/exercises/unsafe_load.py": "582fec38a4c52fa918cb6138ebcf83bdcbce9b5aa1a08aca399c090abbc3bda0",
+    "examples/js2py/u07-files/solutions/recover_missing_only.py": "9836992faf4fcf5d64ca3a9d2e2cfd83dc1a43df62a82a28d89585aa04db442c",
+    "examples/js2py/u07-files/solutions/independent/task_store/__init__.py": "d25a36ae1db77d5d82f863bb86a7f05dfec7785a59ef0ea31bd329a907b2e67e",
+    "examples/js2py/u07-files/solutions/independent/task_store/validation.py": "62ee948e4b8113c105b8356b725ac212fae118726f58c743e2f070c790aa88a8",
+    "examples/js2py/u07-files/solutions/independent/task_store/storage.py": "19babf149638ccab63006e96909a00c849c3710719f0249c20982b6c9fd38d68",
+    "examples/js2py/u07-files/solutions/independent/task_store/app.py": "550451a21f0a172aa4fe428840adea8fa1f1b97b19d9b7d256fc3b34b242fd74",
+    "examples/js2py/u07-files/solutions/independent/check_import.py": "8655444b7ad8a6f98ab118af61aeb150707acd76ee7d240f84f151202ebf86f6",
+    "examples/js2py/u07-files/solutions/independent/run_store.py": "417f616d62c81b113f08923d3e33514897c9bc3ea62556cd8e5cf6ce969b55af",
+    "examples/js2py/u07-files/fixtures/notes.txt": "dd24c2465efd0c44c2477b1212285866a671e96567c3efa96471e6c646c0d246",
+    "examples/js2py/u07-files/fixtures/tasks.json": "3efa87d91864278eebf5018c5eca6e8bfd072f2a3d64ed09542063de13d75d0f",
+    "examples/js2py/u07-files/fixtures/malformed.json": "8f9302f65614f26c0ac129b3a69b2617d858989920ca60be65da649dc4b34118",
+    "examples/js2py/u07-files/fixtures/wrong-root.json": "45928edf8c4cb00069216a7ff458840ea77d514ba225fc592b8773b29e84ad5c",
+    "examples/js2py/u07-files/fixtures/wrong-types.json": "81bfb21f26c90014ed3f997dfb1fec80ddef1395ef559ca6d68e030ed45866eb",
+    "examples/js2py/u07-files/fixtures/invalid-utf8.bin": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
+    "content/docs/js2py/module-07-data-automation.zh-tw.mdx": "183367970314b67f3c01d0d390c4a6be47ffe7db0f77c5569693b0e95d8bb4fa",
+    "content/docs/js2py/module-07-data-automation.zh-cn.mdx": "7dc7edb30d09b28325f20ce760d7a03a23b8a0f298e2e3cffc5f9f58eea3a07f",
+    "examples/js2py/u07-files-files.json": "c3b9d6ec26464d02b177810041a4e46a121dd7c52ce9daf6ef828da14c676f6e",
+    "public/learning-assets/js2py/u07-files.zip": "a35f9317a92cd92991996c1dc9b58f14cf6add6585e89bd65994a8dd082a816b",
+    "scripts/tests/test_js2py_files.py": "4c773907ae28234679d004042db795bc3b12b6d3c3eb7121b7ce338c43ae88a9",
+    "scripts/tests/fixtures/js2py-files.json": "865eb9df863d30ca46c7939b22ea3c1cc779973eb4823bd33403269efdd99187",
+    "scripts/tests/js2py-file-json.test.mjs": "16a98400f941c1898876f411cc4abf04d1e12b50a31250f2d4eda532182936f2",
+    "scripts/test-js2py-files.py": "0a40d4a4b6f3151be76010c7f8693e2ebad38be1b581ea36db37117920e860e1",
+    "scripts/build-js2py-lab.py": "6ab3f6f69b733f438f12bad8eb24c3a7331fd264a762d117a31fc5d73bcb60a7",
+    "scripts/check-js2py-content.py": "f4af8e67f8f5acfa1daf5e56bca7739f5bf0238de9dcbc8b3d0b0ded23b475e1",
+    "lib/js2py-examples.ts": "e958e28563265c83f8d29908ec5ee4f00c4149d5b2c82c18c265a43cae37373b",
+    "docs/js2py-chapter-contracts.json": "dbe438343879dd211d0e176c4e23c0a564efa006a54e045a4376225977f6af05",
+    "docs/js2py-learning-path.zh-cn.md": "e5459c5b3a526525c2f5e5046f9f3b9042dff2e8debe23b4a49e803304015607",
+    "package.json": "7c25df088164bb0dd3d98919314beb2c86500b358cabaac4e47281967895bd13",
+    "scripts/tests/test_js2py_first_script.py": "e2f257e87ec2efd5d41caa1652b9060126cf963d68b29fa4d7312debac698cc8",
+    ".gitignore": "a39ceec7ae221def38b1bc149750323e093886fc73c6091350585b98d6286ec5",
+    "docs/reviews/js2py-u07-source-check-2026-09-24.md": "50a36d2d4828985005965db77958b25f34597e6f19440aa3290010c706d8cabd",
+    "content/docs/js2py/index.mdx": "ef964a6dc782281dbfe4b06777915af40245e1757e83e6cba9cd299477fddf54",
+    "content/docs/js2py/index.zh-tw.mdx": "da3e793642bb23811c91007295b520c20ae25d45e7165ef816813644ac8e5a16",
+    "content/docs/js2py/index.zh-cn.mdx": "929c658f97a5e4ce8b20b112f144335b84789f622f2d91cd65f13d7285940bc9",
+    "content/docs/js2py/module-06-web-development.mdx": "fcaca0f2c62f2d171439e5740bd3242ccbb118ac888f6d4da7d1d7778dec48f1",
+    "content/docs/js2py/module-06-web-development.zh-cn.mdx": "a971d58da26f2a1cc7354a1a7ddc66088900ba7ac5878a269c2e0c834178daf4",
+    "content/docs/js2py/module-06-web-development.zh-tw.mdx": "b7a4b2d1022fc1193a5f5c5851e452cec49711a95a5a3c52646a2c6919b4d30e",
+    "docs/archive/js2py-u07-data-automation/sha256.json": "da3bfb026ec338e5a895caaccd0cd6faa35df96f0eeede72f729a5dfb1fbf462",
+    "docs/archive/js2py-u07-data-automation/README.md": "10327be65db3ecfd69ae1cbfe703d3244bbb7444d8a5843ec8586ba1b276c666",
+    "docs/archive/js2py-u07-data-automation/module-07-data-automation.zh-tw.mdx": "7de44d9a5813a6267321b837a34784fbc64f1b0ba0817003e21adccd103f90af",
+    "docs/archive/js2py-u07-data-automation/module-07-data-automation.zh-cn.mdx": "4c34df65a4feb6a014a69a31874a06d6bc0355b0ff0d8ad0fcbdd2bae28dd3aa",
+    "docs/archive/js2py-u07-data-automation/module-07-data-automation.mdx": "4db169b9a8b46898f1467ac207eef5ec38b01c9412c8bda56abe65ed41994b42"
+  },
+  "final_verification": {
+    "python": "CPython 3.13.15 for the actual uv integration and all 20 L07 unit tests; system Python for the cumulative 122-test maintainer run.",
+    "l07_scenarios": 33,
+    "expected_failures": 8,
+    "generated_files_checked_byte_exact": 10,
+    "l07_python_tests": 20,
+    "cumulative_python_tests": 122,
+    "cumulative_node_tests": 8,
+    "zip_allowlisted_entries": 38,
+    "js2py_mdx_files": 42,
+    "python_fences_syntax_checked": 216,
+    "typing_declaration_smoke_processes": 39,
+    "deterministic_zip_archives": 9,
+    "site_mdx_files": 678,
+    "checks": [
+      "L00–L07 actual uv integration",
+      "retained historical project baseline/exercise/reference/stale-lock/reconstruction",
+      "L07 32 valid field combinations and 6 permutations",
+      "controlled I/O faults and actual stream closure",
+      "empty-folder independent task-store reconstruction",
+      "source, expected output and Unicode literal parity",
+      "Ruff and format",
+      "TypeScript",
+      "ESLint",
+      "production build",
+      "three-locale 1280x900 browser interactions and HTTP ZIP equality"
+    ],
+    "warnings_retained": [
+      "two existing React Hook dependency warnings",
+      "Code Hike empty language",
+      "workspace-root inference",
+      "static export headers/API",
+      "next lint deprecation"
+    ],
+    "browser_evidence": "js2py-u07-browser-qa-2026-09-24.json"
+  },
+  "credential_persisted": false
+}

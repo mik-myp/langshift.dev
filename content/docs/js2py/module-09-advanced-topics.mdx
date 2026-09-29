@@ -1,179 +1,208 @@
 ---
-title: "Python Advanced Topics & Learning Resources"
-description: "Explore advanced features of Python such as decorators, generators, and metaclasses, and get a resource path for continuous learning."
+title: Basic Automated Testing
+description: Move from ordinary assertions to pytest discovery, execution and diagnosis; independently test normal, boundary and error cases without premature decorators or fixtures.
 ---
 
-## 1. Introduction
+import { getTestingExample } from '@/lib/js2py-examples'
 
-### Beyond the Basics
+## 1. Turn “looks correct” into repeatable evidence
 
-You have mastered the core concepts and common libraries of Python. Now, it's time to explore some more advanced and powerful features. These features will help you write more concise, efficient, and expressive code, and allow you to truly appreciate the elegance of Python's design.
+You have already observed real program output. After changing a branch, however, remembering to retry every input is unreliable. Automated tests do not invent requirements for you. They make **your stated expectations** executable, repeatable and diagnosable.
 
-This module will briefly introduce several advanced topics in Python and provide you with a roadmap and a list of resources for continuous learning.
+One attractive output cannot prove correct behavior for empty input, zero, wrong types or a repeated call. Conversely, a green run proves only its executed assertions. Undiscovered tests, an uncalled function or a wrong expected value can make green misleading.
 
-> 💡 **Learning Strategy**: Don't try to master all the advanced concepts at once. Understand their core ideas and gradually apply them in your actual coding. When you encounter a problem that requires them, then go back and study them in depth.
+| Contract | Scope |
+| --- | --- |
+| Prerequisites | Functions, exceptions, modules, L07's with usage and L08 environments |
+| New capabilities | Plain test functions, assertions, discovery/collection, expected errors, input isolation and diagnosis |
+| Independent acceptance | Test normal, empty, boundary, invalid and repeated inputs; demonstrate that deliberate defects are detected |
+| Not required yet | Decorators, parametrization, fixture arguments, mocks, async or database testing |
 
-## 2. Decorators
+Download [the complete L09 lab](/learning-assets/js2py/u09-testing.zip) and work from its extracted u09-testing directory. Verified on 2026-09-28 with CPython 3.13.15, uv 0.12.13 and pytest 8.4.2, not a permanent latest-version claim.
 
-Decorators are a very powerful feature in Python that allow you to dynamically modify or enhance the behavior of functions or classes without directly modifying their source code. This can be achieved in JavaScript through Higher-Order Functions.
+## 2. A test starts as ordinary Python
 
-<PythonEditor title="Decorators vs. Higher-Order Functions" compare={true}>
-```javascript !! js
-// JavaScript (Higher-Order Function)
-function withLogging(fn) {
-  return function(...args) {
-    console.log(`Calling function: ${fn.name}`);
-    const result = fn(...args);
-    console.log(`Function ${fn.name} finished.`);
-    return result;
-  };
-}
+The business contract is deliberately small: a list of dictionaries with exactly minutes and done; ordinary nonnegative int minutes and bool done. Sum unfinished items only. Empty input yields zero and input is not mutated. Read the function, then a check without a testing framework:
 
-function add(a, b) {
-  return a + b;
-}
+<Code language="python">{getTestingExample('study.py')}</Code>
 
-const loggedAdd = withLogging(add);
-loggedAdd(2, 3);
+<Code language="python">{getTestingExample('first_check.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python first_check.py
 ```
 
-```python !! py
-# Python (Decorator)
-import functools
-
-def with_logging(func):
-    @functools.wraps(func)  # Preserves metadata
-    def wrapper(*args, **kwargs):
-        print(f"Calling function: {func.__name__}")
-        result = func(*args, **kwargs)
-        print(f"Function {func.__name__} finished.")
-        return result
-    return wrapper
-
-@with_logging
-def add(a, b):
-    return a + b
-
-add(2, 3)
-```
-</PythonEditor>
-
-## 3. Generators
-
-You have already been introduced to generators, but their capabilities go far beyond yielding a single value. Generators are the foundation for efficient iteration, processing large data streams, and coroutines.
-
-<PythonEditor title="Processing Large Data with Generators" compare={true}>
-```javascript !! js
-// JavaScript (Node.js Stream)
-const fs = require('fs');
-const readline = require('readline');
-
-async function processFile(filePath) {
-  const fileStream = fs.createReadStream(filePath);
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity
-  });
-
-  for await (const line of rl) {
-    // Process line by line, low memory usage
-    console.log(line);
-  }
-}
+```text
+Observed: 20
+Checked
 ```
 
-```python !! py
-# Python (Generator Function)
-def read_large_file(file_path):
-    with open(file_path, "r") as f:
-        for line in f:
-            yield line.strip()
+Print makes a result visible; assert turns “must equal 20” into an executable condition. A true condition continues; a false one raises AssertionError. The success message itself performs no verification.
 
-for line in read_large_file("my_large_file.txt"):
-    # Process line by line, low memory usage
-    print(line)
+L06 still applies: the checking script calls the function; merely importing the business module does not execute the check. Each test must supply its own data rather than rely on variables left in another terminal process.
 
-# Generator Expression (more concise)
-lines = (line.strip() for line in open("my_large_file.txt"))
-for line in lines:
-    print(line)
-```
-</PythonEditor>
+## 3. Observe a real failure first
 
-## 4. Context Managers
+<Code language="python">{getTestingExample('wrong_check.py')}</Code>
 
-You have already used `with open(...)`, which is a context manager. They are an elegant way to ensure that resources (like files, network connections, database sessions) are properly acquired and released.
-
-<PythonEditor title="Custom Context Manager" compare={true}>
-```javascript !! js
-// JavaScript (try...finally)
-function manageResource() {
-  const resource = acquireResource();
-  try {
-    // use resource
-  } finally {
-    releaseResource(resource);
-  }
-}
+```bash
+uv run --locked python wrong_check.py
 ```
 
-```python !! py
-# Python (Custom Context Manager)
-from contextlib import contextmanager
+Expect AssertionError, a nonzero exit and no Not reached message. The function calculated 20; the deliberately incorrect expectation demands 99. Repair the expectation rather than forcing correct business code to return 99. Requirements, not a preference for green, determine which side is wrong.
 
-@contextmanager
-def managed_resource(*args, **kwargs):
-    resource = acquire_resource(*args, **kwargs)
-    try:
-        yield resource
-    finally:
-        release_resource(resource)
+Assertions are not production input validation. Optimized ordinary Python can remove asserts, and assertion semantics describe program assumptions rather than a user-input error contract. The business function keeps explicit if/raise ValueError validation. Do not use python -O for acceptance or hide required business side effects inside assertions.
 
-# Usage
-with managed_resource() as res:
-    # use res
-    pass
+## 4. pytest discovers and reports; it does not design expectations
+
+Manually calling every check becomes difficult to maintain. Pytest discovers conventionally named tests, executes them, reports failures and exposes exit statuses for later automation. It still cannot decide whether completed work should count toward your total; the contract must say so.
+
+<Code language="toml">{getTestingExample('pyproject.toml')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python -m pytest --version
 ```
-</PythonEditor>
 
-## 5. Metaclasses
+The new dependency-groups dev table contains development dependencies. Pytest is not a runtime dependency of the business function, so project.dependencies stays empty. uv installs dev by default; a deliberately no-dev environment lacking pytest is not a defect in the business library.
 
-Metaclasses are one of the most esoteric and powerful concepts in Python. Simply put, a metaclass is a "class that creates classes." They allow you to dynamically modify a class at the time of its creation. This is a very advanced topic, usually used in the development of frameworks and libraries.
+The testpaths setting makes tests the default discovery directory, excluding intentional errors/exercises. Python -m pytest uses the selected project's interpreter and installed module; starting at the project root also permits ordinary local imports. Do not compensate with a globally installed pytest, sys.path patches or accidental editor working directories. The version command should report pytest 8.4.2.
 
-> **Think about it**: In JavaScript, the `class` syntax is syntactic sugar for a `function`. You can think of a metaclass as a hook that can intercept and modify the `class Foo {...}` definition.
+## 5. A complete basic test file
 
-## 6. Resources for Continuous Learning
+<Code language="python">{getTestingExample('tests/test_study.py')}</Code>
 
-The journey of learning Python is endless. Here are some high-quality resources to help you continue to improve.
+```bash
+uv run --locked python -m pytest -q
+uv run --locked python -m pytest --collect-only -q
+uv run --locked python -m pytest -q tests/test_study.py::test_empty_input_is_zero
+```
 
-### Official Documentation
+The test_study.py filename and test_ function names satisfy discovery conventions. Ordinary def defines each function; do not manually call them at file end. Pytest invokes them after collection. Expect **6 passed** for the full command and **1 passed** for the selected empty case; durations, absolute paths and terminal decoration vary.
 
-*   **[Python Official Documentation](https://docs.python.org/3/)**: Always the primary and most authoritative source of information.
-*   **[The Python Tutorial](https://docs.python.org/3/tutorial/index.html)**: The official introductory tutorial, with detailed content.
+-q reduces output, not requirements. --collect-only lists tests without executing their business assertions: six collected is not six passed. The file::function selector helps local diagnosis; rerun the whole suite after a fix.
 
-### Communities and News
+Read each case as arrange input, act, assert. The mixed completed/unfinished case distinguishes if done from if not done. An empty list alone cannot exercise that branch. Choose data that gives a plausible defect an opportunity to become visible.
 
-*   **[Real Python](https://realpython.com/)**: A large number of high-quality tutorials and articles.
-*   **[PyCoder's Weekly](https://pycoders.com/)**: A popular Python weekly newsletter covering news, articles, and projects.
-*   **[Full Stack Python](https://www.fullstackpython.com/)**: Covers everything from development to deployment.
+## 6. An expected exception can mean a passing test
 
-### Practice Platforms
+The fifth case's with pytest.raises(ValueError) as caught requires that block to raise ValueError or a subclass. No exception fails the test; another exception type is not silently accepted. After the block, caught.value is the exception object, allowing a separate message assertion.
 
-*   **[LeetCode](https://leetcode.com/)**: Practice algorithms and data structures.
-*   **[HackerRank](https://www.hackerrank.com/domains/python)**: Offers various Python programming challenges.
-*   **[Codewars](https://www.codewars.com/?language=python)**: Improve your skills by solving programming "katas."
+This uses a library-provided context behavior with L07 syntax. It is not a file resource and does not require implementing a custom context protocol. Put the specific expected-failing call inside, not unrelated operations whose ValueError could impersonate the intended failure.
 
-### Recommended Books
+Pytest.raises(Exception) is usually too broad: an accidental programming error might satisfy it. Assert exact message text only when it is a stable business contract. Interpreter diagnostics can change between versions. The minutes message is ours to define; we do not match an entire traceback. Regular-expression matching is not a prerequisite here.
 
-*   **_Fluent Python_**: An in-depth explanation of Python's advanced features and design philosophy.
-*   **_Python Cookbook_**: Contains a large number of practical programming techniques and solutions.
+## 7. Why construct input inside each test?
 
-## 7. Summary
+A mutable module-level list can be changed by one case and inherited by another, creating order dependence. A case that passes alone but fails in the suite may reveal pollution rather than randomness in pytest.
 
-Congratulations on completing this learning series from JavaScript to Python!
+Each case here builds its own small input. None assumes a previous test already created tasks. The repeated-call case checks results twice and verifies original data, distinguishing calculation from hidden accumulation or mutation.
 
-You have gained a comprehensive understanding of Python's core concepts, common libraries, and development practices from a JavaScript developer's perspective. You have not only learned Python's syntax, but more importantly, you have developed a Pythonic way of thinking and are able to relate and compare it to your existing programming knowledge.
+Several assertions can explain one coherent behavior. Avoid packing unrelated cases into one giant function: after its first failed assertion, later checks do not execute. Useful test names identify violated contracts rather than satisfying an arbitrary line-count rule. Networking, real user files and wall-clock time are not inputs to this function and should not become hidden dependencies of its unit tests.
 
-Programming languages are just tools; the ideas for solving problems are universal. I hope this series has opened a new door for you, giving you a powerful new choice in your future development work.
+## 8. Green can still carry no evidence
 
-**Start your Python journey!**
+This is an **intentionally bad test design**:
+
+<Code language="python">{getTestingExample('errors/test_false_green.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q errors/test_false_green.py
+```
+
+It reports one pass but merely checks the truthiness of a function object; the business function is never called. A nonsensical return value might leave this test green. That is not a framework bug: the assertion has no meaningful connection to the requirement.
+
+In a disposable copy, reverse the correct not-done branch while leaving tests unchanged. The mixed-input case must fail; restore the implementation and rerun. Remove minute type validation and the bool-rejection test must fail. Do not leave mutations in canonical source or alter expectations to certify the defect.
+
+This verifies sensitivity to particular faults, not universal fault detection. Coverage measures can reveal execution gaps but cannot supply correct business expectations either.
+
+## 9. Failure, collection error and no tests are different
+
+<Code language="python">{getTestingExample('errors/test_wrong_expectation.py')}</Code>
+
+<Code language="python">{getTestingExample('errors/not_discovered/check_totals.py')}</Code>
+
+<Code language="python">{getTestingExample('errors/test_import_failure.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q errors/test_wrong_expectation.py
+uv run --locked python -m pytest -q errors/not_discovered
+uv run --locked python -m pytest -q errors/test_import_failure.py
+```
+
+All three commands intentionally exit nonzero; inspect each separately. The first executes and fails an assertion, exit 1. The second discovers no matching test filename, exit 5. The third fails importing during collection, observed exit 2 in this baseline.
+
+The import error occurs before a test function runs; changing an expected number cannot fix it. The second file contains test_empty, but its filename still fails directory discovery conventions. In a copy, rename it test_totals.py, check collection and then execute.
+
+Start diagnosis at the failed case and assertion, compare actual/expected values, revisit input and requirements, then inspect implementation. Red can mean a faulty test. No collected tests never means all required behavior passed. Automation must not turn every nonzero exit into a green continuation.
+
+## 10. Three levels of practice
+
+### A. Explain observations
+
+Before running, explain why six collected tests are not six passed tests, why AssertionError and a missing module need different diagnosis, and why bool is rejected by the ordinary-int contract.
+
+<details>
+<summary>Explanation checkpoint — mechanisms rather than memorized flags</summary>
+
+Collection identifies functions; execution performs assertions. A missing module can prevent collection or startup rather than produce a wrong computed value. Bool has an inheritance relationship with int, but this contract explicitly requires an ordinary integer through an exact type check. Business validity and language executability are different layers.
+
+</details>
+
+### B. Use red to guide a repair
+
+<Code language="python">{getTestingExample('exercises/broken_study.py')}</Code>
+
+<Code language="python">{getTestingExample('exercises/test_broken_study.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q exercises/test_broken_study.py
+```
+
+Both cases should fail. Repair the branch without changing expectations, then add failing tests for missing validation and complete the implementation. Retain red-to-green evidence rather than replacing the whole function and observing only the final green.
+
+<details>
+<summary>Repair checkpoint — a minimal fix is not the whole contract</summary>
+
+Changing the condition to not done repairs these two observations but leaves root, field, type and nonnegative validation missing. Add invalid-input tests, then restore the responsibilities illustrated by study.py. Two passes do not certify the entire contract. Do not coerce bool, strings or missing fields into successful business data.
+
+</details>
+
+### C. Implement remaining budget independently
+
+Start a separate empty project with pytest as a development dependency, budget.py and tests/test_budget.py. Remaining_budget(budget, spent) requires an ordinary nonnegative int budget and an ordinary list of ordinary nonnegative int spending items. Subtract total spending, clamp a negative remainder to zero and preserve input.
+
+Write implementation and tests yourself. Cover 20/[5,8]→7, empty, exact exhaustion, overspending, zero, invalid budget, invalid root/items, repeated calls and unchanged input. Do not call the reference to manufacture expected values. Temporarily mutate the result to always zero; normal/empty-spending cases must detect it. Restore and rerun the whole suite.
+
+<details>
+<summary>Independent reference — implement behavior and expectations first</summary>
+
+<Code language="python">{getTestingExample('solutions/budget/budget.py')}</Code>
+
+<Code language="python">{getTestingExample('solutions/budget/tests/test_budget.py')}</Code>
+
+```bash
+cd solutions/budget
+uv sync --locked
+uv run --locked python -m pytest -q
+cd ../..
+```
+
+The reference has nine plain-function tests without parametrization, fixtures, custom classes or mocks. Explain why the cases detect a defect rather than merely reproducing their names.
+
+</details>
+
+## 11. Exit gate, resume record and next step
+
+You should independently write tests, distinguish validation from assertions, explain collection/execution/exit statuses, diagnose a red case, detect a deliberate mutation and recover the testing environment from declarations.
+
+Record project directory, last full-suite command, collected/passed counts, any outstanding deliberate mutation, and the last failed case/cause. On return, check whether temporary defects were restored and run the full suite. An earlier green screenshot is not evidence about the current source.
+
+L10 next combines modules, files, environments and these ordinary tests into the first independently reproducible application. It is not yet Web development or proof of backend reliability.
+
+## 12. Sources and scope
+
+Checked on 2026-09-28: [pytest getting started](https://docs.pytest.org/en/8.4.x/getting-started.html), [assertions and expected errors](https://docs.pytest.org/en/8.4.x/how-to/assert.html), [discovery and project practices](https://docs.pytest.org/en/8.4.x/explanation/goodpractices.html), [import behavior](https://docs.pytest.org/en/8.4.x/explanation/pythonpath.html), [exit codes](https://docs.pytest.org/en/8.4.x/reference/exit-codes.html) and [uv dependency groups](https://docs.astral.sh/uv/concepts/projects/dependencies/).
+
+Plain functions are enough to begin building evidence. Decorators, fixtures and external fault substitutes will be explained when their concrete needs arise, not introduced now as a catalogue of testing tools.

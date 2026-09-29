@@ -1,657 +1,398 @@
 ---
-title: "Python 生态系统入门"
-description: "从 JavaScript 开发者视角了解 Python 生态系统，掌握 pip、venv、pyenv 等核心工具"
+title: "认识 Python：读懂并运行第一份脚本"
+description: "面向有成熟前端经验、尚未学过 Python 的读者，从能解释的几行代码开始，逐步完成本地运行、修改、排错与独立练习，不提前要求搭建完整工程。"
 ---
 
-## 1. 引言
+import { getFirstScriptExample } from '@/lib/js2py-examples'
 
-### 为什么 JavaScript 开发者需要学习 Python？
+## 1. 这一章只跨过一道门槛
 
-作为前端开发者，你可能已经精通 JavaScript 生态系统，但 Python 正在成为现代开发中不可或缺的技能。以下是学习 Python 的几个重要原因：
+你已经会组织前端项目、写 JavaScript 和联调接口，不需要重新上一遍“编程是什么”。但是，前端工程经验不能自动告诉你 Python 的名称、语法和运行方式怎样工作，也不意味着你已经实现过服务端。
 
-- AI 开发：如训练模型、数据预处理等
-- 数据科学：如数据分析、可视化
-- 自动化工具链：如爬虫、自动办公脚本
+因此，本章不从“搭建一个完整的 Python 工程”开始。我们先完成一件更小、但需要真正理解的事：**自己创建一份 Python 文件，解释其中每一行，运行它，修改它，再修复一个自己制造的错误。**
 
-> 最重要的是：Python 是 AI 的第一语言！
+后面会逐步学习语言差异、文件与模块、测试与工程环境，然后才进入 HTTP、FastAPI、数据库和部署。最终目标没有降低，只是不把终点的要求提前当成起点的门槛。
 
-## 2. Python 语言基础
+### 已有基础、学习目标与边界
 
-### 2.1 Python 简介
+| 项目 | 本章约定 |
+| --- | --- |
+| 已有基础 | 会使用编辑器和终端，理解 JS 中赋值、字符串与函数调用的一般概念 |
+| 本章新学 | Python 中名称与字符串的初步区别、赋值、`print` 调用、顺序执行、`.py` 文件运行及简单报错定位 |
+| 独立验收 | 不看答案写出一个同等规模的小脚本，预测输出，解释并修正一个错误 |
+| 暂不要求 | `import`、自定义函数、JSON 文件读取、虚拟环境机制、锁文件、pytest、程序入口保护、API 服务 |
 
-Python 是由 Guido van Rossum 在 1991 年创建的编程语言，以其简洁的语法和强大的生态系统而闻名。
+这些“暂不要求”的主题不是删掉不教。它们会在具备前置知识的章节里完整展开，**本章的练习和进入下一章的条件不会暗中要求它们。**
 
-**Python 的设计哲学**
-```python
-# Python 的核心理念：简洁明了
-import this
-"""
-Beautiful is better than ugly.
-Explicit is better than implicit.
-Simple is better than complex.
-Complex is better than complicated.
-Flat is better than nested.
-"""
-# 输出 "The Zen of Python" - Python 的设计哲学
-print("The Zen of Python")
+## 2. 先读懂三行代码，再处理安装
+
+先不用运行，也不要打开一长串配置文件。下面就是本章的完整程序，文件名为 `first_steps.py`：
+
+<Code language="python">{getFirstScriptExample('first_steps.py')}</Code>
+
+它预计打印两行：
+
+```text
+Hello!
+Python
 ```
 
-**与 JavaScript 的核心对比**
+这里的“预计”很重要：先根据代码解释结果，再运行验证，而不是看到终端没有报错就认为自己已经理解。
 
-| 特性 | JavaScript | Python | 说明 |
-|------|------------|--------|------|
-| **类型系统** | 动态类型 | 动态类型 | 两者都支持动态类型，但 Python 有类型注解 |
-| **执行方式** | 解释型 | 解释型 | 都需要运行时环境 |
-| **语法风格** | C 风格 | 缩进敏感 | Python 使用缩进代替大括号 |
-| **变量声明** | `let/const/var` | 直接赋值 | Python 无需声明关键字 |
-| **字符串** | 单引号/双引号 | 单引号/双引号/三引号 | Python 支持多行字符串 |
-| **注释** | `//` 或 `/* */` | `#` 或 `"""` | Python 支持文档字符串 |
+### 2.1 `course = "Python"`：给名称赋一个值
 
-**代码风格对比示例**
+`"Python"` 是字符串字面量，表示一段文本。两边的引号是代码语法，不是这段文本自带的内容。
 
-<PythonEditor title="代码风格对比示例" compare={true}>
-```javascript !! js 
-// JavaScript 风格
-function calculateArea(width, height) {
-    const area = width * height;
-    return area;
-}
+`course` 是我们选择的名称。执行赋值后，后续代码可以用这个名称取得对应的值。Python 中这种赋值不需要在前面写 `let`、`const` 或 `var`。
 
-const result = calculateArea(10, 5);
-console.log(`面积是: ${result}`);
+先掌握这里可观察的行为：执行赋值之后，`course` 可以被读取；名称拼错，就不是在读取同一个名称。本章不要求你提前掌握可变对象、复制与作用域，下一阶段会用专门的例子解释它们。
+
+### 2.2 `print("Hello!")`：调用一个已有功能
+
+`print` 是 Python 提供的内置函数，本例不需要导入它。圆括号表示调用，括号里的 `"Hello!"` 是传给它的内容。本例会把这段文本写到标准输出；正常本地运行时，你在终端看到它，并在末尾换行。
+
+注意区分：**调用已有函数**不等于**现在必须学会定义自己的函数**。你已经理解 JS 函数调用的一般概念，这里只需要看懂当前这一种 Python 调用。
+
+### 2.3 `print(course)`：先取得值，再输出
+
+这次括号里没有引号。Python 先查找名称 `course` 的值，再把它交给 `print`。因此打印的是 `Python`，而不是 `course`。
+
+这两种写法的区别可以单独验证：
+
+```python
+course = "Python"
+print(course)
+print("course")
+```
+
+预期结果：
+
+```text
+Python
+course
+```
+
+第二行代码读取名称，第三行代码直接使用字面量。不要把“编辑器中看起来相似的文字”理解成“Python 会把它们当成同一个东西”。
+
+### 2.4 逐行跟踪，而不是记住结果
+
+| 执行位置 | 发生的事情 | 新产生的输出 |
+| --- | --- | --- |
+| 第 1 行 | 名称 `course` 获得值 `"Python"` | 无 |
+| 第 2 行 | 调用 `print`，传入 `"Hello!"` | `Hello!` |
+| 第 3 行 | 读取 `course`，把得到的值传给 `print` | `Python` |
+
+保存一行赋值并不会自动把值显示出来。本章运行的是脚本文件，想看某个值时要显式输出它，不要把浏览器开发者控制台的交互反馈直接套在文件执行上。
+
+空行可以分隔代码，不会产生输出。`#` 在字符串外面可以开始一条行注释；例如下面最后一行是给读者看的说明：
+
+```python
+course = "Python"
+print(course)
+# This comment does not print anything.
+```
+
+## 3. 借用 JS 经验，但保留差异
+
+下面的对照只用于阅读语法；本章的运行验收放在本地终端，不依赖网页编辑器的执行环境。
+
+<PythonEditor title="读取名称并输出" compare={true} canRun={false}>
+```javascript !! js
+const name = "Python";
+console.log(name);
 ```
 
 ```python !! py
-# Python 风格
-def calculate_area(width, height):
-    area = width * height
-    return area
-
-result = calculate_area(10, 5)
-print(f"面积是: {result}")
+name = "Python"
+print(name)
 ```
 </PythonEditor>
 
-### 2.2 Python 安装和配置
+两边在这个小例子中都输出 `Python`，但这不是说 `const` 与 Python 赋值完全等价，也不是说 `console.log` 与 `print` 的所有功能相同。
 
-**安装方法对比**
+Python 的名称可以在后面重新赋值。本章只先观察这一行为：
 
-| 操作系统 | JavaScript (Node.js) | Python | 说明 |
-|----------|---------------------|--------|------|
-| **Windows** | 官网下载安装包 | 官网下载安装包 | 两者都有官方安装包 |
-| **macOS** | Homebrew: `brew install node` | Homebrew: `brew install python` | 推荐使用包管理器 |
-| **Linux** | 包管理器或源码编译 | 包管理器或源码编译 | 系统包管理器优先 |
+```python
+course = "Python"
+print(course)
+course = "FastAPI"
+print(course)
+```
 
-**验证安装**
+输出为：
+
+```text
+Python
+FastAPI
+```
+
+第一次输出发生在重新赋值之前，不会因为后面改了名称的值就“回头改变”。这些都是普通文本；**写出字符串 `"FastAPI"` 不会安装框架，也不会启动服务器。**
+
+## 4. 是谁在运行 `.py` 文件？
+
+前端开发中，编辑器负责修改文件，浏览器或 Node.js 等运行环境负责执行代码。Python 也需要区分这些职责：
+
+- **编辑器**：让你创建、修改并保存源码。语法高亮不代表代码已经运行。
+- **Python 语言**：规定这几行代码的写法和含义。
+- **Python 解释器**：实际读取和执行代码的程序。本课程本地使用 CPython，它是 Python 的一种实现。
+- **终端**：让你发出启动命令、查看输出与错误。终端命令不是 Python 源码。
+
+最小过程是：
+
+```text
+保存 first_steps.py
+        ↓
+在终端启动 Python 解释器，并指定这个文件
+        ↓
+解释器读取文件，检查语法，再执行代码
+        ↓
+在终端看到输出，或者看到错误信息
+```
+
+`.py` 是 Python 源文件常用的扩展名。把文件改成这个后缀，不会让里面的 JS 自动变成 Python；真正执行的仍然是文件中的内容。
+
+有些文档展示以 `>>>` 开头的 Python 交互式会话。`>>>` 是提示符，不是你应该复制进文件的源码。本章固定使用文件运行，先不在几种执行方式之间来回切换。
+
+## 5. 只准备本章需要的运行条件
+
+我们使用 **CPython 3.13** 作为教学基线，不声称它是最新版本。这个脚本没有第三方 Python 依赖，不需要创建工程配置或安装 FastAPI。
+
+为减少不同电脑上 Python 命令的差异，本教材用 **uv 帮助准备和选择解释器**。这里它只是一个运行工具：先知道每条命令做什么，不在本章学习完整依赖管理。已经有可用 uv 的读者可跳过安装步骤。
+
+### 5.1 安装并确认 uv
+
+安装命令应从 [uv 官方安装说明](https://docs.astral.sh/uv/getting-started/installation/)核对。下面的命令会获取并运行官方安装脚本；公司设备应遵守组织的软件安装要求，不要对来源不明的地址照抄这种模式。
+
+**macOS / Linux 终端：**
 
 ```bash
-# JavaScript 环境验证
-node --version
-npm --version
-
-# Python 环境验证
-python --version
-# 或
-python3 --version
-pip --version
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**环境变量配置**
+**Windows PowerShell：**
 
-| 环境变量 | JavaScript | Python | 作用 |
-|----------|------------|--------|------|
-| **PATH** | Node.js 安装目录 | Python 安装目录 | 命令行访问 |
-| **NODE_PATH** | 全局模块路径 | PYTHONPATH | 模块搜索路径 |
-| **NPM_CONFIG** | npm 配置 | PIP_CONFIG_FILE | 包管理器配置 |
-
-## 3. Python 包管理生态
-
-### 3.1 pip - Python 的包管理器
-
-pip 是 Python 的官方包管理器，类似于 JavaScript 生态中的 npm 或 yarn。
-
-**核心命令对比**
-
-| 功能 | npm/yarn | pip | 说明 |
-|------|----------|-----|------|
-| **安装包** | `npm install package` | `pip install package` | 安装单个包 |
-| **全局安装** | `npm install -g package` | `pipx run package` | `pipx` 是用于安装和运行 Python CLI 应用的推荐工具，避免污染全局环境。 |
-| **开发依赖** | `npm install --save-dev` | `pip install package` | pip 本身不区分依赖类型，但可以通过多个 requirements 文件手动管理开发依赖和生产依赖。 |
-| **卸载包** | `npm uninstall package` | `pip uninstall package` | 移除已安装的包 |
-| **列出包** | `npm list` | `pip list` | 显示已安装的包 |
-| **更新包** | `npm update package` | `pip install --upgrade package` | 升级到最新版本 |
-
-**依赖文件对比**
-
-```json
-// package.json (JavaScript)
-{
-  "name": "my-project",
-  "version": "1.0.0",
-  "dependencies": {
-    "express": "^4.18.2",
-    "axios": "^1.6.0"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "eslint": "^8.55.0"
-  },
-  "scripts": {
-    "start": "node index.js",
-    "test": "jest"
-  }
-}
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-```txt
-# requirements.txt (Python)
-# 核心依赖
-Flask==2.3.3
-requests==2.31.0
-pandas==2.1.4
-
-# 开发依赖（通常放在 requirements-dev.txt）
-pytest==7.4.3
-black==23.11.0
-flake8==6.1.0
-```
-
-**实际使用示例**
+安装完成后，新开一个终端，执行：
 
 ```bash
-# JavaScript 项目初始化
-npm init -y
-npm install express axios
-npm install --save-dev jest eslint
-
-# Python 项目初始化
-pip install Flask requests pandas
-pip install pytest black flake8
+uv --version
 ```
 
-### 3.2 虚拟环境管理
+看到 `uv` 和版本号，说明新终端可以找到这个工具。如果仍提示找不到命令，先按照安装输出检查终端与路径；此时还没进入 Python 代码执行阶段，不需要修改脚本。
 
-#### 3.2.1 venv - Python 内置虚拟环境
+### 5.2 准备并确认解释器
 
-虚拟环境是 Python 开发的核心概念，类似于 JavaScript 中的 `node_modules` 隔离，但更加彻底。
-
-**概念对比**
-
-| 概念 | JavaScript | Python | 说明 |
-|------|------------|--------|------|
-| **依赖隔离** | node_modules 目录 | 虚拟环境目录 | Python 隔离更彻底 |
-| **全局包** | npm install -g | pip install | 都支持全局安装 |
-| **版本管理** | package.json 锁定 | requirements.txt | 依赖版本控制 |
-| **环境切换** | 自动（基于目录） | 手动激活/退出 | Python 需要显式激活 |
-
-**venv 基本操作**
+在终端逐行执行，而不是把它们写入 `.py` 文件：
 
 ```bash
-# 创建虚拟环境
-python -m venv myproject-env
-
-# 激活虚拟环境
-# Windows
-myproject-env\Scripts\activate
-
-# macOS/Linux
-source myproject-env/bin/activate
-
-# 退出虚拟环境
-deactivate
+uv python install 3.13
+uv run --no-project --python 3.13 python --version
 ```
 
-**项目结构对比**
+第一条准备 Python 3.13，已安装时通常可以复用。第二条选择这个版本的解释器，让它报告自己的版本，结果应以 `Python 3.13.` 开头；末尾补丁号可能不同。
 
-```
-# JavaScript 项目结构
-my-js-project/
-├── node_modules/          # 依赖包
-├── package.json           # 项目配置
-├── package-lock.json      # 依赖锁定
-├── src/
-│   └── index.js
-└── README.md
+首次安装可能下载文件，需要网络。下载进度或 uv 提示来自工具，不是我们即将编写的程序输出。安装成功以后，这份脚本本身不会访问网络。
 
-# Python 项目结构
-my-python-project/
-├── venv/                  # 虚拟环境（通常不提交到版本控制）
-├── requirements.txt       # 依赖列表
-├── src/
-│   └── main.py
-└── README.md
-```
+### 5.3 建立一个普通练习文件夹
 
-**实际工作流程对比**
+选择你平时保存练习的目录，再在终端执行：
 
 ```bash
-# JavaScript 工作流程
-mkdir my-js-project
-cd my-js-project
-npm init -y
-npm install express
-# 开始开发...
-
-# Python 工作流程
-mkdir my-python-project
-cd my-python-project
-python -m venv venv
-source venv/bin/activate  # 或 venv\Scripts\activate (Windows)
-pip install Flask
-# 开始开发...
+mkdir js2py-first-steps
+cd js2py-first-steps
 ```
 
-#### 3.2.2 pyenv - Python 版本管理
+这只是新建并进入文件夹，**不是创建工程框架**。如果你之前已经建立了它，直接进入即可，不必删除重建。
 
-pyenv 类似于 Node.js 生态中的 nvm，用于管理多个 Python 版本。
+用编辑器打开这个文件夹，新建 `first_steps.py`，填入第 2 节的三行代码并保存。检查文件名没有变成 `first_steps.py.txt`；尤其在隐藏扩展名的系统上，显示名称可能造成误解。
 
-**版本管理工具对比**
+也可以[下载本章文件](/learning-assets/js2py/u00-first-script.zip)，解压后在其中的 `u00-first-script` 文件夹打开终端。手写和下载是两种取得同一份文件的方式，不需要做两遍；下载不能代替逐行理解。`solutions` 文件夹是独立练习的答案，先不要看。
 
-| 功能 | nvm (Node.js) | pyenv (Python) | 说明 |
-|------|---------------|----------------|------|
-| **安装版本** | `nvm install 18.17.0` | `pyenv install 3.11.5` | 安装特定版本 |
-| **切换版本** | `nvm use 18.17.0` | `pyenv global 3.11.5` | 设置默认版本 |
-| **本地版本** | `.nvmrc` 文件 | `.python-version` 文件 | 项目级版本控制 |
-| **列出版本** | `nvm list` | `pyenv versions` | 查看已安装版本 |
-| **当前版本** | `nvm current` | `pyenv version` | 显示当前使用的版本 |
+## 6. 完成第一次运行，并解释命令
 
-**安装和配置 pyenv**
+确认终端当前目录中有 `first_steps.py`，执行：
 
 ```bash
-# macOS (使用 Homebrew)
-brew install pyenv
-
-# Linux
-curl https://pyenv.run | bash
-
-# 添加到 shell 配置
-echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
-echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
-echo 'eval "$(pyenv init -)"' >> ~/.zshrc
+uv run --no-project --python 3.13 python first_steps.py
 ```
 
-**pyenv 基本使用**
+可以分段理解这条命令：
+
+| 部分 | 本章中承担的职责 |
+| --- | --- |
+| `uv run` | 通过 uv 启动一个命令 |
+| `--no-project` | 不把当前或父目录的 uv 工程作为运行上下文 |
+| `--python 3.13` | 选择 Python 3.13 解释器 |
+| `python` | 要运行的程序是 Python 解释器 |
+| `first_steps.py` | 交给解释器执行的文件，按当前终端目录定位 |
+
+这不是让你背下一张参数表。我们固定这一条路径，是为了先排除“机器上究竟用了哪一个 Python”的歧义。**现在不需要执行 `uv init`、创建锁文件或安装测试框架。** 环境与依赖为什么需要隔离，会在后面的工程章节单独讲清。
+
+正常的程序输出是：
+
+```text
+Hello!
+Python
+```
+
+看到输出后，再回到编辑器，把第一行的 `"Python"` 改成 `"FastAPI"`，**保存**，重新执行同一条命令。第二行输出应改变，第一行仍为 `Hello!`。完成后把文件恢复成原版。
+
+如果输出没有变化，先核对三个对象：编辑器保存的是哪个文件、终端在哪个目录、命令执行的是哪个文件。不要马上重装 Python；这次问题可能只是你修改与运行的不是同一份文件。
+
+## 7. 两个可恢复的错误实验
+
+在当前练习目录复制一份 `first_steps.py` 作为备份。每次只改一个地方，观察之后恢复，再进行下一个实验。不要修改其他项目的文件。
+
+### 7.1 名称写错：语法能成立，执行时找不到名称
+
+把程序最后一行的 `course` 改成 `cours`，其余保持不变：
+
+```python expected-error=NameError
+course = "Python"
+print("Hello!")
+print(cours)
+```
+
+运行后，你会看到 `Hello!`，随后出现包含 `NameError` 的错误。前两行已经执行；到第三行需要读取 `cours` 时，找不到这个名称，所以停止了正常执行。
+
+先看错误末尾的类型与消息，再往上找到自己的文件名和行号，回到编辑器核对那一行。`course` 和 `cours` 是两个不同名称，修复的是源码拼写，不是安装一个叫 `cours` 的包。
+
+这里不要求背诵完整 traceback 格式。先能定位自己的文件、理解这次失败的直接原因即可。修复后重跑，确认两行正常输出回来。
+
+### 7.2 引号漏写：在执行之前就无法读懂文件
+
+把第一行结尾的双引号删掉：
+
+```python expected-error=SyntaxError
+course = "Python
+print("Hello!")
+print(course)
+```
+
+这次会出现 `SyntaxError`，脚本中的两条 `print` 都不会执行。区别在于：解释器还没开始逐行执行，就发现这份文件不是完整、合法的 Python 语法。
+
+错误消息或箭头在不同补丁版本中可能有细微差别，不需要记住它们的整段文字。恢复引号、保存、重跑，才算完成这个排错实验。
+
+### 7.3 先分清错误发生在哪一层
+
+| 现象 | 先检查什么 | 不要先做什么 |
+| --- | --- | --- |
+| 找不到 `uv` 命令 | 安装是否完成，新终端能否找到它 | 改 Python 业务代码 |
+| 无法打开 `first_steps.py` | 当前目录、文件名、是否误存为 `.txt` | 安装第三方 Python 包 |
+| `SyntaxError` | 指向的代码、引号或括号是否完整 | 换一套框架 |
+| `NameError` | 使用的名称是否已赋值、拼写是否一致 | 清空环境重装 |
+| 输出仍是旧内容 | 文件是否保存，执行的是否同一份文件 | 把正常输出误当成缓存问题 |
+
+这个表只是本章涉及的几种现象，不是所有同名错误的完整原因清单。遇到不同问题，要保留实际命令和报错，不能只凭一个错误名称猜结论。
+
+## 8. 练习：从解释到独立写出
+
+### 练习一：先预测，再验证
+
+不运行代码，写出下面程序的三行输出，并解释为什么后一次赋值不会改变已经打印的内容。
+
+```python
+topic = "Python"
+print(topic)
+topic = "FastAPI"
+print("topic")
+print(topic)
+```
+
+<details>
+<summary>完成后查看解释</summary>
+
+```text
+Python
+topic
+FastAPI
+```
+
+第一次调用读取旧值；第二次直接输出字面量 `"topic"`；第三次读取重新赋值后的值。终端中已输出的文本不是一个会随着名称变化而自动更新的前端组件。
+
+</details>
+
+### 练习二：只修改一个地方
+
+从原版 `first_steps.py` 出发，把最后一行改成 `print("course")`。预测两行输出，保存后运行核对，再恢复原版。
+
+解释为什么这次不会读取第一行赋给 `course` 的值。如果你只能说“有引号所以不一样”，继续补全：引号中的内容是什么？没有引号时解释器会做什么？
+
+<details>
+<summary>完成后查看结果</summary>
+
+输出是 `Hello!` 和 `course`。最后一行直接传入字符串字面量，没有通过名称获取值。恢复为 `print(course)` 后，它才读取赋值产生的值。
+
+</details>
+
+### 练习三：独立创建另一份文件
+
+在同一个练习目录里新建 `about_me.py`，不复制整份答案，只根据下面的要求写代码：
+
+1. 把 `"Python"` 赋给名称 `subject`。
+2. 先输出 `My next skill:`，再输出 `subject` 当前的值。
+3. 把同一个名称重新赋为 `"FastAPI"`，再输出它的新值。
+
+不能用把三行结果全部写死的方式绕过“读取名称与重新赋值”。这道题不需要 `import`、循环、自定义函数或额外工具。
+
+运行命令：
 
 ```bash
-# 查看可用的 Python 版本
-pyenv install --list
-
-# 安装特定版本
-pyenv install 3.11.5
-pyenv install 3.10.12
-
-# 设置全局默认版本
-pyenv global 3.11.5
-
-# 为特定项目设置版本
-cd my-project
-pyenv local 3.10.12
-
-# 查看当前版本
-pyenv version
+uv run --no-project --python 3.13 python about_me.py
 ```
 
-**项目级版本控制**
+应得到：
 
-```bash
-# 在项目目录中设置 Python 版本
-cd my-python-project
-pyenv local 3.11.5
-
-# 这会创建 .python-version 文件
-cat .python-version
-# 输出: 3.11.5
-
-# 创建虚拟环境（使用项目指定的 Python 版本）
-python -m venv venv
-source venv/bin/activate
+```text
+My next skill:
+Python
+FastAPI
 ```
 
-**最佳实践对比**
+<details>
+<summary>独立尝试后查看参考实现</summary>
 
-| 最佳实践 | JavaScript | Python | 原因 |
-|----------|------------|--------|------|
-| **版本锁定** | package-lock.json | requirements.txt + 虚拟环境 | 确保环境一致性 |
-| **依赖管理** | npm ci | pip install -r requirements.txt | 快速安装 |
-| **开发环境** | .env 文件 | .env 文件 + 虚拟环境 | 环境变量管理 |
-| **CI/CD** | npm ci && npm test | pip install && pytest | 自动化测试 |
-| **部署** | 生产环境安装 | 虚拟环境打包 | 环境隔离 |
+<Code language="python">{getFirstScriptExample('solutions/about_me.py')}</Code>
 
-通过以上对比，你可以看到 Python 生态系统虽然概念上与 JavaScript 类似，但在实现细节和最佳实践上有所不同。理解这些差异将帮助你更快地适应 Python 开发环境。
+实现不是唯一的，但必须确实执行赋值、读取和重新赋值。再把第一次赋的值改成 `"Python basics"`：应只有第二行输出改变。能解释这个变式，才比“对照答案看起来一样”更能说明你理解了代码。
 
-## 4. 开发工具对比
+</details>
 
-### 4.1 代码编辑器/IDE
+## 9. 什么时候可以进入下一章？
 
-现代开发中，选择合适的编辑器对提高开发效率至关重要。让我们看看 JavaScript 和 Python 开发中常用的工具。
+- [ ] 能区分终端命令与 Python 源码，并知道由谁执行源码。
+- [ ] 能从一个普通文件夹创建并运行 `.py` 文件，不只会运行下载包。
+- [ ] 能解释名称、带引号的字符串、赋值和 `print` 调用在本例中的作用。
+- [ ] 能预测并验证重新赋值前后的输出。
+- [ ] 能独立完成 `about_me.py` 和一次变式，而不是把输出全部写死。
+- [ ] 能制造并修复本章的一个错误，指出失败发生的文件、位置与原因。
 
-**主流编辑器对比**
+**没有“通过 pytest”“解释四份配置文件”“重建完整工程”这类验收项。** 那些能力有自己的学习阶段。
 
-| 编辑器 | JavaScript 支持 | Python 支持 | 优势特点 |
-|--------|----------------|-------------|----------|
-| **VSCode** | 原生支持 | 需要 Python 扩展 | 轻量级，插件丰富 |
-| **PyCharm** | 需要插件 | 原生支持 | Python 开发首选 |
-| **WebStorm** | 原生支持 | 需要插件 | JavaScript 开发首选 |
-| **Sublime Text** | 需要插件 | 需要插件 | 快速，轻量级 |
-| **Vim/Neovim** | 需要配置 | 需要配置 | 高效，可定制性强 |
+如果这次学习只能到这里，记下一个恢复点：
 
-**VSCode 配置对比**
-
-```json
-// JavaScript 项目配置 (.vscode/settings.json)
-{
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "eslint.validate": ["javascript", "typescript"],
-  "typescript.preferences.importModuleSpecifier": "relative"
-}
+```text
+当前练习文件夹：
+最后保存并运行的文件：
+最后成功的命令与输出：
+仍然解释不清的一行：
+下次开始时先做的一件事：
 ```
 
-```json
-// Python 项目配置 (.vscode/settings.json)
-{
-  "python.defaultInterpreterPath": "./venv/bin/python",
-  "python.formatting.provider": "black",
-  "python.linting.enabled": true,
-  "python.linting.pylintEnabled": false,
-  "python.linting.flake8Enabled": true,
-  "editor.formatOnSave": true
-}
-```
+下次先运行同一份文件，口头解释每一行，再继续一个小变式。这里不要求按天打卡，也不要求隔一段时间就重新安装工具。
 
-**推荐的 VSCode 扩展**
+## 10. 下一步与资料边界
 
-| 功能 | JavaScript 扩展 | Python 扩展 | 说明 |
-|------|----------------|-------------|------|
-| **语法高亮** | 内置 | Python | 基础语法支持 |
-| **智能提示** | TypeScript | Pylance | 代码补全和类型检查 |
-| **代码格式化** | Prettier | Black | 统一代码风格 |
-| **代码检查** | ESLint | Flake8/Ruff | 代码质量检查 |
-| **调试** | Node.js Debugger | Python Debugger | 断点调试 |
-| **测试** | Jest Runner | Python Test Explorer | 测试运行器 |
+新学习路线接下来会专门展开**名称、值与基本运算**，之后再逐章学习容器、控制流、函数、异常、模块与文件。你会持续写小程序，不需要读完一大段纯理论才开始实践。
 
-## 5. 项目结构对比
+> **重编状态（2026-09-23）**：本章和[第 01 章「名称、值与基本运算」](/zh-cn/docs/js2py/module-01-syntax-comparison)已按新的递进契约重编。完成本章独立验收后，可以继续第 01 章；不要求先学函数、容器或工程配置。后续页面仍会逐章迁移，旧网站编号不等同于新路线的逻辑编号。
 
-### 5.1 Python 项目结构
+想核对具体问题时，再阅读对应的官方资料，不需要先把整个网站看完：
 
-Python 项目有标准的目录结构，让我们对比 JavaScript 和 Python 的项目组织方式。
-
-**标准项目结构对比**
-
-| 目录/文件 | JavaScript 项目 | Python 项目 | 说明 |
-|-----------|----------------|-------------|------|
-| **配置文件** | package.json | pyproject.toml | 项目元数据和依赖 |
-| **依赖锁定** | package-lock.json | requirements.txt | 精确版本控制 |
-| **源代码** | src/ | src/ 或项目根目录 | 主要代码文件 |
-| **测试文件** | __tests__/ 或 test/ | tests/ | 测试代码 |
-| **文档** | docs/ | docs/ | 项目文档 |
-| **构建输出** | dist/ | build/ | 构建产物 |
-| **环境配置** | .env | .env(配合 python-dotenv 库) | 环境变量 |
-
-**典型项目结构示例**
-
-```
-# JavaScript 项目结构
-my-js-app/
-├── package.json              # 项目配置
-├── package-lock.json         # 依赖锁定
-├── .eslintrc.js             # ESLint 配置
-├── .prettierrc              # Prettier 配置
-├── tsconfig.json            # TypeScript 配置
-├── src/
-│   ├── components/          # React 组件
-│   ├── utils/              # 工具函数
-│   ├── types/              # TypeScript 类型
-│   └── index.ts            # 入口文件
-├── tests/
-│   └── components.test.ts   # 测试文件
-├── docs/                   # 文档
-├── dist/                   # 构建输出
-└── README.md
-
-# Python 项目结构
-my-python-app/
-├── pyproject.toml           # 项目配置
-├── requirements.txt         # 依赖列表
-├── requirements-dev.txt     # 开发依赖
-├── .flake8                 # Flake8 配置
-├── .env                    # 环境变量
-├── src/
-│   └── my_python_app/      # 包目录
-│       ├── __init__.py     # 包初始化
-│       ├── core/           # 核心模块
-│       ├── utils/          # 工具函数
-│       └── main.py         # 入口文件
-├── tests/
-│   ├── __init__.py         # 测试包初始化
-│   ├── test_core.py        # 核心测试
-│   └── conftest.py         # pytest 配置
-├── docs/                   # 文档
-├── build/                  # 构建输出
-└── README.md
-```
-
-### 5.2 依赖管理与项目配置
-
-现代 Python 项目正朝着使用单一配置文件 `pyproject.toml` 的方向发展，这类似于 JavaScript 生态中的 `package.json`。这个文件可以定义项目元数据、依赖项、以及各种工具（如格式化器、Linter）的配置。
-
-**依赖管理工具对比**
-
-| 工具 | JavaScript 对应 | 特点 | 适用场景 |
-|------|----------------|------|----------|
-| **pip + requirements.txt** | npm + package.json | 传统、简单直接 | 遗留项目或小型脚本 |
-| **Poetry** | Yarn / npm | `pyproject.toml` 驱动，集成依赖、环境和打包管理 | 推荐用于新项目 |
-| **pip-tools** | npm ci / package-lock.json | 从 `pyproject.toml` 或 `.in` 文件编译 `requirements.txt` | 需要精确控制依赖文件 |
-| **pipenv** | npm | 自动管理虚拟环境和依赖 | 某些工作流中仍在使用 |
-
-**依赖文件格式对比**
-
-```json
-// package.json (JavaScript)
-{
-  "name": "my-app",
-  "version": "1.0.0",
-  "description": "A sample application",
-  "main": "src/index.js",
-  "scripts": {
-    "start": "node src/index.js",
-    "test": "jest",
-    "build": "webpack",
-    "lint": "eslint src/",
-    "format": "prettier --write src/"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "axios": "^1.6.0"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "eslint": "^8.55.0",
-    "prettier": "^3.1.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  }
-}
-```
-
-```toml
-# pyproject.toml (Python - Poetry)
-[tool.poetry]
-name = "my-python-app"
-version = "0.1.0"
-description = "A sample Python application"
-authors = ["Your Name <your.email@example.com>"]
-readme = "README.md"
-packages = [{include = "my_python_app", from = "src"}]
-
-[tool.poetry.dependencies]
-python = "^3.8"
-flask = "^2.3.3"
-requests = "^2.31.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.4.3"
-black = "^23.11.0"
-flake8 = "^6.1.0"
-
-[tool.poetry.scripts]
-start = "my_python_app.main:main"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-```
-
-**依赖安装和更新对比**
-
-```bash
-# JavaScript 依赖管理
-npm install                    # 安装所有依赖
-npm install express           # 安装生产依赖
-npm install --save-dev jest   # 安装开发依赖
-npm update                    # 更新依赖
-npm audit                     # 安全审计
-npm outdated                  # 检查过期依赖
-
-# Python 依赖管理 (pip)
-pip install -r requirements.txt    # 安装所有依赖
-pip install flask                 # 安装包
-pip install pytest --user         # 用户级安装
-pip install --upgrade flask       # 更新包
-pip list --outdated               # 检查过期依赖
-
-# Python 依赖管理 (Poetry)
-poetry install                    # 安装所有依赖
-poetry add flask                  # 添加生产依赖
-poetry add --group dev pytest     # 添加开发依赖
-poetry update                     # 更新依赖
-poetry show --tree                # 显示依赖树
-```
-
-## 6. 实战练习
-
-### 6.1 环境搭建练习
-
-让我们通过实际练习来熟悉 Python 开发环境的搭建。
-
-**练习 1：创建第一个 Python 项目**
-
-```bash
-# 1. 创建项目目录
-mkdir my-first-python-project
-cd my-first-python-project
-
-# 2. 使用 pyenv 设置 Python 版本
-pyenv local 3.11.5
-
-# 3. 创建虚拟环境
-python -m venv venv
-
-# 4. 激活虚拟环境
-# Windows
-venv\Scripts\activate
-# macOS/Linux
-source venv/bin/activate
-
-# 5. 安装基础包
-pip install requests flask pytest black flake8
-
-# 6. 创建 requirements.txt
-pip freeze > requirements.txt
-```
-
-**对比：JavaScript 项目创建**
-
-```bash
-# 1. 创建项目目录
-mkdir my-first-js-project
-cd my-first-js-project
-
-# 2. 初始化 npm 项目
-npm init -y
-
-# 3. 安装基础包
-npm install express axios
-npm install --save-dev jest eslint prettier
-
-# 4. 创建 .gitignore
-echo "node_modules/" > .gitignore
-echo "dist/" >> .gitignore
-```
-
-**练习 2：配置开发环境**
-
-```bash
-# Python 项目配置
-# 1. 创建项目结构
-mkdir -p src/my_app tests docs
-
-# 2. 创建配置文件
-touch pyproject.toml .flake8 .env
-
-# 3. 配置 VSCode
-mkdir .vscode
-touch .vscode/settings.json .vscode/launch.json
-```
-
-```bash
-# JavaScript 项目配置
-# 1. 创建项目结构
-mkdir -p src/components src/utils tests docs
-
-# 2. 创建配置文件
-touch .eslintrc.js .prettierrc tsconfig.json
-
-# 3. 配置 VSCode
-mkdir .vscode
-touch .vscode/settings.json .vscode/launch.json
-```
-
-## 7. 总结和下一步
-
-### 7.1 Python 生态系统的核心概念总结
-
-通过本模块的学习，你已经掌握了 Python 生态系统的核心概念：
-
-**核心工具对比总结**
-
-| 概念 | JavaScript 对应 | Python 工具 | 关键差异 |
-|------|----------------|-------------|----------|
-| **运行时** | Node.js | Python 解释器 | Python 需要显式版本管理 |
-| **包管理器** | npm/yarn | pip/poetry | Python 工具链更分散，但 pip 和 poetry 都提供了依赖管理功能 |
-| **依赖隔离** | node_modules | 虚拟环境 | Python 的虚拟环境完全隔离 |
-| **版本管理** | nvm | pyenv | 功能相似，语法不同 |
-| **代码质量** | ESLint + Prettier | Flake8 + Black | Python 工具更专注 |
-
-### 7.2 下一模块预告
-
-在下一个模块中，我们将深入学习 Python 的核心语法，包括：
-
-**模块 1：Python 语法基础**
-- 变量和数据类型
-- 控制流语句
-- 函数定义和调用
-- 列表、字典、集合操作
-- 文件操作和异常处理
-
-**学习目标**
-- 掌握 Python 基本语法
-- 理解与 JavaScript 的语法差异
-- 能够编写简单的 Python 程序
-- 为后续学习打下坚实基础
-
-**学习资源推荐**
-
-| 资源类型 | 推荐内容 | 适用阶段 |
-|----------|----------|----------|
-| **官方文档** | Python 官方教程 | 基础学习 |
-| **在线课程** | Real Python, Python.org | 系统学习 |
-| **实践平台** | LeetCode, HackerRank | 算法练习 |
-| **开源项目** | GitHub Python 项目 | 实战经验 |
-
----
-
-恭喜你完成了 Python 生态系统入门的学习！你已经掌握了 Python 开发环境的核心工具和概念。在接下来的学习中，我们将深入 Python 语言的各个方面，帮助你以最快的方式能够读懂 Python 代码。
-
-记住：学习 Python 不是要替代 JavaScript，而是要扩展你的技术栈，让你能够处理更多类型的开发任务。两种语言各有优势，结合使用将让你成为更强大的开发者。 
+- Python 的基本交互与表达式：[Python 3.13 教程](https://docs.python.org/3.13/tutorial/introduction.html)。
+- `print` 的完整参数与行为：[Python 内置函数](https://docs.python.org/3.13/library/functions.html#print)。本章只使用它最简单的形式。
+- 语法错误与执行时异常：[Python 错误与异常](https://docs.python.org/3.13/tutorial/errors.html)。完整异常处理会在后续章节教学。
+- 本章运行命令：[uv 脚本运行指南](https://docs.astral.sh/uv/guides/scripts/)。不需要为了这份无依赖脚本先建立 uv 工程。

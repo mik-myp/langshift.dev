@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-09-28",
+  "sources": [
+    {
+      "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/",
+      "purpose": "Each object-accepting operation needs object-level permission evidence, not only login success",
+      "status": "verified; redirected to api-security.owasp.org"
+    },
+    {
+      "url": "https://www.postgresql.org/docs/18/backup-dump.html",
+      "purpose": "Separate generating a backup from performing and verifying restoration",
+      "status": "verified"
+    },
+    {
+      "url": "https://www.rfc-editor.org/rfc/rfc9110.html#name-idempotent-methods",
+      "purpose": "Repeated-request effects and retry safety; POST does not automatically provide this product deduplication contract",
+      "status": "verified"
+    }
+  ]
+}

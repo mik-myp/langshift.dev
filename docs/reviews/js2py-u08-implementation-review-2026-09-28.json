@@ -1,0 +1,393 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "u08-environments actual complete English lesson and all download files; not all remaining chapters, not production certification or measured learner outcomes.",
+  "metadata": {
+    "started_at_utc": "2026-09-28T03:04:32.276771+00:00",
+    "elapsed_seconds": 1.068,
+    "http_status": 200,
+    "endpoint": "https://api.typesafe.ai/v1/systemone",
+    "requested_model": "jev-latest",
+    "returned_model": "jev-1.13.0",
+    "questions": 7,
+    "request_sha256": "88b754dad3abe3566ed425f4ef65c48f14998daf1b2b100ce491383838be5eb4",
+    "usage": {
+      "input_tokens": 10935,
+      "output_tokens": 341
+    },
+    "credential_persisted": false
+  },
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "reader": "Experienced enterprise frontend engineer, fluent JS async/await and basic TypeScript, originally no Python/backend/database/operations practice. Slow, interrupted learning. No subagents permitted.",
+      "chapter": "u08-environments",
+      "prior_and_current_contracts": [
+        {
+          "id": "L00",
+          "title": "认识 Python 与第一次运行",
+          "prerequisites": [],
+          "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+          "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+          "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+          "status": "implemented"
+        },
+        {
+          "id": "L01",
+          "title": "名称、值与基本运算",
+          "prerequisites": [
+            "L00"
+          ],
+          "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+          "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+          "boundary": "不引入复杂容器、作用域或类型体操",
+          "status": "implemented"
+        },
+        {
+          "id": "L02",
+          "title": "容器、引用与修改",
+          "prerequisites": [
+            "L01"
+          ],
+          "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+          "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+          "boundary": "不依赖循环或自定义函数完成首次容器实验",
+          "status": "implemented"
+        },
+        {
+          "id": "L03",
+          "title": "条件、循环与遍历",
+          "prerequisites": [
+            "L02"
+          ],
+          "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+          "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+          "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+          "status": "implemented"
+        },
+        {
+          "id": "L04",
+          "title": "函数、参数与作用域",
+          "prerequisites": [
+            "L03"
+          ],
+          "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+          "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+          "boundary": "不以装饰器或类封装作为练习要求",
+          "status": "implemented"
+        },
+        {
+          "id": "L05",
+          "title": "异常与调试",
+          "prerequisites": [
+            "L04"
+          ],
+          "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+          "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+          "boundary": "不把assert当作不可信输入的生产校验",
+          "status": "implemented"
+        },
+        {
+          "id": "L06",
+          "title": "模块与标准库",
+          "prerequisites": [
+            "L05"
+          ],
+          "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+          "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+          "boundary": "不先要求发布包、动态导入或框架架构",
+          "status": "implemented"
+        },
+        {
+          "id": "L07",
+          "title": "文件、JSON 与资源使用",
+          "prerequisites": [
+            "L06"
+          ],
+          "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+          "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+          "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+          "status": "implemented"
+        },
+        {
+          "id": "L08",
+          "title": "环境与依赖管理",
+          "prerequisites": [
+            "L06",
+            "L07"
+          ],
+          "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+          "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+          "boundary": "不在入门章考核；不同时比较所有包管理器",
+          "status": "planned"
+        },
+        {
+          "id": "L09",
+          "title": "基础自动化测试",
+          "prerequisites": [
+            "L04",
+            "L05",
+            "L06",
+            "L08"
+          ],
+          "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+          "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+          "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+          "status": "planned"
+        },
+        {
+          "id": "L10",
+          "title": "第一个独立可复现项目",
+          "prerequisites": [
+            "L07",
+            "L08",
+            "L09"
+          ],
+          "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+          "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+          "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+          "status": "planned"
+        },
+        {
+          "id": "L11",
+          "title": "基础类型注解",
+          "prerequisites": [
+            "L02",
+            "L04",
+            "L06",
+            "L10"
+          ],
+          "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+          "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+          "boundary": "不要求复杂泛型、协议或零Any指标",
+          "status": "planned"
+        }
+      ],
+      "actual_english_lesson": "---\ntitle: Environments and Dependencies\ndescription: Understand interpreters, virtual environments, declarations and lockfiles by diagnosing real dependency failures, then recover a small application in a clean directory instead of relying on one machine's installation history.\n---\n\nimport { getEnvironmentExample } from '@/lib/js2py-examples'\n\n## 1. Why introduce a project environment now?\n\nL00–L07 taught you to run, split, diagnose and persist a Python program. Only now do we introduce complete environment declarations: you can distinguish a business defect from an interpreter missing a dependency, and you know that a configuration file does not execute your business code.\n\nImagine sending a working directory to a colleague. Their Python differs, or your machine happened to have a globally installed package that the source never declared. **Identical source does not imply identical execution conditions.** Environment management turns hidden assumptions into inspectable files and recovery steps, rather than asking someone to reconstruct your terminal history.\n\nWe use one deliberately small external feature: display 1536 bytes as `1.5 KiB`. The objective is not a formatting API catalogue. It is a visible consequence for dependency absence, interpreter selection and recovery from declarations.\n\n| Contract | Requirement |\n| --- | --- |\n| Prerequisites | L06 imports, module search and entry points; L07 files and paths |\n| New capabilities | Interpreter selection, isolation, declaration, resolution, installation, locking and reconstruction |\n| Independent acceptance | Rebuild a small application from an empty directory and diagnose a dependency failure |\n| Not required yet | Publishing, build backends, competing package managers, pytest, containers or FastAPI |\n\nDownload [L08 experiments and reference answers](/learning-assets/js2py/u08-environments.zip). Extract the complete `u08-environments` directory and open a terminal there. **Do not keep adding `--no-project` to these commands.** Earlier chapters intentionally ignored an enclosing project; now we explicitly need this project's declarations.\n\nVerified baseline: **September 28, 2026: CPython 3.13.15, uv 0.12.13 and humanize 4.13.0**. This is an observed combination, not a newest-version or permanent security claim. Initial recovery may download an interpreter and distribution files. A lockfile is not an offline installer.\n\n## 2. Separate four participants\n\nThe **Python interpreter** executes Python. **uv** manages interpreters and dependencies and launches project commands; it is not itself the Python interpreter. A **virtual environment** supplies a project's interpreter entry and installed packages. **Application source** defines business behavior. Sharing one terminal does not make these the same thing.\n\nYour frontend experience with source, package.json, a lockfile and node_modules helps distinguish declarations from installed results. The analogy has limits: `.venv` also has interpreter entry points, prefixes and package search paths. Which Python you actually run determines which installed packages it can import.\n\nIn an unactivated terminal, a bare `python` or `python3` is resolved through the shell's PATH. An editor's Run button may select another interpreter. “I just installed humanize” is not evidence that the current Python can import it.\n\nCheck the tool before installing more things:\n\n```bash\nuv --version\n```\n\nIf the shell cannot find this command, no Python business code has run. Return to L00's installation/PATH checks and verify the tool location or reopen the terminal. Do not rewrite the application to hide a missing tool.\n\n## 3. Which files are inputs, and which are results?\n\nThe important root files are below. Exercise and answer directories have separate declarations; stay at the root first:\n\n```text\nu08-environments/\n  .python-version\n  pyproject.toml\n  uv.lock\n  app.py\n  probe.py\n  .venv/              # created locally; not in the download\n```\n\n| Item | Owner and purpose | What it does not establish |\n| --- | --- | --- |\n| `.python-version` | Author selects a Python request for uv | It neither installs dependencies nor replaces the compatibility range |\n| `pyproject.toml` | Author declares metadata, Python compatibility and direct dependencies | An allowed range is not a selected full dependency graph |\n| `uv.lock` | uv resolves; author reviews versions, sources, hashes and relationships | It contains no package payload, security certification or complete OS snapshot |\n| `.venv/` | uv creates/synchronizes the local installation | It is not portable project source or something to copy between machines |\n| Application/test source | Author describes business behavior and checks | Source alone does not specify the external execution conditions |\n\nVersion-control the source, declarations, version selection and lock. Exclude environments, caches and real secrets. Shared work must not depend on an environment you happened to activate previously. This example needs no private registry, credential or `.env` file.\n\n## 4. Read the declaration before copying it\n\nComplete `.python-version`:\n\n<Code language=\"text\">{getEnvironmentExample('.python-version')}</Code>\n\nThe patch version makes this experiment's interpreter request explicit. A production application still needs planned updates and renewed verification; a pin is not a reason to ignore security maintenance.\n\n`pyproject.toml`:\n\n<Code language=\"toml\">{getEnvironmentExample('pyproject.toml')}</Code>\n\nThis is TOML, not Python or JSON. `[project]` starts a configuration table; following key/value assignments belong to it. Quoted values are strings and comma-separated items in brackets form an array. `[tool.uv]` is uv-specific configuration. Understand these forms without first memorizing the entire TOML specification.\n\n- `name` identifies project metadata; it does not automatically create a Python module. `version` belongs to this project, not to the interpreter.\n- `requires-python = \">=3.13,<3.14\"` allows the 3.13 series. The version file selects a particular interpreter within that range. Contradictory declarations need repair, not ignored errors.\n- `dependencies` names runtime **distributions**. `humanize==4.13.0` deliberately selects an exact version here; the declaration is not executing an import.\n- `package = false` makes the non-packaged local application explicit. We run a file from its project directory, without first teaching publishing or a build system.\n\nDistribution names belong to installers; import names belong to Python's module search. They need not match. This example happens to use humanize for both. Do not guess and install an identically named online package whenever you encounter an unfamiliar import. Consult that library's official installation instructions. Standard-library modules such as json and pathlib are not extra runtime distributions to add.\n\n## 5. First synchronization: files become an executable environment\n\nFrom the extracted lab root:\n\n```bash\nuv sync --locked\nuv run --locked python probe.py\nuv run --locked python app.py\n```\n\nThe first command reads the project and compatible lock, selects Python, and creates/synchronizes `.venv`. The second launches that project's Python, which executes the probe. The third executes the business entry. No prior activation is required: project selection is explicit in the workflow instead of depending on shell history.\n\n`probe.py`:\n\n<Code language=\"python\">{getEnvironmentExample('probe.py')}</Code>\n\n`sys.executable` identifies the interpreter actually executing this process. Different `sys.prefix` and `sys.base_prefix` indicate an ordinary virtual environment. `importlib.metadata.version` reads installed distribution metadata, while `humanize.__file__` identifies the module actually imported. Installation and import origin answer different questions.\n\nPaths depend on extraction location and operating system. Important values should look like this:\n\n```text\nPython: 3.13.15\nExecutable: <your project environment Python>\nIsolated: True\nDistribution: 4.13.0\nImported from: <your environment>/site-packages/humanize/__init__.py\nSize: 1.5 KiB\n```\n\nAngle-bracketed portions are explanatory placeholders, not literal directories to create or a byte-exact output claim. macOS/Linux ordinarily use `.venv/bin/python`; Windows ordinarily uses `.venv/Scripts/python.exe`. Configure the editor to use that environment's interpreter too; terminal success does not prove editor selection.\n\n`app.py`:\n\n<Code language=\"python\">{getEnvironmentExample('app.py')}</Code>\n\n```text\nFiles: 3\nBytes: 1536\nReadable: 1.5 KiB\n```\n\nThe application is still familiar accumulation and function calling from L03–L04. `humanize.naturalsize(..., binary=True)` converts the total into a binary-unit display string; it does not calculate the total for you. Keep raw byte counts separate from presentation text rather than trying to calculate with formatted strings.\n\n## 6. Declaration, resolution, locking and synchronization are different\n\nFor a new project without a lock, `uv lock` resolves concrete versions from the declaration and writes the lock. Synchronization makes the environment satisfy that selection. Ordinary `uv run` also checks the project and may lock/synchronize before launching the requested command.\n\nThe useful question is **which state each operation may change**, not how many flags you can memorize:\n\n| Command | Purpose | Changes or limits to observe |\n| --- | --- | --- |\n| `uv add \"humanize==4.13.0\"` | Intentionally add a direct runtime dependency | Normally updates declaration, lock and environment |\n| `uv lock` | Resolve or update the lock | Not installation, and not a forced upgrade of every package |\n| `uv sync --locked` | Restore from a compatible lock | Refuses implicit lock changes; default exact synchronization removes extraneous packages |\n| `uv run --locked python app.py` | Check the lock and run in the project | uv run defaults to inexact synchronization; success does not prove there are no extra packages |\n| `uv remove humanize` | Intentionally remove a direct dependency | Does not remove imports from your application source |\n\n**`--locked` and `--frozen` are not interchangeable.** Locked checks compatibility between declaration and lock and fails if an update is required. Frozen uses the existing lock without that freshness check. We choose locked to expose drift, not frozen to make a red command appear green. `--no-sync` likewise skips a check rather than repairing installation.\n\nTo establish that declared dependencies suffice, first use exact `uv sync --locked`, then run the program. A solitary successful `uv run` is weaker evidence because an accidental extra installation may remain available.\n\n## 7. Keep the lock without treating it as magic\n\nThe complete experimental `uv.lock`:\n\n<Code language=\"toml\">{getEnvironmentExample('uv.lock')}</Code>\n\nLocate two package entries: the humanize distribution and the local virtual project. The distribution records its version, public source, available files and hashes. The project connects its requirements to that selection. Here the graph is tiny; later, a direct dependency can bring several indirect dependencies. Copying only a top-level version does not reconstruct the full resolution.\n\nYou should not hand-type these long URLs or hashes. **Declarations state intent, the resolver generates the lock, and authors review changes.** Editing one lockfile version by hand can leave the source, file hashes and relationships inconsistent.\n\nThe lock does not replace interpreter selection, OS requirements, a database version, secret configuration, backups or tests. A distribution hash helps verify the retrieved file; it does not prove that file contains vulnerability-free code. Cross-platform lock information cannot promise every native extension and system library will build on every machine.\n\nThis first environment exercise uses a small pure-Python dependency from public PyPI to avoid introducing native build diagnostics simultaneously. That is a teaching boundary, not a claim that future dependencies are always pure Python.\n\n## 8. Actually create a stale lock\n\nPrepare a **new disposable copy without `.venv` or caches**. Change the root declaration from humanize 4.13.0 to 4.12.0 but retain the old lock:\n\n```bash\nuv run --locked python app.py\n```\n\nExpect **uv to reject the stale lock before starting Python**. The old 4.13.0 selection cannot satisfy the new exact request. This is neither a business traceback nor an accumulation defect. Editing app.py would be solving the wrong layer.\n\nIf you want the original lesson state, restore the original declaration and synchronize/run again. If you genuinely intend a dependency change, intentionally update the declaration and lock, review the diff, recover the environment and verify behavior. Both are reasonable actions for different goals.\n\nA changed range that still admits the locked version does not necessarily make the lock stale. This experiment deliberately excludes the previous selection. We are testing compatibility, not the false rule that any textual edit must produce an error.\n\n## 9. Three package problems with different causes\n\n### A missing declaration\n\nThe separate exercise project does not declare humanize:\n\n<Code language=\"toml\">{getEnvironmentExample('exercises/missing-declaration/pyproject.toml')}</Code>\n\n<Code language=\"python\">{getEnvironmentExample('exercises/missing-declaration/app.py')}</Code>\n\n```bash\ncd exercises/missing-declaration\nuv sync --locked\nuv run --locked python app.py\n```\n\nExpect **ModuleNotFoundError**. Check the working directory and interpreter, then add the actual runtime dependency to that project's declaration:\n\n```bash\nuv add \"humanize==4.13.0\"\nuv run --locked python app.py\ncd ../..\n```\n\nThe repaired output is `2.0 KiB`. Inspect both changed files: declaration and lock. Installing into an incidental environment without declaring the dependency does not repair independent reconstruction.\n\n### Installed distribution, wrong imported module\n\nThe root project has humanize installed, yet this still fails:\n\n<Code language=\"python\">{getEnvironmentExample('errors/humanize.py')}</Code>\n\n<Code language=\"python\">{getEnvironmentExample('errors/show_shadow.py')}</Code>\n\n```bash\nuv run --locked python errors/show_shadow.py\n```\n\nIt prints the actual path of `errors/humanize.py`, then raises **AttributeError** because that local module has no naturalsize. L06's search rules still apply inside virtual environments. Reinstalling the distribution does not fix local naming. In the disposable copy, rename the conflicting local file and start a new process. Do not edit site-packages.\n\n### Download failure before imports are possible\n\nDNS, networking, registry authentication, TLS and unavailable distribution files can stop synchronization. An offline machine with a cold cache cannot manufacture package payload from a lock. Read uv's resolution/download diagnostic rather than adding except to app.py. Do not disable certificate verification or paste real registry credentials into lessons or logs.\n\nAsk in order: **Can the tool run? Which project and interpreter? Is the lock compatible? Was installation successful? What was actually imported? Is the business behavior correct?**\n\n## 10. Activation is neither mandatory nor environment copying\n\nActivation mainly changes the current shell's search/environment so a bare python command can find `.venv`. It neither installs packages into source nor permanently affects all terminals. Shell activation syntax varies, so this course uses `uv run` as its main path to reduce hidden session state.\n\nDo not carry another project's activated environment into this work and assume every tool will infer your intent. If VIRTUAL_ENV conflicts with the selected project environment, identify the intended target before choosing an option that uses the active environment.\n\nRecovery means preparing a clean second directory with **source, declaration, version selection and lock**, not copying `.venv`:\n\n```bash\nuv sync --locked\nuv run --locked python app.py\n```\n\nThis is safer than deleting your only working environment and hoping recovery succeeds. It also exposes undeclared dependencies. Business data, secrets and external services are separate future recovery responsibilities, not proven by reinstalling packages.\n\n## 11. Three levels of practice\n\n### A. Predict before running\n\n1. Does having a lock mean the environment is installed?\n2. Does a successful locked run prove no extra packages exist?\n3. At which layer do missing-module, stale-lock and shadowed-attribute failures occur?\n4. Why check the module's file even when the distribution is installed?\n\n<details>\n<summary>Explanation checkpoint — write your evidence first</summary>\n\nThe lock stores resolution information, not installations. Default inexact uv run cannot certify absence of extras; use controlled exact synchronization or clean reconstruction. A stale lock is rejected by the tool before the business process. A missing module fails during Python import. Shadowing may successfully import the wrong local module, then fail on an attribute. Distribution metadata and import origin must be observed separately.\n\n</details>\n\n### B. Repair without hiding the failure\n\nComplete both missing-declaration and shadowing experiments in a disposable copy. Record the failing command, nonzero exit, failing layer, changed files and successful fresh-process output. Do not ignore the failed exit or remove the required feature by deleting its import.\n\n<details>\n<summary>Repair checkpoint — connect each change to its cause</summary>\n\nFor the declaration failure, run `uv add \"humanize==4.13.0\"` inside that exercise project, inspect the declaration and lock, then run. For shadowing, rename the local conflicting `errors/humanize.py` in the copy and retain the original entry command; leave the installed distribution alone. Recheck from a clean directory without the original environment to exclude accidental terminal history.\n\n</details>\n\n### C. An independent byte-report application\n\nStart outside the download in an empty directory. Implement only from these requirements, without copying an environment from the answer:\n\n- Allow the Python 3.13 series, select 3.13.15, declare humanize 4.13.0, and use a non-published local application.\n- `total_bytes(sizes)` accepts a list of ordinary nonnegative int values. Reject bool, negatives, floats and numeric strings. Empty input is valid and input must remain unchanged.\n- A guarded report.py entry processes `[1024, 512, 0]`, printing count, raw byte total and binary-unit display. Import must not print or run the entry.\n- Generate a lock from your declaration, synchronize and run. Recover again in a second empty directory using only source, declaration, lock and version file, not the first environment.\n- Change input to `[1024, 1024]`: expect two files, 2048 bytes and `2.0 KiB`. Empty input produces 0, 0 and `0 Bytes`. Explain why invalid values are rejected before formatting.\n\n<details>\n<summary>Independent reference — open after implementation and recovery</summary>\n\n`solutions/size-report/pyproject.toml`:\n\n<Code language=\"toml\">{getEnvironmentExample('solutions/size-report/pyproject.toml')}</Code>\n\n`solutions/size-report/.python-version`:\n\n<Code language=\"text\">{getEnvironmentExample('solutions/size-report/.python-version')}</Code>\n\n`solutions/size-report/report.py`:\n\n<Code language=\"python\">{getEnvironmentExample('solutions/size-report/report.py')}</Code>\n\nThe download contains the actual lock generated from that separate project's declaration; do not transcribe it manually. Run from its own directory:\n\n```bash\ncd solutions/size-report\nuv sync --locked\nuv run --locked python report.py\ncd ../..\n```\n\nA working reference still does not replace your second-directory recovery. Compare interpreter, declaration, lock and import origin rather than overwriting your own evidence with the entire answer directory.\n\n</details>\n\n## 12. Exit and resume after a pause\n\nContinue to L09 basic automated testing when you can explain the participants/file responsibilities, reconstruct the environment, distinguish the failure categories and pass independent two-directory acceptance. Pytest is introduced next, not secretly required here.\n\nRecord the absolute project path, current directory, uv/Python versions, last successful command, synchronization status, declaration/lock compatibility and next failure to reproduce. On return, run the probe before deleting environments, upgrading everything or changing registries.\n\n## 13. Primary sources and boundaries\n\nSources checked on 2026-09-28; command behavior is verified against the stated baseline:\n\n- [uv project guide](https://docs.astral.sh/uv/guides/projects/) and [dependencies](https://docs.astral.sh/uv/concepts/projects/dependencies/): declarations, directories and intentional changes.\n- [Locking and synchronization](https://docs.astral.sh/uv/concepts/projects/sync/): locked/frozen, exact/inexact defaults and groups.\n- [Python selection](https://docs.astral.sh/uv/concepts/python-versions/) and [Python venv](https://docs.python.org/3.13/library/venv.html): interpreter prefixes and non-portable environments.\n- [Distribution versus import packages](https://packaging.python.org/en/latest/discussions/distribution-package-vs-import-package/): different naming systems.\n- [humanize filesize](https://humanize.readthedocs.io/en/stable/filesize/): display only; calculation and validation remain our responsibility.\n\nThis chapter does not certify production deployment, native cross-platform builds or dependency security auditing. Lockfiles, recoverable environments and business tests complement one another; none replaces the other two.\n",
+      "actual_download_files": {
+        "pyproject.toml": "[project]\nname = \"js2py-u08-environments\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = [\"humanize==4.13.0\"]\n\n[tool.uv]\npackage = false\n",
+        ".python-version": "3.13.15\n",
+        "probe.py": "import sys\nfrom importlib.metadata import version\n\nimport humanize\n\nprint(\"Python:\", sys.version.split()[0])\nprint(\"Executable:\", sys.executable)\nprint(\"Isolated:\", sys.prefix != sys.base_prefix)\nprint(\"Distribution:\", version(\"humanize\"))\nprint(\"Imported from:\", humanize.__file__)\nprint(\"Size:\", humanize.naturalsize(1536, binary=True))\n",
+        "app.py": "import humanize\n\n\ndef main():\n    sizes = [512, 1024, 0]\n    total = 0\n    for size in sizes:\n        total = total + size\n    print(\"Files:\", len(sizes))\n    print(\"Bytes:\", total)\n    print(\"Readable:\", humanize.naturalsize(total, binary=True))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "errors/humanize.py": "LABEL = \"local module, not the installed distribution\"\n",
+        "errors/show_shadow.py": "import humanize\n\nprint(\"Imported:\", humanize.__file__)\nprint(humanize.naturalsize(1536, binary=True))\n",
+        "exercises/missing-declaration/pyproject.toml": "[project]\nname = \"js2py-u08-missing\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = []\n\n[tool.uv]\npackage = false\n",
+        "exercises/missing-declaration/.python-version": "3.13.15\n",
+        "exercises/missing-declaration/app.py": "import humanize\n\nprint(humanize.naturalsize(2048, binary=True))\n",
+        "solutions/size-report/pyproject.toml": "[project]\nname = \"js2py-size-report\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = [\"humanize==4.13.0\"]\n\n[tool.uv]\npackage = false\n",
+        "solutions/size-report/.python-version": "3.13.15\n",
+        "solutions/size-report/report.py": "import humanize\n\n\ndef total_bytes(sizes):\n    if type(sizes) is not list:\n        raise ValueError(\"sizes must be a list\")\n    total = 0\n    for size in sizes:\n        if type(size) is not int or size < 0:\n            raise ValueError(\"each size must be a nonnegative int\")\n        total = total + size\n    return total\n\n\ndef main():\n    sizes = [1024, 512, 0]\n    total = total_bytes(sizes)\n    print(\"Files:\", len(sizes))\n    print(\"Bytes:\", total)\n    print(\"Readable:\", humanize.naturalsize(total, binary=True))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "README.md": "# L08 — Environments and dependencies / 环境与依赖 / 環境與依賴\n\nVerified baseline: CPython 3.13.15, uv 0.12.13, humanize 4.13.0, 2026-09-28.\nThis is a tested baseline, not a latest-version or long-term security claim.\n\n## Start / 开始 / 開始\n\nExtract the complete ZIP. Open its `u08-environments` directory in a terminal.\nRun these commands there, without adding `--no-project`:\n\n```sh\nuv --version\nuv sync --locked\nuv run --locked python probe.py\nuv run --locked python app.py\n```\n\n`app.py` prints `Files: 3`, `Bytes: 1536`, and `Readable: 1.5 KiB`.\nPaths in the probe depend on where you extracted the download.\n\n解压完整目录，在 `u08-environments` 内执行上述命令，不再加 `--no-project`。\n`.python-version` 选择解释器，`pyproject.toml` 声明兼容范围与直接依赖，\n`uv.lock` 记录解析结果；`.venv` 是可以重建的本地安装，不是源码或备份。\n第一次同步可能联网下载 Python 或包。离线且未缓存的机器不能凭锁文件生成包内容。\n锁文件不是安全审计，不保证所有平台和系统库都能重现。\n\n解壓完整目錄，在 `u08-environments` 內執行上述命令，不再加 `--no-project`。\n`.python-version` 選擇解釋器，`pyproject.toml` 聲明相容範圍與直接依賴，\n`uv.lock` 記錄解析結果；`.venv` 是可重建的本地安裝，不是原始碼或備份。\n第一次同步可能連線下載 Python 或套件。離線且未快取的機器不能憑鎖定檔生成套件內容。\n鎖定檔不是安全審計，不保證所有平台與系統函式庫都能重現。\n\n## Deliberate failures / 预期失败 / 預期失敗\n\n- `uv run --locked python errors/show_shadow.py`: AttributeError because\n  `errors/humanize.py` shadows the installed package. Rename that local source\n  **in a disposable copy**, not the real installed package, then rerun.\n- In `exercises/missing-declaration`, run `uv sync --locked`, then\n  `uv run --locked python app.py`: ModuleNotFoundError. Repair with\n  `uv add \"humanize==4.13.0\"`, inspect BOTH project declaration and lock, then rerun.\n- Change the root dependency to `humanize==4.12.0` in a disposable copy and run\n  with `--locked`: stale-lock rejection, not a Python traceback. Restore the\n  original declaration to reproduce this download; use an intentional lock update\n  only when a dependency change is wanted.\n\n这些失败不应通过忽略错误、全局安装或手改锁文件来“修复”。\n這些失敗不應透過忽略錯誤、全域安裝或手改鎖定檔來「修復」。\n\n## Independent transfer / 独立迁移 / 獨立遷移\n\nCreate a genuinely empty folder outside the download and implement `report.py`\nfrom the chapter's requirements. The answer in `solutions/size-report` is a\nseparate non-packaged uv application, not a module imported by the root demo.\nRecreate its environment from `.python-version`, `pyproject.toml` and `uv.lock`.\nRun `uv sync --locked` and `uv run --locked python report.py` in that folder.\nVerify empty input, zero, negative input, bool, numeric strings and changed totals.\nDo not copy `.venv`, caches or credentials to another machine.\n\n在下载目录之外独立完成；从声明重建环境，不能靠复制 `.venv` 获得绿色输出。\n在下載目錄之外獨立完成；從聲明重建環境，不能靠複製 `.venv` 獲得綠色輸出。\n\n## Maintainer / 维护 / 維護\n\nThree projects use public PyPI lockfiles; no private registry or credentials.\nZIP allowlist excludes `.venv`, caches, experimental edits and generated output.\nRebuild with `python3 scripts/build-js2py-lab.py --lab u08-environments`.\nRun the actual integration with `python3 scripts/test-js2py-environments.py`.\n",
+        "uv.lock": "version = 1\nrevision = 3\nrequires-python = \"==3.13.*\"\n\n[[package]]\nname = \"humanize\"\nversion = \"4.13.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/98/1d/3062fcc89ee05a715c0b9bfe6490c00c576314f27ffee3a704122c6fd259/humanize-4.13.0.tar.gz\", hash = \"sha256:78f79e68f76f0b04d711c4e55d32bebef5be387148862cb1ef83d2b58e7935a0\", size = 81884, upload-time = \"2025-08-25T09:39:20.04Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/1e/c7/316e7ca04d26695ef0635dc81683d628350810eb8e9b2299fc08ba49f366/humanize-4.13.0-py3-none-any.whl\", hash = \"sha256:b810820b31891813b1673e8fec7f1ed3312061eab2f26e3fa192c393d11ed25f\", size = 128869, upload-time = \"2025-08-25T09:39:18.54Z\" },\n]\n\n[[package]]\nname = \"js2py-u08-environments\"\nversion = \"0.1.0\"\nsource = { virtual = \".\" }\ndependencies = [\n    { name = \"humanize\" },\n]\n\n[package.metadata]\nrequires-dist = [{ name = \"humanize\", specifier = \"==4.13.0\" }]\n",
+        "exercises/missing-declaration/uv.lock": "version = 1\nrevision = 3\nrequires-python = \"==3.13.*\"\n\n[[package]]\nname = \"js2py-u08-missing\"\nversion = \"0.1.0\"\nsource = { virtual = \".\" }\n",
+        "solutions/size-report/uv.lock": "version = 1\nrevision = 3\nrequires-python = \"==3.13.*\"\n\n[[package]]\nname = \"humanize\"\nversion = \"4.13.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/98/1d/3062fcc89ee05a715c0b9bfe6490c00c576314f27ffee3a704122c6fd259/humanize-4.13.0.tar.gz\", hash = \"sha256:78f79e68f76f0b04d711c4e55d32bebef5be387148862cb1ef83d2b58e7935a0\", size = 81884, upload-time = \"2025-08-25T09:39:20.04Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/1e/c7/316e7ca04d26695ef0635dc81683d628350810eb8e9b2299fc08ba49f366/humanize-4.13.0-py3-none-any.whl\", hash = \"sha256:b810820b31891813b1673e8fec7f1ed3312061eab2f26e3fa192c393d11ed25f\", size = 128869, upload-time = \"2025-08-25T09:39:18.54Z\" },\n]\n\n[[package]]\nname = \"js2py-size-report\"\nversion = \"0.1.0\"\nsource = { virtual = \".\" }\ndependencies = [\n    { name = \"humanize\" },\n]\n\n[package.metadata]\nrequires-dist = [{ name = \"humanize\", specifier = \"==4.13.0\" }]\n"
+      },
+      "validation_status": "Actual CPython 3.13.15 and uv 0.12.13 integrations passed. L08 observed exact/inexact sync, extra removal, stale lock, missing declaration/shadow repair, cold-cache failure and two reconstructions. L09 observed 6+9 tests, exits 1/2/5, deliberate false green, repairs and three mutation detections. L10 observed 15+2 tests, real fresh-process first/repeated runs, changed/empty/corrupt input preservation, other cwd and clean reconstruction. Three-locale sources and fences match. Full cumulative site/build/browser checks remain pending; they must pass before completion. Maintainer tools are not learner prerequisites.",
+      "primary_reference_observations": "Official uv docs distinguish run inexact from sync exact defaults, locked compatibility from frozen. Python distinguishes interpreter/prefix and actual module origin from distribution metadata. Pytest distinguishes collection/execution, exit categories, and raises subclass behavior. TemporaryDirectory is library-provided with usage, not an implementation of context protocols. Review is semantic advice, not measured learner effectiveness or production readiness."
+    },
+    "questions": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "instructions": "Does required learner work use an essential capability neither previously taught nor explained before required use here? Exclude maintainer verification."
+      },
+      "depth": {
+        "type": "choice",
+        "instructions": "Assess actual mechanisms, motivation, diagnosis and independent work in the full material, not length.",
+        "criteria": {
+          "SUBSTANTIVE": "Concrete textbook explanations and transferable practice.",
+          "PARTIAL": "Important mechanisms abbreviated.",
+          "API_CATALOGUE": "Mainly names/syntax.",
+          "UNCERTAIN": "Insufficient evidence."
+        }
+      },
+      "technical_mechanisms": {
+        "type": "choice",
+        "instructions": "Check actual technical claims and supplied files: interpreter/project/lock/sync for L08; discovery/assertion/errors/isolation for L09; file/module/environment/test responsibilities and bounded persistence for L10.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Mechanism taught before required use, accurate and explicitly limited.",
+          "MATERIAL_ERROR": "Substantive false or unsafe claim.",
+          "NECESSARY_GAP": "Required explanation or evidence missing.",
+          "UNCERTAIN": "Evidence cannot settle the issue."
+        }
+      },
+      "failure_policy": {
+        "type": "choice",
+        "instructions": "Are deliberate failures identified, diagnosed by layer and repaired without hiding failures, with owned bounded side effects? Do not mistake explicitly intentional false-green tests/exercise defects for recommended implementations.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Mechanism taught before required use, accurate and explicitly limited.",
+          "MATERIAL_ERROR": "Substantive false or unsafe claim.",
+          "NECESSARY_GAP": "Required explanation or evidence missing.",
+          "UNCERTAIN": "Evidence cannot settle the issue."
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "instructions": "Do independent requirements, implementations, outputs, exact types, mutations/reconstruction and commands agree?",
+        "criteria": {
+          "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+          "CONTRADICTORY": "Material source/output/requirement conflict.",
+          "UNDERSPECIFIED": "Essential policy unclear.",
+          "UNCERTAIN": "Insufficient evidence."
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "instructions": "Does acceptance require explanation, diagnosis, changed input, reconstruction or exposing defects rather than copying a fixed success output?"
+      },
+      "next_action": {
+        "type": "choice",
+        "instructions": "Assuming remaining cumulative runtime/site/build/browser checks pass, choose the next action for THIS chapter, not all 31 remaining chapters.",
+        "criteria": {
+          "PROCEED": "Complete enough to advance in prerequisite order.",
+          "REVISE": "Material defect needs repair first.",
+          "TARGETED_REVIEW": "Uncertainty needs focused inspection first."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "noul": 0.28
+      },
+      "depth": {
+        "type": "choice",
+        "choice": "SUBSTANTIVE",
+        "confidence": 1.0,
+        "probabilities": {
+          "SUBSTANTIVE": 1.0,
+          "UNCERTAIN": 0.0,
+          "API_CATALOGUE": 0.0,
+          "PARTIAL": 0.0
+        }
+      },
+      "technical_mechanisms": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 0.88,
+        "probabilities": {
+          "NECESSARY_GAP": 0.06,
+          "UNCERTAIN": 0.01,
+          "MATERIAL_ERROR": 0.02,
+          "ACCURATE_AND_BOUNDED": 0.91
+        }
+      },
+      "failure_policy": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 0.99,
+        "probabilities": {
+          "NECESSARY_GAP": 0.0,
+          "UNCERTAIN": 0.0,
+          "MATERIAL_ERROR": 0.0,
+          "ACCURATE_AND_BOUNDED": 1.0
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "choice": "COHERENT_AND_TESTABLE",
+        "confidence": 0.76,
+        "probabilities": {
+          "CONTRADICTORY": 0.15,
+          "UNDERSPECIFIED": 0.02,
+          "UNCERTAIN": 0.01,
+          "COHERENT_AND_TESTABLE": 0.82
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "next_action": {
+        "type": "choice",
+        "choice": "PROCEED",
+        "confidence": 0.85,
+        "probabilities": {
+          "PROCEED": 0.89,
+          "REVISE": 0.03,
+          "TARGETED_REVIEW": 0.08
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 10935,
+      "output_tokens": 341
+    }
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev. No subagents started. Not gpt-6-astra.",
+    "decision": "Conditional PROCEED adopted only after actual integration, full regression, source/ZIP parity, build and three-locale browser checks. Nonzero unfavorable probabilities were retained and audited locally, not resampled for confidence.",
+    "limits": "Noul has no additional confidence; Choice confidence is distribution concentration, not correctness or teaching-effectiveness probability. Translation and runtime verification are separate from the English semantic review.",
+    "timing": "Original submission honestly recorded pending site/browser checks; it has not been rewritten to pretend later checks had already happened.",
+    "source_scope": "Reviewed snapshots must match final bytes. Other hashes bind deterministically tested artifacts, not extra content read by the semantic service. Earlier L07 review is historical after its transition paragraph update."
+  },
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-08-projects.mdx",
+    "examples/js2py/u08-environments/pyproject.toml",
+    "examples/js2py/u08-environments/.python-version",
+    "examples/js2py/u08-environments/probe.py",
+    "examples/js2py/u08-environments/app.py",
+    "examples/js2py/u08-environments/errors/humanize.py",
+    "examples/js2py/u08-environments/errors/show_shadow.py",
+    "examples/js2py/u08-environments/exercises/missing-declaration/pyproject.toml",
+    "examples/js2py/u08-environments/exercises/missing-declaration/.python-version",
+    "examples/js2py/u08-environments/exercises/missing-declaration/app.py",
+    "examples/js2py/u08-environments/solutions/size-report/pyproject.toml",
+    "examples/js2py/u08-environments/solutions/size-report/.python-version",
+    "examples/js2py/u08-environments/solutions/size-report/report.py",
+    "examples/js2py/u08-environments/README.md",
+    "examples/js2py/u08-environments/uv.lock",
+    "examples/js2py/u08-environments/exercises/missing-declaration/uv.lock",
+    "examples/js2py/u08-environments/solutions/size-report/uv.lock"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-08-projects.mdx": "9540e29e3fb66400dfa5f4a7292b740a9ddb900ccb345137480479705471e4eb",
+    "examples/js2py/u08-environments/pyproject.toml": "6b95f6eeb7b566a5e30c8050cd59f6f5c2d7be9c181f0f93539cc157bcca6965",
+    "examples/js2py/u08-environments/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/u08-environments/probe.py": "0c33ddfd6dd83317a6b98012956405ad0fae081d347dc0df3d0d904eef8fd5ea",
+    "examples/js2py/u08-environments/app.py": "cff6ef508224619227354d73072d849fb2afc951af4a04664a719d5a8093fa7d",
+    "examples/js2py/u08-environments/errors/humanize.py": "2cdf9e9ead875abbc56b21508fc8f231bff966dcacac874e5e65fe0d73ef0808",
+    "examples/js2py/u08-environments/errors/show_shadow.py": "7f0e314529218a375f32857cde5492b0f27e5f002486643e2a00fab65beadf46",
+    "examples/js2py/u08-environments/exercises/missing-declaration/pyproject.toml": "c099a8b9c03f2233e9c8ac2b3247056fa40ec0469bf5fb9b250e384d84bc3e17",
+    "examples/js2py/u08-environments/exercises/missing-declaration/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/u08-environments/exercises/missing-declaration/app.py": "13166cbaf7ca2c5195305e83f99deedcf0353cbd0fbeaf311fbc7fe75ab4c115",
+    "examples/js2py/u08-environments/solutions/size-report/pyproject.toml": "084d128d7f1c485d83e451d34f6dfcd1937d3e4b0cd8ba44c8a6da6c2979cc2b",
+    "examples/js2py/u08-environments/solutions/size-report/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/u08-environments/solutions/size-report/report.py": "2ec17f83e65a1f693a01540dc6872946b5b7eea8a28878e1da95ac80d21eb723",
+    "examples/js2py/u08-environments/README.md": "e6154f2f71d6199b613204c2edb57e581bcf648bae18fe814c69387cde2efd95",
+    "examples/js2py/u08-environments/uv.lock": "47aa485882926e90fb80c6fec27fa27d7d7035cab6ad6455f7542fc222b62090",
+    "examples/js2py/u08-environments/exercises/missing-declaration/uv.lock": "79e10ca45c84ae6bd24d7ad7b2852646e95fe7c93254db0b1e69febe75c3c25f",
+    "examples/js2py/u08-environments/solutions/size-report/uv.lock": "67000f401615153366c4bb5f75662c9ce77a7306b522371cca9bb8243333c5c7",
+    ".gitignore": "548f7df99918daa5a502e022be29ea33d2d56737f3aef760f78368b273cea942",
+    "package.json": "2dce4007747052428d890c0a3daff00e499a674e1082b1b8d5e9d87bdabdc27c",
+    "lib/js2py-examples.ts": "a9c4aab256d3c6458324adb45103192cc0dd71150c001daf57aedef3a7fc5b9f",
+    "scripts/build-js2py-lab.py": "dbd1cd976317a20d73e806cbeb18ef1eb1654244a373c5d7be5d90bc044eaead",
+    "scripts/check-js2py-content.py": "7f853a4873c5273f0e15bd39c8e78e04af7580c5e32c0be3c486b6b82fd953e5",
+    "scripts/js2py-project-checks.py": "f844f44745d3f8701ff16fa0a0d78bdb713dcbe7e07983352a80f8c1df489362",
+    "scripts/tests/test_js2py_foundation_projects.py": "54d57ea09b2823b3280415d7f60c6e0f91b6c58c100ea452c0bbe476621f07a2",
+    "scripts/tests/fixtures/js2py-foundation-projects.json": "80003e4bad1e07febe16dcbd2a469b4795827112a43bd544ec11e8438f7d6218",
+    "scripts/tests/test_js2py_first_script.py": "2b16d227540b03a5f4f9fb822638db2afeaeb7770340458c7abb200dbc531018",
+    "docs/js2py-chapter-contracts.json": "dd531f00ab07ebbfd6f375f06d35aeaf46dd27161434fc47a871ddbd6ee57035",
+    "docs/js2py-learning-path.zh-cn.md": "9a569864b61dcdfe801596afc6aeffa6954c5f9ac2b21bc284b8c97d9f445c29",
+    "docs/reviews/js2py-l08-l10-source-check-2026-09-28.md": "e2983f711e22b5c9fce45152c7af84919f008d659b4c4f5829d3617f2fcedfb9",
+    "content/docs/js2py/index.mdx": "dd9945f373dd203f0ae075ec2e143d392301e79da9cc839a407332102b54cb21",
+    "content/docs/js2py/index.zh-tw.mdx": "00475c74a168dcc458fdd37cca5595750ee2bae3b245ef2d06403a0739ddb29a",
+    "content/docs/js2py/index.zh-cn.mdx": "867244ab8be10d60a22b968764bf8598a002c4aeffd6fb6edd358015b455a76b",
+    "content/docs/js2py/module-07-data-automation.zh-tw.mdx": "443bcb46090bbcec4ce7a08ae31616c7839e890d4df9efa983cfa387fa890967",
+    "content/docs/js2py/module-07-data-automation.zh-cn.mdx": "cedf03a84e03d6f5fa1c37ededebabf0a0756a3d43ee851c71cc74c6376b1fe5",
+    "content/docs/js2py/module-07-data-automation.mdx": "4d2cc0a06f16f3ce30b0b82a6ca693686bdd1f008abd847fe25451df0f80a42a",
+    "content/docs/js2py/module-08-projects.zh-tw.mdx": "dbe5a651532df794ddf9d3787f9deb5772607cc4d5f52734a7497d4f2b1e8ee5",
+    "content/docs/js2py/module-08-projects.zh-cn.mdx": "5729d288ebfb0ae2bc2b9ff53c9cc056ac5ed290daedb06a70e86eb155862b7a",
+    "docs/archive/js2py-u08-projects/module-08-projects.zh-tw.mdx": "a6903c4fe52cbcda80a2ae62786f914354106ac4becf848df734eb0b0e677f96",
+    "docs/archive/js2py-u08-projects/module-08-projects.zh-cn.mdx": "ba9fc27e3f390e706d51faa8824061b6d72f950781fd18afc4b18c098f6c30ad",
+    "docs/archive/js2py-u08-projects/sha256.json": "3ee714e33d1ff090fa741efb53fdcfb461e6332839957c31d14d59f8c9ecd56b",
+    "docs/archive/js2py-u08-projects/module-08-projects.mdx": "6425d4f6c51f5fa1f645dff540f69398547bf33d3939f0717256a4ec1364c496",
+    "docs/archive/js2py-u08-projects/README.md": "726eefa5cbaed2eea7200c26edc3dd989af723500f18defc883e4d82fc77f5d4",
+    "examples/js2py/u08-environments-files.json": "5e21934ee5c8e4c50acb5000ff9201340a3dc9ba724161aa540bfecc8c890586",
+    "public/learning-assets/js2py/u08-environments.zip": "d2f8f67655d0a3fe873ee902609a80249382e9ac9ea929a5fa665031f0b7ec02",
+    "scripts/test-js2py-environments.py": "f900af0c28d5e24b0305a57511fe78f3fc49ab645911f0f0bbac915c43bf8fbc"
+  },
+  "verification_report": "js2py-l08-l10-source-check-2026-09-28.md",
+  "credential_persisted": false
+}

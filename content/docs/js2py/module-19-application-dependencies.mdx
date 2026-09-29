@@ -1,0 +1,282 @@
+---
+title: Application Structure, Configuration, and Dependencies
+description: Give creation, use, and cleanup explicit owners; evolve the in-memory API with APIRouter, explained Depends mechanics, synchronous resource scopes, configuration diagnostics, and an independent summary route.
+---
+
+import { getDependencyExample } from '@/lib/js2py-examples'
+
+## 1. More files are not the goal; clear responsibilities are
+
+H04 kept validation, response filtering, and in-memory CRUD together so that you could follow your first requests. Now changing a page limit, creating an empty application, or adding a route brings you back to the same global variables. The problem is not simply a long file. It is unclear **who owns state, who supplies it, and who releases temporary resources**.
+
+We preserve the HTTP behavior and separate only responsibilities we actually have. A useful frontend analogy is an application entry point composing modules and passing objects to consumers. Its limit matters: there is no React render tree, hook order, or browser component unmount here. The framework calls a function for a request; the service process continues afterwards. Depends is not a Python useEffect.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | H04 request/response models and memory CRUD; L06 modules; L12 instances; L14 synchronous yield/with/finally |
+| New capabilities | APIRouter, application factories, dependency providers and consumers, per-request caching, synchronous cleanup, configuration diagnostics |
+| Independent acceptance | Explain a complete request; observe success/error cleanup; reproduce two configuration failures; add a summary route sharing existing state |
+| Not required yet | TestClient/fixtures (H06); asynchronous lifespan (A02); databases, login, permissions, generic architectural frameworks |
+
+Download the [complete independent H05 lab](/learning-assets/js2py/h05-dependencies.zip), extract it, and enter `h05-dependencies`. All files are included; you do not copy H04 code or import another lab. This is a local multi-file API, not a server you can start inside the browser Python editor.
+
+## 2. Preserve the business contract before splitting code
+
+The server still assigns positive integer IDs. A title has 1..120 characters, cannot be all whitespace, and retains valid spelling, capitalization, and surrounding spaces. Minutes are ordinary nonnegative JSON integers, not booleans, strings, or floats. Done is a strict boolean defaulting to false. Note is nullable text of at most 1000 characters, defaulting to null. PATCH merges explicitly supplied fields only; only note accepts null. Clients cannot supply id or extra fields, and responses must not expose internal_tag.
+
+POST /tasks returns 201; listing, reading, and PATCH return 200; DELETE returns 204 without a body. A valid positive ID that does not exist returns 404; invalid input returns 422. Pages contain items/limit/offset/total, ordered by ID. Defaults are limit=20 and offset=0; limit is 1..100 and offset is nonnegative. Offset counts **existing records** to skip, not an ID at which to begin.
+
+Refactoring must not quietly start storing title.strip(), or merge every default from model_dump into a PATCH. Keep the models and explain the separate input contract and output allowlist:
+
+<Code language="python">{getDependencyExample('task_api/models.py')}</Code>
+
+TaskPatch's title/minutes defaults are valid placeholders for omitted fields. Only `exclude_unset=True` may supply the merge; those defaults are not replacement business values. TaskPublic does not inherit the storage model with internal fields, making the output permission list explicit.
+
+## 3. A small directory with six real responsibilities
+
+```text
+task_api/
+  __init__.py
+  config.py
+  models.py
+  store.py
+  dependencies.py
+  routes.py
+  main.py
+```
+
+Config interprets configuration; models define data boundaries; store owns records and their sequence; dependencies connect a request to required objects; routes interpret HTTP; main composes the application. `__init__.py` marks the importable package and contains only a description here. Imports roughly flow main → routes → dependencies/store/models; store must not import main back.
+
+**Do not add repository/service/interface/base-manager layers.** We do not yet have another storage implementation or complex business coordination to justify them. A small class is useful because tasks and next_id belong to one instance, not because every function should become a method.
+
+<Code language="python">{getDependencyExample('task_api/store.py')}</Code>
+
+Each MemoryStore creates its own dictionary and sequence. Neither a class attribute nor a module-level singleton owns the records. Get returns a record or None; it knows nothing about 404. The route decides how absence becomes HTTP. Patch constructs and validates a candidate before replacing the old record. That ordering avoids partial updates on these paths; it is not a database transaction.
+
+## 4. APIRouter registers routes; it does not start a server
+
+APIRouter is a composable route registry. `prefix="/tasks"` plus `@router.get("")` produces /tasks; adding `/{task_id}` produces `/tasks/{task_id}`. Repeating /tasks in both places produces /tasks/tasks. We use an empty suffix instead of a trailing slash so the exercise does not accidentally depend on a redirect.
+
+Decorators register functions during module import. Main then calls `app.include_router(router)` to add them to the application. Neither step listens on a port; Uvicorn still starts the service. Forget include_router and imports may succeed, with /health working while /tasks returns 404. That is a registration problem, not model validation.
+
+One notation needs an explanation before the complete route file: `Depends(get_store)` declares work for the framework. It is not an ordinary call that already returns a store.
+
+## 5. Depends: function values, callers, and returned objects
+
+Recall L13: get_store is a function value; get_store(...) invokes it immediately. `Depends(get_store)` records which provider the framework should call when handling a request. FastAPI inspects the route parameters, finds dependencies, prepares their arguments, calls them, and passes their results into the route.
+
+Follow a list request: query text arrives → get_page validates it and obtains settings → get_store obtains the current app's MemoryStore → list_tasks uses both → a dictionary is returned → response_model validates and filters it → an HTTP response is sent. Providers may themselves have dependencies that must be satisfied first. This is a small call graph, not a mysterious global-variable lookup.
+
+`Request` is the current request object supplied by FastAPI, not a JSON body model. `request.app.state` is a container on **this application instance**. State does not automatically create or validate the store. Our factory writes those objects explicitly. Settings and store are application-level objects; they are not recreated per request.
+
+By default, repeated uses of the same dependency within one request reuse its resolved result. Here create_task requests request_trace directly, and get_store also requests it. Both use function scope, so one trace resource is acquired. A subsequent request acquires a new resource rather than reusing a closed file. This cache is not cross-request data caching and does not share stores between applications.
+
+<details>
+<summary>Explanation answer: why not replace Depends(get_store) with Depends(get_store())?</summary>
+
+The first supplies the function to the framework. The second tries to invoke get_store during module import without the current Request, failing before serving traffic or supplying the wrong result as a provider. Conversely, calling a route directly from ordinary Python does not trigger injection: its Depends defaults remain declaration objects. Calling a business function and going through framework request resolution are distinct entry points.
+
+</details>
+
+## 6. Synchronous yield: acquire a temporary resource, then return control
+
+We do not use a pretend database resource. Each dependency acquires a real TemporaryFile text handle, routes write action names, and finally closes it. Terminal messages show acquire/use/release without printing request bodies. The temporary file is not a durable audit record; nothing reads it after closure.
+
+<Code language="python">{getDependencyExample('task_api/dependencies.py')}</Code>
+
+Request_trace is an ordinary synchronous generator function. The framework advances it to yield, supplies its RequestTrace to consumers, and later resumes it so finally closes the handle. L14's pause/resume mechanics have not changed; ownership of advancing and exiting has moved from a handwritten with to the framework. Do not decorate this provider with `@contextmanager`: FastAPI expects the generator function and manages it itself.
+
+If opening the file fails before yield, no fake resource reaches the route. Once acquisition succeeds and control enters try, normal return and exception propagation pass through finally. We neither swallow HTTPException nor turn failures into empty successful lists. Forced termination, interpreter crashes, and power loss are outside any guarantee that Python finally runs.
+
+Mark uses the handle; close releases it. Get_store merely borrows it to record an action and must not close it itself. Different owners and consumers are exactly why lifecycle handling is useful. Releasing a handle does not roll back task mutations or prove delivery to the client.
+
+## 7. Version and scope determine when cleanup happens
+
+This lab pins FastAPI 0.135.1. Support for `Depends(..., scope="function")` was added in 0.121.0. We explicitly choose function because the response is ordinary JSON data that no longer needs the temporary file: cleanup happens after normal route execution and before sending the response.
+
+The default scope for a yield dependency is request. On a **normal response path**, cleanup happens after sending. There is no universal rule that code after yield always runs before sending. Historical versions changed behavior, so an old timing diagram is insufficient. A handled HTTPException unwinds dependencies before its error response is produced; do not apply the normal-success sequence mechanically to every failure.
+
+```text
+function, success: acquire -> use -> release -> response send
+request, success:  acquire -> use -> response send -> release
+handled HTTPException: acquire -> use -> release -> error response send
+```
+
+A request-scoped yield dependency cannot depend on a shorter-lived function-scoped yield dependency: its exit code may still need that child. A function-scoped dependency can use either scope. Get_store itself does not yield here; all temporary trace declarations explicitly use the same function scope rather than mixing lifetimes.
+
+On 2026-09-28 the maintainer check observed actual ASGI response.start/body sends, not just printed lines, confirming both scopes on success and handled errors: four cases. That probe involves the underlying asynchronous protocol and stays in the maintainer script, not in the reader prerequisites. **Seeing closed=True after a client call returns cannot distinguish cleanup before sending from cleanup after sending.**
+
+<details>
+<summary>Prediction answer: does one POST open two traces? Does a failed GET leak?</summary>
+
+Two declarations do not acquire two resources: they reuse one resolved dependency in that request. A normal POST records acquire, get_store, create_task, release. A valid missing ID acquires the store and then require_task raises 404; finally still closes the acquired trace. If a failure occurs before acquisition, there is no such resource to close. Do not expect every 422 to resolve exactly the same dependencies.
+
+</details>
+
+## 8. Environment variables are strings, not validated configuration
+
+Configuration comes from whoever starts the process, not from the request body. TASKS_APP_NAME is required public display text and cannot be blank. TASKS_MAX_PAGE_SIZE defaults to 100 and accepts ASCII decimal integers from 20 through 100. The lower bound keeps the default list size of 20 valid. That is our product rule, not a framework requirement.
+
+<Code language="python">{getDependencyExample('task_api/config.py')}</Code>
+
+Separate reading, parsing, and range checks. The string "20" can become an integer; "3.0", "true", and empty text should not be guessed into valid values. Missing app_name causes a clear error rather than a convenient default that hides an omitted configuration. Diagnostics name the variable and required repair, without echoing its raw value. These settings are not secrets, but avoiding an environment dump is still a good boundary.
+
+Load_settings accepts a dictionary for ordinary L09-style tests; only an omitted argument reads os.environ. Settings is a frozen dataclass to discourage casual reassignment, not automatic validation of internal constructor values. Passing explicit Settings to the factory is a trusted-code entry point. Real startup configuration must still go through load_settings. No pydantic-settings, automatic .env loading, or hidden precedence rules are involved.
+
+## 9. An application factory makes creation time explicit
+
+<Code language="python">{getDependencyExample('task_api/main.py')}</Code>
+
+Create_app loads configuration first and stops on failure. It then creates FastAPI, assigns settings and a new MemoryStore, includes routes, and returns the app. Calling the factory twice creates two applications with two stores. Multiple requests to one application keep using its store; data is not cleared per request.
+
+In `uvicorn task_api.main:create_app --factory`, the left side names a module and the right side a function. --factory asks Uvicorn to call it to obtain the application. We neither read the environment during module import nor introduce asynchronous lifespan just to parse strings. Changing the environment after an app has been constructed does not mutate its Settings; restarting calls the factory again.
+
+<Code language="python">{getDependencyExample('task_api/routes.py')}</Code>
+
+Now follow each route: create passes the validated payload to the store; list orders before slicing; read and update require an existing task; delete explicitly returns an empty Response. Routes do not read the environment or close the trace; dependencies do not decide how titles are updated; the store does not import FastAPI. Separation makes each change affect only the responsibilities it needs.
+
+## 10. Lock the environment, start the service, and send requests
+
+The tested baseline on 2026-09-28 is CPython 3.13.15, uv 0.12.13, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, Starlette 0.52.1, and pytest 8.4.2. It is not a promise to remain the newest stack. Starlette is pinned so a newer transitive version cannot silently change HTTPX compatibility in the next chapter.
+
+<Code language="toml">{getDependencyExample('pyproject.toml')}</Code>
+
+The real public-PyPI uv.lock records transitive dependencies and artifact hashes. Requires-python selects 3.13; package=false means this is an application rather than an installable distribution of itself. From the lab root:
+
+```bash
+uv sync --locked
+uv run --locked python -m pytest -q
+TASKS_APP_NAME="Learning tasks" uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005
+```
+
+The ordinary suite has 17 cases: 15 configuration/store cases and two bounded maintainer regressions using their own faulty local servers. Those two cases test client cleanup, not the complete healthy service contract. Leave the server running and use a second terminal in the same directory against this freshly started empty service:
+
+```bash
+uv run --locked python live_client.py --port 8005
+```
+
+```text
+LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist
+LIVE PASS: cleanup and subsequent 404
+```
+
+<Code language="python">{getDependencyExample('live_client.py')}</Code>
+
+A finally block is not a guarantee that every statement in it will succeed. The client tries each ID it created in a separate try/except, records that ID's failure, and continues with the other owned IDs. It never clears the whole service. At the end it prints CLEANUP FAILED with the unconfirmed IDs and individual diagnostics. “Unconfirmed” does not assert whether a timed-out deletion took effect; inspect only those IDs before replaying. If the body completed, cleanup failure raises RuntimeError so the process exits nonzero. If the body was already failing, body_succeeded remains false: cleanup is still reported, but finally neither raises a replacement exception nor returns, so the original traceback continues. Catching each cleanup error does not turn the run into success. This simple flag keeps both diagnoses without introducing an exception-group framework.
+
+This independent urllib client connects to a real port rather than calling Python route functions. HTTPError still carries a status and body, so the client treats it as an inspectable HTTP response. Connection refusal produces no HTTP response at all. On failure, inspect the request and server logs rather than treating a zero exit code as the whole contract. It only uses an empty disposable service and deletes its recorded IDs in finally, not every record belonging to other callers.
+
+For manual inspection of status lines and bodies, restart an empty service and use this request collection. It leaves records behind: do not immediately run the empty-state acceptance client afterwards. Stop and restart first.
+
+<Code language="bash">{getDependencyExample('requests.sh')}</Code>
+
+A successful creation should produce these trace-related lines:
+
+```text
+TRACE acquire POST /tasks
+TRACE use POST /tasks get_store
+TRACE use POST /tasks create_task
+TRACE release POST /tasks closed=True
+```
+
+Stop your server with Ctrl-C. Synchronous def and one worker do not imply requests can never overlap. We exercise this MemoryStore sequentially; it has no concurrency locks, persistence, or user permissions.
+
+## 11. Deliberate failures: locate the stage before changing code
+
+Stop the running server before trying each expected failure:
+
+```bash
+env -u TASKS_APP_NAME uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005
+TASKS_APP_NAME="Learning tasks" TASKS_MAX_PAGE_SIZE=bad uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005
+```
+
+```text
+ValueError: TASKS_APP_NAME is required and must not be blank
+ValueError: TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100
+```
+
+These are the final diagnostic lines, not promises about machine-specific traceback paths. Both commands exit nonzero in the application factory; neither produces an HTTP 422. Restart with valid configuration and /health should return 200 again. With TASKS_MAX_PAGE_SIZE=20, /tasks?limit=20 returns 200 and /tasks?limit=21 returns 422 with detail equal to limit exceeds TASKS_MAX_PAGE_SIZE.
+
+| Observation | First place to investigate | Recovery |
+| --- | --- | --- |
+| No module named task_api | Working directory, extracted files, environment | Return to the lab root, sync the lock, restart |
+| address already in use | An earlier process owns the port | Stop your own process or change both client/server ports; do not kill an unknown process |
+| /health is 200, /tasks is 404 | include_router and actual prefix | Restore registration, restart, request the actual path |
+| Input returns 422 | body/query/path detail.loc or configured page cap | Fix the caller rather than deleting validation |
+| Missing ID is 404 but no release | Whether acquisition happened and finally remains intact | Restore cleanup and replay the same request |
+| Tasks vanish on restart | In-memory ownership, not a routing defect | Accept the boundary; persistence belongs to the database stage |
+
+<Code language="python">{getDependencyExample('tests/test_basics.py')}</Code>
+
+The 15 cases in tests/test_basics.py use familiar ordinary and L13-parameterized tests: dictionaries go to configuration code, models to the store, and two factories' state is compared. These 15 cases do not use TestClient, fixtures, or HTTP, so they cannot replace the real-client evidence above.
+
+The two additional cases in tests/test_live_client_cleanup.py are maintainer regressions, not an independent-exercise prerequisite. They launch their own temporary fault app on an OS-selected loopback port, use pytest's temporary-directory fixture only to hold diagnostic logs, run the real client, and stop their own process in finally. One makes DELETE of the first owned ID return 503; the other also makes a body assertion fail. Both require the second ID to be deleted, the first to be explicitly reported as unconfirmed, and a nonzero client exit. When the body fails, its original traceback must remain. No async test code or user server is required:
+
+```bash
+uv run --locked python -m pytest -q tests/test_live_client_cleanup.py
+```
+
+```text
+2 passed
+```
+
+Here two passing outer tests mean their deliberately failing client subprocesses produced the required evidence. The leftover ID exists only inside the disposable fault app, which is then stopped; this is not a promise that an unavailable service can always be cleaned.
+
+## 12. Guided changes that reveal ownership mistakes
+
+Temporarily move MemoryStore() to module scope and have both factories reuse it. Predict where test_factory_owns_state fails, run it, then restore the implementation. Next remove exclude_unset=True from patch: find a minimal PATCH that overwrites an existing note or done with defaults. Restore and replay that input. Why is creating a store on every request not a solution to test contamination?
+
+<details>
+<summary>Guided-change check</summary>
+
+A global store makes the right app observe records created by the left. Move construction back into the factory instead of deleting the assertion. Without exclude_unset, even an empty PATCH includes default title/minutes/done/note and overwrites existing values. A fresh store per request might satisfy an empty-state assertion but breaks POST followed by GET. The intended lifetimes are one store per application and one temporary trace per request.
+
+</details>
+
+## 13. Independent variation: a summary, not a second store
+
+Do not open the solution yet. Add a separate APIRouter with GET /summary, returning three integers: total counts all current tasks, done counts completed tasks, and minutes sums current minutes. Reuse get_store; do not derive the summary from one page or expose internal fields. Explicitly include the new router in a composition entry point, preserving existing task endpoints.
+
+Check an empty all-zero result; create tasks of 30 and 0 minutes; PATCH completion and minutes; delete a task. The summary must follow those changes. Also prove /summary uses the same application store as /tasks and releases its trace. Testing summarize alone does not prove the route was registered.
+
+<details>
+<summary>Independent implementation, function tests, and real HTTP acceptance</summary>
+
+<Code language="python">{getDependencyExample('solutions/summary.py')}</Code>
+
+<Code language="python">{getDependencyExample('solutions/test_summary.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_summary.py
+TASKS_APP_NAME="Summary tasks" uv run --locked python -m uvicorn solutions.summary:create_summary_app --factory --host 127.0.0.1 --port 8005
+```
+
+Stop the original server before starting this factory. In another terminal:
+
+```bash
+uv run --locked python live_client.py --port 8005 --summary
+```
+
+```text
+LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist
+SUMMARY PASS: empty, populated, updated, deleted
+LIVE PASS: cleanup and subsequent 404
+```
+
+The solution has two function tests, while the real client checks the composed HTTP application. It summarizes current records, without promising persistent snapshots, database aggregation, or concurrent consistency.
+
+</details>
+
+## 14. Acceptance and a resumable record
+
+Finished means more than splitting files. Without the solution, draw the relationship between requests, dependencies, application state, temporary resources, and responses. Explain why per-request caching differs from application state. Reproduce startup configuration failures and exception cleanup. Independently complete the summary and prove shared data through HTTP.
+
+When pausing, record the directory, Python/uv/framework versions, factory entry point, variable names and non-secret example values, last successful command and result, whether the 17 base and two solution tests actually ran, server PID/port and stopped status, disposable data state, remaining defect, and the next action. Resume with locked sync, ordinary tests, and a newly started empty service. Do not guess that an old server is still running.
+
+Downloads include only allowlisted source, READMEs, and the lock. Environments, caches, .env, logs, secrets, and temporary files are excluded. Closing a file is not persistence; correct dependency wiring is not authorization. H06 next teaches automated API-boundary testing and how it differs from real-process and browser integration.
+
+## 15. Primary sources and verification limits
+
+Checked live on 2026-09-28 against official versioned material: [APIRouter and larger applications](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/bigger-applications.md), [Depends mechanics](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/index.md), [yield and scope](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/dependencies-with-yield.md), [historical timing changes](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/advanced/advanced-dependencies.md), [Uvicorn factories and startup options](https://github.com/Kludex/uvicorn/blob/0.42.0/docs/settings.md), and [Python TemporaryFile](https://docs.python.org/3.13/library/tempfile.html). A TLS fetch failure on the Uvicorn documentation site was handled by checking its official tagged repository, not a third-party summary.
+
+Actual checks include installing clean allowlist copies, ordinary tests, the independent variation, missing/invalid configuration processes, real Uvicorn clients, success/404 cleanup, and ASGI send timing. They do not cover databases, production concurrency, authorization, TLS, forced-process recovery, or production deployment. MDX or Python syntax checks do not substitute for those runtime boundaries.

@@ -1,0 +1,245 @@
+---
+title: Relational data and PostgreSQL — understand the model before connecting
+description: Evolve the in-memory task model, start an exclusively owned PostgreSQL cluster, distinguish processes, storage, databases and roles, and verify keys, constraints, NULL and recovery.
+---
+
+import { getRelationalExample } from '@/lib/js2py-examples'
+
+## 1. A database is not an upgraded JSON file
+
+The H-series in-memory API can answer HTTP requests, but two requests can read the same old state and overwrite each other's changes. Process exit loses memory. Replacing memory with a JSON file changes the storage location, not the coordination problem: who manages simultaneous writers, recovers a partially completed write, or rejects invalid data written by a different script? Files work well for small tools with explicit single-writer ownership; increasing their size does not gradually turn them into collaborative storage.
+
+A relational database delegates these responsibilities to a separate server: typed records, relationships, constraints applied to every writer, concurrency coordination, and commit/recovery protocols. It is not a library for editing a JSON file directly, and it does not discover your business rules or permissions automatically. D01 establishes the model and server; D02 teaches queries; D03 groups changes into transactions.
+
+| Chapter contract | Verifiable scope |
+| --- | --- |
+| Prerequisites | L00–L14 and H01–H06; exceptions, modules, files, tests and the in-memory HTTP lab, but no assumed SQL or operations experience |
+| New capabilities | Draw relationships; explain tables, rows, keys, constraints and NULL; distinguish processes, directories, databases, roles and connections |
+| Independent acceptance | Create the model in an isolated cluster, predict who rejects invalid records, and design keys and relationships for a new entity |
+| Exclusions | Docker, ORM, migrations framework, authentication, pools and production deployment; successful installation is not modeling proficiency |
+
+Download the [complete D01 lab](/learning-assets/js2py/d01-relational-data.zip) and work inside the extracted `d01-relational-data` directory. All SQL, server and file operations run locally, not in browser Python. Displayed source and the download use the same lab files.
+
+## 2. Make field evolution an explicit design decision
+
+The H model, `id/title/minutes/done/note`, describes single-user in-memory tasks. We now need to express who created a task in which project. The following changes are deliberate. **This creates a new practice database; it does not migrate existing H-series data.**
+
+| Previous field or new need | Relational choice | Reason and limit |
+| --- | --- | --- |
+| id | bigint identity primary key | Database allocation, not an array position; neither consecutive IDs nor preservation of memory IDs is promised |
+| title | At most 120 characters, non-NULL, not only ASCII spaces | Application validation remains useful; the database protects the minimum invariant |
+| minutes | Retained nonnegative estimate | Useful for aggregation and concurrency; a retained extension, not a mandatory capstone field |
+| done | status: todo / doing / done | false can map to todo and true to done; doing is new; do not maintain two conflicting truths |
+| note | Nullable description, at most 2000 characters | NULL means not supplied; empty text means supplied but empty |
+| Collaboration | users, projects, project_members | A user row is not authentication, and membership does not implement API authorization |
+| Ownership/time | project_id, created_by, due_at, created_at, updated_at | Explicit references; timestamptz for instants, UTC display in lab connections |
+
+`users.login` identifies fixture people; this is not a login system. Password hashes, tokens and authentication versions are absent. Add those through later migrations rather than inventing fake default passwords for an ORM example. Here `updated_at` has an insertion default only. Update code must maintain it; the column's name does not make it automatic.
+
+## 3. One row represents a fact; keys express relationships
+
+A table specifies columns and types. A row is one record, without an inherent position in storage or query output. A primary key is unique and non-NULL and identifies the record across reorderings. Using a UI array index would identify a different item after sorting. Identity generates candidate numbers; PRIMARY KEY enforces uniqueness.
+
+```text
+users (1) ----< projects.created_by
+users (1) ----< project_members >---- (1) projects
+users (1) ----< tasks.created_by
+projects (1) ----< tasks.project_id
+```
+
+The `<` side can contain many rows. A project has many tasks; each task belongs to one project. Users and projects form a many-to-many relationship, represented by two one-to-many relationships through `project_members`. Its composite primary key `(project_id, user_id)` allows a particular user to join a particular project once, while still joining other projects. `role` describes that membership, not the user's global identity.
+
+A foreign key stores the other record's ID instead of copying a user object into each task. Copies could disagree after a rename: an update anomaly. D02 will use JOIN to retrieve display names. A database need not store the exact shape of your presentation JSON.
+
+All references use `ON DELETE RESTRICT`: a project with tasks or memberships cannot be deleted silently along with its dependents. A complete deletion policy belongs in an explicit service operation. Equally important, a foreign key proves existence, not that the creator is a member or that the current HTTP caller has permission. Cross-table rules such as requiring an owner or making that owner the creator are not fully guaranteed by this DDL.
+
+<details>
+<summary>Explanation answer: why not store member_ids on projects or copy project_name into every task?</summary>
+
+An array makes both per-membership roles and unique project/user pairs harder to express through the constraints introduced here. Copying project names introduces update anomalies. A membership row represents one fact; its composite key and two foreign keys each enforce a separate rule. This is not a ban on arrays or JSON: independently constrained, queryable facts benefit from explicit relations in this model.
+
+</details>
+
+## 4. Understand DDL and constraints before memorizing insert order
+
+DDL is SQL that defines structure. `CREATE TABLE` creates a table; declarations describe permitted values; commas separate columns or table constraints, and a semicolon ends a statement. This complete schema is identical in all three labs. No ORM prerequisite is needed.
+
+<Code language="sql">{getRelationalExample('sql/schema.sql')}</Code>
+
+Read from parents outward: users, then projects referencing users, then memberships and tasks. Definition order does not nest tables; the referenced table must exist. `GENERATED ALWAYS AS IDENTITY` means ordinary inserts omit id. `DEFAULT` supplies an omitted column, not an explicitly supplied NULL. Omitting status produces todo; supplying NULL violates NOT NULL.
+
+| Rule | What it rejects | What it does not replace |
+| --- | --- | --- |
+| NOT NULL | Missing NULL values | Does not reject empty text |
+| CHECK | A false row expression, such as negative minutes | Alone it does not reject an unknown result caused by NULL |
+| UNIQUE | Duplicate login identifiers | This schema is case-sensitive; alice and Alice differ |
+| PRIMARY KEY | Duplicate or NULL identity, possibly across columns | Does not mean the entire business record is complete |
+| FOREIGN KEY | A reference to a missing parent | Neither creates the parent nor proves authorization |
+| varchar(n) | An ordinary write exceeding the length | Not every application normalization rule |
+
+`btrim` removes ordinary spaces by default, not Python `strip()`'s entire Unicode whitespace set. The application may be stricter; do not claim identical validation. `timestamptz` represents an instant; display depends on the connection timezone and does not preserve the originally entered timezone name. The lab uses UTC and does not resolve product calendar or daylight-saving requirements.
+
+## 5. NULL is neither empty text nor JavaScript undefined
+
+SQL NULL means missing or unknown. A Python driver usually reads it as `None`, but SQL comparison does not work like Python comparison: `NULL = NULL` is unknown, not true. WHERE retains only true conditions. Test missingness with `IS NULL`. Replacing every missing value with empty text destroys information.
+
+Observe that tasks 1 and 4 have NULL descriptions while task 2 has empty text. A `CHECK (minutes >= 0)` does not become false for NULL, so tasks also needs NOT NULL. The tests create a temporary CHECK-only table, actually insert NULL, and compare that success with the tasks rejection. Constraint names alone are not the lesson.
+
+## 6. Six objects between installed software and a running database
+
+| Object | Responsibility | Common misconception |
+| --- | --- | --- |
+| Tool binaries | postgres is the server executable; psql is a command-line client | Running psql does not prove a server is running |
+| Server process | Accept connections, execute queries, coordinate concurrency and persistence | Python exiting does not stop the server |
+| Data directory / cluster | initdb creates catalogs and database storage; cluster here does not mean multiple machines | Never edit its binary files or initialize over an existing directory |
+| Database | A logical database within the cluster, named langshift_lab here | Not a separate OS process |
+| Role | PostgreSQL's permission identity; lab_student is an ordinary role | Not the OS username or a row of the users table |
+| Connection | Stateful client/server communication establishing a database session | A connection string is an address/options description, not a live connection or transaction |
+
+Data flows from terminal/driver through a socket to the server session, constraints and storage, then back as results or errors. A Unix socket is a local communication endpoint, not the database file. The port number also identifies the socket filename here, although TCP is disabled. A random administrator role bootstraps the cluster; ordinary SQL runs as non-superuser `lab_student`. Owning this practice database is not a production privilege design.
+
+## 7. Prepare step by step without touching existing databases
+
+Verified **2026-09-28**. Fixed baseline: PostgreSQL **18.6** (official release date 2026-08-13), CPython **3.13.15**, uv **0.12.13**, pytest **8.4.2**, psycopg **3.3.6**. The macOS Homebrew tools already exist on this machine; no system installation is needed. Elsewhere, obtain matching binaries through the official PostgreSQL download entry and verify their paths. Installation on other operating systems was not tested; do not blindly reuse the Homebrew path.
+
+**Step one: inspect binaries, not default services.** `PG_BIN` is a directory, not a DSN. Do not use `brew services`, unqualified management commands without `-D`, or assumptions about who owns a service on port 5432.
+
+**Connection-environment checkpoint.** libpq can read defaults beyond the socket in a DSN: for example `PGHOSTADDR` selects a network address and `PGSERVICE` loads a saved connection profile. Therefore the controller refuses every inherited `PG*` name except `PG_BIN` (the tool directory) and `PGHOST` (overridden by the explicit private socket), before startup or SQL. It reports variable names, never their values. If refused, inspect and remove only those settings in this lab shell, then retry; do not substitute a production DSN or blindly reset an existing database. `DATABASE_URL` remains ignored. The controller supplies its own empty mode-0600 password file instead of reading a user credential file, and strips database defaults from child processes. Even a polluted shell can run `status`/`stop` to clean up this owned cluster; stop still verifies the saved server identity. The translated README explains the same policy.
+
+**Test counts.** This lab has 14 business/SQL cases plus 50 environment-boundary cases (64 total). The latter include parametrized rejected settings, private-passfile validation and owned-loopback probes. They protect the experiment; they are not 50 new SQL topics or proof of production security.
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+"$PG_BIN/postgres" --version
+"$PG_BIN/psql" --version
+"$PG_BIN/initdb" --version
+"$PG_BIN/pg_ctl" --version
+uv --version
+uv sync --locked
+uv run --locked python --version
+```
+
+All four PostgreSQL commands should contain `18.6 (Homebrew)`; uv should report 0.12.13 and Python 3.13.15. `uv sync --locked` creates this lab's `.venv` from a public-PyPI lockfile, without updating it or installing frontend dependencies. Stop on a version mismatch rather than mixing baselines.
+
+**Step two: allocate exclusive storage and start an exclusive process.** The controller automates explicit steps rather than replacing them with magic: allocate `/tmp/lsdb-*` with mkdtemp; set root and socket directories to 0700; write an ownership marker; initialize the new directory with `initdb -D`; set `listen_addresses = ''`; start with `pg_ctl` using an explicit data directory and log; create the role and database only through this socket. The random port and unique directory never reuse an existing service.
+
+```bash
+uv run --locked python labctl.py start
+uv run --locked python labctl.py status
+uv run --locked python labctl.py dsn
+uv run --locked python labctl.py reset --yes-reset
+uv run --locked python labctl.py psql --file sql/inspect.sql
+```
+
+The first start prints a random root, and status should show running as true. Reset prints the following fixed output. It deletes and recreates **this lab's four tables**; it is not read-only. Save your own SQL files before resetting an exercise.
+
+```text
+schema + seed ready: users=2 projects=3 members=4 tasks=5
+```
+
+**Step three: understand the address before opening a connection.** The DSN contains `host=/private/tmp/lsdb-.../socket`, a random port, `dbname=langshift_lab`, `user=lab_student`, UTC and timeout options. macOS may resolve /tmp to /private/tmp; the abbreviated address in this paragraph is not copyable configuration. There is no password because local trust is bounded by private directory permissions and disabled TCP. Processes under the same OS account, and root, are not isolated from it. This is emphatically not production trust guidance.
+
+Before connecting or resetting, the controller checks the marker, directory ownership, server data directory, system identifier and `server_version_num=180006`. It deliberately ignores DATABASE_URL. Do not redirect it to your own database. psql backslash commands are interpreted by the client, not by the SQL server.
+
+```bash
+uv run --locked python labctl.py psql
+```
+
+```sql
+\conninfo
+SELECT current_database(), current_user;
+\dt
+\d tasks
+SELECT id, title, status, minutes FROM tasks ORDER BY id;
+\q
+```
+
+`\conninfo` shows the connection, `\dt` lists tables, `\d tasks` inspects constraints, and `\q` exits the client without stopping the server. A continuation prompt such as `langshift_lab-#` often means you have not terminated the statement with a semicolon. Ctrl+C abandons that input; rebuilding the cluster is not the remedy.
+
+## 8. Populate the structure with observable facts
+
+<Code language="sql">{getRelationalExample('sql/seed.sql')}</Code>
+
+The seed relies on empty-table identities starting at 1, so use reset rather than pasting it repeatedly into an arbitrary database. Expect Alice and Bob, Launch/Docs/Empty, four memberships and five tasks. Empty has no tasks but does have an owner. A foreign-key integer makes the server verify a parent record; the number itself carries no inferred business meaning.
+
+<Code language="sql">{getRelationalExample('sql/inspect.sql')}</Code>
+
+Inspection renders NULL as `(null)` to distinguish empty text. Tasks appear as `Design API / Add tests / Ship demo / Read SQL / Write guide`, with minutes `30 / 45 / 15 / 20 / 40`. This is the current ordered seed, not a promise about queries without ORDER BY.
+
+## 9. Deliberate failures: who rejects what, and what remains?
+
+Reset first, then execute the explicitly failing experiment.
+
+<Code language="sql">{getRelationalExample('sql/expected_failures.sql')}</Code>
+
+```bash
+uv run --locked python labctl.py reset --yes-reset
+uv run --locked python labctl.py psql --file sql/expected_failures.sql
+uv run --locked pytest -q
+```
+
+The four INSERT statements fail at server execution: duplicate login gives `23505`, nonexistent user_id `23503`, negative minutes `23514`, NULL title `23502`. ERROR output is expected, not evidence that nothing ran. This file temporarily disables psql's stop-on-error behavior and proceeds statement by statement; the final task count remains 5. In psql's default autocommit mode each statement finishes independently, so a failed statement cannot undo an earlier independently committed statement. D03 tests grouping them into one rollback unit.
+
+Tests also cover overlong titles (`22001`) and deletion of a referenced project. In the **actual 18.6 run**, `ON DELETE RESTRICT` returns `RestrictViolation / 23001`; do not assume every referential error is `23503`. Inserting a nonexistent foreign key still yields `23503`. SQLSTATE is more suitable for precise assertions than localized message text.
+
+<details>
+<summary>Guided modification answer: to allow unknown estimates, should you only remove CHECK?</summary>
+
+No. NOT NULL prohibits NULL; CHECK prohibits negative values. Allowing unknown estimates requires removing NOT NULL while retaining the nonnegative CHECK, and reconsidering whether default 0 remains appropriate. Compare NULL, 0 and -1 in a separate practice table rather than silently changing the three-lab contract. Later aggregation must distinguish zero from unknown; coalescing both to zero requires an explicit business choice.
+
+</details>
+
+## 10. Independent variation: multiple comments on a task
+
+Design `task_comments` independently: each comment belongs to an existing task and is written by an existing user; body is nonblank and at most 500 characters; a user may comment on the same task multiple times; deleting a referenced task is initially restricted. Draw cardinalities, choose the key, write DDL and a successful INSERT, then produce missing-task and blank-body failures. Why is `(task_id, author_id)` not a suitable primary key?
+
+Open the answer only after attempting it. Explain each constraint; passing tests alone does not demonstrate understanding.
+
+<details>
+<summary>Independent variation reference and acceptance</summary>
+
+<Code language="sql">{getRelationalExample('answers/variant.sql')}</Code>
+
+Comments have their own identity and repeat authors are allowed, so use an independent identity primary key. The foreign keys protect task and author existence, not project permissions. `tests/test_variant.py` executes the reference DDL and checks both failures, then drops the exercise table so it does not interfere with model reset. This table is not part of the ORM baseline.
+
+</details>
+
+## 11. Shutdown, recovery and a resumable checkpoint
+
+```bash
+uv run --locked python labctl.py stop
+uv run --locked python labctl.py status
+uv run --locked python labctl.py start
+uv run --locked python labctl.py psql --file sql/inspect.sql
+uv run --locked python labctl.py stop
+```
+
+After checking markers and server identity, stop invokes `pg_ctl -m fast -w stop` against only its own `-D`: disconnect this cluster's clients, roll back uncommitted transactions, and shut down. Other clusters are untouched. Status should show `running: false` and `pg_ctl_status: 3`. Start reuses the data directory without reinitializing it. Without reset, committed records should remain. This is a normal stop/start persistence check, not a backup or disaster-recovery drill.
+
+Data and logs are retained for diagnosis. The OS may clean /tmp, so it is not durable long-term storage. Do not copy a live data directory as a backup, delete ownership markers to bypass protection, or kill every postgres process.
+
+| Symptom | First inspection | Recovery boundary |
+| --- | --- | --- |
+| Missing/wrong binaries | PG_BIN and all four version commands | No automatic system installation or service upgrade |
+| Connection refused/missing socket | This lab's status and root/server.log | Start only the owned cluster |
+| Marker/identity mismatch | .lab-state.json and the private marker | Reset and shutdown refuse; investigate instead of disabling checks |
+| Partial initialization | Start exception, private logs and status | Script attempts to stop only the directory just allocated; preserve evidence and do not reinitialize old storage |
+| Missing tables | Whether reset ran and which database is selected | Confirm the target before choosing a destructive reset |
+
+When pausing, record the lab directory, random root, last successful command, passed tests, outstanding SQLSTATE and next action. A useful checkpoint is schema/seed verified, 64 tests passing (14 business + 50 environment), cluster stopped. Resume with status/start rather than an automatic reset.
+
+## 12. Acceptance and official references
+
+Without the answer, draw the four-table model, distinguish a database role from a business user, connect to your own database, predict at least three constraint failures, distinguish NULL from empty text, and prove committed data outlives Python memory through stop/start. The acceptance runner also rebuilds downloads from allowlists and executes against an exclusive cluster. MDX compilation does not prove these behaviors.
+
+Official references checked **2026-09-28**, using PostgreSQL 18 documentation and runtime 18.6:
+
+- [PostgreSQL 18.6 release notes](https://www.postgresql.org/docs/release/18.6/): patch version and release date.
+- [Client/server architecture](https://www.postgresql.org/docs/18/tutorial-arch.html), [initdb](https://www.postgresql.org/docs/18/app-initdb.html), [pg_ctl](https://www.postgresql.org/docs/18/app-pg-ctl.html): objects and lifecycle.
+- [Constraints](https://www.postgresql.org/docs/18/ddl-constraints.html), [error codes](https://www.postgresql.org/docs/18/errcodes-appendix.html): relational rules and CHECK's NULL behavior.
+- [libpq connection parameters](https://www.postgresql.org/docs/18/libpq-connect.html), [official downloads](https://www.postgresql.org/download/): connection targets and tool distribution.
+
+Not validated: other OS installation, TCP/TLS or production roles, backup recovery, authentication/authorization and production capacity. None is an implicit promise of this lab.

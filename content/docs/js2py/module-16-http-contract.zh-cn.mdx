@@ -1,0 +1,313 @@
+---
+title: HTTP 与接口契约：先约定可观察行为，再实现服务
+description: 为后续 H04–H06 的任务 API 写出一致的字段、请求、错误、分页和重试约定，区分核心契约、可选加固与真实 HTTP 观察。
+---
+
+import { getHttpContractExample } from '@/lib/js2py-examples'
+
+## 1. 接口列表为什么还不足以联调？
+
+假设后端只给你一句“支持创建任务”。你仍不知道空白标题怎么处理、成功后去哪里读取、网络超时能否重试、删除后是否还要解析 JSON。这些不是前端应该猜测的细节。**契约描述双方可以依赖的可观察行为**：输入、输出、失败、副作用，以及多次交互之间的关系。方法与 URL 只是入口。
+
+本章先约定后续 H04–H06 将逐步实现的学习版任务 API：`/tasks`，字段为 `id/title/minutes/done/note`。标题保留原样，不替用户修剪；minutes 是严格非负整数；done 是严格布尔值；note 可以为空。不要在读到后面时无声换成另一套模型。项目、成员、身份和数据库关系留到 D/S 阶段扩展，届时必须显式修订契约、迁移调用方，不能偷偷塞进本章必测要求。
+
+**H02 仍未实现 CRUD。** 真正运行的是 H01 的静态服务，用来提供样本文件。样本内拟定的 201 与下载它时实际收到的 200 属于不同层次。维护者另外在隔离副本中对照了当前 H04 实现，这项跨章核对不意味着 H02 下载包已经包含 FastAPI 服务。
+
+| 本章契约 | 范围 |
+| --- | --- |
+| 前置 | H01 请求、进程、端口、loopback、可信边界 |
+| 新能力 | 资源与方法、字段与空值、响应与错误、分页与重试、CORS 边界 |
+| 独立验收 | 交付与 H04 一致的正常/失败交互，分清拟定行为、真实静态 HTTP 与尚未实施的加固 |
+| 暂不要求 | FastAPI 路由代码、schema 实现、数据库、身份授权、幂等存储或生产部署 |
+
+下载 [H02 完整实验](/learning-assets/js2py/h02-http-contract.zip)。本章仅依赖 CPython 3.13.15、uv 0.12.13、pytest 8.4.2；使用 macOS 与 curl 8.7.1 于 **2026-09-28** 实测，不使用浏览器 Python 运行按钮。后续对齐基线为 FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5，但它们不是本章运行依赖。Windows 与真实浏览器跨源联调未验收。
+
+## 2. 一轮 HTTP：不要把 JSON 属性当成协议状态
+
+请求由方法、目标、头部和可能存在的正文组成。方法表达动作语义；目标标识资源并可带查询；头部描述消息与协商条件；正文承载数据。响应包含状态、头部和可能存在的正文。往 200 响应里放 `{"status": 201}`，不会把 HTTP 状态改成 201。[RFC 9110 §6](https://www.rfc-editor.org/rfc/rfc9110.html#section-6)
+
+以下是**拟定报文的可读摘录**，省略 Date、Content-Length 等传输细节；LF 换行便于阅读，不是网络抓包或完整 HTTP 编码器。实际发送时让 curl 处理报文边界，不能把字符数当 UTF-8 字节长度。
+
+<Code language="http">{getHttpContractExample('wire/create.request.http')}</Code>
+
+<Code language="http">{getHttpContractExample('wire/create.response.http')}</Code>
+
+`Content-Type: application/json` 表明正文按 JSON 解释，不保证内容合法；`Accept` 表达希望得到 JSON，不赋予权限。空行分开头部与正文。创建后按返回的 id 构造 `/tasks/1`，不是猜列表最后一项。HTTP 允许创建响应用 Location 指明资源，但**当前 H04 不发送 Location，本章不将它列为已承诺字段**；如果以后添加，就连同测试和客户端说明一起更新。
+
+请求来自客户端，不因符合前端 TypeScript 类型就可信。JSON 可以语法合法但字段类型错误，也可以类型正确而业务规则不符。后续将用模型实施验证；这里先说明什么应该被接受、什么应该被拒绝，而不是让读者先掌握框架内部机制。
+
+## 3. 资源与方法：HTTP 语义不等于框架自动实现
+
+`/tasks` 表示任务集合，`/tasks/1` 表示其中一项。资源不是本机文件，也不是数据库表的直接地址。H02 的静态服务器恰好把路径映射到文件，后续路由则把路径交给业务处理；相同的 HTTP 外形可以连接不同实现。
+
+| 方法 | 语义与当前范围 |
+| --- | --- |
+| GET | 读取集合或单项，不借读取动作创建或删除任务 |
+| POST | 向集合提交创建要求；由服务分配 id；重复提交可能创建两项 |
+| PATCH | 修改明确提供的字段；本契约使用绝对值设置，不是完整替换 |
+| DELETE | 移除指定任务；重复后的状态可变，目标仍是让它不存在 |
+| HEAD | HTTP 中与 GET 对应但不返回正文；**不在 H04 的已实现方法清单中** |
+| PUT | 通常表达目标资源状态的替换；本版不支持，不能当作 PATCH 的别名 |
+
+GET 的“安全”表示调用者不要求业务状态改变，不表示不写访问日志或没有安全风险。安全方法、PUT 和 DELETE 具有 HTTP 规定的幂等语义，POST 没有通用幂等保证。PATCH 是否可安全重复，需要看具体补丁含义。[RFC 9110 §9](https://www.rfc-editor.org/rfc/rfc9110.html#section-9)、[RFC 5789](https://www.rfc-editor.org/rfc/rfc5789.html)
+
+标准定义 HEAD 的语义，不代表每个框架的 GET 声明都会自动注册 HEAD。H01 静态工具对 HEAD 返回 200，而当前 H04 对 `/tasks` 的 HEAD 实测 405；这不是让你忽略协议，而是提醒你分别核对“协议如何定义”和“应用实际支持什么”。
+
+## 4. 核心字段：原样、严格类型、默认值与输出边界
+
+本版名为 `h02-task-contract-v2-h04-aligned`。离线完整约定在 `CONTRACT.md`、`CONTRACT.zh-cn.md`、`CONTRACT.zh-tw.md`。下面是与当前 H04 模型一致的输入与输出，不把未来多用户字段提前放入当前 API。
+
+| 字段 | POST 创建 | PATCH 修改 | 成功响应与约束 |
+| --- | --- | --- | --- |
+| `title` | 必填字符串 | 可省略；提供时不能为 null | 原字符串长度 1–120；全部空白拒绝；验证时检查去空白副本，**保存和返回原字形及首尾空白** |
+| `minutes` | 必填普通整数 | 可省略；提供时不能为 null | 大于等于 0；拒绝 true、字符串数字和浮点数，不自动强制转换 |
+| `done` | 可省略，默认 false | 可省略；提供时不能为 null | 严格布尔值，只接受 JSON true/false，不接受 0/1 或字符串 |
+| `note` | 可省略，默认 null | 省略保留；null 清除；字符串替换 | null 或最长 1000 字符的字符串；空字符串也是合法值 |
+| `id` | 禁止客户端提供 | 禁止客户端提供 | 服务分配的正整数；不承诺跨重启唯一或全局唯一 |
+
+字符串长度按 Python 字符串的码点计数，不按 UTF-8 字节或可见字形。`"  Ship the draft  "` 合法且空白保留；`"   "` 不合法。把“不能全空白”偷换成“保存时 trim”会改变用户数据，前后端不能各自猜一种规则。
+
+POST/PATCH 正文是 JSON 对象，未知字段拒绝为 422，包括自报 id 或内部字段。成功任务只有 `id/title/minutes/done/note`；H04 故意在存储中加入 `internal_tag`，但它不应出现在 HTTP 输出。输出模型是公开字段白名单，不是把整个存储对象直接透传。
+
+正文的严格类型与 URL 参数的解析不是一回事：JSON 自带数字、布尔值等类型，查询和路径则先以文本到达。不要从“minutes 严格整数”推出“所有 query 参数必须按相同字面形式校验”。[Pydantic strict mode](https://github.com/pydantic/pydantic/blob/v2.12.5/docs/concepts/strict_mode.md)、[FastAPI 响应模型](https://fastapi.tiangolo.com/tutorial/response-model/)
+
+## 5. PATCH 的关键不是“可选”，而是有没有提供这个键
+
+假设已有任务 note 为 `keep me`。只提交 `{"done": true}`，表示只修改完成状态，note 必须保留；提交 `{"note": null}` 才明确清除。`{"note": ""}` 又是第三种有意义的输入：保存空字符串。它们不能全部被一次“过滤空值”合并成相同操作。
+
+同理，minutes 为 0 和 done 为 false 都是有效的显式修改，不能用 JS 的 `if (value)` 或 Python 的真假判断来决定是否应用。判断的是**键是否出现**。H04 将以 `exclude_unset=True` 提取已提供字段；这里先建立语义，不先要求背模型 API。
+
+**空 PATCH 对象 `{}` 是合法的无变化更新，返回 200 与原任务。** 默认值服务于模型构造，不意味着省略字段就要重置存储。minutes/title 的内部占位默认值不能覆盖已有值，note 的默认 null 也不能清除省略字段。只有 note 接受显式 null；title/minutes/done 的 null 为 422。
+
+所有修改先验证，再整体替换学习版内存记录；一次失败 PATCH 不应留下标题已改、minutes 未改的半成品。这是单次处理的约定，不是对多进程、并发读改写或数据库事务的保证。H04 的单进程字典只是学习实现，重启会丢数据，后面才建立持久化与并发边界。[FastAPI 部分更新](https://fastapi.tiangolo.com/tutorial/body-updates/)
+
+## 6. 从请求到响应：当前明确支持的交互
+
+| 请求 | 正常结果 | 失败与边界 |
+| --- | --- | --- |
+| `GET /health` | 200，`{"status":"ok"}` | 仅表明该处理路径能响应，不证明任务正确、数据库可用或有权限 |
+| `POST /tasks` | 201，完整公开任务 | 缺字段、非法类型、空白标题、额外字段为 422；没有标题唯一约束 |
+| `GET /tasks` | 200，`items/limit/offset/total` | 分页参数不合要求为 422；空集合仍是成功 |
+| `GET /tasks/{task_id}` | 200，完整公开任务 | id 要大于 0；非法 id 为 422，合法但不存在为 404 |
+| `PATCH /tasks/{task_id}` | 200，完整修改后任务 | 按第 5 节保留/替换；不存在为 404，非法输入为 422 |
+| `DELETE /tasks/{task_id}` | 204，没有正文 | 再次删除为 404；客户端不解析成功响应的 JSON |
+
+提供给读者的规范路径没有结尾斜杠。**不在 H02 额外承诺尾斜杠一定 404 或一定无重定向**；框架行为必须另测。也不为 ID 增加 H04 未实施的 JavaScript 安全整数上限或“禁止前导零”等新规则。
+
+无此资源得到 404，不能与“服务没启动”的连接失败混淆；不支持的方法通常得到 405，响应带 Allow 表示路由器报告的允许方法。当前路由声明的组合不保证 Allow 是整张表的完整并集，不能根据自己写的表伪造一条头部快照。样本保留实际核对结果，客户端不要把这个头当授权许可。
+
+此时没有登录、项目成员或任务所有权。id 不是权限证明，能猜到编号不应在未来自动取得访问权，但**当前学习版根本没有实施那层检查**。所以既不把样本称为安全 API，也不要求当前客户端发送尚未定义的身份字段。
+
+## 7. 错误：沿用 detail，仍要解释清楚每种失败
+
+本版沿用 FastAPI 的错误形态：不存在任务是 `{"detail":"Task not found"}`；请求验证失败是 `{"detail":[...]}`。不把自创的 `error/code/message/fields` 信封描述为后续默认会实现的行为。
+
+<Code language="json">{getHttpContractExample('public/exchanges/blank-title.json')}</Code>
+
+外层 `kind/precondition/request/response` 是**教学样本包装**；在线 API 只发送其中 response.body。precondition 记录这个独立案例假定的初始任务，不是新增网络字段。验证项里 `loc` 定位 body/query/path 和字段，`type` 描述错误种类，`msg` 是解释文本；有时还包含 input/ctx。客户端可据位置标出字段错误，不应依赖英文句子的某个词、数组顺序或所有辅助键始终存在。
+
+| 观察 | 应如何理解 |
+| --- | --- |
+| 201 + 公开任务 | 创建成功，保存返回的 id；不假定有 Location |
+| 204 + 零字节正文 | 删除成功，跳过 JSON 解析 |
+| 404 + 文本 detail | 合法编号对应的任务不存在；不是网络断线 |
+| 422 + detail 数组 | 参数或正文验证失败；根据 loc/type 修正请求 |
+| 畸形 JSON 也为 422 | 当前 FastAPI 使用 json_invalid；不要把自己偏好的 400 写成当前事实 |
+| 405 + 文本 detail | 此路径没有对应方法处理器；不等于未认证 |
+| 未预期的 500 | 服务端故障，不应自动当成安全重试信号；也不承诺它使用验证错误的 JSON 格式 |
+
+HTTP 中 400、401、403、409、413、415 都有各自用途：请求错误、身份、权限、业务冲突、过大正文和不支持的媒体类型。但**知道状态码的含义，不等于本阶段已实现对应政策**。例如当前无身份验证，也无冲突唯一性规则，不能凭空要求重复标题变成 409。[RFC 9110 §15](https://www.rfc-editor.org/rfc/rfc9110.html#section-15)
+
+默认验证错误可能回显输入。它适合观察虚构实验数据，但不是生产脱敏保证；不要提交真实凭证，再把错误贴进日志或工单。后续若统一错误信封或脱敏，需要明确版本变化和兼容策略，而不是只在教材里改示例。[FastAPI 错误处理](https://fastapi.tiangolo.com/tutorial/handling-errors/)
+
+## 8. 分页：把排序、总数和下一次请求拆开
+
+`GET /tasks` 的 limit 默认 20、范围 1–100；offset 默认 0、必须大于等于 0。服务按 id 升序排列全部当前任务，再切片；total 是切片前总数，不是当前页长度。查询参数由框架解析，本章不新增一套严格字符串语法，也不承诺未知或重复 query 自动拒绝。
+
+<Code language="json">{getHttpContractExample('public/exchanges/list-first.json')}</Code>
+
+<Code language="json">{getHttpContractExample('public/exchanges/list-last.json')}</Code>
+
+第一页 offset=0、limit=2，得到 id 1、2，total=3；第二页 offset=2，得到 id 3。响应**没有 next_offset**。客户端根据 `offset + items.length < total` 判断这次观察是否还有后续数据，下一次可请求 offset+limit。offset=99 则得到 200、空 items、total=3，不是 404：集合存在与单项存在是两件事。
+
+当前没有 done/status 筛选接口。给 URL 加 `done=true` 不会自动产生过滤功能；在当前 H04 中这类未知 query 被忽略。需要筛选时应先修订契约，再加解析、过滤、计数与测试，不能让前端以为已经筛过。
+
+稳定排序只解决同一数据集的顺序，不提供跨请求快照。第一页后有人删除较前面的任务，下一页的 offset 可能跳过一项；并发变化也可能令 total 过时。当前接受这个限制，不承诺每页组合就是某个时刻的完整快照，更不偷渡数据库隔离或游标实现。
+
+<Code language="python">{getHttpContractExample('contract_examples.py')}</Code>
+
+preview_page 只计算**已解析 Python 值**的排序与分页，check_example 只验证列出的样本不变量。二者不是 HTTP 解析器、完整 Pydantic 替身或 CRUD 状态机；通过这些检查不代表后端已经实现。
+
+## 9. 幂等：比较预期效果，而非每次状态相同
+
+第一次 DELETE 成功而响应丢失，再次 DELETE 得到 404，并不破坏“该任务不存在”的效果。幂等关注同样请求重复后的预期业务效果，不要求响应字节或状态完全一样，也不禁止多一条访问日志。当前 id 可能在进程重启后重用，因此不能无限期重试旧编号，再声称仍在操作同一资源。
+
+POST 则可能第一次已创建、只是响应没到达；重复发送同一标题会创建第二项。超时说明客户端没有及时拿到结果，不证明服务端没做事。禁用提交按钮只减少这份 UI 中的误点，不能覆盖网络重试、多设备或重新打开页面。
+
+当前 PATCH 设置绝对值，例如 `{"done": true}`，不是“切换状态”。在同一目标仍存在、无其他写入、无额外副作用的条件下，重复相同设置得到相同字段状态；这不意味着所有 PATCH 都幂等。以后加入累加、通知或并发版本检查，必须重新分析业务效果。[RFC 5789 §2](https://www.rfc-editor.org/rfc/rfc5789.html#section-2)
+
+本章没有 Idempotency-Key 存储、事务或去重响应缓存。多传一个头部不会自动获得恰好一次语义。现在不自动重试 POST；写操作超时时先保留“结果未知、待确认”，不要把它错误显示成确定的创建失败。可靠重试留到 S03，必须说明键归属、有效期、同键不同请求与并发处理。
+
+**解释题：** 204 后 JSON 解析报错属于哪一侧？第二次 DELETE 404 为什么不一定违反幂等？客户端三秒超时为何不能证明 POST 未创建？另解释 PATCH 省略 note 与提供 null 的差别。
+
+<details>
+<summary>解释题答案：状态、业务效果和信息边界分开讨论</summary>
+
+204 已按契约成功返回无正文，强行解析 JSON 是客户端错误。重复 DELETE 的响应可变，预期效果仍是目标不存在，但跨重启编号重用或并发会改变上下文，不能忽略。超时可能发生在提交前，也可能发生在完成后响应到达前，单凭超时无法区分。省略 note 表示不修改该字段，显式 null 才清除；不能用一次“过滤假值”同时丢掉 null、0 和 false。
+
+</details>
+
+## 10. 可选加固与当前差距：不能把愿望写成已实现契约
+
+以下是 2026-09-28 对当前 H04 隔离副本的实际观察，不是新增主线要求。完整记录在 `gaps/h04-observations.json`，带源码摘要，便于以后判断实现是否变化。
+
+| 可选政策 | 当前观察／边界 | 若以后采用，必须补什么 |
+| --- | --- | --- |
+| 自动支持 HEAD | HEAD /tasks 为 405；H01 静态工具却支持 | 显式方法支持、无正文与错误路径测试 |
+| 拒绝未知 query | `done=true` 被忽略，仍返回未过滤列表 | 参数模型、拒绝规则、调用方迁移 |
+| 统一媒体类型错误为 415 | text/plain 和缺 Content-Type 的实验均为 422 | 入口检查、允许媒体类型/charset 和一致错误策略 |
+| 限制整段正文到 64 KiB 并返回 413 | 70000 个空格加合法短 JSON 的 POST 为 201 | 明确按字节限额，在完整读取前限制，并验证代理/应用两层 |
+| 统一自定义错误、禁止输入回显 | 默认 detail 可能携带 input | 异常映射、脱敏、客户端兼容与负向测试 |
+
+字段 note 长度上限不等于整个请求体的字节限制；有健康响应也不等于具备这些政策。当前观察只适用于记录的基线，不能把“没配置限额”解读成平台保证无限接收。可选加固都应有独立需求与验收，不偷偷让初学者在 H04 必测用例中追一个不存在的承诺。
+
+## 11. 运行离线检查：没有启动任务 API
+
+仓库用户在根目录运行；下载用户进入 `h02-http-contract`，从 uv sync 开始：
+
+```bash
+cd examples/js2py/h02-http-contract
+pwd
+uv sync --locked --default-index https://pypi.org/simple
+uv run --locked python --version
+uv run --locked python contract_examples.py
+uv run --locked python -m pytest -q
+```
+
+<Code language="toml">{getHttpContractExample('pyproject.toml')}</Code>
+
+每条样本输出以 PROPOSED 开头，最后是：
+
+```text
+checked 24 proposed exchanges; no CRUD requests executed
+```
+
+标准套件 **47 个测试**：43 项样本与纯计算，4 项实际 loopback HTTP。它们覆盖正文类型、公开字段、标题保留、detail 形态、分页、空 PATCH、null/0/false，以及静态服务与拟定 API 的区别。每份样本自带初始条件，彼此独立；读取删除样本不会让下一份读取样本真的消失。
+
+只公开 public 中的无秘密教学文件，不公开工程根、用户目录、`.env` 或符号链接。gaps 是维护者记录，不是在线路由；fixtures 是离线数据；requests 是客户端要从当前目录读取的正文。
+
+## 12. 真实 HTTP：下载样本与调用任务路由不是一回事
+
+终端 A 在实验根目录启动：
+
+```bash
+uv run --locked python -m http.server 8767 --bind 127.0.0.1 --directory public
+```
+
+终端 B 也进入实验根目录：
+
+```bash
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8767/exchanges/create-ok.json'
+curl --noproxy '*' --max-time 3 --include 'http://127.0.0.1:8767/tasks'
+curl --noproxy '*' --max-time 3 --include --header 'Content-Type: application/json' --data-binary @requests/create.json 'http://127.0.0.1:8767/tasks'
+```
+
+curl 是客户端。`--include` 显示响应头；`--max-time 3` 限制整轮传输；`--noproxy '*'` 绕过代理，引号防止 shell 展开星号。`--header` 添加请求头；`--data-binary @requests/create.json` 从 **B 的工作目录**读取正文并原样发送，默认选择 POST，不必再写 `--request POST`。[curl 手册](https://curl.se/docs/manpage.html)
+
+三次实际状态是 **200、404、501**。第一条下载样本，文件里的 response.status 才是拟定的 201；第二条没有对应静态文件；第三条是静态服务不支持 POST。这里的 HTML 错误页既不是 H04 的 detail，也不是已经创建任务的证据。
+
+```bash
+curl --noproxy '*' --max-time 3 --include --fail-with-body 'http://127.0.0.1:8767/tasks'
+echo $?
+```
+
+默认 curl 收到 HTTP 错误仍可退出零；`--fail-with-body` 保留错误正文并映射为非零退出。这里是 HTTP 404、curl 退出 22，不是 HTTP 422 或连接失败。终端 A 不会因为这个请求失败而结束。
+
+## 13. CORS：浏览器响应共享不等于身份认证
+
+origin 由协议、主机、端口组成，不含路径。`http://127.0.0.1:5173` 与 `http://127.0.0.1:8767` 不同源；curl 与 Python 客户端不执行浏览器的同源读取限制。客户端自造 Origin 也不等于证明身份。
+
+```bash
+curl --noproxy '*' --max-time 3 --include --header 'Origin: https://untrusted.invalid' 'http://127.0.0.1:8767/exchanges/create-ok.json'
+curl --noproxy '*' --max-time 3 --include --request OPTIONS --header 'Origin: http://127.0.0.1:5173' --header 'Access-Control-Request-Method: POST' --header 'Access-Control-Request-Headers: content-type' 'http://127.0.0.1:8767/tasks'
+```
+
+第一条是 200 且无 Access-Control-Allow-Origin；没有访问 untrusted.invalid，它只是发给 loopback 的头部文本。第二条用 `--request OPTIONS` 模拟预检消息形状，静态服务返回 501，不是预检成功。跨源 JSON 写请求通常需预检；某些不需预检的请求可能已经发出，只是浏览器不把响应交给脚本，因此 CORS 报错不能证明服务端没收到。
+
+CORS 不是登录、对象授权或完整 CSRF 防护。允许某个前端来源不应替代每个请求的身份和权限检查；`mode: 'no-cors'` 也不是读取 JSON 的捷径，响应可能是不透明的。[WHATWG Fetch §3.3](https://fetch.spec.whatwg.org/#http-cors-protocol)
+
+H06 才添加明确本机来源的浏览器联调，安全章节再建立真实身份。本章没有真实浏览器跨源验收，不拿 curl 的成功替代它。
+
+<Code language="python">{getHttpContractExample('inspect_transport.py')}</Code>
+
+```bash
+uv run --locked python inspect_transport.py
+```
+
+```text
+real GET example: HTTP 200; proposed POST: 201
+real GET tasks: HTTP 404
+real POST tasks: HTTP 501; no CRUD implemented
+real HEAD example: HTTP 200; body bytes=0
+real GET with Origin: HTTP 200; allow-origin=False
+service_alive=True
+owned_service_stopped=True
+```
+
+自动工具启动标准库 CLI，使用分配的 loopback 端口，最后只清理自己创建的子进程，不实现任务路由。手动 A 仍由你负责：回到 A 按 Ctrl+C，确认提示符回来。端口冲突时换本地端口并同步客户端，不杀陌生监听者。
+
+## 14. 引导练习：让错误理解真的报红
+
+预测下面断言为何失败，再运行。它不在默认 tests 目录，所以正常套件不会被意图失败污染。
+
+<Code language="python">{getHttpContractExample('errors/test_wrong_contract.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q errors/test_wrong_contract.py
+```
+
+这是**预期断言失败**，退出 1，不是 HTTP 500 或语法错误。不要为让测试绿而把正确的 204 样本改成 200。再想一层：即便把 None 序列化成 JSON null，也不是零字节正文。
+
+<details>
+<summary>引导练习答案：修复断言与客户端分支，不迎合错误预期</summary>
+
+应断言状态 204，样本包装的 body 为 None；这里 None 表示没有传输正文，不是传输四个字符 null。客户端在 204 分支跳过 JSON 解析。默认测试会往 204 样本故意塞入对象，确认检查器拒绝。修正自己的练习副本再运行；下载保留错误版本供复现，不声称原样通过。
+
+</details>
+
+## 15. 独立变式：分页、遗漏与显式空值
+
+不看答案，给出四个完整请求响应：offset=1、limit=1 的第二页；offset=99、limit=2 的末页之外；任务 1 只修改 title 而省略 note；显式将 note 设为 null。初始任务使用 fixtures/tasks.json，note 原值为 keep me。再写两个负例：minutes=null、limit=101。写清 status、响应字段，以及错误 loc/type，不创造 next_offset、筛选或自定义 error。
+
+额外解释空 PATCH 与 `{"minutes":0,"done":false}` 的区别：前者无变化，后者有明确设置，不能被真假判断吞掉。纯函数可以帮助校对预期，但它不是请求验证器，更不是已部署 API。
+
+<details>
+<summary>独立变式参考：五项测试与六份完整交互</summary>
+
+第二页只含 id 2，total=3；末页外 items 为空、total 仍为 3，都是 200。只改 title 保留 note；显式 null 清除 note。minutes=null 为 422，loc 指 body/minutes、type 为 int_type；limit=101 为 422，loc 指 query/limit、type 为 less_than_equal。
+
+<Code language="python">{getHttpContractExample('solutions/review_cases.py')}</Code>
+
+<Code language="python">{getHttpContractExample('solutions/test_review_cases.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_review_cases.py
+```
+
+五项测试覆盖排序切页、空页、note 省略保留、显式 null/0/false、六份完整样本的一致性。`solutions/exchanges.json` 包含前置、请求、状态、头部和正文。参考函数在假定输入已验证后才示意字段合并；不要把它拿去替代 H04 的模型验证或持久化。
+
+</details>
+
+## 16. 暂停恢复与跨章验收
+
+暂停记录契约版本、改过哪些样本、工作目录、最后成功命令、47+5 项测试结果、仍然故意失败的命令，以及实际观察的 HTTP 状态。先停止自己的前台服务。恢复先跑离线检查与 inspect_transport，再核对手动路径；不能从“上次好像创建过”推断静态服务里存着任务。
+
+进入 H04 时应拿这份契约逐项核对：标题原样、严格 minutes/done、note 省略和 null、服务 id、公开字段、detail 错误、limit/offset/total、删除无正文。发现差异应先修订说明或实现，不让读者暗中猜新模型。HEAD、query 拒绝、413/415、自定义错误等附加政策留在明确的加固差距清单。
+
+D/S 阶段会加入项目成员、真实身份、数据库关系和更丰富状态；届时字段、权限、URL 或错误形态的变化必须有显式演进说明。现在交付可审查的设计材料，不是假装已上线的协作后端。
+
+## 17. 一手资料与本次实际验证范围
+
+2026-09-28 核对：[RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)、[RFC 5789](https://www.rfc-editor.org/rfc/rfc5789.html)、[Pydantic 严格模式](https://github.com/pydantic/pydantic/blob/v2.12.5/docs/concepts/strict_mode.md)、[FastAPI 响应模型](https://fastapi.tiangolo.com/tutorial/response-model/)、[部分更新](https://fastapi.tiangolo.com/tutorial/body-updates/)、[错误处理](https://fastapi.tiangolo.com/tutorial/handling-errors/)、[WHATWG Fetch/CORS](https://fetch.spec.whatwg.org/#http-cors-protocol)、[Python 静态服务](https://docs.python.org/3.13/library/http.server.html)、[HTTP 客户端](https://docs.python.org/3.13/library/http.client.html)、[curl 手册](https://curl.se/docs/manpage.html)。
+
+已实测当前样本、纯分页、独立变式、意图失败与 loopback 静态传输；维护者对当前 H04 隔离副本进行了 24 个核心交互及 5 个加固差距观察，并保留源码摘要。没有因此宣称 H02 实现 CRUD、完整验证、权限、持久化、浏览器预检成功、并发幂等或公网部署。全站 loader/下载注册与最终页面验收由主线集成另做。

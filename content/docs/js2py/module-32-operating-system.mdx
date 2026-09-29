@@ -1,0 +1,242 @@
+---
+title: "Operating systems and services: whose process, directory, and permissions?"
+description: "Use owned, bounded experiments to understand processes, signals, exits, ports, permissions, environments and working directories; separate POSIX evidence from pending Linux/systemd acceptance."
+---
+
+import { getOperatingSystemExample } from '@/lib/js2py-examples'
+
+## 1. From “it works in my terminal” to an explainable service
+
+A frontend development server hides many operating-system decisions: the tool selects a directory, starts a process, reads configuration, and remains attached to your terminal. The same Python file can fail immediately under a service manager because its working directory differs, your exported variable is absent, its account cannot write a file, or another process owns the port. Memorizing Docker commands would conceal the problem. First describe **who runs the program and with which environment**.
+
+This chapter follows A02, with files, modules, dependencies, and tests from L06–L09. You will describe process inputs and lifetime, diagnose startup failure, stop your own service normally, and explain least privilege. Independent acceptance means predicting behavior when the directory, permissions, or stopping method changes—not making a process “immortal.” Containers, cloud hosts, root access, and production databases are not prerequisites.
+
+[Download the complete O01 lab](/learning-assets/js2py/o01-operating-system.zip). Its worker only counts starts in disposable teaching state. It is neither the collaborative task API nor a durable database. Run these experiments in a local terminal; a browser editor does not provide equivalent signals, UIDs, or filesystem permissions.
+
+## 2. Draw the process boundary, not a terminal-shaped program
+
+Source code is a file; an interpreter is the program that executes it; a **process** is one running instance. Two processes may execute the same file with different PIDs, memory, current directories, environments, open files, and exit results. A parent supplies arguments, environment, and file descriptors when starting a child. This does not turn their variables into shared objects. PIDs can be reused later, so an old saved number is not permission to kill whatever now occupies it.
+
+The shell in your terminal is itself a process. It normally waits for a foreground command to finish. A prompt that has not returned often means that the service is still running, not that it is broken. Standard output carries ordinary output; standard error carries diagnostics. Neither alone determines success: inspect exit status too. H01’s distinction still applies: completing an HTTP request does not stop the listening process.
+
+The experiment keeps the `subprocess.Popen` object for **its own child**. In finally it requests normal termination, escalates only after a timeout, then calls wait to reap the child. It does not search for every Python process or use killall. Startup, readiness, and cleanup are bounded so failures also return control to the terminal.
+
+## 3. Restore the environment and confirm the working directory
+
+From the repository root, enter the directory below. For a ZIP, enter the extracted `o01-operating-system` root instead; do not blindly execute relative filenames from its parent. `pwd` displays the working directory. `cd` changes the shell’s directory, which subsequently launched children normally inherit. The baseline is Python 3.13.15, uv 0.12.13, and pytest 8.4.2. `.python-version` selects the interpreter, pyproject declares compatibility and dependencies, uv.lock fixes resolution, and `.venv` is a rebuildable artifact excluded from the download.
+
+```bash
+cd examples/js2py/o01-operating-system
+pwd
+uv --version
+uv sync --locked
+uv run --locked python --version
+uv run --locked python -m pytest -q
+```
+
+<Code language="toml">{getOperatingSystemExample('pyproject.toml')}</Code>
+
+`--locked` refuses to silently change an inconsistent lockfile. `python -m pytest` runs the pytest module with this environment’s interpreter, rather than installing Python packages globally. Use an ordinary POSIX account: root may bypass the intended permission failure, and Windows signal/permission behavior is not covered by this run. The maintainer tested macOS Darwin 25.6.0 arm64; the environment matrix explicitly separates pending Linux acceptance.
+
+## 4. cwd and environment: a path error is not a dependency error
+
+A relative path is interpreted against the **process working directory**, not automatically against the source file’s directory. `Path(__file__).resolve().parent` can explicitly locate source files, but that does not justify storing application data inside a read-only deployment directory. This experiment requires an existing absolute `OPS_DATA_DIR`, separating state location from cwd. Environment variables are string configuration supplied at the process boundary. A child changing its own environment does not modify its parent shell.
+
+`environment_lab.py` creates two owned temporary directories: one containing message.txt and one empty. It supplies only a fictional OPS_LABEL instead of printing the real environment or credentials. An absolute interpreter path avoids relying on the omitted PATH. Predict the file contents in the first directory and the failure stage in the empty one before running.
+
+<Code language="python">{getOperatingSystemExample('environment_lab.py')}</Code>
+
+```bash
+uv run --locked python environment_lab.py
+```
+
+```text
+parent-choice
+from the working directory
+parent_mapping_unchanged=True
+wrong_cwd_exit=1
+wrong_cwd_is_FileNotFoundError=True
+```
+
+The parent-mapping check shows that this child-only assignment did not mutate the supplied mapping; it is not a shared-memory experiment. The failure is a runtime FileNotFoundError, not missing Python, an import failure, or invalid syntax. Recover by selecting the correct directory or explicit data path, not by copying files into every possible cwd.
+
+## 5. Ports: address, listening, and readiness are different
+
+An IP address selects a network interface; a port helps the kernel deliver incoming connections to a listening socket. `127.0.0.1` is IPv4 loopback in the current host network environment. A remote browser’s own 127.0.0.1 does not refer to your computer. `0.0.0.0` is a wildcard listening address for all IPv4 interfaces, not a client destination. This chapter binds only loopback and never opens public access to make a demonstration work.
+
+Port 0 asks the operating system to allocate an available port. getsockname retrieves the assigned number. A second socket binding the same address encounters a collision. listen only prepares to receive connections: it does not prove that the process speaks HTTP, or that its database and authorization work. This example deliberately sends no HTTP; reachability alone is not a health check.
+
+<Code language="python">{getOperatingSystemExample('port_lab.py')}</Code>
+
+```bash
+uv run --locked python port_lab.py
+```
+
+```text
+listening_on_loopback=True
+second_bind_rejected=True
+owned_socket_closed=True
+```
+
+If a real service reports Address already in use, inspect your own launch record and running terminal first. Do not kill an arbitrary PID merely because it occupies the port. Choose another approved port or stop a confirmed instance of your own. A port conflict differs from 404: the former may prevent startup, while the latter is a response from an HTTP service that already answered.
+
+## 6. Exit status: classify failure instead of matching one log line
+
+Successful commands conventionally return 0; nonzero results require interpretation according to the tool’s contract. Our worker **chooses** 78 for configuration errors, 65 for corrupt state, and 74 for I/O failure, with diagnostics that do not echo configuration values. These numbers are not mandatory for all Python services. On POSIX, `subprocess.returncode` represents signal termination as a negative signal number, such as -9. A shell often reports 128 plus the signal number, such as 137, but a shell convention is not Python’s return value.
+
+Also distinguish command exits from HTTP statuses. curl can complete a 500 response and exit 0 unless its HTTP-failure option is enabled. A connection failure obtains no HTTP response at all. Our tests intentionally make child processes fail; the parent experiment succeeds after confirming that failure. That is explicit failure verification, not suppression.
+
+## 7. Signals: cooperative stopping versus forced termination
+
+<Code language="python">{getOperatingSystemExample('worker.py')}</Code>
+
+The worker validates its data directory, installs SIGTERM/SIGINT handlers, reads and increments starts, and prints ready. The handler only sets a stop flag. Normal control flow observes the flag, leaves the loop, and writes stopped.txt in finally. Python handlers execute in the main interpreter thread; they are not a safe transaction-commit hook injected into an arbitrary business thread. Keeping complex I/O in normal control flow makes behavior easier to explain and test.
+
+SIGINT commonly comes from Ctrl+C in a foreground terminal; SIGTERM is a service manager’s usual request to stop. A program may handle either, but must retain a reachable exit path. SIGKILL cannot be caught, so finally is not guaranteed to execute. Crashes and power loss likewise do not wait politely for cleanup. Database durability cannot be built on “save once when exiting.”
+
+Replacing a temporary state file only narrows partial-write exposure for this single writer. There is no fsync, concurrent coordination, or transaction guarantee. A restart counter is not JSON magically becoming PostgreSQL.
+
+<Code language="python">{getOperatingSystemExample('process_lab.py')}</Code>
+
+```bash
+uv run --locked python process_lab.py
+```
+
+```text
+missing_config_exit=78
+SIGTERM: subprocess_returncode=0 cleanup=True
+SIGINT: subprocess_returncode=0 cleanup=True
+SIGKILL: subprocess_returncode=-9 cleanup=False
+same_directory_across_processes=2
+```
+
+These are observed outputs from this run; variable PIDs and temporary paths are not hard-coded into the result. The final 2 means two new processes read the same directory’s file, not that old Python memory survived. Stop a manually launched foreground worker with Ctrl+C in its terminal. The automatic experiment signals only its recorded Popen child and needs no additional kill command afterward.
+
+## 8. Permissions: why a service should not inherit all your power
+
+POSIX mode bits normally group permissions into owner, group, and other; read/write/execute use values 4/2/1. Execute means executable for a file, but traversal/access to known names for a directory—not the same as listing that directory. Mode 0600 allows only the owner to read and write a file; 0700 restricts directory access to its owner. umask removes permission bits **when creating** an object; it does not repair existing files. chmod changes an existing object.
+
+This experiment writes fictional configuration only inside its own temporary directory. It observes 0700/0600, changes the file to 0000, observes PermissionError, and restores 0600 before cleanup. It rejects root because bypassing the refusal would produce a misleading result. ACLs, filesystems, and platforms can add rules; one octal number does not establish every security property.
+
+<Code language="python">{getOperatingSystemExample('permissions_lab.py')}</Code>
+
+```bash
+uv run --locked python permissions_lab.py
+```
+
+```text
+directory_mode=0o700
+file_mode=0o600
+read_without_permission=denied
+restored_read=True
+```
+
+When access is denied, ask which account needs which operation on which directory. Do not bypass the issue with chmod 777 or by running the whole service through sudo. A service account normally should not modify application source, needs no login shell, and should write only to declared data directories. Environment variables are not a secret vault: principals allowed to inspect a process may read them. Avoid environment dumps, tokens in command-line arguments, and raw configuration values in logs. O02 separates ordinary configuration from secret injection.
+
+## 9. Service managers supervise processes, not business correctness
+
+On Linux, systemd can replace the habit of keeping an SSH window open forever. A service unit starts a process, selects its account and cwd, collects output, and restarts it under declared conditions. It is not a database and cannot decide whether an HTTP 200 violates authorization. `Restart=on-failure` does not repair invalid configuration; RestartSec and StartLimit prevent rapid restarts from concealing the root cause.
+
+This is a complete teaching template, **not installed or executed on this host**. User/Group reduce privilege; WorkingDirectory fixes the basis for relative paths; ExecStart uses the absolute interpreter of a venv restored on the target host. StateDirectory supplies a writable state directory. ProtectSystem=strict makes other system locations read-only, with StateDirectory permitted to remain writable. TimeoutStopSec gives SIGTERM five seconds before forceful termination may follow. NoNewPrivileges prevents gaining additional privilege through execution; it does not make the application vulnerability-free.
+
+<Code language="ini">{getOperatingSystemExample('systemd/ops-worker.service')}</Code>
+
+Real acceptance requires your own rebuildable Linux/systemd host and administrative authority. First confirm there is no conflicting service/account. Provision a dedicated non-login langshift-ops account/group, deploy allowlisted source to `/opt/langshift/o01-operating-system`, and restore dependencies at that target path. The service account must read/execute but not modify source. Do not copy a macOS venv onto Linux or experiment on an existing production host.
+
+The following commands are **pending Linux acceptance steps after provisioning**, not observed successes here. An administrator reviews the unit, installs it as a system unit, and performs daemon-reload only after confirming the target machine. `systemd-analyze verify` checks configuration, not effective runtime permissions. Starting, inspecting, stopping, and starting again while inspecting starts and stopped.txt establish runtime evidence. Do not enable boot startup before rehearsing these steps.
+
+```bash
+systemd-analyze verify systemd/ops-worker.service
+sudo systemctl daemon-reload
+sudo systemctl start ops-worker.service
+sudo systemctl status ops-worker.service --no-pager
+sudo journalctl -u ops-worker.service -n 30 --no-pager
+sudo systemctl stop ops-worker.service
+```
+
+## 10. Diagnose the stage where failure occurs
+
+| Observation | First inspection | Safe recovery |
+| --- | --- | --- |
+| uv / Python not found | PATH and interpreter location; business code has not run | Restore tools using L08, not a random similarly named package |
+| Configuration error, exit 78 | Whether this process received the variable; absolute existing directory | Supply explicit child configuration without dumping the real environment |
+| FileNotFoundError | cwd and absolute resource location | Fix path responsibility instead of copying into uncertain directories |
+| PermissionError / exit 74 | Effective UID and target owner/mode | Grant only the required access to a dedicated directory |
+| exit 65 | Corrupt JSON or a non-integer/negative starts value | Preserve a failure copy and use a new disposable directory |
+| Port conflict | A second instance of your own service | Stop your first instance or choose another port |
+| No stopped.txt after SIGKILL | Stopping method, not finally syntax | Explain forced termination; do not claim lost data was recovered |
+
+Record the last successful stage instead of repeatedly restarting. Distinguish configuration parsing, file access, port binding, and business requests before choosing evidence. No real database access or disclosure of real configuration is required.
+
+## 11. Explanation checkpoint: give a causal chain
+
+Without running code, explain why a second execution can obtain starts=2, why cwd should not change an explicitly selected state directory, whether missing cleanup after SIGKILL proves a faulty finally block, and why successful listening cannot replace an authorization test.
+
+<details>
+<summary>Answer and explanation</summary>
+
+A new process gets new memory; the count survives because it reads **the same file**. The absolute data path is not joined to cwd in this implementation. Replacing it with a relative path would change that behavior. SIGKILL gives the interpreter no opportunity to run finally, so missing cleanup is expected. Listening only proves the kernel accepted bind/listen; authorization requires actual requests checking the principal-resource relationship.
+
+</details>
+
+## 12. Guided exercise: reject configuration, then corrupt state
+
+In your own temporary directory, try missing OPS_DATA_DIR, a relative path, an existing directory containing state.json equal to `[]`, and finally `{"starts":0}`. Error paths must not print tracebacks or environment values. Distinguish configuration from data failure; the valid case must stop normally and create cleanup state. Hint: valid JSON does not imply a valid application shape, and a Python bool is not an acceptable counter here. Predict first, then locate the corresponding assertions in the tests.
+
+<details>
+<summary>Guided answer: identify the rejected boundary</summary>
+
+Missing and relative configuration fail in data_directory with exit 78. A JSON list is not an object with starts and yields exit 65. A valid object with --once completes one run and exits 0. Tests use owned temporary directories and finite timeouts; never place corrupt test data in an existing application directory. stderr contains only categorized diagnostics, retaining more useful information than catching every exception and reporting success.
+
+<Code language="python">{getOperatingSystemExample('tests/test_operations.py')}</Code>
+
+</details>
+
+## 13. Independent variation: two roots and three starts
+
+Work from requirements without opening the answer: create independent first and second state directories, start the worker twice for first and once for second, but deliberately set every child’s cwd to second. Obtain `[2, 1]` with normal exits. Do not simulate persistence through a parent dictionary. Use only owned temporary files, clean up on failure, and test that cwd does not determine state ownership.
+
+<details>
+<summary>Independent reference and acceptance</summary>
+
+<Code language="python">{getOperatingSystemExample('solutions/two_directories.py')}</Code>
+
+<Code language="python">{getOperatingSystemExample('solutions/test_two_directories.py')}</Code>
+
+```bash
+uv run --locked python -m solutions.two_directories
+uv run --locked python -m pytest -q solutions/test_two_directories.py
+```
+
+```text
+[2, 1]
+```
+
+If you obtain `[0, 3]` or only one state.json, first inspect whether cwd replaced the chosen data root. Passing the reference does not accept your own implementation. Run equivalent tests against your function and explain the path supplied on each launch.
+
+</details>
+
+## 14. Environment matrix: implemented is not Linux-accepted
+
+| State | Evidence or gate |
+| --- | --- |
+| Actually executed | Ordinary macOS account; 16 standard and 1 independent test; env/cwd, permission refusal/recovery, port collision, three signals, cross-process file state |
+| Unavailable on this host | No Linux/systemd service manager; no unit installation, boot-start test, or real service-account isolation |
+| User-provided environment | Rebuildable controlled Linux/systemd host, dedicated account and reviewed deployment directory; validate configuration, then exercise start/stop, permissions, and failure restart |
+| Not accepted by this chapter | Windows, power-loss durability, multiple writers, database recovery, or public hosting |
+
+Text and source are implemented; Linux/systemd remains environment_pending. Case counts describe execution, not a claim that 17 tests prove production reliability. No system software was installed, user database accessed, or unrelated process stopped.
+
+## 15. Sources, dates, and a resumable record
+
+Primary sources checked **2026-09-28**. `SOURCES.json` records URLs, dates, and retrieval summaries; it does not promise that documentation will never change. The three READMEs distinguish observations from environment gaps. The existence of configuration is not deployment acceptance.
+
+- [Python subprocess](https://docs.python.org/3.13/library/subprocess.html)
+- [Python signal](https://docs.python.org/3.13/library/signal.html)
+- [Python os](https://docs.python.org/3.13/library/os.html)
+- [Python socket](https://docs.python.org/3.13/library/socket.html)
+- [systemd service](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html)
+- [systemd execution environment](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html)
+
+Before pausing, record your source version/changes, cwd, Python/uv versions, last successful command, whether 16+1 cases reproduced on your machine, unresolved failures, and the next first action. Do not store real environment values or secrets. Resume with `uv sync --locked`, process_lab.py, and your independent test. Moving to Linux requires a new matrix entry, not copying the macOS pass label.
+

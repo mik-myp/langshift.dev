@@ -1,0 +1,14 @@
+{
+  "purpose": "Resumable evidence record, NOT implementation steps",
+  "work_revision": null,
+  "schema_revision": null,
+  "owned_test_target": null,
+  "last_command": null,
+  "last_verified_fact": "not_started",
+  "unresolved": [],
+  "next_evidence_to_collect": "",
+  "stopped_resources": [],
+  "evidence_refs": [],
+  "blocker_owner": null,
+  "review_requested": false
+}

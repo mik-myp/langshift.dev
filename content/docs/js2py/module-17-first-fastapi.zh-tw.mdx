@@ -1,0 +1,241 @@
+---
+title: 第一個同步 FastAPI 服務：從導入到真實響應
+description: 區分框架、ASGI 服務器和處理函數，在本地啟動只讀任務 API，用實際請求定位 404、422、500、導入失敗和端口衝突。
+---
+
+import { getFastApiExample } from '@/lib/js2py-examples'
+
+## 1. 從“我會請求接口”走到“誰在接收請求”
+
+前端的 fetch 調用只暴露了一端：發送 URL，等待狀態碼和正文。現在我們實現另一端。一個 Python 函數返回字典，還不等於有了 HTTP 服務：誰佔用端口、誰把請求定位到函數、誰把字典編碼成 JSON，必須分別有人負責。
+
+| 本章契約 | 範圍 |
+| --- | --- |
+| 前置 | H02 的方法、狀態碼、資源與分頁語義；L13 裝飾器；已有模塊、函數和容器基礎 |
+| 新能力 | 解釋服務器與框架分工；正確導入 app；編寫同步路由；從另一個終端觀察響應和失敗 |
+| 獨立驗收 | 不復制參考 app，從空文件重建只讀任務接口，完成成功、缺失、非法參數與退出後的請求 |
+| 明確排除 | async def、應用 lifespan、數據庫、依賴注入、認證、請求體模型和 API 測試 fixture |
+
+下載 [H03 完整實驗](/learning-assets/js2py/h03-first-fastapi.zip)。這是**本地 API 實驗**：需要操作系統端口和兩個終端，不能在瀏覽器 Python 編輯器裡啟動。網頁代碼由實驗源碼讀取；H06 才正式引入 API 自動測試，本章的 curl 是真實客戶端，不是隱藏的測試框架先修。
+
+我們只實現 capstone 的 V1 前半步，不冒充最終協作系統。這裡沒有項目、用戶、狀態枚舉或權限關係：只有兩個只讀任務。為銜接語言階段，字段為服務提供的 id、原樣 title、非負 minutes、done、可空 note。它們是明確的本章小契約，不依賴另一章的代碼或運行進程。
+
+## 2. 先畫清一次請求的責任鏈
+
+```text
+curl -> TCP 127.0.0.1:8003 -> Uvicorn -> ASGI -> FastAPI
+                                                  |
+                                      route + validate parameters
+                                                  |
+                                          def read_task(...)
+                                                  |
+client <- HTTP status + JSON bytes <- response serialization
+```
+
+**Uvicorn 是服務器。** 它監聽地址和端口，接收連接，把 HTTP 請求交給應用，並把應用產生的狀態、頭和正文發送回客戶端。**FastAPI 是框架。** 它持有路由規則，提取和驗證參數，調用你的函數，組織響應。**我們的函數是業務處理。** 它決定任務是否存在、返回哪個對象；不用自己解析 TCP 字節。
+
+ASGI 是服務器和 Python Web 應用之間的接口約定，不是又一個要啟動的服務。框架替本章實現它。它支持異步通信，不表示每個業務函數都必須寫成 async def；這裡所有路由都是普通 def。不要把“代碼裡沒有 await”理解成“全服務器一次只能接一條請求”：FastAPI 會把普通同步路由安排在線程池中執行，其他請求仍可能同時進行。我們只讀取固定數據，因此沒有在本章承諾共享寫入的安全性。
+
+與前端路由的可遷移經驗是“方法與路徑選中處理者”；不同的是，此處在服務進程裡運行，不能訪問瀏覽器 DOM，也不需要先顯示頁面才會被 curl 調用。ASGI、線程池和服務器分工依據本章末尾的一手資料；暫不要求自己實現事件循環。
+
+## 3. 固定環境，認清工作目錄與導入路徑
+
+實測與官方文檔核驗日期：**2026-09-28**。固定基線：CPython 3.13.15、uv 0.12.13、FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5。Pydantic 此時由框架用於參數校驗，下一章才編寫自己的模型。這是一組通過驗收的版本，不是“永遠最新”。
+
+<Code language="toml">{getFastApiExample('pyproject.toml')}</Code>
+
+解壓後進入 h03-first-fastapi；在倉庫內則進入 examples/js2py/h03-first-fastapi。下列服務命令的工作目錄都指這個文件夾。先執行：
+
+```bash
+uv --version
+uv python install 3.13.15
+uv sync --locked
+uv run --locked python --version
+```
+
+.python-version 固定解釋器，requires-python 限制在 3.13 系列；package=false 表示運行這些本地文件，不把當前目錄構建安裝為發行包。uv.lock 是從公開 PyPI 實際解析得到的，包含間接依賴及文件校驗值；不要手編鎖文件。普通學習運行只做 sync --locked，不重新求解版本。維護者的隔離復現目錄另見 README。
+
+<Code language="python">{getFastApiExample('app.py')}</Code>
+
+先完整讀一遍，再在終端 A 啟動：
+
+```bash
+uv run --locked python -m uvicorn app:app --host 127.0.0.1 --port 8003 --workers 1
+```
+
+逐段拆開這條命令，而不是背誦：
+
+- uv run --locked 選擇本項目的環境；python -m uvicorn 讓該 Python 執行已安裝的 Uvicorn 模塊，避免誤用另一個環境的命令。
+- app:app 的左邊是**模塊名 app**，不是 app.py 文件路徑；右邊是導入後取得的對象名 app，即 FastAPI() 的結果。文件若叫 service.py，左邊才改成 service。
+- Uvicorn 默認從當前工作目錄尋找應用模塊。能找到依賴不等於能找到 app.py：環境選擇與模塊查找是兩個問題。
+- --host 127.0.0.1 只監聽本機迴環地址；不要改為 0.0.0.0。本例沒有用戶認證，不該給局域網或互聯網訪問。
+- --port 8003 是本實驗選擇的端口，不是 FastAPI 內置端口；客戶端必須訪問同一個端口。
+- --workers 1 明確只啟動一個服務工作進程，不受外部 WEB_CONCURRENCY 默認值影響。本章不用 --reload，修改後手動退出再啟動，避免重啟行為被隱藏。
+
+啟動會導入 app 模塊：創建 FastAPI 對象、建立 TASKS、執行裝飾器以登記路由。此時不會為你執行一次 read_task。只有匹配請求到來，框架才調用處理函數。直接執行 uv run --locked python app.py 會完成這些定義然後正常退出；文件裡沒有監聽命令，所以它不會留下一個 HTTP 服務。
+
+## 4. 從裝飾器和參數看清框架何時介入
+
+`@app.get("/tasks/{task_id}")` 把“GET 加路徑模式”關聯到 read_task。花括號是 URL 中的一段，不是 Python 字典。路徑裡的 task_id 與參數同名，框架才知道把那段文字交給它。
+
+請求 /tasks/1 時，路徑最初帶來的是文本 "1"。框架根據 int 註解轉換並驗證，再把整數 1 交給函數。Path(gt=0) 是參數的額外約束：gt 表示嚴格大於。本章採用這種直接聲明寫法，避免為了第一條路由先學習 Annotated。非法文本或非正數在框架入口被攔下，函數體不會開始查表。
+
+limit、offset 沒有出現在路徑模板裡，因此這裡的標量參數來自查詢字符串。Query(default=20, ge=1, le=100) 同時提供缺省值和上下限，ge/le 是大於等於/小於等於。查詢字符串中的數字也是文本，需要解析；不能把下一章 JSON 正文的嚴格整數規則機械套在 URL 文本上。
+
+list_tasks 先按 id 排序，再用 offset:offset + limit 切片，最後返回總數。total 是全部任務數，不是這一頁長度；offset 超出範圍得到空 items，仍是合法 200。當前只讀數據不變化，順序穩定；這不能推廣成“併發增刪時 offset 分頁也不會漏項或重複”。
+
+read_task 內部拿到合法整數後才判斷存在性。raise HTTPException 終止當前處理，讓框架生成 404。這裡是已知業務結果，不是 Python 崩潰；不要把所有異常都包成 404，否則代碼錯誤也會被偽裝成“沒找到”。
+
+## 5. 用終端 B 真正觀察請求與響應
+
+終端 A 繼續運行。另開終端 B，執行：
+
+```bash
+curl -sS -i http://127.0.0.1:8003/health
+curl -sS -i http://127.0.0.1:8003/tasks/1
+curl -sS -i 'http://127.0.0.1:8003/tasks?limit=1&offset=1'
+```
+
+-sS 隱藏進度條但保留連接錯誤，-i 把 HTTP 狀態行和響應頭也顯示出來。查詢 URL 加單引號，避免 shell 把 & 當作後臺執行符號。不要只看 curl 的進程退出碼：默認情況下收到 404/422 仍可能退出 0，HTTP 狀態才回答應用如何處理請求。
+
+下面是 /tasks/1 的實際狀態與正文（省略會變化的 Date 等頭，不是完整原始報文）：
+
+```http
+HTTP/1.1 200 OK
+content-type: application/json
+
+{"id":1,"title":"Read HTTP","minutes":25,"done":false,"note":null}
+```
+
+函數返回的是 Python dict，不是已經發送的字符串。FastAPI 的響應處理把它編碼為 JSON：False 變 false，None 變 null，再由服務器寫到連接上。終端 A 的訪問日誌此時才出現 GET 記錄。一個請求完成後進程仍等待下一個請求；返回函數不等於退出服務器。
+
+分頁請求應得到：
+
+```json
+{"items":[{"id":2,"title":"Try curl","minutes":10,"done":true,"note":"local only"}],"limit":1,"offset":1,"total":2}
+```
+
+/health 的 200 只證明進程能處理這個請求。這裡沒有數據庫，所以它不證明數據庫、身份系統或所有業務操作就緒。/docs 提供交互文檔，/openapi.json 提供機器可讀契約；它們方便探索，但能打開文檔不是 CRUD 已驗收。
+
+## 6. 把“失敗”定位到正確一層
+
+<Code language="bash">{getFastApiExample('requests.sh')}</Code>
+
+先預測每條，再單獨執行，最後可用 bash requests.sh 重放全部 11 條；腳本只是可見請求清單，不會替你判定結果。
+
+| 請求或動作 | 預期 | 原因與下一步 |
+| --- | --- | --- |
+| GET /tasks/999 | 404，detail 為 Task not found | 參數合法，處理函數沒找到記錄；核對 id |
+| GET /missing | 404，detail 為 Not Found | 沒匹配路由；核對路徑 |
+| GET /tasks/nope | 422，loc 為 path/task_id | 無法解析整數；換成合法 id |
+| GET /tasks/0 | 422 | 解析成功但不大於 0 |
+| GET /tasks?limit=0 或 offset=-1 | 422 | 查詢約束失敗；修正分頁參數 |
+| POST /tasks | 405 | 本章尚未註冊創建路由；不是輸入模型問題 |
+| GET /tasks?offset=99 | 200，items 為空，total 為 2 | 合法空頁，不應制造 404 |
+
+/tasks/nope 的實際正文：
+
+```json
+{"detail":[{"type":"int_parsing","loc":["path","task_id"],"msg":"Input should be a valid integer, unable to parse string as an integer","input":"nope"}]}
+```
+
+讀取 loc 知道錯誤來源，type 表示錯誤類別；不要把整個英文 msg 當作永遠不變的客戶端協議。輸入錯誤、資源缺失、傳輸錯誤是三件事。若 curl 提示連接失敗，根本沒有收到 HTTP 狀態，先看服務是否啟動、地址端口是否一致，再查業務代碼。
+
+<details>
+<summary>解釋性檢查答案：為什麼 /tasks/nope 與 /tasks/999 不一樣？</summary>
+
+前者在參數解析階段失敗，read_task 沒運行；後者得到整數 999 後進入函數，由業務存在性判斷拋出 404。把兩者都解釋成“字典裡沒有這個鍵”會失去入口校驗的意義。直接調用 read_task(999) 只會拋 Python 異常，沒有服務器替你發送 HTTP；測試函數與發請求也不是一回事。
+
+</details>
+
+## 7. 啟動失敗不是接口的 500
+
+在終端 A 保持運行時，終端 B 用同一條啟動命令再啟動一次。第二個進程退出非零，並出現 address already in use；macOS 實測為 Errno 48，其他系統錯誤編號可能不同。第一個進程仍能響應 /health。**不要為了排錯批量殺掉佔用端口的進程。** 回到自己啟動它的終端按 Ctrl-C，或者為自己這次實驗換成空閒端口並同步修改 curl URL。
+
+再單獨做模塊定位實驗：先退出自己的服務，在實驗目錄的父目錄執行：
+
+```bash
+uv run --project h03-first-fastapi --locked python -m uvicorn app:app --host 127.0.0.1 --port 8003 --workers 1
+```
+
+實測報 Could not import module "app"。--project 找到了項目環境，但沒有把工作目錄變成 app.py 所在目錄。恢復方式是 cd h03-first-fastapi 後重用正常命令；也可以在父目錄顯式加 --app-dir h03-first-fastapi 指定查找目錄。不要把“加隨機 sys.path”作為習慣性修復。
+
+若 app:app 寫成 app:missing，則模塊找得到，但報 Attribute "missing" not found。分別檢查冒號兩側，別用重裝依賴處理對象拼寫錯誤。這些失敗發生在提供服務之前，沒有一條業務 HTTP 500 可供客戶端接收。
+
+<details>
+<summary>帶提示排錯答案：環境正常，卻無法導入應用</summary>
+
+先運行 pwd、ls app.py，確認當前目錄；再核對 app:app 的文件模塊名和對象名。uv run --locked python -c 'import app; print(type(app.app).__name__)' 應打印 FastAPI。導入成功只說明對象可取得，接著仍必須啟動 Uvicorn 並請求 /health 才算服務恢復。若端口衝突，確認失敗的是第二個進程；不要關閉別人的進程。
+
+</details>
+
+## 8. 一個故意的 500：客戶端與服務日誌看到的不同
+
+<Code language="python">{getFastApiExample('errors/broken_app.py')}</Code>
+
+它是明確的失敗實驗，不是正常參考 app。退出自己的正常服務後，在實驗根目錄啟動：
+
+```bash
+uv run --locked python -m uvicorn errors.broken_app:app --host 127.0.0.1 --port 8003 --workers 1
+```
+
+在另一終端請求：
+
+```bash
+curl -sS -i http://127.0.0.1:8003/broken
+```
+
+實際為 500，正文是 Internal Server Error，而終端 A 出現 RuntimeError: deliberate failure for H03 的回溯。這是處理函數已經運行但失敗，既不是 422 也不是端口衝突。不要把原始回溯、配置或秘密返回給客戶端，也不要開啟調試頁面來“修復”它。
+
+恢復：Ctrl-C 退出這個故意錯誤的服務，重新啟動 app:app，再請求 /health 和 /tasks/1，確認二者為 200。最後 Ctrl-C 退出自己的服務，再發 /health，觀察連接失敗而不是 404；沒有監聽者就沒有 HTTP 應用響應。
+
+## 9. 獨立重建與變式，不以複製後啟動為終點
+
+**獨立重建：** 在新的本地目錄，只帶 pyproject.toml、uv.lock、.python-version，自己寫 app.py。按本章契約重建 /health、分頁 /tasks、`/tasks/{task_id}`，包含同樣的兩個種子任務。先不看參考文件，用請求記錄說明正常、缺失、錯誤類型、錯誤範圍和空頁分別怎樣發生。
+
+**變式：** 加 GET /summary，只統計尚未完成任務的 count 與 minutes，總計應是 1 與 25。它是全體數據的統計，不受列表分頁影響；不能返回 TASKS 整個字典來回避聚合。提示只到這裡：遍歷 values，篩選 done 為 False，再彙總。
+
+<details>
+<summary>獨立重建與變式參考答案</summary>
+
+<Code language="python">{getFastApiExample('solutions/rebuild.py')}</Code>
+
+在原實驗根目錄用下面命令運行獨立答案。它自帶數據與路由，不從 app.py 導入答案：
+
+```bash
+uv run --locked python -m uvicorn solutions.rebuild:app --host 127.0.0.1 --port 8003 --workers 1
+curl -sS -i http://127.0.0.1:8003/summary
+```
+
+curl 在另一終端執行，應為 200 和 `{"count":1,"minutes":25}`。再重放正常列表、非法 id、404，確認新增統計沒有破壞舊契約。這裡不用“未完成數量等於總數減一”這種只對當前種子偶然成立的算法。
+
+</details>
+
+## 10. 暫停恢復記錄與本章出口
+
+不要只記錄“讀到第 8 節”。在自己的筆記保存：工作目錄、當前 app 文件、鎖定版本、最後成功命令、監聽端口、啟動它的終端、已觀察的狀態與正文、仍未解決的問題、下次第一條命令。例如：
+
+```text
+checkpoint: H03 request boundaries
+cwd: <my extracted h03-first-fastapi directory>
+entry: app:app
+last_success: GET /tasks/1 -> 200; GET /tasks/nope -> 422
+server: stopped with Ctrl-C in terminal A
+open_question: explain missing route versus missing record
+next: start app:app, request /tasks/999 and /missing
+```
+
+出口需要你口頭解釋 import、路由註冊、參數解析、函數執行、序列化五個階段；獨立啟動服務並保留成功/失敗的真實請求記錄；親自恢復一次啟動失敗；能退出自己啟動的進程。py_compile、能 import、網頁編譯成功都不能替代這些證據。
+
+已驗證邊界：本地迴環、單工作進程、順序請求、只讀種子。本章不驗證性能、併發寫入、權限、CORS 瀏覽器行為、代理、HTTPS、跨平臺服務管理或生產部署。下一章加入輸入輸出模型與內存寫入，但不會自動解除這些邊界。
+
+## 11. 一手資料與版本記錄
+
+以下官方資料於 2026-09-28 核對；文檔可能繼續更新，實驗以鎖文件和實測行為為準。逐項 URL、核驗結果和實跑摘要也收在實驗的 SOURCES.md、VERIFICATION.md。
+
+- [FastAPI First Steps](https://fastapi.tiangolo.com/tutorial/first-steps/)：應用實例、路由、自動文檔。
+- [FastAPI 同步路由與線程池](https://fastapi.tiangolo.com/async/)：普通 def 的調度邊界。
+- [ASGI Introduction](https://asgi.readthedocs.io/en/latest/introduction.html)：服務器和應用之間的協議。
+- [Uvicorn 0.42.0 Settings](https://github.com/Kludex/uvicorn/blob/0.42.0/docs/settings.md)：模塊對象導入、工作目錄、地址端口和工作進程。
+- [Path 數值驗證](https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/) 與 [Handling Errors](https://fastapi.tiangolo.com/tutorial/handling-errors/)：參數邊界和 HTTPException。
+- [uv 鎖定與同步](https://docs.astral.sh/uv/concepts/projects/sync/)：--locked 不允許靜默改鎖文件。

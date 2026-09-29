@@ -1,0 +1,37 @@
+{
+  "kind": "proposed-contract-example",
+  "name": "bool-minutes",
+  "precondition": {
+    "seed_tasks": []
+  },
+  "request": {
+    "method": "POST",
+    "target": "/tasks",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "title": "Wrong minutes",
+      "minutes": true
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "detail": [
+        {
+          "type": "int_type",
+          "loc": [
+            "body",
+            "minutes"
+          ],
+          "msg": "Input should be a valid integer",
+          "input": true
+        }
+      ]
+    }
+  }
+}

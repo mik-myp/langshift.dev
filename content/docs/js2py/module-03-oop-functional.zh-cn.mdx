@@ -1,1436 +1,736 @@
 ---
-title: "Python 面向对象与函数式编程"
-description: "从 JavaScript 开发者视角学习 Python 的面向对象编程、函数式编程特性和装饰器"
+title: "条件、循环与遍历"
+description: "从手工处理两条记录走向任意数量的任务：先理解缩进、分支和真值，再掌握普通循环、边界与终止，最后用简单推导式表达已理解的处理过程。"
 ---
 
-## 1. 引言
+import { getControlFlowExample } from '@/lib/js2py-examples'
 
-### 为什么学习面向对象和函数式编程？
+## 1. 从两条记录，到数量会变化的数据
 
-作为 JavaScript 开发者，你可能已经熟悉了 ES6 的类语法和函数式编程概念。Python 在这两个方面都有独特的实现方式，掌握这些特性将让你能够：
+L02 的学习计划只有两条，我们可以直接访问 `plans[0]` 和 `plans[1]`。现在想象三个变化：今天没有计划；明天有五条；有些已经完成，有些还没有预计时长。继续写死下标不仅重复，而且会把“数据数量变了”变成程序错误。
 
-- 编写更优雅和可维护的代码
-- 理解 Python 的设计哲学
-- 利用 Python 强大的元编程能力
-- 构建更复杂的应用程序
+本章要解决两个问题：**哪些语句应该执行，以及同一套操作应该对哪些数据重复执行。** 这叫控制流。你熟悉 JS 的分支与循环，但 Python 的缩进、容器真值、遍历方式和名称绑定有自己的规则，不能只把花括号换成冒号。
 
-> 💡 **学习策略**：将 Python 的 OOP 和函数式特性视为 JavaScript 概念的"增强版本"
+### 本章契约
 
-## 2. 面向对象编程（OOP）
+| 项目 | 约定 |
+| --- | --- |
+| 前置能力 | L00—L02：独立运行脚本；名称与基本值；比较、None、格式化；容器、索引、字典字段、修改与引用 |
+| 本章新学 | 缩进与分支；真值与短路；普通 for、while；range、解包、enumerate、字典遍历；break/continue；简单列表推导式 |
+| 独立验收 | 对不同数量的任务分类、累计并筛选；空列表不崩溃；明确处理 0、None、缺失与负数；说明循环为什么结束 |
+| 暂不要求 | 自定义函数、导入、异常捕获、类、类型注解、生成器、异步迭代、文件读写、数据库或 Web 服务 |
 
-### 2.1 类的基本概念
+我们会调用已经存在的内置函数，但不会要求你先定义函数。解包和关键字实参会在第一次使用前解释；循环不应靠尚未学习的 `map`、`filter`、`lambda` 或 `sum` 表达式跳过去。
 
-Python 的类系统与 JavaScript 的类有很多相似之处，但也有一些重要的差异。
+### 文件与运行方式
 
-<PythonEditor title="类的基本定义对比" compare={true}>
-```javascript !! js
-// JavaScript 类定义
-class Person {
-    constructor(name, age) {
-        this.name = name;
-        this.age = age;
-    }
-    
-    // 实例方法
-    sayHello() {
-        return `你好，我是 ${this.name}，今年 ${this.age} 岁`;
-    }
-    
-    // 静态方法
-    static create(name, age) {
-        return new Person(name, age);
-    }
-    
-    // Getter
-    get info() {
-        return `${this.name} (${this.age})`;
-    }
-    
-    // Setter
-    set info(value) {
-        const [name, age] = value.split(' ');
-        this.name = name;
-        this.age = parseInt(age);
-    }
-}
+下载 [L03 独立示例与参考答案](/learning-assets/js2py/u03-control-flow.zip)，或按正文手写。解压后在编辑器中打开 `u03-control-flow`，终端也位于该目录。每份文件独立运行，不共享前一次执行的变量。
 
-// 使用类
-const person = new Person("张三", 25);
-console.log(person.sayHello());
-console.log(person.info);
-person.info = "李四 30";
-console.log(person.name); // "李四"
+```bash
+uv run --no-project --python 3.13 python branches.py
 ```
 
-```python !! py
-# Python 类定义
-class Person:
-    """人类类"""
-    
-    def __init__(self, name, age):
-        """构造函数（类似 JavaScript 的 constructor）"""
-        self.name = name
-        self.age = age
-    
-    def say_hello(self):
-        """实例方法（类似 JavaScript 的实例方法）"""
-        return f"你好，我是 {self.name}，今年 {self.age} 岁"
-    
-    @staticmethod
-    def a_static_method():
-        """静态方法，无法访问类或实例"""
-        return "这是一个静态方法"
-    
-    @classmethod
-    def create(cls, name, age):
-        """类方法（类似 JavaScript 的静态方法）"""
-        return cls(name, age)
-    
-    @property
-    def info(self):
-        """属性装饰器（类似 JavaScript 的 getter）"""
-        return f"{self.name} ({self.age})"
-    
-    @info.setter
-    def info(self, value):
-        """属性设置器（类似 JavaScript 的 setter）"""
-        name, age = value.split(' ')
-        self.name = name
-        self.age = int(age)
-    
-    def __str__(self):
-        """字符串表示（类似 JavaScript 的 toString）"""
-        return f"Person({self.name}, {self.age})"
+后续命令只替换最后的文件名。仍然使用 CPython 3.13，不安装第三方 Python 包，不建立工程配置。环境问题回到 [L00](/zh-cn/docs/js2py/module-00-python-introduction)；本章维护者的测试脚本不是读者的先修知识。
 
-# 使用类
-person = Person("张三", 25)
-print(person.say_hello())
-print(person.info)
-person.info = "李四 30"
-print(person.name)  # "李四"
-print(person)  # Person(李四, 30)
-```
-</PythonEditor>
+`errors/` 保存三个预期运行失败；`pitfalls/` 保存一个**不报异常但结果错误**的实验；`solutions/` 保存折叠答案。不要先运行所有答案再回头看题目。
 
-### 2.2 类变量与实例变量
+## 2. 分支：冒号和缩进决定哪些语句属于一起
 
-Python 中的类变量和实例变量概念与 JavaScript 中的静态属性和实例属性类似。
+### 2.1 先读控制流，再记语法
 
-<PythonEditor title="类变量与实例变量" compare={true}>
-```javascript !! js
-// JavaScript 类变量和实例变量
-class Counter {
-    // 类变量（静态属性）
-    static totalCount = 0;
-    static instances = [];
-    
-    constructor() {
-        // 实例变量
-        this.count = 0;
-        Counter.totalCount++;
-        Counter.instances.push(this);
-    }
-    
-    increment() {
-        this.count++;
-        Counter.totalCount++;
-    }
-    
-    static getTotalCount() {
-        return Counter.totalCount;
-    }
-    
-    static getAllInstances() {
-        return Counter.instances;
-    }
-}
+我们先按预计分钟数给一项任务分类。当前输入保证是整数；如何处理来自外部的任意文本不在本节范围。
 
-const counter1 = new Counter();
-const counter2 = new Counter();
+文件：`branches.py`。
 
-counter1.increment();
-counter2.increment();
-counter2.increment();
+<Code language="python">{getControlFlowExample('branches.py')}</Code>
 
-console.log(counter1.count);           // 1
-console.log(counter2.count);           // 2
-console.log(Counter.getTotalCount());  // 3
-console.log(Counter.getAllInstances().length); // 2
+预期：
+
+```text
+Short session
+Checked
 ```
 
-```python !! py
-# Python 类变量和实例变量
-class Counter:
-    """计数器类"""
-    
-    # 类变量（类似 JavaScript 的静态属性）
-    total_count = 0
-    instances = []
-    
-    def __init__(self):
-        """构造函数"""
-        # 实例变量
-        self.count = 0
-        Counter.total_count += 1
-        Counter.instances.append(self)
-    
-    def increment(self):
-        """增加计数"""
-        self.count += 1
-        Counter.total_count += 1
-    
-    @classmethod
-    def get_total_count(cls):
-        """获取总计数（类方法）"""
-        return cls.total_count
-    
-    @classmethod
-    def get_all_instances(cls):
-        """获取所有实例（类方法）"""
-        return cls.instances
+按执行顺序解释：
 
-# 创建实例
-counter1 = Counter()
-counter2 = Counter()
+1. 先把 25 绑定给 `minutes`。
+2. `if` 检查第一个条件，False 时继续检查 `elif`，即“否则，如果”。
+3. 遇到第一个为真的条件，只执行它对应的缩进语句块；同一条分支链中的后续条件不再检查。
+4. 如果前面都不成立，才进入 `else`；`else` 后没有条件。
+5. `print("Checked")` 已退回最外层缩进，因此无论选中了哪一支，正常执行都会来到这里。
 
-counter1.increment()
-counter2.increment()
-counter2.increment()
+`if`、`elif`、`else` 这几行以冒号结束。条件不必像 JS 一样套在括号里；需要分组时仍可用括号。使用四个空格表示一个缩进层级；四个空格是惯例，而**同一个块的缩进一致**是语法要求。不要混用 Tab 与空格。
 
-print(counter1.count)                    # 1
-print(counter2.count)                    # 2
-print(Counter.get_total_count())         # 3
-print(len(Counter.get_all_instances()))  # 2
+这不是视觉排版：把最后一行缩进到 `else` 内，含义就会变成“仅在长任务时打印 Checked”，即使没有异常也已经改了程序。
+
+先预测，再只修改第一行输入：
+
+| minutes | 分类输出 | 为什么 |
+| --- | --- | --- |
+| -1 | Invalid estimate | 先拒绝负数，后续分支不参与 |
+| 0 | No time required | 0 是单独的边界，不被短时长分支吞掉 |
+| 1、25 | Short session | 上界包含 25 |
+| 26 | Long session | 前三个条件都不满足 |
+
+每一种还应打印 `Checked`。如果把 `minutes <= 25` 放在负数与 0 的检查前面，后两者也会先匹配它；分支顺序表达业务优先级，不是任意排列的标签。
+
+### 2.2 多个 if 不等于一条 if/elif 链
+
+以下是完整、独立的对照：
+
+```python case=separate_if
+minutes = 0
+if minutes == 0:
+    print("Zero")
+if minutes <= 25:
+    print("Short")
+else:
+    print("Long")
+```
+
+预期：
+
+```text
+Zero
+Short
+```
+
+两个 `if` 都会分别检查；`else` 属于紧挨着它、同一缩进层级的第二个 `if`，不是第一个。规则互斥时适合一条链；多个条件可以同时成立时，独立的 `if` 可能正是需要的行为。不要因为输出多了一行就机械地删除分支。
+
+### 2.3 第一个失败：没有缩进，不会先打印一部分
+
+以下是**预期语法失败**，不是可交付脚本。可以单独保存为 `missing_indent.py` 实验：
+
+```python expected-error=SyntaxError case=missing_indent
+if True:
+print("Inside")
+print("After")
+```
+
+在执行任何一行之前，Python 就会报告 `IndentationError`，它属于语法错误的一种；本例指向应有缩进的第二行，没有标准输出。补上第二行的四个空格、保留第三行顶格后，才会依次输出 `Inside`、`After`。
+
+缺冒号通常报告 `SyntaxError`；混用缩进可能报告 `TabError`。先核对冒号、块的起点与退回的位置，再看业务条件。**能解析不代表逻辑正确**，下一节以后仍需通过输入变化来验证。
+
+## 3. 真值与逻辑运算：空容器不是 JS 的空对象
+
+### 3.1 条件不要求表达式本身就是 bool
+
+Python 在条件位置判断一个值的真值。`bool(value)` 可以把这种判断显式显示为 True 或 False；这是转换，不是在解析字符串中的英文词语。
+
+本章用到的假值包括 `None`、`False`、数值零、空字符串以及空的列表、元组、字典、集合。非空容器为真，即使里面只放了 False；非空字符串 `"False"` 和 `"0"` 也都为真。
+
+文件：`truthiness.py`。
+
+<Code language="python">{getControlFlowExample('truthiness.py')}</Code>
+
+预期：
+
+```text
+False
+False
+False
+False
+False
+False
+True
+True
+No tasks
+```
+
+`if tasks` 在此表达“列表里有没有条目”，不是“每一条任务是否合格”。`bool([False])` 为 True 正好提醒我们：容器是否非空，与条目的真假是两个问题。
+
+下面是静态语法对照，使用本地脚本验收，不依赖网页运行器：
+
+<PythonEditor title="空容器的真值差异" compare={true} canRun={false}>
+```javascript case=truth_comparison
+console.log(Boolean([]));
+console.log(Boolean({}));
+console.log(Boolean("False"));
+```
+
+```python case=truth_comparison
+print(bool([]))
+print(bool({}))
+print(bool("False"))
 ```
 </PythonEditor>
 
-### 2.3 继承与多态
+Python 输出：
 
-Python 的继承系统比 JavaScript 更加直观和强大。
-
-<PythonEditor title="继承与多态" compare={true}>
-```javascript !! js
-// JavaScript 继承
-class Animal {
-    constructor(name) {
-        this.name = name;
-    }
-    
-    speak() {
-        return `${this.name} 发出声音`;
-    }
-    
-    move() {
-        return `${this.name} 在移动`;
-    }
-}
-
-class Dog extends Animal {
-    constructor(name, breed) {
-        super(name);
-        this.breed = breed;
-    }
-    
-    speak() {
-        return `${this.name} 汪汪叫`;
-    }
-    
-    fetch() {
-        return `${this.name} 在捡球`;
-    }
-}
-
-class Cat extends Animal {
-    constructor(name, color) {
-        super(name);
-        this.color = color;
-    }
-    
-    speak() {
-        return `${this.name} 喵喵叫`;
-    }
-    
-    climb() {
-        return `${this.name} 在爬树`;
-    }
-}
-
-// 多态示例
-const animals = [
-    new Dog("旺财", "金毛"),
-    new Cat("咪咪", "橘色")
-];
-
-animals.forEach(animal => {
-    console.log(animal.speak());
-    console.log(animal.move());
-});
+```text
+False
+False
+True
 ```
 
-```python !! py
-# Python 继承
-class Animal:
-    """动物基类"""
-    
-    def __init__(self, name):
-        self.name = name
-    
-    def speak(self):
-        """发出声音"""
-        return f"{self.name} 发出声音"
-    
-    def move(self):
-        """移动"""
-        return f"{self.name} 在移动"
+JS 输出：
 
-class Dog(Animal):
-    """狗类"""
-    
-    def __init__(self, name, breed):
-        super().__init__(name)  # 调用父类构造函数
-        self.breed = breed
-    
-    def speak(self):
-        """重写父类方法"""
-        return f"{self.name} 汪汪叫"
-    
-    def fetch(self):
-        """狗特有的方法"""
-        return f"{self.name} 在捡球"
+```text
+true
+true
+true
+```
 
-class Cat(Animal):
-    """猫类"""
-    
-    def __init__(self, name, color):
-        super().__init__(name)
-        self.color = color
-    
-    def speak(self):
-        """重写父类方法"""
-        return f"{self.name} 喵喵叫"
-    
-    def climb(self):
-        """猫特有的方法"""
-        return f"{self.name} 在爬树"
+不能直接把前端 `if (items)` 的含义照搬过来；对 JS 数组你通常还需要看 `.length`，这里 Python 空列表本身是假值。规则依据 [Python 真值测试](https://docs.python.org/3.13/library/stdtypes.html#truth-value-testing) 与 [MDN Truthy](https://developer.mozilla.org/en-US/docs/Glossary/Truthy)。
 
-# 多态示例
-animals = [
-    Dog("旺财", "金毛"),
-    Cat("咪咪", "橘色")
+### 3.2 and/or 会短路，也可能返回非 bool 值
+
+| 运算 | 求值过程 | 结果 |
+| --- | --- | --- |
+| `x and y` | 先判断 x；x 为假就不计算 y | 假的 x，或计算得到的 y |
+| `x or y` | 先判断 x；x 为真就不计算 y | 真的 x，或计算得到的 y |
+| `not x` | 判断 x 的真值并取反 | 总是 bool |
+
+这与 JS 的 `&&`、`||`、`!` 有相似之处，但参加判断的值遵循 Python 的真值规则。短路意味着右边**可能根本不执行**，不只是最后结果相同。
+
+文件：`logical.py`。
+
+<Code language="python">{getControlFlowExample('logical.py')}</Code>
+
+预期：
+
+```text
+False
+Untitled
+Ready
+True
+25
+0
+```
+
+- 空列表使 `titles and ...` 停在左边，`titles[0]` 没有求值，因此没有 IndexError；外面的 bool 把返回的空列表变成 False。颠倒两边就失去这层保护。
+- `"" or "Untitled"` 返回的是字符串，不是 True；`"Read" and "Ready"` 同样返回一个操作数。
+- `minutes or 25` 会把合法的 0 改成 25。如果规则是“仅 None 使用默认时长”，就显式写 `if minutes is None`。它不是 JS `??` 的同义写法。
+- 缺失字段与已有 None 仍然不同；要区分它们，继续用 L02 的键成员检查，而不是靠真假推断。
+
+`not` 比 `and` 优先，`and` 比 `or` 优先；比较通常先于这三个运算。初学时把意图写清楚，例如 `(minutes >= 0) and (minutes <= 25)`。本章不依赖复杂运算符组合来考记忆。
+
+**暂停点 A**：运行分支边界表，解释空列表与 `"False"`，修复一次缩进错误。记录最后一个输入、你预测的分支、实际输出；下次从自己的预测恢复，而不是重新安装环境。
+
+## 4. 普通 for：每次绑定一个条目，再执行同一块代码
+
+### 4.1 循环不是先把所有语句复制很多份
+
+对于数量变化的一组任务，我们需要：开始前准备累计值，每次处理一条，最后再输出总结果。
+
+文件：`for_tasks.py`。
+
+<Code language="python">{getControlFlowExample('for_tasks.py')}</Code>
+
+预期：
+
+```text
+Tasks: 3; total: 55 minutes
+Pending: 2
+```
+
+`for task in tasks:` 从列表依次取得条目，每次把名称 `task` 绑定到当前字典，再执行整个缩进块。本例里内层 `if` 多缩进一级；循环结束后的两个 print 退回最外层，只执行一次。
+
+`total = total + task["minutes"]` 先用旧 total 算出新值，再重新绑定；不是数学方程。本章先用完整赋值看清状态变化，不靠缩写隐藏它。
+
+| 时刻 | 当前 minutes / done | total | pending |
+| --- | --- | --- | --- |
+| 循环前 | 还没有当前条目 | 0 | 0 |
+| 第一轮后 | 20 / True | 20 | 0 |
+| 第二轮后 | 35 / False | 55 | 1 |
+| 第三轮后 | 0 / False | 55 | 2 |
+
+把 `tasks` 改成空列表，循环体执行零次，最终总时长和待办数都为 0。初始化在循环前，所以仍有合法的结果。如果把 total 的初始化挪到循环里，每次就会清零；空列表时甚至根本没有执行赋值。
+
+当前保证每条记录有这三个字段，minutes 是非负整数，done 是 bool。`for` 不会自动验证记录结构；少键依然可能 KeyError。这不是处理任意外部输入的校验器。
+
+### 4.2 当前条目是绑定，不是自动复制
+
+文件：`loop_binding.py`。
+
+<Code language="python">{getControlFlowExample('loop_binding.py')}</Code>
+
+预期：
+
+```text
+Read
+Practice
+Practice
+['Read', 'Practice']
+True
+```
+
+这里有三个容易照搬 JS 时误判的点：
+
+1. 普通 `for` 和 `if` 不建立类似 JS `let` 的块级作用域。本例循环至少执行一次，结束后 `title` 仍绑定最后一个字符串。
+2. `title = "Changed"` 只是重新绑定名称，并没有改写 `titles` 的槽位，因此原列表不变。
+3. `task["done"] = True` 修改的是循环取得的那个共享字典，因此列表里的任务也变了。这是 L02 引用关系的延续，不是 for 的额外复制机制。
+
+不要由第一条得出“循环后的变量总是存在”。文件：`errors/empty_loop.py`。
+
+<Code language="python">{getControlFlowExample('errors/empty_loop.py')}</Code>
+
+在独立进程中运行，第四行产生 `NameError`，没有标准输出。空列表没有让循环目标发生任何绑定。不要依赖交互环境里碰巧残留的同名变量来掩盖错误；有意义的累计状态应提前初始化，也不要把“最后一个条目”当作“处理结果”。
+
+## 5. range：明确起点、终点与步长
+
+需要重复若干次或生成整数位置时才引入 `range`，不必把每一次列表遍历都改写成索引操作。最简单的 `range(stop)` 从 0 开始、步长为 1，**不包含 stop**。
+
+三实参形式是 `range(start, stop, step)`；负步长向下走，零步长不合法。本节新增的 `list(...)` 会把可逐项取得的数据收集成一个列表，方便观察，不是所有循环前都必须做一次转换。
+
+文件：`ranges.py`。
+
+<Code language="python">{getControlFlowExample('ranges.py')}</Code>
+
+预期：
+
+```text
+range(0, 3)
+[0, 1, 2]
+[1, 3, 5]
+[3, 2, 1]
+[]
+[]
+1
+2
+3
+```
+
+最后循环中的 `range(1, 4)` 才会给出 1、2、3。`range(3, 0)` 默认向上走，而起点已经超过终点，所以为空；想倒数需要显式负步长。
+
+`range` 是一种可重复遍历的整数序列对象，不是已经展开的列表，也不是生成器。你现在只需理解“可迭代”：for 能从中依次取得条目直到结束。`range` 不事先保存整个整数列表；只有这里为展示而写的 list 转换才收集条目。不要为了打印而展开极大的范围。
+
+文件：`errors/zero_step.py`。
+
+<Code language="python">{getControlFlowExample('errors/zero_step.py')}</Code>
+
+第一行即产生 `ValueError`，不会运行到 print。修复方法是选择非零且符合方向的步长，不是调整缩进。接着把 `range(1, 4)` 改成 `range(1, 1)`，先解释为什么零次迭代是正确行为，再运行。
+
+## 6. 先学解包，再给条目编号
+
+### 6.1 两个位置，两个名称
+
+L02 学过元组。现在把两个位置分别取出，不必写两次下标：赋值左边的两个名称用逗号分隔，会分别接收右边的两个条目。这叫**解包**，不是 JS 对象按属性名解构。
+
+文件：`unpacking.py`。
+
+<Code language="python">{getControlFlowExample('unpacking.py')}</Code>
+
+预期：
+
+```text
+1
+Read
+```
+
+这里按位置分配，不根据名称 number/title 寻找字典键；列表也能做这种固定数量的解包。当前只学条目数量与名称数量完全一致的形式，不引入带星号的收集。
+
+文件：`errors/unpack_pair.py`。
+
+<Code language="python">{getControlFlowExample('errors/unpack_pair.py')}</Code>
+
+第二行产生 `ValueError`：三个条目不能分给两个目标。这不是 IndexError，也不是循环还没遍历完。少一个条目同样不能满足两个目标。回看数据形状，再调整接收数量或显式选择所需位置。
+
+### 6.2 enumerate 把计数与条目放在一起
+
+需要“第几项 + 当前条目”时，使用 `enumerate`，避免自己维护容易错位的计数器。它逐次给出一对值：计数、条目；for 的两个目标每轮解包这一对值。
+
+文件：`numbered_tasks.py`。
+
+<Code language="python">{getControlFlowExample('numbered_tasks.py')}</Code>
+
+预期：
+
+```text
+1. Read
+2. Practice
+Read
+```
+
+`enumerate(titles, start=1)` 中，`start=1` 是**关键字实参**：把这个调用的 start 设置为 1，不是在外面创建一个名叫 start 的变量。省略它，计数默认从 0 开始。完整的参数机制放 L04，现在只需要会读这个调用。
+
+显示编号从 1 开始，并不会让列表下标也从 1 开始；最后的 if 先确认非空，才用 `titles[0]` 取第一项。空列表既不会生成编号，也不会执行这个下标访问。这里 enumerate 给出的迭代器会被遍历消耗；需要重新编号时重新调用，不要把它和可重复遍历的 range 混为一谈；迭代器内部协议以后再学。
+
+## 7. 字典遍历：默认拿到键，不是键值对
+
+文件：`dict_iteration.py`。
+
+<Code language="python">{getControlFlowExample('dict_iteration.py')}</Code>
+
+预期：
+
+```text
+title
+minutes
+title: Read
+minutes: 20
+```
+
+`for key in task` 每次取得一个键。`task.items()` 返回字典键值条目的视图，可逐项取得 `(key, value)` 对；因此第二个循环需要两个解包目标。这个视图不是冻结的快照，也不是列表；本章读取期间不修改字典。
+
+把 `for key, value in task` 当作缩写是错误的：它会尝试把每个键本身解包，而不是自动查询对应的值。有些字符串键长度恰好为 2，甚至可能不报错却给出两个字符，更危险。选择 `.items()` 是在表达需要键与值两者。
+
+字典按插入顺序遍历，这不是按键自动排序；集合不提供这样的顺序承诺。遍历字典时增加或删除键可能触发 RuntimeError 或漏掉条目，本章不依赖这种行为。容器的访问方式不同，不能只更换变量名就期待同一种循环语义。
+
+**暂停点 B**：把三个任务改成零个与一个，确认累计值；用 enumerate 给自己的一组标题编号；说明字典循环取得的是什么。记录一个“循环前／当前条目／循环后”的状态表，下次先用它复述流程。
+
+## 8. while：除了条件，还必须说明如何向结束推进
+
+for 适合“对这些条目逐一操作”；while 适合“只要条件仍成立，就再做一轮”。while 在每轮开始前检查条件，第一次就为假时，一轮也不执行。
+
+我们把一段非负整数分钟数拆成最多 20 分钟的小块。不是等待用户输入，也不是访问服务器，只在已有整数上计算。
+
+文件：`while_budget.py`。
+
+<Code language="python">{getControlFlowExample('while_budget.py')}</Code>
+
+预期：
+
+```text
+Block: 20 minutes
+Block: 20 minutes
+Block: 10 minutes
+Blocks: 3; remaining: 0
+```
+
+| 轮次 | 开始时 remaining | used | 更新后 remaining |
+| --- | --- | --- | --- |
+| 1 | 50 | 20 | 30 |
+| 2 | 30 | 20 | 10 |
+| 3 | 10 | 10 | 0 |
+| 下一次检查 | 0 | 不进入循环 | 结束 |
+
+每轮开始 remaining 为正；used 要么是 20，要么是剩余的正数，因此每轮都让 remaining 减少且不小于 0。**“每轮发生什么进展”与“什么条件结束”要一起解释。** 只写了 `while remaining > 0` 并不保证终止。
+
+验证输入 0、1、20、21，分别应得到 0、1、1、2 块，最后 remaining 都为 0。负数不属于此例约定的输入；它会跳过循环但保留负数，并不等于程序已经校验并修复了数据。
+
+如果误删更新 remaining 的那一行，当前正数输入会无限重复打印。不要为了练习刻意放任它运行；终端出现持续重复时用 `Ctrl+C` 中断，再检查推进语句的位置与数值方向。中断可能显示 `KeyboardInterrupt`，不是系统替你修好了循环。本章不要求捕获这个异常。
+
+## 9. continue 与 break：跳过本轮，不等于结束全部
+
+普通遍历已经学会后，再处理两个具体需求：已完成的任务直接跳过；找到第一项可在预算内完成的待办，就不必再找。
+
+文件：`loop_controls.py`。
+
+<Code language="python">{getControlFlowExample('loop_controls.py')}</Code>
+
+预期：
+
+```text
+Check: Finished
+Check: Long practice
+Check: Zero estimate
+First match: Zero estimate
+```
+
+- `continue` 跳过**当前这一轮的剩余语句**，从下一轮继续，所以 Finished 不参加预算比较。
+- Long practice 未匹配，也会自然进入下一轮；不需要为每一轮都写 continue。
+- `break` 结束**最近一层循环**，随后执行循环外代码；不会直接结束整个脚本，也不会自动退出所有外层循环。
+- `found = None` 在循环前表示尚未找到。匹配后它指向当前任务字典，没有复制；循环后明确用 `is None` 区分无匹配与已匹配。
+- `Check:` 是诊断输出，告诉你实际访问了哪些条目；最后的 Read 没有被访问，是提前结束的证据。
+
+这里保证 minutes 非负且字段存在，budget 也是非负整数。0 分钟待办是合法候选，不应被 `if task["minutes"]` 排除。`task['title']` 在 f-string 花括号里仍是普通字典访问；内外引号不同，便于阅读。
+
+把输入改成空列表，或全部完成，结果应为 `No match`；把 budget 改为 0，Zero estimate 仍然匹配。若把 continue 用在 while 里，必须确认它没有跳过推进变量的更新，否则可能一直停在同一个状态。本章不引入循环的 else 子句或嵌套搜索，避免把基本流程藏起来。
+
+## 10. 逻辑错误实验：一边遍历，一边删除，为什么漏了一项？
+
+文件：`pitfalls/mutation_skip.py`。这是可运行的**错误方案**，没有异常不代表结果正确。
+
+<Code language="python">{getControlFlowExample('pitfalls/mutation_skip.py')}</Code>
+
+实际输出：
+
+```text
+[{'title': 'Second', 'done': True}, {'title': 'Third', 'done': False}]
+```
+
+意图是删除所有已完成任务，但 Second 留下了：
+
+1. 第一轮读到位置 0 的 First，并删除它。
+2. Second 左移到位置 0，Third 左移到位置 1。
+3. 列表遍历继续读取下一个位置 1，拿到 Third；Second 没有再被检查。
+
+`enumerate` 只是附带计数，不会为你冻结列表。不要把“修改当前字典的字段”与“改变正在遍历的列表长度”混成同一种修改；前者改变记录内容，后者会改变后续读取的位置。
+
+改为读取原列表、构建新列表。文件：`safe_filter.py`。
+
+<Code language="python">{getControlFlowExample('safe_filter.py')}</Code>
+
+预期：
+
+```text
+[{'title': 'Third', 'done': False}]
+3
+False
+```
+
+原列表仍有三条，新列表只有待办；False 说明结果列表与原列表不是同一个外层对象，筛选没有删除源数据。
+
+但 **新建结果列表不是深复制**。用下面这个独立的单项实验检查内层共享，而不是在通用筛选脚本末尾写死某个下标：
+
+```python case=filtered_sharing
+task = {"title": "Read", "done": False}
+tasks = [task]
+pending_tasks = []
+for current in tasks:
+    if not current["done"]:
+        pending_tasks.append(current)
+print(pending_tasks[0] is tasks[0])
+pending_tasks[0]["title"] = "Changed"
+print(tasks[0]["title"])
+```
+
+预期：
+
+```text
+True
+Changed
+```
+
+append 保存的是原字典的引用，修改结果列表里的字典也会影响源任务。将来需要隔离编辑，仍要按照 L02 分析可变层。
+
+先用两个连续已完成项暴露错误，再验证全部完成、全部待办、空列表。只拿一条任务做测试，很可能看不到这个缺陷。
+
+## 11. 最后才学列表推导式：缩短已理解的循环
+
+当逻辑只有“遍历 → 可选筛选 → 计算一个结果 → 收集”时，可以用列表推导式表达。它不是一种必须替代所有 for 的高级写法。
+
+文件：`comprehensions.py`。
+
+<Code language="python">{getControlFlowExample('comprehensions.py')}</Code>
+
+预期：
+
+```text
+['Practice', 'Review']
+['Practice', 'Review']
+True
+False
+```
+
+读法是：从 tasks 逐项取 task；保留 `not task["done"]` 成立的项；把 `task["title"]` 放进新的列表。语法把“要放入的表达式”写在最前面，理解时仍从中间的 for 开始读。
+
+没有筛选时可去掉末尾的 if。结果列表保留遍历中的相对顺序，空输入会得到空列表；这里两个结果内容相等，但不是同一个列表对象。这里收集的是字符串；若改成收集 task，就又会共享字典，不能认为推导式自动复制了任务。
+
+与普通 for 还有一个必须知道的差异：推导式的目标名称不泄漏到外面。
+
+```python case=comprehension_binding
+title = "Outside"
+labels = [title for title in ["Read", "Practice"]]
+print(title)
+print(labels)
+```
+
+预期：
+
+```text
+Outside
+['Read', 'Practice']
+```
+
+因此这里只说“生成的列表内容等价”，不说“任何状态变化都与普通循环一样”。完整作用域在 L04 继续展开。不要为了追求一行写法加入多层 for、打印副作用、赋值技巧或复杂条件；一旦需要累计多种状态、break 或清晰的错误分类，保留普通循环更合适。
+
+**暂停点 C**：解释 while 的终止、break 与 continue 的区别，复现删除漏项，再把一个普通筛选循环改成简单推导式。不能解释中间状态时，先保留长写法，不算退步。
+
+## 12. 串起来：不写死数量的任务汇总
+
+现在把分支、累计、空输入和编号组合起来，而不是新增一批 API。这个脚本的输入契约是：tasks 为列表；每项含字符串 title、bool done、非负整数 minutes。
+
+文件：`task_summary.py`。
+
+<Code language="python">{getControlFlowExample('task_summary.py')}</Code>
+
+预期：
+
+```text
+Tasks: 3
+Done: 1; pending: 2
+Remaining: 35 minutes
+Pending average: 17.5 minutes
+1. Practice loops
+2. Check boundaries
+```
+
+为什么这样安排？
+
+- 计数器、累计分钟与结果列表都在循环前初始化，所以零轮也是完整执行路径。
+- 每项要么进入完成分支，要么进入待办分支，不会被重复统计；完成数量与待办数量之和应等于输入数量。
+- 只有待办时长加入 remaining；0 分钟仍然是一项待办，也计入平均值分母。
+- 先判断 pending_count 大于 0，才做除法，避免没有待办时除以零。没有平均值用 `n/a` 表达，不虚构一个业务上有效的 0。
+- `:.1f` 表示把数值显示为一位小数，是格式化，不改变 average 的内部值。最后再用 enumerate 给已收集标题编号。
+
+只改输入，不改统计逻辑，完成下面的检查：
+
+| 输入变化 | 必须观察到的结果 |
+| --- | --- |
+| tasks 改成空列表 | Tasks: 0；done/pending/remaining 都是 0；平均值 n/a；没有编号行 |
+| 所有 done 改成 True | pending 为 0，平均值 n/a；不会除以零 |
+| 只留一条 0 分钟待办 | pending 为 1，平均值 0.0；仍有一行编号 |
+| 再追加一条 5 分钟待办 | 原例 pending 为 3、remaining 为 40、平均值显示 13.3 |
+
+如果少了 minutes，本脚本仍可能失败；我们没有用异常捕获掩盖字段契约。下一道独立练习会明确增加“时长未知”的业务规则，而不是假装所有数据一直完美。
+
+## 13. 三层练习：预测、修复、独立迁移
+
+### 练习 A：不运行，先说清哪一轮停在哪里
+
+```python case=exercise_predict
+minutes_list = [0, 10, 30, 5]
+selected = []
+for minutes in minutes_list:
+    if minutes > 20:
+        break
+    if minutes == 0:
+        continue
+    selected.append(minutes)
+print(selected)
+print(minutes)
+```
+
+写下两个输出，说明 5 为什么没有被处理。如果把第一个 break 改成 continue，会有哪些输出变化？再把列表改为空，说明最后一行在独立运行时是否还能成立。
+
+<details>
+<summary>完成预测与输入变式后查看解释</summary>
+
+原输入输出：
+
+```text
+[10]
+30
+```
+
+0 跳过本轮追加，10 被加入，30 结束循环；绑定已经发生，所以循环后的 minutes 是 30。改为 continue 后，最后的 5 也被加入，输出 `[10, 5]` 和 `5`。改为空列表后会先打印 `[]`，再在最后一行 NameError；应该移除不必要的循环后目标访问，而不是假定循环总有一轮。
+
+</details>
+
+### 练习 B：修复“程序成功退出，却算错了”
+
+以下是完整的错误起点，不是标准实现：
+
+```python case=exercise_reset
+minutes_list = [20, 35, 0]
+for minutes in minutes_list:
+    total = 0
+    total = total + minutes
+print(total)
+```
+
+实际输出：
+
+```text
+0
+```
+
+目标是打印所有时长的和，不应硬编码 55。先画每轮 total 的变化，指出初始化应该发生几次，再独立修复。用 `[20, 35, 5]` 检查 60，用空列表检查 0，用 `[0]` 检查 0。
+
+提示：不仅要让三条记录正确，也要让“循环体一次都没执行”时仍有定义好的结果。
+
+<details>
+<summary>完成修复与三组输入检查后查看参考</summary>
+
+文件：`solutions/fix_total.py`。
+
+<Code language="python">{getControlFlowExample('solutions/fix_total.py')}</Code>
+
+原输入预期：
+
+```text
+55
+```
+
+初始化属于整次计算的开始，而不是每个条目的开始。参考把它移到循环之前，不引入函数或自动求和来跳过这个状态变化。
+
+</details>
+
+### 练习 C：从空文件写学习队列报告
+
+创建 `study_queue.py`，从以下输入开始。除了初始化输入，不复制本章汇总脚本，先把规则写成自己的处理顺序。
+
+```python case=exercise_data
+tasks = [
+    {"title": "Read branches", "minutes": 20, "done": False},
+    {"title": "Review loops", "minutes": 30, "done": True},
+    {"title": "Try empty input", "minutes": 0, "done": False},
+    {"title": "Estimate later", "minutes": None, "done": False},
+    {"title": "Missing estimate", "done": False},
+    {"title": "Repair estimate", "minutes": -5, "done": False},
 ]
-
-for animal in animals:
-    print(animal.speak())
-    print(animal.move())
-```
-</PythonEditor>
-
-### 2.4 特殊方法（魔术方法）
-
-Python 的特殊方法是其面向对象编程的强大特性，类似于 JavaScript 中的 Symbol 方法。
-
-<PythonEditor title="特殊方法示例" compare={true}>
-```javascript !! js
-// JavaScript 特殊方法（使用 Symbol）
-class Vector {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    
-    // 加法运算
-    add(other) {
-        return new Vector(this.x + other.x, this.y + other.y);
-    }
-    
-    // 字符串表示
-    toString() {
-        return `Vector(${this.x}, ${this.y})`;
-    }
-    
-    // 相等比较
-    equals(other) {
-        return this.x === other.x && this.y === other.y;
-    }
-    
-    // 数组解构
-    [Symbol.iterator]() {
-        return [this.x, this.y][Symbol.iterator]();
-    }
-}
-
-const v1 = new Vector(1, 2);
-const v2 = new Vector(3, 4);
-const v3 = v1.add(v2);
-
-console.log(v1.toString());  // "Vector(1, 2)"
-console.log(v3.toString());  // "Vector(4, 6)"
-console.log(v1.equals(v2));  // false
-
-// 解构赋值
-const [x, y] = v1;
-console.log(x, y);  // 1, 2
+budget = 20
 ```
 
-```python !! py
-# Python 特殊方法
-class Vector:
-    """向量类"""
-    
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-    
-    def __add__(self, other):
-        """加法运算（+ 操作符）"""
-        return Vector(self.x + other.x, self.y + other.y)
-    
-    def __sub__(self, other):
-        """减法运算（- 操作符）"""
-        return Vector(self.x - other.x, self.y - other.y)
-    
-    def __mul__(self, scalar):
-        """乘法运算（* 操作符）"""
-        return Vector(self.x * scalar, self.y * scalar)
-    
-    def __eq__(self, other):
-        """相等比较（== 操作符）"""
-        return self.x == other.x and self.y == other.y
-    
-    def __str__(self):
-        """字符串表示（str() 函数）"""
-        return f"Vector({self.x}, {self.y})"
-    
-    def __repr__(self):
-        """详细字符串表示（repr() 函数）"""
-        return f"Vector({self.x}, {self.y})"
-    
-    def __len__(self):
-        """长度（len() 函数）"""
-        return 2
-    
-    def __getitem__(self, index):
-        """索引访问（[] 操作符）"""
-        if index == 0:
-            return self.x
-        elif index == 1:
-            return self.y
-        else:
-            raise IndexError("向量只有两个分量")
-    
-    def __iter__(self):
-        """迭代器（for 循环）"""
-        return iter([self.x, self.y])
+输入边界：每项都有字符串 title 与 bool done；minutes 可能缺失、为 None 或为整数；budget 是非负整数。字符串 `"20"`、False 作为时长以及非字典条目都不在本题输入内，不能声称这是公众输入的完整校验。
 
-# 使用特殊方法
-v1 = Vector(1, 2)
-v2 = Vector(3, 4)
+需求如下：
 
-print(v1)                    # Vector(1, 2)
-print(v1 + v2)              # Vector(4, 6)
-print(v2 - v1)              # Vector(2, 2)
-print(v1 * 3)               # Vector(3, 6)
-print(v1 == v2)             # False
-print(len(v1))              # 2
-print(v1[0], v1[1])         # 1, 2
+1. 输出总任务数与待办数；已完成项不再参与时长分类、累计或候选筛选。
+2. 对待办，缺失 minutes 与明确为 None 都按本题政策归类为 unknown。它们并非语言上相同，只是本题决定同样处理。
+3. 负数时长记为 invalid，不参与累计和候选；不要静默改成 0。0 是合法已知时长。
+4. 累计**所有已知合法待办**的分钟数，不只是预算内候选的时长。
+5. 收集每项时长不超过 budget 的合法待办标题，保持原顺序，从 1 编号。预算是**每项单独比较**，不是从总预算依次扣减，不是在做背包或排程算法。
+6. 不修改源 tasks；不硬编码数量、总和与候选标题。使用普通循环，让多种分类状态可读。
 
-# 迭代
-for component in v1:
-    print(component)         # 1, 2
-```
-</PythonEditor>
+原输入应得到：
 
-
-### 2.5 数据类 (Data Classes)
-
-在 JavaScript 中，我们经常使用对象字面量或接口（TypeScript）来存储数据。在 Python 3.7+ 中，`dataclasses` 提供了一种类似且类型安全的方式来定义数据持有类，而无需编写繁琐的 `__init__` 方法。
-
-<PythonEditor title="Data Classes 对比" compare={true}>
-```javascript !! js
-// JavaScript / TypeScript
-// 定义数据结构
-class User {
-    constructor(id, name, email) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-    }
-}
-
-const user = new User(1, "张三", "zhangsan@example.com");
-console.log(user);
+```text
+Tasks: 6; pending: 5
+Known pending time: 20 minutes
+Unknown: 2; invalid: 1
+Ready within 20 minutes each: 2
+1. Read branches
+2. Try empty input
 ```
 
-```python !! py
-# Python Data Classes (Python 3.7+)
-from dataclasses import dataclass
+运行自己的文件：
 
-@dataclass
-class User:
-    id: int
-    name: str
-    email: str
-
-# 自动生成 __init__, __repr__, __eq__ 等方法
-user = User(1, "张三", "zhangsan@example.com")
-print(user)
-# 输出: User(id=1, name='张三', email='zhangsan@example.com')
-
-# 比较
-user2 = User(1, "张三", "zhangsan@example.com")
-print(user == user2)  # True (自动实现值比较)
-```
-</PythonEditor>
-
-> 💡 **提示**：`dataclass` 是处理结构化数据的现代 Python 方式，比普通的类更简洁，比字典更安全（支持类型提示）。
-
-## 3. 函数式编程特性
-
-
-### 3.1 高阶函数
-
-Python 支持高阶函数，类似于 JavaScript 中的函数式编程概念。
-
-<PythonEditor title="高阶函数示例" compare={true}>
-```javascript !! js
-// JavaScript 高阶函数
-const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-// map - 转换数组
-const doubled = numbers.map(x => x * 2);
-console.log(doubled); // [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-
-// filter - 过滤数组
-const evens = numbers.filter(x => x % 2 === 0);
-console.log(evens); // [2, 4, 6, 8, 10]
-
-// reduce - 归约数组
-const sum = numbers.reduce((acc, x) => acc + x, 0);
-console.log(sum); // 55
-
-// 组合使用
-const result = numbers
-    .filter(x => x % 2 === 0)
-    .map(x => x * 2)
-    .reduce((acc, x) => acc + x, 0);
-console.log(result); // 60
-
-// 函数作为参数
-function applyOperation(numbers, operation) {
-    return numbers.map(operation);
-}
-
-const squared = applyOperation(numbers, x => x ** 2);
-console.log(squared); // [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+```bash
+uv run --no-project --python 3.13 python study_queue.py
 ```
 
-```python !! py
-# Python 高阶函数
-numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+继续做变式，每次先恢复原输入，再改指定部分：
 
-# map - 转换序列
-doubled = list(map(lambda x: x * 2, numbers))
-print(doubled)  # [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+| 变式 | 验收重点 |
+| --- | --- |
+| 空列表 | 所有计数与分钟数为 0；候选为 0；无编号行、不报错 |
+| 所有任务已完成 | 总数仍为 6；其他计数与分钟数为 0，即使其时长缺失或为负也不参加待办分类 |
+| budget 改成 0 | 待办总时长仍为 20；只有 Try empty input 入选 |
+| Read branches 时长改成 21 | 总时长为 21，但它不再入选；边界用的是不超过预算 |
+| 给 Missing estimate 补 minutes = 5 | unknown 从 2 变成 1；总时长变成 25；候选变成三项、顺序不变 |
+| 追加一条 60 分钟未完成项 | 总数 7、待办 6、总时长 80；候选仍为两项 |
 
-# filter - 过滤序列
-evens = list(filter(lambda x: x % 2 == 0, numbers))
-print(evens)  # [2, 4, 6, 8, 10]
+最后解释：为什么用 `minutes or 0` 会抹掉未知数据的含义？为什么要先排除已完成项再看 minutes？为什么只测原来的六条还不足以说明程序处理了空输入？
 
-# reduce - 归约序列
-from functools import reduce
-sum_result = reduce(lambda acc, x: acc + x, numbers, 0)
-print(sum_result)  # 55
+<details>
+<summary>独立实现并完成输入变式后查看参考答案</summary>
 
-# 组合使用
-result = reduce(
-    lambda acc, x: acc + x,
-    map(lambda x: x * 2, filter(lambda x: x % 2 == 0, numbers)),
-    0
-)
-print(result)  # 60
+文件：`solutions/study_queue.py`。
 
-# 函数作为参数
-def apply_operation(numbers, operation):
-    """应用操作到数字列表"""
-    return list(map(operation, numbers))
+<Code language="python">{getControlFlowExample('solutions/study_queue.py')}</Code>
 
-squared = apply_operation(numbers, lambda x: x ** 2)
-print(squared)  # [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
-```
-</PythonEditor>
+参考先排除已完成项，再给待办分类，因此缺失、None、负数不会错误进入数值加法或预算比较。get 在这里是按明确政策合并缺失与 None，不是忘记它们的差异。
 
-### 3.2 Lambda 函数
+一项待办进入 unknown、invalid 或已知合法三类之一；只有最后一类可能成为候选。候选数量可以小于合法待办数量，因此 known_minutes 不能只在追加候选时累计。多个合法实现都可接受，验收针对行为和解释，不要求逐字复制答案。
 
-Python 的 lambda 函数类似于 JavaScript 的箭头函数，但功能更有限。
+</details>
 
-<PythonEditor title="Lambda 函数对比" compare={true}>
-```javascript !! js
-// JavaScript 箭头函数
-const add = (a, b) => a + b;
-const square = x => x * x;
-const isEven = x => x % 2 === 0;
+## 14. 离开本章前，应能独立证明什么？
 
-// 多行箭头函数
-const processNumber = x => {
-    const squared = x * x;
-    return squared > 10 ? squared : 0;
-};
+- 能用执行路径解释缩进和分支顺序，而不是只说“语法长这样”。
+- 能预测空容器、非空字符串、and/or 的返回值与短路；不会用真假默认值吞掉合法 0。
+- 能在循环前初始化结果，画出每轮状态，正确处理零次、一次、多次迭代。
+- 能解释范围的排除终点、编号与下标的区别、解包的数量约束与字典默认遍历内容。
+- 能说明 while 的推进与终止、continue 和 break 的控制范围，不让代码依赖循环后的偶然绑定。
+- 能复现并修复遍历删除的漏项；知道结果列表与内部字典的共享边界。
+- 能先写普通循环，再在适合时改成简单推导式；不把可读性换成一行代码。
+- 能从空文件完成队列报告及所有输入变式，说明计数、时长、未知和无匹配各自的含义。
 
-// 立即执行函数
-const result = ((x, y) => x + y)(5, 3);
-console.log(result); // 8
+**暂停／恢复记录**：保存当前文件名、最后一次输入和输出、已通过的边界、尚未解释的状态、下次第一步。时间不固定时，可在三个暂停点与独立练习之间分开学习；没有“必须一周完成”的要求。恢复时先跑最后成功的文件，再预测一个新输入。
 
-// 在数组方法中使用
-const numbers = [1, 2, 3, 4, 5];
-const doubled = numbers.map(x => x * 2);
-const evens = numbers.filter(x => x % 2 === 0);
-const sum = numbers.reduce((acc, x) => acc + x, 0);
+下一步是 [L04「函数、参数与作用域」](/zh-cn/docs/js2py/module-04-async-programming)：在能读懂完整控制流之后，再把重复规则抽成可调用单元。目前 L00—L04 已按新契约实现；后续旧页面仍待重编，旧第 05 章不自动等于新 L05。原第 03 章的对象与函数素材已归档，相关主题会按先修要求重新安排，不是被删除。
 
-console.log(doubled); // [2, 4, 6, 8, 10]
-console.log(evens);   // [2, 4]
-console.log(sum);     // 15
-```
+## 15. 官方资料与本章边界
 
-```python !! py
-from functools import reduce
-# Python lambda 函数
-add = lambda a, b: a + b
-square = lambda x: x * x
-is_even = lambda x: x % 2 == 0
+本章采用 CPython 3.13 教学基线，不声称它是最新版本。2026-09-23 核对以下第一手资料；链接用于继续查阅，不能代替正文实验：
 
-# lambda 函数只能包含单个表达式
-# 不能包含多行代码或复杂逻辑
+- [控制流教程](https://docs.python.org/3.13/tutorial/controlflow.html)：if、for、range、break 与 continue；教程后半包含尚未学的函数内容，不要求整页提前读完。
+- [复合语句参考](https://docs.python.org/3.13/reference/compound_stmts.html)：语句块、while 条件检查、for 目标绑定及空遍历行为。
+- [布尔运算](https://docs.python.org/3.13/library/stdtypes.html#boolean-operations-and-or-not)：短路与返回操作数，而不是总返回 bool。
+- [遍历技巧](https://docs.python.org/3.13/tutorial/datastructures.html#looping-techniques)与 [enumerate](https://docs.python.org/3.13/library/functions.html#enumerate)：编号、解包和字典条目。
+- [列表推导式](https://docs.python.org/3.13/tutorial/datastructures.html#list-comprehensions)与 [推导式名称边界](https://docs.python.org/3.13/reference/expressions.html#displays-for-lists-sets-and-dictionaries)：结果生成和目标名称不外泄。
 
-# 立即执行函数
-result = (lambda x, y: x + y)(5, 3)
-print(result)  # 8
-
-# 在函数式编程中使用
-numbers = [1, 2, 3, 4, 5]
-doubled = list(map(lambda x: x * 2, numbers))
-evens = list(filter(lambda x: x % 2 == 0, numbers))
-sum_result = reduce(lambda acc, x: acc + x, numbers, 0)
-
-print(doubled)    # [2, 4, 6, 8, 10]
-print(evens)      # [2, 4]
-print(sum_result) # 15
-
-# lambda 函数的限制
-# 不能包含赋值语句
-# 不能包含条件语句（但可以使用三元运算符）
-process_number = lambda x: x * x if x > 2 else 0
-```
-</PythonEditor>
-
-### 3.3 列表推导式
-
-列表推导式是 Python 的特色功能，类似于 JavaScript 的 map 和 filter 的组合。
-
-<PythonEditor title="列表推导式对比" compare={true}>
-```javascript !! js
-// JavaScript 数组方法
-const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-// 基本映射
-const doubled = numbers.map(x => x * 2);
-
-// 条件过滤
-const evens = numbers.filter(x => x % 2 === 0);
-
-// 组合操作
-const result = numbers
-    .filter(x => x % 2 === 0)
-    .map(x => x * 2);
-
-// 嵌套数组处理
-const matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
-const flattened = matrix.flat();
-const doubledMatrix = matrix.map(row => row.map(x => x * 2));
-
-console.log(doubled);      // [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-console.log(evens);        // [2, 4, 6, 8, 10]
-console.log(result);       // [4, 8, 12, 16, 20]
-console.log(flattened);    // [1, 2, 3, 4, 5, 6, 7, 8, 9]
-console.log(doubledMatrix); // [[2, 4, 6], [8, 10, 12], [14, 16, 18]]
-```
-
-```python !! py
-# Python 列表推导式
-numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
-# 基本映射
-doubled = [x * 2 for x in numbers]
-
-# 条件过滤
-evens = [x for x in numbers if x % 2 == 0]
-
-# 组合操作（过滤 + 映射）
-result = [x * 2 for x in numbers if x % 2 == 0]
-
-# 嵌套列表处理
-matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-flattened = [x for row in matrix for x in row]
-doubled_matrix = [[x * 2 for x in row] for row in matrix]
-
-print(doubled)        # [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-print(evens)          # [2, 4, 6, 8, 10]
-print(result)         # [4, 8, 12, 16, 20]
-print(flattened)      # [1, 2, 3, 4, 5, 6, 7, 8, 9]
-print(doubled_matrix) # [[2, 4, 6], [8, 10, 12], [14, 16, 18]]
-
-# 字典推导式
-squares = {x: x ** 2 for x in range(5)}
-print(squares)  # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
-
-# 集合推导式
-unique_squares = {x ** 2 for x in [1, 2, 2, 3, 3, 4]}
-print(unique_squares)  # {1, 4, 9, 16}
-```
-</PythonEditor>
-
-## 4. 装饰器
-
-装饰器是 Python 的独特特性，类似于 JavaScript 中的高阶组件或中间件。
-
-### 4.1 基本装饰器
-
-<PythonEditor title="基本装饰器示例" compare={true}>
-```javascript !! js
-// JavaScript 高阶函数（类似装饰器）
-function logFunction(func) {
-    return function(...args) {
-        console.log(`调用函数: ${func.name}`);
-        console.log(`参数:`, args);
-        const result = func(...args);
-        console.log(`结果:`, result);
-        return result;
-    };
-}
-
-function add(a, b) {
-    return a + b;
-}
-
-function multiply(a, b) {
-    return a * b;
-}
-
-// 应用装饰器
-const loggedAdd = logFunction(add);
-const loggedMultiply = logFunction(multiply);
-
-loggedAdd(5, 3);
-loggedMultiply(4, 2);
-
-// 使用装饰器语法（需要 Babel 插件）
-// @logFunction
-// function add(a, b) {
-//     return a + b;
-// }
-```
-
-```python !! py
-# Python 装饰器
-def log_function(func):
-    """日志装饰器"""
-    def wrapper(*args, **kwargs):
-        print(f"调用函数: {func.__name__}")
-        print(f"参数: {args}, {kwargs}")
-        result = func(*args, **kwargs)
-        print(f"结果: {result}")
-        return result
-    return wrapper
-
-# 使用装饰器语法
-@log_function
-def add(a, b):
-    """加法函数"""
-    return a + b
-
-@log_function
-def multiply(a, b):
-    """乘法函数"""
-    return a * b
-
-# 调用函数
-add(5, 3)
-multiply(4, 2)
-
-# 等价于：
-# add = log_function(add)
-# multiply = log_function(multiply)
-```
-</PythonEditor>
-
-### 4.2 带参数的装饰器
-
-<PythonEditor title="带参数的装饰器" compare={true}>
-```javascript !! js
-// JavaScript 带参数的高阶函数
-function retry(maxAttempts = 3, delay = 1000) {
-    return function(func) {
-        return function(...args) {
-            let lastError;
-            
-            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-                try {
-                    console.log(`尝试第 ${attempt} 次`);
-                    return func(...args);
-                } catch (error) {
-                    lastError = error;
-                    console.log(`第 ${attempt} 次失败:`, error.message);
-                    
-                    if (attempt < maxAttempts) {
-                        console.log(`等待 ${delay}ms 后重试...`);
-                        // 在实际环境中使用 setTimeout
-                    }
-                }
-            }
-            
-            throw lastError;
-        };
-    };
-}
-
-function unreliableFunction() {
-    if (Math.random() < 0.7) {
-        throw new Error("随机失败");
-    }
-    return "成功！";
-}
-
-// 应用装饰器
-const retryFunction = retry(3, 1000)(unreliableFunction);
-// retryFunction();
-```
-
-```python !! py
-# Python 带参数的装饰器
-import time
-import random
-
-def retry(max_attempts=3, delay=1):
-    """重试装饰器"""
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            last_error = None
-            
-            for attempt in range(1, max_attempts + 1):
-                try:
-                    print(f"尝试第 {attempt} 次")
-                    return func(*args, **kwargs)
-                except Exception as error:
-                    last_error = error
-                    print(f"第 {attempt} 次失败: {error}")
-                    
-                    if attempt < max_attempts:
-                        print(f"等待 {delay} 秒后重试...")
-                        time.sleep(delay)
-            
-            raise last_error
-        return wrapper
-    return decorator
-
-@retry(max_attempts=3, delay=1)
-def unreliable_function():
-    """不可靠的函数"""
-    if random.random() < 0.7:
-        raise ValueError("随机失败")
-    return "成功！"
-
-# 调用函数
-try:
-    result = unreliable_function()
-    print(f"最终结果: {result}")
-except Exception as e:
-    print(f"所有尝试都失败了: {e}")
-```
-</PythonEditor>
-
-### 4.3 类装饰器
-
-<PythonEditor title="类装饰器示例" compare={true}>
-```javascript !! js
-// JavaScript 类装饰器（概念性）
-function singleton(Class) {
-    let instance = null;
-    
-    return class extends Class {
-        constructor(...args) {
-            if (instance) {
-                return instance;
-            }
-            super(...args);
-            instance = this;
-        }
-    };
-}
-
-// 使用装饰器
-// @singleton
-// class Database {
-//     constructor() {
-//         this.connection = "数据库连接";
-//     }
-// }
-
-// 手动应用
-class Database {
-    constructor() {
-        this.connection = "数据库连接";
-    }
-}
-
-const SingletonDatabase = singleton(Database);
-const db1 = new SingletonDatabase();
-const db2 = new SingletonDatabase();
-console.log(db1 === db2); // true
-```
-
-```python !! py
-# Python 类装饰器
-def singleton(cls):
-    """单例装饰器"""
-    instances = {}
-    
-    def get_instance(*args, **kwargs):
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
-    
-    return get_instance
-
-@singleton
-class Database:
-    """数据库类"""
-    
-    def __init__(self):
-        self.connection = "数据库连接"
-        print("创建数据库连接")
-    
-    def query(self, sql):
-        return f"执行查询: {sql}"
-
-# 测试单例
-db1 = Database()
-db2 = Database()
-print(db1 is db2)  # True
-
-print(db1.query("SELECT * FROM users"))
-print(db2.query("SELECT * FROM products"))
-```
-</PythonEditor>
-
-## 5. 实际项目示例
-
-### 5.1 数据验证器
-
-让我们创建一个数据验证器，展示面向对象和函数式编程的结合使用。
-
-<PythonEditor title="数据验证器示例" compare={true}>
-```javascript !! js
-// JavaScript 数据验证器
-class Validator {
-    constructor() {
-        this.rules = [];
-    }
-    
-    addRule(rule) {
-        this.rules.push(rule);
-        return this;
-    }
-    
-    validate(data) {
-        const errors = [];
-        
-        for (const rule of this.rules) {
-            try {
-                rule(data);
-            } catch (error) {
-                errors.push(error.message);
-            }
-        }
-        
-        return {
-            isValid: errors.length === 0,
-            errors
-        };
-    }
-}
-
-// 验证规则
-const isString = (data) => {
-    if (typeof data !== 'string') {
-        throw new Error('必须是字符串');
-    }
-};
-
-const minLength = (min) => (data) => {
-    if (data.length < min) {
-        throw new Error(`长度不能少于 ${min} 个字符`);
-    }
-};
-
-const maxLength = (max) => (data) => {
-    if (data.length > max) {
-        throw new Error(`长度不能超过 ${max} 个字符`);
-    }
-};
-
-const pattern = (regex) => (data) => {
-    if (!regex.test(data)) {
-        throw new Error('格式不正确');
-    }
-};
-
-// 使用验证器
-const userValidator = new Validator()
-    .addRule(isString)
-    .addRule(minLength(3))
-    .addRule(maxLength(20))
-    .addRule(pattern(/^[a-zA-Z0-9_]+$/));
-
-const result = userValidator.validate("john_doe");
-console.log(JSON.stringify(result, null, 2));
-```
-
-```python !! py
-# Python 数据验证器
-from typing import Callable, List, Dict, Any
-import re
-
-class Validator:
-    """数据验证器类"""
-    
-    def __init__(self):
-        self.rules: List[Callable] = []
-    
-    def add_rule(self, rule: Callable) -> 'Validator':
-        """添加验证规则"""
-        self.rules.append(rule)
-        return self
-    
-    def validate(self, data: Any) -> Dict[str, Any]:
-        """验证数据"""
-        errors = []
-        
-        for rule in self.rules:
-            try:
-                rule(data)
-            except ValueError as error:
-                errors.append(str(error))
-        
-        return {
-            'is_valid': len(errors) == 0,
-            'errors': errors
-        }
-
-# 验证规则（函数式风格）
-def is_string(data: Any) -> None:
-    """检查是否为字符串"""
-    if not isinstance(data, str):
-        raise ValueError('必须是字符串')
-
-def min_length(min_len: int) -> Callable:
-    """最小长度验证器"""
-    def validator(data: str) -> None:
-        if len(data) < min_len:
-            raise ValueError(f'长度不能少于 {min_len} 个字符')
-    return validator
-
-def max_length(max_len: int) -> Callable:
-    """最大长度验证器"""
-    def validator(data: str) -> None:
-        if len(data) > max_len:
-            raise ValueError(f'长度不能超过 {max_len} 个字符')
-    return validator
-
-def pattern(regex: str) -> Callable:
-    """正则表达式验证器"""
-    def validator(data: str) -> None:
-        if not re.match(regex, data):
-            raise ValueError('格式不正确')
-    return validator
-
-# 使用验证器
-user_validator = (Validator()
-    .add_rule(is_string)
-    .add_rule(min_length(3))
-    .add_rule(max_length(20))
-    .add_rule(pattern(r'^[a-zA-Z0-9_]+$')))
-
-result = user_validator.validate("john_doe")
-print(result)
-
-# 测试无效数据
-invalid_result = user_validator.validate("ab")
-print(invalid_result)
-```
-</PythonEditor>
-
-### 5.2 缓存装饰器
-
-<PythonEditor title="缓存装饰器示例" compare={true}>
-```javascript !! js
-// JavaScript 缓存装饰器
-function memoize(func) {
-    const cache = new Map();
-    
-    return function(...args) {
-        const key = JSON.stringify(args);
-        
-        if (cache.has(key)) {
-            console.log('从缓存获取结果');
-            return cache.get(key);
-        }
-        
-        console.log('计算新结果');
-        const result = func(...args);
-        cache.set(key, result);
-        return result;
-    };
-}
-
-// 使用缓存装饰器
-const expensiveFunction = memoize(function(n) {
-    console.log(`计算 ${n} 的阶乘...`);
-    let result = 1;
-    for (let i = 2; i <= n; i++) {
-        result *= i;
-    }
-    return result;
-});
-
-console.log(expensiveFunction(5));  // 计算新结果
-console.log(expensiveFunction(5));  // 从缓存获取结果
-console.log(expensiveFunction(6));  // 计算新结果
-```
-
-```python !! py
-# Python 缓存装饰器
-from functools import wraps
-import json
-from typing import Any, Dict
-
-def memoize(func):
-    """缓存装饰器"""
-    cache: Dict[str, Any] = {}
-    
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        # 创建缓存键
-        key = json.dumps((args, sorted(kwargs.items())))
-        
-        if key in cache:
-            print('从缓存获取结果')
-            return cache[key]
-        
-        print('计算新结果')
-        result = func(*args, **kwargs)
-        cache[key] = result
-        return result
-    
-    return wrapper
-
-@memoize
-def expensive_function(n: int) -> int:
-    """计算阶乘的昂贵函数"""
-    print(f'计算 {n} 的阶乘...')
-    result = 1
-    for i in range(2, n + 1):
-        result *= i
-    return result
-
-# 测试缓存
-print(expensive_function(5))  # 计算新结果
-print(expensive_function(5))  # 从缓存获取结果
-print(expensive_function(6))  # 计算新结果
-
-# 使用内置的 lru_cache
-from functools import lru_cache
-
-@lru_cache(maxsize=128)
-def fibonacci(n: int) -> int:
-    """斐波那契数列（带缓存）"""
-    if n < 2:
-        return n
-    return fibonacci(n - 1) + fibonacci(n - 2)
-
-print(fibonacci(10))  # 快速计算，使用缓存
-```
-</PythonEditor>
-
-## 6. 练习题
-
-### 练习 1：创建学生管理系统
-
-<PythonEditor title="练习题 1：学生管理系统" compare={true}>
-```javascript !! js
-// 创建学生管理系统
-class Student {
-    constructor(id, name, age, grades = []) {
-        this.id = id;
-        this.name = name;
-        this.age = age;
-        this.grades = grades;
-    }
-    
-    addGrade(grade) {
-        this.grades.push(grade);
-    }
-    
-    getAverage() {
-        if (this.grades.length === 0) return 0;
-        return this.grades.reduce((sum, grade) => sum + grade, 0) / this.grades.length;
-    }
-    
-    toString() {
-        return `Student(${this.id}, ${this.name}, ${this.age})`;
-    }
-}
-
-class StudentManager {
-    constructor() {
-        this.students = new Map();
-    }
-    
-    addStudent(student) {
-        this.students.set(student.id, student);
-    }
-    
-    getStudent(id) {
-        return this.students.get(id);
-    }
-    
-    getAllStudents() {
-        return Array.from(this.students.values());
-    }
-    
-    getTopStudents(limit = 3) {
-        return this.getAllStudents()
-            .sort((a, b) => b.getAverage() - a.getAverage())
-            .slice(0, limit);
-    }
-    
-    getStudentsByAgeRange(minAge, maxAge) {
-        return this.getAllStudents()
-            .filter(student => student.age >= minAge && student.age <= maxAge);
-    }
-}
-
-// 使用示例
-const manager = new StudentManager();
-
-const student1 = new Student(1, "张三", 20);
-student1.addGrade(85);
-student1.addGrade(90);
-
-const student2 = new Student(2, "李四", 19);
-student2.addGrade(92);
-student2.addGrade(88);
-
-manager.addStudent(student1);
-manager.addStudent(student2);
-
-console.log("所有学生:", manager.getAllStudents());
-console.log("优秀学生:", manager.getTopStudents(2));
-```
-
-```python !! py
-# 创建学生管理系统
-from typing import List, Dict, Optional
-from dataclasses import dataclass, field
-
-@dataclass
-class Student:
-    """学生类 (使用 dataclass 自动生成 __init__, __repr__ 等)"""
-    id: int
-    name: str
-    age: int
-    grades: List[float] = field(default_factory=list)
-    
-    def add_grade(self, grade: float) -> None:
-        """添加成绩"""
-        self.grades.append(grade)
-    
-    def get_average(self) -> float:
-        """计算平均分"""
-        if not self.grades:
-            return 0.0
-        return sum(self.grades) / len(self.grades)
-    
-    def __str__(self) -> str:
-        return f"Student({self.id}, {self.name}, {self.age})"
-
-class StudentManager:
-    """学生管理器"""
-    
-    def __init__(self):
-        self.students: Dict[int, Student] = {}
-    
-    def add_student(self, student: Student) -> None:
-        """添加学生"""
-        self.students[student.id] = student
-    
-    def get_student(self, student_id: int) -> Optional[Student]:
-        """获取学生"""
-        return self.students.get(student_id)
-    
-    def get_all_students(self) -> List[Student]:
-        """获取所有学生"""
-        return list(self.students.values())
-    
-    def get_top_students(self, limit: int = 3) -> List[Student]:
-        """获取优秀学生"""
-        return sorted(
-            self.get_all_students(),
-            key=lambda s: s.get_average(),
-            reverse=True
-        )[:limit]
-    
-    def get_students_by_age_range(self, min_age: int, max_age: int) -> List[Student]:
-        """按年龄范围获取学生"""
-        return [
-            student for student in self.get_all_students()
-            if min_age <= student.age <= max_age
-        ]
-
-# 使用示例
-manager = StudentManager()
-
-student1 = Student(1, "张三", 20)
-student1.add_grade(85)
-student1.add_grade(90)
-
-student2 = Student(2, "李四", 19)
-student2.add_grade(92)
-student2.add_grade(88)
-
-manager.add_student(student1)
-manager.add_student(student2)
-
-print("所有学生:", manager.get_all_students())
-print("优秀学生:", manager.get_top_students(2))
-```
-</PythonEditor>
-
-### 练习 2：函数式编程练习
-
-<PythonEditor title="练习题 2：函数式编程" compare={true}>
-```javascript !! js
-// 函数式编程练习
-const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-// 1. 找出所有偶数的平方
-const evenSquares = numbers
-    .filter(x => x % 2 === 0)
-    .map(x => x * x);
-
-// 2. 计算所有奇数的和
-const oddSum = numbers
-    .filter(x => x % 2 === 1)
-    .reduce((sum, x) => sum + x, 0);
-
-// 3. 找出所有大于5的数的立方
-const largeCubes = numbers
-    .filter(x => x > 5)
-    .map(x => x ** 3);
-
-console.log("偶数的平方:", evenSquares);
-console.log("奇数的和:", oddSum);
-console.log("大于5的数的立方:", largeCubes);
-```
-
-```python !! py
-# 函数式编程练习
-numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
-# 1. 找出所有偶数的平方
-even_squares = [x ** 2 for x in numbers if x % 2 == 0]
-
-# 2. 计算所有奇数的和
-odd_sum = sum(x for x in numbers if x % 2 == 1)
-
-# 3. 找出所有大于5的数的立方
-large_cubes = [x ** 3 for x in numbers if x > 5]
-
-print("偶数的平方:", even_squares)
-print("奇数的和:", odd_sum)
-print("大于5的数的立方:", large_cubes)
-
-# 使用函数式方法
-from functools import reduce
-
-even_squares_func = list(map(lambda x: x ** 2, filter(lambda x: x % 2 == 0, numbers)))
-odd_sum_func = reduce(lambda acc, x: acc + x, filter(lambda x: x % 2 == 1, numbers), 0)
-large_cubes_func = list(map(lambda x: x ** 3, filter(lambda x: x > 5, numbers)))
-
-print("函数式方法 - 偶数的平方:", even_squares_func)
-print("函数式方法 - 奇数的和:", odd_sum_func)
-print("函数式方法 - 大于5的数的立方:", large_cubes_func)
-```
-</PythonEditor>
-
-## 7. 总结
-
-### 关键概念回顾
-
-1. **面向对象编程**
-   - 类定义和实例化
-   - 继承和多态
-   - 特殊方法（魔术方法）
-   - 类变量和实例变量
-
-2. **函数式编程**
-   - 高阶函数（map, filter, reduce）
-   - Lambda 函数
-   - 列表推导式
-   - 函数作为参数和返回值
-
-3. **装饰器**
-   - 基本装饰器
-   - 带参数的装饰器
-   - 类装饰器
-   - 实际应用场景
-
-### JavaScript vs Python 对比总结
-
-| 概念 | JavaScript | Python | 说明 |
-|------|------------|--------|------|
-| **类定义** | `class ClassName` | `class ClassName:` | Python 使用冒号 |
-| **构造函数** | `constructor()` | `__init__(self)` | Python 需要 self 参数 |
-| **继承** | `extends` | `(ParentClass)` | Python 使用括号语法 |
-| **特殊方法** | Symbol 方法 | `__method__` | Python 更丰富的特殊方法 |
-| **高阶函数** | 内置方法 | `map`, `filter`, `reduce` | 概念相同，语法不同 |
-| **匿名函数** | 箭头函数 | `lambda` | Python lambda 功能有限 |
-| **装饰器** | 高阶函数 | `@decorator` | Python 有语法糖支持 |
-
-### 最佳实践
-
-1. **面向对象编程**
-   - 使用 `@dataclass` 简化数据类
-   - 合理使用继承和组合
-   - 实现适当的特殊方法
-   - 遵循单一职责原则
-
-2. **函数式编程**
-   - 优先使用列表推导式
-   - 合理使用 lambda 函数
-   - 避免过度嵌套
-   - 保持函数纯净性
-
-3. **装饰器**
-   - 使用 `@wraps` 保持函数元数据
-   - 合理设计装饰器参数
-   - 注意装饰器的执行顺序
-   - 避免过度使用装饰器
-
-### 下一步学习
-
-在下一个模块中，我们将学习：
-- Python 异步编程（async/await）
-- 事件循环机制
-- 异步 Web 开发
-- 并发编程基础
-
-这些概念将帮助你构建高性能的 Python 应用程序，特别是在 Web 开发和数据处理方面。 
+本章没有通用输入校验、持久化、并发控制或服务器；while 演示也不是生产重试策略。先把每条数据怎样经过控制流讲清，是后续函数、文件和后端规则的基础，不是已经获得上线能力。

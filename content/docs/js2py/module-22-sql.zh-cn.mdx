@@ -1,0 +1,170 @@
+---
+title: SQL 与参数化查询：从结果推导查询，而不是拼字符串
+description: 逐步推导过滤、稳定排序、分页、JOIN、聚合与 NULL，讲清同步驱动、连接、游标和占位符的职责，真实验证 CRUD、注入边界及结果陷阱。
+---
+
+import { getSqlExample } from '@/lib/js2py-examples'
+
+## 1. 先说清要什么结果，再写 SQL
+
+D01 已经让服务器守住记录的形状；现在的问题是“返回哪些记录、怎样组合、按什么顺序”。把整库搬回 Python 再 filter/map，不只是网络浪费：它绕过了数据库擅长的集合计算，还把分页等职责拆散。SQL 描述要得到的关系结果，执行器决定具体读取路径；你不是用 SQL 指挥一个逐行 JavaScript for 循环。
+
+| 章节契约 | 范围 |
+| --- | --- |
+| 前置 | D01 的独占 PostgreSQL、四表关系和约束；L/H 的函数、异常、测试和请求输入 |
+| 新能力 | CRUD、过滤、排序、分页、JOIN、聚合、NULL；驱动、游标、参数与 SQL 结构边界 |
+| 独立验收 | 先预测种子数据结果，再写查询；用恶意字符串证明它是值；独立写项目报告 |
+| 暂不要求 | ORM、索引调优、HTTP/认证接入、连接池；多语句原子操作在 D03 |
+
+下载 [D02 完整实验](/learning-assets/js2py/d02-sql.zip)，进入 `d02-sql`。它包含独立的 D01 同款结构和种子，不连接上一章仍在运行的数据库，也不要求认证系统。`done → status`、`note → description`、保留估时 `minutes` 是显式模型演进，绝非把旧内存字典直接写入数据库。
+
+## 2. 重建检查点，认领本章的独占服务器
+
+固定基线与核验日：**2026-09-28；PostgreSQL 18.6、Python 3.13.15、uv 0.12.13、pytest 8.4.2、psycopg 3.3.6**。使用 D01 已解释的工具、私有数据目录、角色和 Unix socket；所有命令在本章目录执行。
+
+**连接环境检查点。** libpq 除了读取连接串，还会读取环境默认值，例如 `PGHOSTADDR` 指定网络地址，`PGSERVICE` 加载保存的连接配置。因此控制器在启动或 SQL 之前，拒绝除 `PG_BIN`（工具目录）与 `PGHOST`（被显式私有 socket 覆盖）以外的全部 `PG*`，报错只列变量名，不列值。被拒绝时，在本实验终端中检查并移除报出的设置，再重试；不要改填生产连接串，也不要盲目重置已有数据库。`DATABASE_URL` 仍被忽略。控制器使用自己创建的空白、0600 权限密码文件，不读取用户凭证文件，并清理子进程的数据库默认配置。即使环境已污染，仍能用 `status`/`stop` 清理自有集群；stop 仍须验证保存的服务器身份。三语 README 有同样的政策说明。
+
+**测试计数。** 本章有 16 项业务／SQL 测试与 50 项环境边界测试，共 66 项。后者包括参数化的拒绝设置、私有密码文件检查与自有回环监听实验，保护的是学习环境；不等于新增了 50 个 SQL 知识点，更不等于生产安全认证。
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+uv sync --locked
+uv run --locked python labctl.py start
+uv run --locked python labctl.py reset --yes-reset
+uv run --locked python labctl.py psql --file sql/queries.sql
+```
+
+`start` 为这个目录保存 `.lab-state.json`，关闭 TCP，不读取已有 DATABASE_URL；`reset` 经所有权和服务端身份检查后，仅重建自己的表。这里不是生产迁移工具。不要把连接串换成公司数据库，不要用 reset 处理未知错误。
+
+先在纸上记下五项任务：id 1–5；状态依次 todo/doing/done/todo/done；分钟数 30/45/15/20/40；前三项属于 Launch，后两项属于 Docs，Empty 无任务。知道输入数据，才有办法验证输出，而不是相信查询没报错。
+
+## 3. SELECT 的逻辑顺序，不等于源码中的书写顺序
+
+下面的文件按 A–G 分组；先读 A、B，再读后面的 JOIN 和聚合。SQL 关键字大小写不改变含义；字符串用单引号，双引号主要用于引用标识符，不要把 JS 引号习惯直接搬过来。
+
+<Code language="sql">{getSqlExample('sql/queries.sql')}</Code>
+
+用逻辑阶段理解 A：FROM 找到 tasks → WHERE 保留 todo 且估时至少 20 的行 → SELECT 取 id/title → ORDER BY 按 id 排。结果是 `(1, 'Design API')` 和 `(4, 'Read SQL')`。这是理解模型，不保证执行器物理上照此扫描；优化器可以重排等价操作。
+
+WHERE 的 `AND` 比 `OR` 结合得紧。例如“Launch 项目中 todo 或 doing”必须把两个状态用括号组合，否则 `OR status='doing'` 可能把别的项目也放进来。`=` 比较值，`<>` 表示不等，`IN` 表示属于集合。不要写 `==`，也不要用 SQL 条件的结果猜 Python truthiness。
+
+筛选条件为 unknown 的行同样不返回：F 的 `NULL = NULL` 输出 `(null)`，`NULL IS NULL` 输出 true。`description IS NULL` 得 id 1、4；`description = ''` 只有 id 2；`description = NULL` 一行也没有。`COALESCE` 选择第一个非 NULL 值，可用于显示缺省值，但不能据此说缺失与零是同一种事实。
+
+## 4. 排序与分页：稳定，不代表冻结
+
+数据库表没有默认显示顺序。B 用 `ORDER BY minutes DESC, id ASC`：分钟多的在前，同分钟时用唯一 id 打破平局；`LIMIT 2 OFFSET 1` 跳过一行再取两行，得到 id 5、1。仅按非唯一字段排序，翻页时同分记录可换位；给查询加 LIMIT 本身不能保证顺序。
+
+分页参数也属于业务输入：本实验 limit 必须是 1–100 的整数，offset 必须是非负整数，并拒绝 Python 的 bool 伪装整数。限制页大小是资源边界，不是认证。稳定排序只能在当前结果上确定顺序：第一页取 1、2 后，另一请求删除 1，再用 OFFSET 2 会得到 4、5，id 3 被跳过。测试真的执行这次删除，并不只讲“可能”。跨请求一致快照、游标分页和索引性能另行设计，本章不承诺大 offset 高效。
+
+<details>
+<summary>解释题答案：前端给列表加了 key，为什么后端还需要 ORDER BY id？</summary>
+
+React key 帮助前端识别已收到的元素，不能决定服务器从数据库挑了哪几行。ORDER BY 决定结果顺序，唯一的第二排序键解决同分歧义；但两次请求之间的插入/删除仍会改变 offset 位置。三者分别是 UI 身份、查询顺序和跨请求一致性，不能互相替代。
+
+</details>
+
+## 5. JOIN：按匹配关系生成结果，不是把对象自动嵌套
+
+C 把 tasks 与 projects 按项目 ID 相等组合，再按 created_by 找 users。别名 t/p/u 让同名 id 的来源明确。INNER JOIN 对每一对满足条件的行生成一行，找不到匹配就没有该结果；由于外键存在，每项种子任务能找到父项目和创建者。输出仍是扁平行 `(task_id, title, project, creator)`，不是自动嵌套的 JSON。
+
+D 使用 LEFT JOIN，以 projects 为保留方，即使没有任务也产生一行，右侧列都是 NULL。这解释了两种易错计数：`count(*)` 数结果行，Empty 是 1；`count(t.id)` 只数非 NULL 的任务 ID，Empty 是 0。`sum` 在没有非空输入时是 NULL，报告明确选择 `coalesce(..., 0)` 表达“没有任务，总估时为零”。这不是把未知任务估时也定义成零。
+
+G 把 `t.status='todo'` 放在 ON 中，先决定哪些子记录可以匹配，再保留所有项目；结果 Launch/Docs/Empty 的待办数为 1/1/0。若把该条件放到 WHERE，LEFT JOIN 补出的 NULL 行也会被过滤，Empty 就消失。选 ON 还是 WHERE 不是风格问题，而是需求不同。
+
+再加 project_members 时要预测基数：Launch 三项任务乘以两名成员，得到六行。此时 `sum(t.minutes)` 会错误翻倍。只统计任务数可以 `count(DISTINCT t.id)`；求估时不能简单用 `sum(DISTINCT minutes)`，因为不同任务可能恰好同分钟。正确方向是先按任务或项目聚合，再组合成员信息，或者根本不做不需要的 JOIN。
+
+## 6. GROUP BY 与 HAVING：行与组是两层过滤
+
+D 把每个项目的匹配行收集成一组；SELECT 中输出项目键/名及聚合值。E 先用 WHERE 排除 done，再按 project_id 分组求 minutes 总和，最后 HAVING 只保留至少 30 分钟的组。结果只有 `(1, 75)`；Docs 的 20 没到门槛。不要把 `sum(minutes)` 塞进 WHERE：该阶段还没有组的总和。
+
+写查询前，先用一句话定义“一行结果代表什么”。若答案是“一个项目”，SELECT 出任意一个任务标题就没有明确含义；要么改变分组粒度，要么选择合适聚合，而不是随机包一层 min 让语法通过。SQL 没报错只能证明语句可执行，不能证明分组符合业务。
+
+<details>
+<summary>带提示修改答案：把 G 改成每个项目的未完成估时，保留 Empty</summary>
+
+把 ON 中的状态条件改为 `t.status <> 'done'`，SELECT 用 `coalesce(sum(t.minutes), 0)`，仍按项目分组。预期 Launch=75、Docs=20、Empty=0。若改到 WHERE，Empty 消失；若去掉 coalesce，Empty 是 NULL。三种结果都能解释，却只有第一种符合本题报告的契约。
+
+</details>
+
+## 7. CRUD：影响的是匹配集合，不是当前屏幕那一行
+
+CRUD 对应 INSERT、SELECT、UPDATE、DELETE。INSERT 明确列清单，省略 identity 主键；`RETURNING` 让同一条写入返回数据库实际生成的 id，不要用“SELECT 最大 ID”猜刚写的记录——别的连接也会写。UPDATE/DELETE 的 WHERE 是数据安全边界：没有 WHERE 可能操作整张表；前端只选中一行不能改变它的含义。
+
+下面的完整模块同时展示安全的查询和单条写入。先看 CRUD 函数：插入返回 id/title/status；更新显式维护 updated_at；删除返回被删 ID。WHERE 没匹配行通常不是 SQL 错误：fetchone 返回 None，由调用者决定映射成什么业务响应。错误父项目则触发外键异常，不能伪装成“没查到”。
+
+<Code language="python">{getSqlExample('queries.py')}</Code>
+
+这些函数**不提交、不关闭连接**：SQL helper 的职责是执行语句；调用者决定生命周期。D02 的演示使用 autocommit，每条语句独立完成，所以它不是多步业务事务。D03 会把同样的职责边界用于原子提交。`CURRENT_TIMESTAMP` 在事务内表示事务开始时间，不等于每条语句读取新的墙上时钟。
+
+## 8. 驱动、连接、游标和参数分别做什么
+
+psycopg 是把 Python 调用转换成 PostgreSQL 通信的驱动，不是数据库，也不是 ORM。`connect` 与指定地址的服务器建立会话，返回连接对象；`cursor` 在该连接上执行命令并持有本次结果的读取位置。`fetchone` 取下一行，没行是 None；`fetchall` 取剩余行，本实验返回 tuple 列表。关闭游标释放结果资源，不等于提交事务或关闭连接；同连接的两个游标也不是两个独立事务。
+
+从 list_tasks 追踪数据：Python 验证参数 → 选择固定 SQL 结构 → execute 发送结构与参数 → 服务端解析、执行与约束检查 → 驱动把结果转成 Python 值 → fetchall 返回。SQL 不会在 Python 里执行；数据库连接失败与输入 ValueError、SQL 约束错误发生在不同层。
+
+`%s` 是 psycopg 的值占位符，不是字符串格式化操作。所有类型都用它，不按整数换成 `%d`；不要给占位符加 SQL 引号；不要用 `%` 运算符、f-string 或字符串加法把值拼进 SQL。单参数的 `(title,)` 是单元素 tuple，逗号不能省。None 被适配成 SQL NULL，SQL 类型错误仍可能由服务器拒绝。
+
+参数**不能替代列名、表名、ASC/DESC 等语法**。`SELECT %s ...` 传入 `title` 只会返回字符串 title，不会读取 title 列；测试实际证明这点。list_tasks 的 ORDERINGS 仅选择作者写死的两个片段，再拼接片段，不拼用户输入。将来确实需要动态标识符时可用驱动的 Identifier 组合接口，但仍要限定用户允许选择的对象；引用安全不等于对象访问授权。
+
+## 9. 注入实验与防护边界
+
+SQL 注入发生在“不可信数据被解析成 SQL 结构”这一边界。错误反例是把 title 插进引号包裹的 SQL 文本；攻击者可以关闭引号，再改变 WHERE 或添加命令。不要靠替换单引号列表与攻击样本比赛，正确做法是把值交给驱动参数通道。
+
+<Code language="python">{getSqlExample('demo.py')}</Code>
+
+```bash
+uv run --locked python labctl.py reset --yes-reset
+uv run --locked python demo.py
+uv run --locked pytest -q
+```
+
+```text
+todo [(1, 'Design API', 'todo', 30), (4, 'Read SQL', 'todo', 20)]
+page [(3, 'Ship demo', 'done', 15), (4, 'Read SQL', 'todo', 20)]
+totals [('Launch', 3, 90), ('Docs', 2, 60), ('Empty', 0, 0)]
+unmatched payload []
+literal stored [(6, "x' OR TRUE --")]
+updated (6, 'doing')
+deleted (6,)
+tasks remaining 5
+```
+
+这是 reset 后的确定输出；重复执行 demo 而不 reset 时，identity 会继续增长。测试还存入 `'; DROP TABLE tasks; --`，精确查回原字符串，再确认 tasks 表仍有数据。证明的是这个驱动调用中的值未变成 SQL，不是证明整套系统永远没有注入。LIKE 参数中的 `%`/`_` 仍是模式通配符；参数化不会把模式自动变成字面搜索，也不会完成 XSS 防护、权限判断或分页成本控制。
+
+故意把 sort 改成带分号的字符串，预期 Python `ValueError`，尚未发出 SQL；把 project_id 改成 9999，预期 PostgreSQL `ForeignKeyViolation / 23503`；直接把 description 与 NULL 用等号比较，查询成功但结果错。能把这三类失败分开，是排错能力的一部分。
+
+## 10. 独立报告，不给逐行提示
+
+实现 `progress_report(conn, minimum_minutes=0)`：每个项目返回名称、未完成任务数、未完成估时之和，保留没有任务的项目；仅保留总估时达到输入门槛的项目；按项目 id 稳定排序。门槛必须是非负整数，拒绝 bool。先预测门槛 0 和 30 的结果，再写 SQL 与测试，不从 Python 逐行过滤整库。
+
+<details>
+<summary>独立变式参考答案与验证</summary>
+
+<Code language="python">{getSqlExample('answers/variant.py')}</Code>
+
+门槛 0 应是 `('Launch', 2, 75)`、`('Docs', 1, 20)`、`('Empty', 0, 0)`；门槛 30 只保留 Launch。ON 处理哪些任务参与匹配，GROUP BY 定义项目粒度，HAVING 处理组的门槛；两个值都经参数传入。`tests/test_queries.py` 验证这两个结果，也验证 NULL、JOIN 放大、非法分页和排序注入。更换需求为“只统计 doing”，应能自己改条件并重新推导结果。
+
+</details>
+
+## 11. 恢复检查点、验收与官方依据
+
+完成后运行全部 66 项测试（16 项 SQL＋50 项环境），保存自己的报告 SQL 和最后一个不符预期的结果，再停止自己的集群。
+
+```bash
+uv run --locked python labctl.py stop
+uv run --locked python labctl.py status
+```
+
+推荐暂停记录：章节目录、root、schema 版本 d01-d03-v1、通过的测试、预期/实际行数、下次第一步。下次 start 保留已提交数据，reset 才会丢掉练习表数据。若 SQL 返回多行，先查 JOIN 基数；Empty 消失先查 WHERE；引号内容出错先查是否错误拼接；连接失败先查本章 status 与日志，不改参数占位符来解决网络问题。
+
+独立验收不是背 SQL 目录：应能说明每个结果行代表什么，解释 NULL 和分页边界，写对一个未见过的 JOIN 报告，证明恶意值与 SQL 结构分离，同时承认参数化不等于权限系统。未验收生产性能、索引计划、认证和跨请求快照；全部测试使用真实 PostgreSQL，不以 SQLite 代替。
+
+官方依据，核验日 **2026-09-28**：
+
+- [PostgreSQL 18 查询](https://www.postgresql.org/docs/18/queries.html)、[表表达式与 JOIN/GROUP BY](https://www.postgresql.org/docs/18/queries-table-expressions.html)。
+- [LIMIT/OFFSET](https://www.postgresql.org/docs/18/queries-limit.html)、[NULL 比较](https://www.postgresql.org/docs/18/functions-comparison.html)。
+- [psycopg 3.3.6 官方参数文档源码](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/params.rst)、[基本使用文档源码](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/usage.rst)。文档站本次返回 403，已改查同项目固定版本的官方源码，而不是依赖第三方教程。
+- [PostgreSQL 18.6 发布说明](https://www.postgresql.org/docs/release/18.6/)。

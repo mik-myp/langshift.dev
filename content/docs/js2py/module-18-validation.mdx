@@ -1,0 +1,311 @@
+---
+title: Pydantic Input and Output Boundaries — Strict Validation and Correct PATCH
+description: Build complete in-memory task CRUD while explaining coercion, defaults, nullable fields, exclude_unset, public response filtering, and the limits of in-memory storage.
+---
+
+import { getValidationExample } from '@/lib/js2py-examples'
+
+## 1. Real requests need a runtime boundary, not just annotations
+
+A TypeScript interface cannot stop an external client from sending arbitrary JSON. An ordinary Python function annotation does not automatically reject an invalid value either. H03 rejected parameters because FastAPI actively read declarations and performed validation, not because Python's int annotation became a runtime checker. We now extend that boundary to an entire request body and add an equally important boundary on the way out: data known to the server is not necessarily data it should return.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | H03 synchronous service and real requests; L11 annotations; L12 model foundations; dictionaries, inheritance, and decorators |
+| New capability | Request validation and coercion policies; required/default/nullable distinctions; input, storage, and public models; partial updates; output filtering |
+| Independent acceptance | Implement CRUD from empty memory and demonstrate field rules, non-destructive PATCH, and absence of internal response fields over real HTTP |
+| Not required | Databases, concurrency guarantees, authentication/authorization, DI, asynchronous lifecycle, or API test fixtures |
+
+Download the [complete H04 lab](/learning-assets/js2py/h04-validation.zip). Its app.py, models.py, and lockfile are independent: they import no files from H03, L10, or another chapter. Use only loopback, disposable data, and sequential operations. H06 will teach API test automation. For now, explainable curl requests are the acceptance method; successfully constructing a model is not a substitute for a network request.
+
+This is a limited capstone V1 contract, not the final multi-user project model. We retain title, minutes, and done from the language work and add note and a server id. Later project_id, creator identity, and status enums require explicit evolution; none are secretly assumed to exist already.
+
+## 2. Decide fields and routes before choosing an implementation
+
+| Field | Creating a task | PATCH meaning | Public response |
+| --- | --- | --- | --- |
+| title | Required str, 1–120 characters, not entirely whitespace; preserve original spelling and surrounding spaces | Omitted: preserve; valid string: replace; null: reject | Original string |
+| minutes | Required nonnegative ordinary int; reject bool, text, and float | Omitted: preserve; valid integer including 0: replace; null: reject | Integer |
+| done | Strict bool; omitted defaults to False | Omitted: preserve; apply both true and false; reject null | Boolean |
+| note | str or None, at most 1000 characters; omission defaults to None; empty string allowed | Omitted: preserve; string: replace; null: clear | String or null |
+| id | Client may not supply it; generated as a process-local increasing positive integer | Cannot change | Positive integer |
+| internal_tag | Client may not supply it; server sets h04-memory-only | Cannot change | Never returned |
+
+Lengths use Python string length, not UTF-8 bytes or visual grapheme counts. We do not strip the stored title: checking for non-whitespace and normalizing input are different business decisions. Supplying id, user_id, or any unknown key produces 422. **Rejecting user_id is not authentication**; this service has no trusted user identity at all.
+
+| Route | Success | Important failure or meaning |
+| --- | --- | --- |
+| GET /health | 200 | Only indicates that this process can answer |
+| POST /tasks | 201, full public task | Missing body fields, types, unknown keys, or constraints: 422 |
+| GET /tasks | 200, items/limit/offset/total | limit defaults to 20, range 1–100; offset defaults to 0, nonnegative; invalid values: 422 |
+| GET `/tasks/{task_id}` | 200, public task | Valid but missing id: 404; invalid path argument: 422 |
+| PATCH `/tasks/{task_id}` | 200, complete updated public task | Empty object: no change; invalid fields: 422; missing record: 404 |
+| DELETE `/tasks/{task_id}` | 204, no body | Missing record: 404, including a repeated delete |
+
+Lists are ordered by increasing id; total counts the whole collection. There is no PUT, user isolation, status filtering, or write-idempotency key. We make assertions about individually constructed failure cases. Do not assume that a request with both an invalid body and a nonexistent id must always report 404 first.
+
+## 3. Three shapes represent three different kinds of trust
+
+```text
+untrusted JSON -> TaskCreate / TaskPatch -> handler
+                                               |
+                           TaskStored -> in-memory tasks
+                                               |
+                           TaskPublic / TaskPage -> JSON response
+```
+
+An input model allows only decisions assigned to the client. A storage model adds server-owned data. A public model lists permitted output fields. These are not three names for the same dictionary. Even when their fields overlap today, adding an internal field tomorrow should not silently expand the public API.
+
+<Code language="python">{getValidationExample('models.py')}</Code>
+
+BaseModel is Pydantic's model base class. Inheriting it makes the library execute field declarations during construction or model_validate. Field adds length and numeric constraints; it is not a database column. ConfigDict declares policy: strict=True chooses strict typing, extra="forbid" rejects unknown input fields, and validate_default=True checks the model author's defaults too, instead of trusting a mistaken default automatically.
+
+min_length=1 cannot enforce a nonblank title: a single space has length one. By default, field_validator("title") runs after ordinary type and Field checks, so value is already a string. classmethod supplies the model class as cls, not a request instance; the outer decorator registers the check with Pydantic. Raising ValueError becomes part of a ValidationError, which FastAPI turns into 422. On success, return value. Returning value.strip() instead would silently violate our spelling-preservation contract.
+
+TaskPatch and TaskStored inherit TaskCreate's rules and validator, then override or add fields. TaskPublic is deliberately separate and uses extra="ignore" to discard surplus internal keys. This is a different policy from forbidding extra input. TaskPage declares items as list[TaskPublic], so each nested record crosses the public boundary, not merely the top-level response object.
+
+## 4. Coercion is a policy, and strictness has a defined scope
+
+Before starting the service, run this self-contained model experiment:
+
+<Code language="python">{getValidationExample('probe_models.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python probe_models.py
+```
+
+```text
+loose: 25
+True int_type
+'25' int_type
+25.0 int_type
+-1 greater_than_equal
+strict: {'title': '  Read HTTP  ', 'minutes': 0, 'done': False, 'note': None}
+nullable but missing: missing
+nullable and present: {'note': None}
+```
+
+LooseMinutes has no strict configuration and converts text "25" into integer 25. That can fit some form boundaries, but it does not fit our task JSON contract. TaskCreate's strict=True rejects the shown cross-type conversions. Although Python bool is a subclass of int, true is not a valid minutes value here. Likewise 25.0 is numerically equal to 25 but is still a float. ge=0 is a separate constraint: -1 has the right type but the wrong value. done accepts neither the string "false" nor integer 0/1 as a boolean substitute.
+
+The probe's show_error simply calls the operation passed to it, catches ValidationError, and prints its first error type. Each lambda is a no-argument function called immediately by show_error, not a queued or background task. The last two lines isolate nullable versus optional behavior, explained next.
+
+Strictness applies to the body models. A URL's limit=20 begins as text, so Query and Path still parse numeric text. Mechanically adding strict=True to URL parameters would reject the very representation the transport provides. Pydantic's strict rules also differ for some types and for Python versus direct JSON input. These basic-field experiments do not establish “no coercion anywhere in the library.”
+
+## 5. Required, defaulted, and nullable are separate questions
+
+For every field, ask: may the key be omitted? May its value be null? What value results if it is omitted?
+
+| Declaration's meaning | Omitted | Explicit null |
+| --- | --- | --- |
+| note: str | Missing required field | Type error |
+| note: str or None, no default | Still missing a required field | Valid None |
+| note: str or None, default None | Gets None | Valid None |
+| done: bool, default False | Gets False | Type error |
+
+JSON null becomes Python None, but not sending a key is not the same as sending None. During creation, omitting note and explicitly sending null both produce None. During an update, the intentions differ, so we must retain information about which keys the client supplied. A truthiness check cannot answer that question: it would discard legitimate False, 0, and empty-string values too.
+
+<details>
+<summary>Explanation checkpoint: why can a required nullable field report missing?</summary>
+
+A union enlarges the allowed set of values; it does not provide a default. RequiredNullable() supplies no note and therefore fails. RequiredNullable(note=None) supplies a permitted empty value. When drawing a TypeScript analogy, distinguish an optional property from a property whose value can be null. In TaskPublic, note must appear but may be null, so the public response includes the key consistently rather than only when it has text.
+
+</details>
+
+## 6. Complete synchronous CRUD: decide when memory may change
+
+The baseline was verified on **2026-09-28**: CPython 3.13.15, uv 0.12.13, FastAPI 0.135.1, Uvicorn 0.42.0, and Pydantic 2.12.5. The real public-PyPI uv.lock pins transitive packages too; version ranges alone are not our reproducibility claim.
+
+<Code language="toml">{getValidationExample('pyproject.toml')}</Code>
+
+<Code language="python">{getValidationExample('app.py')}</Code>
+
+In terminal A, work in the extracted h04-validation directory, or examples/js2py/h04-validation in the repository:
+
+```bash
+uv python install 3.13.15
+uv sync --locked
+uv run --locked python -m uvicorn app:app --host 127.0.0.1 --port 8004 --workers 1
+```
+
+The POST parameter payload: TaskCreate tells FastAPI to construct that model from the JSON body. It is neither a path parameter nor dependency injection. Only successful validation reaches the handler. payload.model_dump() converts validated fields to an ordinary Python dictionary. The `**` operator expands that dictionary into keyword arguments, while TaskStored adds the server id and internal default. Only after construction succeeds do we write tasks and increment next_id. Invalid creations therefore do not consume ids in our sequential experiment.
+
+global next_id makes assignment update the module-level counter rather than create a local variable. It is not a thread lock. The store maps ids to TaskStored instances and exists only in this process's memory. require_task is an ordinary helper called by handlers; it is neither Depends nor an authorization check.
+
+PATCH first retrieves the old record, merges supplied fields in a temporary dictionary, and validates the complete candidate before replacing the stored record. This avoids a partially applied invalid update in one sequential request. It is not a database transaction and does not prevent two requests from reading the same old state and overwriting each other.
+
+DELETE checks existence, removes the record, and explicitly returns Response(status_code=204), because 204 has no JSON body. Returning None is not a reason to send JSON null. Task-returning routes instead return dictionaries and let response_model validate/filter them; they do not build a Response that bypasses the ordinary model path.
+
+## 7. PATCH depends on what was supplied, not what looks nonempty
+
+Every TaskPatch field can be omitted, but title, minutes, and done do not become nullable. To construct a model when keys are absent, title has the valid placeholder Untitled, minutes has 0, done inherits False, and note inherits None. These are internal model defaults, **not replacement values to write into storage**. Documentation may display those defaults; the PATCH contract remains “omitted means unchanged.” Creation still requires title and minutes.
+
+model_dump(exclude_unset=True) selects fields by whether input explicitly set them, not by whether their values differ from defaults. An empty body produces empty changes. Explicit done=false is retained even though it equals the default; explicit note=null is retained too. Sending title="Untitled" is also a legitimate update and must not disappear merely because it equals the placeholder.
+
+<Code language="python">{getValidationExample('probe_patch.py')}</Code>
+
+```bash
+uv run --locked python probe_patch.py
+```
+
+Each iteration begins with the same original. Read sent, changes, and merged in order. The final three deliberately wrong results are:
+
+```text
+WRONG dump of empty patch: {'title': 'Untitled', 'minutes': 0, 'done': False, 'note': None}
+WRONG exclude_none: {}
+WRONG exclude_defaults: {}
+```
+
+Merging the first would replace every old field with a placeholder. The second loses an explicit instruction to clear note. The third loses an instruction to turn done from True back to False. exclude_unset, exclude_none, and exclude_defaults answer different questions; similar names do not make them interchangeable.
+
+We validate the merged dictionary with TaskStored.model_validate rather than treating model_copy(update=...) as revalidation. Pydantic's copy updates do not automatically validate the provided update data. Likewise, directly assigning current.minutes is not a promise of complete model checking. Revalidating the whole candidate becomes especially important with future cross-field rules, but advanced validators are not introduced as a hidden prerequisite here.
+
+<details>
+<summary>Guided exercise answer: how do you prove omission, a value, and null have different meanings?</summary>
+
+Create a task with note="keep me". PATCH only done=true, then read it: note must remain "keep me". PATCH note="new": it must become "new". PATCH note=null: it must become null. Turn done from true back to false and set minutes to 0 to prove valid falsy values survive too. An empty object must return 200 without changes. Status 200 alone is insufficient: inspect returned fields and use a later GET to confirm stored state.
+
+</details>
+
+## 8. First real creation and rejection: keep status and body together
+
+In terminal B, with terminal A running a freshly started empty service:
+
+```bash
+curl -sS -i http://127.0.0.1:8004/tasks
+curl -sS -i -X POST http://127.0.0.1:8004/tasks \
+  -H 'Content-Type: application/json' \
+  --data-binary '{"title":"  Read HTTP  ","minutes":25,"note":"keep me"}'
+```
+
+-X selects the method, -H declares JSON, and --data-binary sends the supplied body. Single quotes protect JSON's double quotes. true and null are JSON literals, not Python True and None. -i exposes the status line; the body alone cannot tell you whether the response was 200 or 201.
+
+The actual creation response, omitting dynamic headers, is:
+
+```http
+HTTP/1.1 201 Created
+content-type: application/json
+
+{"id":1,"title":"  Read HTTP  ","minutes":25,"done":false,"note":"keep me"}
+```
+
+Now send minutes as true:
+
+```bash
+curl -sS -i -X POST http://127.0.0.1:8004/tasks \
+  -H 'Content-Type: application/json' \
+  --data-binary '{"title":"Bad","minutes":true}'
+```
+
+The observed status is 422 and the body is:
+
+```json
+{"detail":[{"type":"int_type","loc":["body","minutes"],"msg":"Input should be a valid integer","input":true}]}
+```
+
+loc identifies body/minutes, not path/task_id. Correct the client's value and retry; removing strict=True to accommodate this request changes the contract instead of fixing the client. Validation never reached create_task, so no record was created. Error responses can echo invalid input. We use fictional data only; production still needs deliberate redaction and error policies rather than assuming a model automatically protects secrets.
+
+## 9. Stored data and public data are different boundaries
+
+The created record really contains internal_tag. To make filtering observable, each task handler deliberately returns the entire storage dictionary, including that key. response_model=TaskPublic is the final HTTP output allowlist. The list route applies the same boundary through TaskPage.items. Inspect POST, single GET, PATCH, and the list rather than proving filtering for only one route.
+
+Why not use TaskCreate as the output model? It lacks id. Why not use TaskStored? It would expose internal fields. Why not silently ignore all unknown input? Client typos could appear to succeed, and attempted identity fields would no longer receive a clear rejection. Input forbid and output ignore are deliberate, different responsibilities.
+
+If the handler omits a required public field or returns a wrong type, output validation is a server error, not a client 422. The producer of that invalid data is your service code. Repair it instead of removing response_model to hide the problem. Manually returned Response objects can bypass ordinary model processing; only the bodyless 204 uses that path here.
+
+The internal field is not an example of storing secrets. Filtering constrains response shape, not whether a caller is entitled to read a task. Even perfect removal of internal_tag does not make an API without authentication and object-level authorization safe for real users.
+
+<details>
+<summary>Boundary checkpoint: does hiding user_id create user isolation?</summary>
+
+No. Models check shape and the declared rules; they do not establish who called or who owns a task. This service rejects user_id and never uses it as an authorization claim. All local callers share one dictionary. Filtering keeps surplus fields out of responses, but every caller who can reach this service can still operate on all tasks. Authentication and membership checks require later implementation and separate acceptance.
+
+</details>
+
+## 10. The complete request worksheet and failure recovery
+
+Stop and restart your H04 service to begin with empty memory. If earlier requests already created records, do not pretend the next id is still 1.
+
+<Code language="bash">{getValidationExample('requests.sh')}</Code>
+
+```bash
+bash requests.sh
+```
+
+These are 25 visible HTTP requests, not a pytest suite. The worksheet prints responses and **does not assert success for you**. Read each command first, then replay the whole sequence. Check:
+
+1. Requests 1–4: empty list, two 201 creations, and the second page containing id=2. Preserve title whitespace; observe default done=false and note=null.
+2. Requests 5–9: changing done preserves note; an empty patch changes nothing; explicit false and 0 are applied; note supports replacement text and explicit null clearing.
+3. Requests 10–17: blank title, three wrong minutes types, negative minutes, text done, title=null, and user_id all receive 422 without new records.
+4. Requests 18–20: pagination/path validation returns 422; a valid missing id returns 404.
+5. Requests 21–25: GET agrees with updates; DELETE is 204 with zero body bytes; reading or deleting again yields 404; only id=2 remains. Every task response omits internal_tag.
+
+Add your own missing-title, missing-minutes, done=1, note=1, minutes=null, done=null, extra-id, internal_tag, oversized-title/note, and malformed-JSON requests. Record the status and failing location. After an invalid PATCH, GET the original to show no partial update. Lengths 120/1000 must succeed; 121/1001 must fail. Prepare long strings in a local JSON body file and send --data-binary @payload.json rather than counting characters in a shell line.
+
+**Destructive experiment, only against this disposable service:** With id=2 still present, stop with Ctrl-C and restart using the same command. GET /tasks must now show items=[] and total=0; GET /tasks/2 returns 404; the next created id is 1 again. This is observed data loss and id reuse, not successful persistence.
+
+Recovery does not mean recovering the old memory. There is no backup or database in this lab. Restore the learning state by starting empty and replaying the worksheet to recreate fictional data. Keep requests and observations so you can resume. Adding --reload would make code edits trigger the same loss more easily, not preserve records.
+
+## 11. Reconstruct independently, then implement a business variation
+
+**Reconstruction:** Start a new directory with only environment files and the field/route contract above. Write models.py and app.py yourself. Do not import the reference, or rename its app.py and call that a rebuild. Official documentation is allowed, but explain every model's responsibility and independently complete section 10. Before comparing with the reference, record one failure you diagnosed: symptom, layer, cause, change, and successful recheck.
+
+**Variation:** Add GET /reports/remaining?max_minutes=20. Count and total minutes for tasks with done=false whose minutes do not exceed the threshold. Default the threshold to 60, allow 0, and reject negatives. Read the full collection independently of /tasks pagination, do not mutate tasks, and never return internal_tag. Define a public report model yourself.
+
+POST four records: Zero/0/false, Short/15/false, Long/90/false, Finished/10/true. Threshold 20 must yield count=2 and minutes=15; threshold 0 must yield count=1 and minutes=0; a negative threshold must return 422. Prove this through HTTP, not merely a Python print of a sum.
+
+<details>
+<summary>Independent variation reference and how to run it</summary>
+
+<Code language="python">{getValidationExample('solutions/remaining_app.py')}</Code>
+
+This file explicitly reuses app and tasks from this download and registers a route on the same application. It depends on no other chapter. Stop the existing service, then run from this lab's root:
+
+```bash
+uv run --locked python -m uvicorn solutions.remaining_app:app --host 127.0.0.1 --port 8004 --workers 1
+```
+
+Memory starts empty. Create the four records using the same POST command structure already explained, then request these URLs in another terminal:
+
+```bash
+curl -sS -i 'http://127.0.0.1:8004/reports/remaining?max_minutes=20'
+curl -sS -i 'http://127.0.0.1:8004/reports/remaining?max_minutes=0'
+curl -sS -i 'http://127.0.0.1:8004/reports/remaining?max_minutes=-1'
+```
+
+The new route returns two values through RemainingReport, not a storage object with incidental fields. The full CRUD reference remains models.py and app.py above. Deliver your own rebuild first, then compare request behavior rather than requiring identical source text.
+
+</details>
+
+## 12. Honest memory limits and a resumable checkpoint
+
+Ordinary def handlers run in a thread pool; workers=1 does not eliminate concurrency. Reading next_id, writing a dictionary entry, and incrementing the counter are not a single business-level atomic operation. Two PATCH requests can both read an old record and lose each other's changes. Multiple worker processes would also hold separate, divergent dictionaries. Without a deliberate database, transaction, constraint, or locking design, we claim no concurrent correctness. L11–L14's types, model helpers, and resource cleanup functions do not supply those guarantees.
+
+We verified **input/output behavior under sequential requests**. Unverified boundaries include concurrent load, cross-process consistency, persistence, identity and object authorization, idempotent retry, browser CORS, proxies, HTTPS, production redaction, capacity, and memory limits. Replacing a record only after candidate validation avoids writes during this request's validation failure; it is not a transaction system.
+
+A useful pause record is:
+
+```text
+checkpoint: H04 PATCH and output boundary
+cwd: <my extracted h04-validation directory>
+entry: app:app
+last_success: PATCH note=null -> 200; GET shows null; no internal_tag
+memory: disposable; restarting loses tasks and resets ids
+server: stopped with Ctrl-C in terminal A
+next: restart empty, replay requests.sh, inspect each response
+open_question: distinguish exclude_unset from exclude_defaults
+```
+
+The exit gate is independently implementing and explaining CRUD, keeping actual failure/recovery evidence, proving filtering and three-state PATCH, and stating the absence of permission, durability, and concurrency guarantees. VERIFICATION.md records additional maintainer checks; neither syntax checks, model probes, nor working API docs are called HTTP acceptance.
+
+## 13. Official references and version tracking
+
+Checked on 2026-09-28. Live documentation can change; pinned versions and observations limit this chapter's claims. SOURCES.md records sources and VERIFICATION.md records execution.
+
+- [FastAPI Request Body](https://fastapi.tiangolo.com/tutorial/body/): binding models to request bodies.
+- [Pydantic Strict Mode](https://docs.pydantic.dev/latest/concepts/strict_mode/): strict/coercive policies and input-form differences.
+- [Pydantic Fields](https://docs.pydantic.dev/latest/concepts/fields/) and [Validators](https://docs.pydantic.dev/latest/concepts/validators/): defaults, nullable values, default validation, and field validators.
+- [Pydantic Serialization](https://docs.pydantic.dev/latest/concepts/serialization/): exclude_unset, exclude_none, and exclude_defaults.
+- [Pydantic 2.12.5 BaseModel](https://github.com/pydantic/pydantic/blob/v2.12.5/pydantic/main.py): model_validate and the validation boundary of model_copy updates.
+- [FastAPI Body Updates](https://fastapi.tiangolo.com/tutorial/body-updates/) and [Response Model](https://fastapi.tiangolo.com/tutorial/response-model/): partial updates and output filtering.
+- [Pydantic Config](https://docs.pydantic.dev/latest/api/config/): extra and strict policies.

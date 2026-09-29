@@ -1,0 +1,13 @@
+[
+  ".gitignore",
+  ".python-version",
+  "README.md",
+  "pyproject.toml",
+  "uv.lock",
+  "main.py",
+  "tasks.json",
+  "tests/test_main.py",
+  "next_task.py",
+  "exercises/test_next_task.py",
+  "solutions/next_task.py"
+]

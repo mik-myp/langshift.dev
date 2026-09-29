@@ -1,0 +1,242 @@
+---
+title: "操作系统与服务：知道进程在谁的目录里、以谁的权限活着"
+description: "用可清理的本地实验理解进程、信号、退出状态、端口、权限、环境和工作目录；区分POSIX实测与Linux/systemd待验收。"
+---
+
+import { getOperatingSystemExample } from '@/lib/js2py-examples'
+
+## 1. 从“我的终端能跑”走向可解释的服务
+
+前端开发服务器常替你隐藏很多操作系统问题：工具选择目录、创建进程、读取配置，再由终端一直托住它。把相同 Python 文件放到服务管理器里却可能立刻失败：工作目录不是项目目录，环境里没有你刚才 export 的值，运行账户不能写文件，或者端口已被另一个进程占用。这不是需要先背 Docker 命令的问题，而是需要说明**程序被谁、在什么环境下运行**。
+
+本章契约以前置 A02 为基础；文件、模块、依赖和测试能力来自 L06–L09。新能力是描述一个进程的输入与生命周期、定位启动失败、正常停止自己的服务、解释最小权限。独立验收不是让服务“永远不死”，而是在目录、权限与停止方式变化后仍能预测和解释行为。本章不要求容器、云主机、root 权限或生产数据库。
+
+[下载完整 O01 实验](/learning-assets/js2py/o01-operating-system.zip)。它只是记录启动次数的**一次性教学 worker**，不是协作任务 API，更不是持久化数据库。进程实验必须在本地终端运行；浏览器编辑器没有相同的信号、UID 和文件权限边界。
+
+## 2. 先画进程边界，而不是把终端当程序
+
+源码是文件，解释器是执行它的程序，**进程**是一次正在运行的实例。同一个文件可以被两个进程执行；各自有 PID、内存、当前目录、环境变量、打开的文件和退出结果。父进程启动子进程时传入参数、环境和文件描述符等上下文，不是把所有变量变成共享对象。PID 以后可能被复用，不能保存一个旧数字就随意杀掉它对应的新进程。
+
+终端里的 shell 也是进程。你输入命令后，它通常等待前台程序结束；“光标没有回来”常常表示服务仍在运行，不表示死循环故障。stdout 是普通输出，stderr 是诊断输出，它们是两个通道而不是成功/失败的最终判据；应同时看退出状态。一个 HTTP 请求结束也不会自动结束监听进程，H01 的这个区分继续成立。
+
+实验用 `subprocess.Popen` 保存**自己创建的子进程对象**，在 finally 中先请求正常终止，超时才强制结束并 wait 回收。它不会搜索所有 python 进程，更不会运行 killall。运行时间、readiness 等待与清理都有上限，因此正常或失败路径都能回到终端。
+
+## 3. 恢复环境并确认当前目录
+
+从仓库根目录进入下列目录；如果使用 ZIP，进入解压后的 `o01-operating-system` 根目录，不要在父目录盲目执行相对文件名。`pwd` 显示当前目录；`cd` 改变 shell 的目录，之后启动的子进程默认继承它。Python 固定为 3.13.15，uv 0.12.13，pytest 8.4.2；`.python-version` 选解释器，pyproject 声明兼容范围和依赖，uv.lock 锁解析结果，`.venv` 是可重建产物，不进下载包。
+
+```bash
+cd examples/js2py/o01-operating-system
+pwd
+uv --version
+uv sync --locked
+uv run --locked python --version
+uv run --locked python -m pytest -q
+```
+
+<Code language="toml">{getOperatingSystemExample('pyproject.toml')}</Code>
+
+`--locked` 表示声明与锁文件不一致时拒绝悄悄更新。`python -m pytest` 用同一环境的解释器运行 pytest 模块；这里不是把 Python 包安装到全局。实验需要普通 POSIX 用户；root 可能绕过权限拒绝，Windows 的信号与权限语义也不能冒充本轮已测。维护者实测 macOS Darwin 25.6.0 arm64，后面的环境矩阵明确哪些是 Linux 待验收。
+
+## 4. cwd 与环境：路径错误不是依赖错误
+
+相对路径相对于**进程当前工作目录**，不自动相对于源码文件。`Path(__file__).resolve().parent` 才能明确找到源文件目录，但应用数据也不该因此写进只读部署目录。本实验要求 `OPS_DATA_DIR` 是已存在的绝对路径，使状态位置与 cwd 解耦。环境变量是进程边界处的字符串配置；子进程修改自己的环境，不会反向修改父 shell。
+
+`environment_lab.py` 创建两个自己的临时目录，一个包含 message.txt，一个为空。对子进程只提供虚构的 OPS_LABEL，不打印真实环境或凭证。绝对解释器路径避免依赖被删去的 PATH。先预测：在有文件的目录读到什么？从空目录启动会在哪一步失败？
+
+<Code language="python">{getOperatingSystemExample('environment_lab.py')}</Code>
+
+```bash
+uv run --locked python environment_lab.py
+```
+
+```text
+parent-choice
+from the working directory
+parent_mapping_unchanged=True
+wrong_cwd_exit=1
+wrong_cwd_is_FileNotFoundError=True
+```
+
+这里的父映射检查证明本次 child-only 赋值没有改动传入映射；它不是跨进程共享内存实验。错误是运行时 FileNotFoundError，不是 Python 没安装、import 失败或语法错误。恢复方法是显式选择正确目录或绝对数据路径，而不是往每个可能的 cwd 复制文件。
+
+## 5. 端口：地址、监听与业务就绪不是一件事
+
+IP 地址选择网络接口，端口帮助内核把传入连接交给某个监听 socket。`127.0.0.1` 是当前主机网络环境的 IPv4 loopback；远端浏览器访问自己的 127.0.0.1，不会来到你的电脑。`0.0.0.0` 是监听所有 IPv4 接口的通配地址，不是供客户输入的目的地址。本章只绑定 loopback，绝不为了“能访问”开放公网。
+
+传给 bind 的端口 0 请求操作系统分配当前可用端口；程序用 getsockname 读回实际数字。第二个 socket 尝试绑定同一地址触发冲突。listen 只是接收连接的准备，不表示它会说 HTTP，更不表示数据库或授权正确。此例故意不发送 HTTP，所以不能拿它的端口可连接代替健康检查。
+
+<Code language="python">{getOperatingSystemExample('port_lab.py')}</Code>
+
+```bash
+uv run --locked python port_lab.py
+```
+
+```text
+listening_on_loopback=True
+second_bind_rejected=True
+owned_socket_closed=True
+```
+
+真实服务若报 Address already in use，先检查你自己的启动记录和仍在运行的终端；不能看见占用就杀掉任意 PID。换一个获准端口或停止确认属于自己的实例。端口冲突与 404 不同：前者可能在服务启动前发生，后者已经有某个 HTTP 服务给出了响应。
+
+## 6. 退出状态：把错误归类，而不是匹配一句日志
+
+命令正常返回 0；非零表示需要按该工具契约处理。我们的 worker **自行约定**配置错误 78、状态损坏 65、I/O 失败 74，并打印不含配置值的诊断。这些不是所有 Python 服务都必须使用的数字。进程被信号结束时，POSIX `subprocess.returncode` 用负的信号编号表示，例如 -9；shell 对同一情况常显示 128 加信号编号，例如 137，但不能拿某种 shell 的表示当 Python 返回值。
+
+同时区分命令退出和 HTTP 状态：curl 完成一次 500 响应也可能退出 0，除非另外启用其 HTTP 失败选项。发生连接失败则连 HTTP 状态都未取得。本章测试有意让子进程出错，父实验确认了预期失败后自身仍然成功退出；这不等于故障被隐藏。
+
+## 7. 信号：请求结束与强制中断
+
+<Code language="python">{getOperatingSystemExample('worker.py')}</Code>
+
+worker 先验证数据目录，再安装 SIGTERM/SIGINT 处理器，读取并增加 starts，然后输出 ready。处理器只设置停止标记；正常循环观察标记后离开，在 finally 写 stopped.txt。Python 的信号处理器在主解释器线程执行，不能把它想成任意业务线程里插入的安全事务提交。把复杂 I/O 放回正常控制流更容易解释和测试。
+
+SIGINT 常来自前台终端的 Ctrl+C；SIGTERM 是服务管理器常用的“请停止”。程序可以处理它们，但必须有可达的退出路径。SIGKILL 无法捕获，finally 也不能保证执行。系统崩溃和断电同样不会礼貌地等待你收尾。因此数据库持久性不能靠“退出时保存一次”建立。
+
+worker 的临时文件 replace 仅缩小单写者写到半截的窗口；没有 fsync、并发协调或事务。本章启动计数只是恢复演示，不是把 JSON 文件升级成了 PostgreSQL。
+
+<Code language="python">{getOperatingSystemExample('process_lab.py')}</Code>
+
+```bash
+uv run --locked python process_lab.py
+```
+
+```text
+missing_config_exit=78
+SIGTERM: subprocess_returncode=0 cleanup=True
+SIGINT: subprocess_returncode=0 cleanup=True
+SIGKILL: subprocess_returncode=-9 cleanup=False
+same_directory_across_processes=2
+```
+
+这些是本轮实际输出；PID 和临时路径没有固定在结果中。最后的 2 表示两个新进程读到了同一目录里的文件，不是旧 Python 内存还活着。关闭手工前台 worker 用其终端的 Ctrl+C；脚本自动实验只发送信号给自己持有的 Popen 对象，清理后不用额外 kill。
+
+## 8. 权限：服务为什么不该以你的全能账户运行
+
+POSIX 文件模式通常分 owner、group、other 三组，每组 read/write/execute 分别记为 4/2/1。文件的 execute 是允许执行；目录的 execute 是允许穿越/访问已知名字，不能与“列目录”混淆。0600 让只有所有者读写文件，0700 让只有所有者访问目录。umask 是**新建时去掉哪些权限**的掩码，不会追溯修正旧文件；chmod 则改变已有对象。
+
+实验只在自己的临时目录写虚构配置，先观察 0700/0600，再把文件变成 0000，读取得到 PermissionError，最后恢复 0600 才清理。它拒绝 root，以免绕过拒绝后产生错误结论。实际 ACL、文件系统和平台可能增加规则，不能只凭一个八进制数字推断所有安全属性。
+
+<Code language="python">{getOperatingSystemExample('permissions_lab.py')}</Code>
+
+```bash
+uv run --locked python permissions_lab.py
+```
+
+```text
+directory_mode=0o700
+file_mode=0o600
+read_without_permission=denied
+restored_read=True
+```
+
+面对拒绝，先问“哪个账户需要对哪个目录做哪一种操作？”不要用 chmod 777 或 sudo 启动整个服务来绕过。生产服务账户一般不能修改应用源码，不需要登录 shell，只对明确的数据目录有写权限。环境变量也不是秘密保险箱：有权检查进程的主体可能读取它；不要 dump 环境、把 token 放命令行或把配置值原样写日志。O02 再分离普通配置与秘密注入。
+
+## 9. 服务管理器：监督进程，不替你修业务
+
+在 Linux 上，systemd 可以替代“让 SSH 窗口永远开着”：按服务单元启动进程，设置运行账户和 cwd，收集输出，在约定条件下重启。它不是数据库，也不知道一个 HTTP 200 是否越权。`Restart=on-failure` 不会使失败配置正确；RestartSec 与 StartLimit 防止无限快速重启掩盖根因。
+
+下面是完整教学模板，**未在本机运行或安装**。User/Group 降低权限；WorkingDirectory 固定相对路径基点；ExecStart 使用目标机恢复出的 .venv 绝对解释器；StateDirectory 由管理器创建可写状态目录；ProtectSystem=strict 使其他系统位置只读，StateDirectory 是被允许的写入位置。TimeoutStopSec 给 SIGTERM 留出 5 秒，然后管理器仍可能强制结束。NoNewPrivileges 防止执行时额外提升权限，不是“应用从此没有漏洞”。
+
+<Code language="ini">{getOperatingSystemExample('systemd/ops-worker.service')}</Code>
+
+真正验收需要用户自备可重建的 Linux/systemd 主机和管理权限：先确认不存在同名服务/账户，创建专用不可登录的 langshift-ops 用户组，把允许清单中的源码部署到 `/opt/langshift/o01-operating-system`，在目标路径恢复依赖，让服务账户可读可执行但不可修改源码。不要把 macOS 的 .venv 复制过去，也不要在现有生产主机上试验。
+
+下面的命令属于**准备完成后的 Linux 待验收步骤**，不是本机已成功记录。管理员先审核单元，再复制为系统单元并 daemon-reload；该动作需要单独确认目标机器。`systemd-analyze verify` 只验证配置，不证明运行权限正确。启动、查看状态、停止、再次启动后观察 starts 与 stopped.txt，才有运行证据。不要未经演练启用开机启动。
+
+```bash
+systemd-analyze verify systemd/ops-worker.service
+sudo systemctl daemon-reload
+sudo systemctl start ops-worker.service
+sudo systemctl status ops-worker.service --no-pager
+sudo journalctl -u ops-worker.service -n 30 --no-pager
+sudo systemctl stop ops-worker.service
+```
+
+## 10. 按故障发生的阶段排查
+
+| 观察 | 先检查 | 安全恢复 |
+| --- | --- | --- |
+| 找不到 uv / Python | PATH、解释器位置；尚未进入业务 | 按 L08 恢复工具，不用安装随机同名包 |
+| 配置错误，exit 78 | 变量是否传给了当前进程、目录是否绝对且存在 | 给这个子进程显式配置，不输出真实环境 |
+| FileNotFoundError | cwd 与资源的绝对路径 | 修路径责任，不复制到不确定目录 |
+| PermissionError / exit 74 | 实际 UID、目标目录 owner/mode | 只给专用目录所需权限 |
+| exit 65 | 教学 JSON 是否损坏、starts 是否非负整数 | 保留故障副本；实验重新使用新临时目录 |
+| 端口冲突 | 自己是否启动了第二份实例 | 停自己的第一份或另选端口 |
+| SIGKILL 后没有 stopped.txt | 停止方式，而非 finally 语法 | 解释强制终止边界，不声称可补救已丢数据 |
+
+把“最后成功阶段”写下来比重复重启有效。先区分解析配置、打开文件、绑定端口、业务请求，才知道该读哪条证据。这里不会要求你接触真实数据库或打印真实配置。
+
+## 11. 解释检查：给出因果链
+
+不运行代码回答：相同文件第二次启动为什么能得到 starts=2？为什么改 cwd 不该改变显式状态目录？SIGKILL 后没有清理文件能否说明 finally 写错了？为什么监听成功不能代替一次授权测试？
+
+<details>
+<summary>答案与解释</summary>
+
+新进程内存重新建立；它读到**同一文件**才继承计数。绝对数据路径在本例中不经过 cwd 拼接；若代码改回相对路径，行为才跟着目录改变。SIGKILL 不给解释器执行 finally 的机会，所以这次缺少文件是预期边界。监听只证明内核接受了绑定/监听请求；授权必须用真实请求验证主体与资源关系，不能从 socket 状态推导。
+
+</details>
+
+## 12. 引导练习：先拒绝配置，再拒绝损坏状态
+
+在自己的临时目录里依次使用缺失 OPS_DATA_DIR、相对路径、有效目录但 state.json 为 `[]`、最后有效 `{"starts":0}`。要求错误路径没有 traceback、没有环境值；前三种应按配置/数据阶段区分，最后一种应正常结束并写清理文件。提示：JSON 合法不等于符合业务形状，bool 在 Python 中也不能当本例计数整数。先写预测，再运行现有测试定位对应断言。
+
+<details>
+<summary>引导答案：拒绝的是哪个边界</summary>
+
+缺失和相对路径在 data_directory 拒绝，exit 78；列表虽是 JSON，却不是带 starts 的对象，exit 65；有效对象 --once 执行一次，exit 0。测试用自己创建的临时目录和有限超时，不能为方便把坏数据写进已有应用目录。观察 stderr 只包含分类信息；这比“捕获所有异常返回成功”保留更多可诊断性。
+
+<Code language="python">{getOperatingSystemExample('tests/test_operations.py')}</Code>
+
+</details>
+
+## 13. 独立变式：两个目录，三次启动
+
+只给需求，不看答案：建立 first、second 两个独立状态目录；对 first 启动两次，对 second 启动一次；所有子进程 cwd 故意设为 second。结果必须是 `[2, 1]`，每个进程正常退出，不能共享父进程字典模拟磁盘状态。只操作自己的临时文件，失败时也清理。写测试证明 cwd 不决定状态归属。
+
+<details>
+<summary>独立参考实现与验收</summary>
+
+<Code language="python">{getOperatingSystemExample('solutions/two_directories.py')}</Code>
+
+<Code language="python">{getOperatingSystemExample('solutions/test_two_directories.py')}</Code>
+
+```bash
+uv run --locked python -m solutions.two_directories
+uv run --locked python -m pytest -q solutions/test_two_directories.py
+```
+
+```text
+[2, 1]
+```
+
+若得到 `[0, 3]` 或只看到一份 state.json，优先查数据路径是否被 cwd 偷换。通过参考实现不代表你自己的实现通过；把相同测试运行在自己的函数上，并解释每次启动传入的路径。
+
+</details>
+
+## 14. 环境矩阵：已实现不等于在 Linux 验收
+
+| 状态 | 本章证据/门槛 |
+| --- | --- |
+| 已实际运行 | 普通 macOS 用户；标准测试 16、独立测试 1；env/cwd、权限拒绝与恢复、端口冲突、三种信号、跨进程文件状态 |
+| 本机不可运行 | 无 systemd/Linux 服务管理器；未安装系统单元、未测开机启动/真实服务账户隔离 |
+| 用户需自备 | 可重建受控 Linux/systemd 主机、专用账户和审核后的部署目录；先验证配置再实跑启停、权限、失败重启 |
+| 不属于本章已验收 | Windows、断电持久性、多写者、数据库恢复、公网服务 |
+
+本轮正文/源码是 implemented，Linux/systemd 部分仍是 environment_pending。测试数量只描述本轮执行的 case，不能变成“17 个测试证明生产可靠”。尚未安装系统级软件、未接触用户数据库、未停止不属于本实验的进程。
+
+## 15. 资料、日期与可恢复记录
+
+一手资料核验日期 **2026-09-28**。`SOURCES.json` 保存地址、核验日期和获取摘要；这是本轮使用的资料，不承诺文档未来不变。实际结果与环境缺口见三语 README，不能把配置的存在当成部署通过。
+
+- [Python subprocess](https://docs.python.org/3.13/library/subprocess.html)
+- [Python signal](https://docs.python.org/3.13/library/signal.html)
+- [Python os](https://docs.python.org/3.13/library/os.html)
+- [Python socket](https://docs.python.org/3.13/library/socket.html)
+- [systemd service](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html)
+- [systemd execution environment](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html)
+
+暂停学习时记录：当前源码版本/改动、工作目录、Python/uv 版本、最后成功命令、16+1 的实测是否在你的机器重现、仍失败的路径、下次第一步。不要保存真实环境或秘密。恢复时先 `uv sync --locked`，再运行 process_lab.py 和你的独立测试；若换到 Linux，重新填写矩阵，不沿用 macOS 的“通过”。
+

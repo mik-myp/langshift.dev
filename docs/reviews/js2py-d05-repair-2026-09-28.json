@@ -1,0 +1,472 @@
+{
+  "handoff_id": "langshift-d05-bounded-repair-20260928",
+  "created_at": "2026-09-28T13:20:10.693894+08:00",
+  "status": "completed",
+  "workspace": "/Users/mikmyp/Documents/code-projects/langshift.dev",
+  "request_scope": "仅 D05 三语正文及条件性 README 修复；不改共享注册/status/TypeSafe 记录，不重跑整套 runner，不修改原审查报告。",
+  "summary": {
+    "P2": "三语均给出全新练习副本中新 sandbox -> 003 head 基线和 check -> 保持 shell 存活并编辑 Project.review_note -> autogenerate -> 打印审查候选并检查数据库未执行 -> exit 与清理证据。",
+    "P3": "在首次完整 migration canonical 引用之前补齐 revision/down_revision、CLI/env/context 调用 upgrade/downgrade、op 与迁移连接以及不同于业务 Session 的所有权；明确生成文件不等于执行迁移。",
+    "readme_decision": "三语均已有正确的持续子 shell 上下文，没有同样的缺失；不改。"
+  },
+  "modified_paths": [
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-tw.mdx",
+      "sha256_before": "e5161477062d155a3fac02d14d644023935a0d546fee2847b50a3f4cb0509a40",
+      "sha256_after": "c59fc6163b49e4b5f44e1257b77c2ec8b5b24c56196583768adf38e9f5cd88da",
+      "changed": true,
+      "changed_sections": [
+        4,
+        8
+      ],
+      "lines_before": 258,
+      "lines_after": 310,
+      "bridge_lines": {
+        "start": 77,
+        "end": 83
+      },
+      "candidate_tour_lines": {
+        "start": 148,
+        "end": 195
+      },
+      "canonical_ref_count": 19,
+      "diff": "/tmp/langshift-d05-repair-work/module-25-migrations.zh-tw.mdx.diff"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-cn.mdx",
+      "sha256_before": "4204e4776c80d732eb1448d1bda6cc877449f51c9346a620b79ae552ef58d349",
+      "sha256_after": "df3eb2de09f28d6be1d857e0f5613982d9e0b2d9d83f33b9829e357fece6ca86",
+      "changed": true,
+      "changed_sections": [
+        4,
+        8
+      ],
+      "lines_before": 258,
+      "lines_after": 310,
+      "bridge_lines": {
+        "start": 77,
+        "end": 83
+      },
+      "candidate_tour_lines": {
+        "start": 148,
+        "end": 195
+      },
+      "canonical_ref_count": 19,
+      "diff": "/tmp/langshift-d05-repair-work/module-25-migrations.zh-cn.mdx.diff"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.mdx",
+      "sha256_before": "29da304a0428179b8866b16ff62d9baa6ed619478bb01159e94bdb95b9899e46",
+      "sha256_after": "0ce50a008de059f73c895deb424bdfac6f4234c4c121702ebeb4b2cc26cc7d68",
+      "changed": true,
+      "changed_sections": [
+        4,
+        8
+      ],
+      "lines_before": 258,
+      "lines_after": 310,
+      "bridge_lines": {
+        "start": 77,
+        "end": 83
+      },
+      "candidate_tour_lines": {
+        "start": 148,
+        "end": 195
+      },
+      "canonical_ref_count": 19,
+      "diff": "/tmp/langshift-d05-repair-work/module-25-migrations.mdx.diff"
+    }
+  ],
+  "readme_checks": [
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d05-migrations/README.md",
+      "sha256_before": "d2a8987349b3a2b7c91f93474ec019ce212efd83acfdab44def3c4a7aaa07fc9",
+      "sha256_after": "d2a8987349b3a2b7c91f93474ec019ce212efd83acfdab44def3c4a7aaa07fc9",
+      "changed": false,
+      "reason_unchanged": "已明确每次 wrapper 为新集群、连续命令在同一子 shell 内执行、最后 exit、配置不泄漏给父 shell；没有孤立的 autogenerate 命令，未发现同样缺失，按授权条件不改。"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d05-migrations/README.zh-tw.md",
+      "sha256_before": "13262d562481a9f14535d55f1f941b1e6a24f60fb4484c8ee359b99daf682288",
+      "sha256_after": "13262d562481a9f14535d55f1f941b1e6a24f60fb4484c8ee359b99daf682288",
+      "changed": false,
+      "reason_unchanged": "已明确每次 wrapper 为新集群、连续命令在同一子 shell 内执行、最后 exit、配置不泄漏给父 shell；没有孤立的 autogenerate 命令，未发现同样缺失，按授权条件不改。"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d05-migrations/README.zh-cn.md",
+      "sha256_before": "611148c1a7f27e852b91006b2cba8f1ef8b9599836159b3307c388857c17fd9e",
+      "sha256_after": "611148c1a7f27e852b91006b2cba8f1ef8b9599836159b3307c388857c17fd9e",
+      "changed": false,
+      "reason_unchanged": "已明确每次 wrapper 为新集群、连续命令在同一子 shell 内执行、最后 exit、配置不泄漏给父 shell；没有孤立的 autogenerate 命令，未发现同样缺失，按授权条件不改。"
+    }
+  ],
+  "preservation_checks": {
+    "original_15_h2_headings_preserved": true,
+    "changed_sections_only": [
+      4,
+      8
+    ],
+    "canonical_refs_unchanged_in_order_per_language": true,
+    "canonical_ref_count_per_language": 19,
+    "all_fences_byte_identical_across_three_languages": true,
+    "fence_count_before": 5,
+    "fence_count_after": 7,
+    "replacement": "原一条 autogenerate fence 被三段标明边界的 fence 取代；其余 fence 不变。",
+    "three_new_section8_fences": {
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-tw.mdx": [
+        {
+          "sha256": "b0473574a96c2e3bc53be3eaf7d26164159bc91d2a1312e877515fe74684f23e",
+          "byte_count": 180,
+          "language": "bash"
+        },
+        {
+          "sha256": "6d726bc85a40d6f6c67a9b4a95b983cce6f001bbf194267edce53728717e308e",
+          "byte_count": 93,
+          "language": "python"
+        },
+        {
+          "sha256": "f6559645ef8195bd3886d9b452e4d3656b3911d81c6650af5040e85e69e697c7",
+          "byte_count": 935,
+          "language": "bash"
+        }
+      ],
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-cn.mdx": [
+        {
+          "sha256": "b0473574a96c2e3bc53be3eaf7d26164159bc91d2a1312e877515fe74684f23e",
+          "byte_count": 180,
+          "language": "bash"
+        },
+        {
+          "sha256": "6d726bc85a40d6f6c67a9b4a95b983cce6f001bbf194267edce53728717e308e",
+          "byte_count": 93,
+          "language": "python"
+        },
+        {
+          "sha256": "f6559645ef8195bd3886d9b452e4d3656b3911d81c6650af5040e85e69e697c7",
+          "byte_count": 935,
+          "language": "bash"
+        }
+      ],
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.mdx": [
+        {
+          "sha256": "b0473574a96c2e3bc53be3eaf7d26164159bc91d2a1312e877515fe74684f23e",
+          "byte_count": 180,
+          "language": "bash"
+        },
+        {
+          "sha256": "6d726bc85a40d6f6c67a9b4a95b983cce6f001bbf194267edce53728717e308e",
+          "byte_count": 93,
+          "language": "python"
+        },
+        {
+          "sha256": "f6559645ef8195bd3886d9b452e4d3656b3911d81c6650af5040e85e69e697c7",
+          "byte_count": 935,
+          "language": "bash"
+        }
+      ]
+    },
+    "per_language": {
+      "module-25-migrations.mdx": {
+        "heading_count": 15,
+        "headings_unchanged": true,
+        "refs_unchanged_in_order": true,
+        "refs": [
+          "pyproject.toml",
+          "alembic.ini",
+          "migrate.py",
+          "migrations/env.py",
+          "migrations/versions/001_base.py",
+          "migrations/versions/002_expand.py",
+          "migrations/versions/003_contract.py",
+          "history_data.py",
+          "history_demo.py",
+          "migrations/script.py.mako",
+          "models.py",
+          "tests/conftest.py",
+          "tests/test_migrations.py",
+          "solutions/versions/004_archived_at.py",
+          "solutions/test_archive_migration.py",
+          "db.py",
+          "safety.py",
+          "pg_sandbox.py",
+          "uv.lock"
+        ],
+        "fence_count": 7,
+        "fence_sha256": [
+          "77cb3e4ecea005c58d454226e007d42f56c47412266748fa04a217596370f888",
+          "1e07e43c10f499c591d25c10704261ab07278a813a5af853a7aea7e9e67d66b0",
+          "dde67260ffecd7d72cfa2621c9dd3b3e40ce93a550cc7ea1108c0ac89a2ca212",
+          "b0473574a96c2e3bc53be3eaf7d26164159bc91d2a1312e877515fe74684f23e",
+          "6d726bc85a40d6f6c67a9b4a95b983cce6f001bbf194267edce53728717e308e",
+          "f6559645ef8195bd3886d9b452e4d3656b3911d81c6650af5040e85e69e697c7",
+          "e24639b672ea3a212b76d2fb1a78a186c030d5c81afed6bcbd75cd4b36666c49"
+        ]
+      },
+      "module-25-migrations.zh-cn.mdx": {
+        "heading_count": 15,
+        "headings_unchanged": true,
+        "refs_unchanged_in_order": true,
+        "refs": [
+          "pyproject.toml",
+          "alembic.ini",
+          "migrate.py",
+          "migrations/env.py",
+          "migrations/versions/001_base.py",
+          "migrations/versions/002_expand.py",
+          "migrations/versions/003_contract.py",
+          "history_data.py",
+          "history_demo.py",
+          "migrations/script.py.mako",
+          "models.py",
+          "tests/conftest.py",
+          "tests/test_migrations.py",
+          "solutions/versions/004_archived_at.py",
+          "solutions/test_archive_migration.py",
+          "db.py",
+          "safety.py",
+          "pg_sandbox.py",
+          "uv.lock"
+        ],
+        "fence_count": 7,
+        "fence_sha256": [
+          "77cb3e4ecea005c58d454226e007d42f56c47412266748fa04a217596370f888",
+          "1e07e43c10f499c591d25c10704261ab07278a813a5af853a7aea7e9e67d66b0",
+          "dde67260ffecd7d72cfa2621c9dd3b3e40ce93a550cc7ea1108c0ac89a2ca212",
+          "b0473574a96c2e3bc53be3eaf7d26164159bc91d2a1312e877515fe74684f23e",
+          "6d726bc85a40d6f6c67a9b4a95b983cce6f001bbf194267edce53728717e308e",
+          "f6559645ef8195bd3886d9b452e4d3656b3911d81c6650af5040e85e69e697c7",
+          "e24639b672ea3a212b76d2fb1a78a186c030d5c81afed6bcbd75cd4b36666c49"
+        ]
+      },
+      "module-25-migrations.zh-tw.mdx": {
+        "heading_count": 15,
+        "headings_unchanged": true,
+        "refs_unchanged_in_order": true,
+        "refs": [
+          "pyproject.toml",
+          "alembic.ini",
+          "migrate.py",
+          "migrations/env.py",
+          "migrations/versions/001_base.py",
+          "migrations/versions/002_expand.py",
+          "migrations/versions/003_contract.py",
+          "history_data.py",
+          "history_demo.py",
+          "migrations/script.py.mako",
+          "models.py",
+          "tests/conftest.py",
+          "tests/test_migrations.py",
+          "solutions/versions/004_archived_at.py",
+          "solutions/test_archive_migration.py",
+          "db.py",
+          "safety.py",
+          "pg_sandbox.py",
+          "uv.lock"
+        ],
+        "fence_count": 7,
+        "fence_sha256": [
+          "77cb3e4ecea005c58d454226e007d42f56c47412266748fa04a217596370f888",
+          "1e07e43c10f499c591d25c10704261ab07278a813a5af853a7aea7e9e67d66b0",
+          "dde67260ffecd7d72cfa2621c9dd3b3e40ce93a550cc7ea1108c0ac89a2ca212",
+          "b0473574a96c2e3bc53be3eaf7d26164159bc91d2a1312e877515fe74684f23e",
+          "6d726bc85a40d6f6c67a9b4a95b983cce6f001bbf194267edce53728717e308e",
+          "f6559645ef8195bd3886d9b452e4d3656b3911d81c6650af5040e85e69e697c7",
+          "e24639b672ea3a212b76d2fb1a78a186c030d5c81afed6bcbd75cd4b36666c49"
+        ]
+      }
+    },
+    "example_boundaries": [
+      "本地运行、不使用浏览器 Python。",
+      "第一个 shell fence：第一行启动新 sandbox，其余命令在该 shell 中执行。",
+      "Python 字段 fence：Project 类体内编辑片段，非独立程序；在基线确认后才编辑并保存。",
+      "最后 shell fence：同一个 shell 中执行；heredoc 为完整本地只读检查程序；候选不应用，最后 exit。"
+    ],
+    "source_safety": {
+      "protected_files_checked": 30,
+      "all_unchanged": true,
+      "manifest": "/tmp/langshift-d05-repair-work/protected-after.json",
+      "original_audit_report_unchanged": {
+        "path": "/tmp/langshift-h02-d05-targeted-audit.json",
+        "sha256_before": "fce336ea98560d7ea3d7d14a639d27b4708873f276a180f4107234df2bc3b3ba",
+        "sha256_after": "fce336ea98560d7ea3d7d14a639d27b4708873f276a180f4107234df2bc3b3ba",
+        "unchanged": true
+      }
+    }
+  },
+  "reproduction": {
+    "status": "passed",
+    "wrapper_command": "uv run --locked python pg_sandbox.py --evidence /tmp/d05-candidate-cleanup.json -- bash",
+    "cwd": "/tmp/langshift-d05-repair-work/scratch/d05-migrations",
+    "same_sandbox_through_all_steps": true,
+    "baseline_revision": "003_contract (head)",
+    "baseline_check": "No new upgrade operations detected.",
+    "model_edit_after_baseline": true,
+    "candidate": {
+      "path": "/tmp/langshift-d05-repair-work/scratch/d05-migrations/migrations/versions/00d2e55089b1_review_candidate.py",
+      "sha256": "5046b83b7e0892a56e19f00b8449396b59e43d32910a41b935c7d58923fe77c4",
+      "revision": "00d2e55089b1",
+      "down_revision": "003_contract",
+      "single_nullable_add_column": "projects.review_note",
+      "downgrade": "drop projects.review_note"
+    },
+    "candidate_not_applied": {
+      "database_revision": "003_contract",
+      "column_exists": false,
+      "checked_live_before_exit": true
+    },
+    "exit_code": 0,
+    "cleanup": {
+      "cluster": "/private/tmp/ls-pg-ltawh6t4",
+      "socket": "/private/tmp/ls-pg-ltawh6t4/socket",
+      "tcp": false,
+      "server_version": "180006",
+      "command_exit": 0,
+      "stopped": true,
+      "removed": true,
+      "status_after_stop": 3,
+      "stop_exit": 0
+    },
+    "environment": {
+      "UV_PYTHON_INSTALL_DIR": "/tmp/langshift-js2py-python-20260928",
+      "UV_CACHE_DIR": "/tmp/langshift-js2py-uv-cache-20260928",
+      "PG_BIN": "/opt/homebrew/bin"
+    },
+    "command_source": "Extracted verbatim from repaired English section 8 fences; all three languages are byte-identical. Only step-marker printf commands added by this driver; editor action inserts the exact class-body fragment.",
+    "events": [
+      {
+        "action": "shell_command",
+        "label": "establish_baseline",
+        "command": "python -m alembic upgrade head",
+        "exit_code": 0,
+        "output": "sandbox: PostgreSQL 180006; private socket; no TCP"
+      },
+      {
+        "action": "shell_command",
+        "label": "current_before_edit",
+        "command": "python -m alembic current",
+        "exit_code": 0,
+        "output": "003_contract (head)"
+      },
+      {
+        "action": "shell_command",
+        "label": "check_before_edit",
+        "command": "python -m alembic check",
+        "exit_code": 0,
+        "output": "No new upgrade operations detected."
+      },
+      {
+        "action": "editor_save",
+        "after": "head baseline and clean check",
+        "file": "/tmp/langshift-d05-repair-work/scratch/d05-migrations/models.py",
+        "inserted_fragment": "    review_note: Mapped[str | None] = mapped_column(String(200), nullable=True)\n",
+        "location": "Project class, directly after name",
+        "sandbox_still_running": true,
+        "before_sha256": "b6f8278ae0ef6f7ada061f0eb7296c700437159697ece222b613c84898571c21",
+        "after_sha256": "ff5ac13766ab7fa49caf5dfb253634942c44a1b2114d2756b045f55afea792b2"
+      },
+      {
+        "action": "shell_command",
+        "label": "autogenerate_candidate",
+        "command": "python -m alembic revision --autogenerate -m \"review candidate\"",
+        "exit_code": 0,
+        "output": "Generating /private/tmp/langshift-d05-repair-work/scratch/d05-migrations/migrations/versions/00d2e55089b1_review_candidate.py ...  done"
+      },
+      {
+        "action": "shell_command",
+        "label": "current_after_generation",
+        "command": "python -m alembic current",
+        "exit_code": 0,
+        "output": "003_contract"
+      },
+      {
+        "action": "shell_command",
+        "label": "read_candidate_and_inspect_database",
+        "command": "python - <<'PY'\nfrom pathlib import Path\nfrom sqlalchemy import inspect, text\nfrom db import make_engine\n\ncandidates = list(Path(\"migrations/versions\").glob(\"*_review_candidate.py\"))\nassert len(candidates) == 1, \"Use a fresh scratch copy for this exercise\"\nprint(\"candidate:\", candidates[0])\nprint(candidates[0].read_text(encoding=\"utf-8\"))\nengine = make_engine()\ntry:\n    with engine.connect() as connection:\n        revision = connection.scalar(text(\"SELECT version_num FROM alembic_version\"))\n        columns = {column[\"name\"] for column in inspect(connection).get_columns(\"projects\")}\n        assert revision == \"003_contract\"\n        assert \"review_note\" not in columns\n        print(\"database revision:\", revision)\n        print(\"review_note exists in database:\", \"review_note\" in columns)\nfinally:\n    engine.dispose()\nPY",
+        "exit_code": 0,
+        "output": "candidate: migrations/versions/00d2e55089b1_review_candidate.py\n\"\"\"review candidate\"\"\"\nfrom alembic import op\nimport sqlalchemy as sa\n\nrevision = '00d2e55089b1'\ndown_revision = '003_contract'\nbranch_labels = None\ndepends_on = None\n\n\ndef upgrade():\n    # ### commands auto generated by Alembic - please adjust! ###\n    op.add_column('projects', sa.Column('review_note', sa.String(length=200), nullable=True))\n    # ### end Alembic commands ###\n\n\ndef downgrade():\n    # ### commands auto generated by Alembic - please adjust! ###\n    op.drop_column('projects', 'review_note')\n    # ### end Alembic commands ###\n\ndatabase revision: 003_contract\nreview_note exists in database: False"
+      },
+      {
+        "action": "shell_exit",
+        "command": "exit"
+      }
+    ]
+  },
+  "reproduction_method": {
+    "successful_tours_run": 1,
+    "commands_from_repaired_text": true,
+    "same_shell": true,
+    "manual_edit_equivalent": "在 baseline/current/check 成功之后，用文件编辑写入从正文提取的四空格类体行；写入时 wrapper 子 shell 始终存活。",
+    "driver_instrumentation": "仅每一步之后添加 printf 返回码标记，日志中六步返回码全 0；没有替换正文 Alembic 命令，未关闭 URL 护栏。",
+    "candidate_ast_checks": [
+      "down_revision == 003_contract",
+      "upgrade 仅 add_column(projects, review_note nullable=True)",
+      "downgrade 仅 drop_column(projects, review_note)"
+    ],
+    "candidate_not_applied_proof": "退出前通过活连接检查 version_num 仍 003_contract，projects 列表没有 review_note；不是只检查磁盘文件。",
+    "cleanup_proof": "wrapper exit code 0；server_version 180006；无 TCP；stopped=true、status_after_stop=3、removed=true；已检查集群目录确实不存在。",
+    "environment_install": "只在 /tmp/langshift-d05-repair-work/scratch/d05-migrations 执行 uv sync --locked；无共享环境/锁更改。"
+  },
+  "artifacts": [
+    {
+      "path": "/tmp/langshift-d05-repair-work/reproduction-results.json",
+      "sha256": "16caef0f1587249249f1893a35a39a1e07692026c300b3f5df0bc5640b7998a5"
+    },
+    {
+      "path": "/tmp/langshift-d05-repair-work/reproduction.log",
+      "sha256": "a3d5d721369a73c56df8ade7e8be1752dba2e18c049d8da31db5b382016d7c21"
+    },
+    {
+      "path": "/tmp/langshift-d05-repair-work/reproduce.py",
+      "sha256": "21c289b14ca67f73b095977d40c20d681dbfe73c189f21b792cabe56cb98daa8"
+    },
+    {
+      "path": "/tmp/langshift-d05-repair-work/structural-checks.json",
+      "sha256": "8fbd42fc841c634af56eb9ff3bc1435b3eab51ec62fa2785b2ada83e220e7f2b"
+    },
+    {
+      "path": "/tmp/langshift-d05-repair-work/protected-after.json",
+      "sha256": "4cec8a8e637e80db7f4200d2fe0a131d27f91229450f0fb6cc3cc512a10e7bf6"
+    },
+    {
+      "path": "/tmp/langshift-d05-repair-work/candidate-cleanup.json",
+      "sha256": "e77d742e5ed26f08abb0b9752e1891a006630eaa4547957f6ce13fc460abb736"
+    },
+    {
+      "path": "/tmp/langshift-d05-repair-work/tour-start.sh",
+      "sha256": "47cc39249c5f4fdc70209bbf457b687bf35da0d23f8b1b7ffc9aee4039763ee7"
+    },
+    {
+      "path": "/tmp/langshift-d05-repair-work/tour-finish.sh",
+      "sha256": "0352e2f696f6618eb9f4e8e3142852433489ee9e8ea19150496051cda5e64f1c"
+    },
+    {
+      "path": "/tmp/langshift-d05-repair-work/model-edit-fragment.py",
+      "sha256": "a3d48e0f3580a33786489fe46043f574832ad769b47cb3102b373fe5a7d290b5"
+    },
+    {
+      "path": "/tmp/langshift-d05-repair-work/scratch/d05-migrations/migrations/versions/00d2e55089b1_review_candidate.py",
+      "sha256": "5046b83b7e0892a56e19f00b8449396b59e43d32910a41b935c7d58923fe77c4"
+    }
+  ],
+  "constraints_observed": {
+    "workspace_write_set": [
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-tw.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-cn.mdx",
+      "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.mdx"
+    ],
+    "shared_lab_source_changed": false,
+    "shared_registry_status_typesafe_records_changed_by_this_repair": false,
+    "typesafe_called": false,
+    "old_probability_resampled": false,
+    "user_database_or_service_used": false,
+    "full_runner_repeated": false,
+    "original_audit_report_modified": false
+  },
+  "not_covered": [
+    "未重跑默认 9 项迁移测试或全主线 runner。",
+    "未重新构建 ZIP 或完整站点；已做标题/refs/fences 与文本定向 diff 校验。",
+    "未将候选应用到数据库，也未将 review_note 加入共享 lab；此路径特意只验收生成与未执行。",
+    "未扩展生产迁移、并发、多 head、断电/备份恢复等原审查未覆盖边界。"
+  ],
+  "mainline_handoff": "这是三语真实内容修订，不是对旧审查概率重新采样。主线可按上述文件 hash 记录新修订，再独立执行新 TypeSafe 审查；此辅助任务未修改其记录。"
+}

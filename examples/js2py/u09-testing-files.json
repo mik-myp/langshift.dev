@@ -1,0 +1,22 @@
+[
+  "pyproject.toml",
+  ".python-version",
+  "study.py",
+  "first_check.py",
+  "wrong_check.py",
+  "errors/test_wrong_expectation.py",
+  "errors/test_false_green.py",
+  "errors/not_discovered/check_totals.py",
+  "errors/test_import_failure.py",
+  "exercises/broken_study.py",
+  "exercises/test_broken_study.py",
+  "exercises/__init__.py",
+  "solutions/budget/pyproject.toml",
+  "solutions/budget/.python-version",
+  "solutions/budget/budget.py",
+  "tests/test_study.py",
+  "solutions/budget/tests/test_budget.py",
+  "README.md",
+  "uv.lock",
+  "solutions/budget/uv.lock"
+]

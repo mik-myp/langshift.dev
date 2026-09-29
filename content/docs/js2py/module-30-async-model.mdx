@@ -1,0 +1,197 @@
+---
+title: Python async execution — own it, schedule it, then await it
+description: Trace coroutine objects, Tasks, the event loop, blocking, cancellation, deadlines and concurrency limits through observable events and real resource checks, not timing guesses.
+---
+
+import { getAsyncModelExample } from '@/lib/js2py-examples'
+
+## 1. After S03, reconsider a familiar word: async
+
+You have implemented synchronous APIs, SQL transactions, authentication, authorization and reliable business operations. Now a task needs an optional external hint. While a request waits for the network, can the server serve another request? The answer is not “add async everywhere.” You must identify **who starts work, who waits, who owns resources, and who makes unfinished work stop**.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | S03; functions, exceptions, with, modules and pytest; mature JS Promise/async/await experience |
+| New capability | Distinguish coroutine objects, Tasks and the event loop; choose sync/async boundaries and own concurrent work |
+| Independent acceptance | Prove ordering/overlap with events, cancellation cleanup with actual resources, and implement a bounded batch variation |
+| Exclusions | TaskGroup/ExceptionGroup, thread-pool capacity planning, async database migration, production job queues |
+
+This lab imports no evolving S03 application. It is not an asynchronous capstone and does not establish database, authorization or deployment correctness. A02 will connect these mechanisms to a locally simulated external dependency.
+
+## 2. A reproducible starting point
+
+[Download the independent lab](/learning-assets/js2py/a01-async-model.zip). Enter the extracted `a01-async-model` directory; its repository counterpart is `examples/js2py/a01-async-model`. Displayed files, all translations, answers and downloads share that source. These are local, multi-file CPython programs using an event loop, threads and files, not browser/Pyodide exercises.
+
+Verified **2026-09-28** with CPython **3.13.15**, uv **0.12.13**, pytest **8.4.2**. The project accepts only Python 3.13. `package = false` means running the source without installing this project as a package. The public-PyPI `uv.lock` contains actual resolved artifacts and hashes, not a handwritten dependency list. Do not discard it and silently replace the baseline with today's newest packages.
+
+<Code language="toml">{getAsyncModelExample('pyproject.toml')}</Code>
+
+Run these commands from the lab root after installing uv 0.12.13. The two `/tmp` directories isolate this verification's interpreter and download cache; they are not business storage. Stop and correct the environment if the versions disagree.
+
+<Code language="bash">{getAsyncModelExample('commands.sh')}</Code>
+
+Expect **19 passed** for the main suite and **5 passed** for the independent answer; elapsed times are not acceptance criteria. Keep the complete project while reading it file by file. Checkpoint C0: record the working directory, interpreter/tool versions, last successful command, and one unanswered question. You can resume from that record rather than reconstructing terminal history.
+
+## 3. Calling an async function: Python is not JavaScript
+
+Predict whether the caller's “after-call” line or the function body's first line appears first. Both files are complete. Node supplies a local JS comparison, not a Python prerequisite. The editor uses `compare={true}` and `canRun={false}`: the Python entry point owns a local loop and must not be copied unchanged into an already-running browser loop.
+
+<PythonEditor title="Call versus execution" compare={true} canRun={false} code={[{ lang: 'javascript', value: getAsyncModelExample('comparison.js') }, { lang: 'python', value: getAsyncModelExample('comparison.py') }]} />
+
+```bash
+node comparison.js
+uv run --locked python comparison.py
+```
+
+Actual JavaScript output:
+
+<Code language="text">{getAsyncModelExample('expected-javascript.txt')}</Code>
+
+Actual Python output:
+
+<Code language="text">{getAsyncModelExample('expected-python.txt')}</Code>
+
+Calling a JS async function executes its body up to suspension and returns a Promise. Python's `async def` defines a coroutine function; calling it produces a **coroutine object without starting its body**. That object represents one resumable execution. It is not an already-started request or an automatically queued background job. Discarding it normally produces `RuntimeWarning: coroutine was never awaited`, not completed work.
+
+`await pending` advances that coroutine as part of the current execution. `asyncio.create_task(pending)` wraps it in a Task and schedules it on the running loop. The Task tracks execution, a result or exception, and cancellation state. Its owner must keep a reference and ultimately observe the outcome. This lab uses Python 3.13's **default task factory**, not the optional eager task factory; observations about not-yet-started Tasks are not universal claims about custom factories.
+
+## 4. Four roles, not four threads
+
+Consider one event-loop thread in a service process. The loop tracks ready callbacks and pending I/O and resumes eligible work. A Task drives its coroutine until completion, failure or a wait for something not yet ready. `await` expresses a dependency on an awaitable's result. It neither creates a thread nor guarantees suspension.
+
+An already-ready awaitable can return immediately. One test waits on an Event that is already set and confirms that a queued callback still has not run. An unset Event instead suspends its waiter, allowing the loop to advance other work. Putting an already-completed await in a CPU loop therefore does not guarantee responsiveness.
+
+`asyncio.run(main())` owns loop creation, execution and closure at a standalone program boundary. Inside an async framework, use the existing await chain rather than nesting run. Similarly, do not create loop-bound clients in one loop and store them in module globals for unrelated loops to reuse.
+
+Read `creation`, `sequential`, then `scheduled` in this complete file. The last two demonstrations belong to the blocking section below.
+
+<Code language="python">{getAsyncModelExample('scheduling.py')}</Code>
+
+An Event here is a same-loop, in-process gate. `set()` makes waiters eligible to continue; `wait()` suspends while it is unset. It does not carry a result or persist a message. Gates let us express “the child has entered” and “this child may finish” without guessing ordering from machine speed.
+
+## 5. Direct awaits are sequential; scheduling permits overlap
+
+`sequential` fully awaits A before calling and awaiting B. A's `sleep(0)` gives the loop a scheduling opportunity, but B does not yet exist. It cannot magically overlap. This resembles consecutive `await fetch(...)` calls in JS; the important difference is that merely calling two Python coroutine functions early still does not start either one.
+
+`scheduled` creates two Tasks first. The owner waits for both entered gates, releases B and observes B's completion, then releases A. Ownership and the required completion order are explicit. A/B start order in the transcript reflects this default-loop run. The meaningful test requires **both starts before both-entered and both ends after it**; unrelated ready-queue ordering is not a business contract.
+
+The owner's finally calls `drain`: cancel every unfinished child, then await all terminal outcomes with `gather(..., return_exceptions=True)`. This use of gather is for cleanup. Returned positions correspond to inputs, and exceptions/cancellations become result items so that one cancellation does not prevent observing the other child. It does not give arbitrary programs a “cancel siblings immediately on failure” policy. The normal path already observes its intended results; this small cleanup helper does not re-raise secondary failures. Production supervision that must retain those failures needs explicit reporting rather than silently discarding that list.
+
+<details>
+<summary>Explanation check: do two coroutine calls followed by two awaits overlap automatically?</summary>
+
+No. Constructing a coroutine object does not add ready work to the loop. The first object starts when awaited; the second starts after the first finishes. Explicitly schedule both Tasks, or use a combinator with known scheduling semantics, and own both lifetimes. A separate trap is that await need not suspend: an already-set Event may return immediately.
+
+</details>
+
+## 6. Blocking means occupying the loop thread, not merely waiting a long time
+
+`blocking` schedules a ready callback with `loop.call_soon`, then executes synchronous `time.sleep(0.02)` on the loop thread. The CPU may be idle during sleep, but the thread has not returned control to the loop. Consequently the callback has still not run when the synchronous region ends. It runs only after the deliberate `await asyncio.sleep(0)` checkpoint.
+
+The assertion concerns callback order, not a fragile “should finish in 20 ms” threshold. This demonstrates the inability to interleave work; it is not a throughput benchmark, nor does every delayed callback identify the exact source of a blockage.
+
+`offloaded` bridges a necessarily synchronous blocking library using `asyncio.to_thread`. The worker announces entry with `call_soon_threadsafe` and waits on a thread-specific `threading.Event`. Meanwhile the loop records progress, releases the thread, and explicitly awaits its completion. Do not call asyncio.Event.set directly from a worker thread. The two Event types belong to different concurrency models.
+
+Keep pure title validation and small dictionary operations synchronous. Await genuinely async I/O clients. Consider a thread bridge for unavoidable synchronous I/O; putting CPU-heavy computation inside async does not create parallelism. Cancelling the Task awaiting to_thread **cannot forcibly stop the underlying thread**. The library needs its own timeout/stop protocol. Our example releases and joins its worker instead of leaving a background thread to chance.
+
+## 7. Cancellation is a request, not an immediate interrupt or a successful result
+
+The next file uses a real temporary file, not merely a “closed” log. `hold_file` acquires the file only when its body starts, enters try, announces entry, and waits for release. The owner waits for entry before cancelling, ensuring that acquisition has happened.
+
+<Code language="python">{getAsyncModelExample('ownership.py')}</Code>
+
+`task.cancel()` requests injection of `asyncio.CancelledError`; it does not synchronously stop a thread at an arbitrary instruction. The coroutine generally receives the request at a cancellable wait and passes through finally. The owner must still await the Task to observe its actual end. CancelledError inherits BaseException rather than ordinary Exception. A bare except or broad BaseException handler can accidentally turn shutdown into an ordinary network failure.
+
+If you catch cancellation to record it, clean up and re-raise. Our worker does not intercept it at all: finally closes the file. The owner's except is a boundary observation of the cancellation it requested, not a conversion of business work into success. Cleanup can itself fail and obscure the original cancellation; a log line cannot establish an unconditional cleanup guarantee.
+
+One important edge case: with the default factory, cancelling before a Task starts runs neither its body nor its finally. Since acquisition also lives in the body, there is nothing to release. If an outer function acquires a resource before handing it to a not-yet-started Task, the outer owner remains responsible for that resource.
+
+## 8. A timeout is a cooperative budget, not forced termination
+
+`timed_out` uses `asyncio.timeout(0)` to expire on the next loop turn. The current Task still acquires the file; its wait on an unset Event makes cancellation observable. Finally closes the file, and TimeoutError is caught outside the timeout context. Zero is a deterministic mechanism demonstration, not a recommended network budget.
+
+The timeout context translates the cancellation it initiated into TimeoutError. Independent external cancellation should still propagate as CancelledError. Catch timeout outside the context so that the boundary between budget expiry and internal business exceptions remains clear. A real overall budget should include queuing, multiple attempts and backoff, not silently restart at each step.
+
+This is cooperative: a blocked loop cannot run its timer promptly, and cleanup can take additional time. Do not promise that everything has stopped at exactly N seconds or conclude that an external write could not have happened. A02 distinguishes HTTP phase timeouts from the complete operation's deadline.
+
+## 9. A concurrency limit does not make unlimited input free
+
+<Code language="python">{getAsyncModelExample('capacity.py')}</Code>
+
+A Semaphore counts permits. Entering `async with slots` acquires one or waits; exiting returns it. Meter counts admitted work, not Tasks waiting outside. With four Tasks and two permits, only two entered gates are set. Releasing one admitted job allows a replacement to enter. Both normal completion and cancellation decrement active in finally and return the permit through the context manager.
+
+A semaphore created inside every request gives each request its own limit; it does not limit total pressure on a shared dependency. A02 creates one during the application lifetime. This demo creates at most four Tasks, and the independent variation permits eight. **A semaphore of two still leaves a million pre-created Tasks consuming memory.** Unbounded input needs bounded admission, backpressure and additional design.
+
+Guided change: switch limit from 2 to 1 and then 3. Do not assert that execution time doubles or shrinks. Verify the new peak and zero active work at exit. Explain why cancelling a permit waiter must not return an extra permit it never acquired.
+
+<details>
+<summary>Guided answer: where to change the limit and how to prove permits are not leaked</summary>
+
+Call bounded(1) or bounded(3); the gate algorithm does not need a special two-job rewrite. The main suite checks 1, 2, 3 and 4. Another test lets one Task hold the sole permit, cancels its waiter, and verifies slots.locked() remains true. It then cancels the holder and uses public acquire behavior to demonstrate that capacity is available again. It does not inspect private semaphore fields or treat a “released” print as evidence.
+
+</details>
+
+## 10. Run the complete chain and interpret the evidence
+
+<Code language="python">{getAsyncModelExample('app.py')}</Code>
+
+Shared baseline for `uv run --locked python app.py`:
+
+<Code language="text">{getAsyncModelExample('expected-output.txt')}</Code>
+
+The complete main suite follows. Each scenario owns its loop through asyncio.run, with no async pytest plugin configuration and no Tasks carried between tests. File cleanup is checked both through the real handle.closed state and through a subsequent write that must raise ValueError.
+
+<Code language="python">{getAsyncModelExample('tests/test_model.py')}</Code>
+
+Checkpoint C1: draw the creation, entry, release and completion moments in scheduled. C2: explain how to test the file and permit without relying on log messages. When resuming, run the focused test and then the suite. Increasing arbitrary sleep durations is not a repair for an ordering error.
+
+## 11. Three actual failures: locate the phase, then recover
+
+**Forgotten await:** run `uv run --locked python errors/forgotten.py`. It captures a real RuntimeWarning and prints a stable summary; events remains empty. gc.collect makes this diagnostic repeatable, not a valid resource-management technique. Repair ownership by awaiting, or explicitly scheduling and draining, rather than hiding the warning.
+
+<Code language="python">{getAsyncModelExample('errors/forgotten.py')}</Code>
+
+**Reusing a coroutine:** run `uv run --locked python errors/reuse.py`. It prints 42, then exits nonzero with `RuntimeError: cannot reuse already awaited coroutine`. Call the function again for a new operation. To observe the same completed operation repeatedly, retain and await its Task rather than reusing the original coroutine object.
+
+<Code language="python">{getAsyncModelExample('errors/reuse.py')}</Code>
+
+**Swallowing cancellation:** run `uv run --locked python errors/swallow.py`. Its output is `result=pretend-success cancelled=False`. No exception escapes, but the contract is broken: an owner can mistake cancellation for completion. Remove the swallowing handler, or re-raise after handling, then rerun the cancellation test.
+
+<Code language="python">{getAsyncModelExample('errors/swallow.py')}</Code>
+
+The main suite reproduces all three in separate processes and checks status and diagnostic text. If you instead see `asyncio.run() cannot be called from a running event loop`, check whether you copied a script entry point inside a framework or notebook. Do not paper over the ownership error with nested-loop patches. Restore from the complete sources and the same lock; no unrelated environment needs deletion.
+
+## 12. Independent variation: a cancellable, finite batch transformer
+
+Do not open the answer yet. Implement `transform_batch(titles, fetch, *, limit=2, deadline=1.0)`. Normalize titles synchronously; reject any empty title before calling fetch at all. Permit at most eight items, limits 1–4, and a positive total deadline no greater than 30 seconds. Empty input returns an empty list. Return async fetch results in input order. After failure, timeout or owner cancellation, every child you created must have ended. Supply a local async function as the dependency; do not use the network.
+
+Deliberately fail one fetch while others wait and verify that a live-work set becomes empty. Also test owner cancellation and expiry. A correct result list alone is insufficient. State whether your design is fail-fast: input-order awaits can defer observing a later failure while earlier work waits, but the overall deadline still bounds the batch cooperatively. TaskGroup/ExceptionGroup are not prerequisites for this exercise.
+
+<details>
+<summary>Complete independent answer, tests and trade-offs</summary>
+
+<Code language="python">{getAsyncModelExample('solutions/batch.py')}</Code>
+
+<Code language="python">{getAsyncModelExample('solutions/test_batch.py')}</Code>
+
+`uv run --locked python -m pytest -q solutions` reports 5 passed. Validate the whole input before creating Tasks, avoiding partially executed invalid batches. Finally requests all children to stop before draining them; this does not undo completed effects. normalize remains synchronous. The eight-item cap makes one Task per item a bounded choice, not an infinite-stream architecture.
+
+</details>
+
+## 13. Exit criteria and a recovery card
+
+Make one requirements change without looking at the answer. Then check that you can explain why coroutine calls do not start work, prove overlap with entered/release events, identify the synchronous blocking region, propagate cancellation, and verify files and permits. Explain why a deadline cannot kill a thread, roll back an external effect or guarantee an absolute stopping instant.
+
+Save a recovery card with **current file/branch, last successful command, which of the 19+5 tests passed, your changed condition, the first counterexample, and the next action**. This chapter does not establish performance capacity, generic cross-thread cancellation, durable jobs or production service readiness. Compilation, MDX rendering and plausible-looking output are not substitutes for execution evidence.
+
+## 14. Official references and version maintenance
+
+Verified **2026-09-28**. Installed versions live in pyproject, .python-version and uv.lock. The gates, capacity values and exercise budgets are teaching choices, not official production recommendations.
+
+- [Python 3.13: Coroutines and Tasks](https://docs.python.org/3.13/library/asyncio-task.html): coroutine/Task, scheduling, cancellation, timeout, to_thread and the eager-factory exception.
+- [Python 3.13: Event loop](https://docs.python.org/3.13/library/asyncio-eventloop.html): callback scheduling and thread-safe entry.
+- [Python 3.13: Synchronization primitives](https://docs.python.org/3.13/library/asyncio-sync.html): Event, Semaphore and thread-safety boundaries.
+- [Python 3.13: Developing with asyncio](https://docs.python.org/3.13/library/asyncio-dev.html): blocking work and never-awaited coroutines.
+- [Python 3.13: Exceptions](https://docs.python.org/3.13/library/asyncio-exceptions.html) and [runners](https://docs.python.org/3.13/library/asyncio-runner.html): cancellation inheritance and entry-point ownership.
+- [ECMAScript: AsyncFunctionStart](https://tc39.es/ecma262/multipage/control-abstraction-objects.html#sec-async-functions-abstract-operations-async-function-start): the JS comparison does not imply Python automatically schedules work.
+- [uv: Locking and syncing](https://docs.astral.sh/uv/concepts/projects/sync/): synchronizing a fixed environment.

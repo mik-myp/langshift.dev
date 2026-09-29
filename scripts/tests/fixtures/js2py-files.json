@@ -1,0 +1,316 @@
+{
+  "cases": [
+    {
+      "id": "paths",
+      "cwd": ".",
+      "args": [
+        "paths.py"
+      ],
+      "stdout": "Cwd: <LAB>\nRelative: fixtures/notes.txt\nAbsolute: True\nName: notes.txt\nParent name: fixtures\nTarget: <LAB>/fixtures/notes.txt\n"
+    },
+    {
+      "id": "read-text",
+      "cwd": ".",
+      "args": [
+        "read_text.py"
+      ],
+      "stdout": "Inside closed: False\nText: 'Python 学习\\n  keep spaces  \\n'\nAfter closed: True\n"
+    },
+    {
+      "id": "paths-other-cwd",
+      "cwd": "fixtures",
+      "args": [
+        "../paths.py"
+      ],
+      "stdout": "Cwd: <LAB>/fixtures\nRelative: fixtures/notes.txt\nAbsolute: True\nName: notes.txt\nParent name: fixtures\nTarget: <LAB>/fixtures/notes.txt\n"
+    },
+    {
+      "id": "read-other-cwd",
+      "cwd": "fixtures",
+      "args": [
+        "../read_text.py"
+      ],
+      "stdout": "Inside closed: False\nText: 'Python 学习\\n  keep spaces  \\n'\nAfter closed: True\n"
+    },
+    {
+      "id": "cursor",
+      "cwd": ".",
+      "args": [
+        "read_cursor.py"
+      ],
+      "stdout": "First: 'Python'\nRest: ' 学习\\n  keep spaces  \\n'\nAt end: ''\nReopened: 'Python'\n"
+    },
+    {
+      "id": "lines",
+      "cwd": ".",
+      "args": [
+        "read_lines.py"
+      ],
+      "stdout": "1 'Python 学习\\n'\n2 '  keep spaces  \\n'\n"
+    },
+    {
+      "id": "bytes",
+      "cwd": ".",
+      "args": [
+        "encoding_bytes.py"
+      ],
+      "stdout": "Text length: 2\nByte length: 6\nBytes: b'\\xe5\\xad\\xa6\\xe4\\xb9\\xa0'\nDecoded: 学习\n"
+    },
+    {
+      "id": "binary",
+      "cwd": ".",
+      "args": [
+        "read_binary.py"
+      ],
+      "stdout": "Is bytes: True\nDecoded: 'Python 学习\\n  keep spaces  \\n'\n"
+    },
+    {
+      "id": "wrong-encoding",
+      "cwd": ".",
+      "args": [
+        "error_wrong_encoding.py"
+      ],
+      "stdout": "After error closed: True\n",
+      "errors": [
+        "UnicodeDecodeError"
+      ]
+    },
+    {
+      "id": "write-text",
+      "cwd": ".",
+      "args": [
+        "write_text.py"
+      ],
+      "stdout": "Characters written: 10\nRead back: '学习 Python\\n'\n"
+    },
+    {
+      "id": "write-modes",
+      "cwd": ".",
+      "args": [
+        "write_modes.py"
+      ],
+      "stdout": "Appended: 'First\\nNext\\n'\nReplaced: 'Reset\\n'\n"
+    },
+    {
+      "id": "create-first",
+      "cwd": ".",
+      "args": [
+        "create_once.py"
+      ],
+      "stdout": "Created once\n"
+    },
+    {
+      "id": "create-again",
+      "cwd": ".",
+      "args": [
+        "create_once.py"
+      ],
+      "stdout": "",
+      "errors": [
+        "FileExistsError"
+      ]
+    },
+    {
+      "id": "closed-stream",
+      "cwd": ".",
+      "args": [
+        "closed_stream.py"
+      ],
+      "stdout": "Saved text: 'Python 学习\\n  keep spaces  \\n'\n",
+      "errors": [
+        "ValueError"
+      ],
+      "stderr_contains": [
+        "I/O operation on closed file"
+      ]
+    },
+    {
+      "id": "cleanup",
+      "cwd": ".",
+      "args": [
+        "cleanup_paths.py"
+      ],
+      "stdout": "Mode: normal\nInside closed: False\nAfter block closed: True\nFinally closed: True\nResult: normal\nMode: return\nInside closed: False\nFinally closed: True\nResult: early\nMode: error\nInside closed: False\nFinally closed: True\nCaught: ValueError\nMode: missing\nNo stream acquired\nCaught: FileNotFoundError\n"
+    },
+    {
+      "id": "truncate",
+      "cwd": ".",
+      "args": [
+        "pitfall_truncate.py"
+      ],
+      "stdout": "Closed: True\nRemaining: ''\n"
+    },
+    {
+      "id": "missing-file",
+      "cwd": ".",
+      "args": [
+        "error_missing_file.py"
+      ],
+      "stdout": "",
+      "errors": [
+        "FileNotFoundError"
+      ]
+    },
+    {
+      "id": "missing-parent",
+      "cwd": ".",
+      "args": [
+        "error_missing_parent.py"
+      ],
+      "stdout": "",
+      "errors": [
+        "FileNotFoundError"
+      ]
+    },
+    {
+      "id": "directory",
+      "cwd": ".",
+      "args": [
+        "error_directory.py"
+      ],
+      "stdout": "",
+      "errors": [
+        "IsADirectoryError",
+        "PermissionError"
+      ]
+    },
+    {
+      "id": "json-values",
+      "cwd": ".",
+      "args": [
+        "json_values.py"
+      ],
+      "stdout": "Is text: True\n{\n  \"title\": \"学习\",\n  \"minutes\": 20,\n  \"done\": false,\n  \"note\": null\n}\nEqual value: True\nSame object: False\nEscaped: \"\\u5b66\\u4e60\"\n"
+    },
+    {
+      "id": "json-limits",
+      "cwd": ".",
+      "args": [
+        "json_limits.py"
+      ],
+      "stdout": "Restored: {'pair': [20, 35], 'labels': {'1': 'one'}}\nEqual: False\nSet is not JSON-serializable\nNon-finite output rejected\nDefault decoder accepts NaN: True\nRepeated key: {'minutes': 20}\nPython repr is not JSON\n"
+    },
+    {
+      "id": "json-file",
+      "cwd": ".",
+      "args": [
+        "json_file.py"
+      ],
+      "stdout": "dump returned: None\nTitle: 学习\nEqual value: True\n"
+    },
+    {
+      "id": "two-documents",
+      "cwd": ".",
+      "args": [
+        "pitfall_two_documents.py"
+      ],
+      "stdout": "Written: {\"part\": 1}{\"part\": 2}\n",
+      "errors": [
+        "JSONDecodeError"
+      ],
+      "stderr_contains": [
+        "Extra data"
+      ]
+    },
+    {
+      "id": "serialize-first",
+      "cwd": ".",
+      "args": [
+        "serialize_before_open.py"
+      ],
+      "stdout": "Serialization refused\nUnchanged: True\n"
+    },
+    {
+      "id": "validate",
+      "cwd": ".",
+      "args": [
+        "validate_data.py"
+      ],
+      "stdout": "Total: 20\nRejected: root must be a list\nRejected: row 1 minutes must be a non-negative integer\nRejected: row 1 minutes must be a non-negative integer\n"
+    },
+    {
+      "id": "inspect",
+      "cwd": ".",
+      "args": [
+        "inspect_documents.py"
+      ],
+      "stdout": "tasks.json: total=55\nabsent.json: missing file\ninvalid-utf8.bin: invalid UTF-8\nmalformed.json: invalid JSON at line 1, column 2\nwrong-root.json: invalid data: root must be a list\nwrong-types.json: invalid data: row 1 minutes must be a non-negative integer\n"
+    },
+    {
+      "id": "unsafe-recovery",
+      "cwd": ".",
+      "args": [
+        "exercises/unsafe_load.py"
+      ],
+      "stdout": "Stored: []\n"
+    },
+    {
+      "id": "fixed-recovery",
+      "cwd": ".",
+      "args": [
+        "solutions/recover_missing_only.py"
+      ],
+      "stdout": "Refused damaged JSON\nUnchanged: True\n"
+    },
+    {
+      "id": "independent-import",
+      "cwd": "solutions/independent",
+      "args": [
+        "check_import.py"
+      ],
+      "stdout": "Imported: task_store.app task_store.storage\n"
+    },
+    {
+      "id": "independent-first",
+      "cwd": "solutions/independent",
+      "args": [
+        "-m",
+        "task_store.app"
+      ],
+      "stdout": "Source: new file\nSaved: 2\nPending minutes: 35\nTasks: [{'title': 'Read', 'minutes': 20, 'done': True}, {'title': '练习', 'minutes': 35, 'done': False}]\n"
+    },
+    {
+      "id": "independent-again",
+      "cwd": "solutions/independent",
+      "args": [
+        "-m",
+        "task_store.app"
+      ],
+      "stdout": "Source: existing file\nSaved: 2\nPending minutes: 35\nTasks: [{'title': 'Read', 'minutes': 20, 'done': True}, {'title': '练习', 'minutes': 35, 'done': False}]\n"
+    },
+    {
+      "id": "wrapper-other-cwd",
+      "cwd": ".",
+      "args": [
+        "solutions/independent/run_store.py"
+      ],
+      "stdout": "Source: existing file\nSaved: 2\nPending minutes: 35\nTasks: [{'title': 'Read', 'minutes': 20, 'done': True}, {'title': '练习', 'minutes': 35, 'done': False}]\n"
+    },
+    {
+      "id": "independent-direct",
+      "cwd": "solutions/independent",
+      "args": [
+        "task_store/app.py"
+      ],
+      "stdout": "",
+      "errors": [
+        "ImportError"
+      ],
+      "stderr_contains": [
+        "attempted relative import with no known parent package"
+      ]
+    }
+  ],
+  "outputs": {
+    "_output/note.txt": "学习 Python\n",
+    "_output/modes.txt": "Reset\n",
+    "_output/once.txt": "Created once\n",
+    "_output/truncation.txt": "",
+    "_output/profile.json": "{\n  \"title\": \"学习\",\n  \"minutes\": 20,\n  \"done\": false,\n  \"note\": null\n}\n",
+    "_output/two-documents.json": "{\"part\": 1}{\"part\": 2}",
+    "_output/serialization.json": "{\n  \"saved\": true\n}\n",
+    "exercises/_output/repair.json": "[]",
+    "solutions/_output/repair.json": "{broken\n",
+    "solutions/independent/_output/tasks.json": "[\n  {\n    \"title\": \"Read\",\n    \"minutes\": 20,\n    \"done\": true\n  },\n  {\n    \"title\": \"练习\",\n    \"minutes\": 35,\n    \"done\": false\n  }\n]\n"
+  }
+}

@@ -1,0 +1,276 @@
+---
+title: 同步 SQLAlchemy：把数据库资源和业务事务交给明确的主人
+description: 沿用 SQL 基础的四表模型，将 API 接到真实 PostgreSQL；解释 Engine、连接池、Connection 与 Session，并实测两步写入、提交失败恢复和资源归还。
+---
+
+import { getOrmExample } from '@/lib/js2py-examples'
+
+## 1. 要保证的不是“两条 INSERT 都写了”，而是“一件事完成了”
+
+创建项目时，先插入 projects，再插入负责人关系 project_members。第二步若失败，前端收到错误，却能在列表看见没有负责人的项目，这是业务失败，不是把错误文案改好便解决。D03 已经用 SQL 事务表达“全有或全无”；本章的问题是：HTTP 请求、Python 对象和数据库连接之间，谁把这个承诺一直保持到提交结束？
+
+ORM 是对象与关系表之间的映射工具，不是数据库的替代品。它可生成参数化 SQL、追踪待写对象、按主键复用同一会话里的对象；但不会替你决定业务边界、自动给任意请求加权限，或消除数据库约束错误。先学生命周期，再学调用方法，才不会把 add/commit 当作魔法咒语。
+
+| 本章契约 | 内容 |
+| --- | --- |
+| 前置 | D03 的事务/回滚，H05 的请求与依赖生命周期；会用本地 uv 工程、pytest、with 和异常 |
+| 新能力 | 同步映射、池与连接、Session 工作单元、查询、API 事务归属、失败恢复 |
+| 独立验收 | API 真正写 PostgreSQL；两步失败零残留；成功/失败连接都归还；失败 Session 恢复后可再提交 |
+| 不要求 | 异步 ORM、身份认证、关系加载策略大全、生产容量调优；本地 API 不可部署给真实用户 |
+
+下载 [D04 完整实验](/learning-assets/js2py/d04-sqlalchemy.zip)，解压后进入 d04-sqlalchemy。所有 Code 块从同一实验源文件读取；这是本地服务器实验，不提供 Pyodide 运行按钮。
+
+## 2. 先把“装依赖”和“开数据库服务”分开
+
+Python 是解释器，uv 管理 Python 依赖；psycopg 是数据库客户端驱动。安装 psycopg 不会出现一台 PostgreSQL 服务。PostgreSQL 的 postgres 是服务进程，initdb 初始化一份新的集群数据目录，pg_ctl 管理指定目录的服务，psql 用于发 SQL。集群内可以有多个数据库；每个测试只拥有其中随机命名的一库。
+
+实测环境为 macOS arm64、CPython 3.13.15、uv 0.12.13、PostgreSQL 18.6，四个 PostgreSQL 程序位于 /opt/homebrew/bin。未安装时，先按文末官方安装入口安装 uv 和 PostgreSQL 18 二进制；不要启动系统服务、初始化现有数据目录或使用 root。其他 POSIX 环境把 PG_BIN 改为实际程序目录；本 harness 未验证 Windows，不依赖 Docker。
+
+在实验根目录运行：
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+"$PG_BIN/postgres" --version
+uv python install 3.13.15
+uv sync --locked
+uv run --locked python pg_sandbox.py --evidence /tmp/d04-sqlalchemy-cleanup.json -- python demo.py
+uv run --locked python pg_sandbox.py -- python -m pytest -q
+```
+
+依赖锁定为 SQLAlchemy 2.0.54、psycopg/binary 3.3.6、Alembic 1.20.0、FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、HTTPX 0.28.1、pytest 8.4.2。Starlette 0.52.1 与 AnyIO 4.12.1 同样对齐 H05/H06 的锁。SQLAlchemy 2.0.54 是刻意选用的 2.0 维护线：2026-09-28 已有 2.1.1，不能把维护线称为最新功能系列。包元数据支持本 Python 基线，真实联调结果见后文；只看版本约束还不足以证明兼容。
+
+<Code language="toml">{getOrmExample('pyproject.toml')}</Code>
+
+uv.lock 从 public PyPI 真生成并随包提供；`--locked` 防止运行时悄悄重解依赖。Python 限制为 `>=3.13,<3.14`，package=false 表示这是脚本实验而非待发布 Python 包。Alembic 在本章尚不负责升级，预先固定它使 D05 的基线连续。
+
+## 3. 先确认模型没有被无声替换
+
+H 章节的单人内存任务变成多项目持久化任务，不是只换一个存储后端。映射政策必须明写：
+
+| H 字段 | 本章对应 | 变化的含义 |
+| --- | --- | --- |
+| id | tasks.id，bigint identity | 由数据库分配；本实验没有导入内存 ID，序列出现空洞正常 |
+| title | title varchar(120) | 保留；API 与数据库分别验证 |
+| minutes | minutes integer | 保留估算分钟，非负，默认 0；不是 capstone 必需字段 |
+| done | status | false→todo，true→done；doing 是新增业务状态，不是布尔值 |
+| note | description | 重命名，可为 NULL；NULL 和已提供的空字符串不同 |
+
+与 D01–D03 一致，users 只有 id/login，projects 有 name/created_by/created_at，project_members 用 project_id/user_id 复合主键保证不重复，tasks 增加 project_id/created_by、截止和时间字段。所有外键为 RESTRICT，不能以 ORM cascade 静默改成级联删除。登录标识当前区分大小写。
+
+密码哈希、启用状态、auth_version 和用户时间戳尚未添加；S 章节必须用迁移加入，不给旧用户填假密码。负责人必须存在属于服务规则；当前 DDL 并未完整强制“恰好一个 owner 且创建者就是 owner”。外键存在只证明引用存在，不证明成员资格或访问权限。
+
+## 4. Engine、池、连接与 Session：四层不能混成一个变量
+
+从请求向下看：路由借 Session → Session 需要执行 SQL 时向 Engine 借 Connection → 连接池提供 psycopg 的数据库连接 → PostgreSQL 中的后端进程执行事务。Session 对 Python 对象的管理与数据库连接的生命周期相关，但不是同一个东西。
+
+| 对象 | 保管什么 | 谁拥有，何时结束 |
+| --- | --- | --- |
+| Engine | 驱动/SQL 方言配置与连接池入口 | 一个应用进程通常建一次，进程退出时 dispose |
+| Pool | 可重用的物理客户端连接 | Engine 管理；不是启动时立刻开满所有连接 |
+| Connection | 一段时间内借出的数据库连接及事务访问 | Session 内部或显式 with 块借用；close 通常归还池 |
+| Session | identity map、待写对象、当前工作单元/事务状态 | 一个请求一次使用，不在并发请求间共享；结束 close |
+
+可以把 Session 的 identity map 类比组件树内按 key 保留同一对象，但它不是 React 状态库，更不是自动订阅全数据库变化的全局缓存。两个请求有两个 Session，它们可能读到不同时间的数据；数据库隔离级别仍然决定可见性。
+
+池可减少反复建立连接的开销，不能让一条连接同时执行两个互不相干的业务事务。示例 pool_size=2、max_overflow=0 是为了让泄漏容易观察，不是生产配置建议；多个 worker 各有自己的池，总连接预算不能只看一处的 2。pool_pre_ping 可在借出时检查失效连接，但无法自动挽救事务中途断线，也不能安全地替你重试未知是否提交成功的操作。
+
+<Code language="python">{getOrmExample('db.py')}</Code>
+
+## 5. Session 的工作单元：排队、发送、提交不是同一件事
+
+构造 User 或 Project 只是建立 Python 对象。add 把它纳入 Session 管理；flush 把待写变化转成 SQL 发往数据库，可能取得 identity，也可能立刻碰到 CHECK/FK 错误。flush 成功不等于其他事务已经看见，更不等于持久化成功；随后 rollback 仍可撤销这些插入。
+
+commit 通常先 flush，再要求数据库结束事务。某些约束可延期到提交，磁盘/网络也可能在这一阶段失败，所以“函数正常走到 return 前”不能代替“commit 已成功”。查询前还可能 autoflush，不能假定只有手写 flush 那一行才会触发写入错误。
+
+Session 默认 autobegin：第一次需要数据库的读/写就进入事务。GET 的 SELECT 也可能借连接并开启事务；不关闭它就可能长期 idle in transaction。`with Session(...)` 负责关闭，不负责成功时自动提交；`with session.begin()` 才负责成功提交、异常回滚。显式 begin 应包在首次读写外面，不能先 SELECT 开了事务再盲目 begin。
+
+默认 expire_on_commit=True 会使持久对象的属性过期，后续访问可能再查数据库；关闭后的对象也不应被响应序列化器拿来偷偷加载。这里在事务内复制纯 dict，并在提交成功之后才返回它，不把懒加载和关闭顺序交给运气。dict 在提交前构造不代表提前对外发送，commit 若失败，返回路径根本不会执行。
+
+## 6. 先读完整映射，再对应 SQL 约束
+
+<Code language="python">{getOrmExample('models.py')}</Code>
+
+Base 的空类体是 SQLAlchemy 声明基类的完整定义，不是漏写实现。Mapped 表达 Python 属性类型，mapped_column 表达数据库类型/约束。`str | None` 对应可空描述；主键用 BigInteger 和 Identity(always=True)，不靠当前时间戳制造 ID。timezone=True 对应 PostgreSQL timestamptz；数据库保存时间点，并不保存原时区标签。
+
+server_default 由数据库在列省略时填入，不是任意 Python 对象一创建就得到默认值，也不是显式 NULL 的替代。created_at 和 updated_at 初始值相同，但 updated_at 没有更新触发器：以后修改任务时应用必须明确更新它。Python strip 拒绝的 Unicode 空白范围大于默认 btrim；不能声称两侧验证完全等价。
+
+本章用 create_all 仅给空的、短命实验库建立首次结构；它不会给已有表补上新列或记录历史。D05 将替换这条初始化路径，不会要求读者每次删库才能升级。
+
+## 7. 业务函数借 Session，调用层拥有事务
+
+<Code language="python">{getOrmExample('services.py')}</Code>
+
+create_project 先 flush 项目以得到 id，再用它写负责人关系。两个 flush 在同一事务内；第二步出错时，调用层能撤销第一步。如果函数内部先 commit 项目，外层再 catch/rollback 已来不及抹去已提交事实。不是“多加一个 rollback”能修好错误的事务归属。
+
+owner_role 参数只用于可观察的故障注入与测试；公开 API 没有这个字段。正常请求永远使用 owner。每个 helper 不建立自己的 Session、不 commit；因此以后“项目 + 负责人 + 第一项任务”可在更高层组成一个工作单元。业务事务内不要夹入不受数据库事务控制的发邮件等外部副作用，数据库 rollback 撤不回它们。
+
+list_tasks 构造 select、where、order_by、limit/offset，并在活跃 Session 内消费 scalars。输入值成为绑定参数，不拼进 SQL 字符串。按 id 排序使同一数据集分页稳定，但 offset 分页仍会受并发插入/删除影响。按 project_id 过滤防止误查其他项目，不等于已经验证请求者能访问这个项目。
+
+## 8. HTTP 边界：提交先完成，响应才宣称成功
+
+<Code language="python">{getOrmExample('api.py')}</Code>
+
+依赖 get_session 只负责创建和 finally 关闭；写路由的 begin 负责提交/回滚。退出 begin 后才 return，因此 deferred constraint 在 commit 失败时仍能变成错误响应，而不是先发 201 再发现失败。IntegrityError 在 begin 外捕获，此时事务管理器已处理回滚；本教学接口把数据库完整性冲突归为脱敏的 409，不把 SQL、表细节或输入回显给用户。
+
+并非所有异常都应翻译为 409。连接不可达、代码错误等不在这个捕获范围内，应交给服务层的错误观测和失败政策。请求结构错误由 Pydantic 返回 422，父项目不存在为 404。正式产品应进一步按约束名细分业务错误，而不是吞掉所有数据库异常。
+
+路由用普通 def，数据库调用都是同步的。lifespan 的 asynccontextmanager 只是 ASGI 的启动/关闭协议包装，不是异步 ORM；数据库资源仍在明确同步代码中使用。一个 Session 不可由两个并发任务/线程同时操作，也不能全局缓存供所有请求共用。
+
+输入 owner_id/created_by 是本地教学临时契约，不是认证方案。S 章节必须从验证后的当前用户推导这些值，移除客户端自报身份，并增加成员权限校验；本章 API 仅绑定回环地址，不可发布。
+
+## 9. 真跑一遍，再用真实 HTTP 手动观察
+
+<Code language="python">{getOrmExample('bootstrap.py')}</Code>
+
+<Code language="python">{getOrmExample('demo.py')}</Code>
+
+demo 的 TestClient 省略网络传输，但路由、SQL、数据库约束和提交都真实执行，不是用字典替身。忽略 sandbox 的随机路径后，业务输出为：
+
+```text
+second write rejected; transaction rolled back
+projects after failure: 0
+members after failure: 0
+API status: 201
+API projects: ['Study']
+checked out: 0
+```
+
+要用浏览器/API 客户端访问同一库，在第一终端从实验目录启动保留环境的子 shell：
+
+```bash
+uv run --locked python pg_sandbox.py -- bash
+python bootstrap.py
+python -m uvicorn api:application --factory --host 127.0.0.1 --port 8000
+```
+
+新集群的 bootstrap 输出 alice_id=1。在第二终端执行以下本地请求；若你在同一子 shell 里改过数据，使用实际打印的 id。端口被占用时选另一个空闲端口，不终止陌生进程。
+
+```bash
+curl -i http://127.0.0.1:8000/projects -H 'Content-Type: application/json' -d '{"name":"Study","owner_id":1}'
+curl http://127.0.0.1:8000/projects
+```
+
+POST 应为 201，GET 含刚创建的项目。先在第一终端 Ctrl-C 退出 API，再 exit 子 shell，才能触发整个临时集群清理。另起一个 sandbox 并不是重连原数据库；要观察应用重启仍有数据，在同一 shell 内停止/重启 Uvicorn。自动测试另建 Engine 读取已提交行，但没有把“数据库服务崩溃恢复”算作已验证。
+
+自动验收也真正打开了回环 HTTP socket，而不只使用 TestClient。下面脚本保留系统分配的空闲端口、启动自己的 Uvicorn 子进程，验证 201→409→200 后关闭该进程；它不争用固定端口、不停止他人的服务。
+
+<Code language="python">{getOrmExample('http_smoke.py')}</Code>
+
+```bash
+uv run --locked python pg_sandbox.py -- python http_smoke.py
+```
+
+```text
+alice_id=1
+loopback HTTP: 201 then 409 then 200; committed project preserved
+uvicorn stopped: True
+```
+
+## 10. 故障实验：真正在 COMMIT 时失败
+
+<Code language="python">{getOrmExample('commit_failure.py')}</Code>
+
+```bash
+uv run --locked python pg_sandbox.py -- python commit_failure.py
+```
+
+```text
+two INSERT values accepted; deferred check awaits COMMIT
+COMMIT failed
+Session refuses reuse before rollback
+rollback restored Session; next transaction committed one row
+checked out: 0
+```
+
+额外的 commit_probe 表只属于本次故障实验，不改变业务四表。UNIQUE 被标记 DEFERRABLE INITIALLY DEFERRED，因此重复的 7 能先发送成功，commit 才拒绝。这与 flush 时 CHECK 失败是不同时间点，不能用后者冒充提交失败。
+
+失败后继续 SELECT，会被 SQLAlchemy 的失效事务状态拒绝。显式 rollback 不只处理数据库，也重置 Session 的事务记账；然后开启新的工作单元插入 8 才有意义。关闭失败 Session 并用新 Session 处理下一请求也是正确政策。不要在异常捕获后继续把旧的待写对象当成已持久化对象。
+
+本例错误是服务器明确拒绝约束，因而能断言没有提交。若提交期间网络断开，客户端可能不知道服务器是否已经提交；不能把“没收到成功”一律当成“绝对没写入”。真实服务需要幂等设计/查询确认，本章不伪装成已解决这种不确定性。
+
+## 11. 资源释放必须有证据，而不只是 finally 的字样
+
+<Code language="python">{getOrmExample('tests/conftest.py')}</Code>
+
+<Code language="python">{getOrmExample('tests/test_orm.py')}</Code>
+
+测试在独立真实 PostgreSQL 数据库里同时检查：项目与负责人成功；第二次写入失败后两表为 0；只 close 不 commit 没有持久化；失效 Session 不可直接重用；提交失败后能恢复；API 409 后下一请求仍可 201；任务过滤与分页；新 Engine 能读到已提交数据；危险 URL 被拒绝。
+
+checkout/checkin 事件数相等且 checkedout 为 0，证明借出的资源归还。池中仍可保留空闲物理连接，这是复用政策，不是泄漏；应用退出 dispose 再关闭池里的空闲连接。dispose 不能代替归还仍被借走的连接，所以 fixture 在 dispose 前检查借出数，而不是只调用它便宣布清理完成。
+
+连同独立变式测试，实测共 10 项通过。Web 依赖与 H03–H06 统一，没有因本章引入 ORM 而另升框架版本。运行结果不是生产并发容量或身份安全证明。
+
+## 12. 三层练习：先作答，再展开
+
+**解释题。** create_project 的第一个 flush 后已有 id。此时第二步失败，为什么项目仍可消失？为什么 id 不必再从 1 连续分配？
+
+<details>
+<summary>答案：可用的主键不等于事务已提交</summary>
+
+flush 发送了 INSERT 并取回 identity，但仍处在调用层未提交的事务。第二步失败让整个事务回滚，项目行随之撤销；序列分配不承诺随事务回收，空洞不代表丢了业务记录。不要以连续 ID 作为验收。
+
+</details>
+
+**带提示修改。** 把 Session 关闭边界移除，再连发多个请求预测会发生什么。不要把泄漏版留在参考实现。提示：将池维持为 2，不增加 overflow，分别观察 HTTP 错误和借出计数。
+
+<details>
+<summary>答案：定位借用者，而不是先把池调大</summary>
+
+没有可靠 close，已开始的读事务也可能长期占住连接。后续借用会等待到 pool_timeout，出现连接池超时而非数据库 CHECK 错误。恢复 with/依赖清理，并保证异常也穿过退出边界；重复请求后 checkedout 应回到 0。垃圾回收偶然释放不是政策，因此不能只凭一次没有超时就判通过。
+
+</details>
+
+**独立变式。** 实现“向已存在项目复制多条任务标题”。要求任何一条数据库校验失败，则这一批一条不留；已有任务不受影响；helper 不拥有 commit。自行写成功、第二条空白失败与后续恢复测试，不照抄路由。
+
+<details>
+<summary>参考实现与独立验收</summary>
+
+<Code language="python">{getOrmExample('solutions/atomic_tasks.py')}</Code>
+
+<Code language="python">{getOrmExample('solutions/test_atomic_tasks.py')}</Code>
+
+调用者把整批包进一个 begin，函数逐条 flush 却不逐条提交。测试应从新 Session 查询，而不只查看 Python list。参考测试先放入 Existing，再验证失败后它仍存在；独立把历史记录增加到三条，证明断言不依赖空库假设。
+
+</details>
+
+## 13. 临时集群的安全设施也是完整源码
+
+<details>
+<summary>展开：仅操作自己集群的启动、保护与清理</summary>
+
+<Code language="python">{getOrmExample('pg_sandbox.py')}</Code>
+
+<Code language="python">{getOrmExample('safety.py')}</Code>
+
+</details>
+
+脚本建立独占 mkdtemp 目录，0700 私有 socket、不监听 TCP；去掉继承的 PG 连接设置，只向子命令传入随机库与所有权标记。非超级用户 lab_owner 仅在这份集群有测试所需 CREATEDB。local trust 是同一 OS 用户掌控的短命实验策略，不是生产鉴权；标记是防误操作护栏，不防同一用户下的恶意进程。
+
+清理证明必须同时看到 stopped=true、status_after_stop=3、removed=true；stop 失败会保留目录和日志，不能硬删。异常退出通常能走 finally，但 SIGKILL/断电不能保证；只检查输出中的独占目录，不运行“杀光所有 postgres”的命令。
+
+<details>
+<summary>展开：完整锁文件</summary>
+
+<Code language="toml">{getOrmExample('uv.lock')}</Code>
+
+</details>
+
+## 14. 暂停记录与下一次入口
+
+暂停时写下：当前分支/代码差异；最后成功命令；10 项测试中已通过的项目；能否解释 create/flush/commit/close 各自责任；尚未解决的错误及下次第一步。临时库退出就清理，所以保存的是生成数据的脚本，不是拷贝 DB data。
+
+独立离开本章前，应能不看答案画出“请求→Session→Connection/池→数据库”的生命周期，并说明为什么 helper 内 commit 会破坏组合事务。若还认为 close 会自动提交，先回到测试，不急着进入迁移。下一章改变的是已存在数据库的结构，不再靠 create_all。
+
+## 15. 官方依据与核验范围
+
+资料核验日期 **2026-09-28**；运行基线和已知限制也在包内 README 三语与 SOURCES.md。官方 psycopg 文档站当次返回 403，改核验其官方仓库 3.3.6 标签下相同文档；没有用第三方教程补造版本结论。
+
+- [SQLAlchemy 2.0 Session Basics](https://docs.sqlalchemy.org/en/20/orm/session_basics.html)：工作单元、事务边界、失败后 rollback、过期与关闭。
+- [SQLAlchemy Pooling](https://docs.sqlalchemy.org/en/20/core/pooling.html)：归还、pre-ping 的边界与 dispose。
+- [PostgreSQL psycopg 方言](https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.psycopg)：同步 postgresql+psycopg URL。
+- [psycopg 3.3.6 安装文档源码](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/install.rst) 与 [事务文档源码](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/transactions.rst)：支持范围与驱动事务行为。
+- [PostgreSQL 18 initdb](https://www.postgresql.org/docs/18/app-initdb.html)、[pg_ctl](https://www.postgresql.org/docs/18/app-pg-ctl.html)、[18.6 发布说明](https://www.postgresql.org/docs/18/release-18-6.html)：集群生命周期与实际服务版本。
+- [uv 安装](https://docs.astral.sh/uv/getting-started/installation/) 与 [PostgreSQL 下载](https://www.postgresql.org/download/)：只安装工具，实验服务由本章 wrapper 控制。

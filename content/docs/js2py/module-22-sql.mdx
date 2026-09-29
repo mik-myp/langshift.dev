@@ -1,0 +1,170 @@
+---
+title: SQL and parameterized queries — derive results instead of building strings
+description: Work through filtering, stable ordering, pagination, joins, aggregation and NULL; understand synchronous drivers, connections, cursors and placeholders, then verify CRUD and injection boundaries.
+---
+
+import { getSqlExample } from '@/lib/js2py-examples'
+
+## 1. Describe the result before writing SQL
+
+D01 made the server enforce the shape of records. Now decide which records to return, how to combine them and in what order. Loading the entire database into Python to filter/map wastes more than bandwidth: it bypasses set operations and scatters responsibilities such as pagination. SQL describes a relational result; the executor chooses access paths. It is not a JavaScript for loop written in another syntax.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | D01's exclusive PostgreSQL cluster, four-table model and constraints; L/H functions, exceptions, tests and request input |
+| New capabilities | CRUD, filtering, sorting, pagination, JOIN, aggregation and NULL; driver/cursor responsibilities and the value/SQL-structure boundary |
+| Independent acceptance | Predict seed results before querying, demonstrate malicious text remains a value, and write a project report independently |
+| Exclusions | ORM, index tuning, HTTP/authentication integration and pools; multi-statement atomicity belongs to D03 |
+
+Download the [complete D02 lab](/learning-assets/js2py/d02-sql.zip) and enter `d02-sql`. It includes its own copy of D01's schema and seed, does not connect to a still-running D01 database, and requires no authentication implementation. `done → status`, `note → description` and retained estimate `minutes` are deliberate model evolution, not a direct dump of the old memory dictionary.
+
+## 2. Rebuild the checkpoint and claim this lab's server
+
+Verified **2026-09-28**, fixed baseline: **PostgreSQL 18.6, Python 3.13.15, uv 0.12.13, pytest 8.4.2, psycopg 3.3.6**. Reuse the tool, private-storage, role and Unix-socket concepts from D01. Run all commands in this lab directory.
+
+**Connection-environment checkpoint.** libpq can read defaults beyond the socket in a DSN: for example `PGHOSTADDR` selects a network address and `PGSERVICE` loads a saved connection profile. Therefore the controller refuses every inherited `PG*` name except `PG_BIN` (the tool directory) and `PGHOST` (overridden by the explicit private socket), before startup or SQL. It reports variable names, never their values. If refused, inspect and remove only those settings in this lab shell, then retry; do not substitute a production DSN or blindly reset an existing database. `DATABASE_URL` remains ignored. The controller supplies its own empty mode-0600 password file instead of reading a user credential file, and strips database defaults from child processes. Even a polluted shell can run `status`/`stop` to clean up this owned cluster; stop still verifies the saved server identity. The translated README explains the same policy.
+
+**Test counts.** This lab has 16 business/SQL cases plus 50 environment-boundary cases (66 total). The latter include parametrized rejected settings, private-passfile validation and owned-loopback probes. They protect the experiment; they are not 50 new SQL topics or proof of production security.
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+uv sync --locked
+uv run --locked python labctl.py start
+uv run --locked python labctl.py reset --yes-reset
+uv run --locked python labctl.py psql --file sql/queries.sql
+```
+
+Start saves this directory's `.lab-state.json`, disables TCP and ignores existing DATABASE_URL. Reset checks ownership and server identity before rebuilding only the owned tables. This is not a production migration utility. Never replace the target with a company database or use reset to treat an unexplained error.
+
+Write down the input first: task IDs 1–5; statuses todo/doing/done/todo/done; minutes 30/45/15/20/40. The first three tasks belong to Launch, the last two to Docs; Empty has none. Knowing the input lets you validate output rather than trusting a query merely because it succeeded.
+
+## 3. Logical SELECT stages differ from written clause order
+
+The file groups queries A–G. Read A and B first, then return to the joins and aggregates. SQL keyword case is insignificant. Strings use single quotes; double quotes primarily quote identifiers. JavaScript quote habits do not transfer directly.
+
+<Code language="sql">{getSqlExample('sql/queries.sql')}</Code>
+
+Follow A logically: FROM identifies tasks; WHERE retains todo tasks estimated at least 20 minutes; SELECT projects id/title; ORDER BY sorts IDs. Expect `(1, 'Design API')` and `(4, 'Read SQL')`. This is a reasoning model, not a promise about physical scan order: the optimizer may rearrange equivalent operations.
+
+AND binds more tightly than OR. To request “todo or doing tasks in Launch,” group the statuses in parentheses; otherwise an ungrouped `OR status='doing'` can admit another project's tasks. `=` compares values, `<>` means not equal, and IN tests membership in a set. Do not use `==` or infer SQL truth from Python truthiness.
+
+Unknown conditions are also discarded. F prints `(null)` for `NULL = NULL` and true for `NULL IS NULL`. `description IS NULL` selects 1 and 4; `description = ''` selects only 2; `description = NULL` selects nothing. COALESCE chooses the first non-NULL value, useful for a presentation default but not evidence that missing and zero mean the same thing.
+
+## 4. Ordering and pagination: stable does not mean frozen
+
+A table has no default display order. B orders by `minutes DESC, id ASC`: largest estimates first, with unique ID breaking ties. `LIMIT 2 OFFSET 1` skips one row and takes two, giving IDs 5 and 1. Sorting only by a nonunique field leaves ties ambiguous; adding LIMIT does not create an order.
+
+Pagination parameters are business input. The lab requires integer limit 1–100 and nonnegative integer offset, rejecting Python bool despite its integer relationship. A page-size cap limits resource use; it is not authentication. Stable ordering orders the current result only. After the first request returns 1 and 2, deleting 1 before OFFSET 2 makes the next request return 4 and 5, skipping 3. A test performs that deletion for real. Cross-request snapshots, keyset pagination and indexing need separate design; large offsets are not promised to be efficient here.
+
+<details>
+<summary>Explanation answer: why does the backend need ORDER BY when the frontend has list keys?</summary>
+
+React keys identify elements already received; they cannot determine which records the server selected. ORDER BY determines result order, and a unique tie-breaker removes ambiguity within equal values. Inserts and deletes between requests still change offset positions. UI identity, query order and cross-request consistency are separate responsibilities.
+
+</details>
+
+## 5. JOIN creates matching pairs, not automatically nested objects
+
+C matches tasks to projects by project ID and then to users by created_by. Aliases t/p/u identify the source of overlapping names such as id. INNER JOIN emits one row per matching pair and emits none for an unmatched record. Because foreign keys hold, each seed task finds its parent and creator. The result is still a flat `(task_id, title, project, creator)` row, not nested JSON.
+
+D uses LEFT JOIN with projects as the preserved side. Even an empty project produces a row, with NULL task columns. This explains a counting trap: `count(*)` counts result rows, so Empty produces 1; `count(t.id)` counts non-NULL task IDs, so it produces 0. SUM without non-NULL inputs is NULL. The report deliberately coalesces that to zero to mean no tasks and therefore zero total estimate. This is not a policy that an unknown task estimate equals zero.
+
+G places `t.status='todo'` in ON: choose eligible matches, then preserve every project. Expect todo counts 1/1/0 for Launch/Docs/Empty. Moving the condition to WHERE removes the NULL-extended Empty row. ON versus WHERE changes meaning, not just style.
+
+Predict cardinality before adding memberships. Launch's three tasks joined to two members produce six rows. Summing minutes now doubles the total. `count(DISTINCT t.id)` can fix task counting, but `sum(DISTINCT minutes)` is not the corresponding fix: different tasks can share an estimate. Aggregate tasks at the desired project grain before combining membership data, or avoid an unnecessary join.
+
+## 6. GROUP BY and HAVING filter at a different level
+
+D groups matched records by project and selects project identity/name plus aggregates. E first removes done tasks with WHERE, groups the rest by project_id and sums minutes, then uses HAVING to keep totals at least 30. Only `(1, 75)` remains; Docs has only 20. Do not put `sum(minutes)` in WHERE, whose logical stage does not yet have the group total.
+
+Before writing a query, finish the sentence “one output row represents…”. If the answer is a project, selecting an arbitrary task title has no clear meaning. Change the grouping grain or choose a meaningful aggregate instead of adding min merely to satisfy syntax. Successful execution proves the statement is executable, not that it answers the business question.
+
+<details>
+<summary>Guided modification answer: change G into unfinished minutes per project, retaining Empty</summary>
+
+Change the ON condition to `t.status <> 'done'` and select `coalesce(sum(t.minutes), 0)`, still grouping by project. Expect Launch=75, Docs=20, Empty=0. Move the condition to WHERE and Empty disappears; remove coalesce and Empty is NULL. All three outcomes are explainable, but only the first meets this report's contract.
+
+</details>
+
+## 7. CRUD affects the matching set, not the row selected on screen
+
+CRUD maps to INSERT, SELECT, UPDATE and DELETE. INSERT specifies columns and omits the identity primary key. RETURNING returns the ID actually generated by that write; “SELECT the largest ID” is unsafe because another connection can write too. UPDATE/DELETE's WHERE controls affected records. Without it the entire table may change; selecting one row in a frontend cannot constrain the SQL.
+
+The complete module below includes safe queries and individual writes. Its CRUD functions return id/title/status on insert, explicitly maintain updated_at on update, and return the deleted ID. No matching WHERE row is normally not a SQL error: fetchone returns None, and the caller chooses the business response. An invalid parent project instead produces a foreign-key exception; it is not just “not found.”
+
+<Code language="python">{getSqlExample('queries.py')}</Code>
+
+These helpers **do not commit or close the connection**. Their responsibility is statements; their caller owns lifecycle. D02's demo uses autocommit, making each statement independent rather than a multi-step business transaction. D03 will keep this responsibility boundary while grouping statements. CURRENT_TIMESTAMP means transaction start time, not a newly sampled wall clock on each statement.
+
+## 8. Separate driver, connection, cursor and parameters
+
+psycopg translates Python calls into PostgreSQL communication. It is neither a database nor an ORM. Connect establishes a server session at a particular address and returns a connection. A cursor executes commands on that connection and tracks retrieval of the current result. Fetchone gets the next row or None; fetchall gets the remaining rows, represented here as tuples. Closing a cursor releases result resources, not the transaction or connection. Two cursors on one connection are not two independent transactions.
+
+Trace list_tasks: Python validates options, chooses fixed SQL structure, execute sends structure and parameters, the server parses/executes/checks constraints, the driver converts returned values, and fetchall returns them. SQL does not run inside Python. Connection failures, Python ValueError and SQL constraint errors originate in different layers.
+
+`%s` is a psycopg value placeholder, not string formatting. Use it for every value type, rather than `%d` for integers. Do not put SQL quotes around it, and do not use the `%` operator, f-strings or concatenation to insert values. `(title,)` is a one-element tuple; its comma matters. None adapts to SQL NULL, while the server can still reject an incompatible type.
+
+Parameters **cannot replace column names, table names, ASC/DESC or other grammar**. Supplying title to `SELECT %s ...` returns the string title, not the title column; a real test demonstrates this. ORDERINGS selects between two author-written fragments and concatenates that selected constant, never the raw user value. When dynamic identifiers are genuinely needed, the driver's Identifier composition interface can quote them; you must still restrict which objects a caller may select. Quoting safety does not grant access permission.
+
+## 9. Injection experiment and the boundary of protection
+
+Injection happens when untrusted data becomes parsed SQL structure. Interpolating title into quoted SQL text lets an attacker close a quote and change a condition or add a command. Do not race an ever-growing list of attacks by replacing quote characters. Pass values through the driver's parameter channel.
+
+<Code language="python">{getSqlExample('demo.py')}</Code>
+
+```bash
+uv run --locked python labctl.py reset --yes-reset
+uv run --locked python demo.py
+uv run --locked pytest -q
+```
+
+```text
+todo [(1, 'Design API', 'todo', 30), (4, 'Read SQL', 'todo', 20)]
+page [(3, 'Ship demo', 'done', 15), (4, 'Read SQL', 'todo', 20)]
+totals [('Launch', 3, 90), ('Docs', 2, 60), ('Empty', 0, 0)]
+unmatched payload []
+literal stored [(6, "x' OR TRUE --")]
+updated (6, 'doing')
+deleted (6,)
+tasks remaining 5
+```
+
+This output is deterministic after reset; without reset subsequent demo IDs increase. Tests also store `'; DROP TABLE tasks; --`, read back that exact value and verify tasks still contains data. This proves those calls keep values out of SQL grammar, not that the whole application can never have injection. `%` and `_` in a LIKE value remain pattern wildcards; parameterization does not automatically make patterns literal. Nor does it implement XSS protection, authorization or pagination cost limits.
+
+Deliberately change sort to a semicolon-bearing string: expect Python ValueError before SQL execution. Use project_id 9999: expect PostgreSQL `ForeignKeyViolation / 23503`. Compare description to NULL with `=`: execution succeeds but the result is wrong. Distinguishing these three failure classes is part of diagnosis.
+
+## 10. An independent report without line-by-line instructions
+
+Implement `progress_report(conn, minimum_minutes=0)`: return each project's name, unfinished task count and unfinished total estimate; retain projects with no tasks; keep only totals reaching the supplied threshold; order by project ID. The threshold must be a nonnegative integer, rejecting bool. Predict results for 0 and 30 before writing SQL and tests. Do not fetch the whole database and filter in Python.
+
+<details>
+<summary>Independent variation reference and verification</summary>
+
+<Code language="python">{getSqlExample('answers/variant.py')}</Code>
+
+At threshold 0 expect `('Launch', 2, 75)`, `('Docs', 1, 20)` and `('Empty', 0, 0)`; at 30 only Launch remains. ON selects contributing tasks, GROUP BY establishes project grain, and HAVING filters group totals. Both values are parameters. `tests/test_queries.py` validates the reports, NULL, join multiplication, invalid pagination and injected sort options. When the requirement changes to doing tasks only, derive and test the new results yourself.
+
+</details>
+
+## 11. Recovery checkpoint, acceptance and official references
+
+Run all 66 tests (16 SQL + 50 environment), save your report SQL and the last unexpected result, and stop only the owned cluster.
+
+```bash
+uv run --locked python labctl.py stop
+uv run --locked python labctl.py status
+```
+
+Record the chapter directory, root, schema version d01-d03-v1, passed tests, expected versus actual row counts, and next action. Start preserves committed data; reset discards it. Diagnose excess rows through join cardinality, a missing Empty through WHERE placement, quoting trouble through accidental interpolation, and connection trouble through this lab's status/log. Changing placeholders does not fix a network issue.
+
+Acceptance means explaining each output row, NULL and pagination limits, writing an unfamiliar joined report and demonstrating value/structure separation while recognizing it is not an authorization system. Production performance, query plans, authentication and cross-request snapshots are not validated. Tests use PostgreSQL, never SQLite as a substitute.
+
+Official references checked **2026-09-28**:
+
+- [PostgreSQL 18 queries](https://www.postgresql.org/docs/18/queries.html), [table expressions, JOIN and GROUP BY](https://www.postgresql.org/docs/18/queries-table-expressions.html).
+- [LIMIT/OFFSET](https://www.postgresql.org/docs/18/queries-limit.html), [NULL comparisons](https://www.postgresql.org/docs/18/functions-comparison.html).
+- [psycopg 3.3.6 official parameter documentation source](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/params.rst), [basic usage source](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/usage.rst). The documentation site returned 403 during verification; the same project's tagged official sources were inspected instead of third-party tutorials.
+- [PostgreSQL 18.6 release notes](https://www.postgresql.org/docs/release/18.6/).

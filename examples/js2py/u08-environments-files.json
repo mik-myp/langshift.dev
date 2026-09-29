@@ -1,0 +1,18 @@
+[
+  "pyproject.toml",
+  ".python-version",
+  "probe.py",
+  "app.py",
+  "errors/humanize.py",
+  "errors/show_shadow.py",
+  "exercises/missing-declaration/pyproject.toml",
+  "exercises/missing-declaration/.python-version",
+  "exercises/missing-declaration/app.py",
+  "solutions/size-report/pyproject.toml",
+  "solutions/size-report/.python-version",
+  "solutions/size-report/report.py",
+  "README.md",
+  "uv.lock",
+  "exercises/missing-declaration/uv.lock",
+  "solutions/size-report/uv.lock"
+]

@@ -1,0 +1,737 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "Full English + full non-lock text files distributed across bounded slices; all lock bytes deterministically checked. No claim that a single slice viewed other slices.",
+  "slices": [
+    {
+      "batch": "review-77",
+      "metadata": {
+        "started_at_utc": "2026-09-28T06:02:56.892049+00:00",
+        "elapsed_seconds": 1.115,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "3cb2cb09c201b8d629085cf311a5cac1dd98774969adc7cf34cb3adb73eaa0ba",
+        "usage": {
+          "input_tokens": 22414,
+          "output_tokens": 344
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "o01-operating-system",
+          "current_contract": {
+            "id": "O01",
+            "title": "操作系统与服务运行基础",
+            "prerequisites": [
+              "A02"
+            ],
+            "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+            "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+            "boundary": "不先让初学者背Docker命令绕过OS基础",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "A02",
+              "title": "外部服务与异步资源生命周期",
+              "prerequisites": [
+                "A01",
+                "L14",
+                "H05"
+              ],
+              "teach": "客户端复用、lifespan、超时、重试与幂等、故障替身、清理",
+              "acceptance": "外部依赖失败不拖垮核心CRUD；正常/异常/取消均释放资源",
+              "boundary": "不把进程内队列或BackgroundTasks当持久任务系统",
+              "status": "planned"
+            }
+          ],
+          "declared_transitive_prior_capabilities": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "H05",
+              "title": "应用组织、配置与依赖",
+              "prerequisites": [
+                "H04",
+                "L14"
+              ],
+              "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+              "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+              "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+              "status": "planned"
+            },
+            {
+              "id": "H06",
+              "title": "API 测试与前后端联调",
+              "prerequisites": [
+                "H05",
+                "L09",
+                "L13"
+              ],
+              "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+              "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+              "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+              "status": "planned"
+            },
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            },
+            {
+              "id": "D02",
+              "title": "SQL 与参数化查询",
+              "prerequisites": [
+                "D01"
+              ],
+              "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+              "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+              "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+              "status": "planned"
+            },
+            {
+              "id": "D03",
+              "title": "事务、约束与并发冲突",
+              "prerequisites": [
+                "D02"
+              ],
+              "teach": "原子性、提交回滚、约束失败、隔离和竞争、事务边界",
+              "acceptance": "制造两步写入的后一步失败，证明前一步未残留",
+              "boundary": "不仅背ACID；不以单进程内存检查代替约束",
+              "status": "planned"
+            },
+            {
+              "id": "D04",
+              "title": "同步 SQLAlchemy 与 Session",
+              "prerequisites": [
+                "D03",
+                "H05"
+              ],
+              "teach": "映射、连接池与Session、事务所有权、查询、提交失败后的恢复",
+              "acceptance": "把API接入真实数据库并验证成功/失败都释放资源",
+              "boundary": "不第一次学数据库就加入异步ORM",
+              "status": "planned"
+            },
+            {
+              "id": "D05",
+              "title": "Alembic 与已有数据迁移",
+              "prerequisites": [
+                "D04"
+              ],
+              "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+              "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+              "boundary": "不删库重建；不承诺任意降级都无损",
+              "status": "planned"
+            },
+            {
+              "id": "D06",
+              "title": "数据库测试与查询诊断",
+              "prerequisites": [
+                "D05",
+                "H06"
+              ],
+              "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+              "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+              "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+              "status": "planned"
+            },
+            {
+              "id": "S01",
+              "title": "身份与凭证生命周期",
+              "prerequisites": [
+                "D06"
+              ],
+              "teach": "用户、密码哈希、登录、凭证验证/失效、禁用用户、日志脱敏",
+              "acceptance": "拒绝错误/过期/篡改凭证并验证撤销策略",
+              "boundary": "不自创密码学；登录成功不等于有对象权限",
+              "status": "planned"
+            },
+            {
+              "id": "S02",
+              "title": "对象级授权与多用户隔离",
+              "prerequisites": [
+                "S01"
+              ],
+              "teach": "角色和成员关系、所有权、默认拒绝、越权与负向测试",
+              "acceptance": "Alice知道Bob对象ID仍无法读取/修改，角色不能由请求体自授",
+              "boundary": "前端隐藏按钮和CORS都不是服务端授权",
+              "status": "planned"
+            },
+            {
+              "id": "S03",
+              "title": "可靠业务操作与幂等",
+              "prerequisites": [
+                "S02",
+                "D03"
+              ],
+              "teach": "业务冲突、重复提交、事务与幂等范围、日期时间/标识/精确数值的必要标准库",
+              "acceptance": "复现重复请求或并发冲突并验证约定行为",
+              "boundary": "不承诺仅靠重试就能实现恰好一次；按业务需要教学数据表示",
+              "status": "planned"
+            },
+            {
+              "id": "A01",
+              "title": "Python 异步执行模型",
+              "prerequisites": [
+                "S03"
+              ],
+              "teach": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制",
+              "acceptance": "通过可观察实验选择同步/异步边界，并验证取消行为",
+              "boundary": "JS熟悉async不代表Python自动调度；不机械改全部async",
+              "status": "planned"
+            },
+            {
+              "id": "A02",
+              "title": "外部服务与异步资源生命周期",
+              "prerequisites": [
+                "A01",
+                "L14",
+                "H05"
+              ],
+              "teach": "客户端复用、lifespan、超时、重试与幂等、故障替身、清理",
+              "acceptance": "外部依赖失败不拖垮核心CRUD；正常/异常/取消均释放资源",
+              "boundary": "不把进程内队列或BackgroundTasks当持久任务系统",
+              "status": "planned"
+            }
+          ],
+          "prerequisite_scope": "Current direct edges plus their transitive contracts are included. Contracts describe curriculum capabilities, not proof that a particular learner has passed; review required concepts against actual lesson explanation, not absence of transitive detail from earlier rounds.",
+          "actual_english_lesson": "---\ntitle: \"Operating systems and services: whose process, directory, and permissions?\"\ndescription: \"Use owned, bounded experiments to understand processes, signals, exits, ports, permissions, environments and working directories; separate POSIX evidence from pending Linux/systemd acceptance.\"\n---\n\nimport { getOperatingSystemExample } from '@/lib/js2py-examples'\n\n## 1. From “it works in my terminal” to an explainable service\n\nA frontend development server hides many operating-system decisions: the tool selects a directory, starts a process, reads configuration, and remains attached to your terminal. The same Python file can fail immediately under a service manager because its working directory differs, your exported variable is absent, its account cannot write a file, or another process owns the port. Memorizing Docker commands would conceal the problem. First describe **who runs the program and with which environment**.\n\nThis chapter follows A02, with files, modules, dependencies, and tests from L06–L09. You will describe process inputs and lifetime, diagnose startup failure, stop your own service normally, and explain least privilege. Independent acceptance means predicting behavior when the directory, permissions, or stopping method changes—not making a process “immortal.” Containers, cloud hosts, root access, and production databases are not prerequisites.\n\n[Download the complete O01 lab](/learning-assets/js2py/o01-operating-system.zip). Its worker only counts starts in disposable teaching state. It is neither the collaborative task API nor a durable database. Run these experiments in a local terminal; a browser editor does not provide equivalent signals, UIDs, or filesystem permissions.\n\n## 2. Draw the process boundary, not a terminal-shaped program\n\nSource code is a file; an interpreter is the program that executes it; a **process** is one running instance. Two processes may execute the same file with different PIDs, memory, current directories, environments, open files, and exit results. A parent supplies arguments, environment, and file descriptors when starting a child. This does not turn their variables into shared objects. PIDs can be reused later, so an old saved number is not permission to kill whatever now occupies it.\n\nThe shell in your terminal is itself a process. It normally waits for a foreground command to finish. A prompt that has not returned often means that the service is still running, not that it is broken. Standard output carries ordinary output; standard error carries diagnostics. Neither alone determines success: inspect exit status too. H01’s distinction still applies: completing an HTTP request does not stop the listening process.\n\nThe experiment keeps the `subprocess.Popen` object for **its own child**. In finally it requests normal termination, escalates only after a timeout, then calls wait to reap the child. It does not search for every Python process or use killall. Startup, readiness, and cleanup are bounded so failures also return control to the terminal.\n\n## 3. Restore the environment and confirm the working directory\n\nFrom the repository root, enter the directory below. For a ZIP, enter the extracted `o01-operating-system` root instead; do not blindly execute relative filenames from its parent. `pwd` displays the working directory. `cd` changes the shell’s directory, which subsequently launched children normally inherit. The baseline is Python 3.13.15, uv 0.12.13, and pytest 8.4.2. `.python-version` selects the interpreter, pyproject declares compatibility and dependencies, uv.lock fixes resolution, and `.venv` is a rebuildable artifact excluded from the download.\n\n```bash\ncd examples/js2py/o01-operating-system\npwd\nuv --version\nuv sync --locked\nuv run --locked python --version\nuv run --locked python -m pytest -q\n```\n\n<Code language=\"toml\">{getOperatingSystemExample('pyproject.toml')}</Code>\n\n`--locked` refuses to silently change an inconsistent lockfile. `python -m pytest` runs the pytest module with this environment’s interpreter, rather than installing Python packages globally. Use an ordinary POSIX account: root may bypass the intended permission failure, and Windows signal/permission behavior is not covered by this run. The maintainer tested macOS Darwin 25.6.0 arm64; the environment matrix explicitly separates pending Linux acceptance.\n\n## 4. cwd and environment: a path error is not a dependency error\n\nA relative path is interpreted against the **process working directory**, not automatically against the source file’s directory. `Path(__file__).resolve().parent` can explicitly locate source files, but that does not justify storing application data inside a read-only deployment directory. This experiment requires an existing absolute `OPS_DATA_DIR`, separating state location from cwd. Environment variables are string configuration supplied at the process boundary. A child changing its own environment does not modify its parent shell.\n\n`environment_lab.py` creates two owned temporary directories: one containing message.txt and one empty. It supplies only a fictional OPS_LABEL instead of printing the real environment or credentials. An absolute interpreter path avoids relying on the omitted PATH. Predict the file contents in the first directory and the failure stage in the empty one before running.\n\n<Code language=\"python\">{getOperatingSystemExample('environment_lab.py')}</Code>\n\n```bash\nuv run --locked python environment_lab.py\n```\n\n```text\nparent-choice\nfrom the working directory\nparent_mapping_unchanged=True\nwrong_cwd_exit=1\nwrong_cwd_is_FileNotFoundError=True\n```\n\nThe parent-mapping check shows that this child-only assignment did not mutate the supplied mapping; it is not a shared-memory experiment. The failure is a runtime FileNotFoundError, not missing Python, an import failure, or invalid syntax. Recover by selecting the correct directory or explicit data path, not by copying files into every possible cwd.\n\n## 5. Ports: address, listening, and readiness are different\n\nAn IP address selects a network interface; a port helps the kernel deliver incoming connections to a listening socket. `127.0.0.1` is IPv4 loopback in the current host network environment. A remote browser’s own 127.0.0.1 does not refer to your computer. `0.0.0.0` is a wildcard listening address for all IPv4 interfaces, not a client destination. This chapter binds only loopback and never opens public access to make a demonstration work.\n\nPort 0 asks the operating system to allocate an available port. getsockname retrieves the assigned number. A second socket binding the same address encounters a collision. listen only prepares to receive connections: it does not prove that the process speaks HTTP, or that its database and authorization work. This example deliberately sends no HTTP; reachability alone is not a health check.\n\n<Code language=\"python\">{getOperatingSystemExample('port_lab.py')}</Code>\n\n```bash\nuv run --locked python port_lab.py\n```\n\n```text\nlistening_on_loopback=True\nsecond_bind_rejected=True\nowned_socket_closed=True\n```\n\nIf a real service reports Address already in use, inspect your own launch record and running terminal first. Do not kill an arbitrary PID merely because it occupies the port. Choose another approved port or stop a confirmed instance of your own. A port conflict differs from 404: the former may prevent startup, while the latter is a response from an HTTP service that already answered.\n\n## 6. Exit status: classify failure instead of matching one log line\n\nSuccessful commands conventionally return 0; nonzero results require interpretation according to the tool’s contract. Our worker **chooses** 78 for configuration errors, 65 for corrupt state, and 74 for I/O failure, with diagnostics that do not echo configuration values. These numbers are not mandatory for all Python services. On POSIX, `subprocess.returncode` represents signal termination as a negative signal number, such as -9. A shell often reports 128 plus the signal number, such as 137, but a shell convention is not Python’s return value.\n\nAlso distinguish command exits from HTTP statuses. curl can complete a 500 response and exit 0 unless its HTTP-failure option is enabled. A connection failure obtains no HTTP response at all. Our tests intentionally make child processes fail; the parent experiment succeeds after confirming that failure. That is explicit failure verification, not suppression.\n\n## 7. Signals: cooperative stopping versus forced termination\n\n<Code language=\"python\">{getOperatingSystemExample('worker.py')}</Code>\n\nThe worker validates its data directory, installs SIGTERM/SIGINT handlers, reads and increments starts, and prints ready. The handler only sets a stop flag. Normal control flow observes the flag, leaves the loop, and writes stopped.txt in finally. Python handlers execute in the main interpreter thread; they are not a safe transaction-commit hook injected into an arbitrary business thread. Keeping complex I/O in normal control flow makes behavior easier to explain and test.\n\nSIGINT commonly comes from Ctrl+C in a foreground terminal; SIGTERM is a service manager’s usual request to stop. A program may handle either, but must retain a reachable exit path. SIGKILL cannot be caught, so finally is not guaranteed to execute. Crashes and power loss likewise do not wait politely for cleanup. Database durability cannot be built on “save once when exiting.”\n\nReplacing a temporary state file only narrows partial-write exposure for this single writer. There is no fsync, concurrent coordination, or transaction guarantee. A restart counter is not JSON magically becoming PostgreSQL.\n\n<Code language=\"python\">{getOperatingSystemExample('process_lab.py')}</Code>\n\n```bash\nuv run --locked python process_lab.py\n```\n\n```text\nmissing_config_exit=78\nSIGTERM: subprocess_returncode=0 cleanup=True\nSIGINT: subprocess_returncode=0 cleanup=True\nSIGKILL: subprocess_returncode=-9 cleanup=False\nsame_directory_across_processes=2\n```\n\nThese are observed outputs from this run; variable PIDs and temporary paths are not hard-coded into the result. The final 2 means two new processes read the same directory’s file, not that old Python memory survived. Stop a manually launched foreground worker with Ctrl+C in its terminal. The automatic experiment signals only its recorded Popen child and needs no additional kill command afterward.\n\n## 8. Permissions: why a service should not inherit all your power\n\nPOSIX mode bits normally group permissions into owner, group, and other; read/write/execute use values 4/2/1. Execute means executable for a file, but traversal/access to known names for a directory—not the same as listing that directory. Mode 0600 allows only the owner to read and write a file; 0700 restricts directory access to its owner. umask removes permission bits **when creating** an object; it does not repair existing files. chmod changes an existing object.\n\nThis experiment writes fictional configuration only inside its own temporary directory. It observes 0700/0600, changes the file to 0000, observes PermissionError, and restores 0600 before cleanup. It rejects root because bypassing the refusal would produce a misleading result. ACLs, filesystems, and platforms can add rules; one octal number does not establish every security property.\n\n<Code language=\"python\">{getOperatingSystemExample('permissions_lab.py')}</Code>\n\n```bash\nuv run --locked python permissions_lab.py\n```\n\n```text\ndirectory_mode=0o700\nfile_mode=0o600\nread_without_permission=denied\nrestored_read=True\n```\n\nWhen access is denied, ask which account needs which operation on which directory. Do not bypass the issue with chmod 777 or by running the whole service through sudo. A service account normally should not modify application source, needs no login shell, and should write only to declared data directories. Environment variables are not a secret vault: principals allowed to inspect a process may read them. Avoid environment dumps, tokens in command-line arguments, and raw configuration values in logs. O02 separates ordinary configuration from secret injection.\n\n## 9. Service managers supervise processes, not business correctness\n\nOn Linux, systemd can replace the habit of keeping an SSH window open forever. A service unit starts a process, selects its account and cwd, collects output, and restarts it under declared conditions. It is not a database and cannot decide whether an HTTP 200 violates authorization. `Restart=on-failure` does not repair invalid configuration; RestartSec and StartLimit prevent rapid restarts from concealing the root cause.\n\nThis is a complete teaching template, **not installed or executed on this host**. User/Group reduce privilege; WorkingDirectory fixes the basis for relative paths; ExecStart uses the absolute interpreter of a venv restored on the target host. StateDirectory supplies a writable state directory. ProtectSystem=strict makes other system locations read-only, with StateDirectory permitted to remain writable. TimeoutStopSec gives SIGTERM five seconds before forceful termination may follow. NoNewPrivileges prevents gaining additional privilege through execution; it does not make the application vulnerability-free.\n\n<Code language=\"ini\">{getOperatingSystemExample('systemd/ops-worker.service')}</Code>\n\nReal acceptance requires your own rebuildable Linux/systemd host and administrative authority. First confirm there is no conflicting service/account. Provision a dedicated non-login langshift-ops account/group, deploy allowlisted source to `/opt/langshift/o01-operating-system`, and restore dependencies at that target path. The service account must read/execute but not modify source. Do not copy a macOS venv onto Linux or experiment on an existing production host.\n\nThe following commands are **pending Linux acceptance steps after provisioning**, not observed successes here. An administrator reviews the unit, installs it as a system unit, and performs daemon-reload only after confirming the target machine. `systemd-analyze verify` checks configuration, not effective runtime permissions. Starting, inspecting, stopping, and starting again while inspecting starts and stopped.txt establish runtime evidence. Do not enable boot startup before rehearsing these steps.\n\n```bash\nsystemd-analyze verify systemd/ops-worker.service\nsudo systemctl daemon-reload\nsudo systemctl start ops-worker.service\nsudo systemctl status ops-worker.service --no-pager\nsudo journalctl -u ops-worker.service -n 30 --no-pager\nsudo systemctl stop ops-worker.service\n```\n\n## 10. Diagnose the stage where failure occurs\n\n| Observation | First inspection | Safe recovery |\n| --- | --- | --- |\n| uv / Python not found | PATH and interpreter location; business code has not run | Restore tools using L08, not a random similarly named package |\n| Configuration error, exit 78 | Whether this process received the variable; absolute existing directory | Supply explicit child configuration without dumping the real environment |\n| FileNotFoundError | cwd and absolute resource location | Fix path responsibility instead of copying into uncertain directories |\n| PermissionError / exit 74 | Effective UID and target owner/mode | Grant only the required access to a dedicated directory |\n| exit 65 | Corrupt JSON or a non-integer/negative starts value | Preserve a failure copy and use a new disposable directory |\n| Port conflict | A second instance of your own service | Stop your first instance or choose another port |\n| No stopped.txt after SIGKILL | Stopping method, not finally syntax | Explain forced termination; do not claim lost data was recovered |\n\nRecord the last successful stage instead of repeatedly restarting. Distinguish configuration parsing, file access, port binding, and business requests before choosing evidence. No real database access or disclosure of real configuration is required.\n\n## 11. Explanation checkpoint: give a causal chain\n\nWithout running code, explain why a second execution can obtain starts=2, why cwd should not change an explicitly selected state directory, whether missing cleanup after SIGKILL proves a faulty finally block, and why successful listening cannot replace an authorization test.\n\n<details>\n<summary>Answer and explanation</summary>\n\nA new process gets new memory; the count survives because it reads **the same file**. The absolute data path is not joined to cwd in this implementation. Replacing it with a relative path would change that behavior. SIGKILL gives the interpreter no opportunity to run finally, so missing cleanup is expected. Listening only proves the kernel accepted bind/listen; authorization requires actual requests checking the principal-resource relationship.\n\n</details>\n\n## 12. Guided exercise: reject configuration, then corrupt state\n\nIn your own temporary directory, try missing OPS_DATA_DIR, a relative path, an existing directory containing state.json equal to `[]`, and finally `{\"starts\":0}`. Error paths must not print tracebacks or environment values. Distinguish configuration from data failure; the valid case must stop normally and create cleanup state. Hint: valid JSON does not imply a valid application shape, and a Python bool is not an acceptable counter here. Predict first, then locate the corresponding assertions in the tests.\n\n<details>\n<summary>Guided answer: identify the rejected boundary</summary>\n\nMissing and relative configuration fail in data_directory with exit 78. A JSON list is not an object with starts and yields exit 65. A valid object with --once completes one run and exits 0. Tests use owned temporary directories and finite timeouts; never place corrupt test data in an existing application directory. stderr contains only categorized diagnostics, retaining more useful information than catching every exception and reporting success.\n\n<Code language=\"python\">{getOperatingSystemExample('tests/test_operations.py')}</Code>\n\n</details>\n\n## 13. Independent variation: two roots and three starts\n\nWork from requirements without opening the answer: create independent first and second state directories, start the worker twice for first and once for second, but deliberately set every child’s cwd to second. Obtain `[2, 1]` with normal exits. Do not simulate persistence through a parent dictionary. Use only owned temporary files, clean up on failure, and test that cwd does not determine state ownership.\n\n<details>\n<summary>Independent reference and acceptance</summary>\n\n<Code language=\"python\">{getOperatingSystemExample('solutions/two_directories.py')}</Code>\n\n<Code language=\"python\">{getOperatingSystemExample('solutions/test_two_directories.py')}</Code>\n\n```bash\nuv run --locked python -m solutions.two_directories\nuv run --locked python -m pytest -q solutions/test_two_directories.py\n```\n\n```text\n[2, 1]\n```\n\nIf you obtain `[0, 3]` or only one state.json, first inspect whether cwd replaced the chosen data root. Passing the reference does not accept your own implementation. Run equivalent tests against your function and explain the path supplied on each launch.\n\n</details>\n\n## 14. Environment matrix: implemented is not Linux-accepted\n\n| State | Evidence or gate |\n| --- | --- |\n| Actually executed | Ordinary macOS account; 16 standard and 1 independent test; env/cwd, permission refusal/recovery, port collision, three signals, cross-process file state |\n| Unavailable on this host | No Linux/systemd service manager; no unit installation, boot-start test, or real service-account isolation |\n| User-provided environment | Rebuildable controlled Linux/systemd host, dedicated account and reviewed deployment directory; validate configuration, then exercise start/stop, permissions, and failure restart |\n| Not accepted by this chapter | Windows, power-loss durability, multiple writers, database recovery, or public hosting |\n\nText and source are implemented; Linux/systemd remains environment_pending. Case counts describe execution, not a claim that 17 tests prove production reliability. No system software was installed, user database accessed, or unrelated process stopped.\n\n## 15. Sources, dates, and a resumable record\n\nPrimary sources checked **2026-09-28**. `SOURCES.json` records URLs, dates, and retrieval summaries; it does not promise that documentation will never change. The three READMEs distinguish observations from environment gaps. The existence of configuration is not deployment acceptance.\n\n- [Python subprocess](https://docs.python.org/3.13/library/subprocess.html)\n- [Python signal](https://docs.python.org/3.13/library/signal.html)\n- [Python os](https://docs.python.org/3.13/library/os.html)\n- [Python socket](https://docs.python.org/3.13/library/socket.html)\n- [systemd service](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html)\n- [systemd execution environment](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html)\n\nBefore pausing, record your source version/changes, cwd, Python/uv versions, last successful command, whether 16+1 cases reproduced on your machine, unresolved failures, and the next first action. Do not store real environment values or secrets. Resume with `uv sync --locked`, process_lab.py, and your independent test. Moving to Linux requires a new matrix entry, not copying the macOS pass label.\n\n",
+          "mechanism_focus": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态; 定位启动失败并演示正常停止；解释服务账户权限; 不先让初学者背Docker命令绕过OS基础",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "1371648d6d08f6984da23bddf9ad29d8fcd773d5c0ce1e56bbf83742162ab11b",
+              "bytes": 4669,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".python-version",
+            "ENVIRONMENT.json",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "SOURCES.json",
+            "environment_lab.py",
+            "permissions_lab.py",
+            "port_lab.py",
+            "process_lab.py",
+            "pyproject.toml",
+            "solutions/__init__.py",
+            "solutions/test_two_directories.py",
+            "solutions/two_directories.py",
+            "systemd/ops-worker.service",
+            "tests/test_operations.py",
+            "uv.lock",
+            "worker.py"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "Author source and polluted-environment runs plus mainline unmodified maintained runner against exact downloaded ZIP bytes passed58 local cases: O01=16+1/O02=14+3/O03=17+7. Actual own POSIX process/signals/ports/files, local HTTP and private-CA TLS including unknown-CA/wrong-host rejection executed. No insecure curl -k/global trust import. Docker probe returned expected77 meaning environment_pending, NOT container success. Docker engine, systemd/Linux, Caddy and public domain/DNS/CA/firewall absent. Material authoring may complete while environmental chapter acceptance remains pending. No public users or infrastructure touched. Browser publication checks still pending.",
+          "slice": {
+            "index": 1,
+            "count": 1,
+            "source_paths_here": [
+              ".python-version",
+              "ENVIRONMENT.json",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "SOURCES.json",
+              "environment_lab.py",
+              "permissions_lab.py",
+              "port_lab.py",
+              "process_lab.py",
+              "pyproject.toml",
+              "solutions/__init__.py",
+              "solutions/test_two_directories.py",
+              "solutions/two_directories.py",
+              "systemd/ops-worker.service",
+              "tests/test_operations.py",
+              "worker.py"
+            ],
+            "source_paths_elsewhere": []
+          },
+          "actual_download_files": {
+            ".python-version": "3.13.15\n",
+            "ENVIRONMENT.json": "{\n  \"standard_tests\": 16,\n  \"independent_tests\": 1,\n  \"actually_run\": [\n    \"CPython3.13.15 on Darwin25.6.0 arm64 ordinary uid501\",\n    \"env/cwd and missing-file failure\",\n    \"SIGTERM/SIGINT cleanup, SIGKILL absence of cleanup\",\n    \"nonroot mode denial/restoration\",\n    \"loopback bind collision and owned socket cleanup\",\n    \"configuration78/data65/I-O74 failures\",\n    \"two independent data roots\"\n  ],\n  \"unavailable_here\": [\n    \"Linux/systemd runtime and service account provisioning\"\n  ],\n  \"user_must_supply\": [\n    \"rebuildable controlled Linux/systemd host\",\n    \"dedicated service account/group and reviewed deployment directories\",\n    \"administrator approval for installing a system unit\"\n  ],\n  \"pending_acceptance\": [\n    \"systemd-analyze verify on target\",\n    \"real unit start/stop/restart and effective filesystem restrictions\",\n    \"boot lifecycle if enabled\",\n    \"Windows semantics and power-loss/concurrent persistence are outside acceptance\"\n  ],\n  \"verified_date\": \"2026-09-28\",\n  \"implementation_status\": \"implemented\",\n  \"environment_status\": \"environment_pending\",\n  \"claims_do_not_include\": \"documentation completion is not deployment/environment acceptance\"\n}\n",
+            "README.md": "# O01 Operating systems and service processes\n\nPrerequisites: A02 and language/file/dependency/test foundations. Understand cwd, environment, permissions, ports, and stopping before containers. The worker stores a disposable start count, not a complete task API or durable database.\n\n## Environment and restoration\n\nChecked **2026-09-28**. Use an ordinary POSIX account, not root, for permission experiments. CPython **3.13.15**, uv **0.12.13**, pytest **8.4.2**. `.python-version` selects the interpreter, pyproject declares `>=3.13,<3.14`, and uv.lock fixes resolution. `[tool.uv] package=false` means the lab is not built as a distributable Python package.\n\nRepository users run the cd below from the repository root. ZIP users enter the extracted lab root directly, where pyproject.toml resides. `--locked` refuses silent lock changes.\n\n```bash\ncd examples/js2py/o01-operating-system\npwd\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\nThe maintainer actually generated the lock using `uv lock --default-index https://pypi.org/simple`. Restoration does not require fresh resolution. Environments/caches are excluded from the allowlist/ZIP; data experiments use owned temporary directories.\n\n## Files and actual commands\n\nworker.py is a single-writer foreground process; --once executes once. process_lab.py owns its children and verifies signals. environment_lab.py makes two cwds and child configuration explicit. permissions_lab.py modifies only temporary files; port_lab.py creates only loopback sockets. Experiments have bounded waits/cleanup and never search for or stop other people’s processes.\n\n```bash\nuv run --locked python process_lab.py\nuv run --locked python environment_lab.py\nuv run --locked python permissions_lab.py\nuv run --locked python port_lab.py\nuv run --locked python -m pytest -q\nuv run --locked python -m solutions.two_directories\nuv run --locked python -m pytest -q solutions/test_two_directories.py\n```\n\nKey observed output follows. Negative -9 is the POSIX subprocess representation, not an HTTP status or universally identical shell exit.\n\n```text\nmissing_config_exit=78\nSIGTERM: subprocess_returncode=0 cleanup=True\nSIGINT: subprocess_returncode=0 cleanup=True\nSIGKILL: subprocess_returncode=-9 cleanup=False\nsame_directory_across_processes=2\n[2, 1]\n```\n\n## Intentional failures and recovery\n\nMissing/relative OPS_DATA_DIR →78; corrupt JSON, list root or boolean starts →65; an owned unwritable directory →74; wrong cwd →FileNotFoundError; a second bind is refused; SIGKILL skips cleanup. Tests verify these failures without converting them into business success. Do not hide permission faults with sudo/chmod777. Starting with a new owned temporary directory is lab recovery, not permission to discard a real database.\n\n## Manual worker and stopping\n\nFor manual use, prepare a directory dedicated to this lab, supply its absolute path through OPS_DATA_DIR, and launch worker.py. It waits after ready; Ctrl+C in that terminal requests normal SIGINT stopping. Automatic scripts clean up their own Popen child and need no additional kill. Never claim finally always runs without considering forced termination.\n\n## Linux/systemd (not executed)\n\nThe complete unit is systemd/ops-worker.service. A target administrator first checks for conflicting services/accounts, provisions a dedicated non-login langshift-ops account/group on a rebuildable Linux host, deploys source to /opt/langshift/o01-operating-system, and restores .venv there. The service account reads/executes but cannot modify source. StateDirectory supplies /var/lib/langshift-ops. Do not copy a macOS venv or rehearse on production. Review/validate the unit, then install it at /etc/systemd/system/ops-worker.service only with approval. The commands below are pending acceptance after provisioning, not a success log.\n\n```bash\nsystemd-analyze verify systemd/ops-worker.service\nsudo systemctl daemon-reload\nsudo systemctl start ops-worker.service\nsudo systemctl status ops-worker.service --no-pager\nsudo journalctl -u ops-worker.service -n 30 --no-pager\nsudo systemctl stop ops-worker.service\n```\n\n## Independent requirement\n\nFrom requirements alone: create first/second roots, run first twice and second once, deliberately give every child cwd=second, and obtain [2,1] without shared parent memory. Clean up only owned resources even on failure. Reference solutions/two_directories.py and its separate test after attempting the task. Explain SIGTERM versus SIGKILL, permission recovery, and pending Linux acceptance.\n\n## Environment matrix (machine-readable: ENVIRONMENT.json)\n\n| State | Evidence / gate |\n| --- | --- |\n| actually_run | CPython3.13.15 on Darwin25.6.0 arm64 ordinary uid501; env/cwd and missing-file failure; SIGTERM/SIGINT cleanup, SIGKILL absence of cleanup; nonroot mode denial/restoration; loopback bind collision and owned socket cleanup; configuration78/data65/I-O74 failures; two independent data roots |\n| unavailable_here | Linux/systemd runtime and service account provisioning |\n| user_must_supply | rebuildable controlled Linux/systemd host; dedicated service account/group and reviewed deployment directories; administrator approval for installing a system unit |\n| pending_acceptance | systemd-analyze verify on target; real unit start/stop/restart and effective filesystem restrictions; boot lifecycle if enabled; Windows semantics and power-loss/concurrent persistence are outside acceptance |\n\nThis run passed **16 standard** and **1 independent** cases. Source/text are `implemented`; external environment gates remain `environment_pending`, not deployment acceptance. Ordinary macOS tests do not replace Linux/container/public or Windows evidence.\n\n## Resume and diagnosis record\n\nRecord source/lock hashes, cwd, tool versions, last successful command, failure stage/category, actual case counts, environment matrix, and next first step. Never record a full environment, real token, database URL, or private key. Resume with `uv sync --locked`, standard tests, and your own independent tests. A passing reference alone does not establish independent ability.\n\n## Primary sources\n\nSOURCES.json records official URLs, scope, HTTP retrieval results and SHA-256 digests checked on 2026-09-28. The chapter explains mechanisms; this README provides the offline execution entry. No production resource creation, system-software installation, or acceptance of service terms is automated here.\n",
+            "README.zh-cn.md": "# O01 操作系统与服务进程\n\n前置 A02 与语言/文件/依赖/测试基础。理解程序启动时的 cwd、环境、权限、端口与退出方式，再讨论容器。worker 只保存一次性启动计数；不是完整任务 API，不是可靠数据库。\n\n## 环境与恢复\n\n核验日期：**2026-09-28**。需要普通 POSIX 账户；不以 root 运行权限实验。CPython **3.13.15**、uv **0.12.13**、pytest **8.4.2**。`.python-version` 选解释器，pyproject 声明 `>=3.13,<3.14`，uv.lock 锁依赖；`[tool.uv] package=false` 表示不打包这个练习为可发布 Python 包。\n\n仓库用户从仓库根目录执行下列 cd；ZIP 用户直接进入解压后的同名实验根目录，里面应有 pyproject.toml。`--locked` 拒绝悄悄更新锁。\n\n```bash\ncd examples/js2py/o01-operating-system\npwd\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\n维护者锁文件已用 `uv lock --default-index https://pypi.org/simple` 实际生成。读者恢复不需要重新解析。环境与缓存不进清单/ZIP，所有数据实验用自己创建的临时目录。\n\n## 文件与实际命令\n\nworker.py 是前台单写者，--once 只执行一次。process_lab.py 持有自己创建的子进程并验证信号；environment_lab.py 明确两个 cwd 与子进程配置；permissions_lab.py 只改临时文件；port_lab.py 只创建 loopback sockets。所有运行都有限超时/清理，不搜索或停止别人的进程。\n\n```bash\nuv run --locked python process_lab.py\nuv run --locked python environment_lab.py\nuv run --locked python permissions_lab.py\nuv run --locked python port_lab.py\nuv run --locked python -m pytest -q\nuv run --locked python -m solutions.two_directories\nuv run --locked python -m pytest -q solutions/test_two_directories.py\n```\n\n关键实测输出如下。负的 -9 是 POSIX subprocess 表示，不是 HTTP 状态或 shell 必然返回值。\n\n```text\nmissing_config_exit=78\nSIGTERM: subprocess_returncode=0 cleanup=True\nSIGINT: subprocess_returncode=0 cleanup=True\nSIGKILL: subprocess_returncode=-9 cleanup=False\nsame_directory_across_processes=2\n[2, 1]\n```\n\n## 故意失败与恢复\n\n缺少/相对 OPS_DATA_DIR →78；损坏 JSON、列表根或 bool starts →65；自有不可写目录 →74；错误 cwd →FileNotFoundError；第二次绑定同一地址被拒绝；SIGKILL 不执行清理。测试确认这些失败，不把它们转成业务成功。不要用 sudo/chmod777 掩盖权限问题。重建新的自有临时目录是本实验恢复，不代表真实数据库可丢弃。\n\n## 手工 worker 与停止\n\n若要手工运行，先准备只用于本实验的目录，通过 OPS_DATA_DIR 传入绝对路径，启动 worker.py；ready 后它一直等待，终端的 Ctrl+C 请求 SIGINT 正常结束。自动脚本负责清理自己的 Popen 对象，完成后不额外 kill。没有信号/超时证据前不声称所有 finally 都会执行。\n\n## Linux/systemd（未实跑）\n\n完整单元在 systemd/ops-worker.service。目标管理员须先确认没有同名服务或账户，在可重建 Linux 主机创建专用 langshift-ops 非登录账户/组，将源码部署到 /opt/langshift/o01-operating-system 并在目标目录恢复 .venv；服务账户能读/执行源码，不能修改它。StateDirectory 负责 /var/lib/langshift-ops。不要复制 macOS .venv，不用生产机器练习。先审核/验证单元，再经批准安装到 /etc/systemd/system/ops-worker.service；以下只是在准备完成后可执行的验收命令，不是成功记录。\n\n```bash\nsystemd-analyze verify systemd/ops-worker.service\nsudo systemctl daemon-reload\nsudo systemctl start ops-worker.service\nsudo systemctl status ops-worker.service --no-pager\nsudo journalctl -u ops-worker.service -n 30 --no-pager\nsudo systemctl stop ops-worker.service\n```\n\n## 独立需求\n\n只根据需求实现：两个目录 first/second，给 first 启动两次、second 一次，所有子进程 cwd 故意为 second，结果 [2,1]；独立状态不靠父进程内存共享。失败也必须只清理自己资源。参考 solutions/two_directories.py 与单独测试；先做再看答案。SIGTERM/SIGKILL 的差异、权限恢复、Linux待验证均应能口头解释。\n\n## 环境矩阵（机器可读版本：ENVIRONMENT.json）\n\n| 状态 | 证据与门槛 |\n| --- | --- |\n| 已实际运行 | 普通 macOS 用户；环境/cwd、缺失文件、SIGTERM/SIGINT清理与SIGKILL不清理、权限拒绝/恢复、loopback端口冲突、配置78/数据65/I-O74、两份独立状态目录。 |\n| 本机不可运行 | 没有Linux/systemd；没有创建真实服务账户或安装系统单元。 |\n| 用户需自备 | 可重建受控Linux/systemd主机、专用账户/组、经审核部署目录，以及安装单元的管理员授权。 |\n| 待环境验收 | 目标机systemd配置验证、实际启停/失败重启/权限限制；启用开机启动前另做生命周期测试。Windows、并发写与断电持久性不在通过范围。 |\n\n本轮标准 **16**、独立 **1** 个测试通过。源码与文稿 `implemented`；矩阵中的外部环境 `environment_pending`，不是整体部署通过。普通 macOS 测试不能代替 Linux/容器/公网或 Windows 证据。\n\n## 恢复学习与排错记录\n\n记录源码/锁摘要、cwd、工具版本、最后成功命令、失败阶段与分类、实际测试数、环境矩阵和下次第一步。不要记录完整环境、真实 token、数据库 URL 或私钥。恢复先 `uv sync --locked`，再跑标准与自己写的独立测试。只有参考答案通过，不代表你能独立实现。\n\n## 一手资料\n\nSOURCES.json 保存 2026-09-28 核验的官方地址、作用范围、HTTP获取结果与SHA-256摘要。章节正文解释每个机制，README 提供离线运行入口。这里没有自动创建生产资源、安装系统软件或接受服务条款。\n",
+            "README.zh-tw.md": "# O01 操作系統與服務進程\n\n前置 A02 與語言/文件/依賴/測試基礎。理解程序啟動時的 cwd、環境、權限、端口與退出方式，再討論容器。worker 只保存一次性啟動計數；不是完整任務 API，不是可靠數據庫。\n\n## 環境與恢復\n\n核驗日期：**2026-09-28**。需要普通 POSIX 賬戶；不以 root 運行權限實驗。CPython **3.13.15**、uv **0.12.13**、pytest **8.4.2**。`.python-version` 選解釋器，pyproject 聲明 `>=3.13,<3.14`，uv.lock 鎖依賴；`[tool.uv] package=false` 表示不打包這個練習為可發佈 Python 包。\n\n倉庫用戶從倉庫根目錄執行下列 cd；ZIP 用戶直接進入解壓後的同名實驗根目錄，裡面應有 pyproject.toml。`--locked` 拒絕悄悄更新鎖。\n\n```bash\ncd examples/js2py/o01-operating-system\npwd\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\n維護者鎖文件已用 `uv lock --default-index https://pypi.org/simple` 實際生成。讀者恢復不需要重新解析。環境與緩存不進清單/ZIP，所有數據實驗用自己創建的臨時目錄。\n\n## 文件與實際命令\n\nworker.py 是前臺單寫者，--once 只執行一次。process_lab.py 持有自己創建的子進程並驗證信號；environment_lab.py 明確兩個 cwd 與子進程配置；permissions_lab.py 只改臨時文件；port_lab.py 只創建 loopback sockets。所有運行都有限超時/清理，不搜索或停止別人的進程。\n\n```bash\nuv run --locked python process_lab.py\nuv run --locked python environment_lab.py\nuv run --locked python permissions_lab.py\nuv run --locked python port_lab.py\nuv run --locked python -m pytest -q\nuv run --locked python -m solutions.two_directories\nuv run --locked python -m pytest -q solutions/test_two_directories.py\n```\n\n關鍵實測輸出如下。負的 -9 是 POSIX subprocess 表示，不是 HTTP 狀態或 shell 必然返回值。\n\n```text\nmissing_config_exit=78\nSIGTERM: subprocess_returncode=0 cleanup=True\nSIGINT: subprocess_returncode=0 cleanup=True\nSIGKILL: subprocess_returncode=-9 cleanup=False\nsame_directory_across_processes=2\n[2, 1]\n```\n\n## 故意失敗與恢復\n\n缺少/相對 OPS_DATA_DIR →78；損壞 JSON、列表根或 bool starts →65；自有不可寫目錄 →74；錯誤 cwd →FileNotFoundError；第二次綁定同一地址被拒絕；SIGKILL 不執行清理。測試確認這些失敗，不把它們轉成業務成功。不要用 sudo/chmod777 掩蓋權限問題。重建新的自有臨時目錄是本實驗恢復，不代表真實數據庫可丟棄。\n\n## 手工 worker 與停止\n\n若要手工運行，先準備只用於本實驗的目錄，通過 OPS_DATA_DIR 傳入絕對路徑，啟動 worker.py；ready 後它一直等待，終端的 Ctrl+C 請求 SIGINT 正常結束。自動腳本負責清理自己的 Popen 對象，完成後不額外 kill。沒有信號/超時證據前不聲稱所有 finally 都會執行。\n\n## Linux/systemd（未實跑）\n\n完整單元在 systemd/ops-worker.service。目標管理員須先確認沒有同名服務或賬戶，在可重建 Linux 主機創建專用 langshift-ops 非登錄賬戶/組，將源碼部署到 /opt/langshift/o01-operating-system 並在目標目錄恢復 .venv；服務賬戶能讀/執行源碼，不能修改它。StateDirectory 負責 /var/lib/langshift-ops。不要複製 macOS .venv，不用生產機器練習。先審核/驗證單元，再經批准安裝到 /etc/systemd/system/ops-worker.service；以下只是在準備完成後可執行的驗收命令，不是成功記錄。\n\n```bash\nsystemd-analyze verify systemd/ops-worker.service\nsudo systemctl daemon-reload\nsudo systemctl start ops-worker.service\nsudo systemctl status ops-worker.service --no-pager\nsudo journalctl -u ops-worker.service -n 30 --no-pager\nsudo systemctl stop ops-worker.service\n```\n\n## 獨立需求\n\n只根據需求實現：兩個目錄 first/second，給 first 啟動兩次、second 一次，所有子進程 cwd 故意為 second，結果 [2,1]；獨立狀態不靠父進程內存共享。失敗也必須只清理自己資源。參考 solutions/two_directories.py 與單獨測試；先做再看答案。SIGTERM/SIGKILL 的差異、權限恢復、Linux待驗證均應能口頭解釋。\n\n## 環境矩陣（機器可讀版本：ENVIRONMENT.json）\n\n| 狀態 | 證據與門檻 |\n| --- | --- |\n| 已實際運行 | 普通 macOS 用戶；環境/cwd、缺失文件、SIGTERM/SIGINT清理與SIGKILL不清理、權限拒絕/恢復、loopback端口衝突、配置78/數據65/I-O74、兩份獨立狀態目錄。 |\n| 本機不可運行 | 沒有Linux/systemd；沒有創建真實服務賬戶或安裝系統單元。 |\n| 用戶需自備 | 可重建受控Linux/systemd主機、專用賬戶/組、經審核部署目錄，以及安裝單元的管理員授權。 |\n| 待環境驗收 | 目標機systemd配置驗證、實際啟停/失敗重啟/權限限制；啟用開機啟動前另做生命週期測試。Windows、併發寫與斷電持久性不在通過範圍。 |\n\n本輪標準 **16**、獨立 **1** 個測試通過。源碼與文稿 `implemented`；矩陣中的外部環境 `environment_pending`，不是整體部署通過。普通 macOS 測試不能代替 Linux/容器/公網或 Windows 證據。\n\n## 恢復學習與排錯記錄\n\n記錄源碼/鎖摘要、cwd、工具版本、最後成功命令、失敗階段與分類、實際測試數、環境矩陣和下次第一步。不要記錄完整環境、真實 token、數據庫 URL 或私鑰。恢復先 `uv sync --locked`，再跑標準與自己寫的獨立測試。只有參考答案通過，不代表你能獨立實現。\n\n## 一手資料\n\nSOURCES.json 保存 2026-09-28 核驗的官方地址、作用範圍、HTTP獲取結果與SHA-256摘要。章節正文解釋每個機制，README 提供離線運行入口。這裡沒有自動創建生產資源、安裝系統軟件或接受服務條款。\n",
+            "SOURCES.json": "[\n  {\n    \"title\": \"Python subprocess\",\n    \"url\": \"https://docs.python.org/3.13/library/subprocess.html\",\n    \"scope\": \"Owned Popen handles, POSIX negative signal return codes, timeout and cwd/env\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.python.org/3.13/library/subprocess.html\",\n    \"sha256\": \"e222b64e7b5d77e78e196bc7936ff45427ec2937087ee8ec41e7b5d6ffab680c\"\n  },\n  {\n    \"title\": \"Python signal\",\n    \"url\": \"https://docs.python.org/3.13/library/signal.html\",\n    \"scope\": \"Main-thread handlers; SIGKILL cannot be caught\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.python.org/3.13/library/signal.html\",\n    \"sha256\": \"d6045065f0ac8c044098057519db965926372a930233ca3e79684574ef47d715\"\n  },\n  {\n    \"title\": \"Python os\",\n    \"url\": \"https://docs.python.org/3.13/library/os.html\",\n    \"scope\": \"Environment, umask, chmod, POSIX identifiers\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.python.org/3.13/library/os.html\",\n    \"sha256\": \"a5360ec4058c1f8fa627ae707daa85be34b28048c6c3dd1d280033392919eb2d\"\n  },\n  {\n    \"title\": \"Python socket\",\n    \"url\": \"https://docs.python.org/3.13/library/socket.html\",\n    \"scope\": \"bind/listen/close and address families\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.python.org/3.13/library/socket.html\",\n    \"sha256\": \"3e14dfd0b451c74cdb717ae7144f59a61e7e56f012dd85e0284dbbfbcabd5e0c\"\n  },\n  {\n    \"title\": \"systemd service\",\n    \"url\": \"https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html\",\n    \"scope\": \"Restart, stop timeout, ExecStart; Linux runtime remains unverified\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html\",\n    \"sha256\": \"8b9e04d13a18329c395d9088ee32898fa3c27cc296d7bd84baa549f7344f5aea\"\n  },\n  {\n    \"title\": \"systemd execution environment\",\n    \"url\": \"https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html\",\n    \"scope\": \"User, WorkingDirectory, StateDirectory, filesystem restrictions\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html\",\n    \"sha256\": \"a1710bc7b196f3fbdb072661791503a4117f6d980036d9b6063ac11e1f952fe1\"\n  }\n]\n",
+            "environment_lab.py": "\"\"\"Inspect only a fictional OPS_LABEL; never dump the real environment.\"\"\"\nimport os\nfrom pathlib import Path\nimport subprocess\nimport sys\nfrom tempfile import TemporaryDirectory\n\n\ndef observe() -> list[str]:\n    with TemporaryDirectory(prefix=\"js2py-cwd-\") as temp:\n        directory = Path(temp) / \"with-message\"\n        empty = Path(temp) / \"empty\"\n        directory.mkdir()\n        empty.mkdir()\n        (directory / \"message.txt\").write_text(\"from the working directory\\n\")\n        code = (\n            \"import os; from pathlib import Path; \"\n            \"print(os.environ.get('OPS_LABEL', 'missing')); \"\n            \"print(Path('message.txt').read_text().strip()); \"\n            \"os.environ['OPS_LABEL']='child-only'\"\n        )\n        configured = {\"OPS_LABEL\": \"parent-choice\"}\n        result = subprocess.run([sys.executable, \"-c\", code], cwd=directory,\n                                env=configured, text=True, capture_output=True, timeout=3, check=True)\n        missing = subprocess.run([sys.executable, \"-c\", \"from pathlib import Path; Path('message.txt').read_text()\"],\n                                 cwd=empty, env={}, text=True, capture_output=True, timeout=3)\n        return result.stdout.splitlines() + [\n            f\"parent_mapping_unchanged={configured['OPS_LABEL'] == 'parent-choice'}\",\n            f\"wrong_cwd_exit={missing.returncode}\",\n            f\"wrong_cwd_is_FileNotFoundError={'FileNotFoundError' in missing.stderr}\",\n        ]\n\n\nif __name__ == \"__main__\":\n    print(\"\\n\".join(observe()))\n",
+            "permissions_lab.py": "\"\"\"Change modes only on our own temporary file, restoring before cleanup.\"\"\"\nimport os\nfrom pathlib import Path\nimport stat\nfrom tempfile import TemporaryDirectory\n\n\ndef observe() -> list[str]:\n    if os.geteuid() == 0:\n        raise RuntimeError(\"run as an ordinary user; root bypasses this permission experiment\")\n    with TemporaryDirectory(prefix=\"js2py-permissions-\") as temp:\n        directory = Path(temp)\n        file = directory / \"fictional-config.txt\"\n        previous = os.umask(0o077)\n        try:\n            file.write_text(\"not-a-credential\\n\")\n        finally:\n            os.umask(previous)\n        lines = [f\"directory_mode={oct(stat.S_IMODE(directory.stat().st_mode))}\",\n                 f\"file_mode={oct(stat.S_IMODE(file.stat().st_mode))}\"]\n        file.chmod(0o000)\n        try:\n            try:\n                file.read_text()\n            except PermissionError:\n                lines.append(\"read_without_permission=denied\")\n            else:\n                raise AssertionError(\"permission was bypassed; check user/ACL/platform before accepting\")\n        finally:\n            file.chmod(0o600)\n        lines.append(f\"restored_read={file.read_text().strip() == 'not-a-credential'}\")\n        return lines\n\n\nif __name__ == \"__main__\":\n    print(\"\\n\".join(observe()))\n",
+            "port_lab.py": "\"\"\"Bind only our loopback sockets; do not inspect or stop other listeners.\"\"\"\nimport socket\n\n\ndef observe() -> list[str]:\n    with socket.socket() as first:\n        first.bind((\"127.0.0.1\", 0))\n        first.listen(1)\n        address = first.getsockname()\n        with socket.socket() as second:\n            try:\n                second.bind(address)\n            except OSError:\n                collision = True\n            else:\n                collision = False\n        lines = [f\"listening_on_loopback={address[0] == '127.0.0.1'}\",\n                 f\"second_bind_rejected={collision}\"]\n    lines.append(f\"owned_socket_closed={first.fileno() == -1}\")\n    return lines\n\n\nif __name__ == \"__main__\":\n    print(\"\\n\".join(observe()))\n",
+            "process_lab.py": "\"\"\"Bounded experiments; signals are sent ONLY to this function's own child.\"\"\"\nfrom contextlib import contextmanager\nimport json\nimport os\nfrom pathlib import Path\nimport signal\nimport subprocess\nimport sys\nfrom tempfile import TemporaryDirectory\nimport time\n\nROOT = Path(__file__).resolve().parent\n\n\n@contextmanager\ndef owned_worker(directory: Path):\n    log_path = directory / \"worker.log\"\n    with log_path.open(\"w\") as output:\n        process = subprocess.Popen(\n            [sys.executable, \"-u\", str(ROOT / \"worker.py\")],\n            cwd=directory, env={\"OPS_DATA_DIR\": str(directory)},\n            stdout=output, stderr=subprocess.STDOUT,\n        )\n        try:\n            deadline = time.monotonic() + 5\n            while time.monotonic() < deadline:\n                if process.poll() is not None:\n                    raise RuntimeError(\"owned worker failed before ready\")\n                if \"ready pid=\" in log_path.read_text():\n                    yield process\n                    break\n                time.sleep(0.02)\n            else:\n                raise TimeoutError(\"owned worker did not become ready\")\n        finally:\n            if process.poll() is None:\n                process.terminate()\n            try:\n                process.wait(timeout=3)\n            except subprocess.TimeoutExpired:\n                process.kill()\n                process.wait(timeout=3)\n\n\ndef signal_case(name: str) -> tuple[int, bool]:\n    chosen = {\"SIGTERM\": signal.SIGTERM, \"SIGINT\": signal.SIGINT, \"SIGKILL\": signal.SIGKILL}[name]\n    with TemporaryDirectory(prefix=\"js2py-signal-\") as temp:\n        directory = Path(temp)\n        with owned_worker(directory) as process:\n            process.send_signal(chosen)\n            code = process.wait(timeout=3)\n        return code, (directory / \"stopped.txt\").exists()\n\n\ndef observe() -> list[str]:\n    missing = subprocess.run([sys.executable, str(ROOT / \"worker.py\"), \"--once\"],\n                             env={}, capture_output=True, text=True, timeout=3)\n    lines = [f\"missing_config_exit={missing.returncode}\"]\n    for name in (\"SIGTERM\", \"SIGINT\", \"SIGKILL\"):\n        code, cleaned = signal_case(name)\n        lines.append(f\"{name}: subprocess_returncode={code} cleanup={cleaned}\")\n    with TemporaryDirectory(prefix=\"js2py-restart-\") as temp:\n        for _ in range(2):\n            subprocess.run([sys.executable, str(ROOT / \"worker.py\"), \"--once\"],\n                           cwd=temp, env={\"OPS_DATA_DIR\": temp}, check=True,\n                           capture_output=True, timeout=3)\n        count = json.loads((Path(temp) / \"state.json\").read_text())[\"starts\"]\n        lines.append(f\"same_directory_across_processes={count}\")\n    return lines\n\n\nif __name__ == \"__main__\":\n    print(\"\\n\".join(observe()))\n",
+            "pyproject.toml": "[project]\nname = \"js2py-o01-operating-system\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = []\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\"]\n\n[tool.uv]\npackage = false\n\n[tool.pytest.ini_options]\npythonpath = [\".\"]\ntestpaths = [\"tests\"]\n",
+            "solutions/__init__.py": "\"\"\"Independent exercise references; attempt the requirement first.\"\"\"\n",
+            "solutions/test_two_directories.py": "from solutions.two_directories import observe\n\n\ndef test_two_explicit_roots_are_independent_of_the_working_directory():\n    assert observe() == [2, 1]\n",
+            "solutions/two_directories.py": "\"\"\"Independent requirement: two explicit data roots must not share state.\"\"\"\nimport json\nfrom pathlib import Path\nimport subprocess\nimport sys\nfrom tempfile import TemporaryDirectory\n\nROOT = Path(__file__).resolve().parents[1]\n\n\ndef observe() -> list[int]:\n    with TemporaryDirectory(prefix=\"js2py-independent-\") as temp:\n        first, second = Path(temp) / \"first\", Path(temp) / \"second\"\n        first.mkdir(); second.mkdir()\n        for directory in (first, first, second):\n            subprocess.run([sys.executable, str(ROOT / \"worker.py\"), \"--once\"],\n                cwd=second, env={\"OPS_DATA_DIR\": str(directory)},\n                check=True, capture_output=True, timeout=3)\n        return [json.loads((directory / \"state.json\").read_text())[\"starts\"] for directory in (first, second)]\n\n\nif __name__ == \"__main__\":\n    print(observe())\n",
+            "systemd/ops-worker.service": "# Linux/systemd template. Not installed or runtime-verified on macOS.\n# Requires an operator-created unprivileged langshift-ops user and /opt deployment.\n[Unit]\nDescription=Langshift disposable operations worker (NOT the capstone API)\nStartLimitIntervalSec=60\nStartLimitBurst=3\n\n[Service]\nType=simple\nUser=langshift-ops\nGroup=langshift-ops\nWorkingDirectory=/opt/langshift/o01-operating-system\nExecStart=/opt/langshift/o01-operating-system/.venv/bin/python worker.py\nEnvironment=OPS_DATA_DIR=/var/lib/langshift-ops\nStateDirectory=langshift-ops\nUMask=0077\nRestart=on-failure\nRestartSec=3\nTimeoutStopSec=5\nKillSignal=SIGTERM\nNoNewPrivileges=true\nProtectSystem=strict\nProtectHome=true\nPrivateTmp=true\n\n[Install]\nWantedBy=multi-user.target\n",
+            "tests/test_operations.py": "from pathlib import Path\nimport subprocess\nimport sys\nfrom tempfile import TemporaryDirectory\n\nimport pytest\n\nfrom environment_lab import observe as environment_observe\nfrom permissions_lab import observe as permissions_observe\nfrom port_lab import observe as port_observe\nfrom process_lab import ROOT, observe, signal_case\nfrom worker import data_directory\n\n\ndef test_process_config_signals_and_restart():\n    assert observe() == [\"missing_config_exit=78\",\n        \"SIGTERM: subprocess_returncode=0 cleanup=True\",\n        \"SIGINT: subprocess_returncode=0 cleanup=True\",\n        \"SIGKILL: subprocess_returncode=-9 cleanup=False\",\n        \"same_directory_across_processes=2\"]\n\n\n@pytest.mark.parametrize(\"value\", [None, \"\", \".\", \"relative/path\", \"/missing-js2py-ops-directory\"])\ndef test_bad_directory_is_rejected(value):\n    with pytest.raises(ValueError):\n        data_directory({} if value is None else {\"OPS_DATA_DIR\": value})\n\n\ndef test_environment_and_cwd_are_explicit():\n    assert environment_observe() == [\"parent-choice\", \"from the working directory\",\n        \"parent_mapping_unchanged=True\", \"wrong_cwd_exit=1\", \"wrong_cwd_is_FileNotFoundError=True\"]\n\n\ndef test_permissions_are_not_fixed_by_making_everything_writable():\n    assert permissions_observe() == [\"directory_mode=0o700\", \"file_mode=0o600\",\n        \"read_without_permission=denied\", \"restored_read=True\"]\n\n\ndef test_port_collision_and_owned_cleanup():\n    assert port_observe() == [\"listening_on_loopback=True\", \"second_bind_rejected=True\", \"owned_socket_closed=True\"]\n\n\ndef test_invalid_configuration_does_not_echo_the_value():\n    result = subprocess.run([sys.executable, str(ROOT / \"worker.py\"), \"--once\"],\n        env={\"OPS_DATA_DIR\": \"fictional-sensitive-marker\"}, capture_output=True, text=True, timeout=3)\n    assert result.returncode == 78\n    assert \"fictional-sensitive-marker\" not in result.stderr\n\n\ndef test_corrupt_state_is_not_silently_reset():\n    with TemporaryDirectory() as temp:\n        state = Path(temp) / \"state.json\"\n        state.write_text('{\"starts\": \"bad\"}')\n        result = subprocess.run([sys.executable, str(ROOT / \"worker.py\"), \"--once\"],\n            env={\"OPS_DATA_DIR\": temp}, capture_output=True, text=True, timeout=3)\n        assert result.returncode == 65\n        assert state.read_text() == '{\"starts\": \"bad\"}'\n\n\ndef test_unit_is_a_template_with_explicit_identity_and_stop_boundary():\n    unit = (ROOT / \"systemd/ops-worker.service\").read_text()\n    for setting in (\"User=langshift-ops\", \"WorkingDirectory=/opt/\", \"Restart=on-failure\", \"TimeoutStopSec=5\", \"KillSignal=SIGTERM\", \"UMask=0077\"):\n        assert setting in unit\n    assert \"User=root\" not in unit\n\n\n@pytest.mark.parametrize(\"content\", [\"[]\", \"null\", '{\"starts\": true}', '{\"starts\": -1}'])\ndef test_invalid_state_shape_has_controlled_exit(tmp_path, content):\n    (tmp_path / \"state.json\").write_text(content)\n    result = subprocess.run([sys.executable, str(ROOT / \"worker.py\"), \"--once\"],\n        env={\"OPS_DATA_DIR\": str(tmp_path)}, text=True, capture_output=True, timeout=3)\n    assert result.returncode == 65\n    assert \"Traceback\" not in result.stderr\n",
+            "worker.py": "\"\"\"Single-process disposable-data worker. Not a durable queue or database.\"\"\"\nimport argparse\nimport json\nimport os\nfrom pathlib import Path\nimport signal\nimport sys\nimport time\n\n\ndef data_directory(environ) -> Path:\n    raw = environ.get(\"OPS_DATA_DIR\", \"\")\n    directory = Path(raw)\n    if not raw or not directory.is_absolute() or not directory.is_dir():\n        raise ValueError(\"OPS_DATA_DIR must name an existing absolute directory\")\n    return directory\n\n\ndef main() -> int:\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"--once\", action=\"store_true\")\n    args = parser.parse_args()\n    try:\n        directory = data_directory(os.environ)\n    except ValueError:\n        print(\"configuration error: OPS_DATA_DIR must name an existing absolute directory\", file=sys.stderr)\n        return 78\n    stop_requested = False\n\n    def request_stop(signum, frame):\n        nonlocal stop_requested\n        stop_requested = True  # Keep handlers small: normal control flow does cleanup.\n\n    signal.signal(signal.SIGTERM, request_stop)\n    signal.signal(signal.SIGINT, request_stop)\n    state = directory / \"state.json\"\n    try:\n        old = json.loads(state.read_text()) if state.exists() else {\"starts\": 0}\n        if not isinstance(old, dict) or type(old.get(\"starts\")) is not int or old[\"starts\"] < 0:\n            raise ValueError(\"invalid state\")\n        pending = directory / \"state.pending\"\n        pending.write_text(json.dumps({\"starts\": old[\"starts\"] + 1}) + \"\\n\")\n        pending.replace(state)  # Single writer only; not a power-loss durability proof.\n        print(f\"ready pid={os.getpid()} starts={old['starts'] + 1}\", flush=True)\n        try:\n            if not args.once:\n                while not stop_requested:\n                    time.sleep(0.05)\n        finally:\n            (directory / \"stopped.txt\").write_text(\"normal cleanup\\n\")\n            print(\"cleanup complete\", flush=True)\n    except (ValueError, json.JSONDecodeError):\n        print(\"data error: invalid teaching state\", file=sys.stderr)\n        return 65\n    except OSError:\n        print(\"I/O error: teaching state is not writable\", file=sys.stderr)\n        return 74\n    return 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.39
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 1.0,
+            "probabilities": {
+              "API_CATALOGUE": 0.0,
+              "PARTIAL": 0.0,
+              "SUBSTANTIVE": 1.0,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.94,
+            "probabilities": {
+              "ACCURATE_AND_BOUNDED": 0.95,
+              "NECESSARY_GAP": 0.04,
+              "UNCERTAIN": 0.0,
+              "MATERIAL_ERROR": 0.01
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.99,
+            "probabilities": {
+              "ACCURATE_AND_BOUNDED": 1.0,
+              "NECESSARY_GAP": 0.0,
+              "MATERIAL_ERROR": 0.0,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.97,
+            "probabilities": {
+              "COHERENT_AND_TESTABLE": 0.98,
+              "UNDERSPECIFIED": 0.0,
+              "CONTRADICTORY": 0.02,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.9
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "TARGETED_REVIEW",
+            "confidence": 0.26,
+            "probabilities": {
+              "TARGETED_REVIEW": 0.51,
+              "REVISE": 0.01,
+              "PROCEED": 0.48
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 22414,
+          "output_tokens": 344
+        }
+      },
+      "raw_response_sha256": "ed63f8634732ec86ba207bb9e46fff98844a6861351090ac9471eab4e378a8a5"
+    }
+  ],
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-32-operating-system.mdx",
+    "examples/js2py/o01-operating-system/.python-version",
+    "examples/js2py/o01-operating-system/ENVIRONMENT.json",
+    "examples/js2py/o01-operating-system/README.md",
+    "examples/js2py/o01-operating-system/README.zh-cn.md",
+    "examples/js2py/o01-operating-system/README.zh-tw.md",
+    "examples/js2py/o01-operating-system/SOURCES.json",
+    "examples/js2py/o01-operating-system/environment_lab.py",
+    "examples/js2py/o01-operating-system/permissions_lab.py",
+    "examples/js2py/o01-operating-system/port_lab.py",
+    "examples/js2py/o01-operating-system/process_lab.py",
+    "examples/js2py/o01-operating-system/pyproject.toml",
+    "examples/js2py/o01-operating-system/solutions/__init__.py",
+    "examples/js2py/o01-operating-system/solutions/test_two_directories.py",
+    "examples/js2py/o01-operating-system/solutions/two_directories.py",
+    "examples/js2py/o01-operating-system/systemd/ops-worker.service",
+    "examples/js2py/o01-operating-system/tests/test_operations.py",
+    "examples/js2py/o01-operating-system/worker.py"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-32-operating-system.mdx": "4b0ac296079d056dfd580164973c0c6ca8d9064deb937e0ccea431321e88cdb4",
+    "examples/js2py/o01-operating-system/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/o01-operating-system/ENVIRONMENT.json": "23506124ab8f3e3b733b21f69bdb78cbe90cfe17bf858d61b64d74fad86e9585",
+    "examples/js2py/o01-operating-system/README.md": "67e588930c5d6c8cbe076be3c2994e9f41e345ba1eadcf6f7237c865ee9deda1",
+    "examples/js2py/o01-operating-system/README.zh-cn.md": "4143c03887fe7cb31545add3f8a03a90271b87f33989fd277df874f9c925267f",
+    "examples/js2py/o01-operating-system/README.zh-tw.md": "a26b5666f60ff4fc293ab31ed852af8b9d178f003d1f8588987565187e1aff24",
+    "examples/js2py/o01-operating-system/SOURCES.json": "71b28ec8366240816d67cc1b64077b132c86d41af017559c179f86a5ae6390c7",
+    "examples/js2py/o01-operating-system/environment_lab.py": "4fb198410b1b83746adcfeb1db35f30e47ec8f05dcfa34d043a690759e8105ad",
+    "examples/js2py/o01-operating-system/permissions_lab.py": "0eb07b56e366fdcbb401ddfd68405faf28d160857bee91ef059652d13935c282",
+    "examples/js2py/o01-operating-system/port_lab.py": "2c88ec4a5b07c9f2fe483c93f858ec82f710a7a66b936e52506af042bed00fe9",
+    "examples/js2py/o01-operating-system/process_lab.py": "ab777c37472e48440ee829e7e0f435f265eda1e75986cf810c29ea95a3611bd2",
+    "examples/js2py/o01-operating-system/pyproject.toml": "91ba6432ff7d80a4020c5ecc27b9ce4dc29ec61f336b410951ab0acdec1d7fd3",
+    "examples/js2py/o01-operating-system/solutions/__init__.py": "1cf54e1087c261f0ad9d8cefeba8254976803745db32df8fc00677ee5900fb23",
+    "examples/js2py/o01-operating-system/solutions/test_two_directories.py": "6de3faf51ed67c30d2758539d7eddedc71c35bc989c3497f86e3e822c81e1b24",
+    "examples/js2py/o01-operating-system/solutions/two_directories.py": "edf07229ee814011ce3f234c8a32b340970592981a06eb20ede70c97549620df",
+    "examples/js2py/o01-operating-system/systemd/ops-worker.service": "c3f1654d0671c029d30d447ad54643fc381a585e56df034c88a5511551836dd6",
+    "examples/js2py/o01-operating-system/tests/test_operations.py": "9e49c6834a8756a7b9d20239e93fd4d3721caf8bc9c2a2323e7e18abdbb2f46a",
+    "examples/js2py/o01-operating-system/worker.py": "0a85e4b4f50b463b9d8353c45ce6b82924acdeb9e59ebd620fa37c0e72f0b9d3",
+    "content/docs/js2py/module-32-operating-system.zh-tw.mdx": "c28bfbfcda2a6bac06a50e263905854608aa8822c65158473107e1ff39063909",
+    "content/docs/js2py/module-32-operating-system.zh-cn.mdx": "c1dd830af614279911aff6293b9f2c13e4b536bae5006a2dc28563a05ca76cb4",
+    "examples/js2py/o01-operating-system-files.json": "4db0bb764db4dc7d413534cff436308033b82258180afdf08c2f6c9cb04d0ad6",
+    "public/learning-assets/js2py/o01-operating-system.zip": "d5bcba01f981d782e4977ce4eb4502b2d189750b6323b79f341dcf5b7a411eac",
+    "examples/js2py/o01-operating-system/uv.lock": "1371648d6d08f6984da23bddf9ad29d8fcd773d5c0ce1e56bbf83742162ab11b"
+  },
+  "deterministically_checked_lock_files": {
+    "uv.lock": {
+      "sha256": "1371648d6d08f6984da23bddf9ad29d8fcd773d5c0ce1e56bbf83742162ab11b",
+      "bytes": 4669,
+      "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+    }
+  },
+  "interface_failures": [],
+  "post_review_changes": [],
+  "submitted_source_sha256": {
+    "content/docs/js2py/module-32-operating-system.mdx": "4b0ac296079d056dfd580164973c0c6ca8d9064deb937e0ccea431321e88cdb4",
+    "examples/js2py/o01-operating-system/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/o01-operating-system/ENVIRONMENT.json": "23506124ab8f3e3b733b21f69bdb78cbe90cfe17bf858d61b64d74fad86e9585",
+    "examples/js2py/o01-operating-system/README.md": "67e588930c5d6c8cbe076be3c2994e9f41e345ba1eadcf6f7237c865ee9deda1",
+    "examples/js2py/o01-operating-system/README.zh-cn.md": "4143c03887fe7cb31545add3f8a03a90271b87f33989fd277df874f9c925267f",
+    "examples/js2py/o01-operating-system/README.zh-tw.md": "a26b5666f60ff4fc293ab31ed852af8b9d178f003d1f8588987565187e1aff24",
+    "examples/js2py/o01-operating-system/SOURCES.json": "71b28ec8366240816d67cc1b64077b132c86d41af017559c179f86a5ae6390c7",
+    "examples/js2py/o01-operating-system/environment_lab.py": "4fb198410b1b83746adcfeb1db35f30e47ec8f05dcfa34d043a690759e8105ad",
+    "examples/js2py/o01-operating-system/permissions_lab.py": "0eb07b56e366fdcbb401ddfd68405faf28d160857bee91ef059652d13935c282",
+    "examples/js2py/o01-operating-system/port_lab.py": "2c88ec4a5b07c9f2fe483c93f858ec82f710a7a66b936e52506af042bed00fe9",
+    "examples/js2py/o01-operating-system/process_lab.py": "ab777c37472e48440ee829e7e0f435f265eda1e75986cf810c29ea95a3611bd2",
+    "examples/js2py/o01-operating-system/pyproject.toml": "91ba6432ff7d80a4020c5ecc27b9ce4dc29ec61f336b410951ab0acdec1d7fd3",
+    "examples/js2py/o01-operating-system/solutions/__init__.py": "1cf54e1087c261f0ad9d8cefeba8254976803745db32df8fc00677ee5900fb23",
+    "examples/js2py/o01-operating-system/solutions/test_two_directories.py": "6de3faf51ed67c30d2758539d7eddedc71c35bc989c3497f86e3e822c81e1b24",
+    "examples/js2py/o01-operating-system/solutions/two_directories.py": "edf07229ee814011ce3f234c8a32b340970592981a06eb20ede70c97549620df",
+    "examples/js2py/o01-operating-system/systemd/ops-worker.service": "c3f1654d0671c029d30d447ad54643fc381a585e56df034c88a5511551836dd6",
+    "examples/js2py/o01-operating-system/tests/test_operations.py": "9e49c6834a8756a7b9d20239e93fd4d3721caf8bc9c2a2323e7e18abdbb2f46a",
+    "examples/js2py/o01-operating-system/worker.py": "0a85e4b4f50b463b9d8353c45ce6b82924acdeb9e59ebd620fa37c0e72f0b9d3"
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not gpt-6-astra; independent reasoning assistants are separate.",
+    "decision": "Original slice choices unchanged. New targeted audits, reproduced repairs, real runtime/browser evidence and exact new source deltas support conditional ACCEPT_WITH_EXPLICIT_ENVIRONMENT_GATES; see closure record for outstanding/final deterministic gates. Never a production or learner approval.",
+    "scope": "Full English in every slice; union of slices covers every non-lock allowlisted file. Only the original H01 request included lock text. Other opaque locks were checked by registry/hash/locked reconstruction rather than semantic inference. No single slice is presented as whole-chapter review.",
+    "uncertainty": "Raw unfavorable branches preserved. Confidence is distribution concentration, not factual correctness or learner outcomes. Initial direct predecessor contracts omit transitive detail; follow-up audits must examine the actual full path rather than assume missing learner capability.",
+    "snapshot": "Submitted source hashes and full requests remain unchanged. Effective source_sha256 includes each explicitly recorded post-review repair; closure delta review binds the final D03 assertion and O privilege wording changes. Locale/locks/manifests/ZIP are deterministic evidence, not semantic translation review."
+  },
+  "credential_persisted": false,
+  "prior_review_rounds": [],
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+}

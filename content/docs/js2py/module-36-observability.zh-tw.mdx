@@ -1,0 +1,174 @@
+---
+title: 日誌、監控與故障定位：讓一次失敗留下安全證據
+description: 通過真實 PostgreSQL 權限故障建立結構化日誌、服務端關聯 ID、狀態與耗時窗口、告警和恢復；實際掃描秘密洩漏，不把儀表盤或本機樣本當生產可觀測性。
+---
+
+import { getObservabilityExample } from '@/lib/js2py-examples'
+
+## 1. 用戶說“剛才失敗了”，你準備從哪裡開始？
+
+O04 能發佈和回退，但如果只能看到一行 503，很難知道是哪個請求、哪條路由、哪個時間窗口開始異常。把整個 Request、異常對象、SQL 參數打印出來看似方便，卻可能把密碼、Cookie、Bearer token 和正文放進長期日誌。可觀測性要同時回答“發生什麼”和“哪些內容不能收集”。
+
+本章不先安裝儀表盤。我們讓一個真實請求遇到受控數據庫權限故障，拿響應裡的關聯 ID 找到結構化記錄，根據變化檢查授權，再恢復權限並觀察錯誤窗口下降。最後用合成秘密掃描實際日誌，證明沒有通過另一條輸出路徑洩露。
+
+| 本章契約 | 範圍 |
+| --- | --- |
+| 前置 | O04 發佈門禁；H06 測試；S01—S03 憑證與授權；A02 請求/響應異步生命週期 |
+| 新能力 | JSON 日誌白名單、服務端請求 ID、狀態與耗時定義、有限窗口指標、告警條件、真實故障關聯與脫敏驗證 |
+| 獨立驗收 | 追蹤真實 503 並恢復；證明秘密不進入日誌；實現連續窗口告警規則 |
+| 不承諾 | 已接通知服務、跨進程追蹤、日誌平臺、生產容量、無限流量的無損日誌收集 |
+
+下載 [O05 完整實驗](/learning-assets/js2py/o05-observability.zip)，進入 `o05-observability`。服務、隔離 PG、SQL、遷移、測試都在本包內。原應用仍是 O04 的受保護項目接口切片，不是完整產品或公開登錄服務。
+
+## 2. 日誌、指標與追蹤，不是同一種資料
+
+日誌記錄一個事件的上下文；指標把一段時間的事件聚合成數量、比例或分佈；追蹤用多個跨度描述一次跨組件調用。三者可以相關聯，但一份 JSON 日誌並不自動建立完整分佈式追蹤，日誌條數也不等於吞吐能力。
+
+本實驗每個完成到“響應頭已準備好”階段的請求寫一個事件，字段只包括 event、request_id、timestamp、method、route、status、ready_ms、error_type。這樣既能按 request_id 查一項，也能聚合 5xx 比例與 p95。字段一旦被消費，就成為需要維護的數據契約，不應隨意換名或把數字變成自然語言段落。
+
+route 記錄模板 `/projects/{project_id}`，不是具體 URL；否則每個 ID、查詢參數都可能變成新標籤，既膨脹指標維度，又洩露業務標識或秘密。未匹配路由用固定 unmatched，未知方法歸到 OTHER。
+
+## 3. 關聯 ID 由服務器生成，不盲信客戶端
+
+瀏覽器或 HTTPX 收到 X-Request-ID 後，可以把它交給維護者定位記錄。它只是相關性標識，不證明用戶身份，也不是授權憑證。服務端本例每次生成新 UUID；即使調用者提交同名請求頭，也不寫入日誌。
+
+為什麼不只檢查客戶端 ID 的長度和字符？一個合法的隨機 Bearer token 也可能正好符合安全字符規則；原樣記錄這個頭，仍會把 token 寫進日誌。因此“格式合法”不等於“允許記錄”。以後若接受受信任代理產生的上游 ID，要單獨定義代理可信邊界，而不是信任所有來源。
+
+<Code language="python">{getObservabilityExample('ops/telemetry.py')}</Code>
+
+中間件把 call_next 包在計時和故障轉換之間。普通同步業務函數仍由框架執行，外層使用已在 A02 學過的 async/await。異常只寫固定 error_type，不序列化 repr(error)；正文、Authorization、Cookie 和查詢字符串從來沒有加入字段白名單。
+
+本例使用顯式 JSON 編碼並以追加方式寫入私有文件，讓輸出邊界容易審查；沒有配置一個會悄悄附帶異常全文的複雜 logging formatter。它不是通用日誌平臺：文件無輪轉，磁盤寫入會佔用執行時間，寫失敗沒有跨機器持久隊列，進程強殺也可能丟尾部記錄。生產需要有界緩衝、採集/輪轉、配額、訪問控制和日誌系統自身故障策略，不能直接放大這個有限實驗。
+
+<details>
+<summary>解釋題答案：為什麼不把“看起來敏感的幾個鍵”刪掉後記錄剩餘 Request？</summary>
+
+秘密可能藏在嵌套對象、自定義頭、查詢參數或異常字符串裡，黑名單永遠追著新字段跑。白名單隻允許有明確用途的標量，未知字段默認不記錄。請求 ID 也由服務器生成，避免把攻擊者選擇的秘密間接變成允許字段。脫敏不是隻替換 password 這個單詞。
+
+</details>
+
+## 4. 耗時從哪裡開始，到哪裡結束？
+
+timestamp 用牆上時鐘定位大致時間；ready_ms 用 perf_counter 的差值計持續時間，避免把系統校時跳變當成請求耗時。兩者有不同用途，不能只因為都用秒就互換。
+
+這裡 ready_ms 結束於 call_next 返回、響應頭準備好時，**不是最後一個響應字節送達客戶端的時間**，也不覆蓋慢速流式響應、網絡下載或瀏覽器渲染。p95_ready_ms 使用同一邊界。請求 ID 與日誌字段必須一起解釋，否則一個漂亮的低延遲數字可能只是測量範圍很窄。
+
+對沒有觀察到的請求不能補寫虛構成功日誌。健康探測也是真實請求，會進入計數；演練報告說明包含 readiness 探測，不把它當業務用戶數。跨多個進程時各自日誌、時鐘偏差、採樣與重複都要另設計，本章沒有做分佈式合併保證。
+
+## 5. 從事件計算窗口，而不是用平均值掩蓋錯誤
+
+summarize 對給定的有限事件集合計算請求數、5xx 數、錯誤比例和 nearest-rank p95。排序後取向上取整的 95% 位置；只有 20 項時，尾部統計仍很粗。p95 不是最大值，也不表示“95% 用戶都滿意”。不同窗口的 p95 不能簡單平均成全局 p95。
+
+本實驗規則是至少 20 個樣本，5xx 比例達到 5% 才進入 page 狀態；不足樣本是 insufficient_data，不是假裝健康。422 是客戶端輸入拒絕，不計入這個服務端故障分子，但 4xx 突增仍可能提示前端版本不兼容或攻擊，需要另一條規則觀察。
+
+這個 page 只是規則返回值，沒有真實發送短信、郵件或值班通知。真實告警還要定義時間窗口、最小請求量、持續時間、抑制/恢復策略、責任人和操作手冊。閾值是本實驗的可解釋選擇，不是通用生產 SLO。
+
+<Code language="python">{getObservabilityExample('tests/test_observability.py')}</Code>
+
+五項聚合測試證明空數據、樣本不足、422 排除、恰好閾值與 p95 索引。它們只檢查聚合函數，真實日誌和數據庫故障由後面的演練檢查，不能把這五項稱為五項數據庫測試。
+
+## 6. 啟動前把私有輸出路徑和角色確定下來
+
+固定基線為 CPython 3.13.15、uv 0.12.13、pytest 8.4.2、FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、HTTPX 0.28.1、SQLAlchemy 2.0.54、Alembic 1.20.0、psycopg 3.3.6、PG18.6；核驗日期為 2026-09-28。
+
+<Code language="toml">{getObservabilityExample('pyproject.toml')}</Code>
+
+<details>
+<summary>完整基礎服務與隔離進程入口</summary>
+
+<Code language="python">{getObservabilityExample('ops/app.py')}</Code>
+
+<Code language="python">{getObservabilityExample('ops/cluster.py')}</Code>
+
+<Code language="python">{getObservabilityExample('ops/server.py')}</Code>
+
+</details>
+
+事件文件在獨佔 0700 臨時目錄內，以 0600 創建。Uvicorn access log 關閉，避免旁路記錄完整查詢 URL；驗證錯誤只輸出安全 loc/type，不返回 input/body/context。數據庫也不記錄語句和錯誤參數。這些配置與白名單共同建立邊界；只修一份 logger，卻任由代理或訪問日誌洩漏，仍然失敗。
+
+本實驗驗證的是管理／運行身份分離，以及已測試的 ALTER/DROP 被拒絕；**沒有證明 DML 已按最小權限收斂**。共用的 `sql/grants.sql` 仍對 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，並對 public 的全部序列授予 USAGE/SELECT；其中部分權限超過當前「讀取／創建項目」路由的需要。真正部署前，須逐個列出路由和作業需要的表操作，收窄表／序列授權，再驗證必要操作成功、未使用的 UPDATE/DELETE 等操作被拒絕。已有 DDL 拒絕測試不能代替這項審計。
+
+管理身份單獨執行演練。沒有讀取真實用戶日誌、真實密碼或生產庫；合成秘密只在當前進程內用於負向檢查。
+
+傳入私有 socket 的 host 還不夠：libpq 仍可能從 `PGHOSTADDR`、`PGSERVICE`、`PGSERVICEFILE` 等環境變量取得另一個連接默認值。`reject_connection_environment` 在創建臨時目錄之前，以及每次直接連接、遷移和服務啟動之前，拒絕繼承的全部 `PG*` 變量，唯一例外是隻定位可執行文件的 `PG_BIN`。錯誤只列變量名，不打印值，也不修改調用者環境。Python 連接、SQLAlchemy 的連接創建器和 PG 子命令都使用自有目錄內的空白 0600 `empty.pgpass`，不讀取用戶的默認密碼文件。直接運行 `demo.py` 或 `ci.py` 也執行這些防護，不依賴倉庫總 runner 先替它清理。
+
+啟動 API 不再先探測空閒端口、關閉探測 socket，再要求另一個進程搶佔同一號碼。Uvicorn 自己用 `--port 0` 完成綁定；控制器從**該子進程自己的私有啟動日誌**讀取實際端口，再請求 readiness。`--no-access-log` 不關閉 info 級啟動 banner；控制器固定無顏色日誌和單 worker。兩個同版本服務也使用不同日誌文件。測試實際同時啟動兩個服務，核對兩個不同端口、各自 banner、真實請求和退出清理。這消除了選端口後釋放再綁定的窗口，不是對任意併發故障的保證；未來 Uvicorn 改變 banner 格式時會超時拒絕，不猜測端口。
+
+## 7. 真正製造數據庫故障，再用證據修復
+
+<Code language="python">{getObservabilityExample('ops/observe.py')}</Code>
+
+倉庫總 runner 為子進程重建環境：丟棄繼承的 `UV_*`、虛擬環境選擇與 Python 注入設置，再固定課程 cache/Python 安裝目錄、public PyPI 和 `UV_NO_CONFIG=1`；`PG*` 也只保留 `PG_BIN`。實測使用自己創建的“外部虛擬環境”誘餌、錯誤解釋器路徑和無效用戶 uv 配置，確認安裝只發生在當前乾淨副本的 `.venv`，誘餌目錄內容不變。不要把這些防護誤解為能修復已經在腳本啟動前運行的外層 uv：手動執行下方 uv 命令前，應退出其他虛擬環境並使用乾淨終端；清除 `VIRTUAL_ENV`、`UV_PROJECT_ENVIRONMENT`、`UV_ACTIVE`、`UV_PYTHON`、`UV_CONFIG_FILE` 等覆蓋項，並設置 `UV_NO_CONFIG=1`。若直接 Python 入口拒絕 PG 變量，只在本次實驗環境中移除它報告的名字，不修改生產配置、更不打印其值。
+
+```bash
+uv sync --locked
+uv run --locked python ci.py
+uv run --locked python demo.py
+```
+
+ci.py 已包含一次 demo，單獨再跑用於重放。每次擁有不同臨時集群，所以不會依賴上次殘留數據。關鍵穩定輸出：
+
+```text
+PASS correlate: real HTTP 503 -> request_id -> route template -> revoked DB privilege
+PASS privacy: synthetic password/cookie/query/Bearer canaries absent from event, service and PostgreSQL logs
+PASS repair: final 20 real requests healthy; alert cleared
+CLEANUP PASS: private logs and owned services removed
+```
+
+過程中還輸出 OBSERVATION JSON，其耗時和 p95 會變化，不應照抄某次機器數字當驗收常量。實際步驟是先發一組健康請求；管理連接撤回 lab_app 對 projects 的 SELECT；再發五個項目請求，真實數據庫拒絕查詢，API 返回 503；用每個響應裡的服務端 ID 精確找到對應 route/status；恢復 GRANT；最後二十個真實請求都回到 200。
+
+對項目表的故障，SELECT 1 的 readiness 仍可能成功；這說明健康檢查只證明它查詢過的條件，不證明所有業務權限完整。日誌中沒有 SQL 參數，但變化時間、受影響路由和關聯 ID 足以縮小範圍，結合本次權限變更記錄定位原因。不要靠重新授予 SUPERUSER 來“修復”。
+
+<details>
+<summary>帶提示排錯答案：錯誤窗口仍為 page，是否說明修復無效？</summary>
+
+先看時間範圍。包含前面五個失敗的整個演練窗口仍可能超過閾值，而最後二十項健康窗口已為 ok。這不矛盾：一個描述歷史區間，一個描述修復後的區間。真實告警必須約定窗口推進和解除條件，不能因為想讓儀表變綠而刪除舊失敗日誌。也不能看到 readiness 200 就停止驗證故障路由。
+
+</details>
+
+## 8. 秘密掃描要檢查所有實際輸出
+
+演練把隨機合成 canary 放進非法 password 字段、Cookie、查詢參數和不可信請求 ID，併發送真實 Bearer token。隨後掃描事件文件、服務 stdout/stderr 日誌和 PostgreSQL 日誌，要求原始 canary 與 token 均未出現。校驗失敗正文也不能回顯那個值。
+
+這證明本次已執行路徑沒有洩漏這些標記，不是證明任意第三方庫、未來路由、代理、瀏覽器控制檯或異常路徑都永遠安全。新增日誌字段/錯誤處理後要重跑，並審查收集範圍。也不要為了調試一次失敗把測試變量中的完整 token 打印出來；回執用狀態、計數與關聯 ID 足夠。
+
+日誌文件本身也需要訪問權限、保留期限與刪除政策。當前腳本退出會刪除整份臨時目錄，因此最終交付沒有日誌裡的秘密或業務數據。真實系統不能靠“日誌不留存”逃避維護，需要設計受控保存與刪除，而不是把 .log 全打進發布 ZIP。
+
+## 9. 獨立變式：持續兩個窗口再通知
+
+先不看答案。寫 sustained_alert：只有**連續兩個**窗口都至少 20 項且 5xx 比例至少 5% 才觸發。健康窗口或樣本不足窗口都中斷連續性；空列表為 false。不要讓很早以前的單次故障與當前故障拼成“連續”。
+
+<details>
+<summary>獨立參考規則與測試</summary>
+
+<Code language="python">{getObservabilityExample('solutions/consecutive.py')}</Code>
+
+<Code language="python">{getObservabilityExample('solutions/test_consecutive.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions
+```
+
+```text
+1 passed
+```
+
+一項測試包含多組斷言，不能把它宣稱為四項用例。這仍只是通知決策函數，不會實際發送通知。接真實值班服務前需要重複抑制、送達失敗與恢復通知驗收；這些當前 pending。
+
+</details>
+
+## 10. 容量觀察與暫停恢復記錄
+
+演練記錄實際請求數、錯誤數、響應準備時間與總觀察耗時，可用來發現明顯迴歸，卻不是生產容量測試。這裡是一臺機器、一個 worker、順序合成請求，小數據、熱本地緩存；沒有真實併發用戶、遠程數據庫、哈希登錄負載、長連接或持久日誌採集器。不能把請求數除以這個時間就宣稱“生產可服務多少用戶”。
+
+上線前先給受控試用限定用戶數/速率/數據量，記錄 CPU、內存、連接池、隊列、磁盤與錯誤/延遲趨勢，再在隔離環境逐步增加代表性負載；超限要有拒絕或降級策略。單看平均延遲或裝好儀表盤不能替代這些驗證。
+
+暫停記錄最後關聯 ID（不是 token）、應用版本、觀察窗口、受影響路由與狀態、權限變更、已驗證修復、日誌私密性檢查、子進程與臨時目錄是否清理、下次第一步。恢復先重跑正常聚合測試，再用新集群重放故障；不要連接用戶數據庫撤權。
+
+## 11. 官方來源與邊界
+
+2026-09-28 核對 [OWASP 日誌指南官方倉庫](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Logging_Cheat_Sheet.md)、[Python logging](https://docs.python.org/3.13/library/logging.html)、[PostgreSQL 日誌配置](https://www.postgresql.org/docs/18/runtime-config-logging.html)、[Google SRE 監控分佈式系統](https://sre.google/sre-book/monitoring-distributed-systems/)。OWASP 頁面本次返回 403，使用官方倉庫正文；本章的字段白名單、20項/5%門檻和連續窗口是教學設計，不冒充官方統一閾值。
+
+實際完成五項聚合測試、一項獨立規則測試、真實 PostgreSQL 撤權/修復、真實 HTTP 503 關聯和秘密掃描。日誌平臺、輪轉/容量壓測、通知送達、跨進程追蹤與真實生產監控仍未驗證；當前切片也不補齊其他 S 系列接口。
+
+環境補充驗收：`tests/test_environment.py` 另有 3 項（兩項隔離規則檢查、一項真實 PG 與雙 Uvicorn 進程檢查），因此正常套件現在是 8 項，獨立答案仍為 1 項。它們不把告警判定變成已送達通知。

@@ -1,248 +1,319 @@
 ---
-title: "Python Hands-on Projects"
-description: "Consolidate your Python skills and integrate what you've learned by building real-world projects."
+title: Environments and Dependencies
+description: Understand interpreters, virtual environments, declarations and lockfiles by diagnosing real dependency failures, then recover a small application in a clean directory instead of relying on one machine's installation history.
 ---
 
-## 1. Introduction
+import { getEnvironmentExample } from '@/lib/js2py-examples'
 
-### From Theory to Practice
+## 1. Why introduce a project environment now?
 
-You have already learned the fundamental syntax of Python, as well as core knowledge in web development, data processing, and more. Now, it's time to apply this knowledge to real-world projects. Through hands-on practice, you will gain a deeper understanding of Python's power and acquire valuable development experience.
+L00–L07 taught you to run, split, diagnose and persist a Python program. Only now do we introduce complete environment declarations: you can distinguish a business defect from an interpreter missing a dependency, and you know that a configuration file does not execute your business code.
 
-This module will provide several hands-on projects in different areas. Each project will comprehensively use the skills learned in previous modules and provide a comparative thinking process with JavaScript/Node.js implementations.
+Imagine sending a working directory to a colleague. Their Python differs, or your machine happened to have a globally installed package that the source never declared. **Identical source does not imply identical execution conditions.** Environment management turns hidden assumptions into inspectable files and recovery steps, rather than asking someone to reconstruct your terminal history.
 
-> 💡 **Learning Strategy**: Choose a project that interests you the most and start with it. Try to complete it independently. When you encounter problems, review the previous modules or consult the official documentation. The key is to "do" rather than just "watch."
+We use one deliberately small external feature: display 1536 bytes as `1.5 KiB`. The objective is not a formatting API catalogue. It is a visible consequence for dependency absence, interpreter selection and recovery from declarations.
 
-## 2. Project 1: URL Shortener Service
+| Contract | Requirement |
+| --- | --- |
+| Prerequisites | L06 imports, module search and entry points; L07 files and paths |
+| New capabilities | Interpreter selection, isolation, declaration, resolution, installation, locking and reconstruction |
+| Independent acceptance | Rebuild a small application from an empty directory and diagnose a dependency failure |
+| Not required yet | Publishing, build backends, competing package managers, pytest, containers or FastAPI |
 
-### Project Description
+Download [L08 experiments and reference answers](/learning-assets/js2py/u08-environments.zip). Extract the complete `u08-environments` directory and open a terminal there. **Do not keep adding `--no-project` to these commands.** Earlier chapters intentionally ignored an enclosing project; now we explicitly need this project's declarations.
 
-Build a fully functional URL shortener service, similar to `bit.ly`. Users can submit a long URL, and the service will return a short URL. When the short URL is accessed, it should redirect to the original long URL.
+Verified baseline: **September 28, 2026: CPython 3.13.15, uv 0.12.13 and humanize 4.13.0**. This is an observed combination, not a newest-version or permanent security claim. Initial recovery may download an interpreter and distribution files. A lockfile is not an offline installer.
 
-**Core Features**
+## 2. Separate four participants
 
-*   Build API endpoints using FastAPI.
-*   Use Pydantic for data validation.
-*   Use SQLite or another database to store URL mappings.
-*   Generate unique short URL identifiers.
-*   Implement redirection logic.
+The **Python interpreter** executes Python. **uv** manages interpreters and dependencies and launches project commands; it is not itself the Python interpreter. A **virtual environment** supplies a project's interpreter entry and installed packages. **Application source** defines business behavior. Sharing one terminal does not make these the same thing.
 
-<PythonEditor title="URL Shortener Service: FastAPI Implementation Idea" compare={true}>
-```javascript !! js
-// JavaScript (Express + nanoid)
-const express = require('express');
-const { nanoid } = require('nanoid');
+Your frontend experience with source, package.json, a lockfile and node_modules helps distinguish declarations from installed results. The analogy has limits: `.venv` also has interpreter entry points, prefixes and package search paths. Which Python you actually run determines which installed packages it can import.
 
-const app = express();
-app.use(express.json());
+In an unactivated terminal, a bare `python` or `python3` is resolved through the shell's PATH. An editor's Run button may select another interpreter. “I just installed humanize” is not evidence that the current Python can import it.
 
-const urlDatabase = {}; // Simple in-memory storage
+Check the tool before installing more things:
 
-app.post('/shorten', (req, res) => {
-  const { longUrl } = req.body;
-  const shortId = nanoid(7);
-  urlDatabase[shortId] = longUrl;
-  res.json({ shortUrl: `http://localhost:3000/${shortId}` });
-});
-
-app.get('/:shortId', (req, res) => {
-  const longUrl = urlDatabase[req.params.shortId];
-  if (longUrl) {
-    res.redirect(longUrl);
-  } else {
-    res.status(404).send('Not Found');
-  }
-});
-
-app.listen(3000);
+```bash
+uv --version
 ```
 
-```python !! py
-# Python (FastAPI + SQLite)
-import secrets
-import sqlite3
-from fastapi import FastAPI, HTTPException, Depends
-from pydantic import BaseModel
-from starlette.responses import RedirectResponse
+If the shell cannot find this command, no Python business code has run. Return to L00's installation/PATH checks and verify the tool location or reopen the terminal. Do not rewrite the application to hide a missing tool.
 
-# -- Database Setup --
-DATABASE_URL = "urls.db"
+## 3. Which files are inputs, and which are results?
 
-def get_db():
-    conn = sqlite3.connect(DATABASE_URL)
-    try:
-        yield conn
-    finally:
-        conn.close()
+The important root files are below. Exercise and answer directories have separate declarations; stay at the root first:
 
-# -- Pydantic Models --
-class URLBase(BaseModel):
-    target_url: str
-
-class URLInfo(URLBase):
-    is_active: bool
-    clicks: int
-
-# -- FastAPI Application --
-app = FastAPI()
-
-@app.post("/shorten")
-def create_url(url: URLBase, db: sqlite3.Connection = Depends(get_db)):
-    short_id = secrets.token_urlsafe(5)
-    # ... (save short_id and url.target_url to the database)
-    return {"short_url": f"http://localhost:8000/{short_id}"}
-
-@app.get("/{short_id}")
-def forward_to_target_url(short_id: str, db: sqlite3.Connection = Depends(get_db)):
-    # ... (find long_url from the database)
-    # ... (update click count)
-    # return RedirectResponse(long_url)
-    pass
-```
-</PythonEditor>
-
-## 3. Project 2: Command-Line Weather App
-
-### Project Description
-
-Create a command-line tool where a user can enter a city name, and the program will fetch and display the current weather information from a weather API (e.g., OpenWeatherMap).
-
-**Core Features**
-
-*   Use `argparse` or `typer` to parse command-line arguments.
-*   Use `httpx` or `requests` to call a third-party API.
-*   Handle the API response (JSON).
-*   Format and display the weather information in the terminal.
-
-<PythonEditor title="Command-Line Weather App: Python Implementation Idea" compare={true}>
-```javascript !! js
-// JavaScript (Node.js + axios + yargs)
-const axios = require('axios');
-const yargs = require('yargs/yargs');
-const { hideBin } = require('yargs/helpers');
-
-const argv = yargs(hideBin(process.argv)).argv;
-
-async function getWeather(city) {
-  try {
-    const apiKey = 'YOUR_API_KEY';
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
-    const response = await axios.get(url);
-    console.log(`Weather in ${city}:`);
-    console.log(`- Temp: ${response.data.main.temp}°K`);
-    console.log(`- Description: ${response.data.weather[0].description}`);
-  } catch (error) {
-    console.error('Error fetching weather data');
-  }
-}
-
-if (argv.city) {
-  getWeather(argv.city);
-}
+```text
+u08-environments/
+  .python-version
+  pyproject.toml
+  uv.lock
+  app.py
+  probe.py
+  .venv/              # created locally; not in the download
 ```
 
-```python !! py
-# Python (Typer + httpx)
-import typer
-import httpx
+| Item | Owner and purpose | What it does not establish |
+| --- | --- | --- |
+| `.python-version` | Author selects a Python request for uv | It neither installs dependencies nor replaces the compatibility range |
+| `pyproject.toml` | Author declares metadata, Python compatibility and direct dependencies | An allowed range is not a selected full dependency graph |
+| `uv.lock` | uv resolves; author reviews versions, sources, hashes and relationships | It contains no package payload, security certification or complete OS snapshot |
+| `.venv/` | uv creates/synchronizes the local installation | It is not portable project source or something to copy between machines |
+| Application/test source | Author describes business behavior and checks | Source alone does not specify the external execution conditions |
 
-API_KEY = "YOUR_API_KEY"
+Version-control the source, declarations, version selection and lock. Exclude environments, caches and real secrets. Shared work must not depend on an environment you happened to activate previously. This example needs no private registry, credential or `.env` file.
 
-def main(city: str):
-    """Fetches and displays the weather information for a given city."""
-    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}"
-    try:
-        with httpx.Client() as client:
-            response = client.get(url)
-            response.raise_for_status()
-            data = response.json()
-            print(f"Weather in {city}:")
-            print(f"- Temp: {data['main']['temp']}°K")
-            print(f"- Description: {data['weather'][0]['description']}")
-    except httpx.HTTPStatusError as e:
-        print(f"Error: Unable to fetch weather data for {city}. {e.response.status_code}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+## 4. Read the declaration before copying it
 
-if __name__ == "__main__":
-    typer.run(main)
+Complete `.python-version`:
 
-# Run: python weather_app.py London
-```
-</PythonEditor>
+<Code language="text">{getEnvironmentExample('.python-version')}</Code>
 
-## 4. Project 3: Data Analysis and Visualization Report
+The patch version makes this experiment's interpreter request explicit. A production application still needs planned updates and renewed verification; a pin is not a reason to ignore security maintenance.
 
-### Project Description
+`pyproject.toml`:
 
-Extract and analyze data from a CSV dataset (e.g., on sales, movies, or any topic you are interested in), and generate a simple HTML report containing key metrics and charts.
+<Code language="toml">{getEnvironmentExample('pyproject.toml')}</Code>
 
-**Core Features**
+This is TOML, not Python or JSON. `[project]` starts a configuration table; following key/value assignments belong to it. Quoted values are strings and comma-separated items in brackets form an array. `[tool.uv]` is uv-specific configuration. Understand these forms without first memorizing the entire TOML specification.
 
-*   Use `pandas` to read and clean the CSV data.
-*   Perform data aggregation and analysis (e.g., calculate averages, sums, groupings).
-*   Use `matplotlib` or `seaborn` to create charts (e.g., bar charts, line charts).
-*   Save the charts as images.
-*   Use the `jinja2` template engine to generate an HTML report.
+- `name` identifies project metadata; it does not automatically create a Python module. `version` belongs to this project, not to the interpreter.
+- `requires-python = ">=3.13,<3.14"` allows the 3.13 series. The version file selects a particular interpreter within that range. Contradictory declarations need repair, not ignored errors.
+- `dependencies` names runtime **distributions**. `humanize==4.13.0` deliberately selects an exact version here; the declaration is not executing an import.
+- `package = false` makes the non-packaged local application explicit. We run a file from its project directory, without first teaching publishing or a build system.
 
-<PythonEditor title="Data Analysis Report: Python Implementation Idea" compare={true}>
-```javascript !! js
-// JavaScript (Node.js + danfo.js + chart.js)
-// This process is relatively cumbersome in Node.js and usually requires the cooperation of multiple libraries,
-// and chart generation is usually done on the client side.
-// Pseudocode idea:
-// 1. Use danfo.js or a similar library to read the CSV.
-// 2. Perform data operations.
-// 3. Pass the data to a template engine (e.g., EJS).
-// 4. In the template, use a Chart.js script to render the chart.
+Distribution names belong to installers; import names belong to Python's module search. They need not match. This example happens to use humanize for both. Do not guess and install an identically named online package whenever you encounter an unfamiliar import. Consult that library's official installation instructions. Standard-library modules such as json and pathlib are not extra runtime distributions to add.
+
+## 5. First synchronization: files become an executable environment
+
+From the extracted lab root:
+
+```bash
+uv sync --locked
+uv run --locked python probe.py
+uv run --locked python app.py
 ```
 
-```python !! py
-# Python (Pandas + Matplotlib + Jinja2)
-import pandas as pd
-import matplotlib.pyplot as plt
-from jinja2 import Environment, FileSystemLoader
+The first command reads the project and compatible lock, selects Python, and creates/synchronizes `.venv`. The second launches that project's Python, which executes the probe. The third executes the business entry. No prior activation is required: project selection is explicit in the workflow instead of depending on shell history.
 
-# 1. Data Analysis
-df = pd.read_csv("sales_data.csv")
-total_sales = df["sales"].sum()
-top_products = df.groupby("product")["sales"].sum().nlargest(5)
+`probe.py`:
 
-# 2. Create Chart
-plt.figure()
-top_products.plot(kind="bar")
-plt.title("Top 5 Products by Sales")
-plt.savefig("top_products.png")
+<Code language="python">{getEnvironmentExample('probe.py')}</Code>
 
-# 3. Generate HTML Report
-env = Environment(loader=FileSystemLoader('.'))
-template = env.get_template("report_template.html")
+`sys.executable` identifies the interpreter actually executing this process. Different `sys.prefix` and `sys.base_prefix` indicate an ordinary virtual environment. `importlib.metadata.version` reads installed distribution metadata, while `humanize.__file__` identifies the module actually imported. Installation and import origin answer different questions.
 
-html_content = template.render(
-    total_sales=total_sales,
-    top_products_table=top_products.to_html()
-)
+Paths depend on extraction location and operating system. Important values should look like this:
 
-with open("report.html", "w") as f:
-    f.write(html_content)
-
-# report_template.html (Jinja2 template)
-# <!DOCTYPE html>
-# <html>
-# <head><title>Sales Report</title></head>
-# <body>
-#   <h1>Sales Report</h1>
-#   <p>Total Sales: {{ total_sales }}</p>
-#   <h2>Top Products</h2>
-#   {{ top_products_table|safe }}
-#   <img src="top_products.png">
-# </body>
-# </html>
+```text
+Python: 3.13.15
+Executable: <your project environment Python>
+Isolated: True
+Distribution: 4.13.0
+Imported from: <your environment>/site-packages/humanize/__init__.py
+Size: 1.5 KiB
 ```
-</PythonEditor>
 
-## 5. Summary
+Angle-bracketed portions are explanatory placeholders, not literal directories to create or a byte-exact output claim. macOS/Linux ordinarily use `.venv/bin/python`; Windows ordinarily uses `.venv/Scripts/python.exe`. Configure the editor to use that environment's interpreter too; terminal success does not prove editor selection.
 
-After completing these projects, you will not just be someone who "knows" Python, but someone who can "use" Python to solve real problems. Your skills will be greatly enhanced, and you will have a deeper understanding of the Python ecosystem.
+`app.py`:
 
-Don't stop here! Try to expand these projects, add new features, or find your own project ideas. The best way to learn programming is to constantly create and practice.
+<Code language="python">{getEnvironmentExample('app.py')}</Code>
+
+```text
+Files: 3
+Bytes: 1536
+Readable: 1.5 KiB
+```
+
+The application is still familiar accumulation and function calling from L03–L04. `humanize.naturalsize(..., binary=True)` converts the total into a binary-unit display string; it does not calculate the total for you. Keep raw byte counts separate from presentation text rather than trying to calculate with formatted strings.
+
+## 6. Declaration, resolution, locking and synchronization are different
+
+For a new project without a lock, `uv lock` resolves concrete versions from the declaration and writes the lock. Synchronization makes the environment satisfy that selection. Ordinary `uv run` also checks the project and may lock/synchronize before launching the requested command.
+
+The useful question is **which state each operation may change**, not how many flags you can memorize:
+
+| Command | Purpose | Changes or limits to observe |
+| --- | --- | --- |
+| `uv add "humanize==4.13.0"` | Intentionally add a direct runtime dependency | Normally updates declaration, lock and environment |
+| `uv lock` | Resolve or update the lock | Not installation, and not a forced upgrade of every package |
+| `uv sync --locked` | Restore from a compatible lock | Refuses implicit lock changes; default exact synchronization removes extraneous packages |
+| `uv run --locked python app.py` | Check the lock and run in the project | uv run defaults to inexact synchronization; success does not prove there are no extra packages |
+| `uv remove humanize` | Intentionally remove a direct dependency | Does not remove imports from your application source |
+
+**`--locked` and `--frozen` are not interchangeable.** Locked checks compatibility between declaration and lock and fails if an update is required. Frozen uses the existing lock without that freshness check. We choose locked to expose drift, not frozen to make a red command appear green. `--no-sync` likewise skips a check rather than repairing installation.
+
+To establish that declared dependencies suffice, first use exact `uv sync --locked`, then run the program. A solitary successful `uv run` is weaker evidence because an accidental extra installation may remain available.
+
+## 7. Keep the lock without treating it as magic
+
+The complete experimental `uv.lock`:
+
+<Code language="toml">{getEnvironmentExample('uv.lock')}</Code>
+
+Locate two package entries: the humanize distribution and the local virtual project. The distribution records its version, public source, available files and hashes. The project connects its requirements to that selection. Here the graph is tiny; later, a direct dependency can bring several indirect dependencies. Copying only a top-level version does not reconstruct the full resolution.
+
+You should not hand-type these long URLs or hashes. **Declarations state intent, the resolver generates the lock, and authors review changes.** Editing one lockfile version by hand can leave the source, file hashes and relationships inconsistent.
+
+The lock does not replace interpreter selection, OS requirements, a database version, secret configuration, backups or tests. A distribution hash helps verify the retrieved file; it does not prove that file contains vulnerability-free code. Cross-platform lock information cannot promise every native extension and system library will build on every machine.
+
+This first environment exercise uses a small pure-Python dependency from public PyPI to avoid introducing native build diagnostics simultaneously. That is a teaching boundary, not a claim that future dependencies are always pure Python.
+
+## 8. Actually create a stale lock
+
+Prepare a **new disposable copy without `.venv` or caches**. Change the root declaration from humanize 4.13.0 to 4.12.0 but retain the old lock:
+
+```bash
+uv run --locked python app.py
+```
+
+Expect **uv to reject the stale lock before starting Python**. The old 4.13.0 selection cannot satisfy the new exact request. This is neither a business traceback nor an accumulation defect. Editing app.py would be solving the wrong layer.
+
+If you want the original lesson state, restore the original declaration and synchronize/run again. If you genuinely intend a dependency change, intentionally update the declaration and lock, review the diff, recover the environment and verify behavior. Both are reasonable actions for different goals.
+
+A changed range that still admits the locked version does not necessarily make the lock stale. This experiment deliberately excludes the previous selection. We are testing compatibility, not the false rule that any textual edit must produce an error.
+
+## 9. Three package problems with different causes
+
+### A missing declaration
+
+The separate exercise project does not declare humanize:
+
+<Code language="toml">{getEnvironmentExample('exercises/missing-declaration/pyproject.toml')}</Code>
+
+<Code language="python">{getEnvironmentExample('exercises/missing-declaration/app.py')}</Code>
+
+```bash
+cd exercises/missing-declaration
+uv sync --locked
+uv run --locked python app.py
+```
+
+Expect **ModuleNotFoundError**. Check the working directory and interpreter, then add the actual runtime dependency to that project's declaration:
+
+```bash
+uv add "humanize==4.13.0"
+uv run --locked python app.py
+cd ../..
+```
+
+The repaired output is `2.0 KiB`. Inspect both changed files: declaration and lock. Installing into an incidental environment without declaring the dependency does not repair independent reconstruction.
+
+### Installed distribution, wrong imported module
+
+The root project has humanize installed, yet this still fails:
+
+<Code language="python">{getEnvironmentExample('errors/humanize.py')}</Code>
+
+<Code language="python">{getEnvironmentExample('errors/show_shadow.py')}</Code>
+
+```bash
+uv run --locked python errors/show_shadow.py
+```
+
+It prints the actual path of `errors/humanize.py`, then raises **AttributeError** because that local module has no naturalsize. L06's search rules still apply inside virtual environments. Reinstalling the distribution does not fix local naming. In the disposable copy, rename the conflicting local file and start a new process. Do not edit site-packages.
+
+### Download failure before imports are possible
+
+DNS, networking, registry authentication, TLS and unavailable distribution files can stop synchronization. An offline machine with a cold cache cannot manufacture package payload from a lock. Read uv's resolution/download diagnostic rather than adding except to app.py. Do not disable certificate verification or paste real registry credentials into lessons or logs.
+
+Ask in order: **Can the tool run? Which project and interpreter? Is the lock compatible? Was installation successful? What was actually imported? Is the business behavior correct?**
+
+## 10. Activation is neither mandatory nor environment copying
+
+Activation mainly changes the current shell's search/environment so a bare python command can find `.venv`. It neither installs packages into source nor permanently affects all terminals. Shell activation syntax varies, so this course uses `uv run` as its main path to reduce hidden session state.
+
+Do not carry another project's activated environment into this work and assume every tool will infer your intent. If VIRTUAL_ENV conflicts with the selected project environment, identify the intended target before choosing an option that uses the active environment.
+
+Recovery means preparing a clean second directory with **source, declaration, version selection and lock**, not copying `.venv`:
+
+```bash
+uv sync --locked
+uv run --locked python app.py
+```
+
+This is safer than deleting your only working environment and hoping recovery succeeds. It also exposes undeclared dependencies. Business data, secrets and external services are separate future recovery responsibilities, not proven by reinstalling packages.
+
+## 11. Three levels of practice
+
+### A. Predict before running
+
+1. Does having a lock mean the environment is installed?
+2. Does a successful locked run prove no extra packages exist?
+3. At which layer do missing-module, stale-lock and shadowed-attribute failures occur?
+4. Why check the module's file even when the distribution is installed?
+
+<details>
+<summary>Explanation checkpoint — write your evidence first</summary>
+
+The lock stores resolution information, not installations. Default inexact uv run cannot certify absence of extras; use controlled exact synchronization or clean reconstruction. A stale lock is rejected by the tool before the business process. A missing module fails during Python import. Shadowing may successfully import the wrong local module, then fail on an attribute. Distribution metadata and import origin must be observed separately.
+
+</details>
+
+### B. Repair without hiding the failure
+
+Complete both missing-declaration and shadowing experiments in a disposable copy. Record the failing command, nonzero exit, failing layer, changed files and successful fresh-process output. Do not ignore the failed exit or remove the required feature by deleting its import.
+
+<details>
+<summary>Repair checkpoint — connect each change to its cause</summary>
+
+For the declaration failure, run `uv add "humanize==4.13.0"` inside that exercise project, inspect the declaration and lock, then run. For shadowing, rename the local conflicting `errors/humanize.py` in the copy and retain the original entry command; leave the installed distribution alone. Recheck from a clean directory without the original environment to exclude accidental terminal history.
+
+</details>
+
+### C. An independent byte-report application
+
+Start outside the download in an empty directory. Implement only from these requirements, without copying an environment from the answer:
+
+- Allow the Python 3.13 series, select 3.13.15, declare humanize 4.13.0, and use a non-published local application.
+- `total_bytes(sizes)` accepts a list of ordinary nonnegative int values. Reject bool, negatives, floats and numeric strings. Empty input is valid and input must remain unchanged.
+- A guarded report.py entry processes `[1024, 512, 0]`, printing count, raw byte total and binary-unit display. Import must not print or run the entry.
+- Generate a lock from your declaration, synchronize and run. Recover again in a second empty directory using only source, declaration, lock and version file, not the first environment.
+- Change input to `[1024, 1024]`: expect two files, 2048 bytes and `2.0 KiB`. Empty input produces 0, 0 and `0 Bytes`. Explain why invalid values are rejected before formatting.
+
+<details>
+<summary>Independent reference — open after implementation and recovery</summary>
+
+`solutions/size-report/pyproject.toml`:
+
+<Code language="toml">{getEnvironmentExample('solutions/size-report/pyproject.toml')}</Code>
+
+`solutions/size-report/.python-version`:
+
+<Code language="text">{getEnvironmentExample('solutions/size-report/.python-version')}</Code>
+
+`solutions/size-report/report.py`:
+
+<Code language="python">{getEnvironmentExample('solutions/size-report/report.py')}</Code>
+
+The download contains the actual lock generated from that separate project's declaration; do not transcribe it manually. Run from its own directory:
+
+```bash
+cd solutions/size-report
+uv sync --locked
+uv run --locked python report.py
+cd ../..
+```
+
+A working reference still does not replace your second-directory recovery. Compare interpreter, declaration, lock and import origin rather than overwriting your own evidence with the entire answer directory.
+
+</details>
+
+## 12. Exit and resume after a pause
+
+Continue to L09 basic automated testing when you can explain the participants/file responsibilities, reconstruct the environment, distinguish the failure categories and pass independent two-directory acceptance. Pytest is introduced next, not secretly required here.
+
+Record the absolute project path, current directory, uv/Python versions, last successful command, synchronization status, declaration/lock compatibility and next failure to reproduce. On return, run the probe before deleting environments, upgrading everything or changing registries.
+
+## 13. Primary sources and boundaries
+
+Sources checked on 2026-09-28; command behavior is verified against the stated baseline:
+
+- [uv project guide](https://docs.astral.sh/uv/guides/projects/) and [dependencies](https://docs.astral.sh/uv/concepts/projects/dependencies/): declarations, directories and intentional changes.
+- [Locking and synchronization](https://docs.astral.sh/uv/concepts/projects/sync/): locked/frozen, exact/inexact defaults and groups.
+- [Python selection](https://docs.astral.sh/uv/concepts/python-versions/) and [Python venv](https://docs.python.org/3.13/library/venv.html): interpreter prefixes and non-portable environments.
+- [Distribution versus import packages](https://packaging.python.org/en/latest/discussions/distribution-package-vs-import-package/): different naming systems.
+- [humanize filesize](https://humanize.readthedocs.io/en/stable/filesize/): display only; calculation and validation remain our responsibility.
+
+This chapter does not certify production deployment, native cross-platform builds or dependency security auditing. Lockfiles, recoverable environments and business tests complement one another; none replaces the other two.

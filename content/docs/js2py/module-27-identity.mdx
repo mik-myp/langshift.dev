@@ -1,0 +1,232 @@
+---
+title: Identity and credential lifecycles — a password is not a session
+description: Build controlled accounts, Argon2id verification and opaque Bearer sessions in PostgreSQL; verify expiry, revocation, password changes, restarts and redaction.
+---
+
+import { getIdentityExample } from '@/lib/js2py-examples'
+
+## 1. A user_id in the database does not identify the caller
+
+The D labs accepted an owner_id to demonstrate relationships and transactions. That was an explicitly limited teaching input, not authentication. Any client can change JSON; TypeScript types, hidden buttons and CORS cannot prove identity. This chapter moves “who is calling?” out of the request body and into a credential verified by the service. The next chapter decides which objects that person may operate on.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | D06: SQLAlchemy sessions, Alembic evolution and owned PostgreSQL tests; synchronous FastAPI, Pydantic, HTTP and fixtures |
+| New capabilities | Controlled provisioning, password hashing, login, server-side sessions, expiry, single/all-session revocation, password changes, disabling accounts and sensitive-error redaction |
+| Independent acceptance | Real PostgreSQL and HTTP reject incorrect, altered and expired credentials; changes and disabling invalidate old tokens; committed sessions survive restarts |
+| Not implemented | Public registration, email recovery, MFA, refresh tokens, object authorization or production TLS/rate/capacity guarantees |
+
+Download the [complete S01 lab](/learning-assets/js2py/s01-identity.zip). It includes three-language READMEs, sources, migrations, tests and an explicit packaging allowlist. It retains D's schema but **does not continue exposing D's self-reported-identity endpoints**. Each security lab is independent: no imports from another chapter and no connection to your existing database.
+
+The capstone mentions JWT as one possible design. Here we deliberately choose the user-approved alternative: an **opaque random session token**, not a partial JWT implementation. There are no client-readable identity claims; every request checks the database, making revocation easier to explain. The trade-off is dependence on session storage and its availability, with no offline verification. There is no refresh flow: log in again after expiry.
+
+## 2. Separate four things before following a login
+
+```text
+password -> Argon2id verify -> active user
+                                  |
+                     random bearer returned once
+                                  |
+DB: token digest + user_id + auth_version + expiry
+                                  |
+next request: Bearer -> digest lookup -> user/version/expiry checks
+                                  |
+                         authenticated actor
+```
+
+A **user record** represents an account, not a request. A **password** is a long-lived secret known to its user. A **password hash** lets the server verify a candidate without storing plaintext; it is not encrypted text that can be decrypted to recover the password. A **session token** is a temporary Bearer credential issued after login. Whoever possesses it may act through that session, so it is not an ordinary debugging string.
+
+A browser's loggedIn=true is only UI state. The service must independently verify each protected request. Hiding a logout button or forgetting to clear a client token must not change server-side revocation. A single login 200 does not establish permanent identity, much less permission to access someone else's project.
+
+## 3. Start with a reviewable migration, not a default password
+
+Pinned baseline verified on **2026-09-28**: CPython 3.13.15, uv 0.12.13, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, SQLAlchemy 2.0.54, Alembic 1.20.0, psycopg[binary] 3.3.6, PostgreSQL 18.6, argon2-cffi 25.1.0 and pytest 8.4.2. The real uv.lock resolves against public PyPI; these are tested pins, not a claim to use the latest releases.
+
+<Code language="toml">{getIdentityExample('pyproject.toml')}</Code>
+
+The complete migration chain retains 001_base, 002_expand and 003_contract, including the tasks.priority backfill and constraint, then adds 004_identity:
+
+<Code language="python">{getIdentityExample('migrations/versions/004_identity.py')}</Code>
+
+Existing users have only id/login. A migration cannot magically make them legitimate login accounts. password_hash may be NULL, while existing users become is_active=false; a database check forbids an active account without a hash. auth_version starts at 1. For legacy records, created_at means migration time, not a fabricated historical signup date. password_changed_at is assigned only when a password is explicitly provisioned.
+
+auth_sessions stores only a token digest, the user foreign key, the authentication version at issuance, issued_at/expires_at and revoked_at. Indexes support user lookup and expiry maintenance; an index does not validate credentials. Time columns remain timestamptz, and existing RESTRICT foreign keys remain intact.
+
+Use upgrade head for a new database. An existing D database must first be checked against the exact matching 003_contract history; never blindly stamp an unversioned database. Security downgrades deliberately refuse to discard credential history automatically. Recovery needs a reviewed plan, not a version-number edit followed by running the old unauthenticated service.
+
+## 4. Argon2id is not about turning passwords into strings quickly
+
+<Code language="python">{getIdentityExample('security.py')}</Code>
+
+Read hasher, password_matches and login first; do not memorize the whole module at once. PasswordHasher comes from the established argon2-cffi library and explicitly selects Argon2id. Each hash call lets the library generate a random salt. The encoded string contains the salt, algorithm version, memory/iteration parameters and result. Give that encoded value and a candidate password to verify; do not split the format, compare a homemade password digest or design your own encryption.
+
+The fixed settings are m=65536 KiB, t=3 and p=4, matching the scale of the documented low-memory profile. Memory and computation raise the cost of offline guessing, but also consume server resources. Bigger parameters are not automatically better, and they are not a throughput promise. Measure on the deployment machine and pair the result with concurrency budgets and throttling. Two users choosing the same password should get different hashes; the lab actually tests this.
+
+After successful verification, check_needs_rehash determines whether to hash again with current parameters. Only then is the plaintext password available: the old hash cannot produce an “upgraded password.” Updating the hash encoding is not the same as a user password change; an actual password change increments auth_version.
+
+Unknown accounts also verify a startup-generated dummy hash, avoiding the obvious “no account, return immediately” branch. This **does not promise constant end-to-end timing**. A well-formed unknown-account login, wrong password and disabled account receive the same 401. Malformed input can still produce a sanitized 422; do not misclassify every failure as a database exception.
+
+<details>
+<summary>Explanation answer: why SHA-256 for token digests, but not passwords?</summary>
+
+Human-chosen passwords may be guessable. A fast hash makes offline guessing cheap; passwords need an established salted, adjustable-cost password hasher. A session token is generated by secrets.token_urlsafe(32), containing 32 random bytes, not a short password or user_id. SHA-256 supports lookup without storing that original token; it is not a homegrown password scheme. The stored digest itself is not accepted as a Bearer token, and the entry point validates the original token format. A database leak is nevertheless a security incident: digest-only storage does not remove access-control and backup-protection requirements.
+
+</details>
+
+## 5. Reestablish identity on every request
+
+Inside a transaction, login locks the user, verifies the password and active state, generates a random token, and stores its digest with the current auth_version. Only after commit does the endpoint return access_token. The default lifetime is 900 seconds, configurable within 60–3600. This example uses the application's UTC clock; production instances still need clock synchronization. UTC cannot repair an incorrect machine clock.
+
+authenticate parses Bearer syntax, hashes the original token, locates the session, locks the user, rereads the session, then checks active state, revoked_at, expiry and version equality. Every failure produces a generic 401 with WWW-Authenticate: Bearer. Finding a digest is not the final check: an expired or revoked database row must still be rejected.
+
+Why document lock ordering in code? Ordinary requests take a shared user lock; password changes and all-session revocation take an exclusive lock. Further locks follow user, credential, project, task order. Revocation waits for already-started operations holding the relevant lock, and requests after its commit see the new version. It cannot pull an already-sent response back, and it is not a free concurrency optimization. The initial session lookup only locates the user; the session is reread after the user lock so stale discovery data is not the final decision.
+
+<Code language="python">{getIdentityExample('db.py')}</Code>
+
+Each request owns its Session and transaction; never share one Session between threads. The engine is a connection-pool entry point, not a logged-in user session. auth_sessions is a business table. READ COMMITTED is explicit; echo is false and SQL parameters are hidden. These are three distinct meanings of “session.”
+
+## 6. Inputs, responses and logs are separate leakage paths
+
+<Code language="python">{getIdentityExample('schemas.py')}</Code>
+
+SecretStr masks common string representations, but login must still unwrap it with get_secret_value for verification. It does not encrypt HTTP, sanitize every exception automatically or manage shell history. New passwords must contain 15–128 characters, without trimming or implicit normalization. Length alone does not make a password safe; compromised-password screening and a complete account-recovery design remain release gates.
+
+<Code language="python">{getIdentityExample('app.py')}</Code>
+
+Observe three output boundaries. UserPublic returns only id/login/is_active. TokenResponse returns the original Bearer only on successful login, with no-store/no-cache response headers. Validation errors retain only allowed loc components and type, never input, ctx, msg or the original body. Unknown field names are replaced too: a secret can appear as a JSON key, not just a value.
+
+Access logging is off; audit events contain fixed event names and server actor IDs, never submitted passwords, Bearers or Authorization. Integrity failures become generic 409 responses. Other SQLAlchemy failures become generic 503 responses without exception repr or traceback; hiding SQL parameters alone cannot make driver error text safe. Do not undo these boundaries with middleware that logs every request “for debugging.” Tests inspect both responses and real application/PostgreSQL logs. That is not automatic protection against future logging code or every unknown exception.
+
+## 7. Start locally with a PostgreSQL cluster you own
+
+Work in the extracted s01-identity directory. The environment locations match the other labs in this round:
+
+```bash
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+unset VIRTUAL_ENV UV_PROJECT_ENVIRONMENT UV_ACTIVE UV_PYTHON UV_CONFIG_FILE
+export UV_NO_CONFIG=true
+uv sync --locked
+uv run --locked python labdb.py start
+```
+
+labdb.py creates a private mkdtemp directory and ownership marker, initializes PostgreSQL 18.6, and opens only a Unix socket inside that directory. It does not reuse PGDATA or connect to default localhost:5432. Before process/fixture connections are established, isolation.py clears every implicit PG* setting, including PGHOSTADDR and PGSERVICE. Database subprocesses also use a cleaned environment; overriding DATABASE_URL alone cannot establish isolation. Copy the printed DATABASE_URL export line into your terminal, then run:
+
+```bash
+uv run --locked alembic upgrade head
+uv run --locked python admin.py create-user Alice
+uv run --locked python serve.py --port 8061
+```
+
+The administrator command prompts twice through getpass. It accepts no password argument, repository default or default-password environment variable and prints no password. A legacy unprovisioned account can be explicitly activated; an already-provisioned account cannot be silently overwritten. There is no public registration endpoint. Real onboarding requires a trusted provisioning/first-change process, not temporary passwords in chat logs.
+
+<Code language="python">{getIdentityExample('admin.py')}</Code>
+
+The API binds only to 127.0.0.1, uses one worker and has no reload. Missing configuration gives an error without printing the actual URL. /health/live proves only that the process responds; /health/ready additionally checks database availability and the migration revision, not overall security.
+
+<details>
+<summary>Answer: inspect the startup helper and safe cleanup</summary>
+
+<Code language="python">{getIdentityExample('labdb.py')}</Code>
+
+This is readable isolation infrastructure, not an instruction to trust anything called a “test database.” Check the private directory, socket, version, ownership marker and actual postmaster data directory before permitting restart or stop. stop deletes the temporary data directory only after confirming this owned server has exited. restart preserves it. Never replace that logic with killing every postgres process, or experiment against the user's database.
+
+</details>
+
+## 8. Exercise the lifecycle with a client that does not print tokens
+
+Open another terminal in the same lab directory. The client sends only loopback requests, explicitly disables environment proxies with `ProxyHandler({})`, refuses redirects, prompts for passwords with getpass and stores tokens in a local mode-0600 session file without printing them. **Do not cat, commit or archive that file.** This is terminal-lab infrastructure, not advice to persist browser credentials in localStorage. A 127.0.0.1 URL alone is insufficient: urllib normally reads http_proxy, which could receive a local login password first. The regression sets proxy variables, removes no_proxy and uses owned loopback proxy/target listeners to prove the target receives requests while proxy and redirect-target counts remain zero. Do not assume OS defaults bypass the proxy.
+
+<Code language="python">{getIdentityExample('client.py')}</Code>
+
+```bash
+uv run --locked python client.py --port 8061 --session .session-alice.json login Alice
+uv run --locked python client.py --port 8061 --session .session-alice.json request GET /users/me
+cp -p .session-alice.json .session-before-change.json
+uv run --locked python client.py --port 8061 --session .session-alice.json change-password
+uv run --locked python client.py --port 8061 --session .session-before-change.json request GET /users/me
+```
+
+Expect login 200, public user retrieval 200, password change 204 with an empty body, and 401 when using the old copy. After a successful change the client deletes its current token file, but the server's auth_version increment is what invalidates all old tokens. Log in with the new password before testing revocation:
+
+```bash
+uv run --locked python client.py --port 8061 --session .session-alice.json login Alice
+uv run --locked python client.py --port 8061 --session .session-alice.json request POST /auth/logout-all
+uv run --locked python client.py --port 8061 --session .session-alice.json request GET /users/me
+```
+
+The last request must be 401. /auth/logout revokes only the current session by setting revoked_at; another valid session remains usable. /auth/logout-all increments the account version and invalidates even the calling token. Passwords and tokens are not interchangeable; changing a password does not turn the old token into a new credential.
+
+<details>
+<summary>Lifecycle answer: does reenabling an account revive old tokens?</summary>
+
+No. The operator's disable sets is_active=false and increments auth_version; enable increments it again. An old session fails the version check even if it has not expired and revoked_at is still empty. A newly enabled user must log in to obtain a session at the current version. Deleting a browser token cannot replace server revocation, and changing only the password hash cannot invalidate previously issued sessions without a check such as this one.
+
+</details>
+
+## 9. Real failures, recovery and meaningful restart checks
+
+In the terminal containing DATABASE_URL, run admin.py disable Alice. The existing token must get 401 from /users/me, and login must also fail. After enable Alice, the old token must still fail; a fresh login succeeds. An incorrect password and unknown account produce the same status and error body, rather than revealing whether an account exists.
+
+```bash
+uv run --locked python admin.py disable Alice
+uv run --locked python admin.py enable Alice
+uv run --locked python -m pytest -q
+```
+
+<Code language="python">{getIdentityExample('tests/test_identity.py')}</Code>
+
+These tests do more than instantiate models. The fixture creates PostgreSQL 18.6, migrates it, starts real Uvicorn and sends standard-library HTTP requests. Expiry tests move issued_at/expires_at into the past in the **owned test database**, rather than relying solely on a fifteen-minute wait. Tampering changes token characters. All secrets are generated in temporary test memory and omitted from evidence.
+
+<Code language="python">{getIdentityExample('tests/conftest.py')}</Code>
+
+Keep the database, stop your API with Ctrl-C, then restart with the same command: a still-valid token remains usable. labdb.py restart preserves committed sessions through a restart of the same owned database. Tests actually perform both restarts. By contrast, labdb.py stop explicitly deletes the entire temporary data directory; intentional deletion is not a persistence failure.
+
+For final cleanup, stop your API first, then run uv run --locked python labdb.py stop. Delete only the session files you created; do not use broad cleanup globs in unfamiliar directories. Downloads use an explicit allowlist excluding sessions, environments, caches, logs and credentials.
+
+## 10. Independent rebuild and active-session-count variation
+
+**Rebuild independently:** carry only the environment and migrations into a new directory. Implement the input/public models, hashing and session service, HTTP entry points and controlled provisioning command from this contract. Do not import the reference app. Acceptance includes wrong passwords, unknown accounts, altered and expired tokens, single/all-session revocation, password changes, disable/reenable, redaction and real restarts. Explain why each database check cannot be replaced by client state.
+
+**Variation:** add GET /users/me/session-count. Count only this user, this authentication version, unrevoked sessions and future expiry. Do not expose digests/tokens or count all historical rows. Two valid logins count as 2; revoking one leaves 1; revoke all and log in again to get 1. Bob's sessions must not affect Alice's result.
+
+<details>
+<summary>Independent variation answer</summary>
+
+<Code language="python">{getIdentityExample('solutions/session_count.py')}</Code>
+
+Stop the original service and run from the same lab root:
+
+```bash
+uv run --locked python serve.py --port 8061 --app solutions.session_count:app
+uv run --locked python client.py --port 8061 --session .session-alice.json request GET /users/me/session-count
+```
+
+Run the client in another terminal with a current session. This solution extends the app in this download, not another chapter. The normal test suite starts this extended entry point and verifies both base routes and the variation. Independent rebuilding still requires your own implementation, not merely repeating the resulting number.
+
+</details>
+
+## 11. Resume notes and release gates
+
+```text
+checkpoint: S01 credential lifecycle
+cwd: <my extracted s01-identity directory>
+migration: 004_identity
+last_success: password change -> 204; old bearer -> 401
+credential_values: never copied into notes
+api: stopped in its owning terminal
+postgres: owned cluster retained for next session
+next: labdb.py status; start API; login with current password
+```
+
+Record state, never secrets. This acceptance does not establish TLS, login throttling, body-size limits, hashing capacity, compromised-password screening, recovery, MFA, a production logging pipeline, clock synchronization or object authorization. HTTP is loopback-only; deployment requires implementing and testing those gates. Databases and backups contain sensitive hashes and session metadata and need controlled access. A switch to cookies also requires separate CSRF, SameSite, Secure and HttpOnly teaching; do not inherit assumptions from this Bearer flow.
+
+## 12. Primary sources and actual evidence
+
+Verified 2026-09-28. SOURCES.md records full links and version sources; VERIFICATION.md records real commands, case counts and exclusions. Syntax checks, model probes and page compilation never count as PostgreSQL/API acceptance.
+
+- [argon2-cffi API](https://argon2-cffi.readthedocs.io/en/stable/api.html) and [parameter selection](https://argon2-cffi.readthedocs.io/en/stable/parameters.html): Argon2id, random salts, verification and rehashing.
+- [Python secrets](https://docs.python.org/3.13/library/secrets.html): cryptographically strong random tokens.
+- [OWASP Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html), [Session Management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) and [Logging](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html): password, session and logging boundaries.
+- [FastAPI error handling](https://fastapi.tiangolo.com/tutorial/handling-errors/) and [SQLAlchemy transactions](https://docs.sqlalchemy.org/en/20/orm/session_transaction.html): exception adaptation and commit/rollback ownership.

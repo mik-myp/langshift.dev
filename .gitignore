@@ -26,3 +26,15 @@ yarn-error.log*
 .env*.local
 .vercel
 next-env.d.ts
+# Python learning labs and validation tools
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+# Disposable file/JSON lesson output; not source or downloadable fixtures
+examples/js2py/u07-files/**/_output/
+
+# Disposable output of the independently reconstructed L10 application
+examples/js2py/u10-local-project/**/_output/
+
+# Generated static-checker cache, never a learning artifact
+.mypy_cache/

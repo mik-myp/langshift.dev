@@ -1,938 +1,202 @@
 ---
-title: "Python 類型註解詳解：從 TypeScript 開發者視角"
-description: "深入理解 Python 類型註解系統，掌握與 TypeScript 的對應關係，提升代碼質量和開發體驗"
+title: 類與數據模型：實例、狀態歸屬與顯式校驗
+description: 從字典與函數走向小型對象模型，理解 self、初始化、組合、簡單繼承和 dataclass；通過共享狀態與輸入繞過實驗認識模型邊界。
 ---
 
-## 1. 引言
+import { getModelExample } from '@/lib/js2py-examples'
 
-### 為什麼需要類型註解？
+## 1. 什麼時候值得把數據和行為放在一起？
 
-作為一名 TypeScript 開發者，你一定深知類型系統在大型項目中的重要性。類型註解不僅能幫助 IDE 提供更好的智能提示，還能在編譯時捕獲潛在的錯誤，提高代碼的可維護性。
+此前用字典保存任務、用函數修改任務，沒有錯，也不會因為出現 class 就自動落後。當多個函數都依賴同一組字段和規則時，把一份狀態與圍繞它的行為組合成對象，可以讓調用者更容易找到正確操作。但類不會自動產生數據庫、身份權限或不可破壞的約束。
 
-Python 從 3.5 版本開始引入類型提示（Type Hints），並在後續版本中不斷完善。雖然 Python 是動態類型語言，但類型註解為我們提供了類似 TypeScript 的開發體驗。
+本章把“任務完成”做成一個可以追蹤的小模型。你需要理解對象裡有什麼、多個名字是否指向同一對象、誰允許修改狀態，而不是學完語法就把每個字典改成類。
 
-**核心概念映射**
+| 本章契約 | 範圍 |
+| --- | --- |
+| 前置 | L04 函數、L06 模塊、L11 基本註解，以及容器與測試基礎 |
+| 新能力 | 類與實例、self、初始化、組合、簡單繼承、dataclass |
+| 驗收 | 建立小模型；解釋共享與複製；比較字典方案；證明註解不是校驗 |
+| 暫不要求 | 元類、深繼承、描述符、屬性裝飾器、ORM、框架內部機制 |
 
-| TypeScript 概念 | Python 概念 | 說明 |
-| --- | --- | --- |
-| `string`, `number`, `boolean` | `str`, `int`, `bool` | 基本類型 |
-| `string[]`, `Array<string>` | `List[str]`, `list[str]` | 列表類型 |
-| `{key: string}` | `Dict[str, Any]`, `dict[str, Any]` | 字典類型 |
-| `interface` | `TypedDict`, `Protocol` | 接口定義 |
-| `type` | `TypeAlias` | 類型別名 |
-| `generic<T>` | `TypeVar('T')` | 泛型 |
-| `union` | `Union`, `|` | 聯合類型 |
-| `optional` | `Optional`, `| None` | 可選類型 |
+下載 [L12 完整實驗](/learning-assets/js2py/u12-models.zip)，進入解壓目錄 u12-models。本章仍是本地 Python，不引入網絡或數據庫。
 
-> 💡 **學習策略**：將 Python 的類型註解視為 TypeScript 的"Python 版本"。雖然語法不同，但核心概念和思維方式是一致的。
+## 2. 從已有字典方案比較，而不是從術語開始
 
-## 2. 基本類型註解
+任務有 title、minutes、done。原來可以寫 mark_done(task)，從字典取 done，必要時更新，再返回是否發生變化。對象版本寫 task.mark_done()。關鍵不是句點更漂亮，而是狀態和行為的關係更直接；是否減少錯誤還要看規則設計和測試。
 
-### 2.1 變量類型註解
+類描述怎樣建立及操作某類對象；實例是一次創建得到的具體對象。Task("Read", 30) 和再創建一次相同參數的 Task，不是同一個實例。讓另一個名字指向已有 task 則沒有複製。不要把“字段內容相同”和“身份相同”混為一談。
 
-在 TypeScript 中，我們習慣為變量聲明類型。Python 也支持類似的語法。
+Python 類不是 TypeScript 的 interface：類定義和實例都在運行時存在。Python 類也不要簡單等同於 JavaScript 原型對象；本章先理解可觀察的創建、屬性和方法，不假定你已經會任何後端框架。
 
-<PythonEditor title="變量類型註解對比" compare={true} canRun={false}>
-```typescript !! ts
-// TypeScript
-let name: string = "Alice";
-let age: number = 25;
-let isActive: boolean = true;
-let scores: number[] = [85, 92, 78];
-let user: { name: string; age: number } = { name: "Bob", age: 30 };
+## 3. self 是收到的實例，不是隱藏的全局變量
 
-// 使用 const 聲明常量
-const PI: number = 3.14159;
-const API_URL: string = "https://api.example.com";
+下面是可以獨立運行的最小例子：
+
+```python
+class Counter:
+    def __init__(self, start: int = 0) -> None:
+        self.value = start
+
+    def increase(self) -> int:
+        self.value += 1
+        return self.value
+
+
+first = Counter()
+second = Counter(10)
+print(first.increase(), second.value)
+print(Counter.increase(first))
 ```
 
-```python !! py
-# Python
-from typing import List, Dict, Any
-
-# 變量類型註解
-name: str = "Alice"
-age: int = 25
-is_active: bool = True
-scores: list[int] = [85, 92, 78]  # Python 3.9+
-# 或者使用 typing.List (Python 3.8 及以下)
-# scores: List[int] = [85, 92, 78]
-
-user: dict[str, Any] = {"name": "Bob", "age": 30}
-
-# Python 沒有 const，但可以使用大寫表示常量
-PI: float = 3.14159
-API_URL: str = "https://api.example.com"
-```
-</PythonEditor>
-
-### 2.2 函數類型註解
-
-函數是類型註解最重要的應用場景之一。Python 的函數類型註解語法與 TypeScript 非常相似。
-
-<PythonEditor title="函數類型註解對比" compare={true} canRun={false}>
-```typescript !! ts
-// TypeScript
-function greet(name: string, age: number): string {
-  return `Hello, ${name}. You are ${age} years old.`;
-}
-
-function calculateArea(width: number, height: number): number {
-  return width * height;
-}
-
-function getUserInfo(id: number): { name: string; email: string } | null {
-  // 模擬從數據庫獲取用戶信息
-  if (id === 1) {
-    return { name: "Alice", email: "alice@example.com" };
-  }
-  return null;
-}
-
-// 箭頭函數
-const multiply = (a: number, b: number): number => a * b;
+```text
+1 10
+2
 ```
 
-```python !! py
-# Python
-from typing import Optional, Dict, Any
+通常的實例方法訪問會把實例綁定為第一個參數。first.increase() 在這裡與 Counter.increase(first) 做同一件事；self 是約定的名字，不是特殊關鍵字。與 JS 的 this 綁定經驗不同，方法定義裡明確寫出接收實例的參數，但通過實例調用時不再手動傳它。
 
-def greet(name: str, age: int) -> str:
-    return f"Hello, {name}. You are {age} years old."
+`self.value = start` 在當前實例上設置屬性；局部變量 value 與 self.value 不是一個存儲位置。__init__ 在新實例建立後負責初始化，不應返回業務對象。本章不實現底層對象分配；把 __init__ 理解為初始化步驟就足夠。
 
-def calculate_area(width: float, height: float) -> float:
-    return width * height
+<details>
+<summary>解釋題答案：把 second = first 之後會發生什麼？</summary>
 
-def get_user_info(user_id: int) -> Optional[dict[str, str]]:
-    # 模擬從數據庫獲取用戶信息
-    if user_id == 1:
-        return {"name": "Alice", "email": "alice@example.com"}
-    return None
+兩個名字引用同一個實例。經任何一個名字調用 increase 都改變同一份 value。重新構造 Counter(first.value) 得到的是另一個計數器；這兩種操作不能只因初始數字相同就被稱為相同的複製。
 
-# Lambda 函數（Python 的箭頭函數）
-multiply = lambda a: float, b: float: a * b
-```
-</PythonEditor>
+</details>
 
-## 3. 複雜類型註解
+## 4. 初始化校驗建立起點，不是永久封印
 
-### 3.1 列表和數組類型
+任務初始化要檢查非空白標題、普通非負整數 minutes，以及嚴格 bool 的 done。驗證成功後才把結果保存到實例。構造時失敗意味著調用者拿不到這個正常構造完成的 Task；不要用默認零值偷偷吞掉失敗。
 
-Python 的列表類型註解與 TypeScript 的數組類型非常相似。
+mark_done 返回第一次變化是否發生，重複完成不重複計數；remaining_minutes 根據當前 done 計算，而不是再保存一個可能忘記同步的總計字段。很多狀態錯誤來自維護重複信息，並非缺少繼承層次。
 
-<PythonEditor title="列表類型註解對比" compare={true} canRun={false}>
-```typescript !! ts
-// TypeScript
-let numbers: number[] = [1, 2, 3, 4, 5];
-let names: string[] = ["Alice", "Bob", "Charlie"];
-let mixed: (string | number)[] = ["hello", 42, "world", 100];
+不過 Task 的屬性仍公開可寫。構造通過後直接把 task.minutes 改成 -1，當前模型不會自動再次校驗。使用方法是一種約定，不是安全沙箱。以後服務入口、數據庫約束和業務操作各有責任；不能因為定義了一個“模型類”就停止驗證。
 
-// 二維數組
-let matrix: number[][] = [
-  [1, 2, 3],
-  [4, 5, 6],
-  [7, 8, 9]
-];
+## 5. 組合先問“擁有哪個容器，共享哪些對象”
 
-// 使用 Array 泛型
-let scores: Array<number> = [85, 92, 78];
-let users: Array<{ name: string; age: number }> = [
-  { name: "Alice", age: 25 },
-  { name: "Bob", age: 30 }
-];
-```
+Plan 持有任務列表，是“有多個 Task”，不是“是一種 Task”。它複製傳入的外層列表，避免調用者清空自己的列表時意外清空計劃。但列表中的 Task 實例有意共享，所以把 read 標為完成後，計劃看到的剩餘時間也變化。
 
-```python !! py
-# Python
-from typing import List, Union
+這不是深複製，也不是把任務凍結成快照。畫三個箭頭：原列表指向 task，Plan.tasks 指向同一個 task，兩個列表自身不同。若業務要求獨立快照，必須另外定義複製哪些狀態及後續更新的政策，不能只寫 list(...) 就聲稱完成。
 
-# 基本列表類型
-numbers: list[int] = [1, 2, 3, 4, 5]  # Python 3.9+
-names: list[str] = ["Alice", "Bob", "Charlie"]
-mixed: list[Union[str, int]] = ["hello", 42, "world", 100]
-# 或者使用 | 操作符 (Python 3.10+)
-# mixed: list[str | int] = ["hello", 42, "world", 100]
+本章用普通 for 循環彙總，避免為了簡寫提前要求生成器表達式。Plan 也不是一個防禦所有錯誤輸入的公共 API：它約定接收 Task 列表，未實現任意對象轉換。
 
-# 二維數組
-matrix: list[list[int]] = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9]
-]
+## 6. 完整模型：先讀普通類，再讀數據類
 
-# 使用 typing.List (Python 3.8 及以下)
-scores: List[int] = [85, 92, 78]
-users: List[dict[str, Union[str, int]]] = [
-    {"name": "Alice", "age": 25},
-    {"name": "Bob", "age": 30}
-]
-```
-</PythonEditor>
+<Code language="python">{getModelExample('models.py')}</Code>
 
-### 3.2 字典和對象類型
+先只追蹤 checked_title、checked_minutes、Task 和 Plan。驗證函數接收 object，在運行時證明確實符合規則後返回更具體的值。Task 初始化複用它們，Plan 彙總每個實例當前的 remaining_minutes，而非依賴全局變量。
 
-Python 的字典類型註解對應 TypeScript 的對象類型。
+接下來閱讀 UrgentTask。它是一種 Task：保留完成和分鐘行為，只修改展示標籤。未重新定義 __init__，因此沿用父類初始化；重寫 label 時通過 super().label() 複用已有行為。這裡的 super 不等於複製一個父類對象，而是在這個簡單繼承關係裡繼續查找父實現，操作的仍是當前實例。
 
-<PythonEditor title="字典類型註解對比" compare={true} canRun={false}>
-```typescript !! ts
-// TypeScript
-interface User {
-  name: string;
-  age: number;
-  email?: string;  // 可選屬性
-}
+如果你只是要“一個計劃包含若干任務”，用組合；如果子類型不能繼續滿足父類型的核心行為，就不該只為複用幾行代碼強行繼承。此處不展開多繼承的查找順序，也不要求你設計框架基類。
 
-let user: User = { name: "Alice", age: 25 };
-let userWithEmail: User = { name: "Bob", age: 30, email: "bob@example.com" };
+## 7. 在使用 dataclass 前，先解釋這一行 @
 
-// 通用字典類型
-let config: Record<string, any> = {
-  apiUrl: "https://api.example.com",
-  timeout: 5000,
-  debug: true
-};
+`@dataclass` 放在類定義上方，表示類創建後交給 dataclass 處理，再把結果綁定回類名。對於本章簡單使用，可以理解為寫完 class 後再做 `Estimate = dataclass(Estimate)`。它不是每次讀取字段時執行的魔法。L13 會完整拆解裝飾器的求值、包裝與註冊；這裡先建立足夠使用該庫的局部機制。
 
-// 索引簽名
-let scores: { [key: string]: number } = {
-  "Alice": 85,
-  "Bob": 92,
-  "Charlie": 78
-};
+dataclass 根據聲明的字段生成常用方法，例如初始化、可讀表示與字段比較。RawEstimate 故意沒有校驗：把字符串放進標為 int 的 minutes 仍能構造成功。Estimate 則在自動初始化調用的 __post_init__ 中明確驗證，規則來自我們寫的代碼，不來自類型註解。
+
+`field(default_factory=list)` 提供一個創建默認值的函數。未傳 tags 時，每個實例各調用一次 list，得到自己的空列表；傳 list 而不是 list()。但調用者顯式傳入列表時，默認工廠不負責複製它，所以 __post_init__ 再複製外層列表，並檢查元素為文本。
+
+不要直接用共享的 tags = [] 當實例默認值。本章 dataclass 會拒絕這種常見可變默認聲明；普通類的類屬性卻可能悄悄共享，下一節會實際觀察。__post_init__ 同樣只守初始化階段，之後直接 append 非文本值仍可能破壞約定。
+
+## 8. 建立環境並追蹤一次完整執行
+
+<Code language="toml">{getModelExample('pyproject.toml')}</Code>
+
+<Code language="python">{getModelExample('app.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python app.py
+uv run --locked python -m pytest -q
 ```
 
-```python !! py
-# Python
-from typing import Dict, Any, Optional, TypedDict
-
-# 使用 TypedDict 定義結構化字典（類似 TypeScript 的 interface）
-class User(TypedDict, total=False):  # total=False 表示所有字段都是可選的
-    name: str
-    age: int
-    email: Optional[str]  # 可選字段
-
-user: User = {"name": "Alice", "age": 25}
-user_with_email: User = {"name": "Bob", "age": 30, "email": "bob@example.com"}
-
-# 通用字典類型
-config: dict[str, Any] = {
-    "api_url": "https://api.example.com",
-    "timeout": 5000,
-    "debug": True
-}
-
-# 索引簽名（使用 Dict）
-scores: Dict[str, int] = {
-    "Alice": 85,
-    "Bob": 92,
-    "Charlie": 78
-}
-```
-</PythonEditor>
-
-### 3.3 聯合類型和可選類型
-
-Python 的聯合類型對應 TypeScript 的 union 類型，用於表示一個值可能是多種類型中的一種。
-
-<PythonEditor title="聯合類型對比" compare={true} canRun={false}>
-```typescript !! ts
-// TypeScript
-type Status = "pending" | "success" | "error";
-type ID = string | number;
-type Result<T> = T | null | undefined;
-
-function processStatus(status: Status): string {
-  switch (status) {
-    case "pending": return "處理中...";
-    case "success": return "成功";
-    case "error": return "錯誤";
-  }
-}
-
-function findUser(id: ID): User | null {
-  // 根據 ID 查找用戶
-  return null;
-}
-
-// 可選參數
-function greet(name: string, title?: string): string {
-  return title ? `Hello, ${title} ${name}` : `Hello, ${name}`;
-}
+```text
+45
+True False
+15
+! Write
+True False
+['python'] []
 ```
 
-```python !! py
-# Python
-from typing import Union, Optional, Literal
+基線為 CPython 3.13.15、uv 0.12.13、pytest 8.4.2。第一項總計是兩個任務的 45；連續完成同一任務分別報告變化和無變化；Plan 共享任務實例，所以後來剩餘 15。兩個 Estimate 的字段相同，因此 == 為 True；它們不是同一對象，is 為 False。默認 tags 各自獨立，修改第一份不汙染第二份。
 
-# 字面量聯合類型 (Python 3.8+)
-Status = Literal["pending", "success", "error"]
-ID = Union[str, int]  # 或者使用 str | int (Python 3.10+)
-Result = Union[str, None]  # 或者使用 str | None
+普通 Task 未定義字段相等規則，不能照搬 dataclass 的相等行為。選擇哪一種語義要看業務：數據庫記錄身份以後還涉及持久化 ID，此處只是內存對象，不提前聲稱解決了實體身份。
 
-def process_status(status: Status) -> str:
-    if status == "pending":
-        return "處理中..."
-    elif status == "success":
-        return "成功"
-    elif status == "error":
-        return "錯誤"
-    else:
-        raise ValueError(f"Unknown status: {status}")
+## 9. 三類錯誤，分別觀察發生階段
 
-def find_user(user_id: ID) -> Optional[dict[str, Any]]:
-    # 根據 ID 查找用戶
-    return None
+<Code language="python">{getModelExample('errors/shared_state.py')}</Code>
 
-# 可選參數
-def greet(name: str, title: Optional[str] = None) -> str:
-    if title:
-        return f"Hello, {title} {name}"
-    return f"Hello, {name}"
-```
-</PythonEditor>
-
-## 4. 高級類型註解
-
-### 4.1 泛型
-
-Python 的泛型系統與 TypeScript 的泛型概念非常相似，都允許創建可重用的類型模板。
-
-<PythonEditor title="泛型對比" compare={true} canRun={false}>
-```typescript !! ts
-// TypeScript
-interface Box<T> {
-  value: T;
-  getValue(): T;
-  setValue(value: T): void;
-}
-
-class NumberBox implements Box<number> {
-  constructor(private _value: number) {}
-  
-  get value(): number { return this._value; }
-  getValue(): number { return this._value; }
-  setValue(value: number): void { this._value = value; }
-}
-
-// 泛型函數
-function identity<T>(arg: T): T {
-  return arg;
-}
-
-function first<T>(array: T[]): T | undefined {
-  return array[0];
-}
-
-// 約束泛型
-interface Lengthwise {
-  length: number;
-}
-
-function logLength<T extends Lengthwise>(arg: T): T {
-  console.log(arg.length);
-  return arg;
-}
+```bash
+uv run --locked python errors/shared_state.py
 ```
 
-```python !! py
-# Python
-from typing import TypeVar, Generic, Protocol
+輸出 ['Read']，不是異常：entries 在類定義時只建立了一份，實例未覆蓋這個屬性，兩個實例訪問到同一列表。錯誤行為可能“順利運行”，測試必須檢查隔離，而不是隻問退出碼。
 
-# 定義類型變量
-T = TypeVar('T')
-U = TypeVar('U')
+<Code language="python">{getModelExample('errors/missing_self.py')}</Code>
 
-# 泛型類
-class Box(Generic[T]):
-    def __init__(self, value: T):
-        self._value = value
-    
-    @property
-    def value(self) -> T:
-        return self._value
-    
-    def get_value(self) -> T:
-        return self._value
-    
-    def set_value(self, value: T) -> None:
-        self._value = value
-
-class NumberBox(Box[int]):
-    pass
-
-# 泛型函數
-def identity(arg: T) -> T:
-    return arg
-
-def first(array: list[T]) -> T | None:
-    return array[0] if array else None
-
-# 約束泛型（使用 Protocol）
-class Lengthwise(Protocol):
-    def __len__(self) -> int: ...
-
-def log_length(arg: T) -> T:
-    print(len(arg))
-    return arg
-```
-</PythonEditor>
-
-### 4.2 類型別名和接口
-
-Python 使用 `TypeAlias` 和 `Protocol` 來實現類似 TypeScript 的 `type` 和 `interface` 功能。
-
-<PythonEditor title="類型別名和接口對比" compare={true} canRun={false}>
-```typescript !! ts
-// TypeScript
-// 類型別名
-type Point = {
-  x: number;
-  y: number;
-};
-
-type Coordinates = Point;
-type UserID = string;
-type Status = "active" | "inactive" | "pending";
-
-// 接口
-interface User {
-  id: UserID;
-  name: string;
-  email: string;
-  status: Status;
-}
-
-interface AdminUser extends User {
-  permissions: string[];
-  canDelete: boolean;
-}
-
-// 函數類型
-type Handler = (event: string, data: any) => void;
-type AsyncHandler = (event: string, data: any) => Promise<void>;
+```bash
+uv run --locked python errors/missing_self.py
 ```
 
-```python !! py
-# Python
-from typing import TypeAlias, Protocol, Callable, Any
-from typing_extensions import TypedDict
+這次在調用時發生 TypeError，因為綁定的實例沒有對應形參接收。不要為了消除錯誤把所有方法改成不帶狀態的全局函數；先核對定義與調用是否匹配。
 
-# 類型別名 (Python 3.10+)
-Point: TypeAlias = dict[str, float]
-Coordinates: TypeAlias = Point
-UserID: TypeAlias = str
-Status: TypeAlias = Literal["active", "inactive", "pending"]
+<Code language="python">{getModelExample('errors/no_validation.py')}</Code>
 
-# 使用 TypedDict 定義接口
-class User(TypedDict):
-    id: UserID
-    name: str
-    email: str
-    status: Status
-
-class AdminUser(User):
-    permissions: list[str]
-    can_delete: bool
-
-# 函數類型
-Handler: TypeAlias = Callable[[str, Any], None]
-AsyncHandler: TypeAlias = Callable[[str, Any], Any]  # 返回類型為 Any 因為 Python 沒有 Promise 類型
-```
-</PythonEditor>
-
-### 4.3 回調函數和異步類型
-
-Python 的異步編程模型與 TypeScript 有所不同，但類型註解的概念是相似的。
-
-<PythonEditor title="回調函數和異步類型對比" compare={true} canRun={false}>
-```typescript !! ts
-// TypeScript
-// 回調函數類型
-type Callback<T> = (error: Error | null, result: T) => void;
-type EventHandler = (event: Event) => void;
-
-// 異步函數
-async function fetchUser(id: number): Promise<User> {
-  const response = await fetch(`/api/users/${id}`);
-  return response.json();
-}
-
-// 異步回調
-function processData(data: string[], callback: Callback<string[]>) {
-  setTimeout(() => {
-    const processed = data.map(item => item.toUpperCase());
-    callback(null, processed);
-  }, 1000);
-}
-
-// 事件處理
-function handleClick(event: Event): void {
-  console.log('Button clicked');
-}
+```bash
+uv run --locked python -m errors.no_validation
 ```
 
-```python !! py
-# Python
-import asyncio
-from typing import Callable, Any, Awaitable
-from typing_extensions import TypedDict
+輸出 str。數據類生成了初始化，但沒有執行字段類型驗證。與上面“調用方法失敗”不同，這裡是“錯誤數據進入對象卻沒有異常”，正需要顯式邊界規則。
 
-# 回調函數類型
-Callback = Callable[[Exception | None, Any], None]
-EventHandler = Callable[[Any], None]
+## 10. 從測試看狀態政策，再完成帶提示修復
 
-# 異步函數
-async def fetch_user(user_id: int) -> dict[str, Any]:
-    # 模擬異步請求
-    await asyncio.sleep(0.1)
-    return {"id": user_id, "name": "Alice", "email": "alice@example.com"}
+<Code language="python">{getModelExample('tests/test_models.py')}</Code>
 
-# 異步回調（使用 asyncio）
-async def process_data(data: list[str], callback: Callable[[list[str]], None]) -> None:
-    await asyncio.sleep(1)
-    processed = [item.upper() for item in data]
-    callback(processed)
+9 項正常測試覆蓋綁定調用、重複變更、構造拒絕、淺複製與共享、繼承行為、相等和身份、顯式標籤列表複製，以及公開屬性繞過。最後一項不是推薦寫壞狀態，而是用測試準確說明當前實現沒有提供什麼保證。
 
-# 事件處理
-def handle_click(event: Any) -> None:
-    print("Button clicked")
-```
-</PythonEditor>
+任務：修復 WrongNotebook，讓兩個實例的列表獨立；再讓它接收一個可省略的初始列表，並證明原輸入後來修改不影響實例。然後解釋：為何 Plan 的 Task 共享是有意的，而 notebook 的 entries 共享是錯誤？
 
-## 5. 實際應用場景
+<details>
+<summary>帶提示修復核對</summary>
 
-### 5.1 API 響應類型定義
+在 __init__ 中建立 self.entries。可省略輸入用 None 默認值，在初始化裡分支創建或複製列表，不使用可變默認實參。是否共享要由契約決定，不是一律深複製：Plan 要觀察同一任務的變化，notebook 要擁有自己的記錄容器。測試必須分別改變源列表、實例列表和其中對象，才知道自己證明了哪一層隔離。
 
-在實際項目中，我們經常需要為 API 響應定義類型。
+</details>
 
-<PythonEditor title="API 響應類型定義對比" compare={true} canRun={false}>
-```typescript !! ts
-// TypeScript
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message: string;
-  timestamp: string;
-}
+## 11. 獨立變式：有自己記錄的 WorkLog
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  createdAt: string;
-}
+不看答案建立 WorkLog：非空白 title、可省略的非負整數記錄列表；擁有自己的外層列表。add 只接受普通非負整數，拒絕時不追加任何值；total_minutes 返回當前總和。兩個默認實例獨立，修改調用者傳入的列表不影響已有日誌。先寫需求測試，再選類實現；另用文字比較字典加函數是否也能完成。
 
-interface UserListResponse extends ApiResponse<User[]> {
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-  };
-}
+不要為了讓這個小對象顯得“企業級”添加抽象基類、屬性裝飾器、存儲連接或繼承樹。需要證明的是狀態政策和錯誤路徑，而不是目錄數量。
 
-// 使用示例
-async function fetchUsers(page: number = 1): Promise<UserListResponse> {
-  const response = await fetch(`/api/users?page=${page}`);
-  return response.json();
-}
+<details>
+<summary>獨立參考實現與測試</summary>
 
-// 錯誤處理
-interface ApiError {
-  code: string;
-  message: string;
-  details?: any;
-}
+<Code language="python">{getModelExample('solutions/work_log.py')}</Code>
+
+<Code language="python">{getModelExample('solutions/test_work_log.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_work_log.py
 ```
 
-```python !! py
-# Python
-from typing import TypeVar, Generic
-from typing_extensions import TypedDict
-from datetime import datetime
+構造通過 add 複用同一條校驗規則；append 發生在檢查成功之後，因此失敗不改記錄。字段仍公開，這不是永久不可變對象或多線程容器。若需求改變為允許撤銷記錄，應先定義如何定位記錄和失敗政策，而不是隨意暴露更多修改入口。
 
-# 定義泛型 API 響應
-T = TypeVar('T')
+</details>
 
-class ApiResponse(TypedDict, Generic[T]):
-    success: bool
-    data: T
-    message: str
-    timestamp: str
+## 12. 驗收、暫停與下一步
 
-class User(TypedDict):
-    id: int
-    name: str
-    email: str
-    created_at: str
+獨立解釋一個實例從創建、校驗、持有引用到狀態變化的過程；畫出 Plan 的淺複製；修復共享列表；區分 == 和 is；證明 RawEstimate 不驗證；完成 WorkLog 並製造一個共享默認缺陷讓測試捕捉。最後回答：這個模型已經替我解決數據庫或權限了嗎？答案必須是否定的。
 
-class Pagination(TypedDict):
-    page: int
-    limit: int
-    total: int
+暫停記錄模型契約、誰擁有哪個容器、最後通過的命令與測試數、已知可繞過的寫入口和下一步。恢復時優先重跑隔離與失敗測試，不只運行 app 看幾行熟悉輸出。
 
-class UserListResponse(ApiResponse[list[User]]):
-    pagination: Pagination
+下一章把剛見過的裝飾器展開為普通函數調用，解釋註冊、包裝與執行時機，再使用 pytest 參數化測試。不會直接讓你背路由裝飾器來代替機制理解。
 
-# 使用示例
-async def fetch_users(page: int = 1) -> UserListResponse:
-    # 模擬異步請求
-    await asyncio.sleep(0.1)
-    return {
-        "success": True,
-        "data": [
-            {"id": 1, "name": "Alice", "email": "alice@example.com", "created_at": "2024-01-01"}
-        ],
-        "message": "Users fetched successfully",
-        "timestamp": datetime.now().isoformat(),
-        "pagination": {"page": page, "limit": 10, "total": 100}
-    }
+## 13. 一手資料與模型適用範圍
 
-# 錯誤處理
-class ApiError(TypedDict):
-    code: str
-    message: str
-    details: dict[str, Any] | None
-```
-</PythonEditor>
+2026-09-28 核對 [Python 類教程](https://docs.python.org/3.13/tutorial/classes.html)和 [dataclasses 標準庫](https://docs.python.org/3.13/library/dataclasses.html)。本章使用普通可變實例、淺複製、單繼承與基本數據類，不將所有可選參數或特殊方法都列成學習負擔。
 
-### 5.2 配置管理
-
-類型註解在配置管理中特別有用，可以確保配置對象的類型安全。
-
-<PythonEditor title="配置管理類型定義對比" compare={true}>
-```typescript !! ts
-// TypeScript
-interface DatabaseConfig {
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  database: string;
-  ssl: boolean;
-}
-
-interface RedisConfig {
-  host: string;
-  port: number;
-  password?: string;
-  db: number;
-}
-
-interface AppConfig {
-  env: 'development' | 'production' | 'test';
-  port: number;
-  database: DatabaseConfig;
-  redis: RedisConfig;
-  cors: {
-    origin: string[];
-    credentials: boolean;
-  };
-}
-
-// 配置驗證函數
-function validateConfig(config: any): config is AppConfig {
-  return (
-    typeof config.env === 'string' &&
-    typeof config.port === 'number' &&
-    config.database &&
-    config.redis
-  );
-}
-```
-
-```python !! py
-# Python
-from typing import Literal
-from typing_extensions import TypedDict
-
-class DatabaseConfig(TypedDict):
-    host: str
-    port: int
-    username: str
-    password: str
-    database: str
-    ssl: bool
-
-class RedisConfig(TypedDict, total=False):
-    host: str
-    port: int
-    password: str | None
-    db: int
-
-class CorsConfig(TypedDict):
-    origin: list[str]
-    credentials: bool
-
-class AppConfig(TypedDict):
-    env: Literal["development", "production", "test"]
-    port: int
-    database: DatabaseConfig
-    redis: RedisConfig
-    cors: CorsConfig
-
-# 配置驗證函數
-def validate_config(config: dict[str, Any]) -> bool:
-    required_fields = ["env", "port", "database", "redis", "cors"]
-    return all(field in config for field in required_fields)
-
-# 類型安全的配置獲取
-def get_database_config(config: AppConfig) -> DatabaseConfig:
-    return config["database"]
-```
-</PythonEditor>
-
-## 6. 類型檢查工具
-
-### 6.1 Mypy 配置和使用
-
-Mypy 是 Python 最流行的靜態類型檢查器，類似於 TypeScript 的 `tsc`。
-
-```json
-// TypeScript tsconfig.json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "rootDir": "./src"
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
-}
-```
-
-```ini
-# Python mypy.ini
-[mypy]
-python_version = 3.9
-warn_return_any = True
-warn_unused_configs = True
-disallow_untyped_defs = True
-disallow_incomplete_defs = True
-check_untyped_defs = True
-disallow_untyped_decorators = True
-no_implicit_optional = True
-warn_redundant_casts = True
-warn_unused_ignores = True
-warn_no_return = True
-warn_unreachable = True
-strict_equality = True
-
-[mypy.plugins.numpy.*]
-ignore_missing_imports = True
-
-[mypy-pandas.*]
-ignore_missing_imports = True
-```
-
-### 6.2 常見類型錯誤和解決方案
-
-<PythonEditor title="常見類型錯誤示例" compare={true}>
-```typescript !! ts
-// TypeScript 常見錯誤
-function processUser(user: User) {
-  // 錯誤：Property 'age' does not exist on type 'User'
-  console.log(user.age);
-  
-  // 錯誤：Type 'string' is not assignable to type 'number'
-  const id: number = "123";
-  
-  // 錯誤：Argument of type 'string' is not assignable to parameter of type 'number'
-  function add(a: number, b: number): number {
-    return a + b;
-  }
-  add("1", 2);
-}
-```
-
-```python !! py
-# Python 常見類型錯誤
-from typing import TypedDict
-
-class User(TypedDict):
-    name: str
-    email: str
-
-def process_user(user: User) -> None:
-    # 錯誤：TypedDict "User" has no key 'age'
-    print(user["age"])  # mypy 會報錯
-    
-    # 錯誤：Incompatible types in assignment
-    user_id: int = "123"  # mypy 會報錯
-    
-    # 錯誤：Argument 1 to "add" has incompatible type "str"
-    def add(a: int, b: int) -> int:
-        return a + b
-    
-    add("1", 2)  # mypy 會報錯
-
-# 解決方案：使用類型斷言或類型檢查
-def safe_process_user(user: User) -> None:
-    # 使用 get 方法避免 KeyError
-    age = user.get("age", 0)
-    print(f"Age: {age}")
-    
-    # 類型轉換
-    user_id: int = int("123")
-    
-    # 運行時類型檢查
-    def safe_add(a: Any, b: Any) -> int:
-        if isinstance(a, int) and isinstance(b, int):
-            return a + b
-        raise TypeError("Both arguments must be integers")
-```
-</PythonEditor>
-
-## 7. 最佳實踐
-
-### 7.1 漸進式類型註解
-
-與 TypeScript 類似，Python 也支持漸進式類型註解，你可以逐步為代碼添加類型信息。
-
-<PythonEditor title="漸進式類型註解示例" compare={true}>
-```typescript !! ts
-// TypeScript 漸進式類型註解
-// 1. 從 any 開始
-function processData(data: any): any {
-  return data.map(item => item.toUpperCase());
-}
-
-// 2. 添加基本類型
-function processData(data: any[]): string[] {
-  return data.map(item => item.toUpperCase());
-}
-
-// 3. 完善類型定義
-interface DataItem {
-  name: string;
-  value: number;
-}
-
-function processData(data: DataItem[]): string[] {
-  return data.map(item => item.name.toUpperCase());
-}
-```
-
-```python !! py
-# Python 漸進式類型註解
-from typing import Any, List
-
-# 1. 從 Any 開始
-def process_data(data: Any) -> Any:
-    return [item.upper() for item in data]
-
-# 2. 添加基本類型
-def process_data(data: list[Any]) -> list[str]:
-    return [item.upper() for item in data]
-
-# 3. 完善類型定義
-class DataItem(TypedDict):
-    name: str
-    value: int
-
-def process_data(data: list[DataItem]) -> list[str]:
-    return [item["name"].upper() for item in data]
-```
-</PythonEditor>
-
-### 7.2 類型註解的最佳實踐
-
-<PythonEditor title="類型註解最佳實踐" compare={true}>
-```typescript !! ts
-// TypeScript 最佳實踐
-
-// ✅ 好的做法
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-
-function createUser(name: string, email: string): User {
-  return {
-    id: Date.now(),
-    name,
-    email
-  };
-}
-
-// ❌ 避免的做法
-function processUser(user: any): any {
-  return user.someProperty;
-}
-
-// ✅ 使用泛型
-function identity<T>(arg: T): T {
-  return arg;
-}
-
-// ✅ 使用聯合類型
-type Status = "active" | "inactive";
-```
-
-```python !! py
-# Python 類型註解最佳實踐
-
-# ✅ 好的做法
-class User(TypedDict):
-    id: int
-    name: str
-    email: str
-
-def create_user(name: str, email: str) -> User:
-    return {
-        "id": int(datetime.now().timestamp()),
-        "name": name,
-        "email": email
-    }
-
-# ❌ 避免的做法
-def process_user(user: Any) -> Any:
-    return user["some_property"]
-
-# ✅ 使用泛型
-T = TypeVar('T')
-
-def identity(arg: T) -> T:
-    return arg
-
-# ✅ 使用字面量聯合類型
-Status = Literal["active", "inactive"]
-
-# ✅ 使用 Optional 而不是 Union[Type, None]
-def get_user(user_id: int) -> Optional[User]:
-    # 實現...
-    pass
-```
-</PythonEditor>
-
-## 8. 總結
-
-恭喜你！現在你已經深入瞭解了 Python 類型註解系統與 TypeScript 的對應關係。
-
-### 關鍵要點
-
-1. **基本類型映射**：Python 的 `str`, `int`, `bool` 對應 TypeScript 的 `string`, `number`, `boolean`
-2. **容器類型**：Python 的 `list[T]`, `dict[K, V]` 對應 TypeScript 的 `T[]`, `Record<K, V>`
-3. **聯合類型**：Python 的 `Union[T, U]` 或 `T | U` 對應 TypeScript 的 `T | U`
-4. **泛型**：Python 的 `TypeVar` 和 `Generic` 對應 TypeScript 的泛型語法
-5. **接口**：Python 的 `TypedDict` 和 `Protocol` 對應 TypeScript 的 `interface`
-
-### 實踐建議
-
-1. **漸進式採用**：從關鍵函數開始添加類型註解，逐步擴展到整個項目
-2. **使用 Mypy**：配置 Mypy 進行靜態類型檢查，在 CI/CD 中集成
-3. **保持一致性**：建立團隊的類型註解規範，保持代碼風格一致
-4. **文檔化**：使用類型註解作為代碼文檔，提高代碼可讀性
-
-### 下一步學習
-
-- 深入學習 Python 的高級類型特性（如 `Protocol`, `Literal`, `Annotated`）
-- 探索第三方庫的類型註解支持
-- 學習如何在現有項目中逐步引入類型註解
-- 瞭解 Python 類型註解的性能影響和最佳實踐
-
-記住，類型註解是提高代碼質量和開發體驗的強大工具。雖然 Python 是動態類型語言，但類型註解能為你提供類似 TypeScript 的開發體驗，幫助你寫出更健壯、更易維護的代碼。 
+類幫助組織責任，但設計清楚的數據流、顯式校驗與行為測試仍是核心。一個只有字典和函數的清晰方案，通常好過一個狀態歸屬不明的龐大繼承樹。

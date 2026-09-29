@@ -1,0 +1,18 @@
+{
+  "archived_on": "2026-09-23",
+  "source": "Current working-tree module 05, not Git HEAD; preserve existing material.",
+  "files": [
+    {
+      "file": "module-05-quality-testing-typing.mdx",
+      "sha256": "3e97ec32c1272e2a92fca602894c4d40265e588e04bc9d0b263f9ab5836ab2f8"
+    },
+    {
+      "file": "module-05-quality-testing-typing.zh-cn.mdx",
+      "sha256": "e3bb46126260e4b2c43cd84414ece742550c2c9b38fdbaf19950e144c2ec91a0"
+    },
+    {
+      "file": "module-05-quality-testing-typing.zh-tw.mdx",
+      "sha256": "ae18a6a3d2337c953d262992a41c9ffad8043bfdcba5981fa57c5dcfeba3c832"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+[
+  {
+    "lab": "u11-typing",
+    "loader": "getTypingExample",
+    "slug": "module-11-pythonic-code",
+    "sections": 13,
+    "refs": [
+      "pyproject.toml",
+      "baseline.py",
+      "errors/static_errors.py",
+      "errors/annotation_only.py",
+      "errors/mypy-default.ini",
+      "errors/unchecked.py",
+      "estimates.py",
+      "errors/bool_static.py",
+      "app.py",
+      "tests/test_estimates.py",
+      "errors/bad_json.py",
+      "exercises/first_over.py",
+      "solutions/first_over.py",
+      "solutions/test_first_over.py"
+    ]
+  },
+  {
+    "lab": "u12-models",
+    "loader": "getModelExample",
+    "slug": "module-12-type-annotations",
+    "sections": 13,
+    "refs": [
+      "models.py",
+      "pyproject.toml",
+      "app.py",
+      "errors/shared_state.py",
+      "errors/missing_self.py",
+      "errors/no_validation.py",
+      "tests/test_models.py",
+      "solutions/work_log.py",
+      "solutions/test_work_log.py"
+    ]
+  },
+  {
+    "lab": "u13-decorators",
+    "loader": "getDecoratorExample",
+    "slug": "module-13-decorators",
+    "sections": 13,
+    "refs": [
+      "decorators.py",
+      "app.py",
+      "timing.py",
+      "expansion.py",
+      "order.py",
+      "pyproject.toml",
+      "errors/missing_return.py",
+      "errors/duplicate.py",
+      "tests/test_decorators.py",
+      "solutions/reject_above.py",
+      "solutions/test_reject_above.py"
+    ]
+  },
+  {
+    "lab": "u14-resources",
+    "loader": "getResourceExample",
+    "slug": "module-14-resources",
+    "sections": 13,
+    "refs": [
+      "sequences.py",
+      "break_demo.py",
+      "resources.py",
+      "pyproject.toml",
+      "fixtures/lines.txt",
+      "app.py",
+      "errors/suppressed.py",
+      "errors/two_yields.py",
+      "tests/test_resources.py",
+      "solutions/new_report.py",
+      "solutions/test_new_report.py"
+    ]
+  }
+]

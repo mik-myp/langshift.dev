@@ -1,0 +1,310 @@
+---
+title: Alembic 遷移：改變結構，不能丟掉用戶已經寫入的事實
+description: 從空庫版本歷史到保留已有數據的分階段升級，審查自動生成候選、驗證失敗回滾，並明確應用回退與數據庫降級的不同邊界。
+---
+
+import { getMigrationExample } from '@/lib/js2py-examples'
+
+## 1. 修改 Python 類不會替已有數據庫升級
+
+D04 把 API 接到了真實庫。現在想給任務增加 priority：0 普通、1 重要、2 緊急。如果只改 Task 類，數據庫仍沒有這一列，查詢會報錯；如果刪掉表再 create_all，舊用戶的數據便不在了。重新安裝依賴也不會改變數據庫結構。
+
+數據庫遷移是把一個明確的結構版本變成另一個版本的受審查操作。代碼發佈與數據升級不是同一動作；已有數據庫不因應用重啟便自動匹配新模型。本章的驗收不是“空庫能跑”，而是同一庫先有數據，再升級，原來的內容和身份仍保留。
+
+| 本章契約 | 內容 |
+| --- | --- |
+| 前置 | D04 的映射、連接/Session 與事務所有權 |
+| 新能力 | Alembic 版本鏈、生成與審查、帶數據升級、分階段兼容、失敗與回退邊界 |
+| 獨立驗收 | 空庫到 head；歷史數據升級後逐字段保留；故障版本不被虛假標記成功；拒絕會丟數據的降級 |
+| 不要求 | 不刪庫重建，不承諾任意 downgrade 無損，也不把小表演示宣稱為零停機上線方案 |
+
+下載 [D05 完整實驗](/learning-assets/js2py/d05-migrations.zip)，進入 d05-migrations。本包獨立，不導入 D04 目錄；源碼和下載仍來自同一 canonical 文件集合。示例只在本地 PostgreSQL 運行。
+
+## 2. 安裝與服務：一個命令擁有一份臨時集群
+
+先安裝 uv 與 PostgreSQL 18 的 postgres/initdb/pg_ctl/psql 二進制。psycopg 是客戶端，不提供服務端。實測 macOS arm64 的程序目錄為 /opt/homebrew/bin，其他 POSIX 機器修改 PG_BIN；不要用 root，不啟動 brew services，不需要 Docker。Windows harness 未驗證。
+
+在實驗根目錄執行：
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+"$PG_BIN/postgres" --version
+uv python install 3.13.15
+uv sync --locked
+uv run --locked python pg_sandbox.py --evidence /tmp/d05-migrations-cleanup.json -- python history_demo.py
+uv run --locked python pg_sandbox.py -- python -m pytest -q
+```
+
+基線為 Python 3.13.15、uv 0.12.13、PostgreSQL 18.6、SQLAlchemy 2.0.54、Alembic 1.20.0、psycopg/binary 3.3.6、pytest 8.4.2；Web 固定 FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、HTTPX 0.28.1，與 H03–H06/D04 一致；Starlette 0.52.1、AnyIO 4.12.1 也對齊該鎖。2.0.54 是 SQLAlchemy 2.0 維護線，並非把 2026-09-28 已存在的 2.1.1 當作不存在。requires-python 為 `>=3.13,<3.14`，package=false；public PyPI 的完整鎖在包內。
+
+<Code language="toml">{getMigrationExample('pyproject.toml')}</Code>
+
+wrapper 用 mkdtemp 新建獨佔 cluster，只開私有 Unix socket，不開 TCP，移除繼承的 PG/數據庫連接變量。普通開發/生產 URL 會被拒絕。非超級用戶 lab_owner 在這份集群有 CREATEDB，測試為每項新建獨立庫。finally 停自己的服務、檢查未運行，再刪自己的目錄；證據應有 stopped=true、status_after_stop=3、removed=true。local trust/marker 是同一 OS 用戶的短命實驗護欄，不是生產安全體系。
+
+測試結束刪的是本測試擁有的數據庫，並不是本章的升級策略。history_demo 在同一個數據庫內完成 001→002→003，數據跨版本一直存在。不要混淆“測試清理”和“用刪庫替代遷移”。
+
+## 3. 三個版本說的是數據庫狀態，不是三個應用目錄
+
+Alembic 的 revision 文件是一條從 down_revision 到 revision 的邊。alembic_version 記錄此庫走到哪裡，head 是當前腳本圖的末端；本實驗是一條直線，沒有多個分支。沒有版本記錄的空庫可從 base 升到 head，但“已有表卻沒版本記錄”不是空庫。
+
+| revision | tasks.priority | 對舊代碼的影響 |
+| --- | --- | --- |
+| 001_base | 列不存在 | 完整 D01–D03 四表 |
+| 002_expand | integer，可空，無默認值 | 舊寫入省略新列仍成功；過渡讀者必須接受 NULL |
+| 003_contract | 回填 NULL→0，默認 0，NOT NULL，CHECK 0..2 | 省略列的舊寫入仍成功；顯式 NULL/越界值不再允許 |
+
+這是新增教學擴展，不把 capstone 狀態 status 改名。H 的 done→status、note→description、minutes 保留、identity 分配，以及 User/Project/Member 的引入都沿用 D01–D04。認證字段仍然缺席，不能用 priority 遷移偷換為完成了安全模型。最終 Task 模型只對應 003，不拿它去查詢 001 的不存在列。
+
+把遷移類比 Git patch 有助於理解順序與審查，但 Git 回退代碼並不能倒流用戶已經產生的數據。應用版本號也不是 alembic_version。多個部署實例不可各自在啟動時競相 upgrade；實際發佈應由受控的一次遷移步驟執行。
+
+## 4. 把配置、連接責任與歷史腳本分開
+
+<Code language="ini">{getMigrationExample('alembic.ini')}</Code>
+
+<Code language="python">{getMigrationExample('migrate.py')}</Code>
+
+<Code language="python">{getMigrationExample('migrations/env.py')}</Code>
+
+ini 指定腳本目錄而不保存真實 URL。migrate.py 給程序化測試建立 Config；命令行也讀取同一個 env.py。env 從安全護欄取得 URL，導入當前 metadata 用於“比較目標結構”，在線時自己創建連接並在 finally dispose。NullPool 表示遷移連接不長期緩存，不表示無需關閉。
+
+configure 聲明待比較的 metadata、類型和默認值策略；begin_transaction 包住版本執行。本項目的 PostgreSQL 普通 DDL 與數據更新支持這裡使用的事務回滾。因此後面可以證明失敗時，版本號、回填和 DDL 都保持原狀。不要把這一點泛化到所有數據庫或 CREATE INDEX CONCURRENTLY 等必須另行設計的操作。
+
+歷史 revision 不 import 當前 Task。否則今天修改模型，幾個月前“創建舊錶”的腳本也跟著變，空庫重放得到的歷史就失真了。當前 metadata 用於審查，歷史腳本必須凍結當時的結構定義。
+
+**首次使用 Alembic：誰來呼叫 revision？** 下載包已經提供 `alembic.ini`、`migrations/env.py` 和版本檔案範本，不要在本實驗重複執行 `alembic init`。每個版本模組的 `revision` 標識升級後到達的狀態，`down_revision` 標識它的前驅（初版為 `None`）。它們是標識，不是函式呼叫；Alembic 沿這些連結決定順序，不靠檔案名稱排序。
+
+在線執行 `python -m alembic upgrade head` 時，命令列先載入配置並執行 `env.py`。本包的 `env.py` 檢查 sandbox URL，開啟連線並開始遷移交易；它的 `context.run_migrations()` 讓 Alembic 對照資料庫目前版本和腳本圖，選出缺少的步驟，逐個呼叫對應的 `upgrade()`。降級到指定目標時，則逆序呼叫相應的 `downgrade()`。Alembic 隨步驟維護 `alembic_version`；在本實驗中交易失敗時，版本標記和資料/結構變化一起回滾。不要用 `python migrations/versions/002_expand.py` 執行遷移：只定義這些函式並不會套用遷移。
+
+匯入的 `op` 提供這個執行上下文中的 Alembic 遷移操作。例如後面 002 的 `op.add_column(...)` 描述在遷移連線上執行的 `ALTER TABLE`；`op.get_bind()` 取得這條連線，供歷史資料 SQL 使用。這些是對下方完整腳本中呼叫的講解，不是可單獨執行的片段。它**不是請求中的業務 Session**：D04 的 caller-owned Session 負責一個業務工作單元，而 `env.py` 擁有結構/歷史變更的連線與交易。revision 不應另建請求 Session 或呼叫目前業務服務來重建歷史資料。
+
+最後，**產生檔案不等於執行遷移**。`revision --autogenerate` 讀取資料庫和目前模型 metadata 的差異，寫出待審查候選檔案，不會套用候選的 `upgrade()`；之後明確執行 `upgrade` 才會套用經審查的版本。修改模型、產生檔案、改變資料庫是三個分開的動作。第 8 節會實際觀察這個區別，但不執行候選。
+
+## 5. 首版 migration：與 SQL 基礎完全同一份結構
+
+<Code language="python">{getMigrationExample('migrations/versions/001_base.py')}</Code>
+
+四表字段類型、identity、CHECK/UNIQUE/FK 名稱和 RESTRICT 策略與 D01–D03 一致。完整初始遷移沒有導入應用模型，不依賴當前 ORM 屬性。downgrade 到 base 會先檢查四表有無數據；本實驗拒絕在有數據時刪表，而不是“給個危險命令讓你自行小心”。
+
+如果手裡已有 D01/D04 數據庫，不要直接 upgrade 001（會碰到重名錶），也不要憑感覺 stamp。接管歷史庫需要先備份、確認真實結構與 001 的逐項一致，再決定受控 stamp 基線。stamp 只寫版本標記，不創建表、不驗證數據、也不修復差異。本實驗沒有自動接管已有庫，更不會去連接你的開發庫嘗試。
+
+## 6. 擴展、回填、收緊：每一階段要問誰還在讀寫
+
+<Code language="python">{getMigrationExample('migrations/versions/002_expand.py')}</Code>
+
+<Code language="python">{getMigrationExample('migrations/versions/003_contract.py')}</Code>
+
+先添加 nullable 列，使只認識舊列的寫入還能繼續。此時升級版應用若把 priority 當成必定存在的 int，會讀到 NULL；要麼暫時按“未設置”處理，要麼等回填/收緊後才上線最終模型。本例用 revision-aware SQL 準備舊數據，就是為了不讓最終模型提前假設新列存在。
+
+003 先填 NULL 為 0，不覆蓋顯式寫入的 2；再設置服務端默認值與 NOT NULL/CHECK。默認值只處理省略列的 INSERT，不會替代顯式 NULL，也不會自動修正已經存在的 9。因此過渡期允許的數據必須先審計，不能把增加約束當作清洗任意舊數據的魔法。
+
+階段兼容不等於所有應用可任意組合：舊代碼若執行 INSERT 時沒有列名、依賴 SELECT * 的位置，或在新增列顯式寫 NULL，都可能不兼容。我們的“舊寫入兼容”斷言只覆蓋指定列名且省略 priority 的 SQL。刪除舊字段等真正 contract 操作更需要先確認所有舊讀寫者退出。
+
+回填全表和 ALTER TABLE 會持鎖、寫日誌、佔時間；這裡只有小量教學歷史數據。真實大表應拆出限量、可恢復、可觀測的回填，評估鎖等待/超時和部署窗口，而非照搬一次 UPDATE 便宣稱零停機。遷移不是處理業務請求的長事務模板。
+
+## 7. 跟蹤同一條數據穿過三個版本
+
+<Code language="python">{getMigrationExample('history_data.py')}</Code>
+
+<Code language="python">{getMigrationExample('history_demo.py')}</Code>
+
+history_demo 先升級到 001，寫用戶、項目、成員與一個有描述/分鐘/狀態的任務；再升 002，模擬仍運行的舊應用插入第二個任務，並把第一項 priority 設成 2；升 003 後比較完整舊字段快照。比 count=2 更強的斷言是 id、外鍵、描述、狀態、時間戳也未改變。
+
+業務輸出包含以下各行；Alembic 可能夾帶自己的診斷輸出，耗時與臨時路徑不固定：
+
+```text
+preserved rows: 2
+priorities: [2, 0]
+revision: 003_contract
+metadata drift: none detected
+downgrade refused: Refusing to discard priority while tasks exist
+refused downgrade left revision and data unchanged
+```
+
+後兩行不是錯誤被吞掉：demo 特意請求降級到 001，讓保護條件拒絕可能丟掉的 priority 信息。整個降級調用處於事務內，雖然先嚐試了 003→002，後一步拒絕後版本與數據仍回到 003；測試還檢查模型比較結果。
+
+要自己逐條操作，可以在同一個子 shell 中運行：
+
+```bash
+uv run --locked python pg_sandbox.py -- bash
+python -m alembic upgrade head
+python -m alembic current
+python -m alembic history --verbose
+python -m alembic check
+python -m alembic upgrade head --sql
+exit
+```
+
+current 只報告連接到的數據庫版本；history 描述腳本鏈；check 檢查支持範圍內的 metadata 差異；`--sql` 打印離線候選 SQL 而不執行。護欄仍要求位於 sandbox 內。打印 SQL 並不證明執行成功，真實升級測試不可省略。
+
+## 8. 自動生成的是候選，不是數據庫意圖識別器
+
+Alembic autogenerate 比較 metadata 和當前庫，能生成很多列/索引/約束差異；它不知道“把 note 改名為 description”是保留值的重命名，可能給出 add description + drop note。後者會丟原 note 數據。生成成功、語法通過、甚至空庫升級成功，都不能證明遷移正確。
+
+本實驗有一個真實測試：把已有 description 列改名為 note，在臨時腳本目錄生成候選；確認它包含 add/drop，再確認並未執行，原 note 內容還在。絕不把自動結果直接應用到帶用戶數據的庫。
+
+**本地可執行演練：新 sandbox、基線，然後只產生候選。** 使用一份全新解壓、沒有額外版本檔案的 `d05-migrations` 練習副本，先在其中完成第 2 節環境設定和 `uv sync --locked`。不要編輯共享 lab。第 7 節已經 `exit`，那份臨時資料庫已經消失；下面會啟動一個**新的** sandbox。從進入子 shell 到下方最後的 `exit`，始終保留同一個終端，不要拆成多次 wrapper 呼叫，也不要移除 URL 護欄。
+
+先在這份副本的根目錄執行下面命令。第一行進入 sandbox 子 shell，其餘行在子 shell 內執行：
+
+```bash
+uv run --locked python pg_sandbox.py --evidence /tmp/d05-candidate-cleanup.json -- bash
+python -m alembic upgrade head
+python -m alembic current
+python -m alembic check
+```
+
+此時 `current` 應報告 `003_contract (head)`，`check` 應報告沒有新的升級操作。**基線建立之後，現在才修改模型。** 保持 sandbox 子 shell 不退出，在編輯器中開啟這份副本的 `models.py`，找到 `class Project(Base)`，在它的 `name` 欄位之後插入下面這一行並儲存，保留縮排。這是**類別主體內的編輯片段**，不是完整 Python 程式，也不是貼到 shell 的命令；`Mapped`、`mapped_column`、`String` 已經匯入。不要修改既有 revision，也不要把欄位加到 Task。
+
+```python fragment=class-body
+    review_note: Mapped[str | None] = mapped_column(String(200), nullable=True)
+```
+
+回到**同一個仍未退出的 sandbox 子 shell**，執行下面整段。內嵌 Python 是完整的本地檢查程式：列印候選檔案，讀取資料庫版本，並用 `inspect(connection).get_columns("projects")` 列出實際欄位；它自己開啟/關閉檢查連線，不執行候選。如果任何命令或斷言失敗，先停下來診斷；需要重試時用 `exit` 清理後再開始，不用 `stamp` 或關閉護欄繞過問題。
+
+```bash
+python -m alembic revision --autogenerate -m "review candidate"
+python -m alembic current
+python - <<'PY'
+from pathlib import Path
+from sqlalchemy import inspect, text
+from db import make_engine
+
+candidates = list(Path("migrations/versions").glob("*_review_candidate.py"))
+assert len(candidates) == 1, "Use a fresh scratch copy for this exercise"
+print("candidate:", candidates[0])
+print(candidates[0].read_text(encoding="utf-8"))
+engine = make_engine()
+try:
+    with engine.connect() as connection:
+        revision = connection.scalar(text("SELECT version_num FROM alembic_version"))
+        columns = {column["name"] for column in inspect(connection).get_columns("projects")}
+        assert revision == "003_contract"
+        assert "review_note" not in columns
+        print("database revision:", revision)
+        print("review_note exists in database:", "review_note" in columns)
+finally:
+    engine.dispose()
+PY
+exit
+```
+
+在 `exit` 前閱讀列印的候選：檔案名稱和 revision 標識會變化，`down_revision` 應為 `003_contract`，`upgrade()` 應新增可空的 `projects.review_note`，`downgrade()` 應刪除它。寫出了 downgrade 仍不代表已經批准了它。資料庫檢查必須輸出 `database revision: 003_contract` 和 `review_note exists in database: False`。此時 `current` 不再把 003 標為 head，因為**腳本圖**已經有了新 head，不是**資料庫**已經套用候選。本練習不要再執行 `upgrade head`。現在模型與資料庫刻意不同，出現 metadata 差異是預期結果。
+
+`exit` 後 wrapper 返回父 shell，清理輸出和 `/tmp/d05-candidate-cleanup.json` 應有 `stopped=true`、`status_after_stop=3`、`removed=true`。它只刪除自己擁有的臨時集群，不刪除改過的模型或候選檔案。保留這份練習副本供審查，之後預設測試改用未修改的 lab 副本；新 wrapper 建立的是新資料庫，不會接續剛才的庫。
+
+按次序審查：
+
+1. down_revision 是否真指向當前團隊 head？有沒有未經協調的第二個 head？
+2. 哪些操作新增，哪些可能刪除或重寫數據？重命名是否被誤識別？
+3. 舊數據的 NULL、重複、越界如何處理？默認值是客戶端還是服務端，是否隻影響未來寫入？
+4. 老應用和新應用在每一階段分別能讀/寫什麼？需要何時部署、停止舊寫者？
+5. 可能持什麼鎖，回填是否應拆開，失敗後怎麼定位版本和剩餘數據？
+6. downgrade 會丟哪些事實？若不能安全逆轉，是否明確拒絕並改用前向修復/已驗證恢復流程？
+
+Alembic 1.20.0 有可選的按名稱比較 CHECK 插件，默認未開啟；即使開啟，同名表達式變化也不是自動語義證明。本 env 僅顯式啟用類型與默認值比較，不聲稱 check 覆蓋所有約束或數據。數據庫反例測試仍必須存在。
+
+<details>
+<summary>候選文件模板與當前最終模型</summary>
+
+<Code language="text">{getMigrationExample('migrations/script.py.mako')}</Code>
+
+<Code language="python">{getMigrationExample('models.py')}</Code>
+
+</details>
+
+## 9. 故障：舊數據越界，遷移不能假裝成功
+
+在 002 階段，priority 暫未有 CHECK。測試放入一個 9，另一行保留 NULL，再請求 upgrade head。003 先把 NULL 回填為 0，隨後 CHECK 因 9 失敗；驗收必須看到版本仍是 002、另一行仍是 NULL、列仍可空且沒有默認值。這證明不是隻有最後一個 ALTER 回滾，前面的數據改變也被撤銷。
+
+```bash
+uv run --locked python pg_sandbox.py -- python -m pytest -q -k invalid_existing_data
+```
+
+該定向運行應有 1 passed，其餘被 deselect。修復的政策在測試裡明確為 9→2，隨後重新 upgrade；這是示例選定規則，不是生產上可以隨意篡改用戶含義的許可。遇到真實無效數據，先確定來源和業務修復策略，再執行，不使用 stamp 繞過失敗。
+
+如果是連接中斷或不支持事務的操作失敗，不能照搬“整個過程必定沒留下東西”的判斷；應核對結構、版本和數據的實際狀態。這裡驗證的是 PostgreSQL 普通事務 DDL 的已限定場景。
+
+## 10. 應用回退、數據庫降級與備份恢復是三件事
+
+應用回退通常是運行舊代碼，而保留向後兼容的新列：本例舊代碼省略 priority，003 的默認值仍支持它。數據庫降級則執行逆向結構操作；003→002 保留值，卻去掉默認值、NOT NULL 與 CHECK，已經改變了保證；002→001 會刪 priority，因此有任務時拒絕。
+
+備份恢復是恢復到某個時點的數據庫副本，涉及此後寫入的數據、停機與恢復目標；不是執行 downgrade 的別名。我們沒有演練生產備份恢復，也不承諾破壞性遷移能無損逆轉。真正需要移除數據時，應獨立審查業務影響、備份/導出及恢復策略，不把拒絕條件刪掉當作“修復”。
+
+## 11. 完整驗收：空庫只是其中一項
+
+<Code language="python">{getMigrationExample('tests/conftest.py')}</Code>
+
+<Code language="python">{getMigrationExample('tests/test_migrations.py')}</Code>
+
+測試覆蓋空庫到 head、舊行逐字段保留、擴展中/收緊後的舊寫入兼容、越界故障的整個事務回滾、數據丟失降級拒絕、空庫可逆結構鏈、真實候選的改名誤識別、列漂移檢查、數據庫拒絕非法 priority。獨立變式加入歸檔時間的歷史保留測試，共 9 項通過。
+
+“空庫 downgrade/up roundtrip”只證明無數據時腳本順序可逆，不是帶數據時無損的證據。check 沒發現差異也不能替代這組數據斷言。每個測試關閉連接再刪自己的隔離庫，不接開發/生產庫。
+
+## 12. 三層練習與摺疊答案
+
+**解釋題。** 為什麼“ALTER 加 DEFAULT 0”與“把所有歷史 NULL 改成 0”不是同一語義？為什麼 002 的 NULL 不能直接序列化成最終模型要求的 int？
+
+<details>
+<summary>答案：默認與歷史數據、過渡讀者分別負責</summary>
+
+服務端默認主要定義以後省略該列的寫入；本例先用顯式 UPDATE 處理已有 NULL，避免把數據庫對具體加列形式的優化當作統一遷移規則。過渡數據庫允許 NULL，讀者就必須接受它或延後上線；最終 int 模型應在契約成立後使用。顯式 NULL 不受默認值拯救。
+
+</details>
+
+**帶提示審查。** 給出自動候選“新增 description，刪除 note”，而 note 已有文字。寫下不能直接批准的原因和保留數據的改動方向，不運行刪除。
+
+<details>
+<summary>答案：先確認重命名意圖，再設計兼容窗口</summary>
+
+若二者是同一字段的新名字，應審查保留數據的列重命名，而不是 add/drop。在線仍有舊代碼使用 note 時，立即改名也會破壞它；可能需要先擴展、雙側兼容、回填、遷移讀寫、最後移除舊列。工具不瞭解業務意圖與部署順序。參考測試讓你看見真實候選，而不是隻聽口頭警告。
+
+</details>
+
+**獨立變式。** 給項目增加可空 archived_at，舊項目不虛構歸檔時間。證明升級保留任務與項目關係、默認仍為 NULL、設置真實歸檔時間後不能靜默丟掉它。獨立決定降級政策，再看答案。
+
+<details>
+<summary>參考遷移與測試：獨立路徑，不汙染默認 head</summary>
+
+<Code language="python">{getMigrationExample('solutions/versions/004_archived_at.py')}</Code>
+
+<Code language="python">{getMigrationExample('solutions/test_archive_migration.py')}</Code>
+
+solution 的版本目錄只在這項測試顯式加入 Config；默認教材歷史仍以 003 為 head。已有非 NULL 歸檔事實時降級拒絕。若繼續把變式做成應用功能，還要更新 Project 模型和 API；此處驗收的是遷移，不暗示已完成整套業務功能。
+
+</details>
+
+## 13. 運行支撐文件完整可查
+
+<details>
+<summary>連接、安全護欄、私有集群與依賴鎖</summary>
+
+<Code language="python">{getMigrationExample('db.py')}</Code>
+
+<Code language="python">{getMigrationExample('safety.py')}</Code>
+
+<Code language="python">{getMigrationExample('pg_sandbox.py')}</Code>
+
+<Code language="toml">{getMigrationExample('uv.lock')}</Code>
+
+</details>
+
+下載中的 services.py 沿用 D04 的 caller-owned transaction，可用於最終模型狀態；它不參與舊版本回填。README 三語說明首次安裝、同一子 shell 連續操作、故障定位和清理；allowlist 排除緩存、數據庫目錄、.env 與秘密。SIGKILL/斷電不保證 Python finally，應只處理證據中的獨佔目錄，不碰用戶已有服務。
+
+## 14. 暫停記錄與離開本章的門檻
+
+記錄代碼 revision 文件及審查理由、當前數據庫 revision、最後成功命令、9 項測試結果、數據樣本的生成步驟、未解決問題與下次第一步。臨時庫不會跨 wrapper 存活；保存可重放步驟，不導出真實用戶數據到教材。
+
+離開前應能解釋為何最終模型不能提前讀 001，為何改名候選危險，為何“應用回退但保留兼容結構”常比直接 downgrade 更可控。下一章用更系統的 fixture 與查詢計劃證明數據庫行為，而不是隻看覆蓋率數字。
+
+## 15. 官方依據：2026-09-28 核驗
+
+- [Alembic tutorial](https://alembic.sqlalchemy.org/en/latest/tutorial.html)：環境、版本鏈、upgrade/current。
+- [Autogenerate](https://alembic.sqlalchemy.org/en/latest/autogenerate.html)：候選必須審查、改名限制、CHECK 名稱插件邊界與 check。
+- [Cookbook 的數據遷移討論](https://alembic.sqlalchemy.org/en/latest/cookbook.html#data-migrations-general-techniques)：數據回填與結構版本不是同一類問題。
+- [Alembic changelog](https://alembic.sqlalchemy.org/en/latest/changelog.html) 與 [SQLAlchemy 2.0 changelog](https://docs.sqlalchemy.org/en/20/changelog/changelog_20.html)：實際選擇的版本線。
+- [PostgreSQL 18 約束](https://www.postgresql.org/docs/18/ddl-constraints.html)、[18.6 release notes](https://www.postgresql.org/docs/18/release-18-6.html)：數據庫驗收依據。
+- [psycopg 3.3.6 官方安裝文檔源碼](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/install.rst)：Python/PostgreSQL 支持範圍，網頁 403 時核驗官方標籤內容。
+- [uv 安裝](https://docs.astral.sh/uv/getting-started/installation/)、[PostgreSQL 下載](https://www.postgresql.org/download/)：二進制安裝入口；實驗不啟動全局服務。

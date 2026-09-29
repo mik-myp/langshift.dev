@@ -1,0 +1,202 @@
+---
+title: Transactions, connections and concurrency — what remains after failure?
+description: Trace a project-and-owner write through commit, rollback and failed transaction states, then use real PostgreSQL connections to observe snapshots, lost updates, lock waits, uniqueness races and retry boundaries.
+---
+
+import { getTransactionExample } from '@/lib/js2py-examples'
+
+## 1. Two correct SQL statements can still produce incorrect business state
+
+Creating a project requires inserting projects and then inserting its owner membership. Each statement can be valid while the overall operation is unreliable. If the first commits independently and the second fails, an ownerless project remains. Python try/except changes control flow; it cannot reverse an already committed change in another process. Promise.all is not database all-or-nothing behavior either.
+
+A transaction is a database-recognized operation boundary: commit all committable changes in that unit or discard the uncommitted unit. The business caller selects the boundary, constraints decide whether writes are valid, and the driver transports commands and exposes errors. These responsibilities do not replace one another.
+
+| Chapter contract | Observable capability |
+| --- | --- |
+| Prerequisites | D02 SQL, parameters, synchronous drivers, connections and cursors; D01 relationships and isolated cluster |
+| New capabilities | Commit/rollback, failed transaction state, connection lifecycle, snapshots, concurrency conflicts and constraints |
+| Independent acceptance | Fail the second write and prove from another connection that the first did not survive; extend to three writes and explain concurrent outcomes |
+| Exclusions | ORM Session, pools, distributed transactions, authentication and production retry middleware |
+
+Download the [complete D03 lab](/learning-assets/js2py/d03-transactions.zip) and enter `d03-transactions`. The four-table model remains `d01-d03-v1`: minutes is a retained estimate extension, status replaces done, and description replaces note. The future capstone's users/projects have not been pretended to exist all along in H's memory model.
+
+## 2. Begin with your own clean database
+
+Verified **2026-09-28**, fixed baseline: **PostgreSQL 18.6, Python 3.13.15, uv 0.12.13, pytest 8.4.2, psycopg 3.3.6**. Start initializes this directory's private cluster or resumes its existing one, never a default service. Only reset destructively rebuilds the owned lab tables.
+
+**Connection-environment checkpoint.** libpq can read defaults beyond the socket in a DSN: for example `PGHOSTADDR` selects a network address and `PGSERVICE` loads a saved connection profile. Therefore the controller refuses every inherited `PG*` name except `PG_BIN` (the tool directory) and `PGHOST` (overridden by the explicit private socket), before startup or SQL. It reports variable names, never their values. If refused, inspect and remove only those settings in this lab shell, then retry; do not substitute a production DSN or blindly reset an existing database. `DATABASE_URL` remains ignored. The controller supplies its own empty mode-0600 password file instead of reading a user credential file, and strips database defaults from child processes. Even a polluted shell can run `status`/`stop` to clean up this owned cluster; stop still verifies the saved server identity. The translated README explains the same policy.
+
+**Test counts.** This lab has 13 business/SQL cases plus 50 environment-boundary cases (63 total). The latter include parametrized rejected settings, private-passfile validation and owned-loopback probes. They protect the experiment; they are not 50 new SQL topics or proof of production security.
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+export PG_BIN=/opt/homebrew/bin
+uv sync --locked
+uv run --locked python labctl.py start
+uv run --locked python labctl.py reset --yes-reset
+```
+
+Recall D01's layers: server process, data directory, databases and roles, then a connection string selecting socket/database/role. The controller checks directory markers and server identity, disables TCP and ignores DATABASE_URL. Safe startup and correct transactions are distinct requirements, both needing evidence.
+
+## 3. A connection is not a transaction; a cursor is not another session
+
+A connection represents a server session and can complete many transactions sequentially. Cursors on that connection share its current transaction. A separate connection is needed to observe what an external session can currently see. Reusing a connection does not reuse a committed transaction, and closing a cursor does not commit.
+
+In SQL, BEGIN starts an explicit transaction, COMMIT requests its completion, and ROLLBACK discards uncommitted changes. With psycopg's default `autocommit=False`, the first query starts a transaction implicitly, **including SELECT**. Creating the connection or cursor alone does not execute BEGIN; the first statement activates the transaction. After commit/rollback, the connection remains usable and a later statement can start another transaction.
+
+```text
+connected, no transaction
+  -> first statement / BEGIN
+  -> active transaction
+       -> COMMIT succeeds -> no transaction, connection reusable
+       -> SQL error -> failed transaction -> ROLLBACK -> reusable
+       -> close before commit -> uncommitted work discarded
+```
+
+D02 autocommit completed each statement independently; it did not eliminate database transactions. If the two writes run that way, rollback after the second cannot undo the already committed first. Conversely, leaving a default connection idle after a SELECT can retain snapshots or locks and occupy resources: idle in transaction. Do not hold a business transaction while waiting for a user interaction.
+
+`with conn.cursor()` manages only the cursor. `with psycopg.connect(...) as conn` commits on normal exit, rolls back on exceptional exit and closes the connection. Closing is not committing: `.close()` does not convert pending work into success. `conn.execute` is a cursor convenience, not another connection.
+
+<details>
+<summary>Explanation answer: can two functions, each with its own connect context, form one transaction?</summary>
+
+No. Each connection has its own transaction, and the second failure does not undo the first's committed work. A business operation should own a connection and pass it to SQL helpers that do not commit internally. The outer boundary decides success. One HTTP request is not automatically one transaction either; choose the unit according to consistency needs, not function or cursor count.
+
+</details>
+
+## 4. Follow success, then deliberately break the second step
+
+<Code language="python">{getTransactionExample('transactions.py')}</Code>
+
+`insert_project_and_owner` obtains the server-generated project ID and uses it for membership, without committing. `create_project` runs both on one connection and returns the ID only after successful context exit. **The return is outside the transaction context** because commit itself can fail. Announcing success before commit promises more than the database has established.
+
+The failure experiment calls the lower-level helper with creator_id 1 but nonexistent owner_id 9999. The first write's creator foreign key is valid; the second write's user foreign key raises `23503`. The exception leaves the context, which rolls back and closes. A new observer finds zero Broken projects and the original four memberships. This proves more than a Python exception assertion: the database actually has no first-step residue.
+
+Why another connection? A transaction sees its own pending writes. Reading a project before the failure does not prove external visibility or commitment. The tests separately demonstrate invisibility before commit, visibility afterward, and the accompanying owner row.
+
+## 5. Why even SELECT fails after an error
+
+This file intentionally performs both writes, a subsequent query, rollback and a recovery query on one psql connection. Expected failures are labeled; only this experiment permits continuing after errors.
+
+<Code language="sql">{getTransactionExample('sql/failed_transaction.sql')}</Code>
+
+```bash
+uv run --locked python labctl.py psql --file sql/failed_transaction.sql
+```
+
+The second step reports `23503`; the following SELECT reports `25P02` because the current transaction is failed. After ROLLBACK, the Broken SQL count is 0 and SELECT 1 succeeds. The connection is not permanently broken; its failed transaction must end.
+
+Catching and swallowing the Python exception inside with, then executing more SQL, similarly produces InFailedSqlTransaction. Prefer allowing the original exception to leave the transaction boundary and converting it into a business error outside. If managing a connection manually, explicitly roll back before reuse. A blanket `except Exception: return None` hides the real failure and can leave a failed session for subsequent code.
+
+Constraints remain essential. An API precheck that a user exists can improve messages, but another session can change state between check and write. Do not remove foreign keys merely because Python validates input. Do not classify all database exceptions as input errors either: disconnections, storage faults and constraint conflicts call for different responses.
+
+## 6. What ACID usefully means, and what it cannot promise
+
+| Property | Evidence in this lab | Not a promise of |
+| --- | --- | --- |
+| Atomicity | Second-step failure leaves no first-step write | Rolling back an email or external HTTP call |
+| Consistency | CHECK, foreign-key and unique constraints reject invalid states | Discovering every business rule, such as requiring an owner |
+| Isolation | Visibility, waiting and conflicts follow the chosen isolation level | A single global lock serializing all work |
+| Durability | Committed rows survive normal stop/start | No need for backups, or proof of hardware-failure recovery |
+
+Identity allocation is not rolled back. Gaps after failures or rollback are normal; a missing number is not a residual record. IDs identify records, not counts or successful-operation totals. External side effects are outside PostgreSQL rollback, so do not casually send notifications or charge payments inside retryable code.
+
+Another recovery boundary: a network failure during commit may leave the client unable to tell whether the server committed. This lab does not simulate that ambiguous outcome. Production needs an idempotency key or queryable business identifier/state; blindly replaying an operation that may already have succeeded is unsafe.
+
+## 7. Which version can two connections see?
+
+PostgreSQL's multiversion behavior lets reads determine visibility through snapshots rather than having every reader lock the whole table. The complete experiment creates genuinely separate connections. Its runner resets between cases and prints the critical results.
+
+<Code language="python">{getTransactionExample('concurrency.py')}</Code>
+
+In snapshot, reader first gets 30 for task 1; writer adds 10 and commits; reader reads again within its original transaction. Default Read Committed gives a new visibility snapshot per statement and returns `[30, 40]`. Repeatable Read reuses the transaction snapshot and returns `[30, 30]`. The first read establishes the observation point here; merely opening a connection does not freeze the database.
+
+This is not a speed comparison or a claim that reads never wait. Stronger isolation can reject a concurrent update and require the application to decide again. Arbitrary old snapshots cannot all write successfully without conflict. Serializable offers stronger execution semantics but can still require retries. Its full anomaly matrix is not tested here; a Repeatable Read experiment is not Serializable acceptance.
+
+## 8. Lost updates: adding BEGIN does not fix stale read-modify-write
+
+Lost_update lets A and B both read 30. A computes 35 in Python and commits; B computes 37 from its old value and commits. The final result is 37, not 42. Both UPDATE transactions are valid. The database cannot infer that the supplied constant 37 really meant “add 7 to the newest value.” The application turned a relative operation into an outdated absolute replacement.
+
+For this increment requirement, express the operation in one statement: `SET minutes = minutes + %s`. B waits while A holds the conflicting row lock. After A commits, B under Read Committed adds 7 to the current updatable version, producing 42. This is not a sleep-based guess that B is slow: a third connection observes pg_stat_activity until B's wait_event_type is Lock, then A is permitted to commit. Timeouts prevent an indefinitely hung experiment.
+
+For a genuine multi-field read/decision/write, `SELECT ... FOR UPDATE` can lock relevant rows within a short transaction before deciding. Another option is an optimistic conditional update using an old version and checking affected rows. A row lock does not lock every business invariant: rules involving multiple rows or absent rows need separate reasoning. Do not generalize one FOR UPDATE into a universal race solution.
+
+<details>
+<summary>Guided modification answer: is adding FOR UPDATE to both lost_update SELECTs enough?</summary>
+
+Not with the same single-threaded interleaving. A obtains the lock, B waits, and the script has not yet reached A's commit: it may wait until timeout. Change scheduling so A can finish while B waits, or use the worker-thread pattern in this lab. Atomic UPDATE is simpler for addition. If locks are used, read, decision and write must share the lock-holding transaction, and locks should be released promptly.
+
+</details>
+
+## 9. Constraint races, lock timeouts and complete retries
+
+In unique_race, A inserts login=race without committing and B tries the same value. B waits for A's outcome; after A commits, B receives `23505`. Exactly one row remains. An application SELECT checking absence cannot prevent both sessions passing a precheck. UNIQUE covers every writer. CHECK/FK/UNIQUE here are database guarantees, not a single-process in-memory lock.
+
+In lock_timeout, A holds a FOR UPDATE row lock. B sets a 200ms transaction-local lock wait limit and attempts an update. The real result is `55P03`. After B rolls back, its query succeeds and minutes remains 30. This is not a network timeout; changing host is not a remedy. Production timeout values require policy; this small value makes the failure quick and recoverable for teaching.
+
+In serialization_conflict, both sessions first read an old version under Repeatable Read. A adds 5 and commits; B's conflicting write receives `40001`. B rolls back and starts a **new transaction**, rereads, makes the decision again, adds 7 and gets 42. Retrying only the last statement is insufficient because earlier reads and decisions are stale.
+
+This controlled case retries once to demonstrate the whole unit. Production should retry only appropriate failures, with bounded attempts, backoff and a total time budget, then surface a comprehensible failure. Do not retry every constraint error or loop within the same failed transaction. Different lock acquisition orders can also deadlock. Consistent ordering and short transactions reduce risk, but deadlock detection and full retry behavior require separate testing; no real deadlock drill is claimed here.
+
+## 10. Execution evidence: predict before running
+
+<Code language="python">{getTransactionExample('demo.py')}</Code>
+
+```bash
+uv run --locked python demo.py
+uv run --locked pytest -q
+```
+
+```text
+failed_second_step {"memberships": 4, "projects_remaining": 0, "sqlstate": "23503"}
+read_committed [30, 40]
+repeatable_read [30, 30]
+lost_update 37
+atomic_increment {"lock_wait_observed": true, "value": 42, "worker": "committed"}
+unique_race {"lock_wait_observed": true, "value": 1, "worker": "23505"}
+lock_timeout {"minutes_after_rollback": 30, "sqlstate": "55P03"}
+serialization_conflict {"after_full_retry": 42, "sqlstate": "40001"}
+```
+
+This is actual PostgreSQL 18.6 output, not a simulator or SQLite. Thirteen business tests (within the 63-case full suite) additionally cover pre/post-commit visibility, closing without commit, recovery after 25P02, identity gaps and the three-step variation below. Demo and tests reset the owned database destructively; do not keep personal exercise data there. Do not run two test processes concurrently against the same lab directory.
+
+## 11. Independent variation: project, owner and first task succeed together
+
+Implement three steps: create project, add its owner, create its first task. Requirements only: an outside connection sees all three on success; a whitespace-only third-step title is rejected with no first- or second-step residue; SQL helpers never commit halfway; the next valid call succeeds after failure. Write acceptance assertions before implementation. Manually deleting earlier writes after rollback is not the answer.
+
+<details>
+<summary>Independent variation reference and failure acceptance</summary>
+
+<Code language="python">{getTransactionExample('answers/variant.py')}</Code>
+
+The caller encloses the whole helper in one connection context. The third INSERT violates CHECK and the exception must leave that context. A new observer checks zero Three steps projects, four memberships and five tasks, then a valid title succeeds and its task points to the new project. Compensating DELETE can itself fail and expose intermediate state to other sessions; it cannot replace this single-database transaction.
+
+</details>
+
+## 12. Recovery ownership, resource release and the ORM handoff
+
+Identify the failure layer before recovering. Validate input before SQL. Explain constraint failures after rolling back the business transaction. For 25P02, find the earlier SQL failure. For 40001, redo the whole unit. For a broken connection, close it and address ambiguous outcomes rather than continuing to query. Tests use bounded timeouts; a finally block releases A's locks and connection contexts close resources on both sides. A failing assertion is not an excuse to leave background sessions behind.
+
+```bash
+uv run --locked python labctl.py stop
+uv run --locked python labctl.py status
+```
+
+Stop affects only the identity-checked owned cluster, with an explicit data directory, fast mode and a wait for completion. Evidence is `running: false`, `pg_ctl_status: 3`. Files and logs remain for start to resume; use reset only when intentionally returning to seed state. Record final output, SQLSTATE, connection begin/commit order, passed tests and the next action so you can reconstruct the timeline after a break instead of memorizing ACID again.
+
+The later ORM must preserve DDL fields/constraints, the timestamptz policy, nonautomatic updated_at and these failure tests. An ORM Session is another abstraction; it does not replace the distinction between connection, transaction and business unit. Authentication, at least/exactly one owner, creator membership and object permissions still need service rules and tests. Current foreign keys prove existence only. Do not hide those gaps behind “the database handles it.”
+
+## 13. Independent acceptance and official references
+
+Submit the second-step SQLSTATE and external residual counts, successful pre/post-commit visibility, lost-update and repair timelines, both isolation read results, and the three-step variation with recovery. Explaining behavior and adapting requirements demonstrate the contract; file compilation does not verify transactions.
+
+Official references checked **2026-09-28**:
+
+- [PostgreSQL 18 transaction tutorial](https://www.postgresql.org/docs/18/tutorial-transactions.html), [transaction isolation](https://www.postgresql.org/docs/18/transaction-iso.html).
+- [Explicit locking](https://www.postgresql.org/docs/18/explicit-locking.html), [constraints](https://www.postgresql.org/docs/18/ddl-constraints.html), [error codes](https://www.postgresql.org/docs/18/errcodes-appendix.html).
+- [psycopg 3.3.6 official transaction documentation source](https://github.com/psycopg/psycopg/blob/3.3.6/docs/basic/transactions.rst): implicit transactions, contexts and recovery. The documentation site returned 403; the tagged official source was available.
+- [PostgreSQL 18.6 release notes](https://www.postgresql.org/docs/release/18.6/).
+
+Not run or promised: crash/power-loss recovery, network loss during commit, a full Serializable matrix, real deadlocks, production throughput, external-effect idempotency, or HTTP/authentication integration. Real concurrency evidence covers only the PostgreSQL scenarios explicitly listed.

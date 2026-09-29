@@ -1,0 +1,302 @@
+[
+  {
+    "kind": "proposed-contract-example",
+    "name": "second-page",
+    "precondition": {
+      "seed_tasks": [
+        {
+          "title": "  Read HTTP  ",
+          "minutes": 25,
+          "done": false,
+          "note": "keep me"
+        },
+        {
+          "title": "Check the failure path",
+          "minutes": 0,
+          "done": true,
+          "note": null
+        },
+        {
+          "title": "Write an independent case",
+          "minutes": 40,
+          "done": false,
+          "note": "later"
+        }
+      ]
+    },
+    "request": {
+      "method": "GET",
+      "target": "/tasks?offset=1&limit=1",
+      "headers": {}
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "items": [
+          {
+            "id": 2,
+            "title": "Check the failure path",
+            "minutes": 0,
+            "done": true,
+            "note": null
+          }
+        ],
+        "limit": 1,
+        "offset": 1,
+        "total": 3
+      }
+    }
+  },
+  {
+    "kind": "proposed-contract-example",
+    "name": "past-end",
+    "precondition": {
+      "seed_tasks": [
+        {
+          "title": "  Read HTTP  ",
+          "minutes": 25,
+          "done": false,
+          "note": "keep me"
+        },
+        {
+          "title": "Check the failure path",
+          "minutes": 0,
+          "done": true,
+          "note": null
+        },
+        {
+          "title": "Write an independent case",
+          "minutes": 40,
+          "done": false,
+          "note": "later"
+        }
+      ]
+    },
+    "request": {
+      "method": "GET",
+      "target": "/tasks?offset=99&limit=2",
+      "headers": {}
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "items": [],
+        "limit": 2,
+        "offset": 99,
+        "total": 3
+      }
+    }
+  },
+  {
+    "kind": "proposed-contract-example",
+    "name": "omit-note",
+    "precondition": {
+      "seed_tasks": [
+        {
+          "title": "  Read HTTP  ",
+          "minutes": 25,
+          "done": false,
+          "note": "keep me"
+        },
+        {
+          "title": "Check the failure path",
+          "minutes": 0,
+          "done": true,
+          "note": null
+        },
+        {
+          "title": "Write an independent case",
+          "minutes": 40,
+          "done": false,
+          "note": "later"
+        }
+      ]
+    },
+    "request": {
+      "method": "PATCH",
+      "target": "/tasks/1",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "title": "Read it twice"
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "id": 1,
+        "title": "Read it twice",
+        "minutes": 25,
+        "done": false,
+        "note": "keep me"
+      }
+    }
+  },
+  {
+    "kind": "proposed-contract-example",
+    "name": "clear-note",
+    "precondition": {
+      "seed_tasks": [
+        {
+          "title": "  Read HTTP  ",
+          "minutes": 25,
+          "done": false,
+          "note": "keep me"
+        },
+        {
+          "title": "Check the failure path",
+          "minutes": 0,
+          "done": true,
+          "note": null
+        },
+        {
+          "title": "Write an independent case",
+          "minutes": 40,
+          "done": false,
+          "note": "later"
+        }
+      ]
+    },
+    "request": {
+      "method": "PATCH",
+      "target": "/tasks/1",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "note": null
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "id": 1,
+        "title": "  Read HTTP  ",
+        "minutes": 25,
+        "done": false,
+        "note": null
+      }
+    }
+  },
+  {
+    "kind": "proposed-contract-example",
+    "name": "null-minutes",
+    "precondition": {
+      "seed_tasks": [
+        {
+          "title": "  Read HTTP  ",
+          "minutes": 25,
+          "done": false,
+          "note": "keep me"
+        },
+        {
+          "title": "Check the failure path",
+          "minutes": 0,
+          "done": true,
+          "note": null
+        },
+        {
+          "title": "Write an independent case",
+          "minutes": 40,
+          "done": false,
+          "note": "later"
+        }
+      ]
+    },
+    "request": {
+      "method": "PATCH",
+      "target": "/tasks/1",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "minutes": null
+      }
+    },
+    "response": {
+      "status": 422,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "detail": [
+          {
+            "type": "int_type",
+            "loc": [
+              "body",
+              "minutes"
+            ],
+            "msg": "Input should be a valid integer",
+            "input": null
+          }
+        ]
+      }
+    }
+  },
+  {
+    "kind": "proposed-contract-example",
+    "name": "limit-101",
+    "precondition": {
+      "seed_tasks": [
+        {
+          "title": "  Read HTTP  ",
+          "minutes": 25,
+          "done": false,
+          "note": "keep me"
+        },
+        {
+          "title": "Check the failure path",
+          "minutes": 0,
+          "done": true,
+          "note": null
+        },
+        {
+          "title": "Write an independent case",
+          "minutes": 40,
+          "done": false,
+          "note": "later"
+        }
+      ]
+    },
+    "request": {
+      "method": "GET",
+      "target": "/tasks?limit=101",
+      "headers": {}
+    },
+    "response": {
+      "status": 422,
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "detail": [
+          {
+            "type": "less_than_equal",
+            "loc": [
+              "query",
+              "limit"
+            ],
+            "msg": "Input should be less than or equal to 100",
+            "input": "101",
+            "ctx": {
+              "le": 100
+            }
+          }
+        ]
+      }
+    }
+  }
+]

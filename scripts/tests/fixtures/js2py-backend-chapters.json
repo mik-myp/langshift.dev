@@ -1,0 +1,463 @@
+[
+  {
+    "lab": "h01-service-process",
+    "loader": "getServiceProcessExample",
+    "slug": "module-15-service-process",
+    "sections": 15,
+    "refs": [
+      "one_shot.py",
+      "pyproject.toml",
+      "public/hello.txt",
+      "client.py",
+      "observe.py",
+      "tests/test_service_process.py",
+      "solutions/public/health.txt",
+      "solutions/public/note.txt",
+      "solutions/observe_health.py",
+      "solutions/test_health.py"
+    ]
+  },
+  {
+    "lab": "h02-http-contract",
+    "loader": "getHttpContractExample",
+    "slug": "module-16-http-contract",
+    "sections": 17,
+    "refs": [
+      "wire/create.request.http",
+      "wire/create.response.http",
+      "public/exchanges/blank-title.json",
+      "public/exchanges/list-first.json",
+      "public/exchanges/list-last.json",
+      "contract_examples.py",
+      "pyproject.toml",
+      "inspect_transport.py",
+      "errors/test_wrong_contract.py",
+      "solutions/review_cases.py",
+      "solutions/test_review_cases.py"
+    ]
+  },
+  {
+    "lab": "h03-first-fastapi",
+    "loader": "getFastApiExample",
+    "slug": "module-17-first-fastapi",
+    "sections": 11,
+    "refs": [
+      "pyproject.toml",
+      "app.py",
+      "requests.sh",
+      "errors/broken_app.py",
+      "solutions/rebuild.py"
+    ]
+  },
+  {
+    "lab": "h04-validation",
+    "loader": "getValidationExample",
+    "slug": "module-18-validation",
+    "sections": 13,
+    "refs": [
+      "models.py",
+      "probe_models.py",
+      "pyproject.toml",
+      "app.py",
+      "probe_patch.py",
+      "requests.sh",
+      "solutions/remaining_app.py"
+    ]
+  },
+  {
+    "lab": "h05-dependencies",
+    "loader": "getDependencyExample",
+    "slug": "module-19-application-dependencies",
+    "sections": 15,
+    "refs": [
+      "task_api/models.py",
+      "task_api/store.py",
+      "task_api/dependencies.py",
+      "task_api/config.py",
+      "task_api/main.py",
+      "task_api/routes.py",
+      "pyproject.toml",
+      "live_client.py",
+      "requests.sh",
+      "tests/test_basics.py",
+      "solutions/summary.py",
+      "solutions/test_summary.py"
+    ]
+  },
+  {
+    "lab": "h06-api-testing",
+    "loader": "getApiTestingExample",
+    "slug": "module-20-api-testing",
+    "sections": 16,
+    "refs": [
+      "pyproject.toml",
+      "tests/test_first_request.py",
+      "task_api/config.py",
+      "task_api/models.py",
+      "task_api/store.py",
+      "task_api/dependencies.py",
+      "task_api/routes.py",
+      "tests/conftest.py",
+      "tests/test_contract.py",
+      "tests/test_dependencies.py",
+      "experiments/test_fixture_failure.py",
+      "experiments/conftest.py",
+      "solutions/test_independent.py",
+      "live_httpx.py",
+      "live_client.py",
+      "task_api/main.py",
+      "tests/test_cors.py",
+      "browser/index.html"
+    ]
+  },
+  {
+    "lab": "d01-relational-data",
+    "loader": "getRelationalExample",
+    "slug": "module-21-relational-data",
+    "sections": 12,
+    "refs": [
+      "sql/schema.sql",
+      "sql/seed.sql",
+      "sql/inspect.sql",
+      "sql/expected_failures.sql",
+      "answers/variant.sql"
+    ]
+  },
+  {
+    "lab": "d02-sql",
+    "loader": "getSqlExample",
+    "slug": "module-22-sql",
+    "sections": 11,
+    "refs": [
+      "sql/queries.sql",
+      "queries.py",
+      "demo.py",
+      "answers/variant.py"
+    ]
+  },
+  {
+    "lab": "d03-transactions",
+    "loader": "getTransactionExample",
+    "slug": "module-23-transactions",
+    "sections": 13,
+    "refs": [
+      "transactions.py",
+      "sql/failed_transaction.sql",
+      "concurrency.py",
+      "demo.py",
+      "answers/variant.py"
+    ]
+  },
+  {
+    "lab": "d04-sqlalchemy",
+    "loader": "getOrmExample",
+    "slug": "module-24-sqlalchemy",
+    "sections": 15,
+    "refs": [
+      "pyproject.toml",
+      "db.py",
+      "models.py",
+      "services.py",
+      "api.py",
+      "bootstrap.py",
+      "demo.py",
+      "http_smoke.py",
+      "commit_failure.py",
+      "tests/conftest.py",
+      "tests/test_orm.py",
+      "solutions/atomic_tasks.py",
+      "solutions/test_atomic_tasks.py",
+      "pg_sandbox.py",
+      "safety.py",
+      "uv.lock"
+    ]
+  },
+  {
+    "lab": "d05-migrations",
+    "loader": "getMigrationExample",
+    "slug": "module-25-migrations",
+    "sections": 15,
+    "refs": [
+      "pyproject.toml",
+      "alembic.ini",
+      "migrate.py",
+      "migrations/env.py",
+      "migrations/versions/001_base.py",
+      "migrations/versions/002_expand.py",
+      "migrations/versions/003_contract.py",
+      "history_data.py",
+      "history_demo.py",
+      "migrations/script.py.mako",
+      "models.py",
+      "tests/conftest.py",
+      "tests/test_migrations.py",
+      "solutions/versions/004_archived_at.py",
+      "solutions/test_archive_migration.py",
+      "db.py",
+      "safety.py",
+      "pg_sandbox.py",
+      "uv.lock"
+    ]
+  },
+  {
+    "lab": "d06-database-testing",
+    "loader": "getDatabaseTestingExample",
+    "slug": "module-26-database-testing",
+    "sections": 15,
+    "refs": [
+      "pyproject.toml",
+      "safety.py",
+      "testing.py",
+      "tests/conftest.py",
+      "tests/test_resource_safety.py",
+      "tests/test_database.py",
+      "commit_failure.py",
+      "tests/test_migration_history.py",
+      "query_plan.py",
+      "solutions/project_totals.py",
+      "solutions/test_project_totals.py",
+      "models.py",
+      "services.py",
+      "db.py",
+      "migrate.py",
+      "alembic.ini",
+      "migrations/env.py",
+      "migrations/versions/001_base.py",
+      "migrations/versions/002_expand.py",
+      "migrations/versions/003_contract.py",
+      "history_data.py",
+      "migrations/script.py.mako",
+      "pg_sandbox.py",
+      "uv.lock"
+    ]
+  },
+  {
+    "lab": "s01-identity",
+    "loader": "getIdentityExample",
+    "slug": "module-27-identity",
+    "sections": 12,
+    "refs": [
+      "pyproject.toml",
+      "migrations/versions/004_identity.py",
+      "security.py",
+      "db.py",
+      "schemas.py",
+      "app.py",
+      "admin.py",
+      "labdb.py",
+      "client.py",
+      "tests/test_identity.py",
+      "tests/conftest.py",
+      "solutions/session_count.py"
+    ]
+  },
+  {
+    "lab": "s02-authorization",
+    "loader": "getAuthorizationExample",
+    "slug": "module-28-authorization",
+    "sections": 12,
+    "refs": [
+      "pyproject.toml",
+      "migrations/versions/005_owner_guard.py",
+      "authorization.py",
+      "schemas.py",
+      "app.py",
+      "tests/test_authorization.py",
+      "tests/test_migrations.py",
+      "solutions/project_summary.py"
+    ]
+  },
+  {
+    "lab": "s03-reliable-operations",
+    "loader": "getReliableOperationExample",
+    "slug": "module-29-reliable-operations",
+    "sections": 14,
+    "refs": [
+      "pyproject.toml",
+      "migrations/versions/006_task_operations.py",
+      "schemas.py",
+      "reliable.py",
+      "db.py",
+      "app.py",
+      "tests/test_reliable.py",
+      "purge_expired.py",
+      "representations.py",
+      "tests/test_representations.py"
+    ]
+  },
+  {
+    "lab": "a01-async-model",
+    "loader": "getAsyncModelExample",
+    "slug": "module-30-async-model",
+    "sections": 14,
+    "refs": [
+      "pyproject.toml",
+      "commands.sh",
+      "comparison.js",
+      "comparison.py",
+      "expected-javascript.txt",
+      "expected-python.txt",
+      "scheduling.py",
+      "ownership.py",
+      "capacity.py",
+      "app.py",
+      "expected-output.txt",
+      "tests/test_model.py",
+      "errors/forgotten.py",
+      "errors/reuse.py",
+      "errors/swallow.py",
+      "solutions/batch.py",
+      "solutions/test_batch.py"
+    ]
+  },
+  {
+    "lab": "a02-external-services",
+    "loader": "getExternalServiceExample",
+    "slug": "module-31-external-services",
+    "sections": 16,
+    "refs": [
+      "pyproject.toml",
+      "commands.sh",
+      "lifecycle.py",
+      "app.py",
+      "service.py",
+      "faults.py",
+      "socket_lab.py",
+      "expected-socket-output.txt",
+      "tests/test_socket.py",
+      "tests/test_service.py",
+      "errors/config.py",
+      "errors/untrusted.py",
+      "solutions/receipts.py",
+      "solutions/test_receipts.py"
+    ]
+  },
+  {
+    "lab": "o01-operating-system",
+    "loader": "getOperatingSystemExample",
+    "slug": "module-32-operating-system",
+    "sections": 15,
+    "refs": [
+      "pyproject.toml",
+      "environment_lab.py",
+      "port_lab.py",
+      "worker.py",
+      "process_lab.py",
+      "permissions_lab.py",
+      "systemd/ops-worker.service",
+      "tests/test_operations.py",
+      "solutions/two_directories.py",
+      "solutions/test_two_directories.py"
+    ]
+  },
+  {
+    "lab": "o02-containers",
+    "loader": "getContainerOpsExample",
+    "slug": "module-33-containers",
+    "sections": 16,
+    "refs": [
+      "pyproject.toml",
+      ".dockerignore",
+      "Dockerfile",
+      "compose.json",
+      "secret_demo.py",
+      "volume_probe.py",
+      "app.py",
+      "healthcheck.py",
+      "local_probe.py",
+      "check_config.py",
+      "container_probe.py",
+      "tests/test_container_foundations.py",
+      "solutions/restore_copy.py",
+      "solutions/test_restore_copy.py"
+    ]
+  },
+  {
+    "lab": "o03-https-production",
+    "loader": "getHttpsExample",
+    "slug": "module-34-https-production",
+    "sections": 18,
+    "refs": [
+      "certificates.py",
+      "edge.py",
+      "tls_lab.py",
+      "app.py",
+      "Caddyfile.local",
+      "Caddyfile.production.template",
+      "tests/test_https.py",
+      "solutions/origin_policy.py",
+      "solutions/test_origin_policy.py"
+    ]
+  },
+  {
+    "lab": "o04-release",
+    "loader": "getReleaseExample",
+    "slug": "module-35-release",
+    "sections": 11,
+    "refs": [
+      "ops/app.py",
+      "ops/cluster.py",
+      "pyproject.toml",
+      "ci.py",
+      "tests/test_release.py",
+      ".github/workflows/check.yml",
+      "ops/migrate.py",
+      "migrations/env.py",
+      "sql/007_project_description.sql",
+      "migrations/versions/007_project_description.py",
+      "ops/release.py",
+      "ops/server.py",
+      "solutions/check_matrix.py",
+      "solutions/preflight.py",
+      "solutions/test_matrix.py"
+    ]
+  },
+  {
+    "lab": "o05-observability",
+    "loader": "getObservabilityExample",
+    "slug": "module-36-observability",
+    "sections": 11,
+    "refs": [
+      "ops/telemetry.py",
+      "tests/test_observability.py",
+      "pyproject.toml",
+      "ops/app.py",
+      "ops/cluster.py",
+      "ops/server.py",
+      "ops/observe.py",
+      "solutions/consecutive.py",
+      "solutions/test_consecutive.py"
+    ]
+  },
+  {
+    "lab": "o06-recovery",
+    "loader": "getRecoveryExample",
+    "slug": "module-37-recovery",
+    "sections": 12,
+    "refs": [
+      "sql/grants.sql",
+      "ops/cluster.py",
+      "ops/server.py",
+      "pyproject.toml",
+      "ops/backup.py",
+      "ops/app.py",
+      "ops/recover.py",
+      "tests/test_recovery.py",
+      "solutions/check_manifest.py",
+      "solutions/test_manifest.py"
+    ]
+  },
+  {
+    "lab": "g01-graduation",
+    "loader": "getGraduationExample",
+    "slug": "module-38-graduation",
+    "sections": 11,
+    "refs": [
+      "requirements.json",
+      "fixtures/actors-and-data.json",
+      "scenarios.json",
+      "rubric.json",
+      "templates/checkpoint.json"
+    ]
+  }
+]

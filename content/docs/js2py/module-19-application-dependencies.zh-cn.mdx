@@ -1,0 +1,282 @@
+---
+title: 应用组织、配置与依赖：让创建、使用、清理各有主人
+description: 从已完成的内存 CRUD 拆出清楚的路由和状态职责，先理解 Depends 的调用机制，再实测同步 yield 的生命周期、启动配置失败与独立汇总路由。
+---
+
+import { getDependencyExample } from '@/lib/js2py-examples'
+
+## 1. 文件变多不是目标，责任清楚才是
+
+H04 把请求验证、响应过滤和内存 CRUD 放在一个服务里，便于第一次跟踪请求。现在改变一个分页上限、重新建立一份空数据、增加一个路由，都会碰到同一组全局变量。难点不是“文件太长”，而是**谁拥有状态、谁提供状态、谁负责释放临时资源**没有被明确表达。
+
+本章保留全部 HTTP 行为，只把必要的职责分开。前端可以类比“应用入口组装模块，组件接收外部提供的对象”；但这里没有 React 渲染树、hook 调用顺序或浏览器组件卸载。一次 HTTP 请求由框架调用函数，服务进程则继续存在。不要把 Depends 当作 Python 版 useEffect。
+
+| 本章契约 | 范围 |
+| --- | --- |
+| 前置 | H04 请求/响应模型与内存 CRUD；L06 模块；L12 实例；L14 同步 yield/with/finally |
+| 新能力 | APIRouter、应用工厂、Depends 的提供者与使用者、每请求缓存、同步资源退出、环境配置诊断 |
+| 独立验收 | 解释完整请求路径；观察成功/失败清理；复现两种配置失败；独立增加共享同一状态的汇总路由 |
+| 暂不要求 | TestClient/fixture（H06）；异步 lifespan（A02）；数据库、登录、权限、通用分层框架 |
+
+下载 [H05 完整独立实验](/learning-assets/js2py/h05-dependencies.zip)。解压进入 `h05-dependencies`。所有文件都在这个目录，不需要复制 H04 的源码，也不导入别的实验。这里是本地多文件 API，不能在浏览器 Python 编辑器里启动。
+
+## 2. 先固定不变的业务，再决定如何拆
+
+任务仍由服务端生成正整数 id；title 长度 1..120，拒绝全空白，但保留合法文本原有大小写和首尾空格；minutes 是普通非负 JSON 整数，拒绝 bool、字符串、浮点；done 是严格 bool，默认 false；note 是最多 1000 字符的可空文本，默认 null。PATCH 只合并显式传入的字段，只有 note 可以赋 null。客户端不能提交 id 或额外字段，响应不泄露 internal_tag。
+
+POST /tasks 返回 201；列表、单项读取和 PATCH 返回 200；DELETE 返回没有正文的 204。合法但不存在的正整数 ID 返回 404，非法输入返回 422。列表形状是 items/limit/offset/total，按 id 排序；默认 limit=20、offset=0，limit 为 1..100，offset 非负。offset 是跳过多少条**现存记录**，不是从哪个 ID 开始。
+
+这次拆分不能悄悄把 title.strip() 的结果写回数据，也不能用 `model_dump()` 的全部默认值覆盖 PATCH。保留模型，先读清楚输入模型与输出白名单为什么分开：
+
+<Code language="python">{getDependencyExample('task_api/models.py')}</Code>
+
+TaskPatch 的 title/minutes 默认值是为“未提供字段”准备的合法占位，只有 `exclude_unset=True` 的结果才允许合并；它们不是更新时自动写回的业务值。TaskPublic 不继承含内部字段的存储模型，让允许输出什么一眼可查。
+
+## 3. 一个小目录，六种实际职责
+
+```text
+task_api/
+  __init__.py
+  config.py
+  models.py
+  store.py
+  dependencies.py
+  routes.py
+  main.py
+```
+
+config 只解释配置，models 只定义输入输出形状，store 拥有内存记录及编号，dependencies 把一次请求连接到需要的对象，routes 解释 HTTP，main 组装应用。`__init__.py` 标记可导入包，本例里面只有说明文字。导入方向大体是 main → routes → dependencies/store/models，不让 store 反向导入 main。
+
+**不额外建立 repository/service/interface/base-manager 层。** 目前没有第二种存储和复杂业务协调，这些名字只会增加跳转。把存储放到一个小类，是因为 tasks 与 next_id 属于同一份实例状态，不是因为每个函数都必须变成类方法。
+
+<Code language="python">{getDependencyExample('task_api/store.py')}</Code>
+
+构造 MemoryStore 时建立自己的字典和编号，不使用类属性共享列表，也不在模块顶层构造唯一全局 store。get 返回记录或 None；它不知道 404。路由决定“查不到”在 HTTP 中怎样表达。patch 先组装候选记录并验证，成功后才替换旧记录；这不是数据库事务，只是当前代码避免半更新的顺序安排。
+
+## 4. APIRouter 登记路由，不负责启动服务
+
+APIRouter 像一张可组装的路由登记表。`prefix="/tasks"` 与 `@router.get("")` 合成 /tasks；`@router.get("/{task_id}")` 合成 `/tasks/{task_id}`。不要在装饰器里再写一遍 /tasks，否则得到 /tasks/tasks。这里使用空字符串而不是末尾 /，避免实验无意依赖重定向。
+
+模块导入时装饰器登记函数；main 调用 `app.include_router(router)` 时把路由加入应用。两步都不是在监听端口。Uvicorn 仍负责启动服务。忘记 include_router 时，Python 导入可能成功，/health 也可能正常，但 /tasks 是 404；这不是模型验证错误。
+
+先认识接下来源码里尚未展开的记号：`Depends(get_store)` 是交给框架的声明，不是拿到 store 的普通函数调用。下一节先拆解机制，再阅读整个路由文件。
+
+## 5. Depends：函数值、调用者与返回值
+
+回忆 L13：写 get_store 是传函数对象，写 get_store(...) 才立即调用。`Depends(get_store)` 保存“处理请求时需要调用哪个提供者”的元数据。FastAPI 检查路由参数，找出依赖，准备依赖所需参数，调用依赖，再把结果当成路由参数传入。
+
+一次列表请求的路径是：请求携带查询文本 → get_page 校验查询参数并获得 settings → get_store 获得当前 app 的 MemoryStore → list_tasks 使用两者 → 返回字典 → response_model 验证和过滤 → HTTP 响应。若提供者还有依赖，框架先满足它们；这形成一张小的调用关系图，不是一个读取全局魔法变量的黑箱。
+
+`Request` 是 FastAPI 提供的当前请求对象，不是 JSON 请求体模型。`request.app.state` 是我们挂在**当前应用实例**上的状态容器。state 不会自动建立 store，也不会验证其类型；这些对象由工厂显式写进去。settings 是应用级配置，store 是应用级内存；它们不是每请求重建的对象。
+
+在同一次请求中，相同依赖按默认策略复用解析结果。本例 create_task 直接请求 request_trace，get_store 也请求同一个 request_trace；两处使用相同 function scope，因此只获得一个跟踪资源。下一次请求会重新创建这个资源，不会复用已经关闭的文件。这个缓存不是跨请求数据缓存，也不让多个应用共享 store。
+
+<details>
+<summary>解释题答案：为何不能把 Depends(get_store) 改成 Depends(get_store())？</summary>
+
+前者把函数交给框架，后者在模块导入时就尝试调用 get_store，而且没有本次 Request。它会在服务启动前失败，或把错误的调用结果当提供者。反过来，直接从普通 Python 调用一个带 Depends 默认参数的路由，也不会触发自动注入：默认参数仍是声明对象。调用普通业务函数进行单元测试，与走框架请求解析，是两个不同入口。
+
+</details>
+
+## 6. 同步 yield：取得一份临时资源，然后交还控制权
+
+这次不用数据库冒充教学资源。每个依赖创建一个真实 TemporaryFile 文本句柄，路由写入动作名，finally 关闭它；只在终端输出不含请求体的 acquire/use/release 信息。临时文件不是长期审计记录，关掉后不再读取它。
+
+<Code language="python">{getDependencyExample('task_api/dependencies.py')}</Code>
+
+request_trace 是普通同步生成器函数。框架开始处理依赖时推进到 yield；yield 的 RequestTrace 对象交给使用者；退出时恢复生成器，让 finally 关闭文件。L14 的暂停/恢复没有改变，只是推进与退出的主人从手写 with 变成框架。不要再给这个提供者加 `@contextmanager`：FastAPI 需要这里的生成器函数，并负责管理它。
+
+文件创建失败时尚未 yield，路由拿不到假资源；已经成功获取且进入 try 的资源，正常返回或异常传播时都会经过 finally。本例没有 except 吞掉 HTTPException，也没有“失败后返回空列表”伪装成功。如果强制杀进程、解释器崩溃或机器断电，不能承诺 Python finally 一定运行。
+
+RequestTrace 的 mark 使用文件，close 负责释放。get_store 只是借用这个资源记录一次动作，不能自行 close。资源的所有者与使用者不同，正是需要依赖生命周期的原因。但释放不回滚任务修改，也不证明响应已送达客户端。
+
+## 7. 版本和 scope 决定“清理在什么时候”
+
+本实验固定 FastAPI 0.135.1。自 0.121.0 起支持这里使用的 `Depends(..., scope="function")`。本例明确选 function，因为响应已是普通 JSON 数据，不需要继续读临时文件：正常路由完成后、响应发往客户端之前清理。
+
+对 yield 依赖，未指定 scope 的默认值是 request：**正常响应路径**会在响应发送之后清理。这不是“yield 总在发送前执行”的通则。历史版本变过行为，不能只引用一张旧时序图。若在依赖或路由抛出受处理的 HTTPException，异常展开会先清理，再由异常处理器发送错误响应；不要把正常成功时序机械套到所有错误。
+
+```text
+function, success: acquire -> use -> release -> response send
+request, success:  acquire -> use -> response send -> release
+handled HTTPException: acquire -> use -> release -> error response send
+```
+
+一个 request-scope 的 yield 依赖不能依赖更早关闭的 function-scope yield 子依赖，因为它自己的退出代码可能仍需要子依赖。function-scope 依赖则可以使用 function 或 request 子依赖。本例 get_store 本身不 yield；所有临时 trace 的声明显式使用相同 function scope，不制造混合寿命。
+
+2026-09-28 维护验收不仅观察打印，还截取了实际 ASGI response.start/body 的发送位置，分别确认两种 scope 的成功和受处理错误，共四种时序。该探针涉及底层异步协议，只在维护脚本里，不把它变成读者的前置要求。**客户端已经收到响应后才查看“closed=True”，无法单独证明关闭发生在发送前还是发送后。**
+
+<details>
+<summary>预测题答案：一次 POST 会打开两份 trace 吗？失败的 GET 会漏清理吗？</summary>
+
+不会因两处依赖声明打开两份：本次请求中它们共享同一个已解析依赖。正常 POST 的动作顺序是 acquire、get_store、create_task、release。合法但不存在的 ID 会先取得 store，再由 require_task 抛出 404；已经取得的 trace 仍经 finally 关闭。如果错误发生在取得资源之前，就没有那个资源需要关闭。不要要求所有 422 都必须执行相同依赖集合。
+
+</details>
+
+## 8. 环境变量是字符串，不是已经验证的配置
+
+配置不是从请求体读取，而是启动这个进程的人提供的环境。TASKS_APP_NAME 是必填的公开显示名称，空白无效；TASKS_MAX_PAGE_SIZE 默认 100，只接受 20..100 的 ASCII 十进制整数。下界为 20，是为了不让默认列表请求 limit=20 被管理员配置意外禁用。这是一条本实验的产品规则，不是框架强制规定。
+
+<Code language="python">{getDependencyExample('task_api/config.py')}</Code>
+
+读取、解析、范围判断分开做：字符串 "20" 可以变成整数；"3.0"、"true" 和空字符串不应该靠猜测转换。对缺失 app_name 直接报错，不用一个貌似成功的默认值掩盖部署配置遗漏。错误文字指出变量名和修复要求，不回显原始值；本章变量不是秘密，但同样练习不把整份环境打印到日志的习惯。
+
+load_settings 接受可选字典，便于用 L09 普通函数测试配置逻辑；未传时才读取 os.environ。Settings 是 frozen dataclass，避免随手重写字段，但它不自动验证内部构造值。工厂接受显式 Settings 是可信代码入口，实际启动环境仍必须经过 load_settings。没有 pydantic-settings、.env 自动加载或隐藏配置优先级要背。
+
+## 9. 应用工厂把“何时创建”写成一个普通函数
+
+<Code language="python">{getDependencyExample('task_api/main.py')}</Code>
+
+create_app 先加载配置，失败就不继续组装；随后建立 FastAPI、写入 settings 和一个新的 MemoryStore、include 路由，最后返回 app。两个工厂调用得到两个应用和两份存储；同一个应用处理多次请求时继续使用同一份存储。这不是在每请求清空任务。
+
+`uvicorn task_api.main:create_app --factory` 的左边是模块，右边是函数名；--factory 告诉 Uvicorn 调用该函数获得应用。不用在模块导入时读环境，也不用为了读取几个字符串引入异步 lifespan。程序已导入后修改环境不会改变已经创建的 Settings；重启并重新调用工厂才会加载新配置。
+
+<Code language="python">{getDependencyExample('task_api/routes.py')}</Code>
+
+现在逐个追踪路由：创建把验证后的 payload 交给 store；列表先取有序记录再切片；读取和修改都先 require_task；删除显式返回空 Response。路由不自己从环境拿值，也不负责关闭 trace；依赖不自己决定怎样更新 title；store 不导入 FastAPI。职责分开不是为了让读者来回找答案，而是让一种改变只影响必要部分。
+
+## 10. 锁定环境，真的启动，再看请求
+
+2026-09-28 实测固定基线：CPython 3.13.15、uv 0.12.13、FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、Starlette 0.52.1、pytest 8.4.2。它不是“永远最新”的保证。Starlette 显式固定，避免较新的传递依赖无声改变下一章 HTTPX 的兼容行为。
+
+<Code language="toml">{getDependencyExample('pyproject.toml')}</Code>
+
+uv.lock 来自真实 public PyPI，包含传递依赖和文件哈希。requires-python 限定 3.13，package=false 表示运行应用而非安装自己为分发包。在实验根目录执行：
+
+```bash
+uv sync --locked
+uv run --locked python -m pytest -q
+TASKS_APP_NAME="Learning tasks" uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005
+```
+
+普通测试为 17 项：15 项配置/store 测试，加 2 项使用自有故障服务器的有界维护回归。后两项验证客户端清理，不代表健康服务的完整 HTTP 契约。服务持续运行，另开终端进入同目录，对一个新启动的空服务执行：
+
+```bash
+uv run --locked python live_client.py --port 8005
+```
+
+```text
+LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist
+LIVE PASS: cleanup and subsequent 404
+```
+
+<Code language="python">{getDependencyExample('live_client.py')}</Code>
+
+finally 不是“里面每条语句都会成功”的保证。客户端对本次创建的每个 ID 单独 try/except：记录该 ID 的清理失败，再尝试其他自有 ID，不清空整个服务。循环结束输出 CLEANUP FAILED、清理未确认的 ID 及各自诊断。“未确认”不声称超时删除到底有没有生效；重放前只检查这些自有 ID。主体已完成时，清理失败抛出 RuntimeError，进程非零退出；主体本来就失败时，body_succeeded 仍为 false，清理错误照样报告，但 finally 不再抛替代异常，也不 return，因此原 traceback 继续传播。逐项捕获清理错误不等于把整次运行伪装成功；一个简单标志即可保留两类诊断，不需要异常组框架。
+
+这是通过 urllib 访问真正端口的独立客户端，没有调用 Python 路由函数。HTTPError 仍携带错误状态和正文，因此客户端把它当可检查的 HTTP 响应；连接拒绝则连 HTTP 响应都没有。断言失败时先看对应请求和服务端日志，不把“程序没抛异常”当唯一标准。它只在空的可丢弃服务运行，记录本次创建的 ID 并在 finally 删除；不会清空不属于它的全部记录。
+
+如果想手动观察状态行和正文，重启空服务后执行下面请求集合。它会留下记录，不能紧接着拿要求空数据的客户端验收；先停服务并重新启动。
+
+<Code language="bash">{getDependencyExample('requests.sh')}</Code>
+
+正常创建时终端中与 trace 有关的四行应是：
+
+```text
+TRACE acquire POST /tasks
+TRACE use POST /tasks get_store
+TRACE use POST /tasks create_task
+TRACE release POST /tasks closed=True
+```
+
+用 Ctrl-C 停自己启动的服务。不要因为同步 def 或只有一个 worker 就假定请求绝不重叠；本实验按顺序访问，MemoryStore 没有并发锁，也没有持久化或用户权限。
+
+## 11. 故意失败：定位阶段，而不是盲改代码
+
+先停正在运行的服务，再逐条执行以下预期失败：
+
+```bash
+env -u TASKS_APP_NAME uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005
+TASKS_APP_NAME="Learning tasks" TASKS_MAX_PAGE_SIZE=bad uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8005
+```
+
+```text
+ValueError: TASKS_APP_NAME is required and must not be blank
+ValueError: TASKS_MAX_PAGE_SIZE must be an integer from 20 to 100
+```
+
+这里列出 traceback 的最后诊断行，不承诺路径和完整栈完全相同。两次都应退出非零，发生在应用工厂阶段，而不是发出一个 422。恢复后用正确环境启动，/health 应再次 200；再用 TASKS_MAX_PAGE_SIZE=20 启动，/tasks?limit=20 为 200，/tasks?limit=21 为 422，正文 detail 为 limit exceeds TASKS_MAX_PAGE_SIZE。
+
+| 观察 | 先定位哪里 | 恢复动作 |
+| --- | --- | --- |
+| No module named task_api | 工作目录、解压结构、当前环境 | 回到实验根目录，锁定同步后重新启动 |
+| address already in use | 旧进程仍持有端口 | 停自己的进程或更换服务与客户端双方端口，不杀未知进程 |
+| /health 200，/tasks 404 | 是否 include_router；实际前缀 | 恢复注册，重启，重新请求真实路径 |
+| 输入 422 | body/query/path 的 detail.loc 或配置上限 | 修正调用方；别删除验证来换成功 |
+| 未知 ID 404 但没有 release | 先确认依赖是否 acquire、finally 是否被破坏 | 恢复 finally；重放该请求，检查配对 |
+| 第二次启动任务消失 | 内存生命周期，而非路由故障 | 承认边界；数据库持久化留到 D 阶段 |
+
+<Code language="python">{getDependencyExample('tests/test_basics.py')}</Code>
+
+tests/test_basics.py 的 15 项沿用熟悉的普通测试与 L13 参数化：对配置传字典，对 store 传模型，比较两个工厂的状态。这 15 项没有 TestClient、fixture 或真实 HTTP，不能代替上一节的客户端结果。
+
+新增的 tests/test_live_client_cleanup.py 两项是维护回归，不是独立练习的先修要求。它们在操作系统分配的本地端口启动自有临时故障应用，只借 pytest 的临时目录 fixture 保存诊断日志，运行真实客户端，并在 finally 停止自己的进程。一项让第一个自有 ID 的 DELETE 返回 503；另一项还让主体断言失败。两项均要求第二个 ID 仍被删除、第一个被明确报告为清理未确认、客户端非零退出；主体失败时原 traceback 必须保留。不要求异步测试代码，也不连接用户已有服务：
+
+```bash
+uv run --locked python -m pytest -q tests/test_live_client_cleanup.py
+```
+
+```text
+2 passed
+```
+
+这里外层两项通过，表示故意失败的客户端子进程给出了预期证据。剩余 ID 只存在于随即停止的可丢弃故障应用中，不承诺服务不可用时也一定能删净。
+
+## 12. 带提示修改：让错误暴露状态归属
+
+暂时把 MemoryStore() 移到模块顶层，再让两个工厂引用它。预测 test_factory_owns_state 会在哪里失败，运行验证，随后恢复。另把 patch 的 exclude_unset=True 去掉，找出一个最小 PATCH 使原 note 或 done 被默认值覆盖，恢复后重放同一输入。最后解释：为什么不能靠“每次请求重建 store”解决测试污染？
+
+<details>
+<summary>带提示修改的核对</summary>
+
+全局 store 会让右应用看到左应用创建的数据；应把实例创建恢复到工厂，不是把失败断言删掉。若去掉 exclude_unset，空 PATCH 就会带上默认 title/minutes/done/note，覆盖已有内容。每请求新建 store 虽让空数据断言通过，却让 POST 后的 GET 找不到任务；正确生命周期是每应用一份存储，每请求一份临时 trace。
+
+</details>
+
+## 13. 独立变式：增加汇总，不增加第二份状态
+
+先不打开答案。新增独立 APIRouter，提供 GET /summary，返回三个整数：total 为全部当前任务数，done 为已完成任务数，minutes 为全部当前分钟和。使用已经存在的 get_store，不从某个分页结果推导汇总，不暴露内部字段。让组合入口显式 include 这个路由，保持现有任务接口不变。
+
+自己验收空列表全为 0；创建 30 分钟和 0 分钟任务；PATCH 完成状态与分钟；删除一个任务；汇总随之变化。还要证明 /summary 使用与 /tasks 相同的应用存储并正常清理 trace。只测试 summarize 函数不能证明路由已经注册。
+
+<details>
+<summary>独立参考实现、函数测试和真实 HTTP 验收</summary>
+
+<Code language="python">{getDependencyExample('solutions/summary.py')}</Code>
+
+<Code language="python">{getDependencyExample('solutions/test_summary.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_summary.py
+TASKS_APP_NAME="Summary tasks" uv run --locked python -m uvicorn solutions.summary:create_summary_app --factory --host 127.0.0.1 --port 8005
+```
+
+停掉原服务后再启动上述工厂。另一个终端执行：
+
+```bash
+uv run --locked python live_client.py --port 8005 --summary
+```
+
+```text
+LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist
+SUMMARY PASS: empty, populated, updated, deleted
+LIVE PASS: cleanup and subsequent 404
+```
+
+答案有 2 项函数测试，真实客户端还检查完整接口组合。汇总按当前全部记录计算；没有持久化快照、数据库聚合或并发一致性的承诺。
+
+</details>
+
+## 14. 验收与可恢复记录
+
+合格不是文件都拆完：你应能不看答案画出请求、依赖、状态、临时资源、响应的关系；解释默认缓存与应用状态不同；重现配置启动失败和资源异常清理；独立完成汇总并用真实请求证明它和 /tasks 共用数据。
+
+暂停时写下工作目录、Python/uv/框架版本、工厂入口、当前环境变量名及非秘密示例值、最后成功命令与结果、17 项基础/2 项独立测试是否实际通过、服务 PID/端口与停止状态、当前数据是否可丢弃、未解决故障、下次第一步。恢复先 uv sync --locked，再普通测试，然后重新启动空服务重放失败请求；不要猜服务还在运行。
+
+下载只包含明确 allowlist 的源码、README 和锁；.venv、缓存、.env、日志、秘密与临时文件都不打包。关闭文件不是持久化，正确依赖不是权限。下一章 H06 才学习如何自动走完整 API 解析路径，以及这种测试与真实进程、浏览器联调的区别。
+
+## 15. 一手资料与核验范围
+
+2026-09-28 实时核对官方同版本资料：[APIRouter 与多文件应用](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/bigger-applications.md)、[Depends 机制](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/index.md)、[yield 与 scope](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/dependencies/dependencies-with-yield.md)、[历史时序变更](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/advanced/advanced-dependencies.md)、[Uvicorn 工厂与启动参数](https://github.com/Kludex/uvicorn/blob/0.42.0/docs/settings.md)、[Python TemporaryFile](https://docs.python.org/3.13/library/tempfile.html)。Uvicorn 文档站本次抓取有 TLS 错误，使用官方 tag 文档，而不是第三方摘要。
+
+实际验证包含干净 allowlist 副本安装、普通测试、独立题、缺失/错误配置进程、真实 Uvicorn 客户端、成功/404 清理及 ASGI 发送时序。不包含数据库、生产并发、鉴权、TLS、强制杀进程恢复或生产部署；也不以 MDX/Python 语法检查替代这些运行证据。

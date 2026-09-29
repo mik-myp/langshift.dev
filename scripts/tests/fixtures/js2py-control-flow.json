@@ -1,0 +1,103 @@
+{
+  "files": {
+    "branches.py": {
+      "stdout": "Short session\nChecked\n"
+    },
+    "truthiness.py": {
+      "stdout": "False\nFalse\nFalse\nFalse\nFalse\nFalse\nTrue\nTrue\nNo tasks\n"
+    },
+    "logical.py": {
+      "stdout": "False\nUntitled\nReady\nTrue\n25\n0\n"
+    },
+    "for_tasks.py": {
+      "stdout": "Tasks: 3; total: 55 minutes\nPending: 2\n"
+    },
+    "loop_binding.py": {
+      "stdout": "Read\nPractice\nPractice\n['Read', 'Practice']\nTrue\n"
+    },
+    "errors/empty_loop.py": {
+      "stdout": "",
+      "error": "NameError",
+      "error_line": 4
+    },
+    "ranges.py": {
+      "stdout": "range(0, 3)\n[0, 1, 2]\n[1, 3, 5]\n[3, 2, 1]\n[]\n[]\n1\n2\n3\n"
+    },
+    "errors/zero_step.py": {
+      "stdout": "",
+      "error": "ValueError",
+      "error_line": 1
+    },
+    "unpacking.py": {
+      "stdout": "1\nRead\n"
+    },
+    "errors/unpack_pair.py": {
+      "stdout": "",
+      "error": "ValueError",
+      "error_line": 2
+    },
+    "numbered_tasks.py": {
+      "stdout": "1. Read\n2. Practice\nRead\n"
+    },
+    "dict_iteration.py": {
+      "stdout": "title\nminutes\ntitle: Read\nminutes: 20\n"
+    },
+    "while_budget.py": {
+      "stdout": "Block: 20 minutes\nBlock: 20 minutes\nBlock: 10 minutes\nBlocks: 3; remaining: 0\n"
+    },
+    "loop_controls.py": {
+      "stdout": "Check: Finished\nCheck: Long practice\nCheck: Zero estimate\nFirst match: Zero estimate\n"
+    },
+    "pitfalls/mutation_skip.py": {
+      "stdout": "[{'title': 'Second', 'done': True}, {'title': 'Third', 'done': False}]\n"
+    },
+    "safe_filter.py": {
+      "stdout": "[{'title': 'Third', 'done': False}]\n3\nFalse\n"
+    },
+    "comprehensions.py": {
+      "stdout": "['Practice', 'Review']\n['Practice', 'Review']\nTrue\nFalse\n"
+    },
+    "task_summary.py": {
+      "stdout": "Tasks: 3\nDone: 1; pending: 2\nRemaining: 35 minutes\nPending average: 17.5 minutes\n1. Practice loops\n2. Check boundaries\n"
+    },
+    "solutions/fix_total.py": {
+      "stdout": "55\n"
+    },
+    "solutions/study_queue.py": {
+      "stdout": "Tasks: 6; pending: 5\nKnown pending time: 20 minutes\nUnknown: 2; invalid: 1\nReady within 20 minutes each: 2\n1. Read branches\n2. Try empty input\n"
+    }
+  },
+  "fences": {
+    "separate_if": {
+      "stdout": "Zero\nShort\n"
+    },
+    "missing_indent": {
+      "stdout": "",
+      "error": "IndentationError",
+      "error_line": 2
+    },
+    "truth_comparison": {
+      "stdout": "False\nFalse\nTrue\n"
+    },
+    "comprehension_binding": {
+      "stdout": "Outside\n['Read', 'Practice']\n"
+    },
+    "exercise_predict": {
+      "stdout": "[10]\n30\n"
+    },
+    "exercise_reset": {
+      "stdout": "0\n"
+    },
+    "exercise_data": {
+      "stdout": ""
+    },
+    "filtered_sharing": {
+      "stdout": "True\nChanged\n"
+    }
+  },
+  "javascript": {
+    "truth_comparison": {
+      "stdout": "true\ntrue\ntrue\n"
+    }
+  }
+}

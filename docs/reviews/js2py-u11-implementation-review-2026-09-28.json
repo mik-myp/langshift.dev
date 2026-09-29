@@ -1,0 +1,443 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "u11-typing complete English lesson and all allowlisted download files, not subsequent chapters or production readiness.",
+  "metadata": {
+    "started_at_utc": "2026-09-28T04:00:35.866681+00:00",
+    "elapsed_seconds": 1.123,
+    "http_status": 200,
+    "endpoint": "https://api.typesafe.ai/v1/systemone",
+    "requested_model": "jev-latest",
+    "returned_model": "jev-1.13.0",
+    "questions": 7,
+    "request_sha256": "8eb802028e355b08763cbdad25ba8362c219a4a6e10e6360fe4d2c9d2cd13bbc",
+    "usage": {
+      "input_tokens": 27956,
+      "output_tokens": 341
+    },
+    "credential_persisted": false
+  },
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "reader": "Experienced enterprise frontend engineer, fluent JS async/await and basic TypeScript; initially no Python/backend/database/operations practice. Slow, interrupted learning. Language foundations L00-L10 are already taught. The user now explicitly permits subagents; authorship of H01-H06 is parallel and NOT reviewed by this request.",
+      "chapter": "u11-typing",
+      "prior_and_current_contracts": [
+        {
+          "id": "L00",
+          "title": "认识 Python 与第一次运行",
+          "prerequisites": [],
+          "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+          "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+          "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+          "status": "implemented"
+        },
+        {
+          "id": "L01",
+          "title": "名称、值与基本运算",
+          "prerequisites": [
+            "L00"
+          ],
+          "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+          "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+          "boundary": "不引入复杂容器、作用域或类型体操",
+          "status": "implemented"
+        },
+        {
+          "id": "L02",
+          "title": "容器、引用与修改",
+          "prerequisites": [
+            "L01"
+          ],
+          "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+          "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+          "boundary": "不依赖循环或自定义函数完成首次容器实验",
+          "status": "implemented"
+        },
+        {
+          "id": "L03",
+          "title": "条件、循环与遍历",
+          "prerequisites": [
+            "L02"
+          ],
+          "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+          "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+          "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+          "status": "implemented"
+        },
+        {
+          "id": "L04",
+          "title": "函数、参数与作用域",
+          "prerequisites": [
+            "L03"
+          ],
+          "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+          "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+          "boundary": "不以装饰器或类封装作为练习要求",
+          "status": "implemented"
+        },
+        {
+          "id": "L05",
+          "title": "异常与调试",
+          "prerequisites": [
+            "L04"
+          ],
+          "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+          "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+          "boundary": "不把assert当作不可信输入的生产校验",
+          "status": "implemented"
+        },
+        {
+          "id": "L06",
+          "title": "模块与标准库",
+          "prerequisites": [
+            "L05"
+          ],
+          "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+          "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+          "boundary": "不先要求发布包、动态导入或框架架构",
+          "status": "implemented"
+        },
+        {
+          "id": "L07",
+          "title": "文件、JSON 与资源使用",
+          "prerequisites": [
+            "L06"
+          ],
+          "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+          "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+          "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+          "status": "implemented"
+        },
+        {
+          "id": "L08",
+          "title": "环境与依赖管理",
+          "prerequisites": [
+            "L06",
+            "L07"
+          ],
+          "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+          "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+          "boundary": "不在入门章考核；不同时比较所有包管理器",
+          "status": "implemented"
+        },
+        {
+          "id": "L09",
+          "title": "基础自动化测试",
+          "prerequisites": [
+            "L04",
+            "L05",
+            "L06",
+            "L08"
+          ],
+          "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+          "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+          "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+          "status": "implemented"
+        },
+        {
+          "id": "L10",
+          "title": "第一个独立可复现项目",
+          "prerequisites": [
+            "L07",
+            "L08",
+            "L09"
+          ],
+          "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+          "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+          "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+          "status": "implemented"
+        },
+        {
+          "id": "L11",
+          "title": "基础类型注解",
+          "prerequisites": [
+            "L02",
+            "L04",
+            "L06",
+            "L10"
+          ],
+          "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+          "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+          "boundary": "不要求复杂泛型、协议或零Any指标",
+          "status": "planned"
+        },
+        {
+          "id": "L12",
+          "title": "类与数据模型",
+          "prerequisites": [
+            "L04",
+            "L06",
+            "L11"
+          ],
+          "teach": "实例、self、初始化、组合、简单继承、dataclass",
+          "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+          "boundary": "不要求元类、深继承或框架内部实现",
+          "status": "planned"
+        },
+        {
+          "id": "L13",
+          "title": "装饰器与声明式接口",
+          "prerequisites": [
+            "L04",
+            "L06",
+            "L12"
+          ],
+          "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+          "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+          "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+          "status": "planned"
+        },
+        {
+          "id": "L14",
+          "title": "生成器与资源生命周期",
+          "prerequisites": [
+            "L05",
+            "L07",
+            "L12",
+            "L13"
+          ],
+          "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+          "acceptance": "跟踪资源获取、使用、正常及异常释放",
+          "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+          "status": "planned"
+        }
+      ],
+      "actual_english_lesson": "---\ntitle: Basic Type Annotations — Contracts, Checking, and Input Boundaries\ndescription: Annotate behavior you already understand, distinguish nullability from defaults and static checking from runtime validation, and diagnose real failures at the JSON boundary.\n---\n\nimport { getTypingExample } from '@/lib/js2py-examples'\n\n## 1. Understand the behavior before annotating its contract\n\nThe L10 application already runs, saves data, and has tests. Why add types? If a function expects minutes but its caller supplies strings, discovering the disagreement before execution narrows the investigation. Annotations put expectations beside parameters and results so collaborators, editors, and checkers do not have to infer them from every call site.\n\nYour basic TypeScript experience transfers, but Python does not automatically run a type-checking build gate before execution. Running Python and running a static checker are separate commands. Annotations alone generally do not reject invalid input. Tests observe particular executions, static checking analyzes source, and runtime validation protects actual data boundaries. None replaces the others.\n\n| Contract | Scope |\n| --- | --- |\n| Prerequisites | L02 containers, L04 functions, L06 modules, L10 independent project |\n| New capabilities | Function/container annotations, unions, nullability, defaults, diagnostics, external input validation |\n| Acceptance | Annotate an existing function, repair static errors, prove that passing a checker does not make JSON trustworthy |\n| Excluded | Class models, TypedDict, advanced generics, protocols, a zero-Any target |\n\nDownload the [complete L11 lab](/learning-assets/js2py/u11-typing.zip). This is a local multi-file experiment, not browser execution of mypy. Displayed files and the download share canonical sources.\n\n## 2. Establish two separate checking commands\n\nExtract the archive and enter u11-typing. The tested baseline on September 28, 2026 is CPython 3.13.15, uv 0.12.13, mypy 2.3.1, and pytest 8.4.2. These are fixed verification versions, not a demand to chase every release.\n\n<Code language=\"toml\">{getTypingExample('pyproject.toml')}</Code>\n\n```bash\nuv sync --locked\nuv run --locked python -m mypy\nuv run --locked python -m pytest -q\n```\n\nThe mypy configuration selects annotated business code, the entry point, and the independent reference function, requiring annotations within that scope. Intentionally incorrect examples and runtime tests that deliberately supply invalid types are checked separately; deleting them to make everything green would lose evidence. Default pytest discovery selects tests; independent answers run separately too.\n\nWhen a checker reports success, ask which files and function bodies it examined and where dynamic values enter. Running the application does not implicitly run mypy. CI only checks types if you explicitly configure that step.\n\n## 3. Read annotations on behavior you already understand\n\nFirst read the unannotated function. Predict how it skips an over-budget item but keeps looking at later items:\n\n<Code language=\"python\">{getTypingExample('baseline.py')}</Code>\n\nA colon after a parameter name declares its expected type; an arrow declares the return type. Local variables can be annotated or inferred from assignments. This complete declaration experiment executes independently but prints nothing until a function is called.\n\n```python smoke=typing\ndef add_minutes(left: int, right: int) -> int:\n    total: int = left + right\n    return total\n\n\ndef show_minutes(value: int) -> None:\n    print(value)\n```\n\n`-> None` means normal completion has no business result. It does not mean the function does nothing, cannot fail, or may return anything. A Python function that finishes without an explicit return also returns None. Types capture only part of the contract: int is not the same as non-negative minutes, and str is not the same as a non-blank title.\n\nAnnotate the baseline parameters and return without changing the algorithm. The complete implementation later also retains runtime rules. **Adding annotations and adding validation are distinct changes.**\n\n## 4. Unions, nullable values, and omittable arguments\n\n```python smoke=typing\ndef required_budget(budget: int | None) -> str:\n    if budget is None:\n        return \"unlimited\"\n    return str(budget)\n\n\ndef default_budget(budget: int = 45) -> int:\n    return budget\n\n\ndef optional_budget(budget: int | None = None) -> str:\n    return required_budget(budget)\n```\n\n`int | None` permits an integer or None. It does not supply a default argument. required_budget requires an argument but permits explicit None. default_budget may be called without an argument, but its static contract does not accept None. optional_budget permits both omission and explicit None. Do not collapse TypeScript optional properties, Python default arguments, and nullable values into one concept.\n\nAfter a branch eliminates None using `is None`, the checker can narrow the other path to int. `if budget` would also discard the valid value 0. Type hints cannot decide whether zero budget and unlimited budget mean the same thing. Here, zero permits only zero-minute items; None means unlimited.\n\n<details>\n<summary>Explanation answer: how do you know whether an argument may be omitted?</summary>\n\nLook for a default, not for None in the annotation. Predict required_budget(), required_budget(None), default_budget(), and default_budget(None). The first lacks an argument at runtime; the second is valid; the third uses 45; the fourth violates the static contract, but the unguarded function can still return None at runtime.\n\n</details>\n\n## 5. Containers describe elements, not an entire business schema\n\n`list[int]` describes integer elements; an empty list qualifies. `dict[str, int]` describes string keys and integer values, not exactly two required keys named count and minutes. A heterogeneous dictionary annotated `dict[str, object]` requires narrowing its retrieved values before integer operations. We will not introduce classes or elaborate typing just to describe every record field early; L12 develops another part of model representation.\n\nAny and object are not synonyms. Any permits many operations without proof; object says there is a Python object but does not promise its specific capabilities. These function bodies do not execute during declaration. The first contract permits an unproven upper call; the second checks before using that capability.\n\n```python smoke=typing\nfrom typing import Any\n\n\ndef unchecked_label(value: Any) -> str:\n    return value.upper()\n\n\ndef value_label(value: object) -> str:\n    if isinstance(value, str):\n        return value.upper()\n    return \"not text\"\n```\n\nBoth pass the current static checks, but the first still fails if it receives an integer. In your own copy, remove the second function's check and return value.upper() directly: object does not promise upper, so the checker now rejects the operation. Replacing object with Any or suppressing the diagnostic would conceal the missing boundary rather than explain it.\n\n## 6. Run the checker, including a controlled false green\n\n<Code language=\"python\">{getTypingExample('errors/static_errors.py')}</Code>\n\n```bash\nuv run --locked python -m mypy errors/static_errors.py\n```\n\nExpect a nonzero result: an addition has not ruled out None, a list contains text, and a budget argument is text. This is static analysis, not a failed pytest assertion. Repair each cause rather than indiscriminately coercing all inputs.\n\n<Code language=\"python\">{getTypingExample('errors/annotation_only.py')}</Code>\n\n```bash\nuv run --locked python -m mypy errors/annotation_only.py\nuv run --locked python errors/annotation_only.py\n```\n\nThe first command rejects the argument; the second still prints 33 because the operation repeats a string. A return annotation does not convert the result into an integer.\n\n<Code language=\"ini\">{getTypingExample('errors/mypy-default.ini')}</Code>\n\n<Code language=\"python\">{getTypingExample('errors/unchecked.py')}</Code>\n\n```bash\nuv run --locked python -m mypy --config-file errors/mypy-default.ini errors/unchecked.py\nuv run --locked python -m mypy --config-file errors/mypy-default.ini --check-untyped-defs errors/unchecked.py\nuv run --locked python errors/unchecked.py\n```\n\nWith the neutral configuration, the first command passes. Enabling checks of untyped bodies makes the second fail. Actual execution raises TypeError. This controlled counterexample is not a recommendation to weaken project checks. It teaches you to examine what green means. The normal configuration also requires business-function annotations, but still does not provide runtime input protection.\n\n## 7. Turn external data into validated values\n\nRead this implementation along the data flow: text → JSON decoding → array shape → element validation → new list → selection → summary. Then explain each function's responsibility.\n\n<Code language=\"python\">{getTypingExample('estimates.py')}</Code>\n\nJSON decoding can produce objects, arrays, text, numbers, booleans, and nulls; its return type is dynamic. Assigning it to object establishes an explicit checking boundary, not a conversion. After confirming a list, pass every element to non_negative_int, whose parameter is object. Only a validated value enters the result. Internal operations receive validated minutes but retain explicit rules so another runtime caller cannot bypass the business policy.\n\n`type(value) is int` deliberately means ordinary integers, excluding bool and integer subclasses. Python's type relationships make bool a subclass of int, so mypy may accept it. In this business contract true is not one minute. General-purpose libraries may legitimately accept subclasses; this is not advice to use exact type checks everywhere.\n\n<Code language=\"python\">{getTypingExample('errors/bool_static.py')}</Code>\n\n```bash\nuv run --locked python -m mypy errors/bool_static.py\nuv run --locked python -m errors.bool_static\n```\n\nThe checker passes; runtime validation raises ValueError. This is reproducible evidence that static types and business rules differ. The summary return type describes a homogeneous mapping; exact keys and relationships also depend on implementation, tests, and documentation.\n\n## 8. Run the complete program and explain its choices\n\n<Code language=\"python\">{getTypingExample('app.py')}</Code>\n\n```bash\nuv run --locked python app.py\n```\n\n```text\n[30, 0, 15]\n{'count': 3, 'minutes': 45}\n[30, 0, 90, 15]\n```\n\nThe 90-minute item does not fit, but selection continues and includes the later 15. Zero is valid and retained. Omitting the budget includes every item. The returned list is a new container, not a destructive edit of the original. Static checking cannot prove the policy “skip rather than break,” so behavior tests remain necessary.\n\n## 9. Test behavior, not the appearance of complete annotations\n\n<Code language=\"python\">{getTypingExample('tests/test_estimates.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q\n```\n\nThe normal suite contains eight tests. A loop exercising several bad values does not produce several pytest test cases; we retain L09's ordinary tests until parametrization is taught in L13. Observe syntax errors, shape errors, invalid values, zero budget, continuing after a skipped item, and unchanged input. Deliberately introduce early termination into selection and require a test to fail, rather than checking only the output type.\n\n<Code language=\"python\">{getTypingExample('errors/bad_json.py')}</Code>\n\n```bash\nuv run --locked python -m errors.bad_json\n```\n\nThe JSON syntax is valid, but the first boolean element triggers ValueError. Do not diagnose this business rejection as a JSON parser defect. Nor should you swallow all exceptions and return an empty list: that would erase the difference between no tasks and broken input.\n\n## 10. Guided repairs without replacing understanding\n\nFirst copy static_errors and fix the three errors without Any, cast, or ignore directives. State a business policy for the None branch. Next replace the budget check with truthiness and find a minimal counterexample. Finally explain why annotating baseline does not make it safe to accept JSON received over a network.\n\n<details>\n<summary>Hints and checking directions</summary>\n\nThe None branch can deliberately reject the value or return a meaningful result; it cannot pretend None is int. Repair textual values or validate them at a separate parsing boundary. A zero budget with [1, 0] exposes an implementation that mistakes zero for unlimited. The baseline still has no external array-shape checks or rejection of bool, negatives, and text. Annotations do not insert those checks.\n\n</details>\n\n## 11. Independent variation: the first value over a limit\n\nDo not open the answer yet. Implement first_over: accept a minutes list and a non-negative integer limit, validate **all** elements, then return the first integer strictly greater than the limit in original order. Return None if there is no match. Reject booleans, negatives, floats, and text. Do not mutate the input. An early match must not excuse a bad later element.\n\n<Code language=\"python\">{getTypingExample('exercises/first_over.py')}</Code>\n\nThis is explicitly an exercise starter that raises NotImplementedError, not a complete implementation. Independently annotate and test empty input, equality to the limit, several matches, a match followed by bad data, zero, no match, and unchanged input. Run both mypy and pytest against your own work and record the two results separately.\n\n<details>\n<summary>Independent reference implementation and tests</summary>\n\n<Code language=\"python\">{getTypingExample('solutions/first_over.py')}</Code>\n\n<Code language=\"python\">{getTypingExample('solutions/test_first_over.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q solutions/test_first_over.py\n```\n\nThe two loops express policy, not a performance demonstration. The first validates everything; the second finds the first match, so validation does not depend on match position. None has a specific business meaning here; a caller cannot immediately use the result in integer arithmetic.\n\n</details>\n\n## 12. Acceptance and a resumable checkpoint\n\nYou are ready when you can annotate the old function without consulting the answer, distinguish defaults from nullability, reproduce static failure and a static-pass/runtime-rejection case, draw the JSON boundary, and finish the independent variation. Make tests detect a premature return that skips later validation. Documentation is allowed; memorizing diagnostic wording is not required.\n\nBefore pausing, record Python/mypy versions, the selected checking scope, the last two successful commands, intentional failures, unverified inputs, and the next concrete step. Resume by running the normal suite, then isolate the pending failure instead of treating all of errors as a passing suite.\n\nL12 introduces classes and data models through instance ownership and explicit validation. Neither dataclass nor type hints will be presented as an automatic guard around every input.\n\n## 13. Primary references and limits\n\nChecked on September 28, 2026: [Python 3.13 typing](https://docs.python.org/3.13/library/typing.html), [mypy 2.3.1 common issues](https://github.com/python/mypy/blob/v2.3.1/docs/source/common_issues.rst), and [kinds of types](https://github.com/python/mypy/blob/v2.3.1/docs/source/kinds_of_types.rst). The mypy documentation site returned HTTP 403 during retrieval, so the matching official repository documentation was used instead of third-party summaries.\n\nThis chapter establishes basic contract tools, not proof of algorithmic correctness, security, or every dynamic behavior. Introduce advanced types when a real need appears; do not let type gymnastics obscure validation and business reasoning.\n",
+      "actual_download_files": {
+        ".python-version": "3.13.15\n",
+        "README.md": "# u11-typing\n\nLocal CPython 3.13.15 / uv 0.12.13 lab (verified 2026-09-28); pytest 8.4.2; mypy 2.3.1. Standard-library business runtime.\n\nExtract the download and enter `u11-typing`. Do not copy `.venv`; reconstruct from the supplied declaration and lock.\n\n```bash\nuv sync --locked\nuv run --locked python -m mypy\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_first_over.py\n```\n\nDefault suite: 8 tests. Reference variation: 2 tests. Write your own implementation from the lesson requirements before opening `solutions`. The default suite does not collect intentional failures in `errors`.\n\nStatic rejection differs from runtime failure. annotation_only prints 33; bool_static passes mypy but fails runtime rules. unchecked deliberately demonstrates unchecked bodies.\n\nRead the matching full lesson for expected outputs, explicit failure commands, mechanism explanations, independent requirements, and limits. All displayed files are canonical files in this archive; no credentials or environments are included. Resume by recording source changes, interpreter/version, working directory, last successful command, observed failure, and the next experiment. Passing this local lab is not a backend deployment certificate.\n",
+        "README.zh-cn.md": "# u11-typing\n\n本地实验，2026-09-28 实测 CPython 3.13.15、uv 0.12.13、pytest 8.4.2、mypy 2.3.1。业务运行只使用标准库。\n\n解压下载包并进入 `u11-typing`。不要复制 `.venv`，用声明与锁恢复环境。\n\n```bash\nuv sync --locked\nuv run --locked python -m mypy\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_first_over.py\n```\n\n默认套件 8 项，独立参考变式 2 项。先按教材需求自己实现，再看 `solutions`；默认发现范围不含 `errors` 中的刻意失败。\n\n静态错误不等于运行时异常。annotation_only 输出 33；bool_static 通过 mypy 后由运行时规则拒绝。unchecked 的中性配置演示有意漏检。\n\n完整教材说明预期输出、逐条失败命令、机制、独立需求与边界。本包是网页展示的源码来源，不含环境与凭证。暂停记录源码改动、解释器版本、工作目录、最后成功命令、未解决失败和下一步。通过本地实验不等于能直接交付后端。\n",
+        "README.zh-tw.md": "# u11-typing\n\n本地實驗，2026-09-28 實測 CPython 3.13.15、uv 0.12.13、pytest 8.4.2、mypy 2.3.1。業務運行只使用標準庫。\n\n解壓下載包並進入 `u11-typing`。不要複製 `.venv`，用聲明與鎖恢復環境。\n\n```bash\nuv sync --locked\nuv run --locked python -m mypy\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_first_over.py\n```\n\n默認套件 8 項，獨立參考變式 2 項。先按教材需求自己實現，再看 `solutions`；默認發現範圍不含 `errors` 中的刻意失敗。\n\n靜態錯誤不等於運行時異常。annotation_only 輸出 33；bool_static 通過 mypy 後由運行時規則拒絕。unchecked 的中性配置演示有意漏檢。\n\n完整教材說明預期輸出、逐條失敗命令、機制、獨立需求與邊界。本包是網頁展示的源碼來源，不含環境與憑證。暫停記錄源碼改動、解釋器版本、工作目錄、最後成功命令、未解決失敗和下一步。通過本地實驗不等於能直接交付後端。\n",
+        "app.py": "from estimates import parse_minutes, select_minutes, summarize\n\n\ndef main() -> None:\n    values = parse_minutes(\"[30, 0, 90, 15]\")\n    selected = select_minutes(values, budget=45)\n    print(selected)\n    print(summarize(selected))\n    print(select_minutes(values))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+        "baseline.py": "# The understood, unannotated function to annotate before reading estimates.py.\ndef select_minutes(values, budget=None):\n    selected = []\n    used = 0\n    for value in values:\n        if budget is None or used + value <= budget:\n            selected.append(value)\n            used += value\n    return selected\n",
+        "errors/__init__.py": "\"\"\"Intentionally incorrect demonstrations; not the default test suite.\"\"\"\n",
+        "errors/annotation_only.py": "# mypy rejects this call; Python still executes it without validating annotations.\ndef double(value: int) -> int:\n    return value * 2\n\n\nprint(double(\"3\"))\n",
+        "errors/bad_json.py": "from estimates import parse_minutes\n\nparse_minutes('[true, \"30\"]')\n",
+        "errors/bool_static.py": "from estimates import select_minutes\n\n# Accepted by the static int relationship; rejected by our exact-int business rule.\nprint(select_minutes([True]))\n",
+        "errors/mypy-default.ini": "[mypy]\npython_version = 3.13\n",
+        "errors/static_errors.py": "from estimates import select_minutes\n\n\ndef add_optional(value: int | None) -> int:\n    return value + 1  # Intentional: None has not been ruled out.\n\n\nvalues: list[int] = [30, \"15\"]  # Intentional element type error.\nselect_minutes([30], budget=\"45\")  # Intentional argument type error.\n",
+        "errors/unchecked.py": "# Intentionally unannotated; default mypy checking does not inspect this body.\ndef broken():\n    value = 1 + \"2\"\n    return value\n\n\nbroken()\n",
+        "estimates.py": "import json\n\n\ndef non_negative_int(value: object) -> int:\n    if type(value) is not int:\n        raise ValueError(\"minutes must be an integer, not bool or text\")\n    if value < 0:\n        raise ValueError(\"minutes must not be negative\")\n    return value\n\n\ndef parse_minutes(text: str) -> list[int]:\n    # JSON decoding returns dynamically shaped data, not a trusted list[int].\n    raw: object = json.loads(text)\n    if not isinstance(raw, list):\n        raise ValueError(\"minutes must be a JSON array\")\n    result: list[int] = []\n    for value in raw:\n        result.append(non_negative_int(value))\n    return result\n\n\ndef select_minutes(values: list[int], budget: int | None = None) -> list[int]:\n    if budget is not None:\n        non_negative_int(budget)\n    selected: list[int] = []\n    used = 0\n    for value in values:\n        non_negative_int(value)\n        if budget is None or used + value <= budget:\n            selected.append(value)\n            used += value\n    return selected\n\n\ndef summarize(values: list[int]) -> dict[str, int]:\n    for value in values:\n        non_negative_int(value)\n    return {\"count\": len(values), \"minutes\": sum(values)}\n",
+        "exercises/first_over.py": "# Exercise starter: add annotations and implementation before running its tests.\ndef first_over(values, limit):\n    raise NotImplementedError(\"implement first_over\")\n",
+        "pyproject.toml": "[project]\nname = \"js2py-u11-typing\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = []\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\", \"mypy==2.3.1\"]\n\n[tool.uv]\npackage = false\n\n[tool.pytest.ini_options]\npythonpath = [\".\"]\ntestpaths = [\"tests\"]\n\n[tool.mypy]\npython_version = \"3.13\"\nfiles = [\"estimates.py\", \"app.py\", \"solutions/first_over.py\"]\ndisallow_untyped_defs = true\n",
+        "solutions/__init__.py": "\"\"\"Reference answers; try the independent requirement first.\"\"\"\n",
+        "solutions/first_over.py": "from estimates import non_negative_int\n\n\ndef first_over(values: list[int], limit: int) -> int | None:\n    non_negative_int(limit)\n    for value in values:\n        non_negative_int(value)\n    for value in values:\n        if value > limit:\n            return value\n    return None\n",
+        "solutions/test_first_over.py": "import pytest\n\nfrom solutions.first_over import first_over\n\n\ndef test_first_match_and_no_match():\n    values = [0, 30, 90, 45]\n    assert first_over(values, 30) == 90\n    assert first_over(values, 90) is None\n    assert first_over([], 0) is None\n    assert values == [0, 30, 90, 45]\n\n\ndef test_validation_includes_later_elements():\n    with pytest.raises(ValueError):\n        first_over([90, -1], 30)\n    with pytest.raises(ValueError):\n        first_over([1], -1)\n",
+        "tests/test_estimates.py": "import json\n\nimport pytest\n\nfrom estimates import non_negative_int, parse_minutes, select_minutes, summarize\n\n\ndef test_decode_and_order():\n    assert parse_minutes(\"[30, 0, 90, 15]\") == [30, 0, 90, 15]\n    assert parse_minutes(\"[]\") == []\n\n\ndef test_bad_syntax_is_a_different_layer():\n    with pytest.raises(json.JSONDecodeError):\n        parse_minutes(\"[30,\")\n\n\ndef test_shape_and_values_are_validated():\n    for text in (\"null\", \"{}\", \"[true]\", \"[3.0]\", '[\"3\"]', \"[-1]\", \"[null]\"):\n        with pytest.raises(ValueError):\n            parse_minutes(text)\n\n\ndef test_exact_integer_rule():\n    assert non_negative_int(0) == 0\n    for value in (True, False, 3.0, \"3\", None, -1):\n        with pytest.raises(ValueError):\n            non_negative_int(value)\n\n\ndef test_budget_skip_not_break_and_source_unchanged():\n    values = [30, 0, 90, 15]\n    assert select_minutes(values, 45) == [30, 0, 15]\n    assert values == [30, 0, 90, 15]\n    assert select_minutes(values) == values\n    assert select_minutes(values) is not values\n\n\ndef test_zero_budget_and_empty():\n    assert select_minutes([1, 0, 2, 0], 0) == [0, 0]\n    assert select_minutes([], 0) == []\n\n\ndef test_runtime_guards_remain():\n    with pytest.raises(ValueError):\n        select_minutes([30, -1], 0)\n    with pytest.raises(ValueError):\n        select_minutes([], -1)\n\n\ndef test_summary_is_homogeneous_not_a_record_schema():\n    assert summarize([30, 0, 15]) == {\"count\": 3, \"minutes\": 45}\n    assert summarize([]) == {\"count\": 0, \"minutes\": 0}\n",
+        "uv.lock": "version = 1\nrevision = 3\nrequires-python = \"==3.13.*\"\n\n[[package]]\nname = \"ast-serialize\"\nversion = \"0.11.2\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/54/1e/4f6082cdd6e5a29093513e9a3eabc5ed1c5331a9a84386b2fece80a00a48/ast_serialize-0.11.2.tar.gz\", hash = \"sha256:976a5bd75845d22f4b52905ddf53ab669ef1b14dba7735f5512841a2ef2b5450\", size = 954387, upload-time = \"2026-09-13T18:48:55.673Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/0b/55/a1962188abf0e62d84d55892bb044347e434711763b9a1d4ad867a70c1be/ast_serialize-0.11.2-cp315-abi3.abi3t-macosx_10_12_x86_64.whl\", hash = \"sha256:ab924ba260efd7509492f272d4e236d24564033f20c005d7c63a107c6a76fc85\", size = 1235457, upload-time = \"2026-09-13T18:47:54.554Z\" },\n    { url = \"https://files.pythonhosted.org/packages/2a/ad/439c2959150718446af76fbe2f4000f35eba9869ef8564f3d9a3d0b1c370/ast_serialize-0.11.2-cp315-abi3.abi3t-macosx_11_0_arm64.whl\", hash = \"sha256:a586be418eb70a9f1396cea29ddac8f4b9bf277fb73ea2340db31e218bc00f32\", size = 1215705, upload-time = \"2026-09-13T18:47:56.178Z\" },\n    { url = \"https://files.pythonhosted.org/packages/6d/d8/2c6542fc3e7c56a0a25d8d12d034d5a2d2e1900e292567b1c1dca8e83124/ast_serialize-0.11.2-cp315-abi3.abi3t-manylinux_2_17_aarch64.manylinux2014_aarch64.whl\", hash = \"sha256:8532f20916fa3189d4d785ef2a62d93c4d651ec9c5bffda66d2fc36898351f34\", size = 1282530, upload-time = \"2026-09-13T18:47:57.619Z\" },\n    { url = \"https://files.pythonhosted.org/packages/fa/ad/6f6755cd0842db46c3b10b1e4735f14aad78d71dea4753eb46933101711b/ast_serialize-0.11.2-cp315-abi3.abi3t-manylinux_2_17_armv7l.manylinux2014_armv7l.whl\", hash = \"sha256:ee732ae167e686d1d3c00f98d7d82b23138304694f0441b14d7ddf9c0f8a921c\", size = 1287792, upload-time = \"2026-09-13T18:47:59.227Z\" },\n    { url = \"https://files.pythonhosted.org/packages/03/40/5da672f5dd23fb7dc0c884c97711e56a3540f2fe3c4355a81f8beb385911/ast_serialize-0.11.2-cp315-abi3.abi3t-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl\", hash = \"sha256:75a1c7f46b9c19fc0ae01ca6fd076301628faa2ed7a8edbd55c6353c483946a3\", size = 1557971, upload-time = \"2026-09-13T18:48:00.96Z\" },\n    { url = \"https://files.pythonhosted.org/packages/df/c7/2bb25684f697801eb72866fdb94ed5edbff3867ce878b0e542a4a5b9dab9/ast_serialize-0.11.2-cp315-abi3.abi3t-manylinux_2_17_s390x.manylinux2014_s390x.whl\", hash = \"sha256:2fdf31a0bb85ea2575cc91669f005e6647d2efed491231c4dc1497bc9a5b3aa6\", size = 1303230, upload-time = \"2026-09-13T18:48:02.337Z\" },\n    { url = \"https://files.pythonhosted.org/packages/d8/85/754681846f26e0ff1da729b1ffe3171e93c22f0aa6ec3cea5b14e3703846/ast_serialize-0.11.2-cp315-abi3.abi3t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl\", hash = \"sha256:3b78e6fdef3b06c86ed263e1962fee5a7b9d2d158e738b212d13b2c605ee12f5\", size = 1302271, upload-time = \"2026-09-13T18:48:03.915Z\" },\n    { url = \"https://files.pythonhosted.org/packages/fb/dc/f5521d8cb44b69095c3982ae3658a12c403e0efa19e51aeb9c8a79dff60c/ast_serialize-0.11.2-cp315-abi3.abi3t-manylinux_2_31_riscv64.whl\", hash = \"sha256:8d62a47714c8bc432b9fabcc29989c815c5da17327d35151f2fd0d85c2a7a5ff\", size = 1309529, upload-time = \"2026-09-13T18:48:05.562Z\" },\n    { url = \"https://files.pythonhosted.org/packages/73/0d/649182c7fd7c4f782279bed514de2dd67e48a5afecb605a098d64fdc01fd/ast_serialize-0.11.2-cp315-abi3.abi3t-manylinux_2_5_i686.manylinux1_i686.whl\", hash = \"sha256:8a5ffa70e76191dcf240d3c43e20c93b3bfd26f54d89148c762d57837f5bcd2c\", size = 1356869, upload-time = \"2026-09-13T18:48:07.534Z\" },\n    { url = \"https://files.pythonhosted.org/packages/bf/cc/aff4d84c16afa742d13a75384127c7d24594dc8c304f0558a15924fd51af/ast_serialize-0.11.2-cp315-abi3.abi3t-musllinux_1_2_aarch64.whl\", hash = \"sha256:bfbe47a3a7c368f28836e78b2440a3643ac0ec4c67d9fe53588e1448f0a3d35d\", size = 1460006, upload-time = \"2026-09-13T18:48:09.162Z\" },\n    { url = \"https://files.pythonhosted.org/packages/94/a7/891cbec2e5e0d7159196159d3ff0646622f3120ff4576c839ac2dd56c719/ast_serialize-0.11.2-cp315-abi3.abi3t-musllinux_1_2_armv7l.whl\", hash = \"sha256:7f1823275b246f9c7d373be6879e4eec09686948895d4ad083f4b27fd7e4da70\", size = 1562935, upload-time = \"2026-09-13T18:48:10.978Z\" },\n    { url = \"https://files.pythonhosted.org/packages/45/c4/2c8c4498340ea9aff87a9fd408309aa25d56dd51d7bbddfdb46a3c31424a/ast_serialize-0.11.2-cp315-abi3.abi3t-musllinux_1_2_i686.whl\", hash = \"sha256:57c0f5cb0021a5beb1e5e4d6e840ae2f23a28909703ef4d256a144cc1ad3d437\", size = 1557109, upload-time = \"2026-09-13T18:48:12.616Z\" },\n    { url = \"https://files.pythonhosted.org/packages/0d/8b/c5d4e5226fa18885fe17f949aee3ab1aeb8389c384d946ec1b7c9489cc94/ast_serialize-0.11.2-cp315-abi3.abi3t-musllinux_1_2_ppc64le.whl\", hash = \"sha256:cd320a5c4f1f2742af97eea22954f776379175c5ef2504801e9a155f2ff9a4d7\", size = 1691603, upload-time = \"2026-09-13T18:48:14.293Z\" },\n    { url = \"https://files.pythonhosted.org/packages/73/d6/1d2ca472586f9e3416a289a22f36eeb6dd6f47d77b1a4aba358405babbc7/ast_serialize-0.11.2-cp315-abi3.abi3t-musllinux_1_2_riscv64.whl\", hash = \"sha256:13b13afe32e845c86a573497729e1b7ddeb26c572c78bf50ece51da23b8fad5e\", size = 1483053, upload-time = \"2026-09-13T18:48:15.789Z\" },\n    { url = \"https://files.pythonhosted.org/packages/0e/16/d3703a7c1e3c76b144ac9349a54d3926d0749918a8dc13a66cede208b8ec/ast_serialize-0.11.2-cp315-abi3.abi3t-musllinux_1_2_x86_64.whl\", hash = \"sha256:9d80a81ec84660422579bdb8e789f656a794b48c7a1ae1261f6bd8bc1897d17d\", size = 1502499, upload-time = \"2026-09-13T18:48:17.405Z\" },\n    { url = \"https://files.pythonhosted.org/packages/2b/e4/d974e55c2e247ef26ed1df01c74940583db9a5b3a8bcaad5732c6e2047fb/ast_serialize-0.11.2-cp315-abi3.abi3t-win32.whl\", hash = \"sha256:af8c003ce721b0099dd55cef4ba733500fc3054ea0cc8565d8957aaf7cccdeb4\", size = 1119739, upload-time = \"2026-09-13T18:48:19.005Z\" },\n    { url = \"https://files.pythonhosted.org/packages/0d/00/d229443488e095054d5e0c0cc20689a2633b899d735849ff1b2c8e4f0cbf/ast_serialize-0.11.2-cp315-abi3.abi3t-win_amd64.whl\", hash = \"sha256:554d117cb916d8032d85007c654d179efbbfd446174c048062778136a922944f\", size = 1158602, upload-time = \"2026-09-13T18:48:20.524Z\" },\n    { url = \"https://files.pythonhosted.org/packages/11/75/389fc1a6cfa0c4b2ce522f47d8401329d8bb11732e516d46465960fef1d9/ast_serialize-0.11.2-cp315-abi3.abi3t-win_arm64.whl\", hash = \"sha256:d60515335750d431e462af6e722bb55720a5e7827192777bddfd9c4376065a4d\", size = 1128842, upload-time = \"2026-09-13T18:48:22.052Z\" },\n    { url = \"https://files.pythonhosted.org/packages/b1/54/f67120006fc73a55b6d057d4662d061fbb4eceafce3047c76ca8b382eb11/ast_serialize-0.11.2-cp39-abi3-macosx_10_12_x86_64.whl\", hash = \"sha256:daadf1c3e0224621607ffe16f1379e4bd372271ed2e1db8a67878f0bab3ef7e4\", size = 1240734, upload-time = \"2026-09-13T18:48:25.287Z\" },\n    { url = \"https://files.pythonhosted.org/packages/9a/7e/8f2ab68bddbe58a66fbbaad87beeae3e7d7edddb17263d1fc423936cf34d/ast_serialize-0.11.2-cp39-abi3-macosx_11_0_arm64.whl\", hash = \"sha256:1844ed9a487fb3de7325c52ddb33f2918b66b65cd54d3f8d83d23785ffe99fa4\", size = 1228053, upload-time = \"2026-09-13T18:48:26.788Z\" },\n    { url = \"https://files.pythonhosted.org/packages/d2/1b/8a69ab68f4c1603819f0481d756abdd8caf27cec7f1d77caa71007ebe997/ast_serialize-0.11.2-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl\", hash = \"sha256:b17869f4ba261a5fa468a753328a548f4dbaf74b4eadae9e28aff66df7f1425b\", size = 1292542, upload-time = \"2026-09-13T18:48:28.295Z\" },\n    { url = \"https://files.pythonhosted.org/packages/d1/ce/872f2e00f0467c289e483f0a34543463347243a2d0632748d89fcee5e0dc/ast_serialize-0.11.2-cp39-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl\", hash = \"sha256:feb16d9c2a720e0120c58dd5d6e7b3c7c86b43249b60a3bc212bcb8fa031e2dd\", size = 1294791, upload-time = \"2026-09-13T18:48:29.969Z\" },\n    { url = \"https://files.pythonhosted.org/packages/3a/82/36277c12af861c64b375c316135d8feffe3f400568463a8d2b2de4c2c4fb/ast_serialize-0.11.2-cp39-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl\", hash = \"sha256:f3109fe4805384effc8d0f8e41fbf875aa8f389af91b4348c1cfb60ea6e4cb82\", size = 1567583, upload-time = \"2026-09-13T18:48:31.85Z\" },\n    { url = \"https://files.pythonhosted.org/packages/b0/d7/ec643df91cea8bcbcb4e8011d6a8b08e5119b84f9554879f3e3c786d29d1/ast_serialize-0.11.2-cp39-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl\", hash = \"sha256:abdb3e49ba053c3486ac1263bee9f16cc9a4a8abd9f8c90bfc21e3669f3ad9d1\", size = 1312878, upload-time = \"2026-09-13T18:48:33.495Z\" },\n    { url = \"https://files.pythonhosted.org/packages/04/6f/4c992cd7841ba589fefb14ddc9aff2f6db7f2a615d4074f9ad04115b5ce0/ast_serialize-0.11.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl\", hash = \"sha256:a7004ba572f09be34342ccb98dcd4bad5707d3d81adc8cb4c3f685d2a2c51bbc\", size = 1312642, upload-time = \"2026-09-13T18:48:35.294Z\" },\n    { url = \"https://files.pythonhosted.org/packages/d5/e3/22aaa209c231a83cfea004fd67dee7a7a54da3f169c6c460b14b96887385/ast_serialize-0.11.2-cp39-abi3-manylinux_2_31_riscv64.whl\", hash = \"sha256:59c25f47524efa052971b860e128b1add0c94ede7dd16b2962952c85c3582365\", size = 1319776, upload-time = \"2026-09-13T18:48:36.866Z\" },\n    { url = \"https://files.pythonhosted.org/packages/c1/f7/d4685fb54d10108ce44d3bc893ef670854d61645d47ed96d73524db90c23/ast_serialize-0.11.2-cp39-abi3-manylinux_2_5_i686.manylinux1_i686.whl\", hash = \"sha256:f3a367e0e05ed2d1b747ceb07aa728a8c204cc008b589127e9bd4f40053d7575\", size = 1365324, upload-time = \"2026-09-13T18:48:38.412Z\" },\n    { url = \"https://files.pythonhosted.org/packages/42/3a/250643ffad02bda520c50a9a5f02a5d43259a06f34ce393c91761d134d7e/ast_serialize-0.11.2-cp39-abi3-musllinux_1_2_aarch64.whl\", hash = \"sha256:00bbf1f6669f813b48925b759f7ae4591067d456d443924055cab386e7e0a719\", size = 1467653, upload-time = \"2026-09-13T18:48:40.348Z\" },\n    { url = \"https://files.pythonhosted.org/packages/c7/da/af66a646b9b7f8fdec95ce83fc7b1fe538b06864bc79bd554ac4fae2e6ea/ast_serialize-0.11.2-cp39-abi3-musllinux_1_2_armv7l.whl\", hash = \"sha256:ec1c20f89c3e0d83576e3c06f79375ce936266591fe0d5fd969914af3185cbaa\", size = 1571914, upload-time = \"2026-09-13T18:48:41.968Z\" },\n    { url = \"https://files.pythonhosted.org/packages/34/82/77a9714564b9e8800087a8afec41527c65c39e49282baae2ac847b9c1c6a/ast_serialize-0.11.2-cp39-abi3-musllinux_1_2_i686.whl\", hash = \"sha256:c58bb119b73657fdc5569692f316e1e25ca114bd62f7782eb527c6be438ba3a9\", size = 1569862, upload-time = \"2026-09-13T18:48:43.701Z\" },\n    { url = \"https://files.pythonhosted.org/packages/65/06/fa77b52f46b9bd6dcd8ff2b880e3781f8c1a316bb1342bc3de92907c6f96/ast_serialize-0.11.2-cp39-abi3-musllinux_1_2_ppc64le.whl\", hash = \"sha256:f739e0b601be7300c5697a2573d9200bd1db74b34ab111ef9537b9d5dcd7f106\", size = 1699020, upload-time = \"2026-09-13T18:48:45.261Z\" },\n    { url = \"https://files.pythonhosted.org/packages/e1/09/239c83153c7e0798e5867d6909cb06f53dccfef02f6999c8e2e21ecb98c3/ast_serialize-0.11.2-cp39-abi3-musllinux_1_2_riscv64.whl\", hash = \"sha256:cae5addfbb54cc1d47fe947ef9138e9d83849ed1cbc72b819cf36d96a2315b07\", size = 1492869, upload-time = \"2026-09-13T18:48:46.922Z\" },\n    { url = \"https://files.pythonhosted.org/packages/2f/eb/6108fb9a43fc7ab5529856e38e33c6e3e064fbfe375fdcbb208c7cd5438d/ast_serialize-0.11.2-cp39-abi3-musllinux_1_2_x86_64.whl\", hash = \"sha256:2fa3be25f7f5351b1b39c9f8a52779b2dbf21199efbae564b4746422e8edca4e\", size = 1511621, upload-time = \"2026-09-13T18:48:48.667Z\" },\n    { url = \"https://files.pythonhosted.org/packages/8a/82/60367e58ef346a41ebc90d3f28593c1b8f5c2cb5314c7b2bbd98910ee131/ast_serialize-0.11.2-cp39-abi3-win32.whl\", hash = \"sha256:d70556a2f9230a44c99a655774cde823f056efc34466eabfb4085f0cb1ea9f99\", size = 1125873, upload-time = \"2026-09-13T18:48:50.661Z\" },\n    { url = \"https://files.pythonhosted.org/packages/23/bf/b419c3205ce1143ba7c69baef4f0ba43c14d8712113bf34f9e0d27d609be/ast_serialize-0.11.2-cp39-abi3-win_amd64.whl\", hash = \"sha256:b9065dd23131a23b41f5bab3bf4e9b3c350a3fe8e36e8200eded9b729fcea484\", size = 1165434, upload-time = \"2026-09-13T18:48:52.169Z\" },\n    { url = \"https://files.pythonhosted.org/packages/91/a7/c8bbb2173f7a7131b3b2412035b2d814ab5ef2ce9799bd06f07c451640e4/ast_serialize-0.11.2-cp39-abi3-win_arm64.whl\", hash = \"sha256:dab599cbdcb7b45b18c41fad746645580b3a24357082b7f0e8921cd373804f27\", size = 1136031, upload-time = \"2026-09-13T18:48:54.04Z\" },\n]\n\n[[package]]\nname = \"colorama\"\nversion = \"0.4.6\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93a6792e2acffb9d9d5cb0a5cfd8802644b7b1c9a02e4/colorama-0.4.6.tar.gz\", hash = \"sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44\", size = 27697, upload-time = \"2022-10-25T02:36:22.414Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl\", hash = \"sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6\", size = 25335, upload-time = \"2022-10-25T02:36:20.889Z\" },\n]\n\n[[package]]\nname = \"iniconfig\"\nversion = \"2.3.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc35312d08ba8bf51fdd999c576889fc2c24cb97f4f10/iniconfig-2.3.0.tar.gz\", hash = \"sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730\", size = 20503, upload-time = \"2025-10-18T21:55:43.219Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl\", hash = \"sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12\", size = 7484, upload-time = \"2025-10-18T21:55:41.639Z\" },\n]\n\n[[package]]\nname = \"js2py-u11-typing\"\nversion = \"0.1.0\"\nsource = { virtual = \".\" }\n\n[package.dev-dependencies]\ndev = [\n    { name = \"mypy\" },\n    { name = \"pytest\" },\n]\n\n[package.metadata]\n\n[package.metadata.requires-dev]\ndev = [\n    { name = \"mypy\", specifier = \"==2.3.1\" },\n    { name = \"pytest\", specifier = \"==8.4.2\" },\n]\n\n[[package]]\nname = \"librt\"\nversion = \"0.15.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/36/9b/356320fbae2ac8467e21c5e73e1389c80468e4998c62cc7d3536cc51b614/librt-0.15.0.tar.gz\", hash = \"sha256:4e66cbe84437497d951b799d3e1551291b6fb3d643820a7014b3655d57a59162\", size = 214338, upload-time = \"2026-08-07T10:49:42.663Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/e7/42/467b53a601b406ccd7b97c1fd54b59cb34f9185ad5ce7e9d5c3c4e8961c8/librt-0.15.0-cp313-cp313-macosx_10_13_x86_64.whl\", hash = \"sha256:db13ca398005abcbe538deda87b686d9bd08b7001cf40c4c06b444960ae10a26\", size = 151029, upload-time = \"2026-08-07T10:47:19.312Z\" },\n    { url = \"https://files.pythonhosted.org/packages/3e/e6/36c2299b7a94b84fdd01220d8a777a71be5be0925bb0dbdf71c0a06a34d9/librt-0.15.0-cp313-cp313-macosx_11_0_arm64.whl\", hash = \"sha256:aa1f1995789dca3698bc550aaceb09a51bd5df0a057ff84ff15296cd1975b801\", size = 155194, upload-time = \"2026-08-07T10:47:20.398Z\" },\n    { url = \"https://files.pythonhosted.org/packages/c9/b6/ed5071f9325845e670bd36012757419767fbf56af77ed483077b9e4db541/librt-0.15.0-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl\", hash = \"sha256:55456ea87d8df21808446d03817be2f65e20391c1c615d9187440dff28cd08dc\", size = 502568, upload-time = \"2026-08-07T10:47:21.652Z\" },\n    { url = \"https://files.pythonhosted.org/packages/7f/81/6450c67c3615d87704bcbc21323fafc69c799b06a044c447529f725d4b01/librt-0.15.0-cp313-cp313-manylinux2014_i686.manylinux_2_17_i686.manylinux_2_28_i686.whl\", hash = \"sha256:5a86a5a08c2235316bdb359d5dbb6ce0abfca7fac06363103e2c5af571d92f95\", size = 496153, upload-time = \"2026-08-07T10:47:22.925Z\" },\n    { url = \"https://files.pythonhosted.org/packages/e1/d6/5f52b722bc75076954b3bfd49be15ea362df4d580c6fb315d0f617100d30/librt-0.15.0-cp313-cp313-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl\", hash = \"sha256:e56b6a368529bed262da40ce13f8fef590db0479819cca84f16a1f01ac356d0b\", size = 513336, upload-time = \"2026-08-07T10:47:24.213Z\" },\n    { url = \"https://files.pythonhosted.org/packages/8d/e2/c08fd1d36ce63ea5a12b85c5d37f4550b5f86a692167e41e5a74222607ae/librt-0.15.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl\", hash = \"sha256:234d8d394721fa0d786af15ebf1f3fb7f3ed82fd1cd0cde45c2f247b5d4281d2\", size = 531661, upload-time = \"2026-08-07T10:47:25.507Z\" },\n    { url = \"https://files.pythonhosted.org/packages/3f/d8/d9482fcbeb177b9eb87bb3899eeb3b42be690313c652f9e146b1d0681fb2/librt-0.15.0-cp313-cp313-manylinux_2_34_riscv64.manylinux_2_39_riscv64.whl\", hash = \"sha256:d8363d7accb0286ac3a0e633f396e93800dafb8150494505daf9515bbda591f3\", size = 524487, upload-time = \"2026-08-07T10:47:26.79Z\" },\n    { url = \"https://files.pythonhosted.org/packages/10/cc/075171517b41f861753034fbb151b42cfc83bcc853849f24f5e66fd60ccf/librt-0.15.0-cp313-cp313-musllinux_1_2_aarch64.whl\", hash = \"sha256:0f0ee3644d951f31055ad07d77d92520e84505dd7a432cc4cd501dd70ee06785\", size = 543201, upload-time = \"2026-08-07T10:47:27.999Z\" },\n    { url = \"https://files.pythonhosted.org/packages/b0/03/42c2330f37eeb475b6affeedd06518f60035f323af3a839335e3fc9fef2d/librt-0.15.0-cp313-cp313-musllinux_1_2_i686.whl\", hash = \"sha256:2cfd1a81a648806e6a7717be4cc4d1bb392fa229752bf8444ba365e381e984d6\", size = 546467, upload-time = \"2026-08-07T10:47:29.396Z\" },\n    { url = \"https://files.pythonhosted.org/packages/57/1e/1ad4c5638f7e64d8560328bd25c54b409a661bdb6ff254b38ff90744288d/librt-0.15.0-cp313-cp313-musllinux_1_2_ppc64le.whl\", hash = \"sha256:a6cd22c9da0d866558e46a041f1cc0c2bbb26b61b137b2347fa834c332e1d101\", size = 555139, upload-time = \"2026-08-07T10:47:30.815Z\" },\n    { url = \"https://files.pythonhosted.org/packages/49/41/39fa7d15db1204cd1cbe6514680fbdc243adf754a0885061308f43afc013/librt-0.15.0-cp313-cp313-musllinux_1_2_riscv64.whl\", hash = \"sha256:6d5225ef8801e4ea5e482fa9b5dfb891dd9ef6f6d870f1f25d449ca2c70ac218\", size = 536050, upload-time = \"2026-08-07T10:47:32.222Z\" },\n    { url = \"https://files.pythonhosted.org/packages/1e/88/c6dcf0dd8e26dc0c9a499a2abab8646c86dcaf9ecea9524cb46d3686331a/librt-0.15.0-cp313-cp313-musllinux_1_2_x86_64.whl\", hash = \"sha256:6d28a05796b99f749bf8794f17ba9ba1612d0076b802e9cfc62c554634e9ce3b\", size = 573700, upload-time = \"2026-08-07T10:47:33.527Z\" },\n    { url = \"https://files.pythonhosted.org/packages/1b/9b/ab54c71a7918a7c34fa5327fb61390a77446a07a146fbfb1165250a61035/librt-0.15.0-cp313-cp313-pyemscripten_2025_0_wasm32.whl\", hash = \"sha256:2067ff438048cead9d223ca5675bae2a25e520a7c3e6c1498bf9c6892d22caab\", size = 82194, upload-time = \"2026-08-07T10:47:34.835Z\" },\n    { url = \"https://files.pythonhosted.org/packages/8d/b2/4f9a243bb892395f3becb80789ade13771701091f9f07ab8230247953ba8/librt-0.15.0-cp313-cp313-win32.whl\", hash = \"sha256:1cd3b721f24c206398b9e26da3c3a9c011e6e89d06f318ba8ebefc30f1003890\", size = 106231, upload-time = \"2026-08-07T10:47:36.251Z\" },\n    { url = \"https://files.pythonhosted.org/packages/bf/af/64aff4885a40b93132382f2c314647d722574605416504379184ef3045ea/librt-0.15.0-cp313-cp313-win_amd64.whl\", hash = \"sha256:f395a4a9a03ac062dbe9a9f82e0c720502e590a38feee6a757bc82e9c63afbd8\", size = 126996, upload-time = \"2026-08-07T10:47:37.453Z\" },\n    { url = \"https://files.pythonhosted.org/packages/27/83/335bccf6c7cb9028cb0b54aead27d9ece3f01f83bc6baa2abace5da655c1/librt-0.15.0-cp313-cp313-win_arm64.whl\", hash = \"sha256:0a15cb554761247d84a3ec0cbdf4078d70725384f0e4662c0fa3b26266eb60ad\", size = 112188, upload-time = \"2026-08-07T10:47:38.729Z\" },\n]\n\n[[package]]\nname = \"mypy\"\nversion = \"2.3.1\"\nsource = { registry = \"https://pypi.org/simple\" }\ndependencies = [\n    { name = \"ast-serialize\" },\n    { name = \"librt\", marker = \"platform_python_implementation != 'PyPy'\" },\n    { name = \"mypy-extensions\" },\n    { name = \"pathspec\" },\n    { name = \"typing-extensions\" },\n]\nsdist = { url = \"https://files.pythonhosted.org/packages/82/6a/878cc1097d4035f82bd516658d0c528d2a9955bc7b363afcbd0b07fea11b/mypy-2.3.1.tar.gz\", hash = \"sha256:47c1b1207258513a9d93495f69c8be9de73916186f0e52703e8c461b7a623419\", size = 3992554, upload-time = \"2026-08-15T03:03:38.549Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/de/cf/862010ee800ca9c2bd0c4c0dacf0f092e5411824a09b8f97ad4be8fe250e/mypy-2.3.1-cp313-cp313-macosx_11_0_arm64.whl\", hash = \"sha256:114dff494000f18bd10d5d95d84b8567b26da60279ecbe838131841df20e635d\", size = 13964542, upload-time = \"2026-08-15T03:02:21.43Z\" },\n    { url = \"https://files.pythonhosted.org/packages/75/5a/3f3a2107b41e3e92e617e25daaee121413b91e9784bea733131ed4fecc5d/mypy-2.3.1-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl\", hash = \"sha256:c8637731bb5eee3671eb2c3200827aa3564ed8a9309ecee4d1afe77e6d031bdb\", size = 14168922, upload-time = \"2026-08-15T03:03:00.351Z\" },\n    { url = \"https://files.pythonhosted.org/packages/8b/41/04dc4fe7e63d7820fa4eff272e95157d30cbea921388f3ab3fe77794cd0b/mypy-2.3.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl\", hash = \"sha256:1c80fbc405ed8020f5ff3802dc18cf060197bcdd3fbdd6a26ef2fd34dfdd5226\", size = 15244791, upload-time = \"2026-08-15T03:02:31.089Z\" },\n    { url = \"https://files.pythonhosted.org/packages/96/fc/c3053b26b9054949285aa868cb6af8c10e7591541cacd79c5dcc06a1fcf9/mypy-2.3.1-cp313-cp313-musllinux_1_2_x86_64.whl\", hash = \"sha256:84081f538ce27375045c02e3d7f81bd11d853400621ae245d87ce7b6c420ec74\", size = 15501627, upload-time = \"2026-08-15T03:03:34.128Z\" },\n    { url = \"https://files.pythonhosted.org/packages/70/4e/d77daab008bbc4e5001374d7928f4a260d28f0e6747af444fc4763f7a310/mypy-2.3.1-cp313-cp313-win_amd64.whl\", hash = \"sha256:e9144ac16fde007096f9563eb2041b4433c2d705c4218edeb79e7e9d01035ee6\", size = 11243961, upload-time = \"2026-08-15T03:02:11.952Z\" },\n    { url = \"https://files.pythonhosted.org/packages/f0/f8/7eb68c136e4abd30569fe31ef2bfcb7eceae9952cab80017c04cd09f5d0c/mypy-2.3.1-cp313-cp313-win_arm64.whl\", hash = \"sha256:77ad9529e67dca28e511f5cd5671436584ce91f6d3bac159a353158187b986ac\", size = 10213219, upload-time = \"2026-08-15T03:02:26.361Z\" },\n    { url = \"https://files.pythonhosted.org/packages/8e/41/9675c7a1e78edecfba0b79e587a52594c56e189368261dc7b3a7fffb9527/mypy-2.3.1-py3-none-any.whl\", hash = \"sha256:6ed5c7e3419083268e5c9258bd1c1ef91af44a9e89374dbcaf37b775716e72eb\", size = 2754338, upload-time = \"2026-08-15T03:02:53.4Z\" },\n]\n\n[[package]]\nname = \"mypy-extensions\"\nversion = \"1.1.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/a2/6e/371856a3fb9d31ca8dac321cda606860fa4548858c0cc45d9d1d4ca2628b/mypy_extensions-1.1.0.tar.gz\", hash = \"sha256:52e68efc3284861e772bbcd66823fde5ae21fd2fdb51c62a211403730b916558\", size = 6343, upload-time = \"2025-04-22T14:54:24.164Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/79/7b/2c79738432f5c924bef5071f933bcc9efd0473bac3b4aa584a6f7c1c8df8/mypy_extensions-1.1.0-py3-none-any.whl\", hash = \"sha256:1be4cccdb0f2482337c4743e60421de3a356cd97508abadd57d47403e94f5505\", size = 4963, upload-time = \"2025-04-22T14:54:22.983Z\" },\n]\n\n[[package]]\nname = \"packaging\"\nversion = \"26.3\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/7d/fa/3944b40b07da9ce895c0e6303a5ab7d53da063554f534556b134a54d6093/packaging-26.3.tar.gz\", hash = \"sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79\", size = 313412, upload-time = \"2026-08-04T18:15:28.737Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl\", hash = \"sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c\", size = 129956, upload-time = \"2026-08-04T18:15:27.159Z\" },\n]\n\n[[package]]\nname = \"pathspec\"\nversion = \"1.1.1\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/5a/82/42f767fc1c1143d6fd36efb827202a2d997a375e160a71eb2888a925aac1/pathspec-1.1.1.tar.gz\", hash = \"sha256:17db5ecd524104a120e173814c90367a96a98d07c45b2e10c2f3919fff91bf5a\", size = 135180, upload-time = \"2026-04-27T01:46:08.907Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/f1/d9/7fb5aa316bc299258e68c73ba3bddbc499654a07f151cba08f6153988714/pathspec-1.1.1-py3-none-any.whl\", hash = \"sha256:a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189\", size = 57328, upload-time = \"2026-04-27T01:46:07.06Z\" },\n]\n\n[[package]]\nname = \"pluggy\"\nversion = \"1.6.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/f9/e2/3e91f31a7d2b083fe6ef3fa267035b518369d9511ffab804f839851d2779/pluggy-1.6.0.tar.gz\", hash = \"sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3\", size = 69412, upload-time = \"2025-05-15T12:30:07.975Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl\", hash = \"sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746\", size = 20538, upload-time = \"2025-05-15T12:30:06.134Z\" },\n]\n\n[[package]]\nname = \"pygments\"\nversion = \"2.21.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/49/2e/ced460408999b33da6b31b0021b0f37d329e202d4169aeb164493778f25b/pygments-2.21.0.tar.gz\", hash = \"sha256:610ca751c9bc2492b38eb9a38a7fbc93edbbb2d7182edaf34e66ae493dee5c8c\", size = 5005329, upload-time = \"2026-08-17T08:02:48.824Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl\", hash = \"sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9\", size = 1250147, upload-time = \"2026-08-17T08:02:44.912Z\" },\n]\n\n[[package]]\nname = \"pytest\"\nversion = \"8.4.2\"\nsource = { registry = \"https://pypi.org/simple\" }\ndependencies = [\n    { name = \"colorama\", marker = \"sys_platform == 'win32'\" },\n    { name = \"iniconfig\" },\n    { name = \"packaging\" },\n    { name = \"pluggy\" },\n    { name = \"pygments\" },\n]\nsdist = { url = \"https://files.pythonhosted.org/packages/a3/5c/00a0e072241553e1a7496d638deababa67c5058571567b92a7eaa258397c/pytest-8.4.2.tar.gz\", hash = \"sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01\", size = 1519618, upload-time = \"2025-09-04T14:34:22.711Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl\", hash = \"sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79\", size = 365750, upload-time = \"2025-09-04T14:34:20.226Z\" },\n]\n\n[[package]]\nname = \"typing-extensions\"\nversion = \"4.16.0\"\nsource = { registry = \"https://pypi.org/simple\" }\nsdist = { url = \"https://files.pythonhosted.org/packages/f6/cc/6253133b5bb138fc3306cebfbda2c520f545d36b5be2c7255cc528bb45d6/typing_extensions-4.16.0.tar.gz\", hash = \"sha256:dc983d19a509c94dba722ee6abd33940f7c05a89e243c47e907eb4db6f1a43e5\", size = 113555, upload-time = \"2026-07-02T08:40:05.92Z\" }\nwheels = [\n    { url = \"https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl\", hash = \"sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8\", size = 45571, upload-time = \"2026-07-02T08:40:04.659Z\" },\n]\n"
+      },
+      "validation_status": "Actual CPython3.13.15 and uv0.12.13 clean ZIP and second-empty-directory reconstruction passed. L11: 8+2 pytest tests, mypy2.3.1 normal pass, deliberate static errors, runtime annotation nonvalidation, neutral-config unchecked body false green, bool/int static/runtime mismatch, two mutations caught. L12:9+2 tests, sharing/binding/no-validation experiments, two mutations caught. L13:8+7 tests, expression/application timing, order/registry divergence, missing return/duplicate registration, two mutations caught. L14:12+2 tests, real handles normal/error/acquire-failure, referenced generator break/close, suppression and two-yield defects, two mutations caught. Three-locale code/output/source refs match; remaining full cumulative build/site/browser validation is still pending. This review does not establish production readiness or learner effectiveness.",
+      "primary_reference_observations": "Python3.13 official docs for typing/classes/dataclasses/function definitions/functools/generator methods/contextlib read. Mypy2.3.1 and pytest8.4.2 official repository docs used after documentation sites returned403. Python3.13 Generator yield-only annotation shorthand actually evaluated. Exact-int policy intentionally rejects bool and subclasses; Any/object boundary is not a schema. Models public mutation is explicitly not revalidated. Decorator factories evaluate top-down and apply bottom-up, main expansion only scoped to independent factories. Plain break does not close a retained generator; unstarted close does not execute body; contextmanager must yield once after successful acquisition, cleanup != rollback."
+    },
+    "questions": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "instructions": "Does REQUIRED learner work use an essential capability neither taught previously nor explained before required use? Exclude maintainer verification and explicitly optional advanced concepts."
+      },
+      "depth": {
+        "type": "choice",
+        "instructions": "Assess motivation, actual mechanism explanations, diagnosis and independent work in the supplied full material, not length.",
+        "criteria": {
+          "SUBSTANTIVE": "Concrete transferable textbook teaching.",
+          "PARTIAL": "Important mechanisms abbreviated.",
+          "API_CATALOGUE": "Primarily syntax/names.",
+          "UNCERTAIN": "Evidence is insufficient."
+        }
+      },
+      "technical_mechanisms": {
+        "type": "choice",
+        "instructions": "Review actual claims against actual code. L11 annotation/default/narrowing/Any/runtime rules and mypy scope; L12 ownership/binding/composition/inheritance/dataclass defaults and explicit validation; L13 factory/evaluation/application/invocation/registration/wrapping/order/parametrization; L14 lazy validation/exhaustion/break/close/with/contextmanager/failure stages.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Mechanism is accurate, taught before required use, and limitations are explicit.",
+          "MATERIAL_ERROR": "Substantive inaccurate or unsafe technical claim.",
+          "NECESSARY_GAP": "Essential explanation or evidence missing.",
+          "UNCERTAIN": "Evidence cannot settle this."
+        }
+      },
+      "failure_policy": {
+        "type": "choice",
+        "instructions": "Are failures intentional, diagnosed by correct stage, and repaired without masking errors or claiming guarantees not supplied? Separate explicitly marked bad examples from recommended implementations.",
+        "criteria": {
+          "ACCURATE_AND_BOUNDED": "Mechanism is accurate, taught before required use, and limitations are explicit.",
+          "MATERIAL_ERROR": "Substantive inaccurate or unsafe technical claim.",
+          "NECESSARY_GAP": "Essential explanation or evidence missing.",
+          "UNCERTAIN": "Evidence cannot settle this."
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "instructions": "Do the independent requirements, actual implementations/tests, exact types, outputs and commands agree?",
+        "criteria": {
+          "COHERENT_AND_TESTABLE": "Agree and have measurable acceptance.",
+          "CONTRADICTORY": "A material requirement/source/behavior conflict.",
+          "UNDERSPECIFIED": "Essential policy unclear.",
+          "UNCERTAIN": "Insufficient evidence."
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "instructions": "Does acceptance require explanation, changed input, reconstruction, diagnosis, or defect detection rather than copying a fixed success output?"
+      },
+      "next_action": {
+        "type": "choice",
+        "instructions": "Assuming pending cumulative build/site/browser checks pass, choose the action for THIS chapter only.",
+        "criteria": {
+          "PROCEED": "Complete enough to continue in prerequisite order.",
+          "REVISE": "Material issue needs repair first.",
+          "TARGETED_REVIEW": "Uncertainty requires focused evidence inspection."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "hidden_prerequisite": {
+        "type": "noul",
+        "noul": 0.25
+      },
+      "depth": {
+        "type": "choice",
+        "choice": "SUBSTANTIVE",
+        "confidence": 1.0,
+        "probabilities": {
+          "API_CATALOGUE": 0.0,
+          "UNCERTAIN": 0.0,
+          "PARTIAL": 0.0,
+          "SUBSTANTIVE": 1.0
+        }
+      },
+      "technical_mechanisms": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 0.52,
+        "probabilities": {
+          "UNCERTAIN": 0.09,
+          "MATERIAL_ERROR": 0.14,
+          "NECESSARY_GAP": 0.13,
+          "ACCURATE_AND_BOUNDED": 0.64
+        }
+      },
+      "failure_policy": {
+        "type": "choice",
+        "choice": "ACCURATE_AND_BOUNDED",
+        "confidence": 0.99,
+        "probabilities": {
+          "UNCERTAIN": 0.0,
+          "MATERIAL_ERROR": 0.01,
+          "NECESSARY_GAP": 0.0,
+          "ACCURATE_AND_BOUNDED": 0.99
+        }
+      },
+      "independent_contract": {
+        "type": "choice",
+        "choice": "COHERENT_AND_TESTABLE",
+        "confidence": 0.87,
+        "probabilities": {
+          "UNCERTAIN": 0.01,
+          "COHERENT_AND_TESTABLE": 0.9,
+          "CONTRADICTORY": 0.09,
+          "UNDERSPECIFIED": 0.0
+        }
+      },
+      "independent_transfer": {
+        "type": "noul",
+        "noul": 0.95
+      },
+      "next_action": {
+        "type": "choice",
+        "choice": "PROCEED",
+        "confidence": 0.79,
+        "probabilities": {
+          "REVISE": 0.05,
+          "TARGETED_REVIEW": 0.09,
+          "PROCEED": 0.86
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 27956,
+      "output_tokens": 341
+    }
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not gpt-6-astra. User-authorized writing subagents work on distinct later chapters; they are not this service.",
+    "decision": "Conditional PROCEED adopted after real runtime, mutation, reconstruction, cumulative regression and three-locale page checks. Lower-confidence and unfavorable branches explicitly audited, not hidden.",
+    "limits": "Confidence is distribution concentration, not correctness or measured learner effectiveness. Translation/runtime/browser checks are separate. The original request truthfully states site checks were pending then.",
+    "snapshot": "Reviewed English and downloads match exact submitted bytes. Additional hashes bind this verification snapshot only; later updates to shared navigation/tooling do not rewrite historical reviews."
+  },
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-11-pythonic-code.mdx",
+    "examples/js2py/u11-typing/.python-version",
+    "examples/js2py/u11-typing/README.md",
+    "examples/js2py/u11-typing/README.zh-cn.md",
+    "examples/js2py/u11-typing/README.zh-tw.md",
+    "examples/js2py/u11-typing/app.py",
+    "examples/js2py/u11-typing/baseline.py",
+    "examples/js2py/u11-typing/errors/__init__.py",
+    "examples/js2py/u11-typing/errors/annotation_only.py",
+    "examples/js2py/u11-typing/errors/bad_json.py",
+    "examples/js2py/u11-typing/errors/bool_static.py",
+    "examples/js2py/u11-typing/errors/mypy-default.ini",
+    "examples/js2py/u11-typing/errors/static_errors.py",
+    "examples/js2py/u11-typing/errors/unchecked.py",
+    "examples/js2py/u11-typing/estimates.py",
+    "examples/js2py/u11-typing/exercises/first_over.py",
+    "examples/js2py/u11-typing/pyproject.toml",
+    "examples/js2py/u11-typing/solutions/__init__.py",
+    "examples/js2py/u11-typing/solutions/first_over.py",
+    "examples/js2py/u11-typing/solutions/test_first_over.py",
+    "examples/js2py/u11-typing/tests/test_estimates.py",
+    "examples/js2py/u11-typing/uv.lock"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-11-pythonic-code.mdx": "63d730db1d9b4afc90649958c91087ef8f236dc9dab9076511c3cc9bfc9a09af",
+    "examples/js2py/u11-typing/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/u11-typing/README.md": "9580a4152b8c11ca3ccf7896c5659a24822b191ecd11eead9e8e3f0871c87e65",
+    "examples/js2py/u11-typing/README.zh-cn.md": "fa876e85094e654a1f1c4769c8efd1e8e606539eb6ffcc19a782a41b6c6cd68f",
+    "examples/js2py/u11-typing/README.zh-tw.md": "13965cfe2102723165aea02fb2057f986e2196244afdc48df12f0c8140d9a110",
+    "examples/js2py/u11-typing/app.py": "d2034d8cba70cec8cefbb6fa8b077ad6312bb00d1ee8f6a93f203a05197a0ec0",
+    "examples/js2py/u11-typing/baseline.py": "669040323f910c0fa51bce57d2582569b84b124d3cf6b19a52f308d10a81fc8a",
+    "examples/js2py/u11-typing/errors/__init__.py": "a709bf15cc771c29db9b83f259fb31bc1a80c4cfa123f16b0b88c0d3b3756634",
+    "examples/js2py/u11-typing/errors/annotation_only.py": "05f3ddce40e7ee3ca73699a8ca81f663c05d665f7510b2e1ebee48818ae62ff7",
+    "examples/js2py/u11-typing/errors/bad_json.py": "91574e76e68c3a5637841436943e5c445493d7a0e0eabc2aa8841179ccbaf939",
+    "examples/js2py/u11-typing/errors/bool_static.py": "095bbd02e30c59ffb6f5801eabef78a5d90ca12314039c241210770c16625813",
+    "examples/js2py/u11-typing/errors/mypy-default.ini": "95a47000c43e99266518b4b03c4f086bfa54f52debcce98c8307a73d2d7f8e4b",
+    "examples/js2py/u11-typing/errors/static_errors.py": "6589d824743979cfc3625ba26a657bc46fe2a9c3c7b9d7c284b7e3c07e74e246",
+    "examples/js2py/u11-typing/errors/unchecked.py": "6ef3ba34919ea1706d6dd838dddc7646504ef87f7eb60a3c9b525d929c8c26c4",
+    "examples/js2py/u11-typing/estimates.py": "19d24ade81cb36e643a5637d3fb185c36f5373dde580732b08156885e608c287",
+    "examples/js2py/u11-typing/exercises/first_over.py": "ef3ba04f5a5272d77c926855f828a3d9abd2dca1547cd69857afbe28128b0674",
+    "examples/js2py/u11-typing/pyproject.toml": "0a5d113e8008d67441a6e87d94feb5b9336a87a5b4af0ad2ff63ec92aa2a51ce",
+    "examples/js2py/u11-typing/solutions/__init__.py": "9d3de2f67aece9cf57204d2c74f6ca357407f0fb768ea1cb8f88fb7e59504820",
+    "examples/js2py/u11-typing/solutions/first_over.py": "7150d070a8e9fe35c29d8c3b0e31ecfbc4b3925ab0d6ff4e5e602162e75b2b18",
+    "examples/js2py/u11-typing/solutions/test_first_over.py": "33103600622648c556a2eda98294d644600e8ee94688c472e743a02ba320d9ce",
+    "examples/js2py/u11-typing/tests/test_estimates.py": "7dacabcfa871412ff13e0c7d4fa85a07e8ca4b9bc60cda693d33112af643bdd1",
+    "examples/js2py/u11-typing/uv.lock": "6d48468636363b76d26cbd3d072f30f3aaacc74adf42c272bea16edea0859ebf",
+    ".gitignore": "6c96925a50699e6f3fadb2a8eef6118152c916a12671a8deebc2ba481d61670c",
+    "package.json": "fd985cfdc90b0a5cf30064f4abb15b0049ddc83e79b36d44d58f17a69b35afc7",
+    "lib/js2py-examples.ts": "75087a16762826a10ac9a33198e52d1de2e4245ae3d589015fddbcfb1b88a908",
+    "scripts/build-js2py-lab.py": "21b370744d42f75ab8c788ae77eb96bc8fca0a155aec57bca205d4cbe5dd7beb",
+    "scripts/check-js2py-content.py": "510b18f2832acf578b77e2d1f86498b9e24dc46f0bc29050dc0cb20a8aee1063",
+    "scripts/test-js2py-transitions.py": "32027ee4ba29759649402dfbb8422b9ba38dd945cf21b2f5731818555577677d",
+    "scripts/tests/test_js2py_transition_foundations.py": "09dfa05193eaab7ff72b5783cff67e2ae025d1de8985fb29f336eb079b4330d9",
+    "scripts/tests/fixtures/js2py-transition-foundations.json": "45b36bd746886121fb2e9947c3818b00b28ccdc5a08c9f0d01368bfc6ea6a8d9",
+    "scripts/tests/test_js2py_first_script.py": "1dcb571b6c749a1a8f5e8392316064400c793777932f9a81fc0736c582aef4c7",
+    "docs/js2py-chapter-contracts.json": "1eb527248683809ed1df8c44747536ab89dd9c00b013446a3b79fbd53b7a2044",
+    "docs/js2py-learning-path.zh-cn.md": "2352e3071a568c31c8a26d6c303c5adb0f79b681e621dbc7962e7f41fc74d95f",
+    "docs/reviews/js2py-l11-l14-source-check-2026-09-28.md": "4da727b4be314cb34b91e9bef59d0a5a917b500f862b3cf01d5aac8995c99f1f",
+    "content/docs/js2py/index.mdx": "a787392d01d46786e8c05da476e1f2cd8476abeed8610060c33e885411074601",
+    "content/docs/js2py/index.zh-tw.mdx": "a5a09adbd35a02a6c25100b4cfccc452942621e47a5b40ec3b1e4ea647e23aeb",
+    "content/docs/js2py/index.zh-cn.mdx": "e51c0aedbe476e69f6f49408ccfff5d7afba5ca3d145ecce5c98a7e8395d6eec",
+    "content/docs/js2py/module-11-pythonic-code.zh-cn.mdx": "18f743b13c2439d04dc6441b9faeb0eaa523a7876e55d7d033d438ef747199c9",
+    "content/docs/js2py/module-11-pythonic-code.zh-tw.mdx": "7fb669213cd16df4e67a2a757976c9bd95939269302850f91d973151d3efafcf",
+    "examples/js2py/u11-typing-files.json": "b91bfce274391ced89fd76e07ac430d4761a74c6f1dd8f59e71b66f00ccea109",
+    "public/learning-assets/js2py/u11-typing.zip": "879c589893a81834d03d1ec91f3a7cf531ccaa284f408e1706dac4666681a841",
+    "docs/archive/js2py-u11-pythonic/module-11-pythonic-code.mdx": "9ea74c9d6c055891dd27be889795e03a1194e8a0a00135b668a0ae01e5544f00",
+    "docs/archive/js2py-u11-pythonic/sha256.json": "eee29e900763302b30bd5336df11636aa71d02a9ca30d0c24d0716a779962e34",
+    "docs/archive/js2py-u11-pythonic/README.md": "e9094c8d5c2d9beed3206328af7b1177622de9870ffafb64bf82834cd0194364",
+    "docs/archive/js2py-u11-pythonic/module-11-pythonic-code.zh-cn.mdx": "ab090ab50edac97effafba816bf4e41bfc85288850e0d3f4d8a6c68cee049076",
+    "docs/archive/js2py-u11-pythonic/module-11-pythonic-code.zh-tw.mdx": "b1670a23e71a4648799b382f6657042ac4c5aaf1d77dab5cf163fc0f7d55d77e"
+  },
+  "verification_report": "js2py-l11-l14-source-check-2026-09-28.md",
+  "credential_persisted": false
+}

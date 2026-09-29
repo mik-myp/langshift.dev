@@ -1,0 +1,13 @@
+# NOT deploy-ready: reserved domain, no production app, no tested Caddy version.
+# Same HOST topology: Caddy -> loopback app. Not a container-to-container address.
+{
+    admin off
+}
+api.example.invalid {
+    reverse_proxy 127.0.0.1:8034 {
+        header_up -Forwarded
+    }
+    # Access logging deliberately not enabled. Runtime error logs still need review.
+    # Before release: independently implement/test body bounds and login throttling,
+    # full S03 authorization, DB readiness, certificate renewal and recovery.
+}

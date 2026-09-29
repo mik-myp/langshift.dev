@@ -1,0 +1,239 @@
+---
+title: 裝飾器與聲明式接口：先展開，再使用
+description: 從函數值和閉包推導裝飾器，區分求值、應用、業務調用與註冊，驗證疊加順序，並在已理解的函數上使用 pytest 參數化測試。
+---
+
+import { getDecoratorExample } from '@/lib/js2py-examples'
+
+## 1. 為什麼不能靠背 @ 語法學習框架？
+
+下一階段會遇到路由聲明、依賴和測試配置。它們看起來像“給函數貼一個標籤”，但有些修改函數，有些只登記函數，還有些在導入時就失敗。如果不知道執行時機，很容易把啟動錯誤當請求錯誤，或者以為每次調用都會重新註冊。
+
+本章把 @ 展開為你已認識的函數調用，不先引入服務器。主產物是一份內存中的操作登記表、兩個範圍明確的包裝器，以及可解釋的參數化測試。它們不是通用裝飾器庫，更不是安全認證機制。
+
+| 本章契約 | 範圍 |
+| --- | --- |
+| 前置 | L04 函數、L06 模塊、L12 類與 dataclass，L09 普通測試 |
+| 新能力 | 函數值、閉包、裝飾器應用、註冊與包裝、參數化、執行順序 |
+| 驗收 | 展開並實現小裝飾器；解釋導入與調用的區別；用參數化測試已有規則 |
+| 暫不要求 | 任意簽名的泛型包裝、異步包裝、緩存、重試、框架內部實現 |
+
+下載 [L13 完整實驗](/learning-assets/js2py/u13-decorators.zip)，進入 u13-decorators。固定基線為 CPython 3.13.15、uv 0.12.13、pytest 8.4.2。
+
+## 2. 先把“函數本身”與“調用結果”分開
+
+寫出函數名得到一個可調用對象；在後面加括號才發起調用。把函數交給另一個函數，和把字符串或列表交過去一樣，是傳值；並不是複製一份源代碼。
+
+```python
+def double(value: int) -> int:
+    return value * 2
+
+
+def apply(function, value: int) -> int:
+    return function(value)
+
+
+alias = double
+print(alias is double)
+print(apply(double, 4))
+```
+
+```text
+True
+8
+```
+
+若寫 apply(double(4), 4)，先計算出 8，再把不可調用的整數作為 function，錯誤發生在後面的調用處。這是回調和高階函數的普通機制，不需要新語言魔法。後續源碼用 `Callable[[int], int]` 描述“接收一個 int、返回 int 的可調用對象”；它來自 collections.abc，不會自動驗證參數。
+
+## 3. 閉包保存配置，不等於每次都重新創建配置
+
+外層函數可以定義並返回內層函數。返回後，內層仍能訪問被它引用的外層變量。這裡需要的只是“記住配置”，不需要修改外層綁定、nonlocal 或複雜函數式術語。
+
+```python
+def make_fee(fee: int):
+    def add(value: int) -> int:
+        return value + fee
+    return add
+
+
+small = make_fee(3)
+large = make_fee(10)
+print(small(4), large(4), small(5))
+```
+
+```text
+7 14 8
+```
+
+make_fee(3) 創建一個保留該次 fee 綁定的函數；調用 small 時使用它。這裡的整數配置不會因另一次 make_fee(10) 改變。若閉包引用同一份可變列表，列表後來變化仍可見，閉包不是自動深複製快照。
+
+<details>
+<summary>解釋題答案：外層和內層分別執行幾次？</summary>
+
+上例外層執行兩次，產生兩個函數；small 的內層執行兩次，large 的內層一次。返回函數不等於立即執行它。如果在外層打印配置日誌，它不會因為 small 被再次調用而自動重複出現。
+
+</details>
+
+## 4. 三個參與者：原函數、裝飾器、綁定回去的結果
+
+一個裝飾器接收函數並返回一個結果，函數名隨後綁定到這個結果。常見結果仍是可調用對象，但 Python 不保證你一定返回函數，所以漏 return 也能完成定義，只是名字變成 None。
+
+double_result 返回 wrapped。wrapped 閉包持有原函數，業務調用時先執行它，再把結果乘二。原函數不是在裝飾階段執行的；裝飾階段只是建立新調用關係。這個包裝器僅處理一個 int 參數和 int 返回值，不宣稱適合任意關鍵字、方法、異步函數或資源管理器。
+
+<Code language="python">{getDecoratorExample('decorators.py')}</Code>
+
+閱讀順序：先 double_result；再 add_fee 外層返回 decorate，decorate 收到原函數後返回 wrapped，wrapped 最後處理業務參數。三個層次依次回答“配置是什麼”“裝飾誰”“這次調用的數據是什麼”。外層負 fee 檢查在配置時執行，不等到一次業務調用才發現。
+
+為避免把本章變成嵌套 Callable 的類型閱讀練習，重複複雜形狀的工廠返回註解暫時省略；關鍵包裝函數的簡單簽名保留。這裡沒有要求整個項目運行 L11 的嚴格函數聲明配置，也沒有用缺註解聲稱靜態檢查已覆蓋一切。
+
+## 5. wraps 保留的是身份說明，不是原對象身份
+
+`@wraps(function)` 同樣是裝飾器形式：對剛定義的 wrapped 設置名稱、文檔等元數據，並記錄被包裝對象，方便診斷和工具檢查。它不把 wrapped 變回原函數，也不自動驗證業務輸入或適配任意參數。
+
+因此裝飾後的函數可以顯示原來的 __name__，同時 `wrapped is function` 仍為 False。元數據像便於追蹤的說明牌，不是功能實現。如果包裝函數吞掉了異常，wraps 也不會替你恢復正確錯誤政策。
+
+這裡先用已解釋的“函數接收函數並返回結果”理解 wraps。不要陷入追蹤標準庫內部實現的無限遞歸；當前需要驗證的是可調用關係、行為和可觀察元數據。
+
+## 6. 註冊與包裝：看返回值和保存了哪個對象
+
+register 接收一個登記表和名字，返回 decorate。應用 decorate 時檢查重名，把收到的函數存進字典，並原樣返回它。它沒有增加每次調用的行為；登記表只在當前 Python 進程內存在，不是持久化數據庫，也不是自動監聽端口的服務器。
+
+<Code language="python">{getDecoratorExample('app.py')}</Code>
+
+這一段定義 cost 時就登記操作，main 僅在作為入口運行時調用。通過導入建立聲明是顯式選擇的行為，和 L06 警惕“導入時意外寫真實文件”不衝突：小型受控註冊可解釋，外部副作用仍需要謹慎。重複導入通常使用模塊緩存，不應靠每次請求重新導入觸發註冊。
+
+正常疊加後登記表保存最終包裝結果，所以直接調用 cost 與經表查找調用表現一致。登記表鍵錯了會出現普通 KeyError，本章沒有把它包裝成 HTTP 404；HTTP 語義在 H02 建立。
+
+## 7. 順序分兩件事：表達式求值與應用
+
+遇到函數定義時，裝飾器表達式按從上到下順序求值；得到的裝飾器在函數上從下到上應用。這不是“整段代碼完全倒著運行”。觀察完整時序實驗：
+
+<Code language="python">{getDecoratorExample('timing.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python timing.py
+```
+
+```text
+['evaluate outer', 'evaluate inner', 'apply inner', 'apply outer']
+['evaluate outer', 'evaluate inner', 'apply inner', 'apply outer', 'call 4', 'call 5']
+```
+
+兩次業務調用只增加 call，不重新求值或裝飾。對於主例中互不干擾的工廠，可以這樣展開：
+
+<Code language="python">{getDecoratorExample('expansion.py')}</Code>
+
+```bash
+uv run --locked python expansion.py
+```
+
+```text
+11 11
+```
+
+展開式用於解釋本例，不是承諾對所有含有名稱查找副作用的複雜裝飾器做機械源碼替換。先得到註冊裝飾器和加費裝飾器，再創建函數，最後把雙倍、加費、註冊的結果綁定回來。
+
+## 8. 換順序，行為和登記對象都可能變化
+
+<Code language="python">{getDecoratorExample('order.py')}</Code>
+
+```bash
+uv run --locked python order.py
+```
+
+```text
+14
+7 4
+```
+
+先加 3 再乘 2，與先乘 2 再加 3 不同。第二組把 register 放在內部，登記表保存原函數，而外部名字後來指向加費包裝；因此兩種調用不再一致。以後看到框架聲明和別的包裝器疊加，不能憑“都有 @”就假定順序無關。
+
+<Code language="toml">{getDecoratorExample('pyproject.toml')}</Code>
+
+```bash
+uv run --locked python app.py
+```
+
+```text
+['cost']
+11 11
+cost
+True
+```
+
+只有示例中的整數算術，不是實際貨幣政策；不要把小型裝飾器演示誤當收費系統設計。
+
+## 9. 錯誤發生在定義時，還是業務調用時？
+
+<Code language="python">{getDecoratorExample('errors/missing_return.py')}</Code>
+
+```bash
+uv run --locked python errors/missing_return.py
+```
+
+先輸出 decorated 和 True，然後調用 None 產生 TypeError。錯誤根源在裝飾器返回政策，不是在業務加法。按“定義時得到什麼 → 名字現在指向誰 → 調用的是什麼”排查。
+
+<Code language="python">{getDecoratorExample('errors/duplicate.py')}</Code>
+
+```bash
+uv run --locked python -m errors.duplicate
+```
+
+這次第二個函數定義被裝飾時就拋出 ValueError，業務函數一次也沒執行。若這發生在模塊導入中，服務還沒能完成啟動；不能指望處理單次請求的異常分支來修復註冊衝突。
+
+## 10. 已知行為上的 pytest 參數化，而不是新魔法
+
+<Code language="python">{getDecoratorExample('tests/test_decorators.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q
+```
+
+`@pytest.mark.parametrize("value, expected", [...])` 提供參數名及輸入/預期組合。pytest 收集測試時按這些組合建立獨立用例，運行時向函數參數提供對應值。參數名必須匹配，多個參數時每行的數量也要匹配；這不是讓測試自己訪問一個神秘全局變量。這裡由參數化提供參數，尚未引入 fixture 機制。
+
+本套件實際為 8 項：第一個函數展開為三項，其他五個普通測試各一項。每項都有獨立失敗標識。可變參數值不會被 pytest 自動深複製，所以本例使用整數，而不是把所有行共享的可變列表當初始狀態。
+
+帶提示任務：增加一組參數證明 0 合法；再寫一個業務函數主動拋 ValueError，確認包裝器不吞錯。不要把所有異常都換成 0，否則成功值與失敗混淆。
+
+<details>
+<summary>帶提示練習核對</summary>
+
+已有 (0, 0) 是零值基線，可以增加更大的輸入或負數，先說明該包裝器只做運算、並未定義非負輸入政策。異常測試使用 pytest.raises，包裝器未捕獲該異常就會原樣傳播。檢查測試收集數隨新增參數行變化；改壞 expected 應得到明確失敗，而非悄悄少收集一項。
+
+</details>
+
+## 11. 獨立變式：先拒絕，再調用
+
+實現 reject_above(limit) 裝飾器工廠。limit 必須是普通非負整數，在工廠調用時驗證；被包裝函數只接收一個普通非負整數，允許等於 limit，超過或類型不符必須在原函數執行前拋 ValueError。合法時原函數恰好調用一次，保留結果與名稱。不要加入重試、緩存或默認成功值。
+
+自己用列表記錄原函數收到的參數，證明非法輸入沒有執行副作用；至少測試 0、等於上限、超過、負數、bool 和文本。參數化輸入與預期結果的關係應能用一句話說明，不是堆大量數字冒充覆蓋。
+
+<details>
+<summary>獨立參考實現與參數化測試</summary>
+
+<Code language="python">{getDecoratorExample('solutions/reject_above.py')}</Code>
+
+<Code language="python">{getDecoratorExample('solutions/test_reject_above.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_reject_above.py
+```
+
+七項參考測試驗證邊界和調用次數；若把檢查移到 function(value) 後，非法值測試必須能檢測到已經發生的調用。再次強調：這不是認證裝飾器，調用次數正確也不等於多用戶權限正確。
+
+</details>
+
+## 12. 驗收與恢復檢查點
+
+無需看 @ 寫法，先用函數調用獨立實現一個包裝；再寫成 @ 並證明行為相同。按時間列出工廠、應用、業務調用，預測兩種疊加輸出，修復漏 return，區分註冊失敗與業務失敗，完成獨立拒絕器和參數化測試。
+
+暫停記錄裝飾器的輸入/返回契約、登記表保存哪個對象、最後測試命令及用例數、最後觀察的時間線、下次要嘗試的順序變化。恢復時不只看函數名，因為 wraps 保留的名字並不能證明它就是原函數對象。
+
+下一章 L14 學 yield 與資源生命週期：先理解暫停/恢復，再把熟悉的 with 用法展開成進入、使用、退出協議。資源釋放正確與數據事務成功仍是兩件事。
+
+## 13. 一手資料與邊界
+
+2026-09-28 核對 [Python 函數定義與裝飾器](https://docs.python.org/3.13/reference/compound_stmts.html#function-definitions)、[functools.wraps](https://docs.python.org/3.13/library/functools.html#functools.wraps)、[pytest 8.4.2 參數化文檔源碼](https://github.com/pytest-dev/pytest/blob/8.4.2/doc/en/how-to/parametrize.rst)。pytest 文檔站本次返回 403，使用官方版本倉庫文檔複核。
+
+這些包裝器故意只承諾單個整數參數。支持任意簽名、方法綁定、異步和生成器的通用裝飾器需要更多契約；現在不把那些複雜度變成進入後端的前置門檻。

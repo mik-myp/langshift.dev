@@ -1,0 +1,350 @@
+---
+title: "API Testing and Frontend Integration: Assertions to a Real Browser"
+description: Exercise the real request boundary with TestClient, then explain fixtures, isolation, and override cleanup; compare controlled doubles with real Uvicorn, HTTPX, and browser CORS acceptance.
+---
+
+import { getApiTestingExample } from '@/lib/js2py-examples'
+
+## 1. Business functions pass; what can still break at the interface?
+
+L09 introduced ordinary test functions, assertions, and pytest.raises. L13 explained how parameterization creates independent cases. H05's store tests can prove PATCH merge rules without proving that /tasks is registered, JSON is parsed, error statuses are correct, or output filtering removes internal fields. Manual curl can observe those boundaries, but replaying everything from memory after each change is easy to get wrong.
+
+We first add automated requests through the real FastAPI application, checking status, response, and subsequent data. Only then do we extract fixtures, rather than presenting an unexplained conftest.py as test-framework magic. Finally, a real service and browser cover boundaries that in-process tests do not cross.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | H05 dependencies and factories; L09 tests/error assertions; L13 parameterization; L14 yield/with |
+| New capabilities | TestClient, fixture argument supply and cleanup, per-test isolation, dependency_overrides, error contracts, real clients, CORS integration |
+| Independent acceptance | Cover success/failure/unchanged state; demonstrate override restoration; test pagination after deletion and mixed invalid PATCH; complete real-browser integration |
+| Not required yet | Database tests, login, object permissions, asynchronous tests, concurrent load tests, CI, rebuilding a frontend framework |
+
+Download the [complete independent H06 lab](/learning-assets/js2py/h06-api-testing.zip) and enter `h06-api-testing`. It includes all service code and does not require H05 to run or import a sibling directory. This remains a disposable single-process memory application, without durability, production concurrency, or permission guarantees.
+
+## 2. Distinguish three kinds of client
+
+TestClient sends requests to the ASGI application within the same Python process. Real routing, dependencies, Pydantic validation, and response handling run without a Uvicorn listening socket. **It does not mock every route into a fixed JSON result.** Network connections, process startup, and browser security enforcement are nevertheless outside that path.
+
+An HTTPX Client sends to a real address, crossing the local TCP port and Uvicorn; connection refusal becomes observable. A real browser adds Origin and CORS enforcement: actual preflight and response readability need a browser check. These layers complement one another. Fast tests do not imply end-to-end production readiness.
+
+| Entry point | Evidence it provides here | What it cannot establish alone |
+| --- | --- | --- |
+| Ordinary store/config tests | Concrete Python behavior and configuration parsing | Routes, HTTP, listening |
+| TestClient without business overrides | In-process API input-to-output behavior | Uvicorn import entry, ports, browser enforcement |
+| TestClient with a dependency double | Consumer behavior under the replacement scenario | The original provider and its children working |
+| Real HTTPX/urllib | Actual process, socket, HTTP contract | Browser CORS enforcement, production networking, TLS |
+| Real browser fetch | Readable responses and preflight for this page origin | Identity, object permissions, every browser environment |
+
+## 3. Pin the environment; write one test without fixtures
+
+The tested baseline on 2026-09-28 is CPython 3.13.15, uv 0.12.13, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, Starlette 0.52.1, HTTPX 0.28.1, and pytest 8.4.2. HTTPX is a development dependency; serving the application does not itself require this client. Requires-python is `>=3.13,<3.14`, uv package=false, and uv.lock comes from public PyPI.
+
+<Code language="toml">{getApiTestingExample('pyproject.toml')}</Code>
+
+Read this complete test first, without needing to understand the entire tests directory:
+
+<Code language="python">{getApiTestingExample('tests/test_first_request.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python -m pytest -q tests/test_first_request.py
+```
+
+```text
+1 passed
+```
+
+The displayed result omits machine-dependent duration. This is still Arrange/Act/Assert: construct app/client, POST, compare 201 and the complete JSON. `json=...` encodes a Python object into request JSON and sets its Content-Type. `response.json()` decodes received JSON into Python values. Do not compare the Response itself to a dictionary or put Python True into raw JSON text.
+
+With manages client entry and closure, not a database transaction. Request methods here are synchronous; there is no await. You can inspect the already-read response after leaving with. FastAPI's TestClient uses Starlette's implementation and HTTPX-style request methods. Similar methods do not imply identical transports.
+
+Initially allowing the transitive Starlette version to float selected 1.7.0, which warned that its HTTPX 0.28.1 adapter was deprecated. This lab explicitly pins the verified compatible 0.52.1 instead of suppressing the warning. Upgrades require rerunning the actual client/test combination, not reusing a green result from a different stack.
+
+## 4. The independent service: what remains unchanged
+
+The H04/H05 contract remains: server integer IDs; nonblank titles retaining spelling; strict nonnegative integer minutes; strict bool done defaulting to false; nullable note defaulting to null. PATCH distinguishes omission, assignment, and null, with null accepted only for note. Pages ordered by ID contain items/limit/offset/total. Extra input fields are rejected and internal_tag is filtered out. Statuses are 201 for creation, 200 for read/update, 204 for deletion, 404 for absence, and 422 for invalid input.
+
+All foundation files are in this package. The following complete references are not ellipses hiding an external implementation. Readers comfortable with H05 may collapse the review; running this lab does not depend on that package.
+
+<details>
+<summary>Complete configuration, models, store, dependencies, and routes</summary>
+
+<Code language="python">{getApiTestingExample('task_api/config.py')}</Code>
+
+<Code language="python">{getApiTestingExample('task_api/models.py')}</Code>
+
+<Code language="python">{getApiTestingExample('task_api/store.py')}</Code>
+
+<Code language="python">{getApiTestingExample('task_api/dependencies.py')}</Code>
+
+<Code language="python">{getApiTestingExample('task_api/routes.py')}</Code>
+
+</details>
+
+The factory still creates one MemoryStore per app. Its only new service behavior is an explicit CORS origin policy explained later. There is no login, database, or authorization code. Settings("Test") is trusted test-code construction that bypasses environment reading. A test using it **does not prove real startup configuration is valid**.
+
+## 5. Fixtures organize preparation and cleanup; they are not automatic mocks
+
+Repeating create_app/with TestClient everywhere invites forgotten closure or a shortcut to one global app. A pytest fixture is a named preparation function registered with `@pytest.fixture`. A test parameter called client asks pytest to find that fixture, run it, and pass its product into the test. Python does not guess this from an ordinary function argument or same-named global variable.
+
+Fixtures may request other fixtures. Client's app parameter asks pytest to construct app first. The default scope is function, preparing each test case afresh. When client and overrides both need app in one test, they receive the same app for that test, not separate applications. Each parameterized row gets its own preparation too.
+
+<Code language="python">{getApiTestingExample('tests/conftest.py')}</Code>
+
+Pytest discovers conftest.py within its directory scope; ordinary tests do not import client manually. App returns its value because it has no additional exit action. Client yields, then exits with to close the client after the test, including an assertion failure. Section 9 explains the overrides fixture. **Pytest fixture yield and FastAPI dependency yield have different framework drivers**, even though both build on L14's pause/resume mechanism.
+
+A fixture that fails before reaching yield does not magically execute every line after yield. Arrange with or try/finally around resources actually acquired. Simply containing yield is not a safety guarantee. Here with owns the client and finally owns override restoration.
+
+<details>
+<summary>Explanation answer: is session scope better because it might be faster?</summary>
+
+Not necessarily. Sharing a MemoryStore throughout a test session allows later tests to see earlier records and sequence changes, creating order dependence. These objects are cheap, and function scope expresses the intended isolation. Expensive resources later need an explicit isolation strategy, not merely broader scope. A fixture is not inherently a mock or a guarantee of clean state; cleanliness comes from this factory and its lifecycle design.
+
+</details>
+
+## 6. Check status, body, and subsequent reads together
+
+<Code language="python">{getApiTestingExample('tests/test_contract.py')}</Code>
+
+The parameterized note-state test also constructs the complete expected task for omission, replacement, and null. It checks the PATCH response, then GETs the same ID and checks status 200 plus the whole expected record. A response-only assertion could accept a stale response while the store has already been damaged.
+
+Start with test_crud rather than memorizing every method at once. Status 201 verifies creation semantics; complete or targeted body assertions verify shape. A subsequent GET proves updates reached the current store. For 204, `content == b""` checks that deletion did not accidentally return JSON. The later 404 checks that the resource is no longer readable. Merely asserting status_code < 500 collapses successful behavior, rejected input, and wrong routes into one category.
+
+Calling set(task) on a dictionary obtains its keys and detects output leakage. `type(id) is int` avoids treating Python bool as an integer. The first-request test compares the complete response, including retained title spaces and defaults. Do not remove all unexpected response fields before comparison; that would conceal an output-allowlist regression.
+
+Test_each_case_starts_empty uses two parameter rows. Each first observes total=0, then creates its own record with id=1. A test that requires another test to create its inputs is not independent. Steps inside one business scenario can be ordered; separate tests should not feed one another leftover data.
+
+## 7. Error tests must prove correct rejection without corrupted state
+
+Distinguish three failures: malformed JSON returns json_invalid; valid JSON with minutes=true/"3"/3.0 violates the model and returns a 422 body-field error; a valid but absent ID returns 404 and the stable business detail. Treating all three as merely “an error” loses useful contract evidence.
+
+Parameterization expands field/value combinations for strict input rules without copying entire test functions. Check detail.loc to locate the expected body/query/path field, but do not freeze every Pydantic human-readable message, documentation URL, or version-specific error key. Our own 404 detail is a controlled interface contract and can be asserted exactly.
+
+After rejected creation, total must still be zero. After a mixed invalid PATCH, GET again and compare the record to the original. A 422 alone does not exclude an implementation that mutates some fields before rejecting another. The current candidate-validation/replacement order protects these sequential paths, not concurrent database transactions.
+
+The three note cases express no change, new text, and explicit clearing. Null for other fields is rejected. `if payload.note` cannot express those states because empty text and None are both falsey. We instead merge explicitly supplied fields through exclude_unset. Tests should assert the behavior, not a memorized internal framework algorithm.
+
+<details>
+<summary>Guided answer: how do you catch a partially applied invalid PATCH?</summary>
+
+Create title="Keep", minutes=5, note="keep" and save the complete response. PATCH a valid new title, invalid minutes=true, and note=null together. After asserting 422, GET again and compare the entire record with the original. Testing only one invalid field may miss premature changes to other fields. The independent task asks you to implement this evidence, not merely describe it.
+
+</details>
+
+## 8. Application exceptions and HTTP errors are observed differently
+
+An unhandled RuntimeError is an application defect, not an intentional HTTPException. By default, TestClient reraises server exceptions into the test so the original traceback is visible. A test expecting a Response can therefore stop inside client.get before reaching a status assertion.
+
+To inspect the external 500 response, locally create `TestClient(app, raise_server_exceptions=False)` and assert status and text. A default non-debug app responds with Internal Server Error, not JSON; unconditional response.json() is wrong. This does not mean ignoring the bug: one test observes exception propagation and another observes the external failure surface.
+
+<Code language="python">{getApiTestingExample('tests/test_dependencies.py')}</Code>
+
+Test_unhandled_errors_raise_by_default deliberately supplies a broken provider and observes both client modes. It proves that controlled failure path, not production incident handling. Capsys is pytest's built-in output-capture fixture. Test_real_trace_cached_and_closed reads stdout to check one acquisition, two uses, and one release. It does not replace trace, so the real temporary-file code runs.
+
+Even reading a release line after the client call returns does not establish whether release preceded response send. H05's versioned lifecycle explanation and maintainer ASGI probe provide that finer evidence. This chapter does not smuggle in asynchronous-test prerequisites.
+
+## 9. dependency_overrides: what is replaced, and which evidence disappears?
+
+App.dependency_overrides is a dictionary whose key is the **original function object** used by the route declaration, and whose value is a replacement provider. `overrides[get_store] = replacement_store` is correct. The string "get_store", the result of calling get_store(), or another same-named function is not the same key. The framework consults this mapping during dependency resolution; it does not rewrite every Python function call in the module.
+
+Test_override_store returns a separate MemoryStore with a known record. It also asserts that app.state.store remains empty, explicitly documenting the bypass. The original get_store has request_trace as a child dependency. Overriding get_store in this list test skips both that original function and its trace child. Its passing result therefore says nothing about real resource acquisition or cleanup.
+
+Test_dependency_rejection makes a substitute raise 503, proving the consumer receives the intended status and body. It does not unplug a network, induce a disk failure, or verify recovery from either. A simple function supplies the stub; we do not need unittest.mock yet. If “mock” is used broadly, name the replaced boundary rather than treating any mocked test as complete integration evidence.
+
+Overrides only affect dependency resolution. Real configuration has already been loaded during create_app. Later overriding get_settings cannot repair a factory that already failed. This is why tests using explicit Settings still need a separate real-process environment check.
+
+## 10. Restore overrides even when a test fails
+
+Do not write request, assertion, and clear as three ordinary statements: an assertion failure skips clear. Our fixture copies the previous mapping and uses try/yield/finally to clear current changes and restore that snapshot regardless of the test outcome. Restoring prior contents is safer than always assigning an empty dictionary, because a caller might already have controlled overrides.
+
+Even though this suite creates a new app per test, keep the cleanup discipline. Diagnostics sharing an app, multiple phases within one test, or future scope changes can otherwise produce misleading leftovers. The following deliberately fails one test and retains that exact app for the next check. It is an **intentionally ordered cleanup probe**, not a recommended pattern of interdependent ordinary tests.
+
+<Code language="python">{getApiTestingExample('experiments/test_fixture_failure.py')}</Code>
+
+This directory explicitly reexports the three already-explained fixtures:
+
+<Code language="python">{getApiTestingExample('experiments/conftest.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q experiments/test_fixture_failure.py
+```
+
+```text
+1 failed, 1 passed
+```
+
+Exit code 1 is expected. The first assertion intentionally fails; the second verifies that the previous app's mapping was restored to empty. Do not change it to xfail and claim there was no failure. This is cleanup evidence, not part of the normal green suite. Pyproject's testpaths collects only tests, separating the explicit failure experiment from ordinary acceptance.
+
+<details>
+<summary>Diagnostic answer: what should you fix if the second case fails too?</summary>
+
+First confirm that you ran the entire diagnostic file, not just its second test: this specific probe needs the first to retain the app reference. Then inspect whether restoration is in finally, whether the wrong app is being changed, and whether the “snapshot” accidentally aliases the original mutable dictionary. After fixing it, expect 1 failed, 1 passed again, then rerun the ordinary suite. Do not weaken the second assertion to allow leftovers or copy this ordered probe into everyday tests.
+
+</details>
+
+## 11. Ordinary acceptance and an independent variation
+
+```bash
+uv run --locked python -m pytest -q
+```
+
+```text
+48 passed
+```
+
+These are 48 collected cases, not 48 functions or assertions. The original 44 cover in-process CRUD, strict inputs, PATCH states, error locations, absent resources, pagination, isolation, real dependency cleanup, substitute failures, 500 behavior, and CORS headers. Two new cases verify real-client cleanup against owned faulty loopback servers; two more verify that acceptance catches a stale-response mutant in disposable copies. Repeating the suite must not depend on previous data. The fault servers provide narrowly scoped socket evidence, not a complete healthy-service run or browser readability.
+
+The maintainer check tests/test_patch_readback_regression.py copies only its required inputs into a temporary directory. There it injects the old blind spot: an empty PATCH returns the old record but replaces stored fields with defaults. It runs the strengthened base note-state test and the independent empty-PATCH test separately. Each child pytest must exit 1 specifically at the later GET's full-content assertion; import errors do not count. The outer regression passes only after observing that expected rejection. The canonical service is never mutated, and no inner test invokes another test function:
+
+```bash
+uv run --locked python -m pytest -q tests/test_patch_readback_regression.py
+```
+
+```text
+2 passed
+```
+
+This maintenance probe is not a new prerequisite for independently writing ordinary TestClient tests.
+
+Independent task: do not open the solution first.
+
+1. Create A/B/C, delete the middle ID, then create D. Prove that the new ID does not reuse the deleted value, limit=1&offset=1 returns C, and total is the three remaining records rather than page length or maximum ID.
+2. PATCH a task with a valid title, invalid minutes=true, and note=null together. Prove 422 and an entirely unchanged original record.
+3. Create a task with done=true, nonzero minutes, and a note. Send an empty PATCH, then GET that same ID. Both responses must have status 200 and complete JSON equal to the original record, preserving every non-default value. A correct-looking PATCH response alone does not prove stored state stayed unchanged; all-default fixtures can also let a broken merge pass.
+
+Each test prepares its own clean app/client. Do not call another test function, borrow another case's ID, or substitute private store inspection for a public response. Make at least one controlled defect: remove exclude_unset, confirm the third case fails, then restore the implementation.
+
+<details>
+<summary>Independent reference tests and execution</summary>
+
+<Code language="python">{getApiTestingExample('solutions/test_independent.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_independent.py
+```
+
+```text
+3 passed
+```
+
+The solution deliberately declares its own client fixture because an independently run solutions directory does not inherit tests/conftest. IDs come from creation responses. Offset still counts existing positions after deletion creates a gap. Complete JSON equality is checked both on the PATCH response and on a subsequent status-200 GET, detecting an apparently correct response that hides a corrupted stored record. Run your own tests first, then compare the evidence they provide.
+
+</details>
+
+## 12. Real-service contrast: similar assertions, different transport
+
+Do not install dependency overrides. In terminal one, start an empty service from the lab root:
+
+```bash
+TASKS_APP_NAME="Learning tasks" uv run --locked python -m uvicorn task_api.main:create_app --factory --host 127.0.0.1 --port 8006
+```
+
+In terminal two, enter the same directory and run:
+
+```bash
+uv run --locked python live_httpx.py --port 8006
+```
+
+```text
+HTTPX LIVE PASS: real socket, 201/200/422, PATCH unchanged, preflight
+HTTPX LIVE PASS: cleanup 204/404
+```
+
+<Code language="python">{getApiTestingExample('live_httpx.py')}</Code>
+
+HTTPX receives a base_url, not an app, and really connects to 127.0.0.1. Timeout=5 bounds waits. Trust_env=False prevents environment proxy configuration from redirecting this local experiment; it does not disable TLS verification. The client requires an empty learning service, creates its own task, and deletes it in finally. It reads no credentials and calls no public service.
+
+Stop Uvicorn and rerun this command: connection should fail, without a 422 JSON body. The in-process TestClient cases can still pass because they never connect to that port. The maintainer cleanup cases start separate, owned servers on different temporary ports; passing those also says nothing about this stopped service. Restart the correct factory and replay the real client to recover. The differing outcomes show distinct evidence boundaries, not contradictory tools.
+
+Check real configuration separately too: missing TASKS_APP_NAME or TASKS_MAX_PAGE_SIZE=bad prevents startup. Restart with a valid name and limit to recover. TestClient cases passing explicit Settings do not cover those factory failures. The complete urllib client is also included for additional real PATCH/pagination paths:
+
+<Code language="python">{getApiTestingExample('live_client.py')}</Code>
+
+A finally block is not a guarantee that every statement in it will succeed. The client tries each ID it created in a separate try/except, records that ID's failure, and continues with the other owned IDs. It never clears the whole service. At the end it prints CLEANUP FAILED with the unconfirmed IDs and individual diagnostics. “Unconfirmed” does not assert whether a timed-out deletion took effect; inspect only those IDs before replaying. If the body completed, cleanup failure raises RuntimeError so the process exits nonzero. If the body was already failing, body_succeeded remains false: cleanup is still reported, but finally neither raises a replacement exception nor returns, so the original traceback continues. Catching each cleanup error does not turn the run into success. This simple flag keeps both diagnoses without introducing an exception-group framework.
+
+```bash
+uv run --locked python live_client.py --port 8006
+```
+
+```text
+LIVE PASS: CRUD, strict input, PATCH states, pagination, output allowlist
+LIVE PASS: cleanup and subsequent 404
+```
+
+The two cases in tests/test_live_client_cleanup.py run the actual urllib program against temporary fault apps on OS-selected loopback ports. DELETE for the first owned ID returns 503; the second ID must still be removed, only the first may remain, and the client must exit nonzero. The second case also causes a body assertion failure and requires that original traceback, rather than a replacement cleanup exception. Each test stops its own server in finally. These are maintainer regressions, not a requirement to learn async test code:
+
+```bash
+uv run --locked python -m pytest -q tests/test_live_client_cleanup.py
+```
+
+```text
+2 passed
+```
+
+## 13. Explain CORS participants before adding middleware
+
+The page at http://127.0.0.1:5506 and API at http://127.0.0.1:8006 have different ports, so they are different origins. Origin consists of scheme, host, and port. Localhost and 127.0.0.1 also differ as origins. CORS governs whether a browser permits page JavaScript to read cross-origin responses; it is not login or server-side object authorization.
+
+Before a cross-origin POST with Content-Type: application/json, the browser normally sends an OPTIONS preflight with Origin, Access-Control-Request-Method, and Access-Control-Request-Headers. CORSMiddleware handles that preflight outside the routes and adds allowed headers to eligible responses. You do not manually add OPTIONS to every endpoint. Middleware is an outer request/response processing layer; here we use this one concrete behavior, not a generic middleware architecture lesson.
+
+<Code language="python">{getApiTestingExample('task_api/main.py')}</Code>
+
+Only http://127.0.0.1:5506 is allowed, with the chapter's methods and Content-Type, and no credentials. There is no wildcard expansion, token, or cookie authentication. The ordinary create_app factory remains the composition entry point; asynchronous lifespan is unnecessary.
+
+<Code language="python">{getApiTestingExample('tests/test_cors.py')}</Code>
+
+Allowed preflight receives 200 and the exact allowed-origin header. Origin 5507 receives 400 without that header. The third test is essential: a direct GET with a disallowed Origin may still receive 200, just without permission for browser JavaScript to read it. A non-browser client without Origin can also access the API. **CORS is not authentication that keeps unauthorized callers out of the service.**
+
+TestClient inspects emitted headers/statuses; it does not enforce a browser's response-reading restriction. Frontend integration is not complete yet.
+
+## 14. Real-browser integration needs only a static page
+
+No frontend framework installation is required. Keep the API running on 8006 and start the static page in a third terminal:
+
+```bash
+uv run --locked python -m http.server 5506 --bind 127.0.0.1 --directory browser
+```
+
+Open http://127.0.0.1:5506 and click Run browser check. Do not double-click a file:// file or use localhost:5506: those origins are not on this lab's allowlist.
+
+<Code language="html">{getApiTestingExample('browser/index.html')}</Code>
+
+```text
+PASS: browser POST 201, GET 200, strict input 422
+PASS: cleanup DELETE 204
+```
+
+The button is disabled while running to discourage duplicate clicks. Fetch does not reject merely because HTTP status is 422, so the page explicitly checks status and detail. A CORS/network error can instead reject fetch before a readable Response exists. Finally deletes an identified created task and separately reports cleanup failure. A failed assertion is not a reason to leave test data behind.
+
+Serve the same file on a disallowed port in another terminal:
+
+```bash
+uv run --locked python -m http.server 5507 --bind 127.0.0.1 --directory browser
+```
+
+Open http://127.0.0.1:5507 and click. Expect a FAIL result, an unsuccessful OPTIONS preflight in the browser Network panel, and no created task. Browsers vary in exact error text; do not require a full TypeError sentence. Return to 5506 and rerun successfully. A real Python client can still access the API throughout, reinforcing that CORS is not identity verification.
+
+If the allowed page fails first, investigate in order: API listener, complete page Origin, OPTIONS status/headers, whether POST was sent, whether the server returned 422, and whether the page parsed the response incorrectly. Do not use mode:no-cors: an opaque response cannot satisfy these status/JSON assertions. Do not disable browser security or allow every origin to obtain a green result.
+
+Stop the API and both static servers with Ctrl-C when finished and record the remaining task count. If browser deletion fails, the page keeps the task ID in its message. Remove only your own learning record and verify cleanup again.
+
+## 15. Diagnose failures and record recoverable evidence
+
+| Symptom | Distinguish the cause | Recover and recheck |
+| --- | --- | --- |
+| fixture 'client' not found | File is outside the relevant conftest scope | Put it in tests or declare a local fixture as the independent solution does |
+| A test passes alone but the suite fails | Shared app, mutable inputs, or unrecovered overrides | Restore function scope/factories; run the case, full suite, and full suite again |
+| client.get raises RuntimeError | Default server-exception propagation | Fix the implementation; locally disable propagation only when testing external 500 behavior |
+| JSONDecodeError | Parsing a text 500 or empty 204 as JSON | Check status/Content-Type first; assert empty bytes for 204 |
+| TestClient passes, HTTPX is refused | Service absent, factory failed, or mismatched port | Read service logs, start the correct entry point, replay |
+| HTTPX passes, browser fetch fails | Origin/preflight or frontend request error | Inspect Network without weakening the boundary |
+| A mock test passes without trace logs | Replacement skipped the real provider and children | Keep the substitute case and add non-overridden evidence |
+
+When pausing, record the directory and lock versions, actual ordinary and independent counts, whether the cleanup experiment yielded 1 failed, 1 passed, which app was overridden and whether restored, real startup command/PID/port, both browser-origin results, task cleanup and stopped processes, unverified behavior, and the next action. Do not record only “everything passed.”
+
+Acceptance means explaining each evidence layer, independently adding tests, detecting and recovering from a controlled defect, and completing real-browser integration. Download allowlists exclude environments, caches, .env, logs, and secrets. The 48+3 cases and real-process/browser exercises do not prove database behavior, authentication/authorization, production concurrency, deployment, TLS, performance, or all-browser compatibility. Later stages establish those separately.
+
+## 16. Primary sources and verification date
+
+Checked live on 2026-09-28: [Starlette 0.52.1 TestClient](https://github.com/Kludex/starlette/blob/0.52.1/docs/testclient.md), [pytest 8.4.2 fixtures and safe teardown](https://github.com/pytest-dev/pytest/blob/8.4.2/doc/en/how-to/fixtures.rst), [FastAPI 0.135.1 dependency_overrides](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/advanced/testing-dependencies.md), [FastAPI CORS](https://github.com/fastapi/fastapi/blob/0.135.1/docs/en/docs/tutorial/cors.md), [HTTPX 0.28.1 transports](https://github.com/encode/httpx/blob/0.28.1/docs/advanced/transports.md), and [Pydantic 2.12.5 strict mode](https://github.com/pydantic/pydantic/blob/v2.12.5/docs/concepts/strict_mode.md). The Pydantic site returned 403, so its official tagged repository supplied the reference. SOURCES.md preserves the fuller version evidence.
+
+Maintainer acceptance actually installs and executes clean allowlist copies rather than merely compiling source. It also checks deliberate fixture failure/cleanup, real-process errors/recovery, and allowed/disallowed browser origins. A command with an actual result and a stated boundary is more useful than an unexplained coverage percentage.

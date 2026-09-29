@@ -1,0 +1,10 @@
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{
+  "id": 1,
+  "title": "  Ship the draft  ",
+  "minutes": 15,
+  "done": false,
+  "note": null
+}

@@ -1,0 +1,18 @@
+{
+  "archived_on": "2026-09-23",
+  "source": "Working-tree files, including earlier corrections; not Git HEAD.",
+  "files": [
+    {
+      "file": "module-01-syntax-comparison.mdx",
+      "sha256": "5bce43c88ea894f4da83132145b5039f2533dd6c4a3614987d4ef92886169639"
+    },
+    {
+      "file": "module-01-syntax-comparison.zh-cn.mdx",
+      "sha256": "37e211215396b3141a19c04abfde35773d14b04de091695a22c05245ab324841"
+    },
+    {
+      "file": "module-01-syntax-comparison.zh-tw.mdx",
+      "sha256": "1ef7a5c15cd3f78ee8179cafa3bb7ac52ebe24c3a64e09c9c2428ff89394bb57"
+    }
+  ]
+}

@@ -1,274 +1,686 @@
 ---
-title: "Python Web 開發：FastAPI 指南"
-description: "從 JavaScript (Node.js/Express) 開發者視角，深入學習 Python 的現代 Web 框架 FastAPI。"
+title: "模塊與標準庫"
+description: "把已經理解的函數拆成少量文件，追蹤導入執行、名稱綁定、業務入口、工作目錄與普通包，再獨立完成導入安全的任務計劃器，不提前搭建框架。"
 ---
 
-## 1. 引言
+import { getModuleExample } from '@/lib/js2py-examples'
 
-### 從 Express 到 FastAPI
+## 1. 想復用一個函數，不想順便運行整個程序
 
-作為一名 JavaScript 開發者，你很可能對 `Node.js` 和 `Express` 非常熟悉。它們是構建快速、可擴展的網絡應用的強大組合。當你轉向 Python 時，你會發現 `FastAPI` 是一個非常相似且同樣強大的選擇。
+L05 把解析、報告和演示數據放在一個文件里。現在另一個程序只想復用解析函數：複製代碼會產生兩份需要同步維護的實現；直接導入整個文件，又可能連演示一起執行。下一步不是規劃龐大的後端目錄，而是理解：**一個文件怎樣取得另一個文件的能力，這個過程中究竟會執行哪些代碼。**
 
-`FastAPI` 是一個現代、快速（高性能）的 Web 框架，用於構建 API。它的設計靈感來源於 `Flask` 和 `Express`，並充分利用了 Python 的類型提示和異步功能。
+Python 模塊是一個擁有自己命名空間的對象：名稱在這個空間中指向對象。最初的例子由一個 `.py` 文件提供模塊代碼。模塊可以包含函數定義、常量，也可以包含立即執行的語句。因此，導入不只是把聲明粘貼過來，更不是安裝依賴。
 
-**核心概念類比**
+### 本章契約
 
-| Python (FastAPI) | JavaScript (Express) | 主要功能 |
+| 項目 | 約定 |
+| --- | --- |
+| 前置能力 | L00—L05：小腳本、綁定與共享、容器、控制流、函數與作用域、異常和 traceback 閱讀 |
+| 新能力 | 導入與命名空間；導入時執行；明確的業務入口；工作目錄與搜索路徑；小型普通包 |
+| 獨立驗收 | 拆開任務規則、結果匯總和入口；證明導入不會運行業務入口；解釋正確與錯誤的啓動命令 |
+| 暫不要求 | 發佈包、依賴安裝與項目配置、導入鈎子、動態導入、類、pytest、文件/JSON、FastAPI 或服務端架構 |
+
+### 這是多文件實驗，不是項目腳手架
+
+下載 [L06 示例與參考答案](/learning-assets/js2py/u06-modules.zip)，解壓後在編輯器與終端打開 `u06-modules`。繼續使用 [L00](/zh-tw/docs/js2py/module-00-python-introduction) 的運行環境：**CPython 3.13，不需要第三方包**。本章命令於 2026-09-24 使用 3.13.15 實測；這是驗證基線，不是在聲稱它是最新 Python 版本。
+
+```bash
+uv run --no-project --python 3.13 python standard_library.py
+```
+
+除非某節明確寫出 `cd`，命令都從這個解壓目錄執行。`--no-project` 讓實驗不依賴外層項目的配置。每組文件必須一起保留。**37 份 Python 文件不是 37 個都能單獨啓動的程序**：輔助模塊和包內模塊由入口導入，只運行正文明確給出的入口命令。一些失敗是有意安排的，都會標明。
+
+瀏覽器不能替代你本機的目錄與導入上下文。本章在終端驗收，不是把片段依次塞進同一個瀏覽器解釋器。`solutions/` 是答案目錄，請先獨立嘗試，再展開對照。
+
+## 2. 內置能力、標準庫、本地模塊和第三方包不是一回事
+
+你已經直接使用過 `print`、`len`、`int` 和 `sum`：它們是內置能力，不需要先導入。Python 還自帶標準庫，其中很多能力放在模塊里，必須先導入，相關名稱才在當前代碼中可用。自己寫的本地文件也可以是模塊；第三方發行包則必須先存在於所選環境中。**`import` 負責尋找和加載，不負責聯網下載與安裝。** 安裝和隔離放在 L08。
+
+下面是靜態對照（`canRun={false}`）；本章以隨後給出的本機命令驗收：
+
+<PythonEditor title="內置命名空間與需要導入的模塊" compare={true} canRun={false}>
+```javascript case=ceil-comparison
+console.log(Math.ceil(2.1));
+```
+
+```python case=ceil-comparison
+import math
+
+print(math.ceil(2.1))
+```
+</PythonEditor>
+
+兩邊都輸出 3。JavaScript 的 `Math` 是內置對象，Python 的 `math` 是標準庫模塊。點號先取得左邊名稱所指的對象，再訪問它的屬性。這不表示 `math` 是一個類，也不表示所有 JS 內置能力在 Python 中都有相同的組織方式。
+
+文件：`standard_library.py`。
+
+<Code language="python">{getModuleExample('standard_library.py')}</Code>
+
+預期標準輸出：
+
+```text
+Rounded up: 3
+Average: 25
+Empty input has no average
+```
+
+`ceil` 向上取整，`mean` 計算算術平均數。空列表沒有平均數，所以 `statistics.mean([])` 拋出 `statistics.StatisticsError`。這裡沿用 L05，只捕獲明確的異常，不把“平均數不存在”偽裝成零。標準庫函數同樣有輸入契約和失敗行為；要學會查閱這些契約，而不是背下一整張模塊清單。
+
+## 3. 第一次拆成兩個文件：執行和命名空間是兩個問題
+
+把兩個相鄰文件放在 `first_import/` 中：
+
+```text
+first_import/
+  task_rules.py
+  report.py
+```
+
+`task_rules.py` 故意打印一條初始化標記。它是觀察執行過程的實驗工具，不是在推薦可復用模塊都應該在導入時打印。
+
+<Code language="python">{getModuleExample('first_import/task_rules.py')}</Code>
+
+`report.py`：
+
+<Code language="python">{getModuleExample('first_import/report.py')}</Code>
+
+從實驗根目錄運行：
+
+```bash
+uv run --no-project --python 3.13 python first_import/report.py
+```
+
+```text
+task_rules initialized
+Default: 20
+Buffered: 25
+```
+
+按順序追蹤，而不是只記住兩種語法：
+
+1. Python 開始執行 `report.py`，遇到 `import task_rules`。
+2. 在這個新進程里，它找到相鄰的 `task_rules.py`，創建模塊對象並執行頂層代碼：先打印標記，再綁定常量，再由 `def` 創建函數。此時沒有調用函數體。
+3. 導入語句在調用方綁定名稱 `task_rules`，讓它指向那個模塊對象。
+4. `task_rules.DEFAULT_MINUTES` 在模塊的命名空間中查找屬性；`task_rules.add_buffer(20)` 先取得函數，再調用它。
+
+兩個模塊不會把全局名稱合併在一起。`task_rules.py` 的全局名稱屬於這個模塊，不屬於進程中的所有文件。這裡的“獨立”指組織方式，不是保密機制：調用方仍然能通過模塊對象訪問公開屬性。命名空間不是權限控制邊界。
+
+`task_rules.py` 對應的導入名稱是 `task_rules`，不帶 `.py`。採用清晰、符合標識符習慣的文件名，不要寫成 `task-rules.py`，也不要與打算使用的模塊重名。第 10 節會實際定位一次重名問題。
+
+## 4. 幾種導入形式：到底在當前文件中建立了哪個名稱？
+
+文件：`first_import/import_styles.py`。
+
+<Code language="python">{getModuleExample('first_import/import_styles.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python first_import/import_styles.py
+```
+
+```text
+task_rules initialized
+Alias: 20
+Direct names: 20 25
+```
+
+| 語句 | 調用方得到的名稱 | 使用方式 |
 | --- | --- | --- |
-| **FastAPI** | `Express` | Web 框架核心 |
-| **Uvicorn/Hypercorn** | `node` / `pm2` | 應用服務器 |
-| **Pydantic 模型** | Joi / Zod / 手動驗證 | 數據驗證和序列化 |
-| **依賴注入** | 中間件 / 服務類 | 管理依賴和共享邏輯 |
-| **`async def`** | `async` 函數 | 異步請求處理 |
+| `import task_rules` | `task_rules`，指向模塊 | `task_rules.add_buffer(20)` |
+| `import task_rules as rules` | `rules`，同樣指向模塊 | `rules.add_buffer(20)` |
+| `from task_rules import DEFAULT_MINUTES` | `DEFAULT_MINUTES`，指向取出的對象 | `DEFAULT_MINUTES` |
+| `from task_rules import add_buffer as buffered` | `buffered`，指向取出的函數 | `buffered(20)` |
 
-> 💡 **學習策略**：將 FastAPI 視為一個“帶類型的、異步優先的 Express”。許多概念，如路由、請求、響應和中間件，都會讓你感到非常熟悉。
+`from` 不會跳過模塊加載，也不是挑選幾行源碼執行。它改變的是最後建立的名稱綁定。別名改變調用方的叫法，不會重命名源文件或改寫原函數。多個模塊都有類似名稱時，保留來源通常更容易閱讀；不要用通配符導入把名稱來源隱藏起來。
 
-## 2. 第一個 FastAPI 應用
+現在故意運行 `first_import/missing_name.py`：
 
-讓我們從一個經典的 "Hello, World!" 示例開始，對比 `FastAPI` 和 `Express` 的基本結構。
+<Code language="python">{getModuleExample('first_import/missing_name.py')}</Code>
 
-<PythonEditor title="Hello, World: FastAPI vs. Express" compare={true}>
-```javascript !! js
-// JavaScript (Express)
-// server.js
-const express = require('express');
-const app = express();
-const port = 3000;
-
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
-
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+```bash
+uv run --no-project --python 3.13 python first_import/missing_name.py
 ```
 
-```python !! py
-# Python (FastAPI)
-# main.py
-from fastapi import FastAPI
+程序先打印初始化標記和 25，再在 `task_rules.DEFAULT_MINUTES` 處拋出 `NameError`。模塊已經加載，但**調用方只綁定了 `add_buffer`，沒有綁定名稱 `task_rules`**。修復實際需要的綁定：用 `import task_rules` 配合限定訪問，或者明確導入那個常量。安裝任何依賴都不能修復這個名稱錯誤。
 
-app = FastAPI()
+## 5. 同進程內復用，以及為什麼 from 不是 ESM 的實時綁定
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
+文件：`first_import/import_twice.py`。
 
-# 運行服務器 (在命令行中):
-# uvicorn main:app --reload
-```
-</PythonEditor>
+<Code language="python">{getModuleExample('first_import/import_twice.py')}</Code>
 
-## 3. 路由與請求處理
-
-### 3.1 路徑參數
-
-<PythonEditor title="路徑參數對比" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript (Express)
-app.get('/items/:itemId', (req, res) => {
-  const itemId = req.params.itemId;
-  res.json({ item_id: itemId });
-});
+```bash
+uv run --no-project --python 3.13 python first_import/import_twice.py
 ```
 
-```python !! py
-# Python (FastAPI)
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int):
-    return {"item_id": item_id}
-```
-</PythonEditor>
-
-### 3.2 查詢參數
-
-<PythonEditor title="查詢參數對比" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript (Express)
-app.get('/items', (req, res) => {
-  const skip = req.query.skip || 0;
-  const limit = req.query.limit || 10;
-  res.json({ skip, limit });
-});
+```text
+task_rules initialized
+Same module: True
+Buffered: 25
 ```
 
-```python !! py
-# Python (FastAPI)
-from fastapi import FastAPI
+在這個解釋器里按普通方式導入同一個模塊名稱，會復用內存中的緩存（`sys.modules`）。兩個別名指向同一個模塊對象，初始化標記只出現一次。再次運行終端命令會啓動新進程，標記也會重新出現。修改源碼不會讓已運行進程中的模塊自動重新執行；本章的處理方式是結束舊進程，再重新啓動。
 
-app = FastAPI()
+這**不是**“一個物理文件永遠只會執行一次”的保證。作為 `__main__` 執行，和之後換一個導入名稱加載，是不同身份；重新加載與手動操作緩存也是另一些情況，本章暫不展開。不要把“導入永遠只發生一次”當成業務可靠性的依據。
 
-@app.get("/items/")
-def read_items(skip: int = 0, limit: int = 10):
-    return {"skip": skip, "limit": limit}
-```
-</PythonEditor>
+### 重綁定與修改仍然遵循 L01、L02
 
-### 3.3 請求體
+`bindings/settings.py`：
 
-`FastAPI` 使用 `Pydantic` 模型來定義請求體，這使得數據驗證、序列化和文檔生成變得非常簡單。
+<Code language="python">{getModuleExample('bindings/settings.py')}</Code>
 
-<PythonEditor title="請求體對比" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript (Express)
-app.use(express.json());
+`bindings/observe.py`：
 
-app.post('/items', (req, res) => {
-  const { name, price } = req.body;
-  // 手動驗證
-  if (!name || !price) {
-    return res.status(400).json({ error: 'Missing name or price' });
-  }
-  res.json({ name, price });
-});
+<Code language="python">{getModuleExample('bindings/observe.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python bindings/observe.py
 ```
 
-```python !! py
-# Python (FastAPI)
-from fastapi import FastAPI
-from pydantic import BaseModel
-
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: bool | None = None
-
-app = FastAPI()
-
-@app.post("/items/")
-def create_item(item: Item):
-    return item
-```
-</PythonEditor>
-
-## 4. 數據驗證與 Pydantic
-
-`Pydantic` 是 `FastAPI` 的核心優勢之一。它提供了強大的數據驗證功能，類似於 `TypeScript` 的類型系統加上 `Zod` 或 `Joi` 的運行時驗證。
-
-<PythonEditor title="數據驗證對比" compare={true} canRun={false}>
-```typescript !! ts
-// TypeScript (with Zod for runtime validation)
-import { z } from 'zod';
-
-const UserSchema = z.object({
-  username: z.string().min(3),
-  email: z.string().email(),
-  age: z.number().optional(),
-});
-
-type User = z.infer<typeof UserSchema>;
-
-function createUser(user: unknown): User {
-  return UserSchema.parse(user);
-}
+```text
+Initial: 20 20
+Rebound: 20 40 40
+Shared: ['python', 'modules'] ['python', 'modules']
+Local tags: ['local'] ['python', 'modules']
 ```
 
-```python !! py
-# Python (with Pydantic)
-from pydantic import BaseModel, Field, EmailStr
+畫出兩個命名空間：最初調用方的 `BUDGET` 與 `settings.BUDGET` 都指向 20。`settings.BUDGET = 40` 改變模塊內部的綁定，不會把調用方的獨立名稱也改為 40。`current_budget()` 讀取的是函數**定義所在模塊**的全局名稱，所以即使這個函數被直接導入，調用結果仍然是 40。
 
-class User(BaseModel):
-    username: str = Field(min_length=3)
-    email: EmailStr
-    age: int | None = None
+大寫 `BUDGET` 是命名約定，不會強制對象或名稱不可修改。
 
-def create_user(user_data: dict) -> User:
-    return User(**user_data)
-```
-</PythonEditor>
+兩個 `tags` 最初指向同一個列表。通過其中一個引用追加內容，會修改那個列表，所以另一方也看得到；把調用方的 `tags` 重新綁定到新列表，則把兩個綁定分開了。**`from` 既不是深複製，也不是對未來重綁定的實時連接。**
 
-## 5. 依賴注入
+JavaScript 的 **ES 模塊**使用實時導入綁定：導出方改變綁定，導入方可以觀察到；導入方不能直接對那個導入綁定重新賦值。Python 的直接導入名稱可以在本地重新綁定。這個對照只討論 ESM，不把所有 CommonJS 或打包器轉換都一概而論。應遷移你對引用的理解，而不是假設同樣叫 `import` 就一定有同樣語義。
 
-`FastAPI` 的依賴注入系統非常強大，可以輕鬆地管理數據庫連接、認證和授權等共享邏輯。
+### 兩種緩存，解決兩個不同問題
 
-<PythonEditor title="依賴注入對比" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript (Express middleware)
-function getDb(req, res, next) {
-  req.db = new Database();
-  next();
-}
+此時目錄里可能出現 `__pycache__/` 和 `.pyc` 文件。CPython 可以把編譯後的代碼緩存到磁盤，減少重復編譯；它們不是你維護的源碼，不需要複製進作業或下載包。它們不會保存上一個進程的變量，也不會讓新進程跳過模塊初始化。內存中的模塊復用與磁盤字節碼緩存解釋的是不同現象。
 
-function requireAuth(req, res, next) {
-  if (!req.headers.authorization) {
-    return res.status(401).send('Unauthorized');
-  }
-  req.user = getUserFromToken(req.headers.authorization);
-  next();
-}
+**暫停點 A：** 關掉終端，再預測初始化標記和綁定結果，最後運行驗證。如果你還把“共享同一個模塊對象”理解成“所有文件共用一個全局命名空間”，先重復這些實驗，不急著進入包。
 
-app.get('/profile', getDb, requireAuth, (req, res) => {
-  res.json({ user: req.user });
-});
+## 6. 頂層代碼與明確的業務入口
+
+`entry_points/noisy_report.py` 定義了可復用函數，卻還在頂層直接運行報告：
+
+<Code language="python">{getModuleExample('entry_points/noisy_report.py')}</Code>
+
+`entry_points/use_noisy.py` 原本只想使用那個函數：
+
+<Code language="python">{getModuleExample('entry_points/use_noisy.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python entry_points/use_noisy.py
 ```
 
-```python !! py
-# Python (FastAPI dependencies)
-from fastapi import Depends, FastAPI, HTTPException, status
-
-app = FastAPI()
-
-class Database:
-    def __init__(self): ...
-
-def get_db():
-    db = Database()
-    try:
-        yield db
-    finally:
-        # close db connection
-        pass
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    # ... (logic to get user from token)
-    return user
-
-@app.get("/profile")
-async def read_profile(current_user: User = Depends(get_current_user), db: Database = Depends(get_db)):
-    return {"user": current_user}
-```
-</PythonEditor>
-
-## 6. 異步支持
-
-`FastAPI` 是一個異步優先的框架，可以輕鬆地處理異步任務，如數據庫查詢、API 調用等。
-
-<PythonEditor title="異步處理對比" compare={true} canRun={false} >
-```javascript !! js
-// JavaScript (Express)
-app.get('/data', async (req, res) => {
-  try {
-    const data = await fetch('https://api.example.com/data').then(r => r.json());
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch data' });
-  }
-});
+```text
+Business total: 55
+Caller total: 15
 ```
 
-```python !! py
-# Python (FastAPI)
-import httpx
-from fastapi import FastAPI
+從調用方的角度看，第一行是不需要的業務動作。導入會執行頂層的可執行語句。函數體只有調用時才執行，但頂層的函數調用會在導入過程中發生。以後這種錯誤可能變成意外發起網絡請求或修改存儲數據；現在無需引入這些能力，也能把責任邊界觀察清楚。
 
-app = FastAPI()
+把演示數據與業務調用放進 `main`，再有條件地調用它。文件：`entry_points/quiet_report.py`。
 
-@app.get("/data")
-async def get_data():
-    async with httpx.AsyncClient() as client:
-        response = await client.get("https://api.example.com/data")
-        response.raise_for_status()
-        return response.json()
+<Code language="python">{getModuleExample('entry_points/quiet_report.py')}</Code>
+
+文件：`entry_points/use_quiet.py`。
+
+<Code language="python">{getModuleExample('entry_points/use_quiet.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python entry_points/use_quiet.py
+uv run --no-project --python 3.13 python entry_points/quiet_report.py
 ```
-</PythonEditor>
 
-## 7. 總結
+第一條命令：
 
-`FastAPI` 為從 `JavaScript/Express` 背景過渡而來的 Python 開發者提供了一個熟悉而強大的 Web 開發體驗。通過利用類型提示、異步和依賴注入，`FastAPI` 可以幫助你構建健壯、高性能的 API。
+```text
+Caller total: 15
+```
 
-現在你已經掌握了 `FastAPI` 的基礎知識，可以開始構建自己的 Python Web 應用了！
+第二條命令：
+
+```text
+Business total: 55
+```
+
+`__name__` 是 Python 為每個模塊設置的字符串。這裡被導入時，它是 `"quiet_report"`；作為程序入口執行時，它是 `"__main__"`。`if` 使用的仍然是你已經學過的相等比較和分支。僅定義一個叫 `main` 的函數不會自動啓動它，明確寫出的 `main()` 調用不可缺少。
+
+這個保護條件**不會**阻止導入、函數定義和其他未受保護的頂層語句執行。它只控制自己分支內的代碼。只藏起最後一行 `print`，卻把數據準備留在模塊頂層，並沒有完成修復。導入時沒有輸出是有用證據，但不能證明任意模塊都沒有副作用；還必須檢查業務調用實際放在哪裡。
+
+## 7. 三個經常被混淆的位置
+
+學習包之前，先讓運行上下文可見。文件：`locations/show_context.py`。
+
+<Code language="python">{getModuleExample('locations/show_context.py')}</Code>
+
+- `os.getcwd()` 返回進程的**當前工作目錄**；本實驗從啓動它的終端繼承這個目錄。
+- `__file__` 在這些普通文件示例里標識當前源碼文件。
+- `sys.path` 是 Python 搜索模塊的目錄列表；`[0]` 取下面普通命令中的第一項。它不是 Shell 的 `PATH`，後者用來尋找可執行命令。
+- `__name__` 標識當前執行的模塊，不是目錄。
+
+在沒有隔離/安全路徑選項或自定義路徑配置時，直接運行文件會把腳本所在目錄放到搜索路徑開頭；`-m` 從當前目錄開始尋找指定模塊。其他搜索位置還包括 Python 的庫目錄；內置模塊也有自己的導入處理。因此，不要把所有導入規則簡化成“永遠在寫 import 的那個文件旁邊找”。
+
+從實驗根目錄執行：
+
+```bash
+uv run --no-project --python 3.13 python locations/show_context.py
+```
+
+這裡的路徑輸出用 `<LAB>` 代表你實際解壓目錄的絕對路徑；它**不是要輸入的文本**：
+
+```text
+Name: __main__
+Cwd: <LAB>
+File: <LAB>/locations/show_context.py
+First search: <LAB>/locations
+```
+
+現在明確改變終端目錄：
+
+```bash
+cd locations
+uv run --no-project --python 3.13 python show_context.py
+uv run --no-project --python 3.13 python -m show_context
+cd ..
+```
+
+兩條 Python 命令都輸出：
+
+```text
+Name: __main__
+Cwd: <LAB>/locations
+File: <LAB>/locations/show_context.py
+First search: <LAB>/locations
+```
+
+`-m` 的意思是“按名稱找到模塊，再把它作為入口運行”。參數是 `show_context`，**不是** `show_context.py` 或文件系統路徑。上方用 `/` 展示路徑，不同操作系統的格式可能不同。運行腳本本身不會自動把當前目錄切換到腳本所在目錄；L07 讀取相對文件路徑時，這個區別還會再次出現。
+
+不要用向 `sys.path` 追加路徑或設置 `PYTHONPATH` 來掩蓋當前的混淆。先記錄實際目錄與完整命令。這些實驗刻意使用正常的本地導入行為；隔離運行的 `python -I` 會去掉本地搜索位置，不能隨意替換進去。
+
+## 8. 一個小型普通包：名稱層級與運行上下文
+
+包把模塊組織在帶層級的名稱之下。本章使用帶有 `__init__.py` 的**普通包**。Python 也支持命名空間包，那是另一種機制，目前不需要學習；如果說“所有 Python 包都必須有這個文件”，就說得過頭了。
+
+```text
+package_demo/
+  check_import.py
+  task_tools/
+    __init__.py
+    rules.py
+    report.py
+    app.py
+```
+
+`package_demo` 是啓動命令所在目錄，不是包名；`task_tools` 才是這個普通包。`__init__.py` 只放一段文檔字符串，也就是說明用途的字符串，沒有業務調用：
+
+<Code language="python">{getModuleExample('package_demo/task_tools/__init__.py')}</Code>
+
+普通導入首次加載包時，先執行包的初始化文件，再加載其子模塊。它是可以執行的代碼，不只是一個沒有行為的目錄標記。文件可以為空；這裡保留說明，是為了讓它的用途可見。
+
+`task_tools/rules.py` 只負責計算規則：
+
+<Code language="python">{getModuleExample('package_demo/task_tools/rules.py')}</Code>
+
+`task_tools/report.py` 依賴該規則：
+
+<Code language="python">{getModuleExample('package_demo/task_tools/report.py')}</Code>
+
+`from .rules import add_buffer` 中的點表示**當前包**，不是“終端當前文件夾”。這裡解析為 `task_tools.rules`。絕對導入寫法是 `from task_tools.rules import add_buffer`：“絕對”指完整的模塊名稱，不是磁盤絕對路徑。這個小包內部採用一種清晰一致的風格即可。
+
+`task_tools/app.py` 擁有演示數據與業務入口：
+
+<Code language="python">{getModuleExample('package_demo/task_tools/app.py')}</Code>
+
+切換到包的外層目錄，以點分隔的模塊名稱運行：
+
+```bash
+cd package_demo
+uv run --no-project --python 3.13 python -m task_tools.app
+```
+
+```text
+Package total: 65
+```
+
+兩個輸入各增加五分鐘，所以是 25 + 40 = 65。導入依賴方向是 `app → report → rules`；規則不需要反過來導入應用入口。`-m` 為相對導入提供包上下文，同時把 app 作為 `__main__` 執行，因此保護條件成立，進入 `main()`。
+
+接著證明：導入 app 不會運行這個入口。`check_import.py`：
+
+<Code language="python">{getModuleExample('package_demo/check_import.py')}</Code>
+
+仍然在 `package_demo` 里執行：
+
+```bash
+uv run --no-project --python 3.13 python check_import.py
+```
+
+```text
+App name: task_tools.app
+Probe total: 5
+```
+
+沒有出現 `Package total: 65`。`import task_tools.app` 在調用方綁定 `task_tools`，可以通過它訪問子模塊，並不會綁定一個單獨的 `app` 名稱。探針隨後明確地使用自己的輸入調用可復用函數。包可以提供能力，而不強迫導入者運行它的演示。
+
+**暫停點 B：** 重跑這兩個命令，畫出 `buffered_total` 與 `main` 分別屬於哪個命名空間。不要為了讓它運行就引入安裝文件或依賴管理器：它能被找到，是因為包含包的目錄位於搜索位置中。
+
+## 9. 故意選錯一次入口命令
+
+仍在 `package_demo` 中，執行下面這個**預期失敗**：
+
+```bash
+uv run --no-project --python 3.13 python task_tools/app.py
+```
+
+最後的錯誤指出 `ImportError: attempted relative import with no known parent package`。直接執行磁盤文件路徑，並不會建立 `.report` 所需的 `task_tools` 包上下文。入口保護條件也救不了它：導入在到達條件之前就失敗了。僅僅增加 `__init__.py` 不能改變一個文件被直接啓動的方式。
+
+應在包外層目錄使用支持的 `python -m task_tools.app`，而不是刪除點號或者修補 `sys.path`。再回到實驗根目錄，觀察另一個**預期失敗**：
+
+```bash
+cd ..
+uv run --no-project --python 3.13 python -m task_tools.app
+```
+
+在實驗的正常環境中，Python 從這裡找不到 `task_tools`，因為它放在 `package_demo` 內部；錯誤包含 `ModuleNotFoundError`。修復的是命令要求的工作目錄，不是安裝一個恰好同名的其他包。一條可復現說明必須包含**文件佈局 + 工作目錄 + 解釋器 + 命令**，不能只留最後一個文件名。
+
+## 10. 區分模塊缺失、名稱缺失與同名遮蔽
+
+現在已回到實驗根目錄。文件 `missing_module.py` 故意包含運行時錯誤：
+
+<Code language="python">{getModuleExample('missing_module.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python missing_module.py
+```
+
+它因刻意不存在的模塊拋出 `ModuleNotFoundError`。先問：這個名稱應該來自本地文件、標準庫還是已經安裝的依賴？再檢查拼寫、位置、所用解釋器和實際失敗的導入。traceback 也可能指向被導入模塊**內部的依賴**，不一定就是你寫的最外層 import。不要把所有導入錯誤都當成需要安裝軟件。
+
+`first_import/missing_export.py` 找得到模塊，卻要求一個模塊沒有定義的名稱：
+
+<Code language="python">{getModuleExample('first_import/missing_export.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python first_import/missing_export.py
+```
+
+它先打印初始化標記，再因 `remove_buffer` 拋出 `ImportError`。對比前面的 `NameError`：模塊是否加載、模塊是否擁有某個屬性、調用方是否綁定某個名稱，是三件分別檢查的事情。
+
+### 本地文件可能把你真正想要的模塊遮住
+
+`shadowing/statistics.py` 故意採用了不合適的名稱：
+
+<Code language="python">{getModuleExample('shadowing/statistics.py')}</Code>
+
+`shadowing/show_source.py`：
+
+<Code language="python">{getModuleExample('shadowing/show_source.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python shadowing/show_source.py
+```
+
+在缺少 `mean` 的 `AttributeError` 之前，標準輸出揭示了真正加載的文件：
+
+```text
+Loaded: <LAB>/shadowing/statistics.py
+```
+
+這條命令先找到本地同名文件，沒有加載你希望使用的標準庫 `statistics`。在該實驗的一個**副本**中，用編輯器將本地文件重命名為 `practice_statistics.py`，再用新進程運行 `show_source.py`。此時 `Loaded:` 指向 Python 標準庫，下一行變為 `Average: 25`。
+
+重命名文件不會更換運行中解釋器已經緩存的模塊。應檢查來源路徑並重啓進程，而不是反復安裝包或刪除無關文件。`__file__` 對這些文件型模塊很有用，但並非所有模塊都有它，例如某些內置模塊就沒有。
+
+| 現象 | 首先檢查什麼 |
+| --- | --- |
+| ModuleNotFoundError | 到底缺少哪個模塊？從哪個運行上下文尋找？ |
+| 具名導入的 ImportError | 模塊是否已經建立那個名稱？是否與初始化順序有關？ |
+| 調用方的 NameError | 這種導入形式是否綁定了正在使用的名稱？ |
+| 模塊屬性的 AttributeError | 實際加載的是哪個模塊對象？它是否有該屬性？ |
+| 導入時意外出現業務輸出 | 哪個頂層業務調用被執行了？ |
+
+## 11. 用執行順序解釋一次循環導入
+
+下面三個文件故意形成循環。`cycles/run.py`：
+
+<Code language="python">{getModuleExample('cycles/run.py')}</Code>
+
+`cycles/cycle_a.py`：
+
+<Code language="python">{getModuleExample('cycles/cycle_a.py')}</Code>
+
+`cycles/cycle_b.py`：
+
+<Code language="python">{getModuleExample('cycles/cycle_b.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python cycles/run.py
+```
+
+它拋出 `ImportError`，因為 `cycle_a` 尚未完成 `total_minutes` 的定義。下面摘出 traceback 的骨架，省略源碼回顯、絕對路徑和末尾建議：
+
+```text
+Traceback (most recent call last):
+  File ".../cycles/run.py", line 1, in <module>
+  File ".../cycles/cycle_a.py", line 1, in <module>
+  File ".../cycles/cycle_b.py", line 1, in <module>
+ImportError: cannot import name 'total_minutes' from 'cycle_a' (...)
+```
+
+實測 CPython 3.13.15 還會在末尾附帶“考慮重命名文件”的建議；其他版本可能直接提到初始化未完成或循環導入。**診斷建議不是已經證實的原因。** 這裡並沒有打算導入一個叫 `cycle_a` 的標準庫，應先沿三個調用幀檢查源碼，而不是看到提示就改名。沿實際路徑追蹤：run 開始導入 A → A 在定義自己的函數之前開始導入 B → B 想立刻從 A 取出 `total_minutes` → 那條函數定義尚未執行。文件存在，但所需綁定尚未準備好。緩存讓初始化中的模塊可見，卻不會替它瞬間完成初始化。
+
+這個錯誤來自當前的立即取名方式和執行順序，不是說所有循環關係都必然拋出完全相同的異常。本章修復依賴方向，而不是把 import 來回挪動，直到某次執行順序碰巧通過。
+
+把共享計算下移。`cycle_fixed/rules.py`：
+
+<Code language="python">{getModuleExample('cycle_fixed/rules.py')}</Code>
+
+`cycle_fixed/formatting.py`：
+
+<Code language="python">{getModuleExample('cycle_fixed/formatting.py')}</Code>
+
+`cycle_fixed/run.py`：
+
+<Code language="python">{getModuleExample('cycle_fixed/run.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python cycle_fixed/run.py
+```
+
+```text
+Total: 55
+```
+
+現在依賴圖是 `run → formatting → rules`。底層規則不需要知道展示格式或程序入口。這是一次小規模的依賴決策，不是在要求你尚未理解服務端，就先創造 repository/service/controller 層。
+
+## 12. 三層練習
+
+### A. 先預測，再執行
+
+不運行文件，先寫下：
+
+1. `first_import/import_twice.py` 會打印幾次初始化標記？第二次運行終端命令又如何？
+2. `bindings/observe.py` 的全部四行輸出；分別解釋整數與列表的行為。
+3. 為什麼導入 `entry_points/quiet_report.py` 不會自動調用 `main`，而直接運行會？
+4. 為什麼第 9 節兩條錯誤命令的失敗原因不同？
+
+<details>
+<summary>預測核對——寫完自己的解釋後再打開</summary>
+
+這個實驗中，每次新啓動命令只打印一次標記；進程內部兩次導入取得同一個模塊。綁定實驗里，調用方仍持有 20，模塊與其中定義的函數看到 40；列表修改會共享，本地列表重綁定不會。明確寫出的受保護調用只在 `__main__` 下執行。直接文件啓動缺少父包上下文，而從實驗根目錄啓動點分模塊則缺少包含包的搜索位置。這不是四種泛泛的“Python 不能導入”。
+
+</details>
+
+### B. 修復一個看起來已經有入口保護的程序
+
+文件：`exercises/noisy_rules.py` 和 `exercises/check_noisy.py`。
+
+<Code language="python">{getModuleExample('exercises/noisy_rules.py')}</Code>
+
+<Code language="python">{getModuleExample('exercises/check_noisy.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python exercises/check_noisy.py
+```
+
+錯誤行為會輸出：
+
+```text
+Preparing demo
+Probe: 5
+```
+
+修改源文件，讓探針只打印 `Probe: 5`，但直接運行 `noisy_rules.py` 仍然打印 `Preparing demo` 和 `Demo total: 55`。函數復用與演示功能都要保留。不要靠屏蔽輸出、永久注釋演示，或者讓函數暗中依賴全局 `prepared` 來湊結果；把準備工作和業務調用一起放入入口邊界。
+
+<details>
+<summary>修復參考——比較責任位置，而不只是輸出是否相同</summary>
+
+`solutions/fix_entry.py` 和 `solutions/check_fixed_entry.py`：
+
+<Code language="python">{getModuleExample('solutions/fix_entry.py')}</Code>
+
+<Code language="python">{getModuleExample('solutions/check_fixed_entry.py')}</Code>
+
+```bash
+uv run --no-project --python 3.13 python solutions/check_fixed_entry.py
+uv run --no-project --python 3.13 python solutions/fix_entry.py
+```
+
+第一條命令：
+
+```text
+Probe: 5
+```
+
+第二條命令：
+
+```text
+Preparing demo
+Demo total: 55
+```
+
+`prepare_demo` 仍是可以復用的函數，只是調用移入了 `main`；`prepared` 也成為這次調用的局部名稱。導入仍然定義函數，但不會準備演示數據，也不會輸出業務報告。
+
+</details>
+
+### C. 獨立完成多文件任務計劃器
+
+在**下載實驗之外**新建一個真正的空目錄，然後自己建立下面的佈局。不要先複製參考包；不需要項目元數據或第三方依賴。
+
+```text
+my_plan/
+  check_import.py
+  study_plan/
+    __init__.py
+    rules.py
+    summary.py
+    app.py
+```
+
+先確定責任，再寫 import：
+
+- `rules.py`：實現 `parse_minutes(raw)`，沿用 L05 的嚴格文本契約。非字符串拋出 TypeError；無法轉換的整數文本拋出 ValueError，並保留原轉換異常為原因；負整數拋出 ValueError；兩側空白和零有效。錯誤消息與下面的預期輸出一致。
+- `summary.py`：實現 `build_plan(rows, budget=20)`。budget 必須是普通的非負整數：bool 與非整數拋出 TypeError，負整數拋出 ValueError。即使 rows 為空也要校驗。
+- 合法任務的分鐘數不超過 budget 時，**逐項獨立**選入。這是每個任務的閾值，不是會被消耗的總預算。合法但超出閾值的任務只是被過濾，不記為壞輸入。
+- 在可恢復的轉換處理之外讀取必需的 `title`、`minutes`。把已知壞文本與負分鐘數記錄為拒絕項，保留原輸入的一基行號；缺字段、minutes 類型錯誤和未知故障必須繼續暴露。本練習假設 title 為字符串，不在這裡引入通用 schema 校驗器。恢復策略識別約定解析邊界產生的 ValueError，不能自動判明所有同類異常的來源；替換解析器內部的缺陷也可能破壞這個約定。
+- 返回 `accepted`、`rejected`、`total_minutes`；不修改源行，不在模塊全局持續累加。每次調用創建自己的結果列表和條目字典，保持來源順序。
+- `app.py`：演示數據、調用、展示都放在 `main` 內，並有明確保護條件。`__init__.py` 不運行演示。依賴方向從 app 到 summary 再到 rules，不反向依賴。
+- `check_import.py`：導入 app 與 summary，然後只打印 `Imported: study_plan.app study_plan.summary`；前面不能夾帶演示輸出。
+
+採用 L05 的五行輸入：Read / `" 20 "`、Typo / `"twenty"`、Zero / `"0"`、Negative / `"-5"`、Practice / `"35"`。在**你自己的 `my_plan` 目錄中**執行：
+
+```bash
+uv run --no-project --python 3.13 python check_import.py
+uv run --no-project --python 3.13 python -m study_plan.app
+```
+
+探針輸出：
+
+```text
+Imported: study_plan.app study_plan.summary
+```
+
+默認入口輸出：
+
+```text
+Accepted: [{'title': 'Read', 'minutes': 20}, {'title': 'Zero', 'minutes': 0}]
+Rejected: [{'row': 2, 'title': 'Typo', 'reason': 'minutes must be an integer'}, {'row': 4, 'title': 'Negative', 'reason': 'minutes must be non-negative'}]
+Total: 20
+Source first: {'title': 'Read', 'minutes': ' 20 '}
+```
+
+不要只核對默認運行。在自己的探針中用 `from study_plan.summary import build_plan` 添加臨時調用，打印並比較結果；需要的循環、調用和異常處理你都已經學過。自動化測試是後面的章節，不是這裡突然出現的前置要求。
+
+| 變式 | 驗收要求 |
+| --- | --- |
+| budget 為 40 | 選入 Read、Zero、Practice，總計 55，不是 20 或 40；仍有兩行壞輸入被拒絕 |
+| budget 為 0 | 只選 Zero，總計零；合法正數任務不變成拒絕項 |
+| budget 為 20，Read 改為 `"21"` | 只選 Zero，總計零，不增加壞輸入拒絕項 |
+| 空輸入 / 全部壞輸入 | 保留完整返回結構，總計零，不偽造有效任務 |
+| 恰好等於閾值 / 逆序輸入 | 等於閾值也選入，保持相對順序和正確拒絕行號 |
+| 缺 title/minutes；minutes 為 None 或整數 | 傳播 KeyError/TypeError，不返回偽成功計劃 |
+| budget 為 True、`20.0`、`"20"`、None / -1 | TypeError / ValueError，即使 rows 為空也一樣 |
+| 調用兩次，修改第一次結果的條目與列表 | 第二次結果和原輸入都不受影響 |
+| 新進程中導入 app | 不準備演示、不調用業務；只有明確的探針標記 |
+| 直接運行 `study_plan/app.py` | 預期的相對導入錯誤；解釋原因並恢復 `-m` 命令 |
+
+<details>
+<summary>獨立作業參考包——完成自己的版本後再打開</summary>
+
+`solutions/independent/study_plan/__init__.py`：
+
+<Code language="python">{getModuleExample('solutions/independent/study_plan/__init__.py')}</Code>
+
+`rules.py`：
+
+<Code language="python">{getModuleExample('solutions/independent/study_plan/rules.py')}</Code>
+
+`summary.py`：
+
+<Code language="python">{getModuleExample('solutions/independent/study_plan/summary.py')}</Code>
+
+`app.py`：
+
+<Code language="python">{getModuleExample('solutions/independent/study_plan/app.py')}</Code>
+
+`solutions/independent/check_import.py`：
+
+<Code language="python">{getModuleExample('solutions/independent/check_import.py')}</Code>
+
+從下載實驗根目錄，以正確的外層目錄運行參考答案：
+
+```bash
+cd solutions/independent
+uv run --no-project --python 3.13 python check_import.py
+uv run --no-project --python 3.13 python -m study_plan.app
+cd ../..
+```
+
+拆模塊沒有放鬆 L05 的失敗策略：只恢復解析函數已知的 ValueError，成功後的處理仍在 `else` 內。函數通過導入復用，app 的數據與調用則明確不屬於導入時行為。返回值仍然只是內存數據，不是文件或 HTTP 響應。
+
+</details>
+
+## 13. 退出條件與中斷後恢復記錄
+
+當你可以獨立完成以下事項，再繼續下一章：
+
+- 畫出模塊命名空間，區分導入模塊對象與綁定模塊屬性。
+- 預測重綁定、修改、同進程重復導入和新進程運行的結果。
+- 指出導入時執行的每條頂層語句，準確解釋入口保護條件控制什麼。
+- 從空目錄重建自己的包，分別運行導入探針和業務入口。
+- 不靠隨意安裝或路徑補丁，區分模塊/名稱/屬性缺失、同名遮蔽、包上下文錯誤和本章的循環導入。
+- 驗證計劃器的邊界輸入與結果隔離，而不只接受一張複製來的正常輸出截圖。
+
+如果學習被打斷，請記錄**最後完成的小節、當前目錄、完整命令、觀察到的輸出或錯誤、依賴草圖、下一個尚未驗證的輸入**。回來先預測並重跑一個小實驗，不必重建整個開發環境。暫停點 A、B 都適合休息，本章沒有每周進度要求。
+
+下一步是 [L07：文件、JSON 與資源使用](/zh-tw/docs/js2py/module-07-data-automation)。屆時會區分文本與 Python 對象、定位路徑、解釋編碼、處理缺失和損壞文件，並用 `with` 管理清理。該頁現已按這一契約重編。環境與鎖文件、基礎測試、獨立可復現應用仍在 L08—L10，FastAPI 等自己的先修基礎完成後再進入。
+
+## 14. 資料來源與本章邊界
+
+以下技術資料於 2026-09-24 按 Python 3.13 基線核對：
+
+- [模塊教程](https://docs.python.org/3.13/tutorial/modules.html)：模塊命名空間、導入形式、執行與包。
+- [導入系統](https://docs.python.org/3.13/reference/import.html) 與 [import 語句](https://docs.python.org/3.13/reference/simple_stmts.html#the-import-statement)：模塊緩存、普通包/命名空間包與綁定。
+- [頂層執行環境](https://docs.python.org/3.13/library/__main__.html)：入口保護與運行行為。
+- [搜索路徑初始化](https://docs.python.org/3.13/library/sys_path_init.html) 與 [命令行選項](https://docs.python.org/3.13/using/cmdline.html#cmdoption-m)：文件、模塊和隔離執行的上下文。
+- [math.ceil](https://docs.python.org/3.13/library/math.html#math.ceil)、[statistics.mean](https://docs.python.org/3.13/library/statistics.html#statistics.mean) 與 [os.getcwd](https://docs.python.org/3.13/library/os.html#os.getcwd)：實際使用的少量標準庫能力。
+- [MDN import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)：ES 模塊實時綁定，以及與 Python 類比的邊界。
+
+導入鈎子、重新加載、命名空間包構造、發佈包、`__all__`、可執行包的 `__main__.py`、命令行參數解析與框架分層暫不展開。本章證明的是小型多文件程序的責任邊界，不是在宣稱已經得到可上線服務或完整環境重建流程。

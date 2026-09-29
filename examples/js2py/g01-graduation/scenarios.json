@@ -1,0 +1,246 @@
+{
+  "spec_version": "g01-comments-v1",
+  "execution": "not_run; this catalog is not an automated backend suite",
+  "scenarios": [
+    {
+      "id": "S01",
+      "area": "functional",
+      "name": "Member creates/lists/reads a comment",
+      "given": "bob in P101, task T101",
+      "action": "create valid plain text and read it via list/detail",
+      "expected": "same comment identity, author bob, correct task, valid revision; plain text remains data",
+      "hard_gate": false,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S02",
+      "area": "authorization",
+      "name": "Owner moderation is not authorship",
+      "given": "C101 by bob; alice owns P101",
+      "action": "alice tries to rewrite then redact C101",
+      "expected": "rewrite denied; authorized redaction leaves tombstone, no original text exposure",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S03",
+      "area": "authorization",
+      "name": "Cross-project and changed-parent attacks",
+      "given": "C201 belongs to T201/P202; alice owns P101",
+      "action": "combine a foreign comment/task ID with P101 and perform read/edit/redact",
+      "expected": "no private data or mutation; not merely a hidden UI control",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S04",
+      "area": "authorization",
+      "name": "Revoked member with old credential",
+      "given": "bob authored C101; remove bob from P101 and commit",
+      "action": "start new read/list/edit/create after removal using old credential",
+      "expected": "all denied; historical attribution is retained for current members",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S05",
+      "area": "authorization",
+      "name": "Anonymous and disabled actors",
+      "given": "anonymous request; disabled erin still listed as member",
+      "action": "attempt every comment operation",
+      "expected": "all denied; membership alone cannot override account state",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S06",
+      "area": "authorization",
+      "name": "Forged immutable fields",
+      "given": "bob may create in T101",
+      "action": "supply another author, foreign project/task, timestamps or revision authority",
+      "expected": "identity/ownership cannot be forged; reject or ignore per documented contract without privilege gain",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S07",
+      "area": "validation",
+      "name": "Input boundaries and plain text",
+      "given": "content_vectors",
+      "action": "submit all boundary cases, including Unicode whitespace and literal markup",
+      "expected": "reject missing/blank/overlong text; accepted markup is plain text, not execution",
+      "hard_gate": false,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S08",
+      "area": "functional",
+      "name": "Edit and missing object behavior",
+      "given": "bob owns visible C101",
+      "action": "edit with current base revision; separately address absent comment",
+      "expected": "successful edit has next revision; absent object follows declared nonleaking error contract",
+      "hard_gate": false,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S09",
+      "area": "concurrency",
+      "name": "Competing stale edits",
+      "given": "two independent clients share C101 base revision",
+      "action": "overlap two different edits, record operation order",
+      "expected": "no silent double overwrite; at most one edit based on that revision accepted",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S10",
+      "area": "concurrency",
+      "name": "Edit races redaction",
+      "given": "bob edits C101 while alice redacts it",
+      "action": "overlap operations and attempt another delayed edit after redaction commits",
+      "expected": "no resurrection; normal reads expose only tombstone after redaction",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S11",
+      "area": "idempotency",
+      "name": "Concurrent repeated create",
+      "given": "same actor, task, request identity and text",
+      "action": "overlap two create requests, then repeat within 24 hours",
+      "expected": "one logical comment, same identity, no duplicate accepted record",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S12",
+      "area": "idempotency",
+      "name": "Same request identity, changed text",
+      "given": "S11 succeeded",
+      "action": "repeat same scope with different text",
+      "expected": "conflict; original comment unchanged, no second accepted comment",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S13",
+      "area": "authorization",
+      "name": "Replay after permission removal",
+      "given": "accepted create response exists; membership then removed",
+      "action": "retry same request after removal commits",
+      "expected": "deny without leaking cached comment or response content",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S14",
+      "area": "idempotency",
+      "name": "Scope and bounded retention",
+      "given": "same request string in different valid actor/task scopes",
+      "action": "create in each allowed scope; also test documented expiry boundary",
+      "expected": "no cross-user/project response reuse; expiry policy explicit and bounded",
+      "hard_gate": false,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S15",
+      "area": "failure",
+      "name": "Failure during mutation",
+      "given": "isolated disposable data and chosen failure point",
+      "action": "inject a persistence failure and then issue an ordinary valid operation",
+      "expected": "no partial accepted state, no falsely successful response, resources recover; describe the failed stage",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S16",
+      "area": "failure",
+      "name": "Response lost after acceptance",
+      "given": "accepted create whose response cannot be consumed",
+      "action": "repeat its scoped request within retention window",
+      "expected": "resolve same comment identity without duplicate; do not rely on client seeing first response",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S17",
+      "area": "query",
+      "name": "Stable lists and limits",
+      "given": "comments sharing timestamps plus tombstones",
+      "action": "page unchanged data and test invalid page sizes; separately change data between pages",
+      "expected": "stable no-skip/no-duplicate unchanged pages; mutation limitation and filtering behavior documented",
+      "hard_gate": false,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S18",
+      "area": "compatibility",
+      "name": "Deletion policy and parent consistency",
+      "given": "one commented task, one uncommented task",
+      "action": "delete each; attempt parent-project deletion bypass",
+      "expected": "commented task not physically erased; uncommented behavior preserved; no bypass via project",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S19",
+      "area": "migration",
+      "name": "Upgrade real old data",
+      "given": "owned pre-feature database with old users/projects/tasks",
+      "action": "apply reviewed upgrade and run old and new contracts",
+      "expected": "old IDs/records preserved; old tasks have zero comments; no fake authors or auth defaults",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S20",
+      "area": "release",
+      "name": "Release rollback compatibility",
+      "given": "identified old/new app and schema revisions with accepted new comment",
+      "action": "exercise declared rollback or safe freeze policy in isolation",
+      "expected": "no silently lost accepted data; incompatible combinations rejected; restart/new release can proceed",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S21",
+      "area": "recovery",
+      "name": "Actual isolated restore",
+      "given": "backup containing new comments, a tombstone and replay state",
+      "action": "restore to a different owned target and verify required behaviors",
+      "expected": "relationships/revisions/tombstone/privacy/replay hold; measured recovery duration and loss window recorded",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S22",
+      "area": "operations",
+      "name": "Redacted diagnostics and bounded running",
+      "given": "owned test config plus simulated failure",
+      "action": "collect diagnostics and inspect shared artifacts",
+      "expected": "sufficient correlation without credentials or sensitive body; timeout/capacity limitations explicit",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S23",
+      "area": "pilot",
+      "name": "Invited use and feedback iteration",
+      "given": "O06 and safety gates independently verified, target/account/budget approved",
+      "action": "2..5 invited testers use non-sensitive data; record and address feedback",
+      "expected": "traceable anonymized observation and one verified iteration; missing environment stays blocked",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    },
+    {
+      "id": "S24",
+      "area": "independence",
+      "name": "Unseen requirement and diagnosis defense",
+      "given": "reviewer picks a small requirement change at assessment time",
+      "action": "explain affected rules and adapt tests/behavior; defend one original diagnosis",
+      "expected": "learner can reason and change work without a reference backend; reviewer records limits and assistance",
+      "hard_gate": true,
+      "required_observation": "redacted requests/results plus persisted-state or operational evidence appropriate to this scenario; include actual order for concurrency"
+    }
+  ]
+}

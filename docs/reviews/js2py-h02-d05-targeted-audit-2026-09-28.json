@@ -1,0 +1,422 @@
+{
+  "audit_id": "langshift-h02-d05-targeted-audit-20260928",
+  "date": "2026-09-28",
+  "language": "zh-CN",
+  "workspace": "/Users/mikmyp/Documents/code-projects/langshift.dev",
+  "mode": "bounded_read_only_targeted_review",
+  "scope": {
+    "H02": "module-16-http-contract 三语及 h02-http-contract；h02-task-contract-v2-h04-aligned；对照 H04 三语代码嵌入、models.py/app.py/锁与已有观察摘要",
+    "D05": "module-25-migrations 三语及 d05-migrations；首次 Alembic 使用、带数据迁移、失败回滚、降级和 archived_at 独立变式",
+    "reader_assumption": "成熟 JS 前端，已学 D01–D03 SQL/约束/事务与 D04 同步 Session；未假设部署经验",
+    "provided_review_signals": {
+      "H02": {
+        "review32": "TARGETED_REVIEW",
+        "score": 0.5,
+        "confidence": 0.25,
+        "independent_contract_coherent": 0.77
+      },
+      "D05": {
+        "review39": "TARGETED_REVIEW",
+        "score": 0.53,
+        "confidence": 0.28,
+        "hidden_prerequisite": 0.37
+      }
+    },
+    "signal_handling": "仅作为指定审查方向；没有调用 TypeSafe，没有推测模型低置信的原因。"
+  },
+  "conclusion": {
+    "H02": "在列明范围未发现阻断问题。核心任务契约、静态样本与实际 HTTP 的分层、纯函数边界、独立变式与 H04 一致。",
+    "D05": "未发现已测试迁移路径中的数据丢失或虚假版本推进；发现一处中文首次操作上下文遗漏（P2），另有一条非阻断的教学顺序建议（P3）。",
+    "blocking_data_integrity_defects_found": 0,
+    "confirmed_findings": 1,
+    "nonblocking_recommendations": 1,
+    "release_scope": "不是整章/全仓验收；不替代已完成主线 runner，也不表示未测试的生产边界已安全。"
+  },
+  "findings": [
+    {
+      "id": "D05-F01",
+      "priority": "P2",
+      "category": "reproducibility_and_translation_context",
+      "confidence": "high",
+      "title": "中文自动生成练习漏掉英文的 sandbox 执行上下文，紧接 exit 后无法照顺序执行",
+      "locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-cn.mdx",
+          "start_line": 140,
+          "end_line": 143
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-tw.mdx",
+          "start_line": 140,
+          "end_line": 143
+        }
+      ],
+      "supporting_locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-cn.mdx",
+          "start_line": 123,
+          "end_line": 129
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-tw.mdx",
+          "start_line": 123,
+          "end_line": 129
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.mdx",
+          "start_line": 140,
+          "end_line": 140
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d05-migrations/safety.py",
+          "start_line": 18,
+          "end_line": 22
+        }
+      ],
+      "observation": "第 7 节手工 tour 的最后一条是 exit，wrapper 随即销毁临时库。第 8 节中文只说“先 upgrade head；修改 models.py…然后执行”，没有英文第 140 行的“run this inside the sandbox”。复制后一条 python -m alembic revision --autogenerate 不会继承已结束子 shell 的 LAB_*。即使主动选对虚拟环境，也在 env.py/checked_url 被拒绝；不是 Alembic 配置损坏，更不应删除护栏。",
+      "reproduction": {
+        "isolation": "仅 /tmp 的实验副本；使用其已安装虚拟环境；清除继承的 PG*/数据库连接变量；没有连接现有数据库。",
+        "steps": [
+          "在 /tmp 副本以 pg_sandbox.py -- bash -c 执行 python -m alembic upgrade head 和 current，观察 003_contract (head)，子 shell 退出并完成清理。",
+          "在 sandbox 外使用同一副本 .venv/bin/python 执行 -m alembic revision --autogenerate -m \"review candidate\"。是否已增加模型字段不影响该失败，因为 checked_url 先拒绝连接。"
+        ],
+        "expected": "读者在新建且持续存活的 sandbox 内先建立 head 基线，再生成候选；只生成文件，不自动执行候选。",
+        "actual": {
+          "outside_command_exit": 1,
+          "last_error_line": "RuntimeError: Refusing database access: run inside python pg_sandbox.py -- COMMAND",
+          "new_revision_files": [
+            "002_expand.py",
+            "001_base.py",
+            "003_contract.py"
+          ]
+        },
+        "evidence": [
+          "/tmp/langshift-h02-d05-targeted-audit-work/d05-shell-inside.log",
+          "/tmp/langshift-h02-d05-targeted-audit-work/d05-autogenerate-after-exit.log",
+          "/tmp/langshift-h02-d05-targeted-audit-work/d05-shell-cleanup.json"
+        ]
+      },
+      "minimum_recommendation": "两种中文至少补回英文“在 sandbox 内执行”；更稳妥的是把新一轮 uv run --locked python pg_sandbox.py -- bash、upgrade head、编辑模型的时点、revision --autogenerate 和最后 exit 放成一段完整路径。不要复用已经 exit 的临时库，也不要在退出之后才说明上下文。无需修改迁移代码或安全护栏。",
+      "limits": "英文已经包含 inside the sandbox，本发现不声称英文缺失这句，也不声称谨慎读者无法自行重建上下文。"
+    }
+  ],
+  "nonblocking_recommendations": [
+    {
+      "id": "D05-N01",
+      "priority": "P3",
+      "category": "first_use_pedagogy",
+      "title": "在完整初始迁移之前，用 002 的小例子解释 Alembic 回调与生成/执行两阶段",
+      "locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-cn.mdx",
+          "start_line": 63,
+          "end_line": 89
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.mdx",
+          "start_line": 63,
+          "end_line": 89
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-tw.mdx",
+          "start_line": 63,
+          "end_line": 89
+        }
+      ],
+      "supporting_locations": [
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d05-migrations/migrations/versions/002_expand.py",
+          "start_line": 2,
+          "end_line": 18
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/content/docs/js2py/module-25-migrations.zh-cn.mdx",
+          "start_line": 214,
+          "end_line": 223
+        },
+        {
+          "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d05-migrations/solutions/test_archive_migration.py",
+          "start_line": 20,
+          "end_line": 24
+        }
+      ],
+      "observation": "已经讲清 revision 链、env.py、事务与历史脚本不导入当前模型；但读者首次遇到 op/upgrade()/downgrade() 时先读整份四表初始迁移，没有先明确：谁调用这些函数，op 与 Session 的职责差别，revision 命令生成文件而 upgrade 才应用。独立变式的 version_locations 接入说明也主要放在折叠答案。不是缺少 SQL/事务基础，而是 Alembic 首次执行心智模型的短桥接。",
+      "minimum_recommendation": "在第 4/5 节前后增一小段流程：CLI/command -> env.py -> 根据版本链选择 upgrade/downgrade -> op 在迁移连接内发 DDL -> 成功更新版本标记；用 002 的 add_column 对照一条 ALTER TABLE，强调不是直接 python 执行 revision。再明确下载已提供初始化骨架、不要求重建运维设施。独立变式题面可预先说明选择自己的实验副本还是独立 versions 目录，以及对应验收入口，不必泄露迁移实现。",
+      "severity_reason": "源码和已有讲解足以让有经验读者推导，且没有复现运行逻辑错误，因此仅作非阻断教学建议；不要求提前教授部署或完整 Alembic init 配置。",
+      "validation": "静态教学顺序检查，无额外失败实验。"
+    }
+  ],
+  "verified_without_blockers": {
+    "H02": [
+      "24 份 public/exchanges 样本逐项静态审阅；6 份 solutions/exchanges 对每次独立 seed 的 H04 真实 loopback HTTP 验证状态、样本声明头和完整正文，一致。",
+      "title 原样保留；minutes 严格非负整数；done 严格布尔；note 的遗漏/null/空字符串语义；服务端 id 和公开字段白名单与 H04 models/app 对齐。",
+      "无条件把纯函数当成输入验证器的担忧已有明确限定：preview_page 处理已解析值，proposed_changes 假定已验证；验证输入不被调用本身修改。没有要求深拷贝隔离。",
+      "针对非法 PATCH 的部分更新风险：新 title + 负 minutes、note=null + done=0、bool/float minutes、null title 均 422 且存储原记录不变。空 PATCH 与显式 null/0/false 区别成立。",
+      "120/121 个 emoji 的 title 分别 201/422；畸形 JSON 是 422/json_invalid；DELETE 是 204 无正文无 Content-Type，重复为 404。",
+      "静态 GET create-ok.json 实际 200，内嵌提案 201；向静态 /tasks POST 实际 501。包未被误当作 CRUD。",
+      "核心与可选加固（HEAD、413/415、query 拒绝、Location、输入回显）分开陈述；已有 H04 观察的五个源码摘要仍吻合当前源文件。"
+    ],
+    "D05": [
+      "001 冻结历史结构、不导入最终模型；002 允许过渡 NULL；003 先 NULL->0，再 default/NOT NULL/CHECK，不覆盖显式 2。",
+      "002 内 [9,NULL] 升 003 失败：仍为 002，[9,NULL] 未变化、旧任务字段未变化、priority 仍可空无默认且无新 CHECK；按示例政策改为 2 后能升级。",
+      "带任务的 003->002 允许且保留 [2,0]，同时确实移除默认/非空/CHECK；之后恢复 003。",
+      "从 003 尝试降至 001，002 的防丢保护拒绝，前面 003->002 的 DDL 也回滚，版本仍 003、值/旧字段不变、metadata check 无差异。",
+      "归档变式：旧项目 archived_at 为 NULL，任务及外键快照不变；全部 NULL 时可以 004->003；写入确定的带时区时间后，跨多个目标版本的 downgrade 拒绝，原时间、004 版本与任务快照保留。",
+      "独立变式仅在测试 Config 加 solution versions，不污染默认 003；题目验收迁移而非完整归档 API，范围本身一致。",
+      "已明确区分应用回退、数据库降级与备份恢复，且没有把小表事务 DDL 的结果泛化成零停机部署或生产恢复承诺。"
+    ]
+  },
+  "experiments": {
+    "root": "/tmp/langshift-h02-d05-targeted-audit-work",
+    "h02_boundary_probe": {
+      "script": "/tmp/langshift-h02-d05-targeted-audit-work/h02_boundary_probe.py",
+      "results": [
+        {
+          "case": "second-page",
+          "status": 200,
+          "matches_full_expected_body": true
+        },
+        {
+          "case": "past-end",
+          "status": 200,
+          "matches_full_expected_body": true
+        },
+        {
+          "case": "omit-note",
+          "status": 200,
+          "matches_full_expected_body": true
+        },
+        {
+          "case": "clear-note",
+          "status": 200,
+          "matches_full_expected_body": true
+        },
+        {
+          "case": "null-minutes",
+          "status": 422,
+          "matches_full_expected_body": true
+        },
+        {
+          "case": "limit-101",
+          "status": 422,
+          "matches_full_expected_body": true
+        },
+        {
+          "case": "invalid_patch_atomicity",
+          "input": {
+            "title": "changed",
+            "minutes": -1
+          },
+          "status": 422,
+          "original_preserved": true
+        },
+        {
+          "case": "invalid_patch_atomicity",
+          "input": {
+            "note": null,
+            "done": 0
+          },
+          "status": 422,
+          "original_preserved": true
+        },
+        {
+          "case": "invalid_patch_atomicity",
+          "input": {
+            "minutes": true
+          },
+          "status": 422,
+          "original_preserved": true
+        },
+        {
+          "case": "invalid_patch_atomicity",
+          "input": {
+            "minutes": 1.0
+          },
+          "status": 422,
+          "original_preserved": true
+        },
+        {
+          "case": "invalid_patch_atomicity",
+          "input": {
+            "title": null
+          },
+          "status": 422,
+          "original_preserved": true
+        },
+        {
+          "case": "empty_patch_vs_explicit_null_zero_false",
+          "passed": true
+        },
+        {
+          "case": "unicode_codepoint_title_length",
+          "length": 120,
+          "status": 201
+        },
+        {
+          "case": "unicode_codepoint_title_length",
+          "length": 121,
+          "status": 422
+        },
+        {
+          "case": "malformed_json",
+          "status": 422,
+          "loc": [
+            "body",
+            9
+          ]
+        },
+        {
+          "case": "delete_bodyless_then_404",
+          "passed": true
+        },
+        {
+          "case": "pure_helpers_input_nonmutation",
+          "passed": true,
+          "boundary": "no guarantee of deep-copy isolation or validation; both helpers are explicitly previews"
+        }
+      ],
+      "transport": "真实 Uvicorn + http.client；每个独立样本新进程，持有绑定到 127.0.0.1:0 的 socket FD 后交给子进程；只停止自己子进程。"
+    },
+    "h02_static_transport": {
+      "sample_transport_status": 200,
+      "embedded_proposed_status": 201,
+      "real_post_tasks": 501,
+      "owned_process_stopped": true
+    },
+    "d05_boundary_probe": {
+      "script": "/tmp/langshift-h02-d05-targeted-audit-work/d05-migrations/audit_boundaries.py",
+      "results": [
+        {
+          "case": "failed_contract_transaction",
+          "revision": "002_expand",
+          "priorities": [
+            9,
+            null
+          ],
+          "rows_and_ddl_unchanged": true
+        },
+        {
+          "case": "permitted_003_to_002_with_rows",
+          "values_retained": [
+            2,
+            0
+          ],
+          "constraints_and_default_removed": true
+        },
+        {
+          "case": "multi_revision_refusal_rolls_back_prior_downgrade_step",
+          "passed": true
+        },
+        {
+          "case": "archive_nullable_history_all_null_safe_downgrade",
+          "passed": true
+        },
+        {
+          "case": "archive_nonnull_multi_step_downgrade_refused",
+          "timestamp_unchanged": "2026-09-28 12:00:00+08:00",
+          "passed": true
+        }
+      ],
+      "log": "/tmp/langshift-h02-d05-targeted-audit-work/d05-boundary.log",
+      "cleanup": {
+        "cluster": "/private/tmp/ls-pg-y38a_8v0",
+        "socket": "/private/tmp/ls-pg-y38a_8v0/socket",
+        "tcp": false,
+        "server_version": "180006",
+        "command_exit": 0,
+        "stopped": true,
+        "removed": true,
+        "status_after_stop": 3,
+        "stop_exit": 0
+      }
+    },
+    "d05_shell_context": {
+      "results": {
+        "outside_command_exit": 1,
+        "last_error_line": "RuntimeError: Refusing database access: run inside python pg_sandbox.py -- COMMAND",
+        "new_revision_files": [
+          "002_expand.py",
+          "001_base.py",
+          "003_contract.py"
+        ]
+      },
+      "cleanup": {
+        "cluster": "/private/tmp/ls-pg-xvfph_wn",
+        "socket": "/private/tmp/ls-pg-xvfph_wn/socket",
+        "tcp": false,
+        "server_version": "180006",
+        "command_exit": 0,
+        "stopped": true,
+        "removed": true,
+        "status_after_stop": 3,
+        "stop_exit": 0
+      }
+    },
+    "trilingual_executable_parity": {
+      "result": "三个 module 的三语 Code 引用与 fenced 可执行片段完全一致；不据此推断自然语言逐字等价，D05-F01 是自然语言上下文差异。",
+      "evidence": "/tmp/langshift-h02-d05-targeted-audit-work/trilingual-executable-parity.json"
+    }
+  },
+  "environment": {
+    "UV_PYTHON_INSTALL_DIR": "/tmp/langshift-js2py-python-20260928",
+    "UV_CACHE_DIR": "/tmp/langshift-js2py-uv-cache-20260928",
+    "uv": "/Users/mikmyp/.local/bin/uv",
+    "PG_BIN": "/opt/homebrew/bin",
+    "postgres_server_version": "180006",
+    "python": "3.13.15",
+    "dependencies": "仅在 /tmp 副本 uv sync --locked，未重锁或修改共享 venv。",
+    "H04_actual_locked_packages": {
+      "FastAPI": "0.135.1",
+      "Uvicorn": "0.42.0",
+      "Pydantic": "2.12.5",
+      "Starlette": "1.7.0",
+      "AnyIO": "4.15.1"
+    },
+    "D05_actual_locked_packages": {
+      "SQLAlchemy": "2.0.54",
+      "Alembic": "1.20.0",
+      "psycopg": "3.3.6",
+      "Starlette": "0.52.1",
+      "AnyIO": "4.12.1"
+    },
+    "version_scope": "上述为实际各自锁的实验依赖，不把 H04 与 D05 的间接依赖混为同一环境；本轮不审查全主线依赖升级政策或最新版本。"
+  },
+  "safety_and_read_only": {
+    "typesafe_called": false,
+    "full_runner_repeated": false,
+    "shared_files_modified": false,
+    "user_service_or_database_used": false,
+    "source_integrity": {
+      "files_compared": 104,
+      "changed_or_missing": [],
+      "all_audited_sources_unchanged": true
+    },
+    "source_hash_manifest": "/tmp/langshift-h02-d05-targeted-audit-work/source-sha256-before.json",
+    "database_isolation": "两个由 pg_sandbox.py 创建的独占 /private/tmp/ls-pg-* 集群，只开私有 Unix socket、无 TCP；测试库由自己创建删除；两个 evidence 都证明 stopped=true/status_after_stop=3/removed=true。",
+    "output_files": "仅 /tmp 审查脚本、副本、环境、证据与目标报告；没有教材/lab/共享文件写操作。"
+  },
+  "official_sources": [
+    {
+      "url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html",
+      "purpose": "核对 revision 文件、upgrade/downgrade 与 op、命令生成和执行的职责。",
+      "retrieval": "web.run 未返回可用正文，随后只读获取官方原站，保存 111411 字节 HTML。",
+      "saved": "/tmp/langshift-h02-d05-targeted-audit-work/official-tutorial.html"
+    },
+    {
+      "url": "https://alembic.sqlalchemy.org/en/latest/autogenerate.html",
+      "purpose": "核对候选需人工审查及列改名被表示为 add/drop 的限制。",
+      "retrieval": "只读获取官方原站，保存 130097 字节 HTML。",
+      "saved": "/tmp/langshift-h02-d05-targeted-audit-work/official-autogenerate.html"
+    }
+  ],
+  "uncovered_boundaries": [
+    "没有重跑 47+5 H02 测试、9 项 D05 默认套件、既有主线 runner 或全仓构建。",
+    "24 份公共提案均做静态审阅，但没有逐份做本轮 HTTP 全量回放；真实回放限定六份独立变式及列明边界。",
+    "本轮没有重新验证全部可选加固观察、真实浏览器 CORS、curl/Windows 差异、任意 malformed HTTP、重复查询参数、多错误优先级、超大整数 JSON 与 JS 互操作。",
+    "没有验证 API 并发/多进程、重启后 id 重用、持久化或生产鉴权。",
+    "没有演练生产/已有库接管 stamp、多 head 合并、并发迁移、锁竞争/大表回填性能、网络中断、SIGKILL/断电、非事务 DDL、备份恢复或零停机部署。",
+    "D05 autogenerate 改名候选既有测试仅静态审查，未重复执行；本轮新命令实验只用于定位 sandbox 上下文断点。",
+    "没有重新构建 zip、校验站点最终渲染、下载 allowlist 全链路或审计安全护栏对同 OS 用户恶意进程的抵抗能力。",
+    "独立变式演练的是数据库迁移及降级政策，未实现或验收 Project ORM/API 归档功能。"
+  ]
+}

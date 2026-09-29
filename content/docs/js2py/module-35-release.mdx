@@ -1,0 +1,185 @@
+---
+title: Continuous Integration, Releases, and Compatible Rollback
+description: Exercise gates, migrations with existing data, real application processes, and rollback against an owned PostgreSQL cluster; distinguish environment isolation and application compatibility from destructive database downgrade.
+---
+
+import { getReleaseExample } from '@/lib/js2py-examples'
+
+## 1. What evidence is still missing after tests pass?
+
+H06 tests APIs, D05/D06 test migrations and real databases, and O01–O03 establish process, container, and network boundaries. Putting those commands in YAML does not itself make a release safe. Tests may connect to the wrong database; multiple workers may change tables simultaneously; old code may not understand a new schema; reverting code does not undo new data.
+
+We separate the sequence: check the candidate → verify migrations and interfaces in an owned test database → review the compatibility matrix → migrate as a separate operation → start the candidate and check readiness → approve traffic switching. Failure at one stage must stop later stages rather than be reported as success.
+
+| Chapter contract | Scope |
+| --- | --- |
+| Prerequisites | O03 ingress/production configuration, D05 migrations, D06 real PostgreSQL tests, S01–S03 identity/authorization |
+| New capabilities | A shared local/CI gate, isolated environments, migration timing, release/schema compatibility, application rollback with data |
+| Independent acceptance | v1 → expanded schema → v2 write → v1 rollback with retained data; read real migration state during preflight |
+| Not claimed | Hosted CI execution, container release, real-domain traffic switching, production rollback, arbitrary database downgrade |
+
+Download the [independent O04 lab](/learning-assets/js2py/o04-release.zip) and enter `o04-release`. It includes source, SQL, the complete Alembic history, tests, and solutions without importing other labs. Every PostgreSQL cluster is short-lived and contains synthetic data only.
+
+## 2. Preserve the D/S contract without pretending this is the whole product
+
+The package retains the D/S users/projects/project_members/tasks, auth_sessions, and task_operations fields. Tasks use status/description/priority, not the H-stage done/note names. Authentication uses opaque Bearer tokens with only SHA-256 digests stored; each request checks expiry, revocation, account activation, and auth_version. A digest of a random token is not password hashing; synthetic passwords still use the Argon2id library.
+
+The **operational API slice** exposes health, authenticated project reading, and project creation. It does not reimplement login, password changes, membership management, or the full S03 idempotency service. An operator fixture creates synthetic sessions in the private database; this is not a new public login bypass. Replacing a full application with this slice would lose functionality.
+
+V1 returns project id/name; v2 adds nullable description. Old code names the columns it reads/writes and ignores the new field. The new column permits old inserts to omit it. These are application versions, not PostgreSQL versions.
+
+<Code language="python">{getReleaseExample('ops/app.py')}</Code>
+
+The factory reads alembic_version and checks compatibility; it does not run migrations. Schema failures occur before serving traffic. The runtime role cannot ALTER tables and need not be a superuser. Inaccessible or absent projects still return 404; rollback must preserve that authorization boundary.
+
+## 3. Isolation begins with connections and ownership
+
+A test database is not merely a name containing test. Tests need ownership of creation and cleanup and must not accept a production URL accidentally. This lab ignores ambient business DATABASE_URL values and connects only to a private Unix socket inside its own `/tmp/ls-ops-*` directory. Database names are explicitly allowlisted too.
+
+<details>
+<summary>Complete isolation tool: create, start, and clean up only the owned cluster</summary>
+
+<Code language="python">{getReleaseExample('ops/cluster.py')}</Code>
+
+</details>
+
+Mkdtemp creates an exclusive directory; mode 0700 restricts access; a marker records the UID and a random ownership value. Cleanup rechecks paths, ownership, modes, markers, and symlinks. PostgreSQL listens on no TCP interface, while the API uses a temporary 127.0.0.1 port. Trust authentication on this private socket is a short-lived local teaching policy, **not production authentication**. The operating-system account remains a trust boundary.
+
+Development, tests, staging, and production should use separate databases, accounts, and secrets. Deployment and runtime identities should differ too. We verify an isolated test environment here, not an already deployed staging system. If versions or ownership checks fail, investigate; do not redirect the script to an existing user database to make it run.
+
+Passing a private-socket host is not sufficient by itself: libpq can still obtain other connection defaults from `PGHOSTADDR`, `PGSERVICE`, `PGSERVICEFILE`, and related variables. `reject_connection_environment` rejects every inherited `PG*` name before temporary-directory creation and before each direct connection, migration, or server launch. The only exception is `PG_BIN`, which locates executables, not a database. Errors list names only, never their values, and do not mutate the caller's environment. Python connections, SQLAlchemy's connection creator, and PostgreSQL subprocesses use an empty mode0600 `empty.pgpass` in the owned directory rather than the user's default password file. Direct `demo.py` and `ci.py` execution have these guards too; safety does not depend on the repository runner cleaning up first.
+
+The controller no longer probes an unused port, closes that socket, and asks another process to acquire the same number. Uvicorn binds `--port 0` itself. The controller reads the actual port from **that child's own private startup log**, then requests readiness. `--no-access-log` does not suppress the info-level startup banner; the controller explicitly selects uncolored logs and one worker. Concurrent identical releases have distinct log files. A real test starts two servers together and checks their different ports, corresponding banners, actual requests, and cleanup. This removes the probe-close-rebind window, not every possible concurrency failure. A future incompatible Uvicorn banner format fails by deadline rather than guessing a port.
+
+## 4. One gate, separately recorded local and hosted results
+
+The baseline tested on 2026-09-28 is CPython 3.13.15, uv 0.12.13, pytest 8.4.2, FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, HTTPX 0.28.1, SQLAlchemy 2.0.54, Alembic 1.20.0, psycopg 3.3.6, and PostgreSQL tools 18.6. Starlette and AnyIO are pinned against client-compatibility drift.
+
+<Code language="toml">{getReleaseExample('pyproject.toml')}</Code>
+
+The repository runner reconstructs child settings: inherited `UV_*`, virtual-environment selectors, and Python injection settings are removed before the course cache/interpreter directories, public PyPI, and `UV_NO_CONFIG=1` are set. Only `PG_BIN` survives the `PG*` filter. A real check uses an owned external-venv decoy, a nonexistent interpreter, and invalid user uv configuration: installation must stay inside the clean copy's `.venv`, with the decoy unchanged. This cannot undo actions an outer uv command already performed before Python started. Before the manual uv commands below, leave other virtual environments and use a clean terminal; remove overrides such as `VIRTUAL_ENV`, `UV_PROJECT_ENVIRONMENT`, `UV_ACTIVE`, `UV_PYTHON`, and `UV_CONFIG_FILE`, and set `UV_NO_CONFIG=1`. If a direct Python entry rejects PG settings, remove only the reported names from this experiment's environment; never edit production configuration or print their values.
+
+```bash
+uv sync --locked
+uv run --locked python ci.py
+```
+
+<Code language="python">{getReleaseExample('ci.py')}</Code>
+
+The gate checks syntax, runs seven ordinary tests (four original checks and three environment/port checks), and then starts real services for the release drill. Check=True makes a failed child command fail the gate. Syntax checking is not database testing; database testing is not deployment. Record them separately. Keep the public-PyPI lock and interpreter version together; an unreviewed upgrade between verification and release changes the artifact you tested.
+
+<Code language="python">{getReleaseExample('tests/test_release.py')}</Code>
+
+Tests create actual PostgreSQL clusters, preserve records, exercise old-column inserts, reject duplicate owners, and prove that the runtime role cannot ALTER. Expected failures occur inside transaction blocks, which roll back before further queries. Do not leave an aborted transaction for another test.
+
+<Code language="yaml">{getReleaseExample('.github/workflows/check.yml')}</Code>
+
+This is a **reviewable workflow that has not run on hosted infrastructure**. It grants read-only repository access, pins checkout to a verified commit, does not persist checkout credentials, accepts manual workflow_dispatch only, and requires a prepared isolated Linux/PG18.6 runner. No such runner is available here, so hosted CI is pending. Never execute untrusted PR code on that privileged self-hosted runner. Switching to another runner or container requires validating installation and isolation again, not merely changing a label.
+
+## 5. Who runs migrations, and when?
+
+Revisions 001–006 preserve the D/S model and constraints. This chapter adds 007_project_description. SQL and revision files are all in the package; Alembic does not infer current history from create_all.
+
+<Code language="python">{getReleaseExample('ops/migrate.py')}</Code>
+
+<Code language="python">{getReleaseExample('migrations/env.py')}</Code>
+
+<Code language="sql">{getReleaseExample('sql/007_project_description.sql')}</Code>
+
+<Code language="python">{getReleaseExample('migrations/versions/007_project_description.py')}</Code>
+
+The controller migrates transactionally with an administrative identity and lock_timeout. Failure stops the release. Ordinary workers do not compete for DDL during startup. Our drill has one serial operator; **the function is not a distributed migration lock across deployment systems**. A real pipeline must enforce a single coordinator and plan timing around table sizes, lock waits, and compatibility windows.
+
+Downgrade deliberately refuses automatic destructive reversal. Dropping description would destroy values already written by v2. Being able to write DROP COLUMN does not make it part of an ordinary code rollback. Restoring a backup also loses post-snapshot data; the recovery chapter treats that separately.
+
+<details>
+<summary>Explanation answer: why not have every worker run upgrade head?</summary>
+
+Workers can read migration state concurrently, wait for or contend on locks, and begin serving at different stages. Runtime accounts would also need DDL privileges. A separate controlled migration step lets you observe failure before starting compatible processes. It does not promise lock-free or zero-downtime migration; that depends on the actual change and data scale.
+
+</details>
+
+## 6. Describe compatibility with a matrix
+
+| Application / schema | 006, no description | 007, nullable description |
+| --- | --- | --- |
+| v1, named id/name reads/writes | Supported | Supported; omitted new field becomes null |
+| v2, needs description | Startup refused | Supported |
+
+For this rollback, forward compatibility means old code can operate against the already-expanded schema. A nullable column makes this example compatible, not every ADD COLUMN safe. Constraints, defaults, enums, request formats, and changed meanings can all break old code.
+
+If frontend clients already require description after v2 launches, returning to v1 can break their response contract. A rollback plan therefore also needs a client compatibility window, feature control, or coordinated suspension of new functionality. This drill deliberately uses a controlled client appropriate to each version. It does not claim a real-user transition has no impact.
+
+## 7. A real release and application rollback with retained data
+
+<Code language="python">{getReleaseExample('ops/release.py')}</Code>
+
+<Code language="python">{getReleaseExample('ops/server.py')}</Code>
+
+```bash
+uv run --locked python demo.py
+```
+
+```text
+PASS v1: real authenticated HTTP and committed baseline data
+PASS expected migration failure: old rows and revision preserved
+PASS v2: reviewed nullable expansion and new-data write
+PASS rollback: v1 reads/writes expanded schema; v2 data retained; no downgrade
+CLEANUP PASS: owned API processes and isolated PostgreSQL cluster removed
+```
+
+The drill starts, requests, and stops actual Uvicorn subprocesses, rather than changing a string and directly calling a function. V1 writes a project. An intentionally incompatible NOT NULL addition without a default fails against existing rows. The reviewed nullable expansion succeeds; v2 writes description. Then v2 stops and v1 starts against the same database.
+
+After rollback, description is still Preserve this value, there are five projects, and alembic_version remains 007. Old code ignores rather than clears the new column. There is a brief stop between processes; no load balancer or zero-downtime traffic switch has been verified.
+
+## 8. A failed migration is not permission to rebuild the database
+
+The NOT NULL failure means historical rows have no value, not that Alembic is broken. Review the requirement: expand with a nullable field; deploy compatible code; backfill under an explicit business policy; verify no nulls; add the constraint in a separate controlled revision. Deleting user data to make a migration green is not a repair.
+
+Locate other failures by stage: versions at the environment gate; revisions at migration/compatibility checks; role privileges at database authorization; readiness deadlines at startup/database paths. Public reachability belongs to an ingress boundary this drill does not cover. Dumping the environment, SQL parameters, or Bearer tokens is not appropriate diagnosis.
+
+<details>
+<summary>Guided repair: how do you prove there is no partial migration?</summary>
+
+Do more than assert the exception. Reconnect and verify the original three projects and revision 006, then apply the reviewed 007. Transactional DDL failure rolls back here, but that does not prove every external side effect or migration operation is reversible. Concurrent index creation, external calls, and long backfills require their own analysis.
+
+</details>
+
+## 9. Independent variation: preflight the actual database
+
+Without opening the solution, implement check_release: query real alembic_version from the **owned test database**, permit only matrix entries, and reject unknown applications or schemas. Prove v2 is rejected at 006 and both v1/v2 are accepted after 007. Passing a hard-coded "007" into a function is not evidence of checking the database.
+
+<details>
+<summary>Independent implementation and real PostgreSQL tests</summary>
+
+<Code language="python">{getReleaseExample('solutions/check_matrix.py')}</Code>
+
+<Code language="python">{getReleaseExample('solutions/preflight.py')}</Code>
+
+<Code language="python">{getReleaseExample('solutions/test_matrix.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions
+```
+
+```text
+2 passed
+```
+
+One test covers the rule; the other creates a real database, rejects before migration, and accepts afterwards. Preflight is only a gate. Starting the application and sending real requests still matters; a matching version string is not proof of correct business behavior.
+
+</details>
+
+## 10. A release record you can resume from
+
+Record candidate code identity, lock hash, application version, target environment identity, migration revisions before/after, commands and results, migration approval, readiness, and rollback version/conditions. This lab makes no Git commit, push, or published artifact, so do not invent a commit SHA or deployment URL.
+
+When pausing, record the last successful stage, owned processes still running, whether the database was cleaned, intentional failures, and the clean starting state for replay. Demo/CI stops its API/PG processes and removes its directory. Resume by rerunning rather than looking for a deleted socket. The download allowlist contains source, SQL, lock, and documentation—not environments, logs, database directories, backups, or secrets.
+
+A real release still requires O03's controlled HTTPS ingress, production secrets/permissions, actually executed CI, monitoring, tested backups/restores, and a rollback rehearsal. What is complete here is a reproducible local database/application delivery mechanism, not a public V4 launch.
+
+## 11. Primary sources and verification
+
+Checked on 2026-09-28: [Alembic's official tutorial](https://alembic.sqlalchemy.org/en/latest/tutorial.html), [PostgreSQL privileges](https://www.postgresql.org/docs/18/ddl-priv.html), [GitHub Actions workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax), and [the official checkout v4.2.2 tag commit](https://api.github.com/repos/actions/checkout/git/ref/tags/v4.2.2). Actual versions are defined by the lock and installed PG18.6 tools, not a perpetual compatibility promise from a moving documentation page.
+
+Seven base tests, two independent tests, actual v1/v2/rollback processes, and migrations with records have run. Hosted CI, containers, Linux service management, public traffic switching, real users, and production rollback remain pending without their environments.

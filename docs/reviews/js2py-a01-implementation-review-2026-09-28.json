@@ -1,0 +1,396 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "Full English + full non-lock text files distributed across bounded slices; all lock bytes deterministically checked. No claim that a single slice viewed other slices.",
+  "slices": [
+    {
+      "batch": "review-43",
+      "metadata": {
+        "started_at_utc": "2026-09-28T05:01:03.906173+00:00",
+        "elapsed_seconds": 0.929,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "baa74c68cbb1d9287331fab78d22a085fdc350c41021736ca2259b0316a6f7b7",
+        "usage": {
+          "input_tokens": 17218,
+          "output_tokens": 341
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "a01-async-model",
+          "current_contract": {
+            "id": "A01",
+            "title": "Python 异步执行模型",
+            "prerequisites": [
+              "S03"
+            ],
+            "teach": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制",
+            "acceptance": "通过可观察实验选择同步/异步边界，并验证取消行为",
+            "boundary": "JS熟悉async不代表Python自动调度；不机械改全部async",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "S03",
+              "title": "可靠业务操作与幂等",
+              "prerequisites": [
+                "S02",
+                "D03"
+              ],
+              "teach": "业务冲突、重复提交、事务与幂等范围、日期时间/标识/精确数值的必要标准库",
+              "acceptance": "复现重复请求或并发冲突并验证约定行为",
+              "boundary": "不承诺仅靠重试就能实现恰好一次；按业务需要教学数据表示",
+              "status": "planned"
+            }
+          ],
+          "actual_english_lesson": "---\ntitle: Python async execution — own it, schedule it, then await it\ndescription: Trace coroutine objects, Tasks, the event loop, blocking, cancellation, deadlines and concurrency limits through observable events and real resource checks, not timing guesses.\n---\n\nimport { getAsyncModelExample } from '@/lib/js2py-examples'\n\n## 1. After S03, reconsider a familiar word: async\n\nYou have implemented synchronous APIs, SQL transactions, authentication, authorization and reliable business operations. Now a task needs an optional external hint. While a request waits for the network, can the server serve another request? The answer is not “add async everywhere.” You must identify **who starts work, who waits, who owns resources, and who makes unfinished work stop**.\n\n| Chapter contract | Scope |\n| --- | --- |\n| Prerequisites | S03; functions, exceptions, with, modules and pytest; mature JS Promise/async/await experience |\n| New capability | Distinguish coroutine objects, Tasks and the event loop; choose sync/async boundaries and own concurrent work |\n| Independent acceptance | Prove ordering/overlap with events, cancellation cleanup with actual resources, and implement a bounded batch variation |\n| Exclusions | TaskGroup/ExceptionGroup, thread-pool capacity planning, async database migration, production job queues |\n\nThis lab imports no evolving S03 application. It is not an asynchronous capstone and does not establish database, authorization or deployment correctness. A02 will connect these mechanisms to a locally simulated external dependency.\n\n## 2. A reproducible starting point\n\n[Download the independent lab](/learning-assets/js2py/a01-async-model.zip). Enter the extracted `a01-async-model` directory; its repository counterpart is `examples/js2py/a01-async-model`. Displayed files, all translations, answers and downloads share that source. These are local, multi-file CPython programs using an event loop, threads and files, not browser/Pyodide exercises.\n\nVerified **2026-09-28** with CPython **3.13.15**, uv **0.12.13**, pytest **8.4.2**. The project accepts only Python 3.13. `package = false` means running the source without installing this project as a package. The public-PyPI `uv.lock` contains actual resolved artifacts and hashes, not a handwritten dependency list. Do not discard it and silently replace the baseline with today's newest packages.\n\n<Code language=\"toml\">{getAsyncModelExample('pyproject.toml')}</Code>\n\nRun these commands from the lab root after installing uv 0.12.13. The two `/tmp` directories isolate this verification's interpreter and download cache; they are not business storage. Stop and correct the environment if the versions disagree.\n\n<Code language=\"bash\">{getAsyncModelExample('commands.sh')}</Code>\n\nExpect **19 passed** for the main suite and **5 passed** for the independent answer; elapsed times are not acceptance criteria. Keep the complete project while reading it file by file. Checkpoint C0: record the working directory, interpreter/tool versions, last successful command, and one unanswered question. You can resume from that record rather than reconstructing terminal history.\n\n## 3. Calling an async function: Python is not JavaScript\n\nPredict whether the caller's “after-call” line or the function body's first line appears first. Both files are complete. Node supplies a local JS comparison, not a Python prerequisite. The editor uses `compare={true}` and `canRun={false}`: the Python entry point owns a local loop and must not be copied unchanged into an already-running browser loop.\n\n<PythonEditor title=\"Call versus execution\" compare={true} canRun={false} code={[{ lang: 'javascript', value: getAsyncModelExample('comparison.js') }, { lang: 'python', value: getAsyncModelExample('comparison.py') }]} />\n\n```bash\nnode comparison.js\nuv run --locked python comparison.py\n```\n\nActual JavaScript output:\n\n<Code language=\"text\">{getAsyncModelExample('expected-javascript.txt')}</Code>\n\nActual Python output:\n\n<Code language=\"text\">{getAsyncModelExample('expected-python.txt')}</Code>\n\nCalling a JS async function executes its body up to suspension and returns a Promise. Python's `async def` defines a coroutine function; calling it produces a **coroutine object without starting its body**. That object represents one resumable execution. It is not an already-started request or an automatically queued background job. Discarding it normally produces `RuntimeWarning: coroutine was never awaited`, not completed work.\n\n`await pending` advances that coroutine as part of the current execution. `asyncio.create_task(pending)` wraps it in a Task and schedules it on the running loop. The Task tracks execution, a result or exception, and cancellation state. Its owner must keep a reference and ultimately observe the outcome. This lab uses Python 3.13's **default task factory**, not the optional eager task factory; observations about not-yet-started Tasks are not universal claims about custom factories.\n\n## 4. Four roles, not four threads\n\nConsider one event-loop thread in a service process. The loop tracks ready callbacks and pending I/O and resumes eligible work. A Task drives its coroutine until completion, failure or a wait for something not yet ready. `await` expresses a dependency on an awaitable's result. It neither creates a thread nor guarantees suspension.\n\nAn already-ready awaitable can return immediately. One test waits on an Event that is already set and confirms that a queued callback still has not run. An unset Event instead suspends its waiter, allowing the loop to advance other work. Putting an already-completed await in a CPU loop therefore does not guarantee responsiveness.\n\n`asyncio.run(main())` owns loop creation, execution and closure at a standalone program boundary. Inside an async framework, use the existing await chain rather than nesting run. Similarly, do not create loop-bound clients in one loop and store them in module globals for unrelated loops to reuse.\n\nRead `creation`, `sequential`, then `scheduled` in this complete file. The last two demonstrations belong to the blocking section below.\n\n<Code language=\"python\">{getAsyncModelExample('scheduling.py')}</Code>\n\nAn Event here is a same-loop, in-process gate. `set()` makes waiters eligible to continue; `wait()` suspends while it is unset. It does not carry a result or persist a message. Gates let us express “the child has entered” and “this child may finish” without guessing ordering from machine speed.\n\n## 5. Direct awaits are sequential; scheduling permits overlap\n\n`sequential` fully awaits A before calling and awaiting B. A's `sleep(0)` gives the loop a scheduling opportunity, but B does not yet exist. It cannot magically overlap. This resembles consecutive `await fetch(...)` calls in JS; the important difference is that merely calling two Python coroutine functions early still does not start either one.\n\n`scheduled` creates two Tasks first. The owner waits for both entered gates, releases B and observes B's completion, then releases A. Ownership and the required completion order are explicit. A/B start order in the transcript reflects this default-loop run. The meaningful test requires **both starts before both-entered and both ends after it**; unrelated ready-queue ordering is not a business contract.\n\nThe owner's finally calls `drain`: cancel every unfinished child, then await all terminal outcomes with `gather(..., return_exceptions=True)`. This use of gather is for cleanup. Returned positions correspond to inputs, and exceptions/cancellations become result items so that one cancellation does not prevent observing the other child. It does not give arbitrary programs a “cancel siblings immediately on failure” policy. The normal path already observes its intended results; this small cleanup helper does not re-raise secondary failures. Production supervision that must retain those failures needs explicit reporting rather than silently discarding that list.\n\n<details>\n<summary>Explanation check: do two coroutine calls followed by two awaits overlap automatically?</summary>\n\nNo. Constructing a coroutine object does not add ready work to the loop. The first object starts when awaited; the second starts after the first finishes. Explicitly schedule both Tasks, or use a combinator with known scheduling semantics, and own both lifetimes. A separate trap is that await need not suspend: an already-set Event may return immediately.\n\n</details>\n\n## 6. Blocking means occupying the loop thread, not merely waiting a long time\n\n`blocking` schedules a ready callback with `loop.call_soon`, then executes synchronous `time.sleep(0.02)` on the loop thread. The CPU may be idle during sleep, but the thread has not returned control to the loop. Consequently the callback has still not run when the synchronous region ends. It runs only after the deliberate `await asyncio.sleep(0)` checkpoint.\n\nThe assertion concerns callback order, not a fragile “should finish in 20 ms” threshold. This demonstrates the inability to interleave work; it is not a throughput benchmark, nor does every delayed callback identify the exact source of a blockage.\n\n`offloaded` bridges a necessarily synchronous blocking library using `asyncio.to_thread`. The worker announces entry with `call_soon_threadsafe` and waits on a thread-specific `threading.Event`. Meanwhile the loop records progress, releases the thread, and explicitly awaits its completion. Do not call asyncio.Event.set directly from a worker thread. The two Event types belong to different concurrency models.\n\nKeep pure title validation and small dictionary operations synchronous. Await genuinely async I/O clients. Consider a thread bridge for unavoidable synchronous I/O; putting CPU-heavy computation inside async does not create parallelism. Cancelling the Task awaiting to_thread **cannot forcibly stop the underlying thread**. The library needs its own timeout/stop protocol. Our example releases and joins its worker instead of leaving a background thread to chance.\n\n## 7. Cancellation is a request, not an immediate interrupt or a successful result\n\nThe next file uses a real temporary file, not merely a “closed” log. `hold_file` acquires the file only when its body starts, enters try, announces entry, and waits for release. The owner waits for entry before cancelling, ensuring that acquisition has happened.\n\n<Code language=\"python\">{getAsyncModelExample('ownership.py')}</Code>\n\n`task.cancel()` requests injection of `asyncio.CancelledError`; it does not synchronously stop a thread at an arbitrary instruction. The coroutine generally receives the request at a cancellable wait and passes through finally. The owner must still await the Task to observe its actual end. CancelledError inherits BaseException rather than ordinary Exception. A bare except or broad BaseException handler can accidentally turn shutdown into an ordinary network failure.\n\nIf you catch cancellation to record it, clean up and re-raise. Our worker does not intercept it at all: finally closes the file. The owner's except is a boundary observation of the cancellation it requested, not a conversion of business work into success. Cleanup can itself fail and obscure the original cancellation; a log line cannot establish an unconditional cleanup guarantee.\n\nOne important edge case: with the default factory, cancelling before a Task starts runs neither its body nor its finally. Since acquisition also lives in the body, there is nothing to release. If an outer function acquires a resource before handing it to a not-yet-started Task, the outer owner remains responsible for that resource.\n\n## 8. A timeout is a cooperative budget, not forced termination\n\n`timed_out` uses `asyncio.timeout(0)` to expire on the next loop turn. The current Task still acquires the file; its wait on an unset Event makes cancellation observable. Finally closes the file, and TimeoutError is caught outside the timeout context. Zero is a deterministic mechanism demonstration, not a recommended network budget.\n\nThe timeout context translates the cancellation it initiated into TimeoutError. Independent external cancellation should still propagate as CancelledError. Catch timeout outside the context so that the boundary between budget expiry and internal business exceptions remains clear. A real overall budget should include queuing, multiple attempts and backoff, not silently restart at each step.\n\nThis is cooperative: a blocked loop cannot run its timer promptly, and cleanup can take additional time. Do not promise that everything has stopped at exactly N seconds or conclude that an external write could not have happened. A02 distinguishes HTTP phase timeouts from the complete operation's deadline.\n\n## 9. A concurrency limit does not make unlimited input free\n\n<Code language=\"python\">{getAsyncModelExample('capacity.py')}</Code>\n\nA Semaphore counts permits. Entering `async with slots` acquires one or waits; exiting returns it. Meter counts admitted work, not Tasks waiting outside. With four Tasks and two permits, only two entered gates are set. Releasing one admitted job allows a replacement to enter. Both normal completion and cancellation decrement active in finally and return the permit through the context manager.\n\nA semaphore created inside every request gives each request its own limit; it does not limit total pressure on a shared dependency. A02 creates one during the application lifetime. This demo creates at most four Tasks, and the independent variation permits eight. **A semaphore of two still leaves a million pre-created Tasks consuming memory.** Unbounded input needs bounded admission, backpressure and additional design.\n\nGuided change: switch limit from 2 to 1 and then 3. Do not assert that execution time doubles or shrinks. Verify the new peak and zero active work at exit. Explain why cancelling a permit waiter must not return an extra permit it never acquired.\n\n<details>\n<summary>Guided answer: where to change the limit and how to prove permits are not leaked</summary>\n\nCall bounded(1) or bounded(3); the gate algorithm does not need a special two-job rewrite. The main suite checks 1, 2, 3 and 4. Another test lets one Task hold the sole permit, cancels its waiter, and verifies slots.locked() remains true. It then cancels the holder and uses public acquire behavior to demonstrate that capacity is available again. It does not inspect private semaphore fields or treat a “released” print as evidence.\n\n</details>\n\n## 10. Run the complete chain and interpret the evidence\n\n<Code language=\"python\">{getAsyncModelExample('app.py')}</Code>\n\nShared baseline for `uv run --locked python app.py`:\n\n<Code language=\"text\">{getAsyncModelExample('expected-output.txt')}</Code>\n\nThe complete main suite follows. Each scenario owns its loop through asyncio.run, with no async pytest plugin configuration and no Tasks carried between tests. File cleanup is checked both through the real handle.closed state and through a subsequent write that must raise ValueError.\n\n<Code language=\"python\">{getAsyncModelExample('tests/test_model.py')}</Code>\n\nCheckpoint C1: draw the creation, entry, release and completion moments in scheduled. C2: explain how to test the file and permit without relying on log messages. When resuming, run the focused test and then the suite. Increasing arbitrary sleep durations is not a repair for an ordering error.\n\n## 11. Three actual failures: locate the phase, then recover\n\n**Forgotten await:** run `uv run --locked python errors/forgotten.py`. It captures a real RuntimeWarning and prints a stable summary; events remains empty. gc.collect makes this diagnostic repeatable, not a valid resource-management technique. Repair ownership by awaiting, or explicitly scheduling and draining, rather than hiding the warning.\n\n<Code language=\"python\">{getAsyncModelExample('errors/forgotten.py')}</Code>\n\n**Reusing a coroutine:** run `uv run --locked python errors/reuse.py`. It prints 42, then exits nonzero with `RuntimeError: cannot reuse already awaited coroutine`. Call the function again for a new operation. To observe the same completed operation repeatedly, retain and await its Task rather than reusing the original coroutine object.\n\n<Code language=\"python\">{getAsyncModelExample('errors/reuse.py')}</Code>\n\n**Swallowing cancellation:** run `uv run --locked python errors/swallow.py`. Its output is `result=pretend-success cancelled=False`. No exception escapes, but the contract is broken: an owner can mistake cancellation for completion. Remove the swallowing handler, or re-raise after handling, then rerun the cancellation test.\n\n<Code language=\"python\">{getAsyncModelExample('errors/swallow.py')}</Code>\n\nThe main suite reproduces all three in separate processes and checks status and diagnostic text. If you instead see `asyncio.run() cannot be called from a running event loop`, check whether you copied a script entry point inside a framework or notebook. Do not paper over the ownership error with nested-loop patches. Restore from the complete sources and the same lock; no unrelated environment needs deletion.\n\n## 12. Independent variation: a cancellable, finite batch transformer\n\nDo not open the answer yet. Implement `transform_batch(titles, fetch, *, limit=2, deadline=1.0)`. Normalize titles synchronously; reject any empty title before calling fetch at all. Permit at most eight items, limits 1–4, and a positive total deadline no greater than 30 seconds. Empty input returns an empty list. Return async fetch results in input order. After failure, timeout or owner cancellation, every child you created must have ended. Supply a local async function as the dependency; do not use the network.\n\nDeliberately fail one fetch while others wait and verify that a live-work set becomes empty. Also test owner cancellation and expiry. A correct result list alone is insufficient. State whether your design is fail-fast: input-order awaits can defer observing a later failure while earlier work waits, but the overall deadline still bounds the batch cooperatively. TaskGroup/ExceptionGroup are not prerequisites for this exercise.\n\n<details>\n<summary>Complete independent answer, tests and trade-offs</summary>\n\n<Code language=\"python\">{getAsyncModelExample('solutions/batch.py')}</Code>\n\n<Code language=\"python\">{getAsyncModelExample('solutions/test_batch.py')}</Code>\n\n`uv run --locked python -m pytest -q solutions` reports 5 passed. Validate the whole input before creating Tasks, avoiding partially executed invalid batches. Finally requests all children to stop before draining them; this does not undo completed effects. normalize remains synchronous. The eight-item cap makes one Task per item a bounded choice, not an infinite-stream architecture.\n\n</details>\n\n## 13. Exit criteria and a recovery card\n\nMake one requirements change without looking at the answer. Then check that you can explain why coroutine calls do not start work, prove overlap with entered/release events, identify the synchronous blocking region, propagate cancellation, and verify files and permits. Explain why a deadline cannot kill a thread, roll back an external effect or guarantee an absolute stopping instant.\n\nSave a recovery card with **current file/branch, last successful command, which of the 19+5 tests passed, your changed condition, the first counterexample, and the next action**. This chapter does not establish performance capacity, generic cross-thread cancellation, durable jobs or production service readiness. Compilation, MDX rendering and plausible-looking output are not substitutes for execution evidence.\n\n## 14. Official references and version maintenance\n\nVerified **2026-09-28**. Installed versions live in pyproject, .python-version and uv.lock. The gates, capacity values and exercise budgets are teaching choices, not official production recommendations.\n\n- [Python 3.13: Coroutines and Tasks](https://docs.python.org/3.13/library/asyncio-task.html): coroutine/Task, scheduling, cancellation, timeout, to_thread and the eager-factory exception.\n- [Python 3.13: Event loop](https://docs.python.org/3.13/library/asyncio-eventloop.html): callback scheduling and thread-safe entry.\n- [Python 3.13: Synchronization primitives](https://docs.python.org/3.13/library/asyncio-sync.html): Event, Semaphore and thread-safety boundaries.\n- [Python 3.13: Developing with asyncio](https://docs.python.org/3.13/library/asyncio-dev.html): blocking work and never-awaited coroutines.\n- [Python 3.13: Exceptions](https://docs.python.org/3.13/library/asyncio-exceptions.html) and [runners](https://docs.python.org/3.13/library/asyncio-runner.html): cancellation inheritance and entry-point ownership.\n- [ECMAScript: AsyncFunctionStart](https://tc39.es/ecma262/multipage/control-abstraction-objects.html#sec-async-functions-abstract-operations-async-function-start): the JS comparison does not imply Python automatically schedules work.\n- [uv: Locking and syncing](https://docs.astral.sh/uv/concepts/projects/sync/): synchronizing a fixed environment.\n",
+          "mechanism_focus": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制; 通过可观察实验选择同步/异步边界，并验证取消行为; JS熟悉async不代表Python自动调度；不机械改全部async",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "a16a8e7e80ce4fc409c16d72327f34c95a56702c878df8bd9cc0057a93c4a3bb",
+              "bytes": 4664,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".python-version",
+            "DOWNLOAD-ALLOWLIST.json",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "app.py",
+            "capacity.py",
+            "commands.sh",
+            "comparison.js",
+            "comparison.py",
+            "errors/forgotten.py",
+            "errors/reuse.py",
+            "errors/swallow.py",
+            "expected-javascript.txt",
+            "expected-output.txt",
+            "expected-python.txt",
+            "ownership.py",
+            "pyproject.toml",
+            "scheduling.py",
+            "solutions/__init__.py",
+            "solutions/batch.py",
+            "solutions/test_batch.py",
+            "sources.json",
+            "tests/test_model.py",
+            "uv.lock"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "Mainline reran 60 unique tests (A01 19+5; A02 32+4) in source and clean allowlisted ZIP reconstruction; 4 real mutated defects detected;5 real TCP tests include EOF after cancellation. MDX compile passed. Source and versions equal registry artifacts. No full authenticated/persistent capstone, load, TLS, HTTP2, all timeout phases, or public deployment claim. Browser pending.",
+          "slice": {
+            "index": 1,
+            "count": 1,
+            "source_paths_here": [
+              ".python-version",
+              "DOWNLOAD-ALLOWLIST.json",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "app.py",
+              "capacity.py",
+              "commands.sh",
+              "comparison.js",
+              "comparison.py",
+              "errors/forgotten.py",
+              "errors/reuse.py",
+              "errors/swallow.py",
+              "expected-javascript.txt",
+              "expected-output.txt",
+              "expected-python.txt",
+              "ownership.py",
+              "pyproject.toml",
+              "scheduling.py",
+              "solutions/__init__.py",
+              "solutions/batch.py",
+              "solutions/test_batch.py",
+              "sources.json",
+              "tests/test_model.py"
+            ],
+            "source_paths_elsewhere": []
+          },
+          "actual_download_files": {
+            ".python-version": "3.13.15\n",
+            "DOWNLOAD-ALLOWLIST.json": "[\n  \".python-version\",\n  \"DOWNLOAD-ALLOWLIST.json\",\n  \"README.md\",\n  \"README.zh-cn.md\",\n  \"README.zh-tw.md\",\n  \"app.py\",\n  \"capacity.py\",\n  \"commands.sh\",\n  \"comparison.js\",\n  \"comparison.py\",\n  \"errors/forgotten.py\",\n  \"errors/reuse.py\",\n  \"errors/swallow.py\",\n  \"expected-javascript.txt\",\n  \"expected-output.txt\",\n  \"expected-python.txt\",\n  \"ownership.py\",\n  \"pyproject.toml\",\n  \"scheduling.py\",\n  \"solutions/__init__.py\",\n  \"solutions/batch.py\",\n  \"solutions/test_batch.py\",\n  \"sources.json\",\n  \"tests/test_model.py\",\n  \"uv.lock\"\n]\n",
+            "README.md": "# A01 — Python async execution\n\nVerified 2026-09-28. This is an independent local lab following S03, not the full\ncapstone. No other chapter source is imported. Prerequisites: Python functions,\nexceptions, context managers, tests and the existing synchronous API/SQL/auth\nfoundations. A02 additionally builds on A01, L14 and H05.\n\n## Reproduce from a clean download\n\nExtract and enter `a01-async-model`. In the repository, enter `examples/js2py/a01-async-model`.\nUse CPython 3.13.15, uv 0.12.13, pytest 8.4.2. Install the specified uv first;\nits installation is not performed by this lab. No third-party runtime dependency.\nThe web baseline follows H03–H06; the lifecycle dependencies follow H05–H06.\nThe actual public-PyPI lock includes artifact hashes. `requires-python` accepts\n3.13 only and `tool.uv.package=false` runs local source without packaging it.\nDo not delete the lock or replace the baseline with an unreviewed upgrade.\n\n```bash\n# Run from the extracted a01-async-model directory.\nset -eu\nexport PATH=\"$HOME/.local/bin:$PATH\"\nexport UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928\nexport UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928\nuv --version\nuv python install 3.13.15\nuv sync --locked\nuv run --locked python --version\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions\n```\n\nThese `/tmp` locations isolate the verified interpreter/download cache. They\ncontain no application data. Network is needed to install locked public packages,\nbut running the lab never calls a paid/third-party service or uploads user data.\n\n## Stable demo transcript\n\nThe source of this transcript is `expected-output.txt`; execution must match it.\n\n```text\ncreation: called:no-body-yet | A:start | A:end\nsequential: A:start | A:end | B:start | B:end\nscheduled: A:start | B:start | owner:both-entered | B:end | A:end\nblocking: sync:start | sync:end | callback:ran | owner:resumed\noffloaded: loop:responsive-while-thread-waits | thread:returned\ncancelled: file:opened | file:closed | owner:cancelled\ntimeout: file:opened | file:closed | owner:timeout\nbounded: peak=2 active=0\n```\n\nMain tests: **19 passed**. Independent reference tests: **5 passed**.\nElapsed time is intentionally not a correctness assertion. Python warnings are\nerrors except in the deliberately captured warning diagnostic. Main tests do not\nsilently include answer tests; run both commands.\n\n## File map and interpretation\n\n- `comparison.py` / `comparison.js`: complete Python/JS call-before-body comparison.\n- `scheduling.py`: creation, sequential awaiting, explicit scheduling, blocking, and a joined thread bridge.\n- `ownership.py`: cancellation/deadline cleanup with real temporary files.\n- `capacity.py`: bounded admission proved with entered/release gates.\n- `app.py`: the complete stable demo above.\n- `tests/test_model.py`: ordered events, file closure/rejected writes, permit reuse and actual failure commands.\n- `solutions/batch.py` / `solutions/test_batch.py`: an independent, bounded, cancellable batch.\n\nThe JS comparison optionally uses your existing Node installation:\n\n```bash\nnode comparison.js\nuv run --locked python comparison.py\n```\n\nThe expected transcripts are `expected-javascript.txt` and `expected-python.txt`.\nPython coroutine calls do not start their bodies. Default-factory Tasks explicitly\nschedule work. Direct awaits are sequential; an await on an already-ready object\nneed not suspend. Do not infer event-loop progress from elapsed-time guesses.\n\n## Actual failures and exercises\n\n`uv run --locked python errors/reuse.py` prints 42 then exits 1 with RuntimeError.\n`uv run --locked python errors/forgotten.py` captures a real never-awaited warning;\nthe work's events remain empty. `uv run --locked python errors/swallow.py` exits 0\nbut shows pretend-success and cancelled=False: a semantic failure, not success.\nThe suite checks these commands in fresh subprocesses.\n\nGuided change: limits 1 and 3, verifying peak and zero active work rather than timing.\nIndependent change: normalize all inputs before side effects, allow at most eight\nitems, preserve result order, bound concurrency/deadline, and drain all children on\nerror/timeout/cancellation. Reference tests include no-surviving-child assertions.\nInput-order observation is not fail-fast sibling supervision.\n\nRecovery card: current file, Python/uv versions, last successful command, which 19+5\ntests passed, your changed condition, first counterexample, next focused command.\nDo not repair ordering by increasing arbitrary sleeps. Restore only this lab's own\nfiles; do not delete unrelated environments or alter shared repository configuration.\n\n## Safety and limitations\n\nThis lab opens temporary files and one explicitly joined local worker thread. It\ncontacts no service and needs no credentials. Cancellation cannot forcibly stop a\nthread or undo completed effects. A blocked loop cannot enforce a strict wall-clock\ndeadline. The semaphore limits admitted work, not an unlimited number of allocated\nTasks. No throughput, production queue, async database or deployment claim is made.\n\n## Download/source contract\n\n`DOWNLOAD-ALLOWLIST.json` mirrors the repository's same-named-lab `-files.json` list.\nOnly those regular files may be archived. Environments, caches, credentials and real\nbusiness data are excluded. The site loader reads the same files shown in the chapter.\n`sources.json` records official source URLs and the verification date. Package hashes\nare supplied by public PyPI in uv.lock, not fabricated by a packaging script.\n",
+            "README.zh-cn.md": "# A01 — Python 异步执行模型\n\n核验日期 2026-09-28。这是位于 S03 后的独立本地实验，不是完整 capstone，\n不导入其他章节源码。前置为 Python 函数、异常、上下文管理器、测试和已有的\n同步 API/SQL/认证基础；A02 另以 A01、L14、H05 为前置。\n\n## 从干净下载复现\n\n解压后进入 `a01-async-model`；仓库中进入 `examples/js2py/a01-async-model`。\n固定 CPython 3.13.15、uv 0.12.13、pytest 8.4.2，先安装指定 uv，本实验不替你升级工具。\n没有第三方运行时依赖。\nWeb 框架沿用 H03–H06 基线，生命周期依赖沿用 H05–H06。\n真实 public-PyPI lock 含解析结果和制品哈希，requires-python 只接受 3.13，\n`tool.uv.package=false` 表示直接运行本地源码，不安装本项目为包。\n不要删锁或无声升级框架。\n\n```bash\n# Run from the extracted a01-async-model directory.\nset -eu\nexport PATH=\"$HOME/.local/bin:$PATH\"\nexport UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928\nexport UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928\nuv --version\nuv python install 3.13.15\nuv sync --locked\nuv run --locked python --version\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions\n```\n\n两个 /tmp 目录隔离解释器与下载缓存，不保存业务数据。安装锁定公共依赖需要联网，\n实验运行不访问收费/第三方服务、不发送用户数据。\n\n## 稳定演示输出\n\n输出以 `expected-output.txt` 为源，实际运行必须匹配。\n\n```text\ncreation: called:no-body-yet | A:start | A:end\nsequential: A:start | A:end | B:start | B:end\nscheduled: A:start | B:start | owner:both-entered | B:end | A:end\nblocking: sync:start | sync:end | callback:ran | owner:resumed\noffloaded: loop:responsive-while-thread-waits | thread:returned\ncancelled: file:opened | file:closed | owner:cancelled\ntimeout: file:opened | file:closed | owner:timeout\nbounded: peak=2 active=0\n```\n\n主测试 **19 passed**，独立答案测试 **5 passed**。耗时不是正确性断言。\n除故意收集警告的诊断外，警告视为错误；主测试不会偷偷包含答案测试，两个命令都要跑。\n\n## 文件地图与解读\n\n- `comparison.py` / `comparison.js`：完整 Python/JS 调用与执行对照。\n- `scheduling.py`：创建、顺序 await、显式调度、阻塞与明确收尾的线程桥接。\n- `ownership.py`：取消/超时后的真实临时文件释放。\n- `capacity.py`：用 entered/release 门闩证明准入上限。\n- `app.py`：上面的完整演示。\n- `tests/test_model.py`：事件顺序、文件关闭与拒绝写入、许可复用、真实失败命令。\n- `solutions/batch.py` / `solutions/test_batch.py`：独立、有界、可取消的批处理。\n\nJS 对照可选用已有 Node，不要求为 Python 测试安装 Node：\n\n```bash\nnode comparison.js\nuv run --locked python comparison.py\n```\n\n预期输出为 expected-javascript.txt、expected-python.txt。Python 调 coroutine 不启动函数体，默认工厂的 Task 显式调度工作，\n直接 await 顺序推进，已就绪对象的 await 不必让出。不要拿不稳定耗时推断事件循环进度。\n\n## 真实失败与练习\n\n`uv run --locked python errors/reuse.py` 先打印 42，再以 RuntimeError 退出 1。\n`uv run --locked python errors/forgotten.py` 收集真实未 await 警告，工作 events 仍空。\n`uv run --locked python errors/swallow.py` 虽退出 0，却显示 pretend-success 和 cancelled=False，是语义失败。\n主测试在独立子进程核验这些命令。\n\n引导练习改上限 1 和 3，用 peak 与 active 归零证明，不比耗时。\n独立变式先整批验证再产生效果，最多八项，保持输入结果顺序，限制并发和预算，错误/超时/取消后收尾全部孩子。\n答案测试检查没有遗留 Task；按输入顺序观察不是 fail-fast 监督。\n\n恢复卡：当前文件、Python/uv 版本、最后成功命令、19+5 中已通过哪组、自己的需求改动、首个反例和下一条聚焦命令。\n不要增加任意 sleep 修复顺序，也不要删除其他环境或改共享配置。\n\n## 安全与边界\n\n仅打开临时文件并运行一个明确等待结束的本地工作线程，不访问外部服务、不需要凭证。\n取消不能强杀线程或撤销既有效果；事件循环阻塞时不能保证绝对墙钟截止。\nSemaphore 限制准入，不限制无限创建 Task 的内存开销。没有性能、生产队列、异步数据库或部署承诺。\n\n## 下载与单一源码约定\n\nDOWNLOAD-ALLOWLIST.json 与仓库同名实验 -files.json 列表一致，只打包这些普通文件。\n不包含环境、缓存、凭证或真实业务数据；教材 loader 读取相同源文件。\nsources.json 记录官方依据与核验日期，uv.lock 中制品哈希来自 public PyPI 实际解析。\n",
+            "README.zh-tw.md": "# A01 — Python 異步執行模型\n\n核驗日期 2026-09-28。這是位於 S03 後的獨立本地實驗，不是完整 capstone，\n不導入其他章節源碼。前置為 Python 函數、異常、上下文管理器、測試和已有的\n同步 API/SQL/認證基礎；A02 另以 A01、L14、H05 為前置。\n\n## 從乾淨下載復現\n\n解壓後進入 `a01-async-model`；倉庫中進入 `examples/js2py/a01-async-model`。\n固定 CPython 3.13.15、uv 0.12.13、pytest 8.4.2，先安裝指定 uv，本實驗不替你升級工具。\n沒有第三方運行時依賴。\nWeb 框架沿用 H03–H06 基線，生命週期依賴沿用 H05–H06。\n真實 public-PyPI lock 含解析結果和製品哈希，requires-python 只接受 3.13，\n`tool.uv.package=false` 表示直接運行本地源碼，不安裝本項目為包。\n不要刪鎖或無聲升級框架。\n\n```bash\n# Run from the extracted a01-async-model directory.\nset -eu\nexport PATH=\"$HOME/.local/bin:$PATH\"\nexport UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928\nexport UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928\nuv --version\nuv python install 3.13.15\nuv sync --locked\nuv run --locked python --version\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions\n```\n\n兩個 /tmp 目錄隔離解釋器與下載緩存，不保存業務數據。安裝鎖定公共依賴需要聯網，\n實驗運行不訪問收費/第三方服務、不發送用戶數據。\n\n## 穩定演示輸出\n\n輸出以 `expected-output.txt` 為源，實際運行必須匹配。\n\n```text\ncreation: called:no-body-yet | A:start | A:end\nsequential: A:start | A:end | B:start | B:end\nscheduled: A:start | B:start | owner:both-entered | B:end | A:end\nblocking: sync:start | sync:end | callback:ran | owner:resumed\noffloaded: loop:responsive-while-thread-waits | thread:returned\ncancelled: file:opened | file:closed | owner:cancelled\ntimeout: file:opened | file:closed | owner:timeout\nbounded: peak=2 active=0\n```\n\n主測試 **19 passed**，獨立答案測試 **5 passed**。耗時不是正確性斷言。\n除故意收集警告的診斷外，警告視為錯誤；主測試不會偷偷包含答案測試，兩個命令都要跑。\n\n## 文件地圖與解讀\n\n- `comparison.py` / `comparison.js`：完整 Python/JS 調用與執行對照。\n- `scheduling.py`：創建、順序 await、顯式調度、阻塞與明確收尾的線程橋接。\n- `ownership.py`：取消/超時後的真實臨時文件釋放。\n- `capacity.py`：用 entered/release 門閂證明准入上限。\n- `app.py`：上面的完整演示。\n- `tests/test_model.py`：事件順序、文件關閉與拒絕寫入、許可複用、真實失敗命令。\n- `solutions/batch.py` / `solutions/test_batch.py`：獨立、有界、可取消的批處理。\n\nJS 對照可選用已有 Node，不要求為 Python 測試安裝 Node：\n\n```bash\nnode comparison.js\nuv run --locked python comparison.py\n```\n\n預期輸出為 expected-javascript.txt、expected-python.txt。Python 調 coroutine 不啟動函數體，默認工廠的 Task 顯式調度工作，\n直接 await 順序推進，已就緒對象的 await 不必讓出。不要拿不穩定耗時推斷事件循環進度。\n\n## 真實失敗與練習\n\n`uv run --locked python errors/reuse.py` 先打印 42，再以 RuntimeError 退出 1。\n`uv run --locked python errors/forgotten.py` 收集真實未 await 警告，工作 events 仍空。\n`uv run --locked python errors/swallow.py` 雖退出 0，卻顯示 pretend-success 和 cancelled=False，是語義失敗。\n主測試在獨立子進程核驗這些命令。\n\n引導練習改上限 1 和 3，用 peak 與 active 歸零證明，不比耗時。\n獨立變式先整批驗證再產生效果，最多八項，保持輸入結果順序，限制併發和預算，錯誤/超時/取消後收尾全部孩子。\n答案測試檢查沒有遺留 Task；按輸入順序觀察不是 fail-fast 監督。\n\n恢復卡：當前文件、Python/uv 版本、最後成功命令、19+5 中已通過哪組、自己的需求改動、首個反例和下一條聚焦命令。\n不要增加任意 sleep 修復順序，也不要刪除其他環境或改共享配置。\n\n## 安全與邊界\n\n僅打開臨時文件並運行一個明確等待結束的本地工作線程，不訪問外部服務、不需要憑證。\n取消不能強殺線程或撤銷既有效果；事件循環阻塞時不能保證絕對牆鍾截止。\nSemaphore 限制准入，不限制無限創建 Task 的內存開銷。沒有性能、生產隊列、異步數據庫或部署承諾。\n\n## 下載與單一源碼約定\n\nDOWNLOAD-ALLOWLIST.json 與倉庫同名實驗 -files.json 列表一致，只打包這些普通文件。\n不包含環境、緩存、憑證或真實業務數據；教材 loader 讀取相同源文件。\nsources.json 記錄官方依據與核驗日期，uv.lock 中製品哈希來自 public PyPI 實際解析。\n",
+            "app.py": "import asyncio\nfrom capacity import bounded\nfrom ownership import cancelled, timed_out\nfrom scheduling import blocking, creation, offloaded, scheduled, sequential\n\n\nasync def main():\n    for name, demo in [\n        (\"creation\", creation), (\"sequential\", sequential),\n        (\"scheduled\", scheduled), (\"blocking\", blocking),\n        (\"offloaded\", offloaded), (\"cancelled\", cancelled), (\"timeout\", timed_out),\n    ]:\n        print(f\"{name}: {' | '.join(await demo())}\")\n    print(f\"bounded: {await bounded()}\")\n\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n",
+            "capacity.py": "import asyncio\nfrom scheduling import drain\n\n\nclass Meter:\n    def __init__(self):\n        self.active = 0\n        self.peak = 0\n\n\nasync def limited_job(index, slots, meter, entered, release):\n    async with slots:\n        meter.active += 1\n        meter.peak = max(meter.peak, meter.active)\n        try:\n            entered[index].set()\n            await release[index].wait()\n            return index\n        finally:\n            meter.active -= 1\n\n\nasync def bounded(limit=2):\n    if not 1 <= limit <= 4:\n        raise ValueError(\"limit must be between 1 and 4\")\n    slots, meter = asyncio.Semaphore(limit), Meter()\n    entered = [asyncio.Event() for _ in range(4)]\n    release = [asyncio.Event() for _ in range(4)]\n    tasks = [\n        asyncio.create_task(limited_job(i, slots, meter, entered, release))\n        for i in range(4)\n    ]\n    try:\n        for index in range(limit):\n            await entered[index].wait()\n        assert sum(event.is_set() for event in entered) == limit\n        # Release one admitted job, then witness a replacement being admitted.\n        for index in range(4):\n            release[index].set()\n            await tasks[index]\n            if index + limit < 4:\n                await entered[index + limit].wait()\n    finally:\n        await drain(tasks)\n    assert meter.active == 0\n    return f\"peak={meter.peak} active={meter.active}\"\n",
+            "commands.sh": "# Run from the extracted a01-async-model directory.\nset -eu\nexport PATH=\"$HOME/.local/bin:$PATH\"\nexport UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928\nexport UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928\nuv --version\nuv python install 3.13.15\nuv sync --locked\nuv run --locked python --version\nuv run --locked python app.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions\n",
+            "comparison.js": "async function work() {\n  console.log(\"body:before-await\");\n  await Promise.resolve();\n  console.log(\"body:after-await\");\n}\n\nasync function main() {\n  const pending = work();\n  console.log(\"caller:after-call\");\n  await pending;\n}\n\nmain().catch((error) => {\n  console.error(error);\n  process.exitCode = 1;\n});\n",
+            "comparison.py": "import asyncio\n\n\nasync def work():\n    print(\"body:before-await\")\n    await asyncio.sleep(0)\n    print(\"body:after-await\")\n\n\nasync def main():\n    pending = work()\n    print(\"caller:after-call\")\n    await pending\n\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n",
+            "errors/forgotten.py": "\"\"\"Capture a real unawaited-coroutine warning without address-dependent output.\"\"\"\nimport asyncio\nimport gc\nimport warnings\n\n\nasync def main():\n    events = []\n\n    async def work():\n        events.append(\"ran\")\n\n    with warnings.catch_warnings(record=True) as caught:\n        warnings.simplefilter(\"always\", RuntimeWarning)\n        pending = work()\n        del pending\n        gc.collect()  # Diagnostic demonstration, NOT resource management.\n    assert any(\"was never awaited\" in str(w.message) for w in caught)\n    print(f\"events={events}; RuntimeWarning: coroutine was never awaited\")\n\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n",
+            "errors/reuse.py": "\"\"\"Expected failure: a coroutine object is single-use, unlike a completed Task.\"\"\"\nimport asyncio\n\n\nasync def value():\n    return 42\n\n\nasync def main():\n    pending = value()\n    print(await pending, flush=True)\n    print(await pending)\n\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n",
+            "errors/swallow.py": "\"\"\"Runs successfully but violates the owner's cancellation contract.\"\"\"\nimport asyncio\n\n\nasync def wrong(entered):\n    entered.set()\n    try:\n        await asyncio.Event().wait()\n    except asyncio.CancelledError:\n        return \"pretend-success\"\n\n\nasync def main():\n    entered = asyncio.Event()\n    task = asyncio.create_task(wrong(entered))\n    await entered.wait()\n    task.cancel()\n    print(f\"result={await task} cancelled={task.cancelled()}\")\n\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n",
+            "expected-javascript.txt": "body:before-await\ncaller:after-call\nbody:after-await\n",
+            "expected-output.txt": "creation: called:no-body-yet | A:start | A:end\nsequential: A:start | A:end | B:start | B:end\nscheduled: A:start | B:start | owner:both-entered | B:end | A:end\nblocking: sync:start | sync:end | callback:ran | owner:resumed\noffloaded: loop:responsive-while-thread-waits | thread:returned\ncancelled: file:opened | file:closed | owner:cancelled\ntimeout: file:opened | file:closed | owner:timeout\nbounded: peak=2 active=0\n",
+            "expected-python.txt": "caller:after-call\nbody:before-await\nbody:after-await\n",
+            "ownership.py": "import asyncio\nimport tempfile\n\n\nasync def hold_file(events, entered, release, handles):\n    handle = tempfile.TemporaryFile(mode=\"w+t\", encoding=\"utf-8\")\n    handles.append(handle)  # Test can inspect the actual resource after exit.\n    try:\n        events.append(\"file:opened\")\n        entered.set()\n        await release.wait()\n        events.append(\"work:completed\")\n    finally:\n        handle.close()\n        events.append(\"file:closed\")\n\n\nasync def cancelled():\n    events, handles = [], []\n    entered, release = asyncio.Event(), asyncio.Event()\n    task = asyncio.create_task(hold_file(events, entered, release, handles))\n    try:\n        await entered.wait()\n        task.cancel()\n        try:\n            await task\n        except asyncio.CancelledError:\n            events.append(\"owner:cancelled\")\n    finally:\n        if not task.done():\n            task.cancel()\n            await asyncio.gather(task, return_exceptions=True)\n    assert task.cancelled() and handles[0].closed\n    return events\n\n\nasync def timed_out():\n    events, handles = [], []\n    try:\n        # Zero deliberately expires at the next loop turn, after file acquisition.\n        async with asyncio.timeout(0):\n            await hold_file(events, asyncio.Event(), asyncio.Event(), handles)\n    except TimeoutError:\n        events.append(\"owner:timeout\")\n    assert handles[0].closed\n    return events\n",
+            "pyproject.toml": "[project]\nname = \"js2py-a01-async-model\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = []\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\"]\n\n[tool.uv]\npackage = false\n\n[[tool.uv.index]]\nname = \"pypi\"\nurl = \"https://pypi.org/simple\"\ndefault = true\n\n[tool.pytest.ini_options]\npythonpath = [\".\"]\ntestpaths = [\"tests\"]\nfilterwarnings = [\"error\"]\n",
+            "scheduling.py": "\"\"\"Order is evidence; elapsed time is not the assertion.\"\"\"\nimport asyncio\nimport threading\nimport time\n\n\nasync def step(name, events):\n    events.append(f\"{name}:start\")\n    await asyncio.sleep(0)  # A deliberate scheduling checkpoint, not fake I/O.\n    events.append(f\"{name}:end\")\n    return name\n\n\nasync def creation():\n    events = []\n    pending = step(\"A\", events)\n    events.append(\"called:no-body-yet\")\n    await pending\n    return events\n\n\nasync def sequential():\n    events = []\n    await step(\"A\", events)\n    await step(\"B\", events)\n    return events\n\n\nasync def drain(tasks):\n    \"\"\"Owner cancels unfinished children and observes every terminal result.\"\"\"\n    for task in tasks:\n        if not task.done():\n            task.cancel()\n    return await asyncio.gather(*tasks, return_exceptions=True)\n\n\nasync def scheduled():\n    events = []\n    entered = [asyncio.Event(), asyncio.Event()]\n    release = [asyncio.Event(), asyncio.Event()]\n\n    async def child(index, name):\n        events.append(f\"{name}:start\")\n        entered[index].set()\n        await release[index].wait()\n        events.append(f\"{name}:end\")\n\n    first = asyncio.create_task(child(0, \"A\"))\n    second = asyncio.create_task(child(1, \"B\"))\n    try:\n        await entered[0].wait()\n        await entered[1].wait()\n        events.append(\"owner:both-entered\")\n        release[1].set()\n        await second\n        release[0].set()\n        await first\n    finally:\n        await drain([first, second])\n    return events\n\n\nasync def blocking():\n    events = []\n    asyncio.get_running_loop().call_soon(events.append, \"callback:ran\")\n    events.append(\"sync:start\")\n    time.sleep(0.02)  # Deliberately wrong on the event-loop thread.\n    events.append(\"sync:end\")\n    assert \"callback:ran\" not in events\n    await asyncio.sleep(0)\n    events.append(\"owner:resumed\")\n    return events\n\n\nasync def offloaded():\n    events = []\n    entered = asyncio.Event()\n    release = threading.Event()\n    loop = asyncio.get_running_loop()\n\n    def blocking_library():\n        loop.call_soon_threadsafe(entered.set)\n        if not release.wait(5):  # Hang guard, not a speed assertion.\n            raise RuntimeError(\"owner did not release worker\")\n        return \"thread:returned\"\n\n    task = asyncio.create_task(asyncio.to_thread(blocking_library))\n    try:\n        await entered.wait()\n        events.append(\"loop:responsive-while-thread-waits\")\n    finally:\n        release.set()  # Cancelling an await cannot forcibly stop this thread.\n        events.append(await task)  # Explicitly join the work we own.\n    return events\n",
+            "solutions/__init__.py": "\"\"\"Independent answers; not imported by the main demo.\"\"\"\n",
+            "solutions/batch.py": "\"\"\"Independent variation: a small, bounded batch with an owner and a deadline.\"\"\"\nimport asyncio\nfrom scheduling import drain\n\n\ndef normalize(title):\n    if not isinstance(title, str) or not title.strip():\n        raise ValueError(\"title must be non-empty text\")\n    return title.strip()\n\n\nasync def transform_batch(titles, fetch, *, limit=2, deadline=1.0):\n    if not 1 <= limit <= 4 or not 0 < deadline <= 30:\n        raise ValueError(\"invalid batch budget\")\n    if len(titles) > 8:\n        raise ValueError(\"at most eight titles\")\n    normalized = [normalize(title) for title in titles]  # Pure work stays sync.\n    slots = asyncio.Semaphore(limit)\n\n    async def one(title):\n        async with slots:\n            return await fetch(title)\n\n    tasks = []\n    try:\n        async with asyncio.timeout(deadline):\n            tasks = [asyncio.create_task(one(title)) for title in normalized]\n            # Input-order observation, not a claim of fail-fast supervision.\n            return [await task for task in tasks]\n    finally:\n        await drain(tasks)\n",
+            "solutions/test_batch.py": "import asyncio\nimport pytest\nfrom solutions.batch import transform_batch\n\n\ndef test_order_and_pure_validation():\n    async def scenario():\n        called = []\n        async def fetch(title):\n            called.append(title)\n            await asyncio.sleep(0)\n            return title.upper()\n        assert await transform_batch([\" a \", \"b\"], fetch) == [\"A\", \"B\"]\n        called.clear()\n        with pytest.raises(ValueError):\n            await transform_batch([\"ok\", \" \"], fetch)\n        assert called == []\n    asyncio.run(scenario())\n\n\n@pytest.mark.parametrize(\"mode\", [\"failure\", \"timeout\", \"cancel\"])\ndef test_no_children_survive_owner(mode):\n    async def scenario():\n        entered, never = asyncio.Event(), asyncio.Event()\n        live = set()\n        async def fetch(title):\n            live.add(title)\n            try:\n                if title == \"a\":\n                    entered.set()\n                    if mode == \"failure\":\n                        raise LookupError(\"simulated\")\n                await never.wait()\n            finally:\n                live.remove(title)\n        owner = asyncio.create_task(transform_batch(\n            [\"a\", \"b\", \"c\"], fetch, limit=2,\n            deadline=0.01 if mode == \"timeout\" else 5,\n        ))\n        await entered.wait()\n        if mode == \"cancel\":\n            owner.cancel()\n        error = {\"failure\": LookupError, \"timeout\": TimeoutError,\n                 \"cancel\": asyncio.CancelledError}[mode]\n        with pytest.raises(error):\n            await owner\n        assert live == set()\n        assert not [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]\n    asyncio.run(scenario())\n\n\ndef test_empty_and_capacity_policy():\n    async def scenario():\n        async def fetch(title):\n            return title\n        assert await transform_batch([], fetch) == []\n        with pytest.raises(ValueError):\n            await transform_batch([\"x\"] * 9, fetch)\n        with pytest.raises(ValueError):\n            await transform_batch([\"x\"], fetch, limit=0)\n    asyncio.run(scenario())\n",
+            "sources.json": "{\n  \"verified_on\": \"2026-09-28\",\n  \"sources\": [\n    {\n      \"url\": \"https://docs.python.org/3.13/library/asyncio-task.html\",\n      \"final_url\": \"https://docs.python.org/3.13/library/asyncio-task.html\",\n      \"http_status\": 200,\n      \"title\": \"Coroutines and tasks — Python 3.13.15 documentation\",\n      \"checked_on\": \"2026-09-28\"\n    },\n    {\n      \"url\": \"https://docs.python.org/3.13/library/asyncio-eventloop.html\",\n      \"final_url\": \"https://docs.python.org/3.13/library/asyncio-eventloop.html\",\n      \"http_status\": 200,\n      \"title\": \"Event loop — Python 3.13.15 documentation\",\n      \"checked_on\": \"2026-09-28\"\n    },\n    {\n      \"url\": \"https://docs.python.org/3.13/library/asyncio-sync.html\",\n      \"final_url\": \"https://docs.python.org/3.13/library/asyncio-sync.html\",\n      \"http_status\": 200,\n      \"title\": \"Synchronization Primitives — Python 3.13.15 documentation\",\n      \"checked_on\": \"2026-09-28\"\n    },\n    {\n      \"url\": \"https://docs.python.org/3.13/library/asyncio-dev.html\",\n      \"final_url\": \"https://docs.python.org/3.13/library/asyncio-dev.html\",\n      \"http_status\": 200,\n      \"title\": \"Developing with asyncio — Python 3.13.15 documentation\",\n      \"checked_on\": \"2026-09-28\"\n    },\n    {\n      \"url\": \"https://docs.python.org/3.13/library/asyncio-exceptions.html\",\n      \"final_url\": \"https://docs.python.org/3.13/library/asyncio-exceptions.html\",\n      \"http_status\": 200,\n      \"title\": \"Exceptions — Python 3.13.15 documentation\",\n      \"checked_on\": \"2026-09-28\"\n    },\n    {\n      \"url\": \"https://docs.python.org/3.13/library/asyncio-runner.html\",\n      \"final_url\": \"https://docs.python.org/3.13/library/asyncio-runner.html\",\n      \"http_status\": 200,\n      \"title\": \"Runners — Python 3.13.15 documentation\",\n      \"checked_on\": \"2026-09-28\"\n    },\n    {\n      \"url\": \"https://tc39.es/ecma262/multipage/control-abstraction-objects.html#sec-async-functions-abstract-operations-async-function-start\",\n      \"final_url\": \"https://tc39.es/ecma262/multipage/control-abstraction-objects.html#sec-async-functions-abstract-operations-async-function-start\",\n      \"http_status\": 200,\n      \"title\": \"ECMAScript® 2027 Language Specification\",\n      \"checked_on\": \"2026-09-28\"\n    },\n    {\n      \"url\": \"https://docs.astral.sh/uv/concepts/projects/sync/\",\n      \"final_url\": \"https://docs.astral.sh/uv/concepts/projects/sync/\",\n      \"http_status\": 200,\n      \"title\": \"Locking and syncing | uv\",\n      \"checked_on\": \"2026-09-28\"\n    }\n  ]\n}\n",
+            "tests/test_model.py": "import asyncio\nimport subprocess\nimport sys\nfrom pathlib import Path\n\nimport pytest\nfrom capacity import Meter, bounded, limited_job\nfrom ownership import cancelled, hold_file, timed_out\nfrom scheduling import blocking, creation, drain, offloaded, scheduled, sequential\n\nROOT = Path(__file__).resolve().parents[1]\n\n\ndef test_coroutine_call_does_not_run_body():\n    assert asyncio.run(creation()) == [\"called:no-body-yet\", \"A:start\", \"A:end\"]\n\n\ndef test_direct_await_is_sequential():\n    assert asyncio.run(sequential()) == [\"A:start\", \"A:end\", \"B:start\", \"B:end\"]\n\n\ndef test_tasks_both_enter_before_completion():\n    events = asyncio.run(scheduled())\n    pivot = events.index(\"owner:both-entered\")\n    assert set(events[:pivot]) == {\"A:start\", \"B:start\"}\n    assert events[pivot + 1:] == [\"B:end\", \"A:end\"]\n\n\ndef test_sync_block_delays_ready_callback():\n    assert asyncio.run(blocking()) == [\n        \"sync:start\", \"sync:end\", \"callback:ran\", \"owner:resumed\"\n    ]\n\n\ndef test_thread_work_is_explicitly_joined():\n    assert asyncio.run(offloaded()) == [\n        \"loop:responsive-while-thread-waits\", \"thread:returned\"\n    ]\n\n\ndef test_cancellation_is_not_success():\n    assert asyncio.run(cancelled()) == [\"file:opened\", \"file:closed\", \"owner:cancelled\"]\n\n\ndef test_deadline_runs_finally_before_timeout_reaches_owner():\n    assert asyncio.run(timed_out()) == [\"file:opened\", \"file:closed\", \"owner:timeout\"]\n\n\n@pytest.mark.parametrize(\"exit_mode\", [\"normal\", \"cancel\"])\ndef test_real_file_is_closed_and_rejects_writes(exit_mode):\n    async def scenario():\n        events, handles = [], []\n        entered, release = asyncio.Event(), asyncio.Event()\n        task = asyncio.create_task(hold_file(events, entered, release, handles))\n        try:\n            await entered.wait()\n            assert not handles[0].closed\n            if exit_mode == \"cancel\":\n                task.cancel()\n                with pytest.raises(asyncio.CancelledError):\n                    await task\n            else:\n                release.set()\n                await task\n            assert handles[0].closed\n            with pytest.raises(ValueError, match=\"closed\"):\n                handles[0].write(\"not allowed\")\n        finally:\n            await drain([task])\n    asyncio.run(scenario())\n\n\ndef test_cancel_before_start_acquires_nothing():\n    async def scenario():\n        events, handles = [], []\n        task = asyncio.create_task(hold_file(events, asyncio.Event(), asyncio.Event(), handles))\n        task.cancel()\n        with pytest.raises(asyncio.CancelledError):\n            await task\n        assert events == handles == []\n    asyncio.run(scenario())\n\n\n@pytest.mark.parametrize(\"limit\", [1, 2, 3, 4])\ndef test_capacity(limit):\n    assert asyncio.run(bounded(limit)) == f\"peak={limit} active=0\"\n\n\ndef test_waiter_cancellation_does_not_leak_or_invent_permit():\n    async def scenario():\n        slots, meter = asyncio.Semaphore(1), Meter()\n        entered = [asyncio.Event(), asyncio.Event()]\n        release = [asyncio.Event(), asyncio.Event()]\n        first = asyncio.create_task(limited_job(0, slots, meter, entered, release))\n        second = asyncio.create_task(limited_job(1, slots, meter, entered, release))\n        try:\n            await entered[0].wait()\n            await asyncio.sleep(0)  # Let second reach the occupied semaphore.\n            assert not entered[1].is_set()\n            second.cancel()\n            with pytest.raises(asyncio.CancelledError):\n                await second\n            assert slots.locked() and meter.active == 1\n            first.cancel()\n            with pytest.raises(asyncio.CancelledError):\n                await first\n            assert meter.active == 0\n            async with asyncio.timeout(1):\n                await slots.acquire()  # Public behavior, not _value inspection.\n            assert slots.locked()\n            slots.release()\n        finally:\n            await drain([first, second])\n    asyncio.run(scenario())\n\n\ndef test_await_already_ready_event_need_not_yield():\n    async def scenario():\n        events = []\n        gate = asyncio.Event()\n        gate.set()\n        asyncio.get_running_loop().call_soon(events.append, \"callback\")\n        await gate.wait()\n        assert events == []\n        await asyncio.sleep(0)\n        assert events == [\"callback\"]\n    asyncio.run(scenario())\n\n\n@pytest.mark.parametrize(\"script,code,needle\", [\n    (\"reuse.py\", 1, \"cannot reuse already awaited coroutine\"),\n    (\"swallow.py\", 0, \"result=pretend-success cancelled=False\"),\n    (\"forgotten.py\", 0, \"events=[]; RuntimeWarning: coroutine was never awaited\"),\n])\ndef test_actual_failures(script, code, needle):\n    run = subprocess.run([sys.executable, str(ROOT / \"errors\" / script)],\n                         capture_output=True, text=True, timeout=10)\n    assert run.returncode == code\n    assert needle in run.stdout + run.stderr\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.39
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 1.0,
+            "probabilities": {
+              "SUBSTANTIVE": 1.0,
+              "API_CATALOGUE": 0.0,
+              "UNCERTAIN": 0.0,
+              "PARTIAL": 0.0
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.99,
+            "probabilities": {
+              "UNCERTAIN": 0.0,
+              "ACCURATE_AND_BOUNDED": 0.99,
+              "NECESSARY_GAP": 0.0,
+              "MATERIAL_ERROR": 0.01
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 1.0,
+            "probabilities": {
+              "UNCERTAIN": 0.0,
+              "ACCURATE_AND_BOUNDED": 1.0,
+              "NECESSARY_GAP": 0.0,
+              "MATERIAL_ERROR": 0.0
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.96,
+            "probabilities": {
+              "UNDERSPECIFIED": 0.0,
+              "UNCERTAIN": 0.0,
+              "CONTRADICTORY": 0.03,
+              "COHERENT_AND_TESTABLE": 0.97
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.82
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "PROCEED",
+            "confidence": 0.52,
+            "probabilities": {
+              "TARGETED_REVIEW": 0.27,
+              "PROCEED": 0.68,
+              "REVISE": 0.05
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 17218,
+          "output_tokens": 341
+        }
+      },
+      "raw_response_sha256": "792cc295a287f1323e48b93c7c12d5ac454461a93e82ad8bc16572466fc0a362"
+    }
+  ],
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-30-async-model.mdx",
+    "examples/js2py/a01-async-model/.python-version",
+    "examples/js2py/a01-async-model/DOWNLOAD-ALLOWLIST.json",
+    "examples/js2py/a01-async-model/README.md",
+    "examples/js2py/a01-async-model/README.zh-cn.md",
+    "examples/js2py/a01-async-model/README.zh-tw.md",
+    "examples/js2py/a01-async-model/app.py",
+    "examples/js2py/a01-async-model/capacity.py",
+    "examples/js2py/a01-async-model/commands.sh",
+    "examples/js2py/a01-async-model/comparison.js",
+    "examples/js2py/a01-async-model/comparison.py",
+    "examples/js2py/a01-async-model/errors/forgotten.py",
+    "examples/js2py/a01-async-model/errors/reuse.py",
+    "examples/js2py/a01-async-model/errors/swallow.py",
+    "examples/js2py/a01-async-model/expected-javascript.txt",
+    "examples/js2py/a01-async-model/expected-output.txt",
+    "examples/js2py/a01-async-model/expected-python.txt",
+    "examples/js2py/a01-async-model/ownership.py",
+    "examples/js2py/a01-async-model/pyproject.toml",
+    "examples/js2py/a01-async-model/scheduling.py",
+    "examples/js2py/a01-async-model/solutions/__init__.py",
+    "examples/js2py/a01-async-model/solutions/batch.py",
+    "examples/js2py/a01-async-model/solutions/test_batch.py",
+    "examples/js2py/a01-async-model/sources.json",
+    "examples/js2py/a01-async-model/tests/test_model.py"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-30-async-model.mdx": "bdf0753a8e2afe3e83fb5af754266fe1c43cffc2ceb5d0c7d4e0e11021eacd05",
+    "examples/js2py/a01-async-model/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/a01-async-model/DOWNLOAD-ALLOWLIST.json": "3bc6c9459251c0e81cbe6aed4b4417fa73ad5de3f4120ed3bb98425449d5b04f",
+    "examples/js2py/a01-async-model/README.md": "13d8062e5781e63ed3d4243ac97e94490aa31b9baf1d3986a202bc09a5eda9dc",
+    "examples/js2py/a01-async-model/README.zh-cn.md": "da0ae780251017ab262d8d974e32234eb7e8c780c20466edb3180e5724a115f3",
+    "examples/js2py/a01-async-model/README.zh-tw.md": "520145a52ccab607434f193619bcaf4f97c3736dc7ee41bcfe7584afb44e641f",
+    "examples/js2py/a01-async-model/app.py": "b47b44627d18e3487dd5cc5d8d83ff5967507585e8e0790d16e141aff0384bff",
+    "examples/js2py/a01-async-model/capacity.py": "ba8eeba5f091dcb5d7cc0bfa962550591eb2f27816c89f6a0e36f08f7ed4cbe4",
+    "examples/js2py/a01-async-model/commands.sh": "24e19397e893b2fa33fa3a16c89243af3eb8def04fcddb27709f193d72cabe6f",
+    "examples/js2py/a01-async-model/comparison.js": "71793745587500abcb079b170b7f42cd65c6c50472daed6acb15b606d587fdde",
+    "examples/js2py/a01-async-model/comparison.py": "4696d2e568effb9dfdffe5896b28c5e011e425e393c92d7a365e911402c0baec",
+    "examples/js2py/a01-async-model/errors/forgotten.py": "6d23f673903c3a6e3bdf89698a0ce50c04ee657f2dea723b05d54b8b0bba055e",
+    "examples/js2py/a01-async-model/errors/reuse.py": "d17ccad0e1d4c68e2097d072bde3d5fa968ffb0fa4fae2d4cf42110f3e953666",
+    "examples/js2py/a01-async-model/errors/swallow.py": "ad7a819d204f6251e1b93b6a84f8421b2daf3d008bfe3fef7e9519dab70c11fb",
+    "examples/js2py/a01-async-model/expected-javascript.txt": "0b021f054aede79f84803237bd175359494d507d61b9370f70b0127ba223a620",
+    "examples/js2py/a01-async-model/expected-output.txt": "4855f4f951c2a361eae9389ebba963d58442da17ad88325e29f2f92b18583f2b",
+    "examples/js2py/a01-async-model/expected-python.txt": "ce648f6cf07f301ed71098042b620ddbe42b41334fca0149ddfb9d7cdaffa96d",
+    "examples/js2py/a01-async-model/ownership.py": "d5ad5490097117884f1a9372bc54b1c88c1215df56b745a52965fb3af0625a34",
+    "examples/js2py/a01-async-model/pyproject.toml": "33cfb161edd83c877b0296f022475c828003ee9d264a37a4f2615ac3ce774755",
+    "examples/js2py/a01-async-model/scheduling.py": "6f018b82af4d71297ed10232858b8df9eeaef6467f7690c58965ab0ed91d4289",
+    "examples/js2py/a01-async-model/solutions/__init__.py": "3cc98c68a226b05cfc000d9a7f8d2fd71febd0b7a357b8393c17f5d1ad7c57fd",
+    "examples/js2py/a01-async-model/solutions/batch.py": "53c7b778151c72f43d16316a3624ea6e08d2ea52aca58cba581c9ad88f560f84",
+    "examples/js2py/a01-async-model/solutions/test_batch.py": "71f32baec866307584966f47dc5825c3bff8d58ea8fd5ab022b0b48e059faf71",
+    "examples/js2py/a01-async-model/sources.json": "f73977513ed87e385ba4111656234224dc495d4054f4c661357895c2cd9f521a",
+    "examples/js2py/a01-async-model/tests/test_model.py": "72a90ea3e699b2cc9ba2c2df55e2da00a6a6571972d197cc3e7edaf53374ac10",
+    "content/docs/js2py/module-30-async-model.zh-cn.mdx": "1d514b71328cd5a534019980a051a0b214d40bb6ee7ff94fa3f5225d1c8c52fa",
+    "content/docs/js2py/module-30-async-model.zh-tw.mdx": "8cceb5f9171e920927ddc904591e412b46f74f8ccebb77ce6ae6f4f6ee457422",
+    "examples/js2py/a01-async-model-files.json": "3bc6c9459251c0e81cbe6aed4b4417fa73ad5de3f4120ed3bb98425449d5b04f",
+    "public/learning-assets/js2py/a01-async-model.zip": "d7e0c036c3ae19928669917637a92962052db1a85f153206ce218dab3fad3149",
+    "examples/js2py/a01-async-model/uv.lock": "a16a8e7e80ce4fc409c16d72327f34c95a56702c878df8bd9cc0057a93c4a3bb"
+  },
+  "deterministically_checked_lock_files": {
+    "uv.lock": {
+      "sha256": "a16a8e7e80ce4fc409c16d72327f34c95a56702c878df8bd9cc0057a93c4a3bb",
+      "bytes": 4664,
+      "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+    }
+  },
+  "interface_failures": [],
+  "post_review_changes": [],
+  "submitted_source_sha256": {
+    "content/docs/js2py/module-30-async-model.mdx": "bdf0753a8e2afe3e83fb5af754266fe1c43cffc2ceb5d0c7d4e0e11021eacd05",
+    "examples/js2py/a01-async-model/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/a01-async-model/DOWNLOAD-ALLOWLIST.json": "3bc6c9459251c0e81cbe6aed4b4417fa73ad5de3f4120ed3bb98425449d5b04f",
+    "examples/js2py/a01-async-model/README.md": "13d8062e5781e63ed3d4243ac97e94490aa31b9baf1d3986a202bc09a5eda9dc",
+    "examples/js2py/a01-async-model/README.zh-cn.md": "da0ae780251017ab262d8d974e32234eb7e8c780c20466edb3180e5724a115f3",
+    "examples/js2py/a01-async-model/README.zh-tw.md": "520145a52ccab607434f193619bcaf4f97c3736dc7ee41bcfe7584afb44e641f",
+    "examples/js2py/a01-async-model/app.py": "b47b44627d18e3487dd5cc5d8d83ff5967507585e8e0790d16e141aff0384bff",
+    "examples/js2py/a01-async-model/capacity.py": "ba8eeba5f091dcb5d7cc0bfa962550591eb2f27816c89f6a0e36f08f7ed4cbe4",
+    "examples/js2py/a01-async-model/commands.sh": "24e19397e893b2fa33fa3a16c89243af3eb8def04fcddb27709f193d72cabe6f",
+    "examples/js2py/a01-async-model/comparison.js": "71793745587500abcb079b170b7f42cd65c6c50472daed6acb15b606d587fdde",
+    "examples/js2py/a01-async-model/comparison.py": "4696d2e568effb9dfdffe5896b28c5e011e425e393c92d7a365e911402c0baec",
+    "examples/js2py/a01-async-model/errors/forgotten.py": "6d23f673903c3a6e3bdf89698a0ce50c04ee657f2dea723b05d54b8b0bba055e",
+    "examples/js2py/a01-async-model/errors/reuse.py": "d17ccad0e1d4c68e2097d072bde3d5fa968ffb0fa4fae2d4cf42110f3e953666",
+    "examples/js2py/a01-async-model/errors/swallow.py": "ad7a819d204f6251e1b93b6a84f8421b2daf3d008bfe3fef7e9519dab70c11fb",
+    "examples/js2py/a01-async-model/expected-javascript.txt": "0b021f054aede79f84803237bd175359494d507d61b9370f70b0127ba223a620",
+    "examples/js2py/a01-async-model/expected-output.txt": "4855f4f951c2a361eae9389ebba963d58442da17ad88325e29f2f92b18583f2b",
+    "examples/js2py/a01-async-model/expected-python.txt": "ce648f6cf07f301ed71098042b620ddbe42b41334fca0149ddfb9d7cdaffa96d",
+    "examples/js2py/a01-async-model/ownership.py": "d5ad5490097117884f1a9372bc54b1c88c1215df56b745a52965fb3af0625a34",
+    "examples/js2py/a01-async-model/pyproject.toml": "33cfb161edd83c877b0296f022475c828003ee9d264a37a4f2615ac3ce774755",
+    "examples/js2py/a01-async-model/scheduling.py": "6f018b82af4d71297ed10232858b8df9eeaef6467f7690c58965ab0ed91d4289",
+    "examples/js2py/a01-async-model/solutions/__init__.py": "3cc98c68a226b05cfc000d9a7f8d2fd71febd0b7a357b8393c17f5d1ad7c57fd",
+    "examples/js2py/a01-async-model/solutions/batch.py": "53c7b778151c72f43d16316a3624ea6e08d2ea52aca58cba581c9ad88f560f84",
+    "examples/js2py/a01-async-model/solutions/test_batch.py": "71f32baec866307584966f47dc5825c3bff8d58ea8fd5ab022b0b48e059faf71",
+    "examples/js2py/a01-async-model/sources.json": "f73977513ed87e385ba4111656234224dc495d4054f4c661357895c2cd9f521a",
+    "examples/js2py/a01-async-model/tests/test_model.py": "72a90ea3e699b2cc9ba2c2df55e2da00a6a6571972d197cc3e7edaf53374ac10"
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not gpt-6-astra; independent reasoning assistants are separate.",
+    "decision": "Original slice choices unchanged. New targeted audits, reproduced repairs, real runtime/browser evidence and exact new source deltas support conditional ACCEPT_WITH_EXPLICIT_ENVIRONMENT_GATES; see closure record for outstanding/final deterministic gates. Never a production or learner approval.",
+    "scope": "Full English in every slice; union of slices covers every non-lock allowlisted file. Only the original H01 request included lock text. Other opaque locks were checked by registry/hash/locked reconstruction rather than semantic inference. No single slice is presented as whole-chapter review.",
+    "uncertainty": "Raw unfavorable branches preserved. Confidence is distribution concentration, not factual correctness or learner outcomes. Initial direct predecessor contracts omit transitive detail; follow-up audits must examine the actual full path rather than assume missing learner capability.",
+    "snapshot": "Submitted source hashes and full requests remain unchanged. Effective source_sha256 includes each explicitly recorded post-review repair; closure delta review binds the final D03 assertion and O privilege wording changes. Locale/locks/manifests/ZIP are deterministic evidence, not semantic translation review."
+  },
+  "credential_persisted": false,
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+}

@@ -1,175 +1,241 @@
 ---
-title: "Module 11: Writing Pythonic Code"
-description: "Learn how to write idiomatic, elegant, and efficient Python code, and truly think like a Python developer."
+title: Basic Type Annotations — Contracts, Checking, and Input Boundaries
+description: Annotate behavior you already understand, distinguish nullability from defaults and static checking from runtime validation, and diagnose real failures at the JSON boundary.
 ---
 
-## 1. Introduction
+import { getTypingExample } from '@/lib/js2py-examples'
 
-Every programming language has its own unique style and philosophy. The word "Pythonic" is used to describe a style of code that follows the best practices recognized by the Python community, makes full use of the language's features, and is concise, readable, and efficient.
+## 1. Understand the behavior before annotating its contract
 
-For developers coming from JavaScript, just mastering the syntax is not enough. Learning to write Pythonic code means starting to think about and solve problems in "the Python way."
+The L10 application already runs, saves data, and has tests. Why add types? If a function expects minutes but its caller supplies strings, discovering the disagreement before execution narrows the investigation. Annotations put expectations beside parameters and results so collaborators, editors, and checkers do not have to infer them from every call site.
 
-> 💡 **Learning Strategy**: Think of writing Pythonic code as learning the "idioms" and "slang" of a language. It will make your code more welcome in the community and easier for others to understand and maintain.
+Your basic TypeScript experience transfers, but Python does not automatically run a type-checking build gate before execution. Running Python and running a static checker are separate commands. Annotations alone generally do not reject invalid input. Tests observe particular executions, static checking analyzes source, and runtime validation protects actual data boundaries. None replaces the others.
 
-## 2. List Comprehensions
+| Contract | Scope |
+| --- | --- |
+| Prerequisites | L02 containers, L04 functions, L06 modules, L10 independent project |
+| New capabilities | Function/container annotations, unions, nullability, defaults, diagnostics, external input validation |
+| Acceptance | Annotate an existing function, repair static errors, prove that passing a checker does not make JSON trustworthy |
+| Excluded | Class models, TypedDict, advanced generics, protocols, a zero-Any target |
 
-List comprehensions are one of the most iconic features of Python. They provide a concise and elegant way to create new lists based on existing ones, and are often more readable than using `map()` and `filter()`.
+Download the [complete L11 lab](/learning-assets/js2py/u11-typing.zip). This is a local multi-file experiment, not browser execution of mypy. Displayed files and the download share canonical sources.
 
-<PythonEditor title="List Comprehensions vs. map/filter" compare={true}>
-```javascript !! js
-// JavaScript (map and filter)
-const numbers = [1, 2, 3, 4, 5];
+## 2. Establish two separate checking commands
 
-// Get the squares of all numbers
-const squares = numbers.map(n => n * n);
+Extract the archive and enter u11-typing. The tested baseline on September 28, 2026 is CPython 3.13.15, uv 0.12.13, mypy 2.3.1, and pytest 8.4.2. These are fixed verification versions, not a demand to chase every release.
 
-// Get the squares of all even numbers
-const evenSquares = numbers
-  .filter(n => n % 2 === 0)
-  .map(n => n * n);
+<Code language="toml">{getTypingExample('pyproject.toml')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python -m mypy
+uv run --locked python -m pytest -q
 ```
 
-```python !! py
-# Python (List Comprehensions)
-numbers = [1, 2, 3, 4, 5]
+The mypy configuration selects annotated business code, the entry point, and the independent reference function, requiring annotations within that scope. Intentionally incorrect examples and runtime tests that deliberately supply invalid types are checked separately; deleting them to make everything green would lose evidence. Default pytest discovery selects tests; independent answers run separately too.
 
-# Get the squares of all numbers (Pythonic)
-squares = [n * n for n in numbers]
+When a checker reports success, ask which files and function bodies it examined and where dynamic values enter. Running the application does not implicitly run mypy. CI only checks types if you explicitly configure that step.
 
-# Get the squares of all even numbers (Pythonic)
-even_squares = [n * n for n in numbers if n % 2 == 0]
+## 3. Read annotations on behavior you already understand
 
-# Non-Pythonic way
-even_squares_long = list(map(lambda n: n * n, filter(lambda n: n % 2 == 0, numbers)))
-```
-</PythonEditor>
+First read the unannotated function. Predict how it skips an over-budget item but keeps looking at later items:
 
-## 3. EAFP vs LBYL
+<Code language="python">{getTypingExample('baseline.py')}</Code>
 
-These are two different programming styles, and the Python community generally prefers EAFP.
+A colon after a parameter name declares its expected type; an arrow declares the return type. Local variables can be annotated or inferred from assignments. This complete declaration experiment executes independently but prints nothing until a function is called.
 
-*   **LBYL (Look Before You Leap)**: Perform various checks before performing an operation. This is common in JavaScript.
-*   **EAFP (Easier to Ask for Forgiveness than Permission)**: Try to perform the operation directly, and if a problem (exception) occurs, then handle it.
+```python smoke=typing
+def add_minutes(left: int, right: int) -> int:
+    total: int = left + right
+    return total
 
-<PythonEditor title="EAFP vs. LBYL Comparison" compare={true}>
-```javascript !! js
-// JavaScript (LBYL style)
-const user = { profile: { name: 'Alice' } };
 
-if (user && user.profile && user.profile.name) {
-  console.log(user.profile.name);
-} else {
-  console.log('Name not found');
-}
-
-// More concise with optional chaining operator ?.
-console.log(user?.profile?.name || 'Name not found');
+def show_minutes(value: int) -> None:
+    print(value)
 ```
 
-```python !! py
-# Python (EAFP style - Pythonic)
-user = {"profile": {"name": "Alice"}}
+`-> None` means normal completion has no business result. It does not mean the function does nothing, cannot fail, or may return anything. A Python function that finishes without an explicit return also returns None. Types capture only part of the contract: int is not the same as non-negative minutes, and str is not the same as a non-blank title.
 
-try:
-    print(user["profile"]["name"])
-except (KeyError, TypeError):
-    print("Name not found")
+Annotate the baseline parameters and return without changing the algorithm. The complete implementation later also retains runtime rules. **Adding annotations and adding validation are distinct changes.**
 
-# Python (LBYL style - less Pythonic)
-if "profile" in user and isinstance(user["profile"], dict) and "name" in user["profile"]:
-    print(user["profile"]["name"])
-else:
-    print("Name not found")
-```
-</PythonEditor>
+## 4. Unions, nullable values, and omittable arguments
 
-## 4. Using `enumerate` for Iteration
+```python smoke=typing
+def required_budget(budget: int | None) -> str:
+    if budget is None:
+        return "unlimited"
+    return str(budget)
 
-When you need both the index and the value in a loop, don't use `range(len(my_list))`. The Pythonic way is to use the built-in function `enumerate`.
 
-<PythonEditor title="enumerate vs. range(len(...))" compare={true}>
-```javascript !! js
-// JavaScript
-const items = ['a', 'b', 'c'];
+def default_budget(budget: int = 45) -> int:
+    return budget
 
-items.forEach((item, index) => {
-  console.log(`Index: ${index}, Item: ${item}`);
-});
+
+def optional_budget(budget: int | None = None) -> str:
+    return required_budget(budget)
 ```
 
-```python !! py
-# Python (Pythonic)
-items = ['a', 'b', 'c']
+`int | None` permits an integer or None. It does not supply a default argument. required_budget requires an argument but permits explicit None. default_budget may be called without an argument, but its static contract does not accept None. optional_budget permits both omission and explicit None. Do not collapse TypeScript optional properties, Python default arguments, and nullable values into one concept.
 
-for index, item in enumerate(items):
-    print(f"Index: {index}, Item: {item}")
+After a branch eliminates None using `is None`, the checker can narrow the other path to int. `if budget` would also discard the valid value 0. Type hints cannot decide whether zero budget and unlimited budget mean the same thing. Here, zero permits only zero-minute items; None means unlimited.
 
-# Python (less Pythonic)
-for i in range(len(items)):
-    print(f"Index: {i}, Item: {items[i]}")
-```
-</PythonEditor>
+<details>
+<summary>Explanation answer: how do you know whether an argument may be omitted?</summary>
 
-## 5. Unpacking
+Look for a default, not for None in the annotation. Predict required_budget(), required_budget(None), default_budget(), and default_budget(None). The first lacks an argument at runtime; the second is valid; the third uses 45; the fourth violates the static contract, but the unguarded function can still return None at runtime.
 
-Python allows you to "unpack" the elements of an iterable (like a list or tuple) into multiple variables. This makes the code more concise.
+</details>
 
-<PythonEditor title="Unpacking vs. Manual Assignment" compare={true}>
-```javascript !! js
-// JavaScript (Destructuring assignment)
-const point = [10, 20, 30];
-const [x, y, z] = point;
+## 5. Containers describe elements, not an entire business schema
 
-const [first, ...rest] = [1, 2, 3, 4];
-// first = 1, rest = [2, 3, 4]
-```
+`list[int]` describes integer elements; an empty list qualifies. `dict[str, int]` describes string keys and integer values, not exactly two required keys named count and minutes. A heterogeneous dictionary annotated `dict[str, object]` requires narrowing its retrieved values before integer operations. We will not introduce classes or elaborate typing just to describe every record field early; L12 develops another part of model representation.
 
-```python !! py
-# Python (Unpacking)
-point = (10, 20, 30)
-x, y, z = point
+Any and object are not synonyms. Any permits many operations without proof; object says there is a Python object but does not promise its specific capabilities. These function bodies do not execute during declaration. The first contract permits an unproven upper call; the second checks before using that capability.
 
-# Starred expression (similar to JS rest)
-first, *rest, last = [1, 2, 3, 4, 5]
-# first = 1, rest = [2, 3, 4], last = 5
-```
-</PythonEditor>
+```python smoke=typing
+from typing import Any
 
-## 6. Using the `with` Statement to Manage Resources
 
-As mentioned in the "Common Pitfalls" module, using the `with` statement (context manager) is the most Pythonic way to handle resources that need to be explicitly closed (like files, database connections). It ensures that the resource is properly released even if an error occurs.
+def unchecked_label(value: Any) -> str:
+    return value.upper()
 
-<PythonEditor title="with statement vs. try...finally" compare={true}>
-```javascript !! js
-// JavaScript (No direct equivalent, usually use try...finally)
-let resource;
-try {
-  resource = acquireResource();
-  // use resource
-} finally {
-  if (resource) {
-    releaseResource(resource);
-  }
-}
+
+def value_label(value: object) -> str:
+    if isinstance(value, str):
+        return value.upper()
+    return "not text"
 ```
 
-```python !! py
-# Python (Pythonic)
-with open("my_file.txt", "r") as f:
-    content = f.read()
-    # The file is automatically closed, even if an error occurs during reading
+Both pass the current static checks, but the first still fails if it receives an integer. In your own copy, remove the second function's check and return value.upper() directly: object does not promise upper, so the checker now rejects the operation. Replacing object with Any or suppressing the diagnostic would conceal the missing boundary rather than explain it.
 
-# Python (less Pythonic)
-f = open("my_file.txt", "r")
-try:
-    content = f.read()
-finally:
-    f.close()
+## 6. Run the checker, including a controlled false green
+
+<Code language="python">{getTypingExample('errors/static_errors.py')}</Code>
+
+```bash
+uv run --locked python -m mypy errors/static_errors.py
 ```
-</PythonEditor>
 
-## 7. Summary
+Expect a nonzero result: an addition has not ruled out None, a list contains text, and a budget argument is text. This is static analysis, not a failed pytest assertion. Repair each cause rather than indiscriminately coercing all inputs.
 
-Writing Pythonic code is an ongoing process that is about code readability, conciseness, and efficiency. When you start to naturally use list comprehensions, `enumerate`, and the `with` statement, you are truly on your way to becoming an idiomatic Python developer.
+<Code language="python">{getTypingExample('errors/annotation_only.py')}</Code>
 
-**Core Principle**: Code is written for people to read first, and for machines to execute second. Pythonic code is the best embodiment of this principle.
+```bash
+uv run --locked python -m mypy errors/annotation_only.py
+uv run --locked python errors/annotation_only.py
+```
+
+The first command rejects the argument; the second still prints 33 because the operation repeats a string. A return annotation does not convert the result into an integer.
+
+<Code language="ini">{getTypingExample('errors/mypy-default.ini')}</Code>
+
+<Code language="python">{getTypingExample('errors/unchecked.py')}</Code>
+
+```bash
+uv run --locked python -m mypy --config-file errors/mypy-default.ini errors/unchecked.py
+uv run --locked python -m mypy --config-file errors/mypy-default.ini --check-untyped-defs errors/unchecked.py
+uv run --locked python errors/unchecked.py
+```
+
+With the neutral configuration, the first command passes. Enabling checks of untyped bodies makes the second fail. Actual execution raises TypeError. This controlled counterexample is not a recommendation to weaken project checks. It teaches you to examine what green means. The normal configuration also requires business-function annotations, but still does not provide runtime input protection.
+
+## 7. Turn external data into validated values
+
+Read this implementation along the data flow: text → JSON decoding → array shape → element validation → new list → selection → summary. Then explain each function's responsibility.
+
+<Code language="python">{getTypingExample('estimates.py')}</Code>
+
+JSON decoding can produce objects, arrays, text, numbers, booleans, and nulls; its return type is dynamic. Assigning it to object establishes an explicit checking boundary, not a conversion. After confirming a list, pass every element to non_negative_int, whose parameter is object. Only a validated value enters the result. Internal operations receive validated minutes but retain explicit rules so another runtime caller cannot bypass the business policy.
+
+`type(value) is int` deliberately means ordinary integers, excluding bool and integer subclasses. Python's type relationships make bool a subclass of int, so mypy may accept it. In this business contract true is not one minute. General-purpose libraries may legitimately accept subclasses; this is not advice to use exact type checks everywhere.
+
+<Code language="python">{getTypingExample('errors/bool_static.py')}</Code>
+
+```bash
+uv run --locked python -m mypy errors/bool_static.py
+uv run --locked python -m errors.bool_static
+```
+
+The checker passes; runtime validation raises ValueError. This is reproducible evidence that static types and business rules differ. The summary return type describes a homogeneous mapping; exact keys and relationships also depend on implementation, tests, and documentation.
+
+## 8. Run the complete program and explain its choices
+
+<Code language="python">{getTypingExample('app.py')}</Code>
+
+```bash
+uv run --locked python app.py
+```
+
+```text
+[30, 0, 15]
+{'count': 3, 'minutes': 45}
+[30, 0, 90, 15]
+```
+
+The 90-minute item does not fit, but selection continues and includes the later 15. Zero is valid and retained. Omitting the budget includes every item. The returned list is a new container, not a destructive edit of the original. Static checking cannot prove the policy “skip rather than break,” so behavior tests remain necessary.
+
+## 9. Test behavior, not the appearance of complete annotations
+
+<Code language="python">{getTypingExample('tests/test_estimates.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q
+```
+
+The normal suite contains eight tests. A loop exercising several bad values does not produce several pytest test cases; we retain L09's ordinary tests until parametrization is taught in L13. Observe syntax errors, shape errors, invalid values, zero budget, continuing after a skipped item, and unchanged input. Deliberately introduce early termination into selection and require a test to fail, rather than checking only the output type.
+
+<Code language="python">{getTypingExample('errors/bad_json.py')}</Code>
+
+```bash
+uv run --locked python -m errors.bad_json
+```
+
+The JSON syntax is valid, but the first boolean element triggers ValueError. Do not diagnose this business rejection as a JSON parser defect. Nor should you swallow all exceptions and return an empty list: that would erase the difference between no tasks and broken input.
+
+## 10. Guided repairs without replacing understanding
+
+First copy static_errors and fix the three errors without Any, cast, or ignore directives. State a business policy for the None branch. Next replace the budget check with truthiness and find a minimal counterexample. Finally explain why annotating baseline does not make it safe to accept JSON received over a network.
+
+<details>
+<summary>Hints and checking directions</summary>
+
+The None branch can deliberately reject the value or return a meaningful result; it cannot pretend None is int. Repair textual values or validate them at a separate parsing boundary. A zero budget with [1, 0] exposes an implementation that mistakes zero for unlimited. The baseline still has no external array-shape checks or rejection of bool, negatives, and text. Annotations do not insert those checks.
+
+</details>
+
+## 11. Independent variation: the first value over a limit
+
+Do not open the answer yet. Implement first_over: accept a minutes list and a non-negative integer limit, validate **all** elements, then return the first integer strictly greater than the limit in original order. Return None if there is no match. Reject booleans, negatives, floats, and text. Do not mutate the input. An early match must not excuse a bad later element.
+
+<Code language="python">{getTypingExample('exercises/first_over.py')}</Code>
+
+This is explicitly an exercise starter that raises NotImplementedError, not a complete implementation. Independently annotate and test empty input, equality to the limit, several matches, a match followed by bad data, zero, no match, and unchanged input. Run both mypy and pytest against your own work and record the two results separately.
+
+<details>
+<summary>Independent reference implementation and tests</summary>
+
+<Code language="python">{getTypingExample('solutions/first_over.py')}</Code>
+
+<Code language="python">{getTypingExample('solutions/test_first_over.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_first_over.py
+```
+
+The two loops express policy, not a performance demonstration. The first validates everything; the second finds the first match, so validation does not depend on match position. None has a specific business meaning here; a caller cannot immediately use the result in integer arithmetic.
+
+</details>
+
+## 12. Acceptance and a resumable checkpoint
+
+You are ready when you can annotate the old function without consulting the answer, distinguish defaults from nullability, reproduce static failure and a static-pass/runtime-rejection case, draw the JSON boundary, and finish the independent variation. Make tests detect a premature return that skips later validation. Documentation is allowed; memorizing diagnostic wording is not required.
+
+Before pausing, record Python/mypy versions, the selected checking scope, the last two successful commands, intentional failures, unverified inputs, and the next concrete step. Resume by running the normal suite, then isolate the pending failure instead of treating all of errors as a passing suite.
+
+L12 introduces classes and data models through instance ownership and explicit validation. Neither dataclass nor type hints will be presented as an automatic guard around every input.
+
+## 13. Primary references and limits
+
+Checked on September 28, 2026: [Python 3.13 typing](https://docs.python.org/3.13/library/typing.html), [mypy 2.3.1 common issues](https://github.com/python/mypy/blob/v2.3.1/docs/source/common_issues.rst), and [kinds of types](https://github.com/python/mypy/blob/v2.3.1/docs/source/kinds_of_types.rst). The mypy documentation site returned HTTP 403 during retrieval, so the matching official repository documentation was used instead of third-party summaries.
+
+This chapter establishes basic contract tools, not proof of algorithmic correctness, security, or every dynamic behavior. Introduce advanced types when a real need appears; do not let type gymnastics obscure validation and business reasoning.

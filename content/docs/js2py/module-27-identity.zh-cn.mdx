@@ -1,0 +1,232 @@
+---
+title: 身份与凭证生命周期：密码不是会话，登录不是授权
+description: 用 Argon2id、不透明 Bearer 会话与 PostgreSQL 建立受控账号、登录、过期和撤销，验证改密、停用、重启与日志脱敏。
+---
+
+import { getIdentityExample } from '@/lib/js2py-examples'
+
+## 1. 数据库有一个 user_id，不代表请求来自这个人
+
+D 系列为了演示关系和事务，曾让调用者填写 owner_id。那是明确的教学输入，不是认证。任意客户端都能改 JSON；TypeScript 类型、隐藏按钮和 CORS 都不能证明身份。本章把“谁在调用”从请求体移到服务验证过的凭证上。下一章才决定这个人有权操作哪些对象。
+
+| 本章契约 | 范围 |
+| --- | --- |
+| 前置 | D06：SQLAlchemy Session、Alembic 演进、专用 PostgreSQL 测试；已学同步 FastAPI、Pydantic、HTTP 和 fixture |
+| 新能力 | 受控创建用户、密码哈希、登录、服务端会话、过期、单会话/全部会话撤销、改密与停用、敏感错误脱敏 |
+| 独立验收 | 用真实 PostgreSQL 和真实 HTTP 证明错误/篡改/过期凭证被拒绝，改密和停用使旧令牌失效，重启不丢已提交会话 |
+| 暂不实现 | 公共注册、邮件找回、MFA、刷新令牌、对象授权、生产 TLS/限流/容量保证 |
+
+下载 [S01 完整实验](/learning-assets/js2py/s01-identity.zip)。三语 README、完整源码、迁移、测试和正向打包白名单都在实验里。它保留 D 的数据结构，但**不继续暴露 D 的自报身份接口**。每个安全实验独立，不导入另一章的源码，也不连接你的现有数据库。
+
+capstone 提到 JWT 作为一种方案；这里有意选择用户允许的**不透明随机会话令牌**，而不是假装实现 JWT。它没有客户端可解读的身份声明，每次请求都查数据库，以简化撤销教学。代价是依赖会话存储及其可用性，不能离线验证；没有 refresh 流程，过期后重新登录。
+
+## 2. 先分清四样东西，再跟随一次登录
+
+```text
+password -> Argon2id verify -> active user
+                                  |
+                     random bearer returned once
+                                  |
+DB: token digest + user_id + auth_version + expiry
+                                  |
+next request: Bearer -> digest lookup -> user/version/expiry checks
+                                  |
+                         authenticated actor
+```
+
+**用户记录**表示账号，不是一次请求。**密码**是用户知道的长期秘密。**密码哈希**让服务器能验证密码而不保存明文；它不是可以解密回原密码的密文。**会话令牌**是登录后临时持有的 Bearer 凭证：谁拿到它，谁就可能代表该会话发请求，因此不能把它当成普通调试字符串。
+
+浏览器路由状态中的 loggedIn=true 只是 UI 状态。服务必须独立验证每条受保护请求；前端不显示退出按钮、客户端忘记清掉令牌，都不应该改变服务端撤销结果。客户端收到一次登录 200，也不意味着它永久拥有身份，更不意味着可以访问别人的项目。
+
+## 3. 先有可审查迁移，不给旧用户塞默认密码
+
+固定基线于 **2026-09-28** 核验：CPython 3.13.15、uv 0.12.13、FastAPI 0.135.1、Uvicorn 0.42.0、Pydantic 2.12.5、SQLAlchemy 2.0.54、Alembic 1.20.0、psycopg[binary] 3.3.6、PostgreSQL 18.6、argon2-cffi 25.1.0、pytest 8.4.2。版本由公开 PyPI 的真实 uv.lock 固定，不要求追最新。
+
+<Code language="toml">{getIdentityExample('pyproject.toml')}</Code>
+
+完整迁移链沿用 001_base、002_expand、003_contract，包括 tasks.priority 的回填与约束，再增加 004_identity：
+
+<Code language="python">{getIdentityExample('migrations/versions/004_identity.py')}</Code>
+
+旧 users 只有 id/login，无法凭空变成可登录账号。迁移允许 password_hash 为 NULL，但把所有既有用户置为 is_active=false；数据库检查禁止“启用但没有哈希”的组合。auth_version 从 1 开始；created_at 对旧记录是迁移时刻，不是被补造出来的历史注册时间。password_changed_at 在明确设置密码后才写入。
+
+auth_sessions 只存令牌摘要、用户外键、签发时的认证版本、issued_at/expires_at 和 revoked_at。索引支持用户查询与过期清理，但索引不会替你验证凭证。所有时间列沿用 timestamptz；所有旧外键的 RESTRICT 语义保持不变。
+
+新库执行 upgrade head。已有 D 库必须先核对确实处在匹配的 003_contract；没有版本历史的库不能盲目 stamp。安全迁移的 downgrade 故意拒绝自动丢弃凭证历史。恢复要有审查过的计划，不是把版本号改回去继续运行旧的无认证服务。
+
+## 4. Argon2id 的工作不是“把密码快速变成一串字符”
+
+<Code language="python">{getIdentityExample('security.py')}</Code>
+
+阅读这个完整模块时先看 hasher、password_matches、login，不必一次记住每个函数。PasswordHasher 来自成熟的 argon2-cffi 库，明确选择 Argon2id；每次 hash 由库生成随机盐。盐、算法版本、内存/迭代参数和结果一起编码在保存的字符串中。验证时把这个编码结果和候选密码交给 verify，不自己拆字符串、比较自算密码哈希或设计加密算法。
+
+这里固定 m=65536 KiB、t=3、p=4，采用该库文档中的低内存配置量级。内存与计算成本用于提高离线猜测成本，也会占用你的服务器资源：参数不是越大越好，更不是吞吐承诺。上线前必须在目标机器测量，并结合并发预算与限流。两个用户选择同一个密码应得到不同哈希；本章实际测试了这一点。
+
+成功验证后检查 check_needs_rehash，必要时用当前参数重新哈希。此时才有明文密码可用，不能从旧哈希“升级计算出新密码”。这里只改变哈希编码策略，不把参数升级等同于用户改密；真正改密会提高 auth_version。
+
+未知账号也验证一个启动时生成的 dummy hash，避免“没有用户就立即返回”的明显分支差异；**不承诺端到端恒定耗时**。正确结构下的未知账号、错误密码、停用账号都返回同样的 401。格式不合法仍可返回脱敏的 422；不能把所有失败都混成数据库异常。
+
+<details>
+<summary>解释性答案：为何密码不能用 SHA-256，而会话令牌摘要却可以？</summary>
+
+人选的密码可能可猜，快速散列会让离线尝试便宜；需要成熟的带盐、可调成本密码哈希。会话令牌由 secrets.token_urlsafe(32) 生成，含 32 个随机字节，不是短密码或 user_id。对它做 SHA-256 用于数据库查找与避免保存原令牌，并没有自造密码哈希算法。数据库摘要也不是可直接提交的 Bearer，入口还检查原令牌格式。不过数据库泄露仍是安全事件，不能因只存摘要就取消数据库访问控制和备份保护。
+
+</details>
+
+## 5. 每次请求重新建立身份，不缓存“上次登录成功”
+
+login 先在事务中锁定用户，验证密码与启用状态，产生随机令牌，保存摘要及当时的 auth_version，提交后才返回 access_token。默认寿命 900 秒，可配置范围 60–3600 秒。本例使用应用的 UTC 时钟，生产多实例仍需时间同步；使用 UTC 不会自动修复错误的机器时钟。
+
+authenticate 按顺序执行：解析 Bearer 格式、对原令牌求摘要、查会话、锁用户、重新读取会话，然后检查启用状态、revoked_at、到期时间和版本一致性。任何失败都得到通用 401，并带 WWW-Authenticate: Bearer。查到摘要不是最后一步：数据库里保留着过期或已撤销记录也必须拒绝。
+
+为什么锁顺序写进代码？普通请求取用户共享锁，改密/全部撤销取用户排他锁；再按用户、会话、项目、任务的顺序取得后续锁。这样撤销会等待已经开始并持锁的授权操作结束，提交后到来的请求看见新版本。它不是“让已经发出的响应倒流回来”，也不是无代价的并发优化。会话先做一次无锁定位，再在用户锁之后重新读取，避免把定位时的旧状态当最终判断。
+
+<Code language="python">{getIdentityExample('db.py')}</Code>
+
+每个请求使用自己的 Session 和事务，绝不在线程之间共享 Session。engine 是连接池入口，不是用户会话；auth_sessions 是业务表。READ COMMITTED 在引擎配置中明确写出，SQL 参数隐藏且 echo=false。不要混淆三种“会话”。
+
+## 6. 输入、响应与日志是三条不同的泄露路径
+
+<Code language="python">{getIdentityExample('schemas.py')}</Code>
+
+SecretStr 让对象的常见字符串表示不直接显示秘密，但处理登录时仍必须通过 get_secret_value 取出明文供哈希验证。它不会给 HTTP 加密，不保证所有异常都自动脱敏，也不会替你控制终端历史。新密码规则为 15–128 个字符，不裁剪、不做隐式规范化；这不是“达到长度就一定安全”，泄露密码筛查与更完整账号恢复仍是上线门槛。
+
+<Code language="python">{getIdentityExample('app.py')}</Code>
+
+注意三个输出边界：UserPublic 只返回 id/login/is_active；TokenResponse 只在登录成功时将原 Bearer 交给客户端，并设置 no-store/no-cache 响应头；验证错误处理器只保留允许的 loc 和 type，不返回 input、ctx、msg 或原正文。连未知字段名也可能含敏感内容，所以错误位置中的未知名称被替换成 field。
+
+日志只记录固定事件与服务读取的 actor_id，不插入密码、令牌、Authorization 或提交的用户名。启动入口关闭访问日志，SQLAlchemy 隐藏参数；不要另外加一个“打印所有请求便于排错”的中间件把边界重新打穿。完整性错误转为通用 409；其他 SQLAlchemy 错误转为通用 503，不输出异常 repr/traceback。隐藏 SQL 参数本身不能证明驱动异常文本安全。标准错误响应可能回显输入，因此我们既检查响应，也扫描实际应用和 PostgreSQL 日志。这里不是对任何未来新增日志的自动安全保证。
+
+## 7. 本地启动：只创建自己的 PostgreSQL 集群
+
+工作目录是解压后的 s01-identity。下面环境位置与本轮其他实验一致：
+
+```bash
+export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR=/tmp/langshift-js2py-python-20260928
+export UV_CACHE_DIR=/tmp/langshift-js2py-uv-cache-20260928
+unset VIRTUAL_ENV UV_PROJECT_ENVIRONMENT UV_ACTIVE UV_PYTHON UV_CONFIG_FILE
+export UV_NO_CONFIG=true
+uv sync --locked
+uv run --locked python labdb.py start
+```
+
+labdb.py 使用 mkdtemp 创建私有目录和所有权标记，初始化 PostgreSQL 18.6，只开启该目录的 Unix socket；不复用现有 PGDATA，不连接默认 localhost:5432。isolation.py 在进程/fixture 建连接前清除 PGHOSTADDR、PGSERVICE 等全部 PG* 隐式配置；数据库子命令也用清理后的环境，不能只覆盖 DATABASE_URL 就宣称隔离。复制它输出的 DATABASE_URL export 行到终端，再执行：
+
+```bash
+uv run --locked alembic upgrade head
+uv run --locked python admin.py create-user Alice
+uv run --locked python serve.py --port 8061
+```
+
+管理员命令使用 getpass 两次输入密码，不从命令行参数、仓库常量或环境变量取默认密码，不打印密码。已存在但未配置的旧用户可以明确开通，已配置账号不能被 create-user 静默覆盖。没有公开注册接口。受邀使用时要安排可信的账号开通/首次改密流程，不把临时密码发在聊天日志里。
+
+<Code language="python">{getIdentityExample('admin.py')}</Code>
+
+服务固定监听 127.0.0.1，单工作进程，无热重载。缺少数据库配置会给出不包含实际 URL 的错误。/health/live 只证明进程响应；/health/ready 还检查数据库可用及迁移版本，但不等于完整安全审计。
+
+<details>
+<summary>启动辅助程序与安全清理答案</summary>
+
+<Code language="python">{getIdentityExample('labdb.py')}</Code>
+
+这个辅助程序是完整可读的隔离设施，不要求盲信“测试数据库”这个名字。检查私有目录、Unix socket、版本、所有权标记、实际 postmaster 数据目录，再允许重启或停止。stop 在确认自己的数据库已退出后删除这个临时数据目录；这与 restart 保留数据完全不同。不要换成按进程名批量杀 postgres，也不要拿用户自己的数据库试验这些命令。
+
+</details>
+
+## 8. 用不泄露令牌的真实客户端走完生命周期
+
+另开终端，进入同一实验目录。客户端固定请求回环地址，通过 `ProxyHandler({})` 显式禁用环境代理，拒绝跟随重定向，用 getpass 读密码，将令牌写入模式 0600 的本地会话文件，不打印原令牌。**不要 cat 这个文件，也不要提交或打包它。** 它是终端实验设施，不是建议浏览器把令牌长期放进 localStorage。仅把 URL 写成 127.0.0.1 不够：urllib 默认会读取 http_proxy，原本发给本地的密码也可能先到代理。回归测试设有值的代理环境、去掉 no_proxy，用自建回环代理/目标证明目标收到请求而代理为 0，重定向目标也为 0；不能假定操作系统默认会绕过代理。
+
+<Code language="python">{getIdentityExample('client.py')}</Code>
+
+```bash
+uv run --locked python client.py --port 8061 --session .session-alice.json login Alice
+uv run --locked python client.py --port 8061 --session .session-alice.json request GET /users/me
+cp -p .session-alice.json .session-before-change.json
+uv run --locked python client.py --port 8061 --session .session-alice.json change-password
+uv run --locked python client.py --port 8061 --session .session-before-change.json request GET /users/me
+```
+
+登录成功为 200，公开用户读取为 200，改密为 204 且正文为空，旧副本再请求为 401。客户端改密成功会删除当前本地令牌文件；服务端提高 auth_version 才是真正让所有旧令牌失效的原因。用新密码重新登录后再试两种撤销：
+
+```bash
+uv run --locked python client.py --port 8061 --session .session-alice.json login Alice
+uv run --locked python client.py --port 8061 --session .session-alice.json request POST /auth/logout-all
+uv run --locked python client.py --port 8061 --session .session-alice.json request GET /users/me
+```
+
+最后一步应为 401。单会话撤销路径是 /auth/logout，只设置当前会话 revoked_at，不影响另一个有效会话；/auth/logout-all 提升账号版本，连发起操作的令牌也失效。密码不是令牌，改密后不能继续把原令牌当新密码使用。
+
+<details>
+<summary>生命周期推演答案：停用后再启用，会不会复活旧令牌？</summary>
+
+不会。管理员 disable 把 is_active 置 false 并提升 auth_version；enable 再提升版本。旧会话即使没有过期、revoked_at 仍为空，也因版本不匹配而失败。启用后必须重新登录获得新版本会话。仅删除浏览器里的令牌不能替代服务端撤销；仅改密码哈希而不检查版本也不能自动撤销已经签发的令牌。
+
+</details>
+
+## 9. 真实失败、恢复与不会误判的重启
+
+在拥有 DATABASE_URL 的终端运行 admin.py disable Alice，再用已有令牌请求 /users/me，应为 401；登录也应被拒绝。enable Alice 后旧令牌仍为 401，重新登录才成功。输入错误密码或不存在账号时，状态与错误正文相同，不要根据错误文案向外泄露账号是否存在。
+
+```bash
+uv run --locked python admin.py disable Alice
+uv run --locked python admin.py enable Alice
+uv run --locked python -m pytest -q
+```
+
+<Code language="python">{getIdentityExample('tests/test_identity.py')}</Code>
+
+测试不仅调用模型：fixture 自己建立 PostgreSQL 18.6、迁移，再启动真实 Uvicorn，用标准库客户端发 HTTP。过期测试把**专用测试库**的 issued_at/expires_at 调整到过去，不把等待 15 分钟当唯一验证方法；篡改测试改变令牌字符；所有秘密只在临时测试内存中生成。测试记录不包含凭证值。
+
+<Code language="python">{getIdentityExample('tests/conftest.py')}</Code>
+
+保留数据库，Ctrl-C 停自己的 API，再启动同一命令，原有效令牌仍应可用；labdb.py restart 重启同一个自有数据库也保留已提交会话。测试实际做了这两种重启。相反，labdb.py stop 会明确删除整个临时数据目录，不应把人为删除数据误称为持久化失效。
+
+最终清理：先 Ctrl-C 停自己的 API，再运行 uv run --locked python labdb.py stop。只删除本实验自己创建的会话文件，不用通配符清理陌生目录。公开下载采用明确 allowlist，排除会话文件、环境、缓存、日志和凭证。
+
+## 10. 独立重建与会话数量变式
+
+**独立重建：** 在新目录只带环境和迁移文件，按本章契约自己写输入/公开模型、哈希与会话服务、HTTP 入口和受控账号命令。不要导入参考 app。验收必须包含错误密码、未知用户、篡改、过期、单次/全部撤销、改密、停用再启用、错误脱敏与真实重启。解释每条 SQL 读取为什么不能被客户端状态替代。
+
+**变式：** 增加 GET /users/me/session-count，只统计当前用户、当前认证版本、未撤销且未到期的会话。不能返回摘要或令牌，也不能把数据库所有历史会话数量当答案。两个有效登录应计 2，撤销其中一个后计 1；全部撤销并重新登录后计 1，Bob 的会话不能影响 Alice。
+
+<details>
+<summary>独立变式参考答案</summary>
+
+<Code language="python">{getIdentityExample('solutions/session_count.py')}</Code>
+
+退出旧服务，从同一实验根目录运行：
+
+```bash
+uv run --locked python serve.py --port 8061 --app solutions.session_count:app
+uv run --locked python client.py --port 8061 --session .session-alice.json request GET /users/me/session-count
+```
+
+请求命令在另一终端执行，使用当前有效会话。答案明确复用本下载包的应用，不依赖另一章。正常 tests 同时启动这个扩展入口，验证基础接口和变式；独立重建仍需提交你自己的实现，不能只复述返回的数字。
+
+</details>
+
+## 11. 暂停记录与上线门槛
+
+```text
+checkpoint: S01 credential lifecycle
+cwd: <my extracted s01-identity directory>
+migration: 004_identity
+last_success: password change -> 204; old bearer -> 401
+credential_values: never copied into notes
+api: stopped in its owning terminal
+postgres: owned cluster retained for next session
+next: labdb.py status; start API; login with current password
+```
+
+记录状态，不记录秘密。此次验收不证明 TLS、登录限流、请求大小限制、哈希容量、泄露密码筛查、账号找回、MFA、生产日志管线、时钟同步或对象权限已经完成。HTTP 只允许 loopback；真实上线必须补齐并实测相关门槛。数据库和备份包含敏感哈希及会话元数据，需要受控访问。若改成 Cookie，还要另教 CSRF、SameSite、Secure、HttpOnly，不能借用本章 Bearer 流程的假设。
+
+## 12. 官方依据与真实证据
+
+核验日期 2026-09-28。实验 SOURCES.md 保存完整链接和版本来源，VERIFICATION.md 保存实际命令、case 数和未验证边界。语法、模型探针与网页编译从不当作 PostgreSQL/API 验收。
+
+- [argon2-cffi API](https://argon2-cffi.readthedocs.io/en/stable/api.html) 与 [参数选择](https://argon2-cffi.readthedocs.io/en/stable/parameters.html)：Argon2id、随机盐、验证与重新哈希。
+- [Python secrets](https://docs.python.org/3.13/library/secrets.html)：密码学随机令牌。
+- [OWASP Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)、[Session Management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)、[Logging](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)：密码、会话与日志边界。
+- [FastAPI 错误处理](https://fastapi.tiangolo.com/tutorial/handling-errors/) 与 [SQLAlchemy 事务](https://docs.sqlalchemy.org/en/20/orm/session_transaction.html)：异常适配及提交/回滚责任。

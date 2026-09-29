@@ -1,0 +1,15 @@
+[
+  "README.md",
+  "bindings.py",
+  "scalar_types.py",
+  "numbers.py",
+  "boolean_none.py",
+  "strings.py",
+  "conversions.py",
+  "formatting.py",
+  "task_estimate.py",
+  "errors/text_plus_number.py",
+  "errors/invalid_integer.py",
+  "solutions/fix_minutes.py",
+  "solutions/reading_plan.py"
+]

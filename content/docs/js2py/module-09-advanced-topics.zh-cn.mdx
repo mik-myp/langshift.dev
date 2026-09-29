@@ -1,179 +1,208 @@
 ---
-title: "Python 高级主题与学习资源"
-description: "探索 Python 的高级特性，如装饰器、生成器和元类，并获取持续学习的资源路径。"
+title: 基础自动化测试
+description: 从普通断言开始，理解 pytest 的发现、执行与失败报告；独立验证正常、边界、错误与输入隔离，不提前要求装饰器或 fixture。
 ---
 
-## 1. 引言
+import { getTestingExample } from '@/lib/js2py-examples'
 
-### 超越基础
+## 1. 从“看起来正确”到可以重复检查的证据
 
-你已经掌握了 Python 的核心概念和常用库。现在，是时候探索一些更高级、更强大的特性了。这些特性将帮助你编写更简洁、更高效、更具表现力的代码，并让你真正领会到 Python 设计的精妙之处。
+前面你已经亲手观察程序输出，但每次改一个分支，都靠记忆重试所有输入很容易漏掉边界。自动化测试不是让计算机替你决定需求，而是把**你已经写明的预期**变成可以重复执行、失败时可定位的检查。
 
-本模块将简要介绍几个 Python 的高级主题，并为你提供一个持续学习的路线图和资源列表。
+一次漂亮输出不能证明空数组、零、错误类型和第二次调用也正确。另一方面，测试全部通过也只证明已执行的断言：如果测试没被发现、根本没调用业务函数，或者预期本身错误，绿色没有你想象的含义。
 
-> 💡 **学习策略**：不要试图一次性掌握所有高级概念。理解它们的核心思想，并在实际编码中慢慢应用。当你遇到需要它们解决的问题时，再回过头来深入学习。
+| 契约 | 本章范围 |
+| --- | --- |
+| 前置 | 函数、异常、模块、L07 的 with 使用、L08 的环境 |
+| 新能力 | 普通测试函数、断言、发现与收集、错误断言、输入隔离、失败诊断 |
+| 独立验收 | 根据需求写出正常、空、边界、非法输入与重复调用测试，并证明测试能抓到故意缺陷 |
+| 暂不要求 | 装饰器、参数化、fixture 参数、mock、异步和数据库测试 |
 
-## 2. 装饰器 (Decorators)
+下载 [L09 完整实验](/learning-assets/js2py/u09-testing.zip)，在解压后的 `u09-testing` 目录执行命令。2026-09-28 实测 CPython 3.13.15、uv 0.12.13、pytest 8.4.2，不宣称这些永远是最新版本。
 
-装饰器是 Python 中一个非常强大的功能，它允许你动态地修改或增强函数或类的行为，而无需直接修改其源代码。这在 JavaScript 中可以通过高阶函数（Higher-Order Functions）来实现。
+## 2. 测试先是一段普通 Python
 
-<PythonEditor title="装饰器 vs. 高阶函数" compare={true}>
-```javascript !! js
-// JavaScript (高阶函数)
-function withLogging(fn) {
-  return function(...args) {
-    console.log(`Calling function: ${fn.name}`);
-    const result = fn(...args);
-    console.log(`Function ${fn.name} finished.`);
-    return result;
-  };
-}
+本章业务契约很小：输入是 list，每项是恰好有 minutes 和 done 的 dict；minutes 为普通非负 int，done 为 bool；只汇总未完成项。空列表结果为零，不修改输入。先读业务函数，再读一段不用测试框架的检查：
 
-function add(a, b) {
-  return a + b;
-}
+<Code language="python">{getTestingExample('study.py')}</Code>
 
-const loggedAdd = withLogging(add);
-loggedAdd(2, 3);
+<Code language="python">{getTestingExample('first_check.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python first_check.py
 ```
 
-```python !! py
-# Python (装饰器)
-import functools
-
-def with_logging(func):
-    @functools.wraps(func)  # 保持元信息
-    def wrapper(*args, **kwargs):
-        print(f"Calling function: {func.__name__}")
-        result = func(*args, **kwargs)
-        print(f"Function {func.__name__} finished.")
-        return result
-    return wrapper
-
-@with_logging
-def add(a, b):
-    return a + b
-
-add(2, 3)
-```
-</PythonEditor>
-
-## 3. 生成器 (Generators)
-
-你已经接触过生成器，但它们的能力远不止于 `yield` 一个值。生成器是实现高效迭代、处理大数据流和协程的基础。
-
-<PythonEditor title="生成器处理大数据" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript (Node.js Stream)
-const fs = require('fs');
-const readline = require('readline');
-
-async function processFile(filePath) {
-  const fileStream = fs.createReadStream(filePath);
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity
-  });
-
-  for await (const line of rl) {
-    // 逐行处理，内存占用低
-    console.log(line);
-  }
-}
+```text
+Observed: 20
+Checked
 ```
 
-```python !! py
-# Python (生成器函数)
-def read_large_file(file_path):
-    with open(file_path, "r") as f:
-        for line in f:
-            yield line.strip()
+print 只让人看见结果；assert 把“应该等于 20”变成了可执行判断。条件为真就继续，为假则抛出 AssertionError；第二行成功提示不代表打印本身进行了检查。
 
-for line in read_large_file("my_large_file.txt"):
-    # 逐行处理，内存占用低
-    print(line)
+文件顶部导入仍遵守 L06：调用发生在检查脚本，不在业务模块。测试有权给函数传入数据，不能偷偷依赖上一段终端里留下的变量。
 
-# 生成器表达式 (更简洁)
-lines = (line.strip() for line in open("my_large_file.txt"))
-for line in lines:
-    print(line)
-```
-</PythonEditor>
+## 3. 先认识一次真正的失败
 
-## 4. 上下文管理器 (Context Managers)
+<Code language="python">{getTestingExample('wrong_check.py')}</Code>
 
-你已经使用过 `with open(...)`，这就是上下文管理器。它们是确保资源（如文件、网络连接、数据库会话）被正确获取和释放的优雅方式。
-
-<PythonEditor title="自定义上下文管理器" compare={true} canRun={false}>
-```javascript !! js
-// JavaScript (try...finally)
-function manageResource() {
-  const resource = acquireResource();
-  try {
-    // 使用 resource
-  } finally {
-    releaseResource(resource);
-  }
-}
+```bash
+uv run --locked python wrong_check.py
 ```
 
-```python !! py
-# Python (自定义上下文管理器)
-from contextlib import contextmanager
+预期 AssertionError、非零退出，最后的 Not reached 不会打印。函数算出了 20，故意错误的预期要求 99。这里应该修复测试预期，而不是把正确业务改成永远返回 99；判定依据必须回到需求。
 
-@contextmanager
-def managed_resource(*args, **kwargs):
-    resource = acquire_resource(*args, **kwargs)
-    try:
-        yield resource
-    finally:
-        release_resource(resource)
+测试断言不是生产输入校验。普通 Python 使用优化选项可能移除 assert，且 assert 的语义是检查程序假设，而不是约定的用户错误响应。业务契约仍用 if/raise ValueError 明确拒绝非法值。不要用 `python -O` 做本章验收，也不要在 assert 表达式里塞入必需业务副作用。
 
-# 使用
-with managed_resource() as res:
-    # 使用 res
-    pass
+## 4. pytest 帮忙发现和报告，不替你设计预期
+
+逐个手写调用很快会难以维护。pytest 发现符合规则的测试，执行它们，捕获失败，汇总结果，并提供非零退出供后续自动化使用。它不知道“完成项是否应计入时间”，那仍是你的契约。
+
+<Code language="toml">{getTestingExample('pyproject.toml')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python -m pytest --version
 ```
-</PythonEditor>
 
-## 5. 元类 (Metaclasses)
+新配置 `[dependency-groups]` 的 dev 组保存开发时使用的依赖。pytest 不属于业务运行依赖，所以 project.dependencies 仍为空。uv 默认安装 dev 组；以后省略开发依赖的环境没有 pytest 是有意选择，不代表业务库坏了。
 
-元类是 Python 中最深奥、最强大的概念之一。简单来说，元类是“创建类的类”。它们允许你在创建类时动态地修改类。这是一个非常高级的主题，通常在框架和库的开发中使用。
+`[tool.pytest.ini_options]` 的 testpaths 指定默认从 tests 目录找测试，故意错误的 errors/exercises 不混入正常验收。`python -m pytest` 使用当前项目 Python 运行已安装模块；从项目根目录启动也让普通本地模块可导入。不要靠全局 pytest、修改 sys.path 或编辑器的偶然工作目录解决导入问题。版本命令应报告 pytest 8.4.2。
 
-> **思考一下**：在 JavaScript 中，`class` 语法是 `function` 的语法糖。你可以把元类想象成是能够拦截和修改 `class Foo {...}` 这个定义的钩子。
+## 5. 一份完整的基础测试文件
 
-## 6. 持续学习的资源
+<Code language="python">{getTestingExample('tests/test_study.py')}</Code>
 
-Python 的学习之路是永无止境的。以下是一些高质量的资源，可以帮助你不断进步。
+```bash
+uv run --locked python -m pytest -q
+uv run --locked python -m pytest --collect-only -q
+uv run --locked python -m pytest -q tests/test_study.py::test_empty_input_is_zero
+```
 
-### 官方文档
+文件名 test_study.py 和函数名 test_... 满足发现约定。普通 def 定义函数，不要在文件末尾手动调用；pytest 在收集之后调用它们。第一个命令应是 **6 passed**，第三个只运行空输入测试，应是 **1 passed**；耗时、路径和终端装饰不是固定文本。
 
-*   **[Python 官方文档](https://docs.python.org/3/)**: 永远是第一手、最权威的资料。
-*   **[Python 教程](https://docs.python.org/3/tutorial/index.html)**: 官方入门教程，内容详尽。
+`-q` 减少输出，不改变正确性要求。`--collect-only` 只列出收集项而不执行业务检查：列出了六项不等于六项都通过。`文件::函数` 用于定位一个测试；修复后仍要回到完整套件，避免只验证局部。
 
-### 社区与资讯
+每项测试可以按“准备输入 → 调用 → 验证”阅读。第一项同时含完成与未完成任务，能区分 if done 与 if not done；只用空数组则无法检查这个分支。测试数据应让错误有机会显现。
 
-*   **[Real Python](https://realpython.com/)**: 大量高质量的教程和文章。
-*   **[PyCoder's Weekly](https://pycoders.com/)**: 一份流行的 Python 周报，涵盖新闻、文章和项目。
-*   **[Full Stack Python](https://www.fullstackpython.com/)**: 涵盖了从开发到部署的方方面面。
+## 6. 预期抛错也能是成功测试
 
-### 练习平台
+第五项的 `with pytest.raises(ValueError) as caught` 声明：块内必须抛出 ValueError 或其子类。没有抛错，pytest 会判失败；抛出其他类别，测试也不会假装成功。正常完成检查后，caught.value 是捕获的异常对象，块外再验证约定的消息。
 
-*   **[LeetCode](https://leetcode.com/)**: 练习算法和数据结构。
-*   **[HackerRank](https://www.hackerrank.com/domains/python)**: 提供各种 Python 编程挑战。
-*   **[Codewars](https://www.codewars.com/?language=python)**: 通过解决编程“套路”（kata）来提升技能。
+这是在使用库提供的上下文行为，语法沿用 L07 的 with；不是文件资源，也不要求现在实现自定义上下文协议。将真正应抛错的那一次调用放在块内，不要把许多无关操作包进去，让其他 ValueError 冒名顶替。
 
-### 推荐书籍
+`pytest.raises(Exception)` 通常过宽：拼写错误导致的异常也可能让测试变绿。只有当具体文本是稳定业务契约时才逐字检查消息；解释器诊断措辞可能随版本变化。这里自己定义的 minutes 消息是稳定契约，不匹配整段 traceback。正则 match 属于后续可选工具，本章不靠它完成验收。
 
-*   **《Fluent Python》**: 深入讲解 Python 的高级特性和设计哲学。
-*   **《Python Cookbook》**: 包含大量实用的编程技巧和解决方案。
+## 7. 为什么输入要在每项测试里新建？
 
-## 7. 总结
+若把可变列表放在模块顶部，一个测试修改它，后一个测试就可能依赖执行顺序。单独跑时绿、一起跑时红，常常暴露这种污染，而不是 pytest 随机做错了事情。
 
-恭喜你完成了这个从 JavaScript 到 Python 的学习系列！
+本章每项测试自己构造小输入，不依赖“前一项已经创建过任务”。第四项不只检查返回值，还连续调用两次并检查原输入，区分纯计算与隐藏的累加/修改。
 
-你已经从一个 JavaScript 开发者的视角，全面地了解了 Python 的核心概念、常用库和开发实践。你不仅学会了 Python 的语法，更重要的是，你建立了 Python 思维，并能够将它与你现有的编程知识体系进行关联和对比。
+测试里多个 assert 可以围绕同一个可解释行为；不要把毫无关系的几十种情况塞进一个函数，一旦第一个失败后面的都不会执行。独立测试的目的不是追求固定行数，而是让失败名称能指向违反的契约。网络、真实用户文件和环境时钟都不是本章函数的输入，因此不应偷偷混进这些单元测试。
 
-编程语言只是工具，解决问题的思想是相通的。希望这个系列能为你打开一扇新的大门，让你在未来的开发工作中多一个强大的选择。
+## 8. 绿色也可能没有证据
 
-**开启你的 Python 之旅吧！**
+下面是**刻意错误的测试设计**：
+
+<Code language="python">{getTestingExample('errors/test_false_green.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q errors/test_false_green.py
+```
+
+它会显示 1 passed，但只检查了函数对象的真值，从未调用业务函数。把业务返回值改成荒谬结果，它仍可能通过。这不是框架漏洞，是断言没有关联需求。
+
+验证测试质量的最小实验：在副本中把正确实现的 if not done 改为 if done，保留测试不变。混合任务用例应失败；恢复实现后再跑绿。还可以去掉 minutes 的类型检查，bool 拒绝用例应失败。不要把这种临时缺陷留在规范源码，也不要通过更改预期把缺陷“认证”为正确。
+
+这叫检查测试是否有能力发现具体缺陷，不意味着通过几个变异就证明覆盖所有错误。代码覆盖率也只是执行范围线索，不会替你验证正确的业务预期。
+
+## 9. 区分测试失败、收集错误和没有测试
+
+<Code language="python">{getTestingExample('errors/test_wrong_expectation.py')}</Code>
+
+<Code language="python">{getTestingExample('errors/not_discovered/check_totals.py')}</Code>
+
+<Code language="python">{getTestingExample('errors/test_import_failure.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q errors/test_wrong_expectation.py
+uv run --locked python -m pytest -q errors/not_discovered
+uv run --locked python -m pytest -q errors/test_import_failure.py
+```
+
+这三条命令刻意非零退出，分别观察，不要用最后一条的成功与否推断前两条。第一条执行断言后失败，退出码 1；第二条默认模式找不到 check_totals.py，退出码 5；第三条在收集导入阶段就报错，本轮实测退出码 2。
+
+最后一个错误发生在测试函数运行前，所以不能通过修改期望数字来修复。第二个文件内的函数虽叫 test_empty，文件名仍不符合目录发现约定；在副本改为 test_totals.py，再用 collect-only 和真正执行分别验证。
+
+从失败名称和具体 assert 开始阅读，比较实际值与预期值，回到输入与需求，然后才看实现。红色也可能是测试有误；没有收集到内容则不是“所有测试通过”。自动化不能把所有非零退出都改成绿色继续。
+
+## 10. 三层练习
+
+### A. 解释观察
+
+不运行先说明：为何六个测试收集成功还不等于通过？为什么 AssertionError 与缺模块应该走不同排查路径？为何 bool 不能被普通 int 的业务约定接受？
+
+<details>
+<summary>解释核对——不以背命令代替机制</summary>
+
+收集只找出待调用函数；执行才进行断言。缺模块可能阻止收集或启动，与已执行但值错误不同。Python 的 bool 与 int 有继承关系，但本章要求普通整数，所以契约显式使用 type(... ) is int。业务要求与语言可执行性不是同一层。
+
+</details>
+
+### B. 用红色定位修复
+
+<Code language="python">{getTestingExample('exercises/broken_study.py')}</Code>
+
+<Code language="python">{getTestingExample('exercises/test_broken_study.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q exercises/test_broken_study.py
+```
+
+两项应失败。先按需求修复分支，不改变测试预期；再为不完整校验增加失败用例，完善实现。保留红→绿证据，而不是把 wrong implementation 整段替换后只看绿。
+
+<details>
+<summary>修复核对——最小修复与完整契约不同</summary>
+
+将条件改为 not done 可修复这两项观察，但仍缺少根、字段、类型与非负校验。新增非法输入测试后，参考 study.py 的验证责任逐步补齐。两个绿只说明这两项，不代表契约完整；不要把 bool、字符串和缺失字段都转换成成功数据。
+
+</details>
+
+### C. 独立实现剩余预算
+
+从空目录建立独立项目，声明 pytest 为开发依赖，创建 budget.py 与 tests/test_budget.py。`remaining_budget(budget, spent)` 要求：budget 是普通非负 int；spent 是普通 list，每项也是普通非负 int；返回 budget 减总支出，负结果截为 0；不修改输入。
+
+自己实现并写测试，至少覆盖 20/[5,8]→7、空列表、恰好耗尽、超支、零预算、非法预算、非法根与条目、连续调用和输入不变。禁止为了测试而调用参考实现。完成后临时改成“总是返回 0”，你的正常/空预算用例应抓住它；恢复后完整跑绿。
+
+<details>
+<summary>独立参考——先实现业务和自己的预期</summary>
+
+<Code language="python">{getTestingExample('solutions/budget/budget.py')}</Code>
+
+<Code language="python">{getTestingExample('solutions/budget/tests/test_budget.py')}</Code>
+
+```bash
+cd solutions/budget
+uv sync --locked
+uv run --locked python -m pytest -q
+cd ../..
+```
+
+参考套件有 9 项普通函数测试，不需要参数化、fixture、类或 mock。检查它为什么会抓住错误，而不是只复刻测试名称。
+
+</details>
+
+## 11. 退出条件、中断记录与下一步
+
+你应该能独立写测试，区分生产校验和测试断言，解释收集/执行/退出码，定位一项红色，证明一次故意缺陷被捕获，并从自己的声明恢复测试环境。
+
+暂停时记录项目目录、最后完整测试命令、收集与通过数量、是否还有刻意变异、最后一个失败的名称及原因。回来先确认临时缺陷是否恢复，再运行完整套件，不能把“上次有绿色截图”当成当前状态。
+
+下一章 L10 把模块、文件、环境和这些普通测试组合成第一个独立可复现项目。不是立即跳入 Web，也不把本章的绿色结果当成整个后端已经可靠。
+
+## 12. 资料与范围
+
+2026-09-28 核对 [pytest 入门](https://docs.pytest.org/en/8.4.x/getting-started.html)、[断言与错误断言](https://docs.pytest.org/en/8.4.x/how-to/assert.html)、[发现与项目实践](https://docs.pytest.org/en/8.4.x/explanation/goodpractices.html)、[导入路径说明](https://docs.pytest.org/en/8.4.x/explanation/pythonpath.html)、[退出码](https://docs.pytest.org/en/8.4.x/reference/exit-codes.html)和 [uv 依赖组](https://docs.astral.sh/uv/concepts/projects/dependencies/)。
+
+普通测试函数足以开始建立证据。后续再在实际需要时讲装饰器、fixture 和外部故障替身；本章不通过提前堆工具名来假装覆盖测试生态。

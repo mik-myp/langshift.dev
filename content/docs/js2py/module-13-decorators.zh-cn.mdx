@@ -1,0 +1,239 @@
+---
+title: 装饰器与声明式接口：先展开，再使用
+description: 从函数值和闭包推导装饰器，区分求值、应用、业务调用与注册，验证叠加顺序，并在已理解的函数上使用 pytest 参数化测试。
+---
+
+import { getDecoratorExample } from '@/lib/js2py-examples'
+
+## 1. 为什么不能靠背 @ 语法学习框架？
+
+下一阶段会遇到路由声明、依赖和测试配置。它们看起来像“给函数贴一个标签”，但有些修改函数，有些只登记函数，还有些在导入时就失败。如果不知道执行时机，很容易把启动错误当请求错误，或者以为每次调用都会重新注册。
+
+本章把 @ 展开为你已认识的函数调用，不先引入服务器。主产物是一份内存中的操作登记表、两个范围明确的包装器，以及可解释的参数化测试。它们不是通用装饰器库，更不是安全认证机制。
+
+| 本章契约 | 范围 |
+| --- | --- |
+| 前置 | L04 函数、L06 模块、L12 类与 dataclass，L09 普通测试 |
+| 新能力 | 函数值、闭包、装饰器应用、注册与包装、参数化、执行顺序 |
+| 验收 | 展开并实现小装饰器；解释导入与调用的区别；用参数化测试已有规则 |
+| 暂不要求 | 任意签名的泛型包装、异步包装、缓存、重试、框架内部实现 |
+
+下载 [L13 完整实验](/learning-assets/js2py/u13-decorators.zip)，进入 u13-decorators。固定基线为 CPython 3.13.15、uv 0.12.13、pytest 8.4.2。
+
+## 2. 先把“函数本身”与“调用结果”分开
+
+写出函数名得到一个可调用对象；在后面加括号才发起调用。把函数交给另一个函数，和把字符串或列表交过去一样，是传值；并不是复制一份源代码。
+
+```python
+def double(value: int) -> int:
+    return value * 2
+
+
+def apply(function, value: int) -> int:
+    return function(value)
+
+
+alias = double
+print(alias is double)
+print(apply(double, 4))
+```
+
+```text
+True
+8
+```
+
+若写 apply(double(4), 4)，先计算出 8，再把不可调用的整数作为 function，错误发生在后面的调用处。这是回调和高阶函数的普通机制，不需要新语言魔法。后续源码用 `Callable[[int], int]` 描述“接收一个 int、返回 int 的可调用对象”；它来自 collections.abc，不会自动验证参数。
+
+## 3. 闭包保存配置，不等于每次都重新创建配置
+
+外层函数可以定义并返回内层函数。返回后，内层仍能访问被它引用的外层变量。这里需要的只是“记住配置”，不需要修改外层绑定、nonlocal 或复杂函数式术语。
+
+```python
+def make_fee(fee: int):
+    def add(value: int) -> int:
+        return value + fee
+    return add
+
+
+small = make_fee(3)
+large = make_fee(10)
+print(small(4), large(4), small(5))
+```
+
+```text
+7 14 8
+```
+
+make_fee(3) 创建一个保留该次 fee 绑定的函数；调用 small 时使用它。这里的整数配置不会因另一次 make_fee(10) 改变。若闭包引用同一份可变列表，列表后来变化仍可见，闭包不是自动深复制快照。
+
+<details>
+<summary>解释题答案：外层和内层分别执行几次？</summary>
+
+上例外层执行两次，产生两个函数；small 的内层执行两次，large 的内层一次。返回函数不等于立即执行它。如果在外层打印配置日志，它不会因为 small 被再次调用而自动重复出现。
+
+</details>
+
+## 4. 三个参与者：原函数、装饰器、绑定回去的结果
+
+一个装饰器接收函数并返回一个结果，函数名随后绑定到这个结果。常见结果仍是可调用对象，但 Python 不保证你一定返回函数，所以漏 return 也能完成定义，只是名字变成 None。
+
+double_result 返回 wrapped。wrapped 闭包持有原函数，业务调用时先执行它，再把结果乘二。原函数不是在装饰阶段执行的；装饰阶段只是建立新调用关系。这个包装器仅处理一个 int 参数和 int 返回值，不宣称适合任意关键字、方法、异步函数或资源管理器。
+
+<Code language="python">{getDecoratorExample('decorators.py')}</Code>
+
+阅读顺序：先 double_result；再 add_fee 外层返回 decorate，decorate 收到原函数后返回 wrapped，wrapped 最后处理业务参数。三个层次依次回答“配置是什么”“装饰谁”“这次调用的数据是什么”。外层负 fee 检查在配置时执行，不等到一次业务调用才发现。
+
+为避免把本章变成嵌套 Callable 的类型阅读练习，重复复杂形状的工厂返回注解暂时省略；关键包装函数的简单签名保留。这里没有要求整个项目运行 L11 的严格函数声明配置，也没有用缺注解声称静态检查已覆盖一切。
+
+## 5. wraps 保留的是身份说明，不是原对象身份
+
+`@wraps(function)` 同样是装饰器形式：对刚定义的 wrapped 设置名称、文档等元数据，并记录被包装对象，方便诊断和工具检查。它不把 wrapped 变回原函数，也不自动验证业务输入或适配任意参数。
+
+因此装饰后的函数可以显示原来的 __name__，同时 `wrapped is function` 仍为 False。元数据像便于追踪的说明牌，不是功能实现。如果包装函数吞掉了异常，wraps 也不会替你恢复正确错误政策。
+
+这里先用已解释的“函数接收函数并返回结果”理解 wraps。不要陷入追踪标准库内部实现的无限递归；当前需要验证的是可调用关系、行为和可观察元数据。
+
+## 6. 注册与包装：看返回值和保存了哪个对象
+
+register 接收一个登记表和名字，返回 decorate。应用 decorate 时检查重名，把收到的函数存进字典，并原样返回它。它没有增加每次调用的行为；登记表只在当前 Python 进程内存在，不是持久化数据库，也不是自动监听端口的服务器。
+
+<Code language="python">{getDecoratorExample('app.py')}</Code>
+
+这一段定义 cost 时就登记操作，main 仅在作为入口运行时调用。通过导入建立声明是显式选择的行为，和 L06 警惕“导入时意外写真实文件”不冲突：小型受控注册可解释，外部副作用仍需要谨慎。重复导入通常使用模块缓存，不应靠每次请求重新导入触发注册。
+
+正常叠加后登记表保存最终包装结果，所以直接调用 cost 与经表查找调用表现一致。登记表键错了会出现普通 KeyError，本章没有把它包装成 HTTP 404；HTTP 语义在 H02 建立。
+
+## 7. 顺序分两件事：表达式求值与应用
+
+遇到函数定义时，装饰器表达式按从上到下顺序求值；得到的装饰器在函数上从下到上应用。这不是“整段代码完全倒着运行”。观察完整时序实验：
+
+<Code language="python">{getDecoratorExample('timing.py')}</Code>
+
+```bash
+uv sync --locked
+uv run --locked python timing.py
+```
+
+```text
+['evaluate outer', 'evaluate inner', 'apply inner', 'apply outer']
+['evaluate outer', 'evaluate inner', 'apply inner', 'apply outer', 'call 4', 'call 5']
+```
+
+两次业务调用只增加 call，不重新求值或装饰。对于主例中互不干扰的工厂，可以这样展开：
+
+<Code language="python">{getDecoratorExample('expansion.py')}</Code>
+
+```bash
+uv run --locked python expansion.py
+```
+
+```text
+11 11
+```
+
+展开式用于解释本例，不是承诺对所有含有名称查找副作用的复杂装饰器做机械源码替换。先得到注册装饰器和加费装饰器，再创建函数，最后把双倍、加费、注册的结果绑定回来。
+
+## 8. 换顺序，行为和登记对象都可能变化
+
+<Code language="python">{getDecoratorExample('order.py')}</Code>
+
+```bash
+uv run --locked python order.py
+```
+
+```text
+14
+7 4
+```
+
+先加 3 再乘 2，与先乘 2 再加 3 不同。第二组把 register 放在内部，登记表保存原函数，而外部名字后来指向加费包装；因此两种调用不再一致。以后看到框架声明和别的包装器叠加，不能凭“都有 @”就假定顺序无关。
+
+<Code language="toml">{getDecoratorExample('pyproject.toml')}</Code>
+
+```bash
+uv run --locked python app.py
+```
+
+```text
+['cost']
+11 11
+cost
+True
+```
+
+只有示例中的整数算术，不是实际货币政策；不要把小型装饰器演示误当收费系统设计。
+
+## 9. 错误发生在定义时，还是业务调用时？
+
+<Code language="python">{getDecoratorExample('errors/missing_return.py')}</Code>
+
+```bash
+uv run --locked python errors/missing_return.py
+```
+
+先输出 decorated 和 True，然后调用 None 产生 TypeError。错误根源在装饰器返回政策，不是在业务加法。按“定义时得到什么 → 名字现在指向谁 → 调用的是什么”排查。
+
+<Code language="python">{getDecoratorExample('errors/duplicate.py')}</Code>
+
+```bash
+uv run --locked python -m errors.duplicate
+```
+
+这次第二个函数定义被装饰时就抛出 ValueError，业务函数一次也没执行。若这发生在模块导入中，服务还没能完成启动；不能指望处理单次请求的异常分支来修复注册冲突。
+
+## 10. 已知行为上的 pytest 参数化，而不是新魔法
+
+<Code language="python">{getDecoratorExample('tests/test_decorators.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q
+```
+
+`@pytest.mark.parametrize("value, expected", [...])` 提供参数名及输入/预期组合。pytest 收集测试时按这些组合建立独立用例，运行时向函数参数提供对应值。参数名必须匹配，多个参数时每行的数量也要匹配；这不是让测试自己访问一个神秘全局变量。这里由参数化提供参数，尚未引入 fixture 机制。
+
+本套件实际为 8 项：第一个函数展开为三项，其他五个普通测试各一项。每项都有独立失败标识。可变参数值不会被 pytest 自动深复制，所以本例使用整数，而不是把所有行共享的可变列表当初始状态。
+
+带提示任务：增加一组参数证明 0 合法；再写一个业务函数主动抛 ValueError，确认包装器不吞错。不要把所有异常都换成 0，否则成功值与失败混淆。
+
+<details>
+<summary>带提示练习核对</summary>
+
+已有 (0, 0) 是零值基线，可以增加更大的输入或负数，先说明该包装器只做运算、并未定义非负输入政策。异常测试使用 pytest.raises，包装器未捕获该异常就会原样传播。检查测试收集数随新增参数行变化；改坏 expected 应得到明确失败，而非悄悄少收集一项。
+
+</details>
+
+## 11. 独立变式：先拒绝，再调用
+
+实现 reject_above(limit) 装饰器工厂。limit 必须是普通非负整数，在工厂调用时验证；被包装函数只接收一个普通非负整数，允许等于 limit，超过或类型不符必须在原函数执行前抛 ValueError。合法时原函数恰好调用一次，保留结果与名称。不要加入重试、缓存或默认成功值。
+
+自己用列表记录原函数收到的参数，证明非法输入没有执行副作用；至少测试 0、等于上限、超过、负数、bool 和文本。参数化输入与预期结果的关系应能用一句话说明，不是堆大量数字冒充覆盖。
+
+<details>
+<summary>独立参考实现与参数化测试</summary>
+
+<Code language="python">{getDecoratorExample('solutions/reject_above.py')}</Code>
+
+<Code language="python">{getDecoratorExample('solutions/test_reject_above.py')}</Code>
+
+```bash
+uv run --locked python -m pytest -q solutions/test_reject_above.py
+```
+
+七项参考测试验证边界和调用次数；若把检查移到 function(value) 后，非法值测试必须能检测到已经发生的调用。再次强调：这不是认证装饰器，调用次数正确也不等于多用户权限正确。
+
+</details>
+
+## 12. 验收与恢复检查点
+
+无需看 @ 写法，先用函数调用独立实现一个包装；再写成 @ 并证明行为相同。按时间列出工厂、应用、业务调用，预测两种叠加输出，修复漏 return，区分注册失败与业务失败，完成独立拒绝器和参数化测试。
+
+暂停记录装饰器的输入/返回契约、登记表保存哪个对象、最后测试命令及用例数、最后观察的时间线、下次要尝试的顺序变化。恢复时不只看函数名，因为 wraps 保留的名字并不能证明它就是原函数对象。
+
+下一章 L14 学 yield 与资源生命周期：先理解暂停/恢复，再把熟悉的 with 用法展开成进入、使用、退出协议。资源释放正确与数据事务成功仍是两件事。
+
+## 13. 一手资料与边界
+
+2026-09-28 核对 [Python 函数定义与装饰器](https://docs.python.org/3.13/reference/compound_stmts.html#function-definitions)、[functools.wraps](https://docs.python.org/3.13/library/functools.html#functools.wraps)、[pytest 8.4.2 参数化文档源码](https://github.com/pytest-dev/pytest/blob/8.4.2/doc/en/how-to/parametrize.rst)。pytest 文档站本次返回 403，使用官方版本仓库文档复核。
+
+这些包装器故意只承诺单个整数参数。支持任意签名、方法绑定、异步和生成器的通用装饰器需要更多契约；现在不把那些复杂度变成进入后端的前置门槛。

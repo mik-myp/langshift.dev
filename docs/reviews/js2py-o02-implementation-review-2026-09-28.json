@@ -1,0 +1,1453 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "Full English + full non-lock text files distributed across bounded slices; all lock bytes deterministically checked. No claim that a single slice viewed other slices.",
+  "slices": [
+    {
+      "batch": "review-78",
+      "metadata": {
+        "started_at_utc": "2026-09-28T06:02:58.072576+00:00",
+        "elapsed_seconds": 1.062,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "526db0d820b85cd8d8fdf888bbd690fbd9636b1817edb6be63f526ebf1ca0096",
+        "usage": {
+          "input_tokens": 23979,
+          "output_tokens": 341
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "o02-containers",
+          "current_contract": {
+            "id": "O02",
+            "title": "容器与可部署应用",
+            "prerequisites": [
+              "O01",
+              "L08"
+            ],
+            "teach": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查",
+            "acceptance": "从干净环境构建运行并重启，确认数据和秘密边界",
+            "boundary": "不在镜像写密钥；不把容器健康等同于业务正确",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "O01",
+              "title": "操作系统与服务运行基础",
+              "prerequisites": [
+                "A02"
+              ],
+              "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+              "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+              "boundary": "不先让初学者背Docker命令绕过OS基础",
+              "status": "planned"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            }
+          ],
+          "declared_transitive_prior_capabilities": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "H05",
+              "title": "应用组织、配置与依赖",
+              "prerequisites": [
+                "H04",
+                "L14"
+              ],
+              "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+              "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+              "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+              "status": "planned"
+            },
+            {
+              "id": "H06",
+              "title": "API 测试与前后端联调",
+              "prerequisites": [
+                "H05",
+                "L09",
+                "L13"
+              ],
+              "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+              "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+              "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+              "status": "planned"
+            },
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            },
+            {
+              "id": "D02",
+              "title": "SQL 与参数化查询",
+              "prerequisites": [
+                "D01"
+              ],
+              "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+              "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+              "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+              "status": "planned"
+            },
+            {
+              "id": "D03",
+              "title": "事务、约束与并发冲突",
+              "prerequisites": [
+                "D02"
+              ],
+              "teach": "原子性、提交回滚、约束失败、隔离和竞争、事务边界",
+              "acceptance": "制造两步写入的后一步失败，证明前一步未残留",
+              "boundary": "不仅背ACID；不以单进程内存检查代替约束",
+              "status": "planned"
+            },
+            {
+              "id": "D04",
+              "title": "同步 SQLAlchemy 与 Session",
+              "prerequisites": [
+                "D03",
+                "H05"
+              ],
+              "teach": "映射、连接池与Session、事务所有权、查询、提交失败后的恢复",
+              "acceptance": "把API接入真实数据库并验证成功/失败都释放资源",
+              "boundary": "不第一次学数据库就加入异步ORM",
+              "status": "planned"
+            },
+            {
+              "id": "D05",
+              "title": "Alembic 与已有数据迁移",
+              "prerequisites": [
+                "D04"
+              ],
+              "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+              "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+              "boundary": "不删库重建；不承诺任意降级都无损",
+              "status": "planned"
+            },
+            {
+              "id": "D06",
+              "title": "数据库测试与查询诊断",
+              "prerequisites": [
+                "D05",
+                "H06"
+              ],
+              "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+              "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+              "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+              "status": "planned"
+            },
+            {
+              "id": "S01",
+              "title": "身份与凭证生命周期",
+              "prerequisites": [
+                "D06"
+              ],
+              "teach": "用户、密码哈希、登录、凭证验证/失效、禁用用户、日志脱敏",
+              "acceptance": "拒绝错误/过期/篡改凭证并验证撤销策略",
+              "boundary": "不自创密码学；登录成功不等于有对象权限",
+              "status": "planned"
+            },
+            {
+              "id": "S02",
+              "title": "对象级授权与多用户隔离",
+              "prerequisites": [
+                "S01"
+              ],
+              "teach": "角色和成员关系、所有权、默认拒绝、越权与负向测试",
+              "acceptance": "Alice知道Bob对象ID仍无法读取/修改，角色不能由请求体自授",
+              "boundary": "前端隐藏按钮和CORS都不是服务端授权",
+              "status": "planned"
+            },
+            {
+              "id": "S03",
+              "title": "可靠业务操作与幂等",
+              "prerequisites": [
+                "S02",
+                "D03"
+              ],
+              "teach": "业务冲突、重复提交、事务与幂等范围、日期时间/标识/精确数值的必要标准库",
+              "acceptance": "复现重复请求或并发冲突并验证约定行为",
+              "boundary": "不承诺仅靠重试就能实现恰好一次；按业务需要教学数据表示",
+              "status": "planned"
+            },
+            {
+              "id": "A01",
+              "title": "Python 异步执行模型",
+              "prerequisites": [
+                "S03"
+              ],
+              "teach": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制",
+              "acceptance": "通过可观察实验选择同步/异步边界，并验证取消行为",
+              "boundary": "JS熟悉async不代表Python自动调度；不机械改全部async",
+              "status": "planned"
+            },
+            {
+              "id": "A02",
+              "title": "外部服务与异步资源生命周期",
+              "prerequisites": [
+                "A01",
+                "L14",
+                "H05"
+              ],
+              "teach": "客户端复用、lifespan、超时、重试与幂等、故障替身、清理",
+              "acceptance": "外部依赖失败不拖垮核心CRUD；正常/异常/取消均释放资源",
+              "boundary": "不把进程内队列或BackgroundTasks当持久任务系统",
+              "status": "planned"
+            },
+            {
+              "id": "O01",
+              "title": "操作系统与服务运行基础",
+              "prerequisites": [
+                "A02"
+              ],
+              "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+              "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+              "boundary": "不先让初学者背Docker命令绕过OS基础",
+              "status": "planned"
+            }
+          ],
+          "prerequisite_scope": "Current direct edges plus their transitive contracts are included. Contracts describe curriculum capabilities, not proof that a particular learner has passed; review required concepts against actual lesson explanation, not absence of transitive detail from earlier rounds.",
+          "actual_english_lesson": "---\ntitle: \"Containers and deployable applications: an image is not your data\"\ndescription: \"Explain images, build context, non-root execution, networks, volumes and health boundaries; run local HTTP and static checks without pretending a container engine was available.\"\n---\n\nimport { getContainerOpsExample } from '@/lib/js2py-examples'\n\n## 1. Why a container does not let you skip the operating system\n\nYou can now explain cwd, environments, permissions, ports, and signals. Containers organize those conditions into repeatable boundaries; they do not abolish them. A wrong directory still loses files, a non-root account may still lack volume permissions, and the process receiving a stop signal must handle it correctly. Copying a Dockerfile without identifying state ownership can make removing and recreating an instance delete your only data.\n\nPrerequisites are O01 and L08. You will distinguish images from instances, constrain build inputs, choose users and configuration, explain network namespaces, and verify data lifecycles and health signals. Independent acceptance includes a clean build, execution, and restart/recreation. **No container engine exists on this verification host, so that acceptance stays pending** rather than becoming “files exist, therefore passed.”\n\n[Download the complete O02 lab](/learning-assets/js2py/o02-containers.zip). It deploys only two health endpoints, with no tasks, accounts, authorization, or database. It cannot serve real users or replace the complete S03 application. This chapter requires no cloud purchase, heavy installation, or acceptance of vendor terms. Explicitly select an existing controlled engine only when you have one.\n\n## 2. Separate image, container, host, and engine\n\nAn image consists of filesystem layers and startup metadata, serving as a common starting point for multiple instances. A container is an instance created from that image, with process/network isolation and a writable layer. It is not a complete second computer; it normally shares its Linux host’s kernel. macOS commonly needs a Linux VM to host these containers. Having Python, Homebrew, or a Docker CLI does not establish an available Linux engine.\n\nThe Docker CLI sends requests to an engine. Its context or DOCKER_HOST can point remotely, so a local command can affect somebody else’s server. This lab never uses the default context, lists all user containers, or prunes resources. Its runner requires an explicit local UNIX socket and controlled-engine confirmation, and uses an empty temporary Docker configuration rather than reading credential helpers. Engine-socket access is powerful and does not belong inside an ordinary business container.\n\nAn image tag is a movable name, not a content checksum. Pinning a Python version is clearer than latest, but without resolving and recording the actual digest we cannot claim byte-identical image reproduction or completed supply-chain review.\n\n## 3. Restore the local lab without assuming Docker exists\n\nRun from the repository root; ZIP users enter the extracted lab root directly. uv/Python/pytest match O01. The web baseline is FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, and HTTPX 0.28.1, with Starlette 0.52.1 and AnyIO 4.12.1 pinned as well. Dependencies are restored in a Python virtual environment; no frontend dependency is added.\n\n```bash\ncd examples/js2py/o02-containers\nuv sync --locked\nuv run --locked python -m pytest -q\nuv run --locked python check_config.py\nuv run --locked python local_probe.py\n```\n\n<Code language=\"toml\">{getContainerOpsExample('pyproject.toml')}</Code>\n\nRestore the existing lock with `uv sync --locked`. The maintainer actually generated it with `uv lock --default-index https://pypi.org/simple`. Resolving again can change the dependency snapshot and is not synonymous with routine restoration. Executed case counts and environment gaps are reported separately at the end.\n\n## 4. Build context: secrets should not be sent even if not copied\n\nIn `docker build .`, the final dot identifies the build context, normally the current directory. COPY source paths come from that context. Using a repository root, home directory, or cache directory can submit unrelated files, .env values, credentials, and large caches to the builder. A few selective COPY statements are not the entire boundary: minimize the submitted inputs too.\n\nOur `.dockerignore` ignores everything first, then explicitly permits nine files. It excludes `.venv`, test caches, real configuration, READMEs, and paths outside this source root. The `!` prefix re-includes a named file. The Dockerfile also uses explicit COPY statements rather than `COPY . .`. These two reviewable restrictions are useful, but a text checker is not Docker’s full pattern parser. Actual engine validation remains necessary.\n\n<Code language=\"text\">{getContainerOpsExample('.dockerignore')}</Code>\n\n<Code language=\"dockerfile\">{getContainerOpsExample('Dockerfile')}</Code>\n\nThe build stage restores production dependencies with pinned uv and omits the dev group. The runtime stage receives only the environment and four application files, not the entire builder and tests. Matching base images keep interpreter paths in /opt/venv meaningful. Image retrieval, base-tag availability, target architecture, and real build caching are **unverified**. Dockerfile text does not prove a successful build. A release must also review the base-image digest and update policy.\n\n## 5. Non-root and a read-only root: permit only necessary writes\n\nBuilding an image commonly requires privilege to create directories and users, but running it should not retain that authority. The Dockerfile creates numeric UID/GID 10001, owning /data but not application source. `USER` selects the default identity; Compose declares the same identity for review. Numeric ownership affects volume access: an account named app inside a container does not automatically make a host directory writable.\n\nCompose’s read_only restricts the container root filesystem. The /data named volume is the declared persistent write location; /tmp is a size-bounded temporary memory filesystem. cap_drop ALL removes additional Linux capabilities and no-new-privileges constrains privilege gain through execution. These reduce risk, not all kernel vulnerabilities, and do not implement authorization. Disabling Python bytecode writes avoids unnecessary attempts to modify read-only source directories.\n\n<Code language=\"json\">{getContainerOpsExample('compose.json')}</Code>\n\nWe deliberately use JSON for the Compose file. Compose accepts this YAML subset, but select it explicitly with `-f compose.json` rather than assuming automatic discovery. `init: true` adds a small init for orphan reaping and signal forwarding; exec-form CMD does not interpose a shell. stop_grace_period allows normal stopping, while restart=no keeps failures observable without automatic restart. All of these still need execution on your controlled engine.\n\n## 6. Configuration and secrets: export is not a vault\n\nOPS_DATA_DIR is non-secret path configuration and can appear openly in Compose. Database passwords and Bearer tokens are different: do not put them in Dockerfile ENV/ARG, image layers, build logs, command-line arguments, or the example ZIP. Deleting a file in a later image layer does not prove it is absent from earlier layers. Ignoring .env reduces build exposure; it does not secure the file’s contents.\n\nA controlled platform can mount a secret read-only into the authorized service or inject it using a reviewed secret manager. Compose secrets provide per-service file mounting, not automatic host-file protection, backup, rotation, or revocation. The next experiment handles only a fixed fictional marker and prints observations, not its contents. It neither connects to a database nor reads existing credentials.\n\n<Code language=\"python\">{getContainerOpsExample('secret_demo.py')}</Code>\n\n```bash\nuv run --locked python secret_demo.py\n```\n\n```text\nfile_mode=0o600\nfictional_value_loaded=True\nvalue_is_not_printed=True\n```\n\n## 7. Network namespaces: do not confuse two loopbacks\n\nHost 127.0.0.1 refers to the host network, while a container’s 127.0.0.1 refers to its own network. If an application binds only container loopback, connections forwarded from outside that namespace generally cannot reach it. The Dockerfile therefore listens on **container-internal** 0.0.0.0:8000, while Compose publishes only **host-side** 127.0.0.1:8033:8000. This is not an instruction to listen publicly on the host; both boundaries matter.\n\nEXPOSE 8000 is metadata, not a host-port publication. Another container also cannot find this service at its own 127.0.0.1; controlled container networking and a service name are normally needed. This lab has no database container and never connects to the user’s PostgreSQL. Real deployment must also verify host firewalls, IPv6, and VM forwarding rather than inferring all network safety from one ports line.\n\nDocker documents a localhost-publication exception for same-L2 hosts with engines older than 28.0.0. The runner therefore requires Linux Engine >=28. Checking that version addresses this known gate, not a complete security audit.\n\n## 8. Volumes and writable layers: restart is not recreation\n\n“Containers lose their data whenever restarted” is an incorrect slogan. **Stopping and starting the same container normally preserves its writable layer**. Removing it and creating a new container from the image does not automatically transfer that layer. A named volume has an independent lifecycle and can be reattached to a new instance, but it can still be explicitly deleted or lost with host storage. A persistent volume is not a backup.\n\nvolume_probe maintains a disposable counter in an explicit directory. Separate processes reading the same path can preserve it, which alone does not verify Docker volumes. The real runner checks three cases: a named volume retains 1 after recreation; a writable layer retains 1 after stop/start of the same container; a newly created unmounted container begins at 0. File replacement provides neither concurrent transactions nor power-loss guarantees. Do not apply this copying method to a live PostgreSQL data directory.\n\n<Code language=\"python\">{getContainerOpsExample('volume_probe.py')}</Code>\n\n## 9. Health: alive, ready, and business-correct are three claims\n\n`/health/live` returning 200 proves only that its handler answers. `/health/ready` attempts a temporary write in the data directory and returns 503 on failure. Its dependency is a writable teaching directory, not a database connection. S03 needs its own DB-backed readiness; migration, permissions, and business tests remain separate. A service leaking Bob’s data to Alice can stay healthy indefinitely.\n\nDocker HEALTHCHECK periodically executes healthcheck.py and uses its exit status as health information. Ordinary Docker does not automatically restart this container merely because it becomes unhealthy. Restart policies primarily respond to process exits; scheduling and traffic decisions depend on other platform rules. Avoid amplifying a short DB failure by repeatedly killing processes through an inappropriate liveness check. Health responses must not expose connection strings or secrets.\n\n<Code language=\"python\">{getContainerOpsExample('app.py')}</Code>\n\n<Code language=\"python\">{getContainerOpsExample('healthcheck.py')}</Code>\n\nThe real host HTTP experiment launches Uvicorn using an owned loopback socket, checks normal endpoints, then makes **its own temporary directory** unwritable. It verifies live=200 while ready=503, restores permissions, and observes ready=200 again. /tasks=404 explicitly confirms this is not the business application. It has finite timeouts and cleans up only its own child. Running it without Docker is useful but does not accept the container environment.\n\n<Code language=\"python\">{getContainerOpsExample('local_probe.py')}</Code>\n\n```bash\nuv run --locked python local_probe.py\n```\n\n```text\nhost_http_live=200\nhost_http_ready=200\nunwritable_live=200\nunwritable_ready=503\nrestored_ready=200\ntasks_not_implemented=404\ncontainer_runtime=NOT_VERIFIED\n```\n\n## 10. Static review and a real container experiment have different jobs\n\n<Code language=\"python\">{getContainerOpsExample('check_config.py')}</Code>\n\n```bash\nuv run --locked python check_config.py\nuv run --locked python container_probe.py\n```\n\nThe first command checks selected reviewable invariants: explicit context, loopback publication, UID, and read-only root. It still ends with container_runtime=NOT_VERIFIED. Without an explicit socket and confirmation, the second command exits **77** with environment_pending. This neither hides a failure nor reports container success. The runner accompanies the runnable configuration, but its real Docker branch was not executed here.\n\nIf you have a controlled local Linux Docker Engine >=28, read the runner first. Confirm the socket, image-download network/disk costs, and cleanup scope before using the following **unexecuted command template**. Replace the placeholder with your verified UNIX socket, never a remote TCP/SSH endpoint. The runner uses unique names and removes only the containers, volume, and image it created. Base images and build cache may remain; it never prunes a shared engine to make everything look clean.\n\n```bash\nuv run --locked python container_probe.py --socket /path/to/controlled/docker.sock --confirm-controlled-engine\n```\n\n<Code language=\"python\">{getContainerOpsExample('container_probe.py')}</Code>\n\nRecord the engine/OS/CPU architecture, resolved image digest, build log, container UID, host binding, stop result, three state-lifecycle observations, and cleanup result yourself. Do not copy an expected outcome as an observation. If a step differs, preserve evidence before inspecting permissions, volume ownership, engine selection, and image resolution.\n\n## 11. Failure diagnosis: locate the boundary before granting power\n\n| Failure | Likely boundary | Next step |\n| --- | --- | --- |\n| CLI/socket absent | No local runtime | Record environment_pending; do not silently install or connect remotely |\n| Image/dependency download fails | Tag, architecture, network, or index | Inspect the build stage; switching to latest does not prove reproduction |\n| Application cannot write /data | UID and volume ownership mismatch | Inspect the dedicated volume, not permissions on real user directories |\n| Host connection fails while process lives | Internal binding and host publication | Inspect both boundaries instead of exposing the service publicly |\n| healthy but /tasks=404 | Only the smoke app was deployed | Not a CORS fault; the authorized business app is not integrated |\n| Counter lost after recreation | Writable layer or wrong/new volume | Compare restart and reattachment before deleting volumes to retry |\n\nDo not replace the image, volume, and application version simultaneously and guess what fixed it. Change one boundary at a time and retain the last successful observation. Real databases require the later backup/recovery material, not this disposable-file exercise dressed up as recovery.\n\n## 12. Explanation checkpoint: reject three convenient inferences\n\nExplain why stop/start can retain data without a volume while recreation does not, why container-internal 0.0.0.0 does not necessarily publish the host publicly, and why healthy cannot prove an Alice/Bob authorization test passed. Name the boundary instead of answering “because Docker.”\n\n<details>\n<summary>Answer and explanation</summary>\n\nThe same instance retains its writable layer; a new one begins from its image and explicitly mounted state, without inheriting the old layer. Internal listening belongs to the container network namespace; host publication depends separately on ports, engine behavior, and firewall rules. A health script checks declared technical dependencies, not two users’ identities and resource permissions. Each false inference substitutes success at one layer for a guarantee at another.\n\n</details>\n\n## 13. Guided exercise: make ready fail while live still succeeds\n\nPredict which endpoint local_probe’s permission change affects. Keep the process running, change only the owned temporary data directory, observe 200/503, and restore it. Do not simulate unwritability by stopping the server, or chmod your home directory. Then explain why a file probe is insufficient when business readiness depends on a database.\n\n<details>\n<summary>Guided answer and automatic checks</summary>\n\nlive never accesses the data directory and stays at 200. ready catches the write failure and returns 503; restoring write access returns it to 200. Real DB readiness needs its appropriate connection/query and bounded timeout, not “writable disk implies usable DB.” This failure is reproducible as an ordinary local account; root may bypass it and is explicitly rejected.\n\n<Code language=\"python\">{getContainerOpsExample('tests/test_container_foundations.py')}</Code>\n\n</details>\n\n## 14. Independent variation: restore into a new directory\n\nRequirements only: a source directory holds a quiescent teaching counter. Restore it into a new empty directory and read the same value. Reject a nonempty destination; never silently reset corrupt source data to zero or change the original file. Write the function and tests, then explain why this is **not a backup procedure for live PostgreSQL**. If a container engine is available, also run the runner’s recreation tests; neither evidence replaces the other.\n\n<details>\n<summary>Independent reference implementation</summary>\n\n<Code language=\"python\">{getContainerOpsExample('solutions/restore_copy.py')}</Code>\n\n<Code language=\"python\">{getContainerOpsExample('solutions/test_restore_copy.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q solutions/test_restore_copy.py\n```\n\nValidating the source and writing only a new destination reduces accidental overwrite, but supplies no database snapshot consistency during writes. Real recovery must follow a database backup protocol in an isolated environment and verify business records; the later release/recovery chapters own that boundary.\n\n</details>\n\n## 15. Environment matrix and delivery conclusion\n\n| State | Evidence or gate |\n| --- | --- |\n| Actually executed | Ordinary macOS user; 14 standard and 3 independent tests; real loopback HTTP 200/503/recovery/404, selected configuration invariants, fictional secret file, ordinary-file restoration |\n| Unavailable on this host | No discovered Docker/OrbStack/Podman/Apple container CLI, common application installation, or socket; no controlled Linux container engine |\n| User-provided environment | Controlled local Linux Docker Engine >=28, explicit UNIX socket, permission/network/storage for image downloads; real build, non-root identity, publication, read-only root, health, stop/recreation/volume tests |\n| Additional acceptance | Base-image tag/digest/architecture, real Compose parsing, volume ownership, actual engine branch, business integration, DB backup |\n\nText, source, selected static checks, and the local HTTP slice are implemented. **The container build/runtime environment remains environment_pending.** No remote context, global prune, existing-user-container operation, system-software installation, or cloud purchase occurred.\n\n## 16. Sources, dates, and a resumable record\n\nPrimary sources checked **2026-09-28**. `SOURCES.json` records URLs, dates, and retrieval summaries; it does not promise that documentation will never change. The three READMEs distinguish observations from environment gaps. The existence of configuration is not deployment acceptance.\n\n- [Docker build context](https://docs.docker.com/build/concepts/context/)\n- [Dockerfile reference](https://docs.docker.com/reference/dockerfile/)\n- [Docker volumes](https://docs.docker.com/engine/storage/volumes/)\n- [Docker port publishing](https://docs.docker.com/engine/network/port-publishing/)\n- [Docker Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/)\n- [Docker daemon attack surface](https://docs.docker.com/engine/security/)\n- [Docker Compose service reference](https://docs.docker.com/reference/compose-file/services/)\n- [uv lock and sync](https://docs.astral.sh/uv/concepts/projects/sync/)\n\nA resume record includes source/lock hashes, cwd, last successful command, the 14+3 local result, whether an engine exists and how it was verified, observed versus expected image/volume behavior, unresolved failures, and the next action. Do not copy credentials, tokens, or Docker configuration into it. Resume by restoring the lock and running local_probe. Acquiring an engine starts a new acceptance record; it does not rename an old static pass into a container pass.\n\n",
+          "mechanism_focus": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查; 从干净环境构建运行并重启，确认数据和秘密边界; 不在镜像写密钥；不把容器健康等同于业务正确",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "26efb10bbbbeff9c197f1cef555ef097a0ea0bba1e9a4dbf70c1c9b352716361",
+              "bytes": 21424,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".dockerignore",
+            ".python-version",
+            "Dockerfile",
+            "ENVIRONMENT.json",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "SOURCES.json",
+            "app.py",
+            "check_config.py",
+            "compose.json",
+            "config.py",
+            "container_probe.py",
+            "healthcheck.py",
+            "local_probe.py",
+            "pyproject.toml",
+            "secret_demo.py",
+            "solutions/__init__.py",
+            "solutions/restore_copy.py",
+            "solutions/test_restore_copy.py",
+            "tests/test_container_foundations.py",
+            "uv.lock",
+            "volume_probe.py"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "Author source and polluted-environment runs plus mainline unmodified maintained runner against exact downloaded ZIP bytes passed58 local cases: O01=16+1/O02=14+3/O03=17+7. Actual own POSIX process/signals/ports/files, local HTTP and private-CA TLS including unknown-CA/wrong-host rejection executed. No insecure curl -k/global trust import. Docker probe returned expected77 meaning environment_pending, NOT container success. Docker engine, systemd/Linux, Caddy and public domain/DNS/CA/firewall absent. Material authoring may complete while environmental chapter acceptance remains pending. No public users or infrastructure touched. Browser publication checks still pending.",
+          "slice": {
+            "index": 1,
+            "count": 2,
+            "source_paths_here": [
+              ".dockerignore",
+              ".python-version",
+              "Dockerfile",
+              "ENVIRONMENT.json",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "SOURCES.json",
+              "app.py",
+              "check_config.py",
+              "compose.json",
+              "config.py",
+              "container_probe.py",
+              "healthcheck.py",
+              "local_probe.py",
+              "pyproject.toml",
+              "secret_demo.py",
+              "solutions/__init__.py"
+            ],
+            "source_paths_elsewhere": [
+              "solutions/restore_copy.py",
+              "solutions/test_restore_copy.py",
+              "tests/test_container_foundations.py",
+              "volume_probe.py"
+            ]
+          },
+          "actual_download_files": {
+            ".dockerignore": "**\n!Dockerfile\n!.dockerignore\n!.python-version\n!pyproject.toml\n!uv.lock\n!app.py\n!config.py\n!volume_probe.py\n!healthcheck.py\n",
+            ".python-version": "3.13.15\n",
+            "Dockerfile": "# Runtime gate: actual image availability/build are not verified without an engine.\nFROM python:3.13.15-slim-bookworm AS build\nENV UV_LINK_MODE=copy UV_PROJECT_ENVIRONMENT=/opt/venv\nWORKDIR /app\nRUN python -m pip install --no-cache-dir --index-url https://pypi.org/simple uv==0.12.13\nCOPY .python-version pyproject.toml uv.lock ./\nRUN uv sync --locked --no-dev --no-managed-python --python /usr/local/bin/python --default-index https://pypi.org/simple\n\nFROM python:3.13.15-slim-bookworm AS runtime\nENV PATH=\"/opt/venv/bin:$PATH\" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OPS_DATA_DIR=/data\nRUN groupadd --gid 10001 app && useradd --uid 10001 --gid 10001 --no-create-home --shell /usr/sbin/nologin app && mkdir /data && chown 10001:10001 /data\nCOPY --from=build /opt/venv /opt/venv\nWORKDIR /app\nCOPY app.py config.py volume_probe.py healthcheck.py ./\nUSER 10001:10001\nEXPOSE 8000\nHEALTHCHECK --interval=5s --timeout=3s --start-period=10s --retries=3 CMD [\"python\", \"healthcheck.py\"]\nCMD [\"python\", \"-m\", \"uvicorn\", \"app:create_app\", \"--factory\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\", \"--workers\", \"1\", \"--no-access-log\", \"--no-proxy-headers\"]\n",
+            "ENVIRONMENT.json": "{\n  \"standard_tests\": 14,\n  \"independent_tests\": 3,\n  \"actually_run\": [\n    \"selected Dockerfile/.dockerignore/Compose text and JSON invariants\",\n    \"real owned loopback Uvicorn HTTP200/503/recovery/404\",\n    \"nonroot host permission failure\",\n    \"fictional0600 secret marker without value output\",\n    \"single-writer file lifecycle and independent empty-directory restore\",\n    \"unopted container runner exits77 environment_pending\"\n  ],\n  \"unavailable_here\": [\n    \"Docker/OrbStack/Podman/Apple container/nerdctl/Colima/Lima CLI, common apps/sockets not found\",\n    \"no controlled Linux container engine\"\n  ],\n  \"user_must_supply\": [\n    \"controlled local Linux Docker Engine>=28\",\n    \"explicit verified local UNIX engine socket; no remote context\",\n    \"permission/network/storage for registry base-image download and build\"\n  ],\n  \"pending_acceptance\": [\n    \"base-image tag availability, digest, target architecture and build\",\n    \"real Compose parser\",\n    \"container uid10001/read-only root and host loopback publication\",\n    \"named-volume ownership, health and stop/start/removal/recreation\",\n    \"container_probe real-engine branch and scoped cleanup\",\n    \"full capstone/auth/DB integration; this is health-only\"\n  ],\n  \"verified_date\": \"2026-09-28\",\n  \"implementation_status\": \"implemented\",\n  \"environment_status\": \"environment_pending\",\n  \"claims_do_not_include\": \"documentation completion is not deployment/environment acceptance\"\n}\n",
+            "README.md": "# O02 Containers and deployable applications\n\nPrerequisites: O01/L08. This health-only smoke app has no tasks, authentication, authorization, or database and cannot serve real users. Dockerfile/Compose and a scoped runner are provided, but no engine exists here: real build/execution remain pending.\n\n## Environment and restoration\n\nChecked **2026-09-28**. Use an ordinary POSIX account, not root, for permission experiments. CPython **3.13.15**, uv **0.12.13**, pytest **8.4.2**. `.python-version` selects the interpreter, pyproject declares `>=3.13,<3.14`, and uv.lock fixes resolution. `[tool.uv] package=false` means the lab is not built as a distributable Python package.\n\nWeb baseline: FastAPI **0.135.1**, Uvicorn **0.42.0**, Pydantic **2.12.5**, HTTPX **0.28.1**, Starlette **0.52.1**, AnyIO **4.12.1**. No frontend dependencies.\n\nRepository users run the cd below from the repository root. ZIP users enter the extracted lab root directly, where pyproject.toml resides. `--locked` refuses silent lock changes.\n\n```bash\ncd examples/js2py/o02-containers\npwd\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\nThe maintainer actually generated the lock using `uv lock --default-index https://pypi.org/simple`. Restoration does not require fresh resolution. Environments/caches are excluded from the allowlist/ZIP; data experiments use owned temporary directories.\n\n## Locally executable checks\n\nlocal_probe.py owns a loopback Uvicorn child. With an unwritable directory, live stays200 and ready becomes503; recovery restores ready200; /tasks is404. check_config checks selected invariants, not full Docker/Compose parsing. secret_demo uses a fictional marker and never outputs its value.\n\n```bash\nuv run --locked python check_config.py\nuv run --locked python local_probe.py\nuv run --locked python secret_demo.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_restore_copy.py\nuv run --locked python container_probe.py\n```\n\n```text\nhost_http_live=200\nhost_http_ready=200\nunwritable_live=200\nunwritable_ready=503\nrestored_ready=200\ntasks_not_implemented=404\ncontainer_runtime=NOT_VERIFIED\n```\n\nWithout explicit opt-in, container_probe exits77 with environment_pending, not a container pass. Standard14 and independent3 cases were executed. Ordinary-file restoration and real container-volume verification are separate evidence.\n\n## Build and runtime boundaries\n\nThe two-stage Dockerfile restores locked production dependencies and runs as10001. .dockerignore denies everything then permits nine build files. Select compose.json explicitly with -f. Host publication is127.0.0.1:8033; internal listening is0.0.0.0:8000. These are different network namespaces. Read-only root, /data named volume, /tmp temporary space and least privilege are explicit. Healthcheck reports readiness; it neither proves authorization nor automatically restarts an unhealthy container.\n\nOPS_DATA_DIR is not a secret. Passwords/tokens must not enter image layers, ARG/ENV, command lines, logs or downloads; secret_demo is not production secret management. Base-tag availability/digest/architecture remain engine-unverified. Volumes are not backups. Same-container stop/start retains the writable layer; recreation does not inherit it automatically.\n\n## Commands after supplying a controlled engine (unexecuted)\n\nRead container_probe.py first. Require Linux Docker Engine>=28, an explicit local UNIX socket, and permission for image download. Never use a remote TCP/SSH endpoint or default context. The runner removes Docker environment selection and uses empty temporary configuration instead of credential helpers. Unique names scope removal to its own containers/volume/image, with no global prune; base images/build cache may remain. Actual output must come from your target environment.\n\n```bash\nuv run --locked python container_probe.py --socket /path/to/controlled/docker.sock --confirm-controlled-engine\n```\n\nThe runner checks UID, read-only root, host binding, health, named-volume recreation=1, same unmounted instance stop/start=1, and fresh unmounted recreation=0. Do not kill user processes after port conflicts or chmod real data777 after permission errors. Preserve build-stage evidence rather than switching to latest to bypass the version contract.\n\n## Independent requirement\n\nCopy a quiescent teaching counter into a new empty directory and read the same value. Reject nonempty destinations and corrupt sources without altering original state. solutions/restore_copy.py and three tests are references. Ordinary file copying is not a live PostgreSQL backup.\n\n## Environment matrix (machine-readable: ENVIRONMENT.json)\n\n| State | Evidence / gate |\n| --- | --- |\n| actually_run | selected Dockerfile/.dockerignore/Compose text and JSON invariants; real owned loopback Uvicorn HTTP200/503/recovery/404; nonroot host permission failure; fictional0600 secret marker without value output; single-writer file lifecycle and independent empty-directory restore; unopted container runner exits77 environment_pending |\n| unavailable_here | Docker/OrbStack/Podman/Apple container/nerdctl/Colima/Lima CLI, common apps/sockets not found; no controlled Linux container engine |\n| user_must_supply | controlled local Linux Docker Engine>=28; explicit verified local UNIX engine socket; no remote context; permission/network/storage for registry base-image download and build |\n| pending_acceptance | base-image tag availability, digest, target architecture and build; real Compose parser; container uid10001/read-only root and host loopback publication; named-volume ownership, health and stop/start/removal/recreation; container_probe real-engine branch and scoped cleanup; full capstone/auth/DB integration; this is health-only |\n\nThis run passed **14 standard** and **3 independent** cases. Source/text are `implemented`; external environment gates remain `environment_pending`, not deployment acceptance. Ordinary macOS tests do not replace Linux/container/public or Windows evidence.\n\n## Resume and diagnosis record\n\nRecord source/lock hashes, cwd, tool versions, last successful command, failure stage/category, actual case counts, environment matrix, and next first step. Never record a full environment, real token, database URL, or private key. Resume with `uv sync --locked`, standard tests, and your own independent tests. A passing reference alone does not establish independent ability.\n\n## Primary sources\n\nSOURCES.json records official URLs, scope, HTTP retrieval results and SHA-256 digests checked on 2026-09-28. The chapter explains mechanisms; this README provides the offline execution entry. No production resource creation, system-software installation, or acceptance of service terms is automated here.\n",
+            "README.zh-cn.md": "# O02 容器与可部署应用\n\n前置 O01/L08。这是 health-only smoke app，不含任务、认证、授权或数据库；不能接真实用户。Dockerfile/Compose/安全runner 完整提供，但本机没有容器引擎，真实构建/运行仍待验收。\n\n## 环境与恢复\n\n核验日期：**2026-09-28**。需要普通 POSIX 账户；不以 root 运行权限实验。CPython **3.13.15**、uv **0.12.13**、pytest **8.4.2**。`.python-version` 选解释器，pyproject 声明 `>=3.13,<3.14`，uv.lock 锁依赖；`[tool.uv] package=false` 表示不打包这个练习为可发布 Python 包。\n\nWeb 基线：FastAPI **0.135.1**、Uvicorn **0.42.0**、Pydantic **2.12.5**、HTTPX **0.28.1**、Starlette **0.52.1**、AnyIO **4.12.1**；没有前端依赖。\n\n仓库用户从仓库根目录执行下列 cd；ZIP 用户直接进入解压后的同名实验根目录，里面应有 pyproject.toml。`--locked` 拒绝悄悄更新锁。\n\n```bash\ncd examples/js2py/o02-containers\npwd\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\n维护者锁文件已用 `uv lock --default-index https://pypi.org/simple` 实际生成。读者恢复不需要重新解析。环境与缓存不进清单/ZIP，所有数据实验用自己创建的临时目录。\n\n## 本地可实际执行\n\nlocal_probe.py 启动自己持有的 loopback Uvicorn 子进程；目录不可写时 live 保持200而 ready变503，恢复后ready200；/tasks404。check_config 只检查选定不变量，不是 Docker/Compose 完整解析器。secret_demo 仅处理虚构标记且不输出值。\n\n```bash\nuv run --locked python check_config.py\nuv run --locked python local_probe.py\nuv run --locked python secret_demo.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_restore_copy.py\nuv run --locked python container_probe.py\n```\n\n```text\nhost_http_live=200\nhost_http_ready=200\nunwritable_live=200\nunwritable_ready=503\nrestored_ready=200\ntasks_not_implemented=404\ncontainer_runtime=NOT_VERIFIED\n```\n\ncontainer_probe 无显式 opt-in 时 exit77，报告 environment_pending，不能计为容器通过。pytest 标准14、独立3已实跑。普通文件恢复与真实容器卷验证是两个层次。\n\n## 构建与运行边界\n\nDockerfile 两阶段恢复锁定生产依赖，运行用户10001；.dockerignore先拒绝再明确放行九个文件。compose.json 需显式 -f，宿主发布127.0.0.1:8033，容器内部监听0.0.0.0:8000；两个网络命名空间不能混淆。只读根、/data命名卷、/tmp临时空间与最小权限分别指定。healthcheck报告就绪，并不会自动完成授权或因unhealthy而重启。\n\n普通OPS_DATA_DIR不是秘密。密码/token不得写入镜像层、ARG/ENV、命令行、日志或下载包；secret_demo不是生产秘密管理器。基础镜像tag可用性/digest/架构未在引擎实测。卷不是备份；同容器stop/start保留可写层，删除重建才不自动保留它。\n\n## 用户自备受控引擎后的命令（未实跑）\n\n先审读container_probe.py。需要Linux Docker Engine>=28、本地UNIX socket、镜像下载许可。不要填远端TCP/SSH，也不使用默认context。程序清除Docker环境选择并使用空临时配置，避免读取凭证助手；资源名随机且只移除自己创建的容器/卷/镜像，不全局prune。基础镜像/构建缓存可能保留。实际输出必须由你的目标环境产生。\n\n```bash\nuv run --locked python container_probe.py --socket /path/to/controlled/docker.sock --confirm-controlled-engine\n```\n\nrunner 验证 UID、只读根、host绑定、健康、带卷重建=1、无卷同实例stop/start=1、无卷重建=0。端口冲突不要kill用户进程；权限失败不要把真实数据目录chmod777。构建失败应保留阶段信息，不能改latest绕开版本约定。\n\n## 独立需求\n\n把停止写入的教学counter复制到新空目录并读回一致值；拒绝非空目标、拒绝损坏源且不改原状态。solutions/restore_copy.py和三个测试是参考；不能用普通文件拷贝冒充活跃PostgreSQL备份。\n\n## 环境矩阵（机器可读版本：ENVIRONMENT.json）\n\n| 状态 | 证据与门槛 |\n| --- | --- |\n| 已实际运行 | 配置文件选定不变量、真实loopback HTTP200/503/恢复/404、普通账户权限失败、虚构0600秘密标记、普通文件恢复；没有显式许可时runner返回77。 |\n| 本机不可运行 | 没有发现Docker/OrbStack/Podman/Apple container等CLI、常见应用或socket；没有受控Linux容器引擎。 |\n| 用户需自备 | 受控本地Linux Docker Engine>=28、核实过的UNIX socket、镜像下载/构建的网络、存储和许可；不使用远端context。 |\n| 待环境验收 | 实际基础镜像tag/digest/架构与构建、Compose解析、UID10001/read-only/loopback发布、卷owner/健康/启停/删除重建、引擎runner分支与清理。完整capstone/授权/数据库另行集成。 |\n\n本轮标准 **14**、独立 **3** 个测试通过。源码与文稿 `implemented`；矩阵中的外部环境 `environment_pending`，不是整体部署通过。普通 macOS 测试不能代替 Linux/容器/公网或 Windows 证据。\n\n## 恢复学习与排错记录\n\n记录源码/锁摘要、cwd、工具版本、最后成功命令、失败阶段与分类、实际测试数、环境矩阵和下次第一步。不要记录完整环境、真实 token、数据库 URL 或私钥。恢复先 `uv sync --locked`，再跑标准与自己写的独立测试。只有参考答案通过，不代表你能独立实现。\n\n## 一手资料\n\nSOURCES.json 保存 2026-09-28 核验的官方地址、作用范围、HTTP获取结果与SHA-256摘要。章节正文解释每个机制，README 提供离线运行入口。这里没有自动创建生产资源、安装系统软件或接受服务条款。\n",
+            "README.zh-tw.md": "# O02 容器與可部署應用\n\n前置 O01/L08。這是 health-only smoke app，不含任務、認證、授權或數據庫；不能接真實用戶。Dockerfile/Compose/安全runner 完整提供，但本機沒有容器引擎，真實構建/運行仍待驗收。\n\n## 環境與恢復\n\n核驗日期：**2026-09-28**。需要普通 POSIX 賬戶；不以 root 運行權限實驗。CPython **3.13.15**、uv **0.12.13**、pytest **8.4.2**。`.python-version` 選解釋器，pyproject 聲明 `>=3.13,<3.14`，uv.lock 鎖依賴；`[tool.uv] package=false` 表示不打包這個練習為可發佈 Python 包。\n\nWeb 基線：FastAPI **0.135.1**、Uvicorn **0.42.0**、Pydantic **2.12.5**、HTTPX **0.28.1**、Starlette **0.52.1**、AnyIO **4.12.1**；沒有前端依賴。\n\n倉庫用戶從倉庫根目錄執行下列 cd；ZIP 用戶直接進入解壓後的同名實驗根目錄，裡面應有 pyproject.toml。`--locked` 拒絕悄悄更新鎖。\n\n```bash\ncd examples/js2py/o02-containers\npwd\nuv --version\nuv sync --locked\nuv run --locked python --version\n```\n\n維護者鎖文件已用 `uv lock --default-index https://pypi.org/simple` 實際生成。讀者恢復不需要重新解析。環境與緩存不進清單/ZIP，所有數據實驗用自己創建的臨時目錄。\n\n## 本地可實際執行\n\nlocal_probe.py 啟動自己持有的 loopback Uvicorn 子進程；目錄不可寫時 live 保持200而 ready變503，恢復後ready200；/tasks404。check_config 只檢查選定不變量，不是 Docker/Compose 完整解析器。secret_demo 僅處理虛構標記且不輸出值。\n\n```bash\nuv run --locked python check_config.py\nuv run --locked python local_probe.py\nuv run --locked python secret_demo.py\nuv run --locked python -m pytest -q\nuv run --locked python -m pytest -q solutions/test_restore_copy.py\nuv run --locked python container_probe.py\n```\n\n```text\nhost_http_live=200\nhost_http_ready=200\nunwritable_live=200\nunwritable_ready=503\nrestored_ready=200\ntasks_not_implemented=404\ncontainer_runtime=NOT_VERIFIED\n```\n\ncontainer_probe 無顯式 opt-in 時 exit77，報告 environment_pending，不能計為容器通過。pytest 標準14、獨立3已實跑。普通文件恢復與真實容器卷驗證是兩個層次。\n\n## 構建與運行邊界\n\nDockerfile 兩階段恢復鎖定生產依賴，運行用戶10001；.dockerignore先拒絕再明確放行九個文件。compose.json 需顯式 -f，宿主發佈127.0.0.1:8033，容器內部監聽0.0.0.0:8000；兩個網絡命名空間不能混淆。只讀根、/data命名卷、/tmp臨時空間與最小權限分別指定。healthcheck報告就緒，並不會自動完成授權或因unhealthy而重啟。\n\n普通OPS_DATA_DIR不是秘密。密碼/token不得寫入鏡像層、ARG/ENV、命令行、日誌或下載包；secret_demo不是生產秘密管理器。基礎鏡像tag可用性/digest/架構未在引擎實測。卷不是備份；同容器stop/start保留可寫層，刪除重建才不自動保留它。\n\n## 用戶自備受控引擎後的命令（未實跑）\n\n先審讀container_probe.py。需要Linux Docker Engine>=28、本地UNIX socket、鏡像下載許可。不要填遠端TCP/SSH，也不使用默認context。程序清除Docker環境選擇並使用空臨時配置，避免讀取憑證助手；資源名隨機且只移除自己創建的容器/卷/鏡像，不全局prune。基礎鏡像/構建緩存可能保留。實際輸出必須由你的目標環境產生。\n\n```bash\nuv run --locked python container_probe.py --socket /path/to/controlled/docker.sock --confirm-controlled-engine\n```\n\nrunner 驗證 UID、只讀根、host綁定、健康、帶卷重建=1、無卷同實例stop/start=1、無卷重建=0。端口衝突不要kill用戶進程；權限失敗不要把真實數據目錄chmod777。構建失敗應保留階段信息，不能改latest繞開版本約定。\n\n## 獨立需求\n\n把停止寫入的教學counter複製到新空目錄並讀回一致值；拒絕非空目標、拒絕損壞源且不改原狀態。solutions/restore_copy.py和三個測試是參考；不能用普通文件拷貝冒充活躍PostgreSQL備份。\n\n## 環境矩陣（機器可讀版本：ENVIRONMENT.json）\n\n| 狀態 | 證據與門檻 |\n| --- | --- |\n| 已實際運行 | 配置文件選定不變量、真實loopback HTTP200/503/恢復/404、普通賬戶權限失敗、虛構0600秘密標記、普通文件恢復；沒有顯式許可時runner返回77。 |\n| 本機不可運行 | 沒有發現Docker/OrbStack/Podman/Apple container等CLI、常見應用或socket；沒有受控Linux容器引擎。 |\n| 用戶需自備 | 受控本地Linux Docker Engine>=28、核實過的UNIX socket、鏡像下載/構建的網絡、存儲和許可；不使用遠端context。 |\n| 待環境驗收 | 實際基礎鏡像tag/digest/架構與構建、Compose解析、UID10001/read-only/loopback發佈、卷owner/健康/啟停/刪除重建、引擎runner分支與清理。完整capstone/授權/數據庫另行集成。 |\n\n本輪標準 **14**、獨立 **3** 個測試通過。源碼與文稿 `implemented`；矩陣中的外部環境 `environment_pending`，不是整體部署通過。普通 macOS 測試不能代替 Linux/容器/公網或 Windows 證據。\n\n## 恢復學習與排錯記錄\n\n記錄源碼/鎖摘要、cwd、工具版本、最後成功命令、失敗階段與分類、實際測試數、環境矩陣和下次第一步。不要記錄完整環境、真實 token、數據庫 URL 或私鑰。恢復先 `uv sync --locked`，再跑標準與自己寫的獨立測試。只有參考答案通過，不代表你能獨立實現。\n\n## 一手資料\n\nSOURCES.json 保存 2026-09-28 核驗的官方地址、作用範圍、HTTP獲取結果與SHA-256摘要。章節正文解釋每個機制，README 提供離線運行入口。這裡沒有自動創建生產資源、安裝系統軟件或接受服務條款。\n",
+            "SOURCES.json": "[\n  {\n    \"title\": \"Docker build context\",\n    \"url\": \"https://docs.docker.com/build/concepts/context/\",\n    \"scope\": \"Context and .dockerignore\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.docker.com/build/concepts/context/\",\n    \"sha256\": \"4df2962b818ed855eb174adb90c68687605818e1edbfd1f6f7b186b0ba5f4cff\"\n  },\n  {\n    \"title\": \"Dockerfile reference\",\n    \"url\": \"https://docs.docker.com/reference/dockerfile/\",\n    \"scope\": \"USER, COPY, exec CMD, HEALTHCHECK\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.docker.com/reference/dockerfile/\",\n    \"sha256\": \"63293c82b052f2f0d9a9accbe4abbe2cc7985cc2cc1ad084f4e48bedbb08c644\"\n  },\n  {\n    \"title\": \"Docker volumes\",\n    \"url\": \"https://docs.docker.com/engine/storage/volumes/\",\n    \"scope\": \"Container writable layer and volume lifecycle\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.docker.com/engine/storage/volumes/\",\n    \"sha256\": \"d883272d4a9003cf27a6adf89d8296739ed4ea87739b38e1ad8c1ea2e26c5ce7\"\n  },\n  {\n    \"title\": \"Docker port publishing\",\n    \"url\": \"https://docs.docker.com/engine/network/port-publishing/\",\n    \"scope\": \"Loopback publishing and Engine before28 caveat\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.docker.com/engine/network/port-publishing/\",\n    \"sha256\": \"294d35d0df06e94fc92e7f190b1cbaf0a3a640a7e70cd44ca00f834961e302e9\"\n  },\n  {\n    \"title\": \"Docker Compose secrets\",\n    \"url\": \"https://docs.docker.com/compose/how-tos/use-secrets/\",\n    \"scope\": \"Per-service file-mounted secrets, not secrets in image\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.docker.com/compose/how-tos/use-secrets/\",\n    \"sha256\": \"664312030e59608f9ad198bc7ed8a124c0a15aaca7dfc20617c761b25f8fd5f1\"\n  },\n  {\n    \"title\": \"Docker daemon attack surface\",\n    \"url\": \"https://docs.docker.com/engine/security/\",\n    \"scope\": \"Engine access is privileged, socket not mounted\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.docker.com/engine/security/\",\n    \"sha256\": \"95d76357169c825a92e862fabcb89c051bba04e5b699bd944dda8b4e5ca5948e\"\n  },\n  {\n    \"title\": \"Docker Compose service reference\",\n    \"url\": \"https://docs.docker.com/reference/compose-file/services/\",\n    \"scope\": \"ports, read_only, healthcheck and restart policies\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.docker.com/reference/compose-file/services/\",\n    \"sha256\": \"ce0ae417e123c2a4f917217f9269e594491a6b5602667f04009624a8418ab158\"\n  },\n  {\n    \"title\": \"uv lock and sync\",\n    \"url\": \"https://docs.astral.sh/uv/concepts/projects/sync/\",\n    \"scope\": \"Locked resolution and dependency groups\",\n    \"verified_date\": \"2026-09-28\",\n    \"http_status\": 200,\n    \"resolved_url\": \"https://docs.astral.sh/uv/concepts/projects/sync/\",\n    \"sha256\": \"4bd4a89338543bf671bd036a52bc666a295986c7c72ea175d95d1c2ac228e0cf\"\n  }\n]\n",
+            "app.py": "\"\"\"Health-only deployment smoke app. NO accounts, tasks, or authorization.\"\"\"\nimport os\nfrom tempfile import TemporaryFile\n\nfrom fastapi import FastAPI\nfrom fastapi.responses import JSONResponse\n\nfrom config import data_directory\n\n\ndef create_app() -> FastAPI:\n    directory = data_directory(os.environ)\n    app = FastAPI(title=\"O02 health-only smoke app\", docs_url=None, redoc_url=None, openapi_url=None)\n\n    @app.get(\"/health/live\")\n    def live():\n        return {\"status\": \"ok\"}\n\n    @app.get(\"/health/ready\")\n    def ready():\n        try:\n            with TemporaryFile(dir=directory) as probe:\n                probe.write(b\"local-write-probe\")\n                probe.flush()\n        except OSError:\n            return JSONResponse(status_code=503, content={\"status\": \"not_ready\"})\n        return {\"status\": \"ready\"}\n\n    return app\n",
+            "check_config.py": "\"\"\"Selected security invariants, NOT Docker parsing/build/runtime validation.\"\"\"\nimport json\nfrom pathlib import Path\n\nROOT = Path(__file__).resolve().parent\nBUILD_FILES = {\"Dockerfile\", \".dockerignore\", \".python-version\", \"pyproject.toml\", \"uv.lock\", \"app.py\", \"config.py\", \"volume_probe.py\", \"healthcheck.py\"}\n\n\ndef check() -> list[str]:\n    ignored = (ROOT / \".dockerignore\").read_text().splitlines()\n    assert ignored[0] == \"**\"\n    assert {line[1:] for line in ignored[1:]} == BUILD_FILES\n    dockerfile = (ROOT / \"Dockerfile\").read_text()\n    assert \"USER 10001:10001\" in dockerfile\n    assert \"COPY . .\" not in dockerfile\n    assert \"--locked --no-dev\" in dockerfile\n    assert 'CMD [\"python\", \"-m\", \"uvicorn\"' in dockerfile\n    assert \"--no-proxy-headers\" in dockerfile\n    service = json.loads((ROOT / \"compose.json\").read_text())[\"services\"][\"smoke\"]\n    assert all(port.startswith(\"127.0.0.1:\") for port in service[\"ports\"])\n    assert service[\"read_only\"] is True and service[\"user\"] == \"10001:10001\"\n    assert service[\"cap_drop\"] == [\"ALL\"]\n    assert service[\"security_opt\"] == [\"no-new-privileges:true\"]\n    assert \"privileged\" not in service and \"network_mode\" not in service\n    assert not any(\"docker.sock\" in mount for mount in service[\"volumes\"])\n    return [\"build_context=explicit_allowlist\", \"host_publish=loopback_only\", \"runtime_user=10001\", \"root_filesystem=read_only\", \"container_runtime=NOT_VERIFIED\"]\n\n\nif __name__ == \"__main__\":\n    print(\"\\n\".join(check()))\n",
+            "compose.json": "{\n  \"services\": {\n    \"smoke\": {\n      \"build\": {\n        \"context\": \".\"\n      },\n      \"user\": \"10001:10001\",\n      \"ports\": [\n        \"127.0.0.1:8033:8000\"\n      ],\n      \"environment\": {\n        \"OPS_DATA_DIR\": \"/data\"\n      },\n      \"volumes\": [\n        \"data:/data\"\n      ],\n      \"read_only\": true,\n      \"tmpfs\": [\n        \"/tmp:rw,noexec,nosuid,size=16777216\"\n      ],\n      \"cap_drop\": [\n        \"ALL\"\n      ],\n      \"security_opt\": [\n        \"no-new-privileges:true\"\n      ],\n      \"init\": true,\n      \"stop_grace_period\": \"10s\",\n      \"restart\": \"no\",\n      \"labels\": {\n        \"langshift.lab\": \"o02-health-only\"\n      }\n    }\n  },\n  \"volumes\": {\n    \"data\": {\n      \"labels\": {\n        \"langshift.lab\": \"o02-disposable-data\"\n      }\n    }\n  }\n}\n",
+            "config.py": "from pathlib import Path\n\n\ndef data_directory(environ) -> Path:\n    value = environ.get(\"OPS_DATA_DIR\", \"\")\n    directory = Path(value)\n    if not value or not directory.is_absolute() or not directory.is_dir():\n        raise ValueError(\"OPS_DATA_DIR must name an existing absolute directory\")\n    return directory\n",
+            "container_probe.py": "\"\"\"Opt-in ONLY. Never uses the user's Docker context or removes their resources.\nA passing local static check is not a passing container experiment.\n\"\"\"\nimport argparse\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport stat\nimport subprocess\nfrom tempfile import TemporaryDirectory\nimport time\nimport uuid\n\nROOT = Path(__file__).resolve().parent\n\n\ndef local_socket(value: str) -> Path:\n    path = Path(value)\n    if not path.is_absolute() or not stat.S_ISSOCK(path.stat().st_mode):\n        raise ValueError(\"explicit existing local UNIX socket required\")\n    return path\n\n\ndef run_probe(socket_path: Path) -> list[str]:\n    docker = shutil.which(\"docker\")\n    if docker is None:\n        raise RuntimeError(\"Docker CLI is unavailable\")\n    name = \"js2py-o02-\" + uuid.uuid4().hex[:12]\n    image, volume = name + \":lab\", name + \"-data\"\n    containers = []\n    built = created_volume = False\n    results = []\n    # Empty config: do not read credential helpers or contact a saved remote context.\n    with TemporaryDirectory(prefix=\"js2py-docker-config-\") as config:\n        base = [docker, \"--config\", config, \"--host\", f\"unix://{socket_path}\"]\n        env = {key: value for key, value in os.environ.items()\n               if not key.startswith(\"DOCKER_\") and key not in {\"BUILDX_BUILDER\"}}\n        def call(*args, check=True, timeout=180):\n            p = subprocess.run(base + list(args), env=env, cwd=ROOT, text=True,\n                               capture_output=True, timeout=timeout)\n            if check and p.returncode:\n                # Build errors can be inspected locally; no environment dump.\n                raise RuntimeError(f\"owned Docker command failed: {args[0]}\\n{p.stderr[-3000:]}\")\n            return p.stdout.strip()\n        version = json.loads(call(\"version\", \"--format\", \"{{json .Server}}\"))\n        if int(version[\"Version\"].split(\".\")[0]) < 28 or version.get(\"Os\") != \"linux\":\n            raise RuntimeError(\"controlled Linux Docker Engine >=28 required\")\n        try:\n            call(\"build\", \"--tag\", image, \".\", timeout=600)\n            built = True\n            call(\"volume\", \"create\", \"--label\", f\"langshift.owner={name}\", volume)\n            created_volume = True\n            def start(suffix, persistent):\n                target = name + suffix\n                args = [\"run\", \"-d\", \"--name\", target, \"--label\", f\"langshift.owner={name}\",\n                        \"--init\", \"--cap-drop=ALL\", \"--security-opt=no-new-privileges:true\",\n                        \"--publish\", \"127.0.0.1::8000\"]\n                if persistent:\n                    args += [\"--read-only\", \"--tmpfs\", \"/tmp:rw,noexec,nosuid,size=16777216\",\n                             \"--mount\", f\"type=volume,source={volume},target=/data\"]\n                # Nonpersistent branch intentionally tests the writable layer.\n                call(*args, image)\n                containers.append(target)\n                deadline = time.monotonic() + 40\n                while time.monotonic() < deadline:\n                    health = call(\"inspect\", \"--format\", \"{{.State.Health.Status}}\", target)\n                    if health == \"healthy\":\n                        return target\n                    time.sleep(.5)\n                raise RuntimeError(\"owned container did not become healthy\")\n            def count(target, increment=False):\n                args = [\"exec\", target, \"python\", \"volume_probe.py\"]\n                if increment:\n                    args.append(\"--increment\")\n                return int(call(*args))\n            first = start(\"-volume-a\", True)\n            assert call(\"exec\", first, \"id\", \"-u\") == \"10001\"\n            assert json.loads(call(\"inspect\", \"--format\", \"{{json .HostConfig}}\", first))[\"ReadonlyRootfs\"]\n            bindings = json.loads(call(\"inspect\", \"--format\", \"{{json .NetworkSettings.Ports}}\", first))\n            assert all(v[\"HostIp\"] == \"127.0.0.1\" for values in bindings.values() if values for v in values)\n            assert count(first, True) == 1\n            call(\"stop\", \"--time\", \"10\", first)\n            call(\"start\", first)\n            assert count(first) == 1\n            call(\"rm\", \"--force\", first); containers.remove(first)\n            second = start(\"-volume-b\", True)\n            assert count(second) == 1\n            results += [\"nonroot=10001\", \"root_filesystem=read_only\", \"host_publish=loopback_only\", \"named_volume_after_recreate=1\"]\n            layer = start(\"-layer-a\", False)\n            assert count(layer, True) == 1\n            call(\"stop\", \"--time\", \"10\", layer); call(\"start\", layer)\n            assert count(layer) == 1\n            call(\"rm\", \"--force\", layer); containers.remove(layer)\n            fresh = start(\"-layer-b\", False)\n            assert count(fresh) == 0\n            results += [\"writable_layer_after_stop_start=1\", \"writable_layer_after_recreate=0\"]\n            return results\n        finally:\n            # No prune, global stop, wildcard names or removal of pre-existing resources.\n            for target in reversed(containers):\n                call(\"rm\", \"--force\", target, check=False)\n            if created_volume:\n                call(\"volume\", \"rm\", volume, check=False)\n            if built:\n                call(\"image\", \"rm\", image, check=False)\n            print(\"owned_resources_cleanup_requested=True\")\n            # Base image/build cache may remain. Never prune a shared engine.\n\n\ndef main() -> int:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--socket\", help=\"explicit local UNIX socket, no remote contexts\")\n    parser.add_argument(\"--confirm-controlled-engine\", action=\"store_true\")\n    args = parser.parse_args()\n    if not args.socket or not args.confirm_controlled_engine:\n        print(\"environment_pending: provide a controlled local Linux Docker Engine >=28 and explicit consent\")\n        return 77\n    try:\n        socket_path = local_socket(args.socket)\n    except (OSError, ValueError):\n        print(\"environment_pending: explicit local UNIX socket is unavailable\")\n        return 77\n    try:\n        print(\"\\n\".join(run_probe(socket_path)))\n    except (RuntimeError, AssertionError, subprocess.TimeoutExpired) as exc:\n        print(f\"container experiment failed: {exc}\")\n        return 1\n    return 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n",
+            "healthcheck.py": "\"\"\"Probe readiness inside this container; no proxy or secret output.\"\"\"\nimport json\nfrom urllib.error import URLError\nfrom urllib.request import ProxyHandler, build_opener\n\n\ndef main() -> int:\n    try:\n        with build_opener(ProxyHandler({})).open(\"http://127.0.0.1:8000/health/ready\", timeout=2) as response:\n            return 0 if response.status == 200 and json.load(response) == {\"status\": \"ready\"} else 1\n    except (OSError, URLError, ValueError):\n        return 1\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n",
+            "local_probe.py": "\"\"\"Host POSIX/HTTP smoke check, explicitly NOT a container test.\"\"\"\nimport json\nimport os\nfrom pathlib import Path\nimport socket\nimport subprocess\nimport sys\nfrom tempfile import TemporaryDirectory\nimport time\nfrom urllib.error import HTTPError\nfrom urllib.request import ProxyHandler, build_opener\n\nROOT = Path(__file__).resolve().parent\n\n\ndef observe():\n    if os.geteuid() == 0:\n        raise RuntimeError(\"use an ordinary account for the permission failure\")\n    with TemporaryDirectory(prefix=\"js2py-o02-host-\") as temp:\n        data = Path(temp) / \"data\"\n        data.mkdir()\n        listener = socket.socket()\n        listener.bind((\"127.0.0.1\", 0)); listener.listen()\n        port = listener.getsockname()[1]\n        with (Path(temp) / \"server.log\").open(\"w\") as output:\n            process = subprocess.Popen([sys.executable, \"-m\", \"uvicorn\", \"app:create_app\",\n                \"--factory\", \"--fd\", str(listener.fileno()), \"--no-access-log\", \"--no-proxy-headers\"],\n                cwd=ROOT, env={\"OPS_DATA_DIR\": str(data)}, pass_fds=(listener.fileno(),),\n                stdout=output, stderr=subprocess.STDOUT)\n            listener.close()\n            def get(path):\n                try:\n                    response = build_opener(ProxyHandler({})).open(f\"http://127.0.0.1:{port}{path}\", timeout=2)\n                except HTTPError as exc:\n                    response = exc\n                with response:\n                    return response.status, json.load(response)\n            try:\n                deadline = time.monotonic() + 8\n                while time.monotonic() < deadline:\n                    if process.poll() is not None:\n                        raise RuntimeError(\"owned local smoke process failed\")\n                    try:\n                        if get(\"/health/live\")[0] == 200:\n                            break\n                    except OSError:\n                        pass\n                    time.sleep(.03)\n                else:\n                    raise TimeoutError(\"owned local smoke process not ready\")\n                assert get(\"/health/ready\") == (200, {\"status\": \"ready\"})\n                data.chmod(0o500)\n                try:\n                    assert get(\"/health/live\")[0] == 200\n                    assert get(\"/health/ready\") == (503, {\"status\": \"not_ready\"})\n                finally:\n                    data.chmod(0o700)\n                assert get(\"/health/ready\")[0] == 200\n                assert get(\"/tasks\")[0] == 404\n            finally:\n                if process.poll() is None:\n                    process.terminate()\n                try:\n                    process.wait(timeout=4)\n                except subprocess.TimeoutExpired:\n                    process.kill(); process.wait(timeout=3)\n    return [\"host_http_live=200\", \"host_http_ready=200\", \"unwritable_live=200\",\n            \"unwritable_ready=503\", \"restored_ready=200\", \"tasks_not_implemented=404\",\n            \"container_runtime=NOT_VERIFIED\"]\n\n\nif __name__ == \"__main__\":\n    print(\"\\n\".join(observe()))\n",
+            "pyproject.toml": "[project]\nname = \"js2py-o02-containers\"\nversion = \"0.1.0\"\nrequires-python = \">=3.13,<3.14\"\ndependencies = [\"fastapi==0.135.1\", \"uvicorn==0.42.0\", \"pydantic==2.12.5\", \"starlette==0.52.1\", \"anyio==4.12.1\"]\n\n[dependency-groups]\ndev = [\"pytest==8.4.2\", \"httpx==0.28.1\"]\n\n[tool.uv]\npackage = false\n\n[tool.pytest.ini_options]\npythonpath = [\".\"]\ntestpaths = [\"tests\"]\n",
+            "secret_demo.py": "\"\"\"Only a fictional marker in an owned temporary directory; never real credentials.\"\"\"\nimport os\nfrom pathlib import Path\nimport stat\nfrom tempfile import TemporaryDirectory\n\n\ndef observe() -> list[str]:\n    with TemporaryDirectory(prefix=\"js2py-secret-boundary-\") as temp:\n        file = Path(temp) / \"fictional-secret.txt\"\n        descriptor = os.open(file, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\n        with os.fdopen(descriptor, \"w\") as output:\n            output.write(\"not-a-real-credential\\n\")\n        value = file.read_text().strip()\n        return [f\"file_mode={oct(stat.S_IMODE(file.stat().st_mode))}\",\n                f\"fictional_value_loaded={bool(value)}\", \"value_is_not_printed=True\"]\n\n\nif __name__ == \"__main__\":\n    print(\"\\n\".join(observe()))\n",
+            "solutions/__init__.py": "\"\"\"Independent exercise references; attempt the requirement first.\"\"\"\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.43
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 0.99,
+            "probabilities": {
+              "SUBSTANTIVE": 0.99,
+              "UNCERTAIN": 0.0,
+              "API_CATALOGUE": 0.0,
+              "PARTIAL": 0.01
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.94,
+            "probabilities": {
+              "NECESSARY_GAP": 0.04,
+              "ACCURATE_AND_BOUNDED": 0.95,
+              "UNCERTAIN": 0.0,
+              "MATERIAL_ERROR": 0.01
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 1.0,
+            "probabilities": {
+              "NECESSARY_GAP": 0.0,
+              "ACCURATE_AND_BOUNDED": 1.0,
+              "MATERIAL_ERROR": 0.0,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.93,
+            "probabilities": {
+              "CONTRADICTORY": 0.05,
+              "COHERENT_AND_TESTABLE": 0.95,
+              "UNCERTAIN": 0.0,
+              "UNDERSPECIFIED": 0.0
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.81
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "PROCEED",
+            "confidence": 0.39,
+            "probabilities": {
+              "REVISE": 0.02,
+              "TARGETED_REVIEW": 0.38,
+              "PROCEED": 0.6
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 23979,
+          "output_tokens": 341
+        }
+      },
+      "raw_response_sha256": "5ae271960e549b59ddcf37407ef37a4091a2fd221d214b88e04f2c3e27c5cd0d"
+    },
+    {
+      "batch": "review-79",
+      "metadata": {
+        "started_at_utc": "2026-09-28T06:02:59.188863+00:00",
+        "elapsed_seconds": 0.951,
+        "http_status": 200,
+        "endpoint": "https://api.typesafe.ai/v1/systemone",
+        "requested_model": "jev-latest",
+        "returned_model": "jev-1.13.0",
+        "questions": 7,
+        "request_sha256": "c23bbf4f873fd55ea13e222b66ba4900d9f9525fac42004943d47287327920c0",
+        "usage": {
+          "input_tokens": 13572,
+          "output_tokens": 341
+        },
+        "credential_persisted": false,
+        "probability_sums": {
+          "depth": 1.0,
+          "technical_mechanisms": 1.0,
+          "failure_policy": 1.0,
+          "independent_contract": 1.0,
+          "next_action": 1.0
+        },
+        "probability_sum_absolute_tolerance": 0.02,
+        "raw_probabilities_renormalized": false
+      },
+      "request": {
+        "model": "jev-latest",
+        "state": {
+          "reader": "Experienced enterprise frontend engineer, fluent JS async/await/basic TypeScript, originally no Python/backend/database/operations. Slow interrupted learning, prerequisite-based rather than scheduled. Current task authorizes subagents; complete manuscripts and code still require mainline integration and actual checks.",
+          "chapter": "o02-containers",
+          "current_contract": {
+            "id": "O02",
+            "title": "容器与可部署应用",
+            "prerequisites": [
+              "O01",
+              "L08"
+            ],
+            "teach": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查",
+            "acceptance": "从干净环境构建运行并重启，确认数据和秘密边界",
+            "boundary": "不在镜像写密钥；不把容器健康等同于业务正确",
+            "status": "planned"
+          },
+          "declared_prior_capabilities": [
+            {
+              "id": "O01",
+              "title": "操作系统与服务运行基础",
+              "prerequisites": [
+                "A02"
+              ],
+              "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+              "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+              "boundary": "不先让初学者背Docker命令绕过OS基础",
+              "status": "planned"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            }
+          ],
+          "declared_transitive_prior_capabilities": [
+            {
+              "id": "L00",
+              "title": "认识 Python 与第一次运行",
+              "prerequisites": [],
+              "teach": "解释器、命令与源码；字面量、名称、赋值、print、顺序执行和简单错误",
+              "acceptance": "独立创建、解释、修改并修复一个无第三方依赖的小脚本",
+              "boundary": "不要求导入、自定义函数、锁文件、pytest或工程重建",
+              "status": "implemented"
+            },
+            {
+              "id": "L01",
+              "title": "名称、值与基本运算",
+              "prerequisites": [
+                "L00"
+              ],
+              "teach": "名称绑定、标量、None、数值运算、字符串、转换与格式化",
+              "acceptance": "预测并解释基本表达式；说明重绑定不改变旧输出；独立写出时间计算脚本并通过输入变式",
+              "boundary": "不引入复杂容器、作用域或类型体操",
+              "status": "implemented"
+            },
+            {
+              "id": "L02",
+              "title": "容器、引用与修改",
+              "prerequisites": [
+                "L01"
+              ],
+              "teach": "列表、字典、元组、集合；缺失与None、可变性、共享引用与复制",
+              "acceptance": "表达和修改任务数据；定位并修复共享引用问题；独立创建两份计划并通过输入变式",
+              "boundary": "不依赖循环或自定义函数完成首次容器实验",
+              "status": "implemented"
+            },
+            {
+              "id": "L03",
+              "title": "条件、循环与遍历",
+              "prerequisites": [
+                "L02"
+              ],
+              "teach": "缩进、真值、分支、for/while、range/enumerate、简单推导式",
+              "acceptance": "统计空和非空任务集合；解释控制流与边界输入",
+              "boundary": "普通循环学会后才使用推导式；不引入异步迭代",
+              "status": "implemented"
+            },
+            {
+              "id": "L04",
+              "title": "函数、参数与作用域",
+              "prerequisites": [
+                "L03"
+              ],
+              "teach": "def、调用和返回、参数、默认值、作用域、函数值与简单闭包",
+              "acceptance": "独立实现任务规则函数，解释默认值和返回值的行为",
+              "boundary": "不以装饰器或类封装作为练习要求",
+              "status": "implemented"
+            },
+            {
+              "id": "L05",
+              "title": "异常与调试",
+              "prerequisites": [
+                "L04"
+              ],
+              "teach": "traceback、raise、具体异常、try/except/else/finally、断言边界",
+              "acceptance": "处理可恢复失败并保留未知错误；解释执行路径",
+              "boundary": "不把assert当作不可信输入的生产校验",
+              "status": "implemented"
+            },
+            {
+              "id": "L06",
+              "title": "模块与标准库",
+              "prerequisites": [
+                "L05"
+              ],
+              "teach": "导入与命名空间、顶层执行、脚本和模块入口、工作目录、多文件",
+              "acceptance": "拆分函数并证明导入不会意外执行业务入口",
+              "boundary": "不先要求发布包、动态导入或框架架构",
+              "status": "implemented"
+            },
+            {
+              "id": "L07",
+              "title": "文件、JSON 与资源使用",
+              "prerequisites": [
+                "L06"
+              ],
+              "teach": "编码、文本与对象、路径、序列化、文件错误、with与清理",
+              "acceptance": "保存并读回任务数据，处理缺失和损坏文件，解释释放时机",
+              "boundary": "讲透使用行为；自定义上下文协议的实现放L14",
+              "status": "implemented"
+            },
+            {
+              "id": "L08",
+              "title": "环境与依赖管理",
+              "prerequisites": [
+                "L06",
+                "L07"
+              ],
+              "teach": "解释器定位、标准库与第三方包、隔离、依赖声明、锁文件、复现",
+              "acceptance": "从声明恢复环境；解释文件职责；诊断一次依赖失败",
+              "boundary": "不在入门章考核；不同时比较所有包管理器",
+              "status": "implemented"
+            },
+            {
+              "id": "L09",
+              "title": "基础自动化测试",
+              "prerequisites": [
+                "L04",
+                "L05",
+                "L06",
+                "L08"
+              ],
+              "teach": "普通测试函数、断言、pytest执行与发现、隔离输入、错误断言",
+              "acceptance": "为业务函数编写正常、空数据和非法输入测试",
+              "boundary": "参数化、装饰器fixture和子进程测试不是本章前提",
+              "status": "implemented"
+            },
+            {
+              "id": "L10",
+              "title": "第一个独立可复现项目",
+              "prerequisites": [
+                "L07",
+                "L08",
+                "L09"
+              ],
+              "teach": "综合任务数据、函数、模块、文件、环境和基本测试",
+              "acceptance": "只根据需求重建任务程序、解释文件职责并完成独立变式",
+              "boundary": "不新增Web框架；旧工程高级测试按先修能力拆开",
+              "status": "implemented"
+            },
+            {
+              "id": "L11",
+              "title": "基础类型注解",
+              "prerequisites": [
+                "L02",
+                "L04",
+                "L06",
+                "L10"
+              ],
+              "teach": "函数与容器注解、联合与可空、缺省、静态检查与运行时边界",
+              "acceptance": "为已有程序补注解并解释仍需运行时校验的输入",
+              "boundary": "不要求复杂泛型、协议或零Any指标",
+              "status": "implemented"
+            },
+            {
+              "id": "L12",
+              "title": "类与数据模型",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L11"
+              ],
+              "teach": "实例、self、初始化、组合、简单继承、dataclass",
+              "acceptance": "实现小模型并比较字典/函数方案；解释注解不自动验证",
+              "boundary": "不要求元类、深继承或框架内部实现",
+              "status": "implemented"
+            },
+            {
+              "id": "L13",
+              "title": "装饰器与声明式接口",
+              "prerequisites": [
+                "L04",
+                "L06",
+                "L12"
+              ],
+              "teach": "函数值与闭包复习、应用时机、注册与包装、参数化形式",
+              "acceptance": "写最小装饰器；在已知业务上使用参数化测试",
+              "boundary": "先解释执行过程，不直接靠背@app.get理解路由",
+              "status": "implemented"
+            },
+            {
+              "id": "L14",
+              "title": "生成器与资源生命周期",
+              "prerequisites": [
+                "L05",
+                "L07",
+                "L12",
+                "L13"
+              ],
+              "teach": "yield、暂停恢复、异常清理、上下文协议与contextlib",
+              "acceptance": "跟踪资源获取、使用、正常及异常释放",
+              "boundary": "复杂生成器和异步上下文管理器不作此章要求",
+              "status": "implemented"
+            },
+            {
+              "id": "H01",
+              "title": "从客户端到持续运行的服务",
+              "prerequisites": [
+                "L10",
+                "L14"
+              ],
+              "teach": "进程、端口、监听、请求路径、客户端与服务端责任、可信边界",
+              "acceptance": "画出一次请求的路径，解释请求结束与进程结束不同",
+              "boundary": "不假定有Express、数据库或服务器管理经验",
+              "status": "planned"
+            },
+            {
+              "id": "H02",
+              "title": "HTTP 与接口契约",
+              "prerequisites": [
+                "H01"
+              ],
+              "teach": "方法、状态码、资源、请求响应、错误、分页、幂等语义与CORS边界",
+              "acceptance": "先写可联调的任务接口契约及失败场景",
+              "boundary": "CORS不是身份验证；不把接口列表当契约教学",
+              "status": "planned"
+            },
+            {
+              "id": "H03",
+              "title": "第一个同步 FastAPI 服务",
+              "prerequisites": [
+                "H02",
+                "L13"
+              ],
+              "teach": "框架与ASGI服务器、启动导入、路由、同步处理、最小响应",
+              "acceptance": "从终端启动服务并用客户端观察成功与失败请求",
+              "boundary": "不引入数据库或未教过的异步lifespan",
+              "status": "planned"
+            },
+            {
+              "id": "H04",
+              "title": "Pydantic 与输入输出边界",
+              "prerequisites": [
+                "H03",
+                "L11",
+                "L12"
+              ],
+              "teach": "请求和响应模型、转换与验证、可空与缺省、更新、输出过滤",
+              "acceptance": "实现内存CRUD，证明部分更新不误清空字段、响应不泄露内部字段",
+              "boundary": "内存存储不是上线版本；不默认信任客户端",
+              "status": "planned"
+            },
+            {
+              "id": "H05",
+              "title": "应用组织、配置与依赖",
+              "prerequisites": [
+                "H04",
+                "L14"
+              ],
+              "teach": "APIRouter、Depends、同步yield依赖、环境配置、责任边界",
+              "acceptance": "拆分服务并跟踪依赖创建和释放；配置失败有明确诊断",
+              "boundary": "异步资源生命周期放A02；不引入无需求的复杂分层",
+              "status": "planned"
+            },
+            {
+              "id": "H06",
+              "title": "API 测试与前后端联调",
+              "prerequisites": [
+                "H05",
+                "L09",
+                "L13"
+              ],
+              "teach": "TestClient、fixture、依赖替换、错误响应、CORS和契约验证",
+              "acceptance": "自动验证成功/错误路径并完成一次真实前端联调",
+              "boundary": "不把Swagger手点一次当测试；不重新建设前端框架",
+              "status": "planned"
+            },
+            {
+              "id": "D01",
+              "title": "关系模型与 PostgreSQL 入门",
+              "prerequisites": [
+                "H06"
+              ],
+              "teach": "表、记录、主外键、关系、约束、数据库进程与本地连接",
+              "acceptance": "画出任务/项目/成员关系；创建并连接隔离的练习数据库",
+              "boundary": "不把安装成功当掌握数据模型",
+              "status": "planned"
+            },
+            {
+              "id": "D02",
+              "title": "SQL 与参数化查询",
+              "prerequisites": [
+                "D01"
+              ],
+              "teach": "CRUD、过滤、排序、聚合、JOIN、NULL、参数化边界",
+              "acceptance": "独立写查询并解释结果、非法输入与注入防护",
+              "boundary": "不先用ORM隐藏SQL；用户输入不拼接成SQL",
+              "status": "planned"
+            },
+            {
+              "id": "D03",
+              "title": "事务、约束与并发冲突",
+              "prerequisites": [
+                "D02"
+              ],
+              "teach": "原子性、提交回滚、约束失败、隔离和竞争、事务边界",
+              "acceptance": "制造两步写入的后一步失败，证明前一步未残留",
+              "boundary": "不仅背ACID；不以单进程内存检查代替约束",
+              "status": "planned"
+            },
+            {
+              "id": "D04",
+              "title": "同步 SQLAlchemy 与 Session",
+              "prerequisites": [
+                "D03",
+                "H05"
+              ],
+              "teach": "映射、连接池与Session、事务所有权、查询、提交失败后的恢复",
+              "acceptance": "把API接入真实数据库并验证成功/失败都释放资源",
+              "boundary": "不第一次学数据库就加入异步ORM",
+              "status": "planned"
+            },
+            {
+              "id": "D05",
+              "title": "Alembic 与已有数据迁移",
+              "prerequisites": [
+                "D04"
+              ],
+              "teach": "版本历史、生成与审查、升级、数据兼容、回退边界",
+              "acceptance": "建立空库并升级带已有数据的库，验证数据保留",
+              "boundary": "不删库重建；不承诺任意降级都无损",
+              "status": "planned"
+            },
+            {
+              "id": "D06",
+              "title": "数据库测试与查询诊断",
+              "prerequisites": [
+                "D05",
+                "H06"
+              ],
+              "teach": "隔离测试数据库、fixture清理、约束/事务/迁移测试、索引和查询计划",
+              "acceptance": "用真实PostgreSQL验证失败与恢复，并解释一个查询改进",
+              "boundary": "不能接开发或生产库；不能用SQLite替代全部验收",
+              "status": "planned"
+            },
+            {
+              "id": "S01",
+              "title": "身份与凭证生命周期",
+              "prerequisites": [
+                "D06"
+              ],
+              "teach": "用户、密码哈希、登录、凭证验证/失效、禁用用户、日志脱敏",
+              "acceptance": "拒绝错误/过期/篡改凭证并验证撤销策略",
+              "boundary": "不自创密码学；登录成功不等于有对象权限",
+              "status": "planned"
+            },
+            {
+              "id": "S02",
+              "title": "对象级授权与多用户隔离",
+              "prerequisites": [
+                "S01"
+              ],
+              "teach": "角色和成员关系、所有权、默认拒绝、越权与负向测试",
+              "acceptance": "Alice知道Bob对象ID仍无法读取/修改，角色不能由请求体自授",
+              "boundary": "前端隐藏按钮和CORS都不是服务端授权",
+              "status": "planned"
+            },
+            {
+              "id": "S03",
+              "title": "可靠业务操作与幂等",
+              "prerequisites": [
+                "S02",
+                "D03"
+              ],
+              "teach": "业务冲突、重复提交、事务与幂等范围、日期时间/标识/精确数值的必要标准库",
+              "acceptance": "复现重复请求或并发冲突并验证约定行为",
+              "boundary": "不承诺仅靠重试就能实现恰好一次；按业务需要教学数据表示",
+              "status": "planned"
+            },
+            {
+              "id": "A01",
+              "title": "Python 异步执行模型",
+              "prerequisites": [
+                "S03"
+              ],
+              "teach": "coroutine/Task、调度、await、阻塞、取消、超时和并发限制",
+              "acceptance": "通过可观察实验选择同步/异步边界，并验证取消行为",
+              "boundary": "JS熟悉async不代表Python自动调度；不机械改全部async",
+              "status": "planned"
+            },
+            {
+              "id": "A02",
+              "title": "外部服务与异步资源生命周期",
+              "prerequisites": [
+                "A01",
+                "L14",
+                "H05"
+              ],
+              "teach": "客户端复用、lifespan、超时、重试与幂等、故障替身、清理",
+              "acceptance": "外部依赖失败不拖垮核心CRUD；正常/异常/取消均释放资源",
+              "boundary": "不把进程内队列或BackgroundTasks当持久任务系统",
+              "status": "planned"
+            },
+            {
+              "id": "O01",
+              "title": "操作系统与服务运行基础",
+              "prerequisites": [
+                "A02"
+              ],
+              "teach": "进程、信号、端口、文件权限、环境变量、工作目录和退出状态",
+              "acceptance": "定位启动失败并演示正常停止；解释服务账户权限",
+              "boundary": "不先让初学者背Docker命令绕过OS基础",
+              "status": "planned"
+            }
+          ],
+          "prerequisite_scope": "Current direct edges plus their transitive contracts are included. Contracts describe curriculum capabilities, not proof that a particular learner has passed; review required concepts against actual lesson explanation, not absence of transitive detail from earlier rounds.",
+          "actual_english_lesson": "---\ntitle: \"Containers and deployable applications: an image is not your data\"\ndescription: \"Explain images, build context, non-root execution, networks, volumes and health boundaries; run local HTTP and static checks without pretending a container engine was available.\"\n---\n\nimport { getContainerOpsExample } from '@/lib/js2py-examples'\n\n## 1. Why a container does not let you skip the operating system\n\nYou can now explain cwd, environments, permissions, ports, and signals. Containers organize those conditions into repeatable boundaries; they do not abolish them. A wrong directory still loses files, a non-root account may still lack volume permissions, and the process receiving a stop signal must handle it correctly. Copying a Dockerfile without identifying state ownership can make removing and recreating an instance delete your only data.\n\nPrerequisites are O01 and L08. You will distinguish images from instances, constrain build inputs, choose users and configuration, explain network namespaces, and verify data lifecycles and health signals. Independent acceptance includes a clean build, execution, and restart/recreation. **No container engine exists on this verification host, so that acceptance stays pending** rather than becoming “files exist, therefore passed.”\n\n[Download the complete O02 lab](/learning-assets/js2py/o02-containers.zip). It deploys only two health endpoints, with no tasks, accounts, authorization, or database. It cannot serve real users or replace the complete S03 application. This chapter requires no cloud purchase, heavy installation, or acceptance of vendor terms. Explicitly select an existing controlled engine only when you have one.\n\n## 2. Separate image, container, host, and engine\n\nAn image consists of filesystem layers and startup metadata, serving as a common starting point for multiple instances. A container is an instance created from that image, with process/network isolation and a writable layer. It is not a complete second computer; it normally shares its Linux host’s kernel. macOS commonly needs a Linux VM to host these containers. Having Python, Homebrew, or a Docker CLI does not establish an available Linux engine.\n\nThe Docker CLI sends requests to an engine. Its context or DOCKER_HOST can point remotely, so a local command can affect somebody else’s server. This lab never uses the default context, lists all user containers, or prunes resources. Its runner requires an explicit local UNIX socket and controlled-engine confirmation, and uses an empty temporary Docker configuration rather than reading credential helpers. Engine-socket access is powerful and does not belong inside an ordinary business container.\n\nAn image tag is a movable name, not a content checksum. Pinning a Python version is clearer than latest, but without resolving and recording the actual digest we cannot claim byte-identical image reproduction or completed supply-chain review.\n\n## 3. Restore the local lab without assuming Docker exists\n\nRun from the repository root; ZIP users enter the extracted lab root directly. uv/Python/pytest match O01. The web baseline is FastAPI 0.135.1, Uvicorn 0.42.0, Pydantic 2.12.5, and HTTPX 0.28.1, with Starlette 0.52.1 and AnyIO 4.12.1 pinned as well. Dependencies are restored in a Python virtual environment; no frontend dependency is added.\n\n```bash\ncd examples/js2py/o02-containers\nuv sync --locked\nuv run --locked python -m pytest -q\nuv run --locked python check_config.py\nuv run --locked python local_probe.py\n```\n\n<Code language=\"toml\">{getContainerOpsExample('pyproject.toml')}</Code>\n\nRestore the existing lock with `uv sync --locked`. The maintainer actually generated it with `uv lock --default-index https://pypi.org/simple`. Resolving again can change the dependency snapshot and is not synonymous with routine restoration. Executed case counts and environment gaps are reported separately at the end.\n\n## 4. Build context: secrets should not be sent even if not copied\n\nIn `docker build .`, the final dot identifies the build context, normally the current directory. COPY source paths come from that context. Using a repository root, home directory, or cache directory can submit unrelated files, .env values, credentials, and large caches to the builder. A few selective COPY statements are not the entire boundary: minimize the submitted inputs too.\n\nOur `.dockerignore` ignores everything first, then explicitly permits nine files. It excludes `.venv`, test caches, real configuration, READMEs, and paths outside this source root. The `!` prefix re-includes a named file. The Dockerfile also uses explicit COPY statements rather than `COPY . .`. These two reviewable restrictions are useful, but a text checker is not Docker’s full pattern parser. Actual engine validation remains necessary.\n\n<Code language=\"text\">{getContainerOpsExample('.dockerignore')}</Code>\n\n<Code language=\"dockerfile\">{getContainerOpsExample('Dockerfile')}</Code>\n\nThe build stage restores production dependencies with pinned uv and omits the dev group. The runtime stage receives only the environment and four application files, not the entire builder and tests. Matching base images keep interpreter paths in /opt/venv meaningful. Image retrieval, base-tag availability, target architecture, and real build caching are **unverified**. Dockerfile text does not prove a successful build. A release must also review the base-image digest and update policy.\n\n## 5. Non-root and a read-only root: permit only necessary writes\n\nBuilding an image commonly requires privilege to create directories and users, but running it should not retain that authority. The Dockerfile creates numeric UID/GID 10001, owning /data but not application source. `USER` selects the default identity; Compose declares the same identity for review. Numeric ownership affects volume access: an account named app inside a container does not automatically make a host directory writable.\n\nCompose’s read_only restricts the container root filesystem. The /data named volume is the declared persistent write location; /tmp is a size-bounded temporary memory filesystem. cap_drop ALL removes additional Linux capabilities and no-new-privileges constrains privilege gain through execution. These reduce risk, not all kernel vulnerabilities, and do not implement authorization. Disabling Python bytecode writes avoids unnecessary attempts to modify read-only source directories.\n\n<Code language=\"json\">{getContainerOpsExample('compose.json')}</Code>\n\nWe deliberately use JSON for the Compose file. Compose accepts this YAML subset, but select it explicitly with `-f compose.json` rather than assuming automatic discovery. `init: true` adds a small init for orphan reaping and signal forwarding; exec-form CMD does not interpose a shell. stop_grace_period allows normal stopping, while restart=no keeps failures observable without automatic restart. All of these still need execution on your controlled engine.\n\n## 6. Configuration and secrets: export is not a vault\n\nOPS_DATA_DIR is non-secret path configuration and can appear openly in Compose. Database passwords and Bearer tokens are different: do not put them in Dockerfile ENV/ARG, image layers, build logs, command-line arguments, or the example ZIP. Deleting a file in a later image layer does not prove it is absent from earlier layers. Ignoring .env reduces build exposure; it does not secure the file’s contents.\n\nA controlled platform can mount a secret read-only into the authorized service or inject it using a reviewed secret manager. Compose secrets provide per-service file mounting, not automatic host-file protection, backup, rotation, or revocation. The next experiment handles only a fixed fictional marker and prints observations, not its contents. It neither connects to a database nor reads existing credentials.\n\n<Code language=\"python\">{getContainerOpsExample('secret_demo.py')}</Code>\n\n```bash\nuv run --locked python secret_demo.py\n```\n\n```text\nfile_mode=0o600\nfictional_value_loaded=True\nvalue_is_not_printed=True\n```\n\n## 7. Network namespaces: do not confuse two loopbacks\n\nHost 127.0.0.1 refers to the host network, while a container’s 127.0.0.1 refers to its own network. If an application binds only container loopback, connections forwarded from outside that namespace generally cannot reach it. The Dockerfile therefore listens on **container-internal** 0.0.0.0:8000, while Compose publishes only **host-side** 127.0.0.1:8033:8000. This is not an instruction to listen publicly on the host; both boundaries matter.\n\nEXPOSE 8000 is metadata, not a host-port publication. Another container also cannot find this service at its own 127.0.0.1; controlled container networking and a service name are normally needed. This lab has no database container and never connects to the user’s PostgreSQL. Real deployment must also verify host firewalls, IPv6, and VM forwarding rather than inferring all network safety from one ports line.\n\nDocker documents a localhost-publication exception for same-L2 hosts with engines older than 28.0.0. The runner therefore requires Linux Engine >=28. Checking that version addresses this known gate, not a complete security audit.\n\n## 8. Volumes and writable layers: restart is not recreation\n\n“Containers lose their data whenever restarted” is an incorrect slogan. **Stopping and starting the same container normally preserves its writable layer**. Removing it and creating a new container from the image does not automatically transfer that layer. A named volume has an independent lifecycle and can be reattached to a new instance, but it can still be explicitly deleted or lost with host storage. A persistent volume is not a backup.\n\nvolume_probe maintains a disposable counter in an explicit directory. Separate processes reading the same path can preserve it, which alone does not verify Docker volumes. The real runner checks three cases: a named volume retains 1 after recreation; a writable layer retains 1 after stop/start of the same container; a newly created unmounted container begins at 0. File replacement provides neither concurrent transactions nor power-loss guarantees. Do not apply this copying method to a live PostgreSQL data directory.\n\n<Code language=\"python\">{getContainerOpsExample('volume_probe.py')}</Code>\n\n## 9. Health: alive, ready, and business-correct are three claims\n\n`/health/live` returning 200 proves only that its handler answers. `/health/ready` attempts a temporary write in the data directory and returns 503 on failure. Its dependency is a writable teaching directory, not a database connection. S03 needs its own DB-backed readiness; migration, permissions, and business tests remain separate. A service leaking Bob’s data to Alice can stay healthy indefinitely.\n\nDocker HEALTHCHECK periodically executes healthcheck.py and uses its exit status as health information. Ordinary Docker does not automatically restart this container merely because it becomes unhealthy. Restart policies primarily respond to process exits; scheduling and traffic decisions depend on other platform rules. Avoid amplifying a short DB failure by repeatedly killing processes through an inappropriate liveness check. Health responses must not expose connection strings or secrets.\n\n<Code language=\"python\">{getContainerOpsExample('app.py')}</Code>\n\n<Code language=\"python\">{getContainerOpsExample('healthcheck.py')}</Code>\n\nThe real host HTTP experiment launches Uvicorn using an owned loopback socket, checks normal endpoints, then makes **its own temporary directory** unwritable. It verifies live=200 while ready=503, restores permissions, and observes ready=200 again. /tasks=404 explicitly confirms this is not the business application. It has finite timeouts and cleans up only its own child. Running it without Docker is useful but does not accept the container environment.\n\n<Code language=\"python\">{getContainerOpsExample('local_probe.py')}</Code>\n\n```bash\nuv run --locked python local_probe.py\n```\n\n```text\nhost_http_live=200\nhost_http_ready=200\nunwritable_live=200\nunwritable_ready=503\nrestored_ready=200\ntasks_not_implemented=404\ncontainer_runtime=NOT_VERIFIED\n```\n\n## 10. Static review and a real container experiment have different jobs\n\n<Code language=\"python\">{getContainerOpsExample('check_config.py')}</Code>\n\n```bash\nuv run --locked python check_config.py\nuv run --locked python container_probe.py\n```\n\nThe first command checks selected reviewable invariants: explicit context, loopback publication, UID, and read-only root. It still ends with container_runtime=NOT_VERIFIED. Without an explicit socket and confirmation, the second command exits **77** with environment_pending. This neither hides a failure nor reports container success. The runner accompanies the runnable configuration, but its real Docker branch was not executed here.\n\nIf you have a controlled local Linux Docker Engine >=28, read the runner first. Confirm the socket, image-download network/disk costs, and cleanup scope before using the following **unexecuted command template**. Replace the placeholder with your verified UNIX socket, never a remote TCP/SSH endpoint. The runner uses unique names and removes only the containers, volume, and image it created. Base images and build cache may remain; it never prunes a shared engine to make everything look clean.\n\n```bash\nuv run --locked python container_probe.py --socket /path/to/controlled/docker.sock --confirm-controlled-engine\n```\n\n<Code language=\"python\">{getContainerOpsExample('container_probe.py')}</Code>\n\nRecord the engine/OS/CPU architecture, resolved image digest, build log, container UID, host binding, stop result, three state-lifecycle observations, and cleanup result yourself. Do not copy an expected outcome as an observation. If a step differs, preserve evidence before inspecting permissions, volume ownership, engine selection, and image resolution.\n\n## 11. Failure diagnosis: locate the boundary before granting power\n\n| Failure | Likely boundary | Next step |\n| --- | --- | --- |\n| CLI/socket absent | No local runtime | Record environment_pending; do not silently install or connect remotely |\n| Image/dependency download fails | Tag, architecture, network, or index | Inspect the build stage; switching to latest does not prove reproduction |\n| Application cannot write /data | UID and volume ownership mismatch | Inspect the dedicated volume, not permissions on real user directories |\n| Host connection fails while process lives | Internal binding and host publication | Inspect both boundaries instead of exposing the service publicly |\n| healthy but /tasks=404 | Only the smoke app was deployed | Not a CORS fault; the authorized business app is not integrated |\n| Counter lost after recreation | Writable layer or wrong/new volume | Compare restart and reattachment before deleting volumes to retry |\n\nDo not replace the image, volume, and application version simultaneously and guess what fixed it. Change one boundary at a time and retain the last successful observation. Real databases require the later backup/recovery material, not this disposable-file exercise dressed up as recovery.\n\n## 12. Explanation checkpoint: reject three convenient inferences\n\nExplain why stop/start can retain data without a volume while recreation does not, why container-internal 0.0.0.0 does not necessarily publish the host publicly, and why healthy cannot prove an Alice/Bob authorization test passed. Name the boundary instead of answering “because Docker.”\n\n<details>\n<summary>Answer and explanation</summary>\n\nThe same instance retains its writable layer; a new one begins from its image and explicitly mounted state, without inheriting the old layer. Internal listening belongs to the container network namespace; host publication depends separately on ports, engine behavior, and firewall rules. A health script checks declared technical dependencies, not two users’ identities and resource permissions. Each false inference substitutes success at one layer for a guarantee at another.\n\n</details>\n\n## 13. Guided exercise: make ready fail while live still succeeds\n\nPredict which endpoint local_probe’s permission change affects. Keep the process running, change only the owned temporary data directory, observe 200/503, and restore it. Do not simulate unwritability by stopping the server, or chmod your home directory. Then explain why a file probe is insufficient when business readiness depends on a database.\n\n<details>\n<summary>Guided answer and automatic checks</summary>\n\nlive never accesses the data directory and stays at 200. ready catches the write failure and returns 503; restoring write access returns it to 200. Real DB readiness needs its appropriate connection/query and bounded timeout, not “writable disk implies usable DB.” This failure is reproducible as an ordinary local account; root may bypass it and is explicitly rejected.\n\n<Code language=\"python\">{getContainerOpsExample('tests/test_container_foundations.py')}</Code>\n\n</details>\n\n## 14. Independent variation: restore into a new directory\n\nRequirements only: a source directory holds a quiescent teaching counter. Restore it into a new empty directory and read the same value. Reject a nonempty destination; never silently reset corrupt source data to zero or change the original file. Write the function and tests, then explain why this is **not a backup procedure for live PostgreSQL**. If a container engine is available, also run the runner’s recreation tests; neither evidence replaces the other.\n\n<details>\n<summary>Independent reference implementation</summary>\n\n<Code language=\"python\">{getContainerOpsExample('solutions/restore_copy.py')}</Code>\n\n<Code language=\"python\">{getContainerOpsExample('solutions/test_restore_copy.py')}</Code>\n\n```bash\nuv run --locked python -m pytest -q solutions/test_restore_copy.py\n```\n\nValidating the source and writing only a new destination reduces accidental overwrite, but supplies no database snapshot consistency during writes. Real recovery must follow a database backup protocol in an isolated environment and verify business records; the later release/recovery chapters own that boundary.\n\n</details>\n\n## 15. Environment matrix and delivery conclusion\n\n| State | Evidence or gate |\n| --- | --- |\n| Actually executed | Ordinary macOS user; 14 standard and 3 independent tests; real loopback HTTP 200/503/recovery/404, selected configuration invariants, fictional secret file, ordinary-file restoration |\n| Unavailable on this host | No discovered Docker/OrbStack/Podman/Apple container CLI, common application installation, or socket; no controlled Linux container engine |\n| User-provided environment | Controlled local Linux Docker Engine >=28, explicit UNIX socket, permission/network/storage for image downloads; real build, non-root identity, publication, read-only root, health, stop/recreation/volume tests |\n| Additional acceptance | Base-image tag/digest/architecture, real Compose parsing, volume ownership, actual engine branch, business integration, DB backup |\n\nText, source, selected static checks, and the local HTTP slice are implemented. **The container build/runtime environment remains environment_pending.** No remote context, global prune, existing-user-container operation, system-software installation, or cloud purchase occurred.\n\n## 16. Sources, dates, and a resumable record\n\nPrimary sources checked **2026-09-28**. `SOURCES.json` records URLs, dates, and retrieval summaries; it does not promise that documentation will never change. The three READMEs distinguish observations from environment gaps. The existence of configuration is not deployment acceptance.\n\n- [Docker build context](https://docs.docker.com/build/concepts/context/)\n- [Dockerfile reference](https://docs.docker.com/reference/dockerfile/)\n- [Docker volumes](https://docs.docker.com/engine/storage/volumes/)\n- [Docker port publishing](https://docs.docker.com/engine/network/port-publishing/)\n- [Docker Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/)\n- [Docker daemon attack surface](https://docs.docker.com/engine/security/)\n- [Docker Compose service reference](https://docs.docker.com/reference/compose-file/services/)\n- [uv lock and sync](https://docs.astral.sh/uv/concepts/projects/sync/)\n\nA resume record includes source/lock hashes, cwd, last successful command, the 14+3 local result, whether an engine exists and how it was verified, observed versus expected image/volume behavior, unresolved failures, and the next action. Do not copy credentials, tokens, or Docker configuration into it. Resume by restoring the lock and running local_probe. Acquiring an engine starts a new acceptance record; it does not rename an old static pass into a container pass.\n\n",
+          "mechanism_focus": "镜像与容器、构建上下文、运行用户、配置与秘密、网络/卷、健康检查; 从干净环境构建运行并重启，确认数据和秘密边界; 不在镜像写密钥；不把容器健康等同于业务正确",
+          "scope_policy": "The complete English lesson is present in every slice. Every non-lock allowlisted source/config/test/README text appears in one slice; no source is replaced by an outline. Large opaque lock artifacts are checked by deterministic hashes/public-registry validation/locked execution, not by semantic inference. A slice alone cannot establish full chapter correctness. Raw probabilities and every adverse branch are retained.",
+          "deterministically_checked_lock_files": {
+            "uv.lock": {
+              "sha256": "26efb10bbbbeff9c197f1cef555ef097a0ea0bba1e9a4dbf70c1c9b352716361",
+              "bytes": 21424,
+              "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+            }
+          },
+          "all_download_paths": [
+            ".dockerignore",
+            ".python-version",
+            "Dockerfile",
+            "ENVIRONMENT.json",
+            "README.md",
+            "README.zh-cn.md",
+            "README.zh-tw.md",
+            "SOURCES.json",
+            "app.py",
+            "check_config.py",
+            "compose.json",
+            "config.py",
+            "container_probe.py",
+            "healthcheck.py",
+            "local_probe.py",
+            "pyproject.toml",
+            "secret_demo.py",
+            "solutions/__init__.py",
+            "solutions/restore_copy.py",
+            "solutions/test_restore_copy.py",
+            "tests/test_container_foundations.py",
+            "uv.lock",
+            "volume_probe.py"
+          ],
+          "continuity": "H03-H06 use /tasks with server integer id, title nonblank preserving spelling, minutes strict ordinary nonnegative int, done strict bool, note nullable. D stages explicitly evolve to projects/users/members/status/description/due_at; do not silently claim the simple memory service implements the final capstone. Web baseline intentionally pinned FastAPI0.135.1/Uvicorn0.42.0/Pydantic2.12.5/HTTPX0.28.1, Python3.13.15, uv0.12.13 unless a documented necessary exception. Later chapters are not assumed deployed just because written.",
+          "validation_status": "Author source and polluted-environment runs plus mainline unmodified maintained runner against exact downloaded ZIP bytes passed58 local cases: O01=16+1/O02=14+3/O03=17+7. Actual own POSIX process/signals/ports/files, local HTTP and private-CA TLS including unknown-CA/wrong-host rejection executed. No insecure curl -k/global trust import. Docker probe returned expected77 meaning environment_pending, NOT container success. Docker engine, systemd/Linux, Caddy and public domain/DNS/CA/firewall absent. Material authoring may complete while environmental chapter acceptance remains pending. No public users or infrastructure touched. Browser publication checks still pending.",
+          "slice": {
+            "index": 2,
+            "count": 2,
+            "source_paths_here": [
+              "solutions/restore_copy.py",
+              "solutions/test_restore_copy.py",
+              "tests/test_container_foundations.py",
+              "volume_probe.py"
+            ],
+            "source_paths_elsewhere": [
+              ".dockerignore",
+              ".python-version",
+              "Dockerfile",
+              "ENVIRONMENT.json",
+              "README.md",
+              "README.zh-cn.md",
+              "README.zh-tw.md",
+              "SOURCES.json",
+              "app.py",
+              "check_config.py",
+              "compose.json",
+              "config.py",
+              "container_probe.py",
+              "healthcheck.py",
+              "local_probe.py",
+              "pyproject.toml",
+              "secret_demo.py",
+              "solutions/__init__.py"
+            ]
+          },
+          "actual_download_files": {
+            "solutions/restore_copy.py": "\"\"\"A disposable-file exercise, NOT a live database backup procedure.\"\"\"\nfrom pathlib import Path\nimport shutil\n\nfrom volume_probe import count\n\n\ndef restore_counter(source: Path, empty_destination: Path) -> int:\n    count(source)  # Refuse corrupt data before copying.\n    if any(empty_destination.iterdir()):\n        raise ValueError(\"restore destination must be empty\")\n    shutil.copyfile(source / \"counter.json\", empty_destination / \"counter.json\")\n    return count(empty_destination)\n",
+            "solutions/test_restore_copy.py": "from pathlib import Path\nfrom tempfile import TemporaryDirectory\nimport pytest\nfrom solutions.restore_copy import restore_counter\nfrom volume_probe import count\n\n\ndef test_restore_to_a_new_directory_not_the_live_source():\n    with TemporaryDirectory() as temp:\n        source, restored = Path(temp) / \"source\", Path(temp) / \"restored\"\n        source.mkdir(); restored.mkdir()\n        count(source, True); count(source, True)\n        assert restore_counter(source, restored) == 2\n        assert count(source) == 2\n\n\ndef test_nonempty_restore_target_is_refused():\n    with TemporaryDirectory() as temp:\n        root = Path(temp)\n        count(root, True)\n        with pytest.raises(ValueError, match=\"empty\"):\n            restore_counter(root, root)\n\n\ndef test_corrupt_source_does_not_write_a_destination(tmp_path):\n    source, destination = tmp_path / \"source\", tmp_path / \"destination\"\n    source.mkdir(); destination.mkdir()\n    file = source / \"counter.json\"\n    file.write_text('{\"count\": true}')\n    with pytest.raises(ValueError):\n        restore_counter(source, destination)\n    assert list(destination.iterdir()) == []\n    assert file.read_text() == '{\"count\": true}'\n",
+            "tests/test_container_foundations.py": "import os\nfrom pathlib import Path\nfrom tempfile import TemporaryDirectory\n\nfrom fastapi.testclient import TestClient\nimport pytest\n\nfrom app import create_app\nfrom check_config import check\nfrom config import data_directory\nfrom secret_demo import observe\nfrom volume_probe import count\n\n\ndef test_static_config_is_explicitly_not_runtime_acceptance():\n    assert check()[-1] == \"container_runtime=NOT_VERIFIED\"\n\n\ndef test_secret_demo_never_prints_its_marker():\n    assert observe() == [\"file_mode=0o600\", \"fictional_value_loaded=True\", \"value_is_not_printed=True\"]\n\n\n@pytest.mark.parametrize(\"value\", [None, \"\", \".\", \"relative\", \"/missing-js2py-container-dir\"])\ndef test_startup_rejects_invalid_data_directory(value):\n    with pytest.raises(ValueError):\n        data_directory({} if value is None else {\"OPS_DATA_DIR\": value})\n\n\ndef test_health_is_not_a_task_api(monkeypatch):\n    with TemporaryDirectory() as temp:\n        monkeypatch.setenv(\"OPS_DATA_DIR\", temp)\n        with TestClient(create_app()) as client:\n            assert client.get(\"/health/live\").json() == {\"status\": \"ok\"}\n            assert client.get(\"/health/ready\").json() == {\"status\": \"ready\"}\n            assert client.get(\"/tasks\").status_code == 404\n\n\ndef test_liveness_survives_readiness_write_failure(monkeypatch):\n    assert os.geteuid() != 0, \"ordinary user required to test POSIX write denial\"\n    with TemporaryDirectory() as temp:\n        directory = Path(temp)\n        monkeypatch.setenv(\"OPS_DATA_DIR\", temp)\n        with TestClient(create_app()) as client:\n            directory.chmod(0o500)\n            try:\n                assert client.get(\"/health/live\").status_code == 200\n                assert client.get(\"/health/ready\").status_code == 503\n            finally:\n                directory.chmod(0o700)\n\n\ndef test_local_storage_preservation_is_not_a_container_volume_test():\n    with TemporaryDirectory() as temp:\n        first, second = Path(temp) / \"first\", Path(temp) / \"second\"\n        first.mkdir(); second.mkdir()\n        assert count(first) == 0\n        assert count(first, True) == 1\n        assert count(first) == 1\n        assert count(second) == 0\n\n\ndef test_corrupt_counter_is_not_reset():\n    with TemporaryDirectory() as temp:\n        file = Path(temp) / \"counter.json\"\n        file.write_text('{\"count\": true}')\n        with pytest.raises(ValueError):\n            count(Path(temp), True)\n        assert file.read_text() == '{\"count\": true}'\n\n\n\ndef test_container_probe_without_opt_in_is_pending_not_success():\n    import subprocess\n    import sys\n    result = subprocess.run([sys.executable, \"container_probe.py\"],\n                            capture_output=True, text=True, timeout=3)\n    assert result.returncode == 77\n    assert \"environment_pending\" in result.stdout\n\n\ndef test_regular_file_is_not_an_engine_socket(tmp_path):\n    from container_probe import local_socket\n    import pytest\n    path = tmp_path / \"not-a-socket\"\n    path.write_text(\"fictional\")\n    with pytest.raises(ValueError):\n        local_socket(str(path))\n\n\ndef test_real_loopback_http_is_not_container_acceptance():\n    from local_probe import observe\n    assert observe() == [\"host_http_live=200\", \"host_http_ready=200\", \"unwritable_live=200\",\n            \"unwritable_ready=503\", \"restored_ready=200\", \"tasks_not_implemented=404\",\n            \"container_runtime=NOT_VERIFIED\"]\n",
+            "volume_probe.py": "\"\"\"Single-writer disposable counter. No transactions, concurrency or fsync promise.\"\"\"\nimport argparse\nimport json\nimport os\nfrom pathlib import Path\n\nfrom config import data_directory\n\n\ndef count(directory: Path, increment: bool = False) -> int:\n    file = directory / \"counter.json\"\n    value = json.loads(file.read_text())[\"count\"] if file.exists() else 0\n    if type(value) is not int or value < 0:\n        raise ValueError(\"invalid disposable counter; do not silently reset it\")\n    if increment:\n        value += 1\n        temporary = directory / \"counter.pending\"\n        temporary.write_text(json.dumps({\"count\": value}) + \"\\n\")\n        temporary.replace(file)\n    return value\n\n\nif __name__ == \"__main__\":\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"--increment\", action=\"store_true\")\n    args = parser.parse_args()\n    print(count(data_directory(os.environ), args.increment))\n"
+          }
+        },
+        "questions": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "instructions": "Does REQUIRED learner work rely on an essential capability not taught before required use here or by declared previous chapters? Exclude explicitly maintainer-only infrastructure and optional future concepts."
+          },
+          "depth": {
+            "type": "choice",
+            "instructions": "Assess actual mechanism, motivation, diagnosis, and transferable independent work in the full material, not word count.",
+            "criteria": {
+              "SUBSTANTIVE": "Concrete textbook teaching with transferable acceptance.",
+              "PARTIAL": "Essential mechanisms are abbreviated.",
+              "API_CATALOGUE": "Mostly syntax/names.",
+              "UNCERTAIN": "Insufficient evidence."
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "instructions": "Check actual full lesson and file behaviors for the specific mechanism_focus. Do not mistake intentionally labeled counterexamples or unimplemented proposals for recommended working implementations.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "instructions": "Check failure-stage diagnosis, resource/data/credential ownership and cleanup, real environment claims versus explicit pending gates, and avoidance of hiding errors or unsafe external effects.",
+            "criteria": {
+              "ACCURATE_AND_BOUNDED": "Accurate mechanism taught before required use, boundaries match the actual files.",
+              "MATERIAL_ERROR": "Substantive inaccurate/unsafe behavior or claim.",
+              "NECESSARY_GAP": "Essential explanation or evidence missing.",
+              "UNCERTAIN": "Supplied evidence cannot settle it."
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "instructions": "Do independent requirements, actual reference behavior/tests, commands, status/outputs, and chapter continuity agree without undisclosed schema/policy switches?",
+            "criteria": {
+              "COHERENT_AND_TESTABLE": "Agree with measurable acceptance.",
+              "CONTRADICTORY": "Material requirement/source/behavior contradiction.",
+              "UNDERSPECIFIED": "Essential policy missing.",
+              "UNCERTAIN": "Evidence is insufficient."
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "instructions": "Does acceptance require explanation, changed inputs, reconstruction, diagnosis or defect detection rather than copying a fixed output? For graduation, is independent work required without supplied implementation steps?"
+          },
+          "next_action": {
+            "type": "choice",
+            "instructions": "Choose the action for this evidence slice of this chapter, conditional on all other slices and outstanding deterministic integration gates passing. Do not infer files omitted from this slice were inspected, and do not treat missing environmental execution as passed.",
+            "criteria": {
+              "PROCEED": "Content is sufficient to advance after its stated verification gates pass.",
+              "REVISE": "Repair a material issue before advancing.",
+              "TARGETED_REVIEW": "Focus inspection on uncertain required evidence before accepting."
+            }
+          }
+        }
+      },
+      "response": {
+        "model": "jev-1.13.0",
+        "answers": {
+          "hidden_prerequisite": {
+            "type": "noul",
+            "noul": 0.36
+          },
+          "depth": {
+            "type": "choice",
+            "choice": "SUBSTANTIVE",
+            "confidence": 0.99,
+            "probabilities": {
+              "API_CATALOGUE": 0.0,
+              "UNCERTAIN": 0.0,
+              "PARTIAL": 0.01,
+              "SUBSTANTIVE": 0.99
+            }
+          },
+          "technical_mechanisms": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 0.93,
+            "probabilities": {
+              "ACCURATE_AND_BOUNDED": 0.94,
+              "NECESSARY_GAP": 0.05,
+              "MATERIAL_ERROR": 0.01,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "failure_policy": {
+            "type": "choice",
+            "choice": "ACCURATE_AND_BOUNDED",
+            "confidence": 1.0,
+            "probabilities": {
+              "ACCURATE_AND_BOUNDED": 1.0,
+              "NECESSARY_GAP": 0.0,
+              "MATERIAL_ERROR": 0.0,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "independent_contract": {
+            "type": "choice",
+            "choice": "COHERENT_AND_TESTABLE",
+            "confidence": 0.95,
+            "probabilities": {
+              "COHERENT_AND_TESTABLE": 0.97,
+              "CONTRADICTORY": 0.03,
+              "UNDERSPECIFIED": 0.0,
+              "UNCERTAIN": 0.0
+            }
+          },
+          "independent_transfer": {
+            "type": "noul",
+            "noul": 0.83
+          },
+          "next_action": {
+            "type": "choice",
+            "choice": "PROCEED",
+            "confidence": 0.4,
+            "probabilities": {
+              "TARGETED_REVIEW": 0.38,
+              "REVISE": 0.02,
+              "PROCEED": 0.6
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 13572,
+          "output_tokens": 341
+        }
+      },
+      "raw_response_sha256": "864f02a61313757180af709ddc3450ff89dc3e41deaa77ba96717583c86a96f3"
+    }
+  ],
+  "reviewed_source_paths": [
+    "content/docs/js2py/module-33-containers.mdx",
+    "examples/js2py/o02-containers/.dockerignore",
+    "examples/js2py/o02-containers/.python-version",
+    "examples/js2py/o02-containers/Dockerfile",
+    "examples/js2py/o02-containers/ENVIRONMENT.json",
+    "examples/js2py/o02-containers/README.md",
+    "examples/js2py/o02-containers/README.zh-cn.md",
+    "examples/js2py/o02-containers/README.zh-tw.md",
+    "examples/js2py/o02-containers/SOURCES.json",
+    "examples/js2py/o02-containers/app.py",
+    "examples/js2py/o02-containers/check_config.py",
+    "examples/js2py/o02-containers/compose.json",
+    "examples/js2py/o02-containers/config.py",
+    "examples/js2py/o02-containers/container_probe.py",
+    "examples/js2py/o02-containers/healthcheck.py",
+    "examples/js2py/o02-containers/local_probe.py",
+    "examples/js2py/o02-containers/pyproject.toml",
+    "examples/js2py/o02-containers/secret_demo.py",
+    "examples/js2py/o02-containers/solutions/__init__.py",
+    "examples/js2py/o02-containers/solutions/restore_copy.py",
+    "examples/js2py/o02-containers/solutions/test_restore_copy.py",
+    "examples/js2py/o02-containers/tests/test_container_foundations.py",
+    "examples/js2py/o02-containers/volume_probe.py"
+  ],
+  "source_sha256": {
+    "content/docs/js2py/module-33-containers.mdx": "b9f5c72eb4b34753f72db063cc9805f638dc0619867314a63fef213461766120",
+    "examples/js2py/o02-containers/.dockerignore": "7e40f3446b9690eb5988db0c6e077da55ac407a59e13e4c66cdcfb21f47600c6",
+    "examples/js2py/o02-containers/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/o02-containers/Dockerfile": "22783887f9edbfd4f08fe4d847fe2ffe43ea09d37f6d4a7cd11d7a8e11744625",
+    "examples/js2py/o02-containers/ENVIRONMENT.json": "7ade4144e932811e07d375170e834f962b923a37c4cd7feda8890f364ef7c1e3",
+    "examples/js2py/o02-containers/README.md": "6e1dd93db662685a97a6c9dff416d5cc3806ba6341665015b704af60d2a4d818",
+    "examples/js2py/o02-containers/README.zh-cn.md": "57dd780c04c966d9947ec87f6187d0ef7bc65a528ae9e31aa92923b8c860734d",
+    "examples/js2py/o02-containers/README.zh-tw.md": "2561eff74a891643d819a6d070510b14405e62a01f4a6b5c347c1686162cf2e5",
+    "examples/js2py/o02-containers/SOURCES.json": "d6e2cb815ad29106bea5708c8cca073de69437b0eaa20d62e449b25f0777d7fc",
+    "examples/js2py/o02-containers/app.py": "ea5f128969043ed253d48b5c4a297b0c91e7311c4b78878d083e36896a8d88b0",
+    "examples/js2py/o02-containers/check_config.py": "bcbf6717faf9bbb1a62ea3aeee81e438714d9b3c6e6f8c20021a5cb17c0f7003",
+    "examples/js2py/o02-containers/compose.json": "8c5f942bc7a13839287475ea28ce0569e61e441242649651c9db9bd99fd03c33",
+    "examples/js2py/o02-containers/config.py": "f530c6d359cd174103d1d50084a344f76f7a1498a782fcc2a679048fce2ac982",
+    "examples/js2py/o02-containers/container_probe.py": "77a5df9fb73fecde05327387352686663eb1cdd47453703f1850d9a8bc4893bf",
+    "examples/js2py/o02-containers/healthcheck.py": "ea7fc12c70757fe0147a4411cd089752d5844664a91196d403e2bbab424115fa",
+    "examples/js2py/o02-containers/local_probe.py": "c122ea1cd33f4c7d461406a8f4c66db930ad45496e16bc27cfa56936817cb032",
+    "examples/js2py/o02-containers/pyproject.toml": "7cc598aaff37b79e685f431cc54f61971b56cb5b81f2383dec821fdf196afb79",
+    "examples/js2py/o02-containers/secret_demo.py": "4310354e2aa96d6a67ba54c94e98e223237ebf1dcab860f08322ebd155b41ba9",
+    "examples/js2py/o02-containers/solutions/__init__.py": "1cf54e1087c261f0ad9d8cefeba8254976803745db32df8fc00677ee5900fb23",
+    "examples/js2py/o02-containers/solutions/restore_copy.py": "f499895c95f2730bc4f45be53a71c68d7d1eb3b15895d4b0256e25f793fd4838",
+    "examples/js2py/o02-containers/solutions/test_restore_copy.py": "ff1bb4d8a83df1cec843cfb821c27bc42209be22f73563e0a3a68f8d4c670f92",
+    "examples/js2py/o02-containers/tests/test_container_foundations.py": "9a6e3c1dc3dce7802be514269b4cb19e1fa987d2b80f9fea0e6f9f854dadb015",
+    "examples/js2py/o02-containers/volume_probe.py": "f0d4e1dd1f52fbcd6f05c2822762d86bb64e768f9a70e64d4de50354c02ea0dd",
+    "content/docs/js2py/module-33-containers.zh-cn.mdx": "0eec23f8edf0676e7eccf2cbf0c0fd8a201c6e8796a5b05ba72c5357003c0695",
+    "content/docs/js2py/module-33-containers.zh-tw.mdx": "838ec8e6412e2785f04a851cb3ee9597523b88872b01114d739e9397af96618e",
+    "examples/js2py/o02-containers-files.json": "0fb7a82261104470f79037ad39785d35a69d6103b1943d9b28f510a7fc1e7936",
+    "public/learning-assets/js2py/o02-containers.zip": "73043bd47e2dcf01ca920d05738234b2f2db29c77f6d6b4c5bded276280c9191",
+    "examples/js2py/o02-containers/uv.lock": "26efb10bbbbeff9c197f1cef555ef097a0ea0bba1e9a4dbf70c1c9b352716361"
+  },
+  "deterministically_checked_lock_files": {
+    "uv.lock": {
+      "sha256": "26efb10bbbbeff9c197f1cef555ef097a0ea0bba1e9a4dbf70c1c9b352716361",
+      "bytes": 21424,
+      "verification": "Exact public-registry lock and locked restoration checked deterministically; opaque artifact hashes are deliberately not sent for semantic judgment."
+    }
+  },
+  "interface_failures": [],
+  "post_review_changes": [],
+  "submitted_source_sha256": {
+    "content/docs/js2py/module-33-containers.mdx": "b9f5c72eb4b34753f72db063cc9805f638dc0619867314a63fef213461766120",
+    "examples/js2py/o02-containers/.dockerignore": "7e40f3446b9690eb5988db0c6e077da55ac407a59e13e4c66cdcfb21f47600c6",
+    "examples/js2py/o02-containers/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "examples/js2py/o02-containers/Dockerfile": "22783887f9edbfd4f08fe4d847fe2ffe43ea09d37f6d4a7cd11d7a8e11744625",
+    "examples/js2py/o02-containers/ENVIRONMENT.json": "7ade4144e932811e07d375170e834f962b923a37c4cd7feda8890f364ef7c1e3",
+    "examples/js2py/o02-containers/README.md": "6e1dd93db662685a97a6c9dff416d5cc3806ba6341665015b704af60d2a4d818",
+    "examples/js2py/o02-containers/README.zh-cn.md": "57dd780c04c966d9947ec87f6187d0ef7bc65a528ae9e31aa92923b8c860734d",
+    "examples/js2py/o02-containers/README.zh-tw.md": "2561eff74a891643d819a6d070510b14405e62a01f4a6b5c347c1686162cf2e5",
+    "examples/js2py/o02-containers/SOURCES.json": "d6e2cb815ad29106bea5708c8cca073de69437b0eaa20d62e449b25f0777d7fc",
+    "examples/js2py/o02-containers/app.py": "ea5f128969043ed253d48b5c4a297b0c91e7311c4b78878d083e36896a8d88b0",
+    "examples/js2py/o02-containers/check_config.py": "bcbf6717faf9bbb1a62ea3aeee81e438714d9b3c6e6f8c20021a5cb17c0f7003",
+    "examples/js2py/o02-containers/compose.json": "8c5f942bc7a13839287475ea28ce0569e61e441242649651c9db9bd99fd03c33",
+    "examples/js2py/o02-containers/config.py": "f530c6d359cd174103d1d50084a344f76f7a1498a782fcc2a679048fce2ac982",
+    "examples/js2py/o02-containers/container_probe.py": "77a5df9fb73fecde05327387352686663eb1cdd47453703f1850d9a8bc4893bf",
+    "examples/js2py/o02-containers/healthcheck.py": "ea7fc12c70757fe0147a4411cd089752d5844664a91196d403e2bbab424115fa",
+    "examples/js2py/o02-containers/local_probe.py": "c122ea1cd33f4c7d461406a8f4c66db930ad45496e16bc27cfa56936817cb032",
+    "examples/js2py/o02-containers/pyproject.toml": "7cc598aaff37b79e685f431cc54f61971b56cb5b81f2383dec821fdf196afb79",
+    "examples/js2py/o02-containers/secret_demo.py": "4310354e2aa96d6a67ba54c94e98e223237ebf1dcab860f08322ebd155b41ba9",
+    "examples/js2py/o02-containers/solutions/__init__.py": "1cf54e1087c261f0ad9d8cefeba8254976803745db32df8fc00677ee5900fb23",
+    "examples/js2py/o02-containers/solutions/restore_copy.py": "f499895c95f2730bc4f45be53a71c68d7d1eb3b15895d4b0256e25f793fd4838",
+    "examples/js2py/o02-containers/solutions/test_restore_copy.py": "ff1bb4d8a83df1cec843cfb821c27bc42209be22f73563e0a3a68f8d4c670f92",
+    "examples/js2py/o02-containers/tests/test_container_foundations.py": "9a6e3c1dc3dce7802be514269b4cb19e1fa987d2b80f9fea0e6f9f854dadb015",
+    "examples/js2py/o02-containers/volume_probe.py": "f0d4e1dd1f52fbcd6f05c2822762d86bb64e768f9a70e64d4de50354c02ea0dd"
+  },
+  "interpretation": {
+    "actual_service": "TypeSafe System One / Jev, not gpt-6-astra; independent reasoning assistants are separate.",
+    "decision": "Original slice choices unchanged. New targeted audits, reproduced repairs, real runtime/browser evidence and exact new source deltas support conditional ACCEPT_WITH_EXPLICIT_ENVIRONMENT_GATES; see closure record for outstanding/final deterministic gates. Never a production or learner approval.",
+    "scope": "Full English in every slice; union of slices covers every non-lock allowlisted file. Only the original H01 request included lock text. Other opaque locks were checked by registry/hash/locked reconstruction rather than semantic inference. No single slice is presented as whole-chapter review.",
+    "uncertainty": "Raw unfavorable branches preserved. Confidence is distribution concentration, not factual correctness or learner outcomes. Initial direct predecessor contracts omit transitive detail; follow-up audits must examine the actual full path rather than assume missing learner capability.",
+    "snapshot": "Submitted source hashes and full requests remain unchanged. Effective source_sha256 includes each explicitly recorded post-review repair; closure delta review binds the final D03 assertion and O privilege wording changes. Locale/locks/manifests/ZIP are deterministic evidence, not semantic translation review."
+  },
+  "credential_persisted": false,
+  "prior_review_rounds": [],
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+}

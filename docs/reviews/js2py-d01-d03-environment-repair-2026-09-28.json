@@ -1,0 +1,1121 @@
+{
+  "schema_version": 1,
+  "completed_at": "2026-09-28T14:02:58.732544+08:00",
+  "status": "passed",
+  "workspace": "/Users/mikmyp/Documents/code-projects/langshift.dev",
+  "validation_directory": "/private/tmp/langshift-d01-d03-env-9ulr7_l3",
+  "scope": {
+    "labs": [
+      "d01-relational-data",
+      "d02-sql",
+      "d03-transactions"
+    ],
+    "changed_file_count": 21,
+    "changed_categories": [
+      "labctl.py",
+      "three-language README",
+      "new tests/test_environment.py",
+      "per-lab -files.json and matching in-package FILES.json mirror"
+    ],
+    "allowlist_mirror_reason": "Existing packaging contract requires parent -files.json and packaged FILES.json to be identical; both now include the regression file.",
+    "not_modified_or_run_by_this_task": [
+      "MDX",
+      "shared runner",
+      "registration",
+      "TypeSafe",
+      "business SQL",
+      "other chapter tests",
+      "whole-site QA",
+      "ZIP generation"
+    ],
+    "no_delegation": true,
+    "workspace_cluster_state_not_used_or_modified": true
+  },
+  "policy": {
+    "mode": "reject implicit PG* defaults at startup/SQL entry; clean all child environments",
+    "allowed_pg_names": [
+      "PG_BIN",
+      "PGHOST"
+    ],
+    "pg_bin": "Select tool directory before scrubbing child environment; existing state retains its saved binary directory.",
+    "pghost": "Accepted but overridden by explicit owned Unix-socket host in every DSN; /nonexistent compatibility tested.",
+    "database_url": "Ignored in Python; removed from child environments.",
+    "rejected_names": "Every other environment name beginning PG, including empty and unknown names. This deliberately includes PGDATABASE/PGUSER/PGPORT even though their values are overridden.",
+    "error_disclosure": "Variable names only, sorted; synthetic password/service/passfile values verified absent from CLI errors.",
+    "passfile": "Every admin/student DSN supplies an owned-root empty.pgpass, regular file, same OS UID, mode 0600, length zero; nofollow/nonblocking open; symlink/nonempty/mode/nonregular cases refused.",
+    "psql": "Explicit DSN/passfile, -X -w, PG*/DATABASE_URL-free environment.",
+    "cleanup": "status uses clean pg_ctl. stop checks marker/PID, then performs server identity verification through a clean Python dsn child, then fast-stops only the saved explicit data directory.",
+    "preserved": [
+      "random administrator",
+      "private socket/random port",
+      "TCP disabled",
+      "ownership marker",
+      "PID checks",
+      "server data-directory/version/system-identifier checks",
+      "business SQL"
+    ],
+    "threading": "Does not mutate process-global os.environ during connections; D03 threaded business regressions passed."
+  },
+  "implementation_differences": [
+    "Added check_environment before start/connect/verify_server/raw_dsn and all non-cleanup CLI commands.",
+    "Added child_environment and supplied env explicitly to run and interactive psql subprocess.",
+    "Added private empty_passfile validation/creation and explicit passfile on every DSN.",
+    "Changed stop identity verification from in-process connect to clean sys.executable labctl.py dsn child; failed identity check still prevents stop.",
+    "Added 50 identical environment test cases per lab without changing existing conftest/business tests.",
+    "Updated three-language README environment policy, scope limits, fixture explanation, and exact new test totals.",
+    "Added tests/test_environment.py to both layers of allowlists."
+  ],
+  "runtime": {
+    "python": "CPython 3.13.15 (uv run python --version in each clean copy)",
+    "uv": "0.12.13",
+    "postgres": "18.6 Homebrew; lab VERSION_NUM=180006 verified by live identity checks",
+    "pg_bin": "/opt/homebrew/bin",
+    "uv_path": "/Users/mikmyp/.local/bin/uv",
+    "uv_python_install_dir": "/tmp/langshift-js2py-python-20260928",
+    "uv_cache_dir": "/tmp/langshift-js2py-uv-cache-20260928",
+    "inherited_pg_names_removed_for_validation": [
+      "PGDATABASE",
+      "PGUSER"
+    ],
+    "compatibility_env": {
+      "PGHOST": "/nonexistent/langshift-test-ignore-environment",
+      "DATABASE_URL": "deliberately-invalid-ignored-database-url"
+    },
+    "install_command": "uv sync --locked"
+  },
+  "controlled_pollution_evidence": {
+    "negative_mocks_per_lab": {
+      "24_variable_cases": "psycopg.connect, subprocess.run and load_state all asserted not called; errors contain exact name only.",
+      "8_entrypoint_cases": "start/reset/raw_dsn/verify_server and CLI start/dsn/reset/psql reject before state/SQL/process work.",
+      "empty_unknown_and_secret_values": "empty PGSERVICE and synthetic unknown PG_FUTURE_DEFAULT refused; sorted name-only diagnostics checked.",
+      "identity_failure": "mocked clean identity child fails; no pg_ctl stop command issued."
+    },
+    "direct_cli_pollution_names": [
+      "PGHOSTADDR",
+      "PGSERVICE",
+      "PGSERVICEFILE",
+      "PGPASSFILE",
+      "PGPASSWORD",
+      "PGOPTIONS"
+    ],
+    "direct_cli_additional_values": "Synthetic invalid PG_BIN and ignored PGHOST; saved binary path remains usable for stop/status.",
+    "targets": "Only newly created owned private-socket clusters and loopback listeners bound by the tests themselves; synthetic service/passfiles, no real user credentials.",
+    "home_passfile_evidence": "Real private connection under synthetic HOME/.pgpass canary yields conn.pgconn.password == b\"\"; psql succeeds using explicit private passfile; canary file unchanged.",
+    "cleanup_evidence": "Under simultaneous pollution: running status succeeds, stop succeeds, stopped status=3, repeated stop succeeds, restart refuses; clean restart restores identical saved state.",
+    "no_leak_observed": "CLI outputs contain rejected names but not synthetic password, service name or service/passfile path values. Loopback fixtures observed no queued connections.",
+    "own_loopback_listeners_closed": 21,
+    "proof_limit": "Only the enumerated regression assertions and live paths were tested. No claim that all attacks, credential channels, or same-user/root tampering have been proven safe."
+  },
+  "results": [
+    {
+      "lab": "d01-relational-data",
+      "clean_copy": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d01-relational-data",
+      "original_tests": 14,
+      "new_environment_tests": 50,
+      "expected_total": 64,
+      "started": true,
+      "stopped": true,
+      "root": "/private/tmp/lsdb-u23hmnir",
+      "port": 50916,
+      "system_identifier": "7690461809397166327",
+      "pg_bin": "/opt/homebrew/bin",
+      "initial_postmaster_pid": 61693,
+      "business_passed": true,
+      "full_suite_passed": true,
+      "stop_returncode": 0,
+      "final_status": {
+        "root": "/private/tmp/lsdb-u23hmnir",
+        "running": false,
+        "pg_ctl_status": 3
+      },
+      "pidfile_absent": true,
+      "socket_absent": true,
+      "actual_total": 64,
+      "actual_environment_count": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "environment_test_names": [
+        "test_reject_before_state_sql_or_subprocess[PGHOSTADDR]",
+        "test_reject_before_state_sql_or_subprocess[PGSERVICE]",
+        "test_reject_before_state_sql_or_subprocess[PGSERVICEFILE]",
+        "test_reject_before_state_sql_or_subprocess[PGSYSCONFDIR]",
+        "test_reject_before_state_sql_or_subprocess[PGPASSFILE]",
+        "test_reject_before_state_sql_or_subprocess[PGPASSWORD]",
+        "test_reject_before_state_sql_or_subprocess[PGUSER]",
+        "test_reject_before_state_sql_or_subprocess[PGDATABASE]",
+        "test_reject_before_state_sql_or_subprocess[PGPORT]",
+        "test_reject_before_state_sql_or_subprocess[PGOPTIONS]",
+        "test_reject_before_state_sql_or_subprocess[PGCONNECT_TIMEOUT]",
+        "test_reject_before_state_sql_or_subprocess[PGAPPNAME]",
+        "test_reject_before_state_sql_or_subprocess[PGCLIENTENCODING]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLMODE]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLKEY]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLCERT]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLROOTCERT]",
+        "test_reject_before_state_sql_or_subprocess[PGREQUIRESSL]",
+        "test_reject_before_state_sql_or_subprocess[PGREQUIREAUTH]",
+        "test_reject_before_state_sql_or_subprocess[PGGSSENCMODE]",
+        "test_reject_before_state_sql_or_subprocess[PGTARGETSESSIONATTRS]",
+        "test_reject_before_state_sql_or_subprocess[PGLOADBALANCEHOSTS]",
+        "test_reject_before_state_sql_or_subprocess[PGDATA]",
+        "test_reject_before_state_sql_or_subprocess[PG_FUTURE_DEFAULT]",
+        "test_empty_setting_is_still_rejected",
+        "test_error_lists_only_sorted_names",
+        "test_all_sql_entries_reject_before_work[start]",
+        "test_all_sql_entries_reject_before_work[reset]",
+        "test_all_sql_entries_reject_before_work[raw_dsn]",
+        "test_all_sql_entries_reject_before_work[verify_server]",
+        "test_all_sql_entries_reject_before_work[cli-start]",
+        "test_all_sql_entries_reject_before_work[cli-dsn]",
+        "test_all_sql_entries_reject_before_work[cli-reset]",
+        "test_all_sql_entries_reject_before_work[cli-psql]",
+        "test_run_removes_all_pg_defaults_without_mutating_parent",
+        "test_psql_has_clean_environment_explicit_passfile_and_no_prompt",
+        "test_both_dsns_use_private_empty_passfile",
+        "test_unsafe_passfile_is_refused_before_psycopg[symlink]",
+        "test_unsafe_passfile_is_refused_before_psycopg[nonempty]",
+        "test_unsafe_passfile_is_refused_before_psycopg[wide-mode]",
+        "test_unsafe_passfile_is_refused_before_psycopg[directory]",
+        "test_unsafe_passfile_is_refused_before_psycopg[fifo]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[start]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[dsn]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[reset]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[psql]",
+        "test_fresh_standalone_start_rejects_before_creating_state",
+        "test_ignored_host_url_and_default_pgpass_with_real_private_connections",
+        "test_poisoned_status_stop_and_restart_recovery",
+        "test_stop_keeps_identity_failure_as_a_hard_boundary"
+      ],
+      "junit_path": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/d01-relational-data-junit.xml",
+      "junit_sha256": "66dc8ea7076b296c702839b36165a4f1f7bc0f742de5895354cc1a26b64a6d39",
+      "full_suite_seconds": 2.307,
+      "server_log_path": "/private/tmp/lsdb-u23hmnir/server.log",
+      "server_log_final_line": "2026-09-28 13:59:37.460 CST [61831] LOG:  database system is shut down",
+      "private_empty_passfile": {
+        "path": "/private/tmp/lsdb-u23hmnir/empty.pgpass",
+        "size": 0,
+        "mode": "0o600"
+      },
+      "all_allowlisted_files_match_tested_clean_copy": true,
+      "allowlist_path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data-files.json",
+      "allowlist_mirror_path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/FILES.json",
+      "sql_schema_unchanged_from_baseline": true,
+      "sql_seed_unchanged_from_baseline": true,
+      "loopback_listener_regressions": {
+        "owned_listeners_created_and_closed": 7,
+        "bind_address": "127.0.0.1",
+        "port": 50916,
+        "other_targets_contacted_by_test_design": false,
+        "observation": "All seven listener-fixture teardowns passed select(..., timeout=0.05) with no pending connection; each socket closed by its context manager.",
+        "coverage": [
+          "direct CLI start/dsn/reset/psql refusal",
+          "fresh standalone start refusal",
+          "PGHOST/DATABASE_URL and default-passfile compatibility",
+          "poisoned stop/status and restart recovery"
+        ],
+        "limit": "Not a packet capture, exhaustive network audit, or proof of every attack."
+      }
+    },
+    {
+      "lab": "d02-sql",
+      "clean_copy": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d02-sql",
+      "original_tests": 16,
+      "new_environment_tests": 50,
+      "expected_total": 66,
+      "started": true,
+      "stopped": true,
+      "root": "/private/tmp/lsdb-702o8r5m",
+      "port": 56408,
+      "system_identifier": "7690461840604582376",
+      "pg_bin": "/opt/homebrew/bin",
+      "initial_postmaster_pid": 61934,
+      "business_passed": true,
+      "full_suite_passed": true,
+      "stop_returncode": 0,
+      "final_status": {
+        "root": "/private/tmp/lsdb-702o8r5m",
+        "running": false,
+        "pg_ctl_status": 3
+      },
+      "pidfile_absent": true,
+      "socket_absent": true,
+      "actual_total": 66,
+      "actual_environment_count": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "environment_test_names": [
+        "test_reject_before_state_sql_or_subprocess[PGHOSTADDR]",
+        "test_reject_before_state_sql_or_subprocess[PGSERVICE]",
+        "test_reject_before_state_sql_or_subprocess[PGSERVICEFILE]",
+        "test_reject_before_state_sql_or_subprocess[PGSYSCONFDIR]",
+        "test_reject_before_state_sql_or_subprocess[PGPASSFILE]",
+        "test_reject_before_state_sql_or_subprocess[PGPASSWORD]",
+        "test_reject_before_state_sql_or_subprocess[PGUSER]",
+        "test_reject_before_state_sql_or_subprocess[PGDATABASE]",
+        "test_reject_before_state_sql_or_subprocess[PGPORT]",
+        "test_reject_before_state_sql_or_subprocess[PGOPTIONS]",
+        "test_reject_before_state_sql_or_subprocess[PGCONNECT_TIMEOUT]",
+        "test_reject_before_state_sql_or_subprocess[PGAPPNAME]",
+        "test_reject_before_state_sql_or_subprocess[PGCLIENTENCODING]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLMODE]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLKEY]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLCERT]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLROOTCERT]",
+        "test_reject_before_state_sql_or_subprocess[PGREQUIRESSL]",
+        "test_reject_before_state_sql_or_subprocess[PGREQUIREAUTH]",
+        "test_reject_before_state_sql_or_subprocess[PGGSSENCMODE]",
+        "test_reject_before_state_sql_or_subprocess[PGTARGETSESSIONATTRS]",
+        "test_reject_before_state_sql_or_subprocess[PGLOADBALANCEHOSTS]",
+        "test_reject_before_state_sql_or_subprocess[PGDATA]",
+        "test_reject_before_state_sql_or_subprocess[PG_FUTURE_DEFAULT]",
+        "test_empty_setting_is_still_rejected",
+        "test_error_lists_only_sorted_names",
+        "test_all_sql_entries_reject_before_work[start]",
+        "test_all_sql_entries_reject_before_work[reset]",
+        "test_all_sql_entries_reject_before_work[raw_dsn]",
+        "test_all_sql_entries_reject_before_work[verify_server]",
+        "test_all_sql_entries_reject_before_work[cli-start]",
+        "test_all_sql_entries_reject_before_work[cli-dsn]",
+        "test_all_sql_entries_reject_before_work[cli-reset]",
+        "test_all_sql_entries_reject_before_work[cli-psql]",
+        "test_run_removes_all_pg_defaults_without_mutating_parent",
+        "test_psql_has_clean_environment_explicit_passfile_and_no_prompt",
+        "test_both_dsns_use_private_empty_passfile",
+        "test_unsafe_passfile_is_refused_before_psycopg[symlink]",
+        "test_unsafe_passfile_is_refused_before_psycopg[nonempty]",
+        "test_unsafe_passfile_is_refused_before_psycopg[wide-mode]",
+        "test_unsafe_passfile_is_refused_before_psycopg[directory]",
+        "test_unsafe_passfile_is_refused_before_psycopg[fifo]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[start]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[dsn]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[reset]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[psql]",
+        "test_fresh_standalone_start_rejects_before_creating_state",
+        "test_ignored_host_url_and_default_pgpass_with_real_private_connections",
+        "test_poisoned_status_stop_and_restart_recovery",
+        "test_stop_keeps_identity_failure_as_a_hard_boundary"
+      ],
+      "junit_path": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/d02-sql-junit.xml",
+      "junit_sha256": "2fcf46db5a20d572ad22deeb882ae995312b3ed0b71241a92be970d5de73472d",
+      "full_suite_seconds": 2.244,
+      "server_log_path": "/private/tmp/lsdb-702o8r5m/server.log",
+      "server_log_final_line": "2026-09-28 13:59:44.834 CST [62051] LOG:  database system is shut down",
+      "private_empty_passfile": {
+        "path": "/private/tmp/lsdb-702o8r5m/empty.pgpass",
+        "size": 0,
+        "mode": "0o600"
+      },
+      "all_allowlisted_files_match_tested_clean_copy": true,
+      "allowlist_path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql-files.json",
+      "allowlist_mirror_path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/FILES.json",
+      "sql_schema_unchanged_from_baseline": true,
+      "sql_seed_unchanged_from_baseline": true,
+      "loopback_listener_regressions": {
+        "owned_listeners_created_and_closed": 7,
+        "bind_address": "127.0.0.1",
+        "port": 56408,
+        "other_targets_contacted_by_test_design": false,
+        "observation": "All seven listener-fixture teardowns passed select(..., timeout=0.05) with no pending connection; each socket closed by its context manager.",
+        "coverage": [
+          "direct CLI start/dsn/reset/psql refusal",
+          "fresh standalone start refusal",
+          "PGHOST/DATABASE_URL and default-passfile compatibility",
+          "poisoned stop/status and restart recovery"
+        ],
+        "limit": "Not a packet capture, exhaustive network audit, or proof of every attack."
+      }
+    },
+    {
+      "lab": "d03-transactions",
+      "clean_copy": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d03-transactions",
+      "original_tests": 13,
+      "new_environment_tests": 50,
+      "expected_total": 63,
+      "started": true,
+      "stopped": true,
+      "root": "/private/tmp/lsdb-y4p7kdif",
+      "port": 53570,
+      "system_identifier": "7690461872634200829",
+      "pg_bin": "/opt/homebrew/bin",
+      "initial_postmaster_pid": 62211,
+      "business_passed": true,
+      "full_suite_passed": true,
+      "stop_returncode": 0,
+      "final_status": {
+        "root": "/private/tmp/lsdb-y4p7kdif",
+        "running": false,
+        "pg_ctl_status": 3
+      },
+      "pidfile_absent": true,
+      "socket_absent": true,
+      "actual_total": 63,
+      "actual_environment_count": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "environment_test_names": [
+        "test_reject_before_state_sql_or_subprocess[PGHOSTADDR]",
+        "test_reject_before_state_sql_or_subprocess[PGSERVICE]",
+        "test_reject_before_state_sql_or_subprocess[PGSERVICEFILE]",
+        "test_reject_before_state_sql_or_subprocess[PGSYSCONFDIR]",
+        "test_reject_before_state_sql_or_subprocess[PGPASSFILE]",
+        "test_reject_before_state_sql_or_subprocess[PGPASSWORD]",
+        "test_reject_before_state_sql_or_subprocess[PGUSER]",
+        "test_reject_before_state_sql_or_subprocess[PGDATABASE]",
+        "test_reject_before_state_sql_or_subprocess[PGPORT]",
+        "test_reject_before_state_sql_or_subprocess[PGOPTIONS]",
+        "test_reject_before_state_sql_or_subprocess[PGCONNECT_TIMEOUT]",
+        "test_reject_before_state_sql_or_subprocess[PGAPPNAME]",
+        "test_reject_before_state_sql_or_subprocess[PGCLIENTENCODING]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLMODE]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLKEY]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLCERT]",
+        "test_reject_before_state_sql_or_subprocess[PGSSLROOTCERT]",
+        "test_reject_before_state_sql_or_subprocess[PGREQUIRESSL]",
+        "test_reject_before_state_sql_or_subprocess[PGREQUIREAUTH]",
+        "test_reject_before_state_sql_or_subprocess[PGGSSENCMODE]",
+        "test_reject_before_state_sql_or_subprocess[PGTARGETSESSIONATTRS]",
+        "test_reject_before_state_sql_or_subprocess[PGLOADBALANCEHOSTS]",
+        "test_reject_before_state_sql_or_subprocess[PGDATA]",
+        "test_reject_before_state_sql_or_subprocess[PG_FUTURE_DEFAULT]",
+        "test_empty_setting_is_still_rejected",
+        "test_error_lists_only_sorted_names",
+        "test_all_sql_entries_reject_before_work[start]",
+        "test_all_sql_entries_reject_before_work[reset]",
+        "test_all_sql_entries_reject_before_work[raw_dsn]",
+        "test_all_sql_entries_reject_before_work[verify_server]",
+        "test_all_sql_entries_reject_before_work[cli-start]",
+        "test_all_sql_entries_reject_before_work[cli-dsn]",
+        "test_all_sql_entries_reject_before_work[cli-reset]",
+        "test_all_sql_entries_reject_before_work[cli-psql]",
+        "test_run_removes_all_pg_defaults_without_mutating_parent",
+        "test_psql_has_clean_environment_explicit_passfile_and_no_prompt",
+        "test_both_dsns_use_private_empty_passfile",
+        "test_unsafe_passfile_is_refused_before_psycopg[symlink]",
+        "test_unsafe_passfile_is_refused_before_psycopg[nonempty]",
+        "test_unsafe_passfile_is_refused_before_psycopg[wide-mode]",
+        "test_unsafe_passfile_is_refused_before_psycopg[directory]",
+        "test_unsafe_passfile_is_refused_before_psycopg[fifo]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[start]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[dsn]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[reset]",
+        "test_direct_cli_rejects_poison_without_contacting_listener[psql]",
+        "test_fresh_standalone_start_rejects_before_creating_state",
+        "test_ignored_host_url_and_default_pgpass_with_real_private_connections",
+        "test_poisoned_status_stop_and_restart_recovery",
+        "test_stop_keeps_identity_failure_as_a_hard_boundary"
+      ],
+      "junit_path": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/d03-transactions-junit.xml",
+      "junit_sha256": "039272af8552f74895ac21cb4610d312cf51cd35228e2f12db42e2ee226dfa68",
+      "full_suite_seconds": 2.724,
+      "server_log_path": "/private/tmp/lsdb-y4p7kdif/server.log",
+      "server_log_final_line": "2026-09-28 13:59:53.084 CST [62407] LOG:  database system is shut down",
+      "private_empty_passfile": {
+        "path": "/private/tmp/lsdb-y4p7kdif/empty.pgpass",
+        "size": 0,
+        "mode": "0o600"
+      },
+      "all_allowlisted_files_match_tested_clean_copy": true,
+      "allowlist_path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions-files.json",
+      "allowlist_mirror_path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/FILES.json",
+      "sql_schema_unchanged_from_baseline": true,
+      "sql_seed_unchanged_from_baseline": true,
+      "loopback_listener_regressions": {
+        "owned_listeners_created_and_closed": 7,
+        "bind_address": "127.0.0.1",
+        "port": 53570,
+        "other_targets_contacted_by_test_design": false,
+        "observation": "All seven listener-fixture teardowns passed select(..., timeout=0.05) with no pending connection; each socket closed by its context manager.",
+        "coverage": [
+          "direct CLI start/dsn/reset/psql refusal",
+          "fresh standalone start refusal",
+          "PGHOST/DATABASE_URL and default-passfile compatibility",
+          "poisoned stop/status and restart recovery"
+        ],
+        "limit": "Not a packet capture, exhaustive network audit, or proof of every attack."
+      }
+    }
+  ],
+  "aggregate": {
+    "original_business_tests": 43,
+    "new_environment_tests": 150,
+    "full_suite_tests_passed": 193,
+    "failures": 0,
+    "skipped": 0
+  },
+  "synchronization": {
+    "labctl_sha256": "01ce56eacb3d72b1d4e2122fdc84a5b25435a84164457ffcfa64d33d7437a74b",
+    "environment_tests_sha256": "28315d3663c52609e793a8fb14c6248ea953cd96ecaefeee3427839fef03cf59",
+    "three_labctl_files_byte_identical": true,
+    "three_environment_test_files_byte_identical": true
+  },
+  "changes": [
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/FILES.json",
+      "kind": "modified",
+      "before_sha256": "f4fce3039ab0ef511ce0d6fdb331522fa7b08e4a23e52df5a012480541a38941",
+      "after_sha256": "f8087ca401cde210a0a1e70cd42a94bf73019c85f139d0d2855a4131d5192fd0"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/README.md",
+      "kind": "modified",
+      "before_sha256": "c31d51a2e7a305bfc2cf6e68bfc2ff11ccb69285424df6f9b2335c7c271f90d2",
+      "after_sha256": "05f12acbadb8fb3fb663e9fd1ee264b849e73d7703181cb8ec1c858a0cac3153"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/README.zh-cn.md",
+      "kind": "modified",
+      "before_sha256": "df3652e09401b1f20f6d88ab2b9ff3c196f83e4d68a68556b32e990754b7c830",
+      "after_sha256": "c04bbc8623de26a771804386ea0944b170e0c11e6ae1c36deec4c678d8d25640"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/README.zh-tw.md",
+      "kind": "modified",
+      "before_sha256": "d174a9cdddc5ddc5c5dcf8a35171d41a1c6d3bf58d0205453e434ce340b742db",
+      "after_sha256": "4a745e2fca802ba7fd08fe062f1d00c2246f8c388889d0cd36e15024468d6783"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/labctl.py",
+      "kind": "modified",
+      "before_sha256": "285faacefbfc04657484869d06f4592cabf30c903946f8d9edd05c4a72c79845",
+      "after_sha256": "01ce56eacb3d72b1d4e2122fdc84a5b25435a84164457ffcfa64d33d7437a74b"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data-files.json",
+      "kind": "modified",
+      "before_sha256": "f4fce3039ab0ef511ce0d6fdb331522fa7b08e4a23e52df5a012480541a38941",
+      "after_sha256": "f8087ca401cde210a0a1e70cd42a94bf73019c85f139d0d2855a4131d5192fd0"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/FILES.json",
+      "kind": "modified",
+      "before_sha256": "843726f97d4a20248cad9ef2f9d41d1ad1cf0554fd59bfd6c32b7c54dc93f6e4",
+      "after_sha256": "4a955cdfd8c5c68f93f04f7cc5dc263e18a8597c8d70563223aeae7943fc00eb"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/README.md",
+      "kind": "modified",
+      "before_sha256": "4f2bbe2e643e45e00f21f25fb1b6748d4cd223887067b27820a4b62dc082928b",
+      "after_sha256": "a502eb4ce00bc16171f738d9188d0551715c9909cf98d7da90823138cad337f3"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/README.zh-cn.md",
+      "kind": "modified",
+      "before_sha256": "52bd8d1247001eb47fd78b8169309048decf111cbe86b13266a1a4e7d6e4f685",
+      "after_sha256": "e884c0c4bfaf26499fed8185a2ec6f1cde790bf36b82a7bd4ee660806a6ed866"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/README.zh-tw.md",
+      "kind": "modified",
+      "before_sha256": "c36125f68ec77085177a536184029169cc59ff9dcc0796ee30fda36aa2b32e4b",
+      "after_sha256": "81a33e3b93650a8f70fa9de5e49418148513b2dfcab823086fe0e14ebb2666d5"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/labctl.py",
+      "kind": "modified",
+      "before_sha256": "285faacefbfc04657484869d06f4592cabf30c903946f8d9edd05c4a72c79845",
+      "after_sha256": "01ce56eacb3d72b1d4e2122fdc84a5b25435a84164457ffcfa64d33d7437a74b"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql-files.json",
+      "kind": "modified",
+      "before_sha256": "843726f97d4a20248cad9ef2f9d41d1ad1cf0554fd59bfd6c32b7c54dc93f6e4",
+      "after_sha256": "4a955cdfd8c5c68f93f04f7cc5dc263e18a8597c8d70563223aeae7943fc00eb"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/FILES.json",
+      "kind": "modified",
+      "before_sha256": "4c00eaff48899eff8f9fdf72566f0c72b7d8bf55cf68da5be604990c41f79c36",
+      "after_sha256": "04b0f92857bb674585a55bad3a43b69d7282a52c25bfebf5984ca7e896644f6b"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/README.md",
+      "kind": "modified",
+      "before_sha256": "8c860ec0bcc3e48989fd79af855456adb846d16f8b965e0751b9d9803b9e45ed",
+      "after_sha256": "42b5cda997b3174f9f0d2455574a4a226190a48087b243ca83c36a4e360bf89d"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/README.zh-cn.md",
+      "kind": "modified",
+      "before_sha256": "df32a35ebb4285ffa7bcd164943fb5f29981d2d0dbf9f829eac6dbcb7934d810",
+      "after_sha256": "f2c69210673c5f9d30c9b3b27442ee18fc482dd674e82ec4eb07545612fa1701"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/README.zh-tw.md",
+      "kind": "modified",
+      "before_sha256": "56e3ace85c9c037ab2083506c01ee0b4c157828572bac997cd6ea4fb5e2702e3",
+      "after_sha256": "90fe0d2f93f7c8eaa6a0e01ed65d4bbf7f7e10616cc03862de2daf9204bb87b3"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/labctl.py",
+      "kind": "modified",
+      "before_sha256": "285faacefbfc04657484869d06f4592cabf30c903946f8d9edd05c4a72c79845",
+      "after_sha256": "01ce56eacb3d72b1d4e2122fdc84a5b25435a84164457ffcfa64d33d7437a74b"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions-files.json",
+      "kind": "modified",
+      "before_sha256": "4c00eaff48899eff8f9fdf72566f0c72b7d8bf55cf68da5be604990c41f79c36",
+      "after_sha256": "04b0f92857bb674585a55bad3a43b69d7282a52c25bfebf5984ca7e896644f6b"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/tests/test_environment.py",
+      "kind": "added",
+      "before_sha256": null,
+      "after_sha256": "28315d3663c52609e793a8fb14c6248ea953cd96ecaefeee3427839fef03cf59"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/tests/test_environment.py",
+      "kind": "added",
+      "before_sha256": null,
+      "after_sha256": "28315d3663c52609e793a8fb14c6248ea953cd96ecaefeee3427839fef03cf59"
+    },
+    {
+      "path": "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_environment.py",
+      "kind": "added",
+      "before_sha256": null,
+      "after_sha256": "28315d3663c52609e793a8fb14c6248ea953cd96ecaefeee3427839fef03cf59"
+    }
+  ],
+  "source_sha256": {
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/.env.example": "8eb54486aa6dec73fb05000dc8cf9d5a46914582dee6b6a2d85b0d6059bf5205",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/.gitignore": "3f9c24dea3df4c5658c720107bec6ec85423e9a0e4b6a5e05aa32d51ca4c50c2",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/FILES.json": "f8087ca401cde210a0a1e70cd42a94bf73019c85f139d0d2855a4131d5192fd0",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/README.md": "05f12acbadb8fb3fb663e9fd1ee264b849e73d7703181cb8ec1c858a0cac3153",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/README.zh-cn.md": "c04bbc8623de26a771804386ea0944b170e0c11e6ae1c36deec4c678d8d25640",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/README.zh-tw.md": "4a745e2fca802ba7fd08fe062f1d00c2246f8c388889d0cd36e15024468d6783",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/answers/variant.sql": "d49d8b635c026742224b7decfbed5f40690319a2e6c1886a513eb18f1e6abc7b",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/conftest.py": "8f6c80af8608050eb70c6618e282e78594424c9a8942e13782a0375914507544",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/labctl.py": "01ce56eacb3d72b1d4e2122fdc84a5b25435a84164457ffcfa64d33d7437a74b",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/model-contract.json": "f378479040c0dd24ec51f83581078099a66809b0e60803fc6e54353617b84bb9",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/pyproject.toml": "78c857984a50155eb4f289ccfa04670d675bc9a17e9f8727051b14fcb9ad8954",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/sources.json": "3078282a3bf0d5f43e4ad279f5602e4910e390eb71c9bb82ac0452aa3f7cbe74",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/sql/expected_failures.sql": "723c69351421edcb2b1fd32c7123c0d56014e84023a90616f5fbf4b5d7e76f45",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/sql/inspect.sql": "34694ec24fd39165523ad65a1a3831ed682eeb854ec428f6d0617356a15d5832",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/sql/schema.sql": "b94f3559f7b0da1e1897c148176b154b9a1ed557f69182a39eb2933c91f97310",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/sql/seed.sql": "cb9a10e67537c16f72ffaacb318a6b9ab69266d368fdbe5c2d46c04315f331d4",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/tests/test_environment.py": "28315d3663c52609e793a8fb14c6248ea953cd96ecaefeee3427839fef03cf59",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/tests/test_relations.py": "d89378d6635a0108e27859f4fbb16c2eb7d64a978d055b459b1cc640ac522bbb",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/tests/test_variant.py": "0dddbe2b6b934951805bfb5054343f7ec9f68c3baf4331db69a10c581db6ee47",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/uv.lock": "f9a5730ffce5b5a481e98a6a0fc51cadd73dc66f0057cde22e63b061e29d7bc5",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data-files.json": "f8087ca401cde210a0a1e70cd42a94bf73019c85f139d0d2855a4131d5192fd0",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/.env.example": "8eb54486aa6dec73fb05000dc8cf9d5a46914582dee6b6a2d85b0d6059bf5205",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/.gitignore": "3f9c24dea3df4c5658c720107bec6ec85423e9a0e4b6a5e05aa32d51ca4c50c2",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/FILES.json": "4a955cdfd8c5c68f93f04f7cc5dc263e18a8597c8d70563223aeae7943fc00eb",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/README.md": "a502eb4ce00bc16171f738d9188d0551715c9909cf98d7da90823138cad337f3",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/README.zh-cn.md": "e884c0c4bfaf26499fed8185a2ec6f1cde790bf36b82a7bd4ee660806a6ed866",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/README.zh-tw.md": "81a33e3b93650a8f70fa9de5e49418148513b2dfcab823086fe0e14ebb2666d5",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/answers/variant.py": "a3e256e0f8fa0c0a8fe046519b851ea5cd7f5b8a848c664e85b7ed146d0e8691",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/conftest.py": "8f6c80af8608050eb70c6618e282e78594424c9a8942e13782a0375914507544",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/demo.py": "bce58f886ebd7a5b9827971d0aeb00659a3214abcefa15d00e43dd2a90552e4f",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/labctl.py": "01ce56eacb3d72b1d4e2122fdc84a5b25435a84164457ffcfa64d33d7437a74b",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/model-contract.json": "f378479040c0dd24ec51f83581078099a66809b0e60803fc6e54353617b84bb9",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/pyproject.toml": "523b2f7e9027700e8685533433a5460b0fed30e7570a7d73df8883cec27056c4",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/queries.py": "da03a17a06ac53ffe8ed8983fc9bb1b4c339ec3c322936591608645b0761661e",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/sources.json": "f34f0058d09759bbf8b1885ba6d9817e29b860ec1528cef97b0222d9b096d6b2",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/sql/queries.sql": "8cf6d0a3c2873e50613afc96f237df07b1eb0e18a8f633d9c2378f16bba97ff6",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/sql/schema.sql": "b94f3559f7b0da1e1897c148176b154b9a1ed557f69182a39eb2933c91f97310",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/sql/seed.sql": "cb9a10e67537c16f72ffaacb318a6b9ab69266d368fdbe5c2d46c04315f331d4",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/tests/test_environment.py": "28315d3663c52609e793a8fb14c6248ea953cd96ecaefeee3427839fef03cf59",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/tests/test_queries.py": "11189baa9346656a4a5fe6496e5255cd37facadc80d4eb5ce7779c3ecf3e211a",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/uv.lock": "5ab5662ce8de4e68019b653c48a0b59cf6eb6f7007caf490137292d6f94f6fd4",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql-files.json": "4a955cdfd8c5c68f93f04f7cc5dc263e18a8597c8d70563223aeae7943fc00eb",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/.env.example": "8eb54486aa6dec73fb05000dc8cf9d5a46914582dee6b6a2d85b0d6059bf5205",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/.gitignore": "3f9c24dea3df4c5658c720107bec6ec85423e9a0e4b6a5e05aa32d51ca4c50c2",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/FILES.json": "04b0f92857bb674585a55bad3a43b69d7282a52c25bfebf5984ca7e896644f6b",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/README.md": "42b5cda997b3174f9f0d2455574a4a226190a48087b243ca83c36a4e360bf89d",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/README.zh-cn.md": "f2c69210673c5f9d30c9b3b27442ee18fc482dd674e82ec4eb07545612fa1701",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/README.zh-tw.md": "90fe0d2f93f7c8eaa6a0e01ed65d4bbf7f7e10616cc03862de2daf9204bb87b3",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/answers/variant.py": "b955ea2d04cae65fb902fa21db9d36db54313cc000fde45d7984bfe42d78bd77",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/concurrency.py": "c3d2c4908be8abf4736924560804fbb36de3731c345cb805d4ceb9ea1a2a3c48",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/conftest.py": "8f6c80af8608050eb70c6618e282e78594424c9a8942e13782a0375914507544",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/demo.py": "9e039d59dcfcc87277eb8382e6239f57be8c298453e60f3324ca3b756885579a",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/labctl.py": "01ce56eacb3d72b1d4e2122fdc84a5b25435a84164457ffcfa64d33d7437a74b",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/model-contract.json": "f378479040c0dd24ec51f83581078099a66809b0e60803fc6e54353617b84bb9",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/pyproject.toml": "12f857086674c04ab188353fe565c8b1002eb74635d5049d6377f0ebc24a67f2",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sources.json": "0532947244ca2b10c477d41e1a4d47b0beca77b0f1093965509a906e19b35243",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sql/failed_transaction.sql": "ae1bd92c7943e978ca84a2541122c767fae3791ec532d75064735073fcfa0a20",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sql/schema.sql": "b94f3559f7b0da1e1897c148176b154b9a1ed557f69182a39eb2933c91f97310",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sql/seed.sql": "cb9a10e67537c16f72ffaacb318a6b9ab69266d368fdbe5c2d46c04315f331d4",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_environment.py": "28315d3663c52609e793a8fb14c6248ea953cd96ecaefeee3427839fef03cf59",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_transactions.py": "5e1df7aa806cde39f68b76845e9be9aab5b85984ce052b4ddb4cd61a282d1c19",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/transactions.py": "65e6419583ee575de7d0734abb6880b772b386c5a08b9e89239537c01ee2981b",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/uv.lock": "71e3100dd6d38b04aafa2c731e5fd896edeb46d33f61fbc21d8ce620f7734673",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions-files.json": "04b0f92857bb674585a55bad3a43b69d7282a52c25bfebf5984ca7e896644f6b"
+  },
+  "unchanged_baseline_files": [
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/.env.example",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/.gitignore",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/.python-version",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/answers/variant.sql",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/conftest.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/model-contract.json",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/pyproject.toml",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/sources.json",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/sql/expected_failures.sql",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/sql/inspect.sql",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/sql/schema.sql",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/sql/seed.sql",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/tests/test_relations.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/tests/test_variant.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d01-relational-data/uv.lock",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/.env.example",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/.gitignore",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/.python-version",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/answers/variant.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/conftest.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/demo.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/model-contract.json",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/pyproject.toml",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/queries.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/sources.json",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/sql/queries.sql",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/sql/schema.sql",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/sql/seed.sql",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/tests/test_queries.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d02-sql/uv.lock",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/.env.example",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/.gitignore",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/.python-version",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/answers/variant.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/concurrency.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/conftest.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/demo.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/model-contract.json",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/pyproject.toml",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sources.json",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sql/failed_transaction.sql",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sql/schema.sql",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/sql/seed.sql",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/tests/test_transactions.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/transactions.py",
+    "/Users/mikmyp/Documents/code-projects/langshift.dev/examples/js2py/d03-transactions/uv.lock"
+  ],
+  "resources": {
+    "all_created_postgresql_clusters_stopped": true,
+    "clusters": [
+      {
+        "lab": "d01-relational-data",
+        "root": "/private/tmp/lsdb-u23hmnir",
+        "final_status": {
+          "root": "/private/tmp/lsdb-u23hmnir",
+          "running": false,
+          "pg_ctl_status": 3
+        },
+        "pidfile_absent": true,
+        "socket_absent": true,
+        "final_server_log_line": "2026-09-28 13:59:37.460 CST [61831] LOG:  database system is shut down"
+      },
+      {
+        "lab": "d02-sql",
+        "root": "/private/tmp/lsdb-702o8r5m",
+        "final_status": {
+          "root": "/private/tmp/lsdb-702o8r5m",
+          "running": false,
+          "pg_ctl_status": 3
+        },
+        "pidfile_absent": true,
+        "socket_absent": true,
+        "final_server_log_line": "2026-09-28 13:59:44.834 CST [62051] LOG:  database system is shut down"
+      },
+      {
+        "lab": "d03-transactions",
+        "root": "/private/tmp/lsdb-y4p7kdif",
+        "final_status": {
+          "root": "/private/tmp/lsdb-y4p7kdif",
+          "running": false,
+          "pg_ctl_status": 3
+        },
+        "pidfile_absent": true,
+        "socket_absent": true,
+        "final_server_log_line": "2026-09-28 13:59:53.084 CST [62407] LOG:  database system is shut down"
+      }
+    ],
+    "loopback_listeners_closed": 21,
+    "files_retained_for_audit": true,
+    "no_other_clusters_stopped": true
+  },
+  "artifacts": {
+    "command_log": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/commands.json",
+    "before_hashes": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/before-hashes.json",
+    "results": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/results.json",
+    "validation_script": "/tmp/langshift-d01-d03-environment-validate.py"
+  },
+  "commands": [
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d01-relational-data",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "sync",
+        "--locked"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "Using CPython 3.13.15\nCreating virtual environment at: .venv\nResolved 10 packages in 3ms\nInstalled 7 packages in 6ms\n + iniconfig==2.3.0\n + packaging==26.3\n + pluggy==1.6.0\n + psycopg==3.3.6\n + psycopg-binary==3.3.6\n + pygments==2.21.0\n + pytest==8.4.2\n",
+      "duration_seconds": 0.024
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d01-relational-data",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "Python 3.13.15\n",
+      "stderr": "",
+      "duration_seconds": 0.044
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d01-relational-data",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "start"
+      ],
+      "returncode": 0,
+      "stdout": "owned cluster ready: PostgreSQL 18.6; TCP disabled\nroot=/private/tmp/lsdb-u23hmnir\n",
+      "stderr": "",
+      "duration_seconds": 5.599
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d01-relational-data",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "status"
+      ],
+      "returncode": 0,
+      "stdout": "{\"root\": \"/private/tmp/lsdb-u23hmnir\", \"running\": true, \"pg_ctl_status\": 0}\n",
+      "stderr": "",
+      "duration_seconds": 0.104
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d01-relational-data",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q",
+        "tests/test_relations.py",
+        "tests/test_variant.py"
+      ],
+      "returncode": 0,
+      "stdout": "..............                                                           [100%]\n14 passed in 0.21s\n",
+      "stderr": "",
+      "duration_seconds": 1.026
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d01-relational-data",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q",
+        "--junitxml=/private/tmp/langshift-d01-d03-env-9ulr7_l3/d01-relational-data-junit.xml"
+      ],
+      "returncode": 0,
+      "stdout": "................................................................         [100%]\n- generated xml file: /private/tmp/langshift-d01-d03-env-9ulr7_l3/d01-relational-data-junit.xml -\n64 passed in 2.31s\n",
+      "stderr": "",
+      "duration_seconds": 2.493
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d01-relational-data",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "stop"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to shut down.... done\nserver stopped\nowned cluster stopped; pg_ctl status=3; files retained\n",
+      "stderr": "",
+      "duration_seconds": 0.378
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d01-relational-data",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "status"
+      ],
+      "returncode": 0,
+      "stdout": "{\"root\": \"/private/tmp/lsdb-u23hmnir\", \"running\": false, \"pg_ctl_status\": 3}\n",
+      "stderr": "",
+      "duration_seconds": 0.145
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d02-sql",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "sync",
+        "--locked"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "Using CPython 3.13.15\nCreating virtual environment at: .venv\nResolved 10 packages in 2ms\nInstalled 7 packages in 7ms\n + iniconfig==2.3.0\n + packaging==26.3\n + pluggy==1.6.0\n + psycopg==3.3.6\n + psycopg-binary==3.3.6\n + pygments==2.21.0\n + pytest==8.4.2\n",
+      "duration_seconds": 0.022
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d02-sql",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "Python 3.13.15\n",
+      "stderr": "",
+      "duration_seconds": 0.051
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d02-sql",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "start"
+      ],
+      "returncode": 0,
+      "stdout": "owned cluster ready: PostgreSQL 18.6; TCP disabled\nroot=/private/tmp/lsdb-702o8r5m\n",
+      "stderr": "",
+      "duration_seconds": 3.114
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d02-sql",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "status"
+      ],
+      "returncode": 0,
+      "stdout": "{\"root\": \"/private/tmp/lsdb-702o8r5m\", \"running\": true, \"pg_ctl_status\": 0}\n",
+      "stderr": "",
+      "duration_seconds": 0.114
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d02-sql",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q",
+        "tests/test_queries.py"
+      ],
+      "returncode": 0,
+      "stdout": "................                                                         [100%]\n16 passed in 0.32s\n",
+      "stderr": "",
+      "duration_seconds": 1.119
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d02-sql",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q",
+        "--junitxml=/private/tmp/langshift-d01-d03-env-9ulr7_l3/d02-sql-junit.xml"
+      ],
+      "returncode": 0,
+      "stdout": "..................................................................       [100%]\n- generated xml file: /private/tmp/langshift-d01-d03-env-9ulr7_l3/d02-sql-junit.xml -\n66 passed in 2.24s\n",
+      "stderr": "",
+      "duration_seconds": 2.449
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d02-sql",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "stop"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to shut down.... done\nserver stopped\nowned cluster stopped; pg_ctl status=3; files retained\n",
+      "stderr": "",
+      "duration_seconds": 0.334
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d02-sql",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "status"
+      ],
+      "returncode": 0,
+      "stdout": "{\"root\": \"/private/tmp/lsdb-702o8r5m\", \"running\": false, \"pg_ctl_status\": 3}\n",
+      "stderr": "",
+      "duration_seconds": 0.115
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "sync",
+        "--locked"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "Using CPython 3.13.15\nCreating virtual environment at: .venv\nResolved 10 packages in 3ms\nInstalled 7 packages in 7ms\n + iniconfig==2.3.0\n + packaging==26.3\n + pluggy==1.6.0\n + psycopg==3.3.6\n + psycopg-binary==3.3.6\n + pygments==2.21.0\n + pytest==8.4.2\n",
+      "duration_seconds": 0.022
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "--version"
+      ],
+      "returncode": 0,
+      "stdout": "Python 3.13.15\n",
+      "stderr": "",
+      "duration_seconds": 0.056
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "start"
+      ],
+      "returncode": 0,
+      "stdout": "owned cluster ready: PostgreSQL 18.6; TCP disabled\nroot=/private/tmp/lsdb-y4p7kdif\n",
+      "stderr": "",
+      "duration_seconds": 3.25
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "status"
+      ],
+      "returncode": 0,
+      "stdout": "{\"root\": \"/private/tmp/lsdb-y4p7kdif\", \"running\": true, \"pg_ctl_status\": 0}\n",
+      "stderr": "",
+      "duration_seconds": 0.124
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q",
+        "tests/test_transactions.py"
+      ],
+      "returncode": 0,
+      "stdout": ".............                                                            [100%]\n13 passed in 0.56s\n",
+      "stderr": "",
+      "duration_seconds": 1.366
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q",
+        "--junitxml=/private/tmp/langshift-d01-d03-env-9ulr7_l3/d03-transactions-junit.xml"
+      ],
+      "returncode": 0,
+      "stdout": "...............................................................          [100%]\n- generated xml file: /private/tmp/langshift-d01-d03-env-9ulr7_l3/d03-transactions-junit.xml -\n63 passed in 2.72s\n",
+      "stderr": "",
+      "duration_seconds": 2.981
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "stop"
+      ],
+      "returncode": 0,
+      "stdout": "waiting for server to shut down.... done\nserver stopped\nowned cluster stopped; pg_ctl status=3; files retained\n",
+      "stderr": "",
+      "duration_seconds": 0.317
+    },
+    {
+      "cwd": "/private/tmp/langshift-d01-d03-env-9ulr7_l3/clean/d03-transactions",
+      "command": [
+        "/Users/mikmyp/.local/bin/uv",
+        "run",
+        "--locked",
+        "python",
+        "labctl.py",
+        "status"
+      ],
+      "returncode": 0,
+      "stdout": "{\"root\": \"/private/tmp/lsdb-y4p7kdif\", \"running\": false, \"pg_ctl_status\": 3}\n",
+      "stderr": "",
+      "duration_seconds": 0.119
+    }
+  ],
+  "mainline_handoff": {
+    "new_test_counts": {
+      "d01-relational-data": 64,
+      "d02-sql": 66,
+      "d03-transactions": 63
+    },
+    "mainline_owns": [
+      "old shared-runner/MDX counts",
+      "ZIP refresh",
+      "review hashes"
+    ],
+    "runner_caution": "Retain PGHOST=/nonexistent and dummy DATABASE_URL compatibility checks. Other inherited PG* (including PGDATABASE/PGUSER) now fail intentionally; unset in lab shell or launch environment."
+  },
+  "mainline_followup": {
+    "three_locale_pages": "Before-command environment checkpoint and exact original+50 test counts added in all9 editions; business source remains unchanged.",
+    "maintained_runner": "Counts64/66/63; clears inherited uv/Python/libpq/pytest injection while preserving tool/install/cache locations and intentional PGHOST/DATABASE_URL canaries.",
+    "actual_rerun": "/tmp/langshift-backend-20260928/main-d01-d03-repaired/report.json",
+    "full_suite_executions": 386,
+    "retained_original_business_tests": 43,
+    "public_zip_rebuilt": true
+  }
+}
