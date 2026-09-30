@@ -5,6 +5,8 @@ description: Commit tasks and receipts atomically in PostgreSQL, observe unique-
 
 import { getReliableOperationExample } from '@/lib/js2py-examples'
 
+**Product handoff V3:** Your product now needs server-derived identity, object authorization, revocation, and idempotent operations in the same database-backed service. Re-run Alice/Bob negative cases against your own routes and record the session, membership, transaction, and replay evidence before adding optional external services.
+
 ## 1. No response does not mean no work happened
 
 Disabling a submit button reduces double clicks, but cannot prevent network interruption, a refresh, proxy retries or two clients submitting simultaneously. Suppose the server inserts a task and commits, but the response is lost in transit. The client knows only that it received no result; it cannot conclude that the transaction rolled back. Sending another POST may create a second task. Wrapping every retry in a new transaction does not solve that uncertainty.

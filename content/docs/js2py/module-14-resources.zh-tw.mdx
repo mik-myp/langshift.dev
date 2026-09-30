@@ -20,6 +20,8 @@ import { getResourceExample } from '@/lib/js2py-examples'
 
 下載 [L14 完整實驗](/learning-assets/js2py/u14-resources.zip)，進入 u14-resources。基線為 CPython 3.13.15、uv 0.12.13、pytest 8.4.2；文件操作在本地，不給它們加瀏覽器執行按鈕。
 
+JavaScript 沒有與 `with` 對應的語言結構。你熟悉的清理方式是 `try/finally` 或手動調用 `AbortController.abort()`，一旦忘記就沒有機制兜底。Python 的 `with` 把進入/退出協議寫進對象本身，由解釋器保證正常結束、`break` 和異常路徑都會調用退出邏輯——本章會讓這個保證變得可觀察。
+
 ## 2. 調用生成器函數，不會立即執行函數體
 
 普通函數調用通常執行到返回或拋錯。函數體中出現 yield 後，調用會創建生成器對象；實際代碼從第一次請求下一項才開始執行。yield 交出一個值並暫停，局部變量和執行位置保留；下次請求繼續從暫停處往下走，而不是從函數開頭重跑。

@@ -20,6 +20,8 @@ D04 把 API 接到了真實庫。現在想給任務增加 priority：0 普通、
 
 下載 [D05 完整實驗](/learning-assets/js2py/d05-migrations.zip)，進入 d05-migrations。本包獨立，不導入 D04 目錄；源碼和下載仍來自同一 canonical 文件集合。示例只在本地 PostgreSQL 運行。
 
+前端工程沒有與數據庫遷移直接對應的概念：改變 localStorage 的結構通常靠讀取時手寫兼容代碼。Alembic 版本腳本就是這個兼容層，但它作用於所有用戶共享的一份 PostgreSQL——腳本寫錯會同時影響所有人，這正是本章要求先審查腳本再執行的原因。
+
 ## 2. 安裝與服務：一個命令擁有一份臨時集群
 
 先安裝 uv 與 PostgreSQL 18 的 postgres/initdb/pg_ctl/psql 二進制。psycopg 是客戶端，不提供服務端。實測 macOS arm64 的程序目錄為 /opt/homebrew/bin，其他 POSIX 機器修改 PG_BIN；不要用 root，不啟動 brew services，不需要 Docker。Windows harness 未驗證。

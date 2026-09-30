@@ -523,7 +523,7 @@
     "examples/js2py/g01-graduation/tests/test_materials.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-38-graduation.mdx": "b79e8d64c99f043737292483ccb33fe3cc7391e792a49988b10f741b832843ef",
+    "content/docs/js2py/module-38-graduation.mdx": "deb4e0b69bdb5a355d9e4142ddbbd6d11e780483eb3cec891d4138ce9a31f7b6",
     "examples/js2py/g01-graduation/.gitignore": "80295d5887ba0ccce6eb509790dbbb928f3161102895d897abbbc980bd24da8d",
     "examples/js2py/g01-graduation/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/g01-graduation/FILES.json": "3a0f48bd0f7ee7b4a0a75284fff67b1c0748df5ade2506114761c4ea39715299",
@@ -541,14 +541,30 @@
     "examples/js2py/g01-graduation/templates/fixture-bindings.json": "899b3ae62b25bdd355940c21e55fb1b582f2dcca9dea5b67572412a30b002225",
     "examples/js2py/g01-graduation/templates/reviewer-record.json": "dfed50f94e0cf0ad242224000644676af0f138a78944bdeacdce1fa19d8569f3",
     "examples/js2py/g01-graduation/tests/test_materials.py": "a53f88a93a737becc0d25472a1a83b66e958b65043fd2b5559c0206ead47d7e1",
-    "content/docs/js2py/module-38-graduation.zh-cn.mdx": "e61315f8bea77f9ee28ebe26ca35e9870aab11dc5d107fbdc925e51d5259ebc7",
-    "content/docs/js2py/module-38-graduation.zh-tw.mdx": "6792683e7d30419853d4f265d158b10f85ffc3daac71cd3d475a85e6696ca551",
+    "content/docs/js2py/module-38-graduation.zh-cn.mdx": "538f683305c11a17678e9106f93fa895bee34dc4ccf9442bace44d0a182afa99",
+    "content/docs/js2py/module-38-graduation.zh-tw.mdx": "3808932df7a1b107c20a50b878d93f1e112045f589fec6a7bd58058b05cf57cd",
     "examples/js2py/g01-graduation-files.json": "3a0f48bd0f7ee7b4a0a75284fff67b1c0748df5ade2506114761c4ea39715299",
     "public/learning-assets/js2py/g01-graduation.zip": "1cb62eed4582c07c733f4d3e2f79695238ad5850d5b74f1273d0898ff2c2605d"
   },
   "deterministically_checked_lock_files": {},
   "interface_failures": [],
-  "post_review_changes": [],
+  "post_review_changes": [
+    {
+      "path": "content/docs/js2py/module-38-graduation.mdx",
+      "change": "locale-routed integration link only",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-38-graduation.zh-cn.mdx",
+      "change": "locale-routed integration link only",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-38-graduation.zh-tw.mdx",
+      "change": "locale-routed integration link only",
+      "executable_behavior_changed": false
+    }
+  ],
   "submitted_source_sha256": {
     "content/docs/js2py/module-38-graduation.mdx": "b79e8d64c99f043737292483ccb33fe3cc7391e792a49988b10f741b832843ef",
     "examples/js2py/g01-graduation/.gitignore": "80295d5887ba0ccce6eb509790dbbb928f3161102895d897abbbc980bd24da8d",
@@ -577,5 +593,7 @@
     "snapshot": "Submitted source hashes and full requests remain unchanged. Effective source_sha256 includes each explicitly recorded post-review repair; closure delta review binds the final D03 assertion and O privilege wording changes. Locale/locks/manifests/ZIP are deterministic evidence, not semantic translation review."
   },
   "credential_persisted": false,
-  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+  "source_refresh_date": "2026-09-30",
+  "source_refresh_reason": "Replaced local filesystem spine links with locale-routed integrated-project links; executable examples and ZIP members unchanged."
 }

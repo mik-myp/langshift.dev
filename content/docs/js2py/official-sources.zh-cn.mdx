@@ -1,0 +1,38 @@
+---
+title: 官方来源矩阵与版本政策
+description: 汇总 js2py 使用的官方资料、验证版本和上游行为与课程自定义契约之间的边界。
+---
+
+## 怎样使用这张表
+
+下面的链接是课程机制的主要一手资料。课程会在这些机制之上选择业务合同、字段、状态码、保留期限和验收场景；课程合同不是框架默认值。
+
+升级依赖时，记录新版本，阅读对应官方资料，重跑受影响的失败路径、迁移、授权、回退和恢复，并更新产品记录。当前文档链接不等于旧锁文件与新版本行为完全相同。
+
+## 教学版本基线
+
+| 领域 | 已核验基线 | 官方资料 | 主要章节 |
+| --- | --- | --- | --- |
+| Python 语言/运行时 | CPython 3.13.15 | [Python 3.13 教程](https://docs.python.org/3.13/tutorial/)、[语言参考](https://docs.python.org/3.13/reference/) | L00—L14、O01 |
+| 工程环境 | uv 0.12.13、`uv.lock`、`--locked` | [锁定与同步](https://docs.astral.sh/uv/concepts/projects/sync/)、[运行命令](https://docs.astral.sh/uv/concepts/projects/run/) | L08—L10、所有锁定实验 |
+| 基础测试 | pytest 8.4.2 | [fixture](https://docs.pytest.org/en/8.4.x/how-to/fixtures.html)、[断言](https://docs.pytest.org/en/8.4.x/how-to/assert.html) | L09—L10、H06、D06 |
+| Web 框架 | FastAPI 0.135.1、Uvicorn 0.42.0 | [FastAPI 测试](https://fastapi.tiangolo.com/tutorial/testing/)、[yield 依赖](https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/)、[CORS](https://fastapi.tiangolo.com/tutorial/cors/) | H03—H06、A02 |
+| 校验 | Pydantic 2.12.5 | [严格模式](https://docs.pydantic.dev/2.12/concepts/strict_mode/)、[字段](https://docs.pydantic.dev/2.12/concepts/fields/)、[序列化](https://docs.pydantic.dev/2.12/concepts/serialization/) | H04—H06 |
+| 数据访问 | SQLAlchemy 2.0.54、psycopg 3.3.6 | [SQLAlchemy Session](https://docs.sqlalchemy.org/en/20/orm/session_basics.html)、[事务](https://docs.sqlalchemy.org/en/20/orm/session_transaction.html) | D04、D06、S01—S03 |
+| 结构历史 | Alembic 1.20.0 | [教程](https://alembic.sqlalchemy.org/en/latest/tutorial.html)、[自动生成限制](https://alembic.sqlalchemy.org/en/latest/autogenerate.html) | D05—D06、O04 |
+| 数据库服务 | PostgreSQL 18.6 | [约束](https://www.postgresql.org/docs/18/ddl-constraints.html)、[事务](https://www.postgresql.org/docs/18/tutorial-transactions.html)、[备份恢复](https://www.postgresql.org/docs/18/backup.html) | D01—D06、O04—O06 |
+| 异步执行 | Python 3.13 `asyncio` | [协程与任务](https://docs.python.org/3.13/library/asyncio-task.html)、[开发陷阱](https://docs.python.org/3.13/library/asyncio-dev.html) | A01—A02 |
+| 密码/会话安全 | `argon2-cffi` 的 Argon2id；不透明会话 | [OWASP 密码存储](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)、[会话管理](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) | S01 |
+| 对象授权 | 服务端对象检查 | [OWASP API 安全项目](https://owasp.org/projects/api-security-project) | S02—S03、G01 |
+| 交付入口 | Docker、Caddy、GitHub Actions | [Docker 构建建议](https://docs.docker.com/build/building/best-practices/)、[Caddy HTTPS](https://caddyserver.com/docs/automatic-https)、[Actions 权限](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax) | O02—O04 |
+
+## 不能误当成上游默认值的课程合同
+
+- `/tasks`、项目/成员/任务字段、状态码、分页上限、404/403 策略和 PATCH 规则是课程合同。
+- 不透明 Bearer 会话是教学实现。选择 JWT、Cookie 或外部身份服务时，必须重新设计认证和撤销。
+- 幂等保留期、受邀用户上限、备份保留、RPO/RTO 和告警阈值是产品决策，不是 FastAPI、PostgreSQL 或 HTTP 的普遍保证。
+- 本地 trust、回环 socket、合成数据和短命归档是实验边界，不等于生产认证、公网网络或灾难恢复。
+
+## 升级后的证据
+
+保留旧/新锁文件、官方版本链接、迁移兼容结果、API 和授权回归、回退结果、恢复结果及未解决风险。目标环境不可用时记录 `blocked` 或 `not_run`，不能从本地通过推导生产就绪。

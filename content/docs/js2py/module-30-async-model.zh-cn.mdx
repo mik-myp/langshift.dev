@@ -5,6 +5,8 @@ description: 用事件与真实文件追踪 coroutine、Task、事件循环、�
 
 import { getAsyncModelExample } from '@/lib/js2py-examples'
 
+**产品检查点 V3.5：** 只在产品依赖确实需要时加入异步。保持核心 CRUD 的同步正确性，并证明超时、取消和清理不会破坏它。参见[贯穿项目指南](/zh-cn/docs/js2py/project-integration)。
+
 ## 1. 在 S03 之后重新检查一个熟悉的词：async
 
 你已经做过同步 API、SQL 事务、认证授权和可靠业务。现在想为任务提供一个可选的外部提示：请求在等网络时，服务是否还能处理另一个请求？这个问题不是“给所有函数加 async”。它要求分清**谁开始工作、谁在等待、谁持有资源、谁负责让工作结束**。

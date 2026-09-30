@@ -317,7 +317,7 @@
     "examples/js2py/a01-async-model/tests/test_model.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-30-async-model.mdx": "bdf0753a8e2afe3e83fb5af754266fe1c43cffc2ceb5d0c7d4e0e11021eacd05",
+    "content/docs/js2py/module-30-async-model.mdx": "9c2c8b3347196f859c9014dc6003c40ce722efb0abb9267932ddb7e1746919e4",
     "examples/js2py/a01-async-model/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/a01-async-model/DOWNLOAD-ALLOWLIST.json": "3bc6c9459251c0e81cbe6aed4b4417fa73ad5de3f4120ed3bb98425449d5b04f",
     "examples/js2py/a01-async-model/README.md": "13d8062e5781e63ed3d4243ac97e94490aa31b9baf1d3986a202bc09a5eda9dc",
@@ -342,8 +342,8 @@
     "examples/js2py/a01-async-model/solutions/test_batch.py": "71f32baec866307584966f47dc5825c3bff8d58ea8fd5ab022b0b48e059faf71",
     "examples/js2py/a01-async-model/sources.json": "f73977513ed87e385ba4111656234224dc495d4054f4c661357895c2cd9f521a",
     "examples/js2py/a01-async-model/tests/test_model.py": "72a90ea3e699b2cc9ba2c2df55e2da00a6a6571972d197cc3e7edaf53374ac10",
-    "content/docs/js2py/module-30-async-model.zh-cn.mdx": "1d514b71328cd5a534019980a051a0b214d40bb6ee7ff94fa3f5225d1c8c52fa",
-    "content/docs/js2py/module-30-async-model.zh-tw.mdx": "8cceb5f9171e920927ddc904591e412b46f74f8ccebb77ce6ae6f4f6ee457422",
+    "content/docs/js2py/module-30-async-model.zh-cn.mdx": "78ab0591c4512a4ad56f27d4c432bbec3adc37f1e1d175fa5be7dada1a61e356",
+    "content/docs/js2py/module-30-async-model.zh-tw.mdx": "3c21a300a38fee45259852b4722be50b5325403a01526be57d846542316f565a",
     "examples/js2py/a01-async-model-files.json": "3bc6c9459251c0e81cbe6aed4b4417fa73ad5de3f4120ed3bb98425449d5b04f",
     "public/learning-assets/js2py/a01-async-model.zip": "d7e0c036c3ae19928669917637a92962052db1a85f153206ce218dab3fad3149",
     "examples/js2py/a01-async-model/uv.lock": "a16a8e7e80ce4fc409c16d72327f34c95a56702c878df8bd9cc0057a93c4a3bb"
@@ -356,7 +356,23 @@
     }
   },
   "interface_failures": [],
-  "post_review_changes": [],
+  "post_review_changes": [
+    {
+      "path": "content/docs/js2py/module-30-async-model.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-30-async-model.zh-cn.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-30-async-model.zh-tw.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    }
+  ],
   "submitted_source_sha256": {
     "content/docs/js2py/module-30-async-model.mdx": "bdf0753a8e2afe3e83fb5af754266fe1c43cffc2ceb5d0c7d4e0e11021eacd05",
     "examples/js2py/a01-async-model/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
@@ -392,5 +408,7 @@
     "snapshot": "Submitted source hashes and full requests remain unchanged. Effective source_sha256 includes each explicitly recorded post-review repair; closure delta review binds the final D03 assertion and O privilege wording changes. Locale/locks/manifests/ZIP are deterministic evidence, not semantic translation review."
   },
   "credential_persisted": false,
-  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+  "source_refresh_date": "2026-09-30",
+  "source_refresh_reason": "Added a learner-facing integration checkpoint paragraph only; executable examples and download members are unchanged."
 }

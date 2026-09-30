@@ -1,0 +1,7 @@
+application_revision:
+schema_revision:
+reads_new_columns:
+writes_new_columns:
+safe_rollback_condition:
+database_restore_plan:
+rollback_owner:

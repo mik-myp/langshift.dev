@@ -5,6 +5,8 @@ description: Restore into a fresh isolated target with pg_restore, verify record
 
 import { getRecoveryExample } from '@/lib/js2py-examples'
 
+**Product handoff V4:** The product is eligible for invited release only after the real target environment supplies evidence for build, HTTPS, migrations, logs, alerts, backup, isolated restoration, rollback, and access approval. The local recovery lab is a model; replace every endpoint, role, table list, and command with your product’s values.
+
 ## 1. A backup matters because of what you can recover
 
 “A .dump file appears every day” does not identify its database, required tables, readability, access controls, recovery time, or restored-user safety. An empty file can have the right name. An archive whose inventory can be listed can still fail during restoration.
@@ -19,6 +21,8 @@ Our acceptance endpoint is **useful, authorized behavior after an isolated resto
 | Not claimed | Scheduled/off-site backups, PITR, cross-host disaster recovery, production RPO/RTO, actual invited-user availability |
 
 Download the [independent O06 lab](/learning-assets/js2py/o06-recovery.zip) and enter `o06-recovery`. All data is generated. Only an owned mkdtemp cluster and fresh source/restored/damaged databases are created. No existing user database, real backup, or production credential is read.
+
+Frontend habit says “refresh the page and retry.” Server data has no such escape: a damaged database does not heal by restarting. The only way back is a verified backup restored into an isolated target — which is why this chapter's acceptance ends at a proven restore, not at a file existing.
 
 ## 2. Define backup scope before selecting tools
 

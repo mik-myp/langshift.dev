@@ -5,6 +5,8 @@ description: Exercise the real request boundary with TestClient, then explain fi
 
 import { getApiTestingExample } from '@/lib/js2py-examples'
 
+**Product handoff V1:** Bring the V0 business module into your own FastAPI repository. Keep the HTTP contract, TestClient suite, real-process request record, and the explicit statement that memory data is not a release store. Continue to D01 only after the API and its failure paths are explainable.
+
 ## 1. Business functions pass; what can still break at the interface?
 
 L09 introduced ordinary test functions, assertions, and pytest.raises. L13 explained how parameterization creates independent cases. H05's store tests can prove PATCH merge rules without proving that /tasks is registered, JSON is parsed, error statuses are correct, or output filtering removes internal fields. Manual curl can observe those boundaries, but replaying everything from memory after each change is easy to get wrong.

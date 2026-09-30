@@ -36,6 +36,8 @@ The mypy configuration selects annotated business code, the entry point, and the
 
 When a checker reports success, ask which files and function bodies it examined and where dynamic values enter. Running the application does not implicitly run mypy. CI only checks types if you explicitly configure that step.
 
+If you know TypeScript, mypy plays a similar role but starts more conservatively: with `strict` in tsconfig.json, TypeScript checks the whole project, whereas this mypy configuration checks only the annotated files listed in it; unannotated Python code passes silently. That is exactly why the green result above covers only configured scope, not every function.
+
 ## 3. Read annotations on behavior you already understand
 
 First read the unannotated function. Predict how it skips an over-budget item but keeps looking at later items:

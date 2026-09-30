@@ -1,0 +1,89 @@
+---
+title: 生产发布与维护运行手册
+description: 将 js2py 产品接入真实 Linux、容器、HTTPS、CI、备份、恢复和长期维护目标环境的运行手册模板。
+---
+
+import { Code } from '@/components/code'
+import { getProductDeliveryExample } from '@/lib/js2py-examples'
+
+## 范围与安全边界
+
+这是 V4 产品的运行手册模板。执行前必须替换所有占位值，并由责任人审查。它不提供公网主机、域名、证书、秘密、数据库或部署批准。目标门槛通过前，应用保持只监听回环地址。
+
+发布脚本会拒绝空记录：它要求 V0—V3 通过、已通过的构建、迁移、备份恢复和回退证据、不可变镜像摘要、人工批准、备份政策和回退责任人，然后才会触碰目标。
+
+命令以 Docker、PostgreSQL、Caddy 和 GitHub Actions 为例。选择其他维护中的工具时，先阅读官方文档并记录版本。不要把密码、私钥、Bearer Token 或完整连接 URL 写进本文。
+
+下载[可执行交付模板](/learning-assets/js2py/product-delivery.zip)，解压 `product-delivery`，再把审查后的部分复制到自己的产品。归档不包含凭证，也不是已部署后端。
+
+## 1. 记录发布输入
+
+<Code language="text">{getProductDeliveryExample('release-record.template')}</Code>
+
+提交和镜像摘要必须是不可变引用。不要用可变的 `latest` 作为生产发布标识。生产秘密由目标环境的秘密存储注入；`.env` 只能描述变量名。
+
+## 2. 构建非 root 镜像
+
+把 O02 的 Dockerfile 改成自己的应用模块和健康检查。使用多阶段构建，只把运行环境复制到运行阶段，固定非特权 UID，把可变数据放在命名卷或托管服务中。[Docker 构建建议](https://docs.docker.com/build/building/best-practices/)
+
+<Code language="dockerfile">{getProductDeliveryExample('Dockerfile')}</Code>
+
+发布前在干净上下文构建、检查镜像、运行健康检查，并证明运行用户不能写入应用层。镜像构建不能证明迁移、授权或恢复正确。
+
+如果目标使用 Linux/systemd 而不是容器，仍要保留相同边界。把路径、用户、环境文件和模块入口替换成自己的值，再在目标主机验证：
+
+<Code language="ini">{getProductDeliveryExample('product.service.template')}</Code>
+
+运行 `systemd-analyze verify`，只启动命名的 unit，检查 `systemctl status` 与 `journalctl -u YOUR_APP_NAME`，再发送本地健康请求。`ProtectSystem` 和 `ReadWritePaths` 是主机策略，需要真实写入测试；仓库里有 unit 文件不等于 systemd 验收通过。参见 [systemd service](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html) 和 [systemd execution environment](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html)。
+
+## 3. 用受控作业执行迁移
+
+不要让每个应用 worker 在启动时竞争执行结构变更。使用迁移身份单独运行一次，再启动应用：
+
+<Code language="bash">{getProductDeliveryExample('commands/migrate-start.sh')}</Code>
+
+`migrate` 使用同一镜像和数据库网络，但使用独立数据库角色。运行角色不能有迁移权限。就绪响应也不能证明每条业务查询都拥有正确权限。
+
+## 4. 使用 Caddy 作为入口
+
+容器拓扑中，Caddy 的 `127.0.0.1` 是它自己的容器；必须使用 Compose 服务名访问上游。同主机 systemd 拓扑只有在应用绑定同一主机时才使用 loopback。
+
+<Code language="text">{getProductDeliveryExample('Caddyfile.template')}</Code>
+
+只有在 DNS A/AAAA、80/443 端口、证书存储和防火墙责任确认后，才替换保留域名。Caddy 自动 HTTPS 仍需要正确域名、可达挑战路径和持久可写数据目录。[Caddy HTTPS](https://caddyserver.com/docs/automatic-https)
+
+使用真实浏览器和 HTTP 客户端验证外部证书、应用看到的 scheme 和来源。通过本地 CA 不能证明公网 HTTPS。
+
+## 5. CI 和生产审批
+
+每次变更运行检查，但生产秘密只能在环境审批后开放。显式设置最小 Token 权限：
+
+<Code language="yaml">{getProductDeliveryExample('.github/workflows/verify-and-release.yml.template')}</Code>
+
+实际使用前按组织政策固定 action revision，并配置所需审核人、允许的分支/标签和环境秘密。[工作流权限](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)、[部署环境](https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments)
+
+## 6. 备份、恢复并留下证据
+
+使用访问受控、有保留策略的备份目标。custom PostgreSQL 归档可以交给 `pg_restore`；能列出归档不代表恢复成功：
+
+<Code language="bash">{getProductDeliveryExample('commands/backup.sh')}</Code>
+
+<Code language="bash">{getProductDeliveryExample('commands/restore.sh')}</Code>
+
+恢复后按兼容计划运行迁移，核对业务记录、约束、序列和会话/成员政策，再发送真实允许/拒绝请求。记录恢复时间和实际丢失。[PostgreSQL pg_restore](https://www.postgresql.org/docs/18/app-pgrestore.html)
+
+## 7. 回退不能靠猜
+
+只有旧应用理解当前结构和数据时，应用回退才安全。数据库降级是另一种变更，可能丢数据。发布前记录兼容矩阵：
+
+<Code language="text">{getProductDeliveryExample('rollback-record.template')}</Code>
+
+在隔离目标、已有数据上演练回退。不要用删库、删除失败断言或盲目 downgrade 解决迁移失败。
+
+## 8. 长期维护记录
+
+每次依赖更新、证书续期、备份失败、告警、权限变化、事故、容量变化或用户反馈，都记录责任人、当前版本、目标环境、决定、实际结果、下一步和未解决风险。维护按事件推进，不需要固定每周学习量；生产变更没有证据就不算完成。
+
+## 完成门槛
+
+只有真实目标环境提供了构建身份、数据库迁移、HTTPS、秘密、日志、告警、备份、隔离恢复、回退兼容、授权、容量限制和维护责任人的证据，产品才可以提供给受邀用户。任何未执行门槛都记录为 `blocked` 或 `not_run`。

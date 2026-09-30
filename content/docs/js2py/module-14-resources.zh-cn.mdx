@@ -20,6 +20,8 @@ import { getResourceExample } from '@/lib/js2py-examples'
 
 下载 [L14 完整实验](/learning-assets/js2py/u14-resources.zip)，进入 u14-resources。基线为 CPython 3.13.15、uv 0.12.13、pytest 8.4.2；文件操作在本地，不给它们加浏览器执行按钮。
 
+JavaScript 没有与 `with` 对应的语言结构。你熟悉的清理方式是 `try/finally` 或手动调用 `AbortController.abort()`，一旦忘记就没有机制兜底。Python 的 `with` 把进入/退出协议写进对象本身，由解释器保证正常结束、`break` 和异常路径都会调用退出逻辑——本章会让这个保证变得可观察。
+
 ## 2. 调用生成器函数，不会立即执行函数体
 
 普通函数调用通常执行到返回或抛错。函数体中出现 yield 后，调用会创建生成器对象；实际代码从第一次请求下一项才开始执行。yield 交出一个值并暂停，局部变量和执行位置保留；下次请求继续从暂停处往下走，而不是从函数开头重跑。

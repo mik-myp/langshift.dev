@@ -5,6 +5,8 @@ description: Build controlled accounts, Argon2id verification and opaque Bearer 
 
 import { getIdentityExample } from '@/lib/js2py-examples'
 
+**Product checkpoint V3:** Add identity and revocation to your own product only after V2 data and migration evidence exists. This track uses Argon2id and opaque Bearer sessions; record any alternative authentication design as a new contract. See the [integrated project guide](/en/docs/js2py/project-integration).
+
 ## 1. A user_id in the database does not identify the caller
 
 The D labs accepted an owner_id to demonstrate relationships and transactions. That was an explicitly limited teaching input, not authentication. Any client can change JSON; TypeScript types, hidden buttons and CORS cannot prove identity. This chapter moves “who is calling?” out of the request body and into a credential verified by the service. The next chapter decides which objects that person may operate on.

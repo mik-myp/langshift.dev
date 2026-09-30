@@ -1,0 +1,11 @@
+# Reserved host: replace only after the domain/target approval and DNS checks.
+{
+    admin off
+}
+api.example.invalid {
+    reverse_proxy app:8000 {
+        header_up -Forwarded
+    }
+    # No access log enabled. Add the product's reviewed size/rate/CORS policies.
+    # Header forwarding alone does not authenticate or authorize a caller.
+}

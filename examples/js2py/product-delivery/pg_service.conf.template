@@ -1,0 +1,21 @@
+# Non-secret endpoints; keep this file private and review each exact target.
+# Supply actual host, roles, CA files, and passfiles. Never store password= here.
+[source-backup]
+host=source-db.example.invalid
+port=5432
+dbname=product
+user=product_backup
+sslmode=verify-full
+sslrootcert=/etc/product/credentials/source-ca.crt
+passfile=/etc/product/credentials/source.pgpass
+connect_timeout=10
+
+[restore-admin]
+host=isolated-restore-db.example.invalid
+port=5432
+dbname=postgres
+user=product_restore_operator
+sslmode=verify-full
+sslrootcert=/etc/product/credentials/restore-ca.crt
+passfile=/etc/product/credentials/restore.pgpass
+connect_timeout=10

@@ -1760,7 +1760,7 @@
     "examples/js2py/d05-migrations/tests/test_migrations.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-25-migrations.mdx": "204f1311eb21f10de303267bc82195cc9de6960968e7b56f93ffb3dd48156b6d",
+    "content/docs/js2py/module-25-migrations.mdx": "9ab236a95cd925af04a603ff14203c0f27de6be7944ad3495d3b5f1178dd765c",
     "examples/js2py/d05-migrations/.gitignore": "85c36a89acabe55cd838be3f3aa989186b9c34aa58ff789f8404d2c498b439bc",
     "examples/js2py/d05-migrations/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/d05-migrations/README.md": "d2a8987349b3a2b7c91f93474ec019ce212efd83acfdab44def3c4a7aaa07fc9",
@@ -1787,8 +1787,8 @@
     "examples/js2py/d05-migrations/source-verification.json": "ee1d9e668b149606ff17d6550d32cbc5846afdbddd343b7353c99d2679b341b1",
     "examples/js2py/d05-migrations/tests/conftest.py": "a2c7f3c2f7cb480fa99e78803c91c10203ffd33ab3de7806bc66bb8956c9e622",
     "examples/js2py/d05-migrations/tests/test_migrations.py": "7a46f4984fd50a17ee6c202975a802e2f9deb7f92f2439bc8a59aa08a4f709fa",
-    "content/docs/js2py/module-25-migrations.zh-tw.mdx": "ecfde170341177fa6b0c221d318d0c7dd012f31afcc5db4c51a20c237cd03952",
-    "content/docs/js2py/module-25-migrations.zh-cn.mdx": "5080226274805374f28e1dabf7162ccf1b67beca3ea6614cee9033989f09bd48",
+    "content/docs/js2py/module-25-migrations.zh-tw.mdx": "e31c5fd4b9cfb6b44a59f3a12cdd0f999273ecf3eee99de8ba708fb8829e75ae",
+    "content/docs/js2py/module-25-migrations.zh-cn.mdx": "cc84d0478e692b951e20c5a6e7c7250a3e859ff2230f11ad0ae7b2d180b67c27",
     "examples/js2py/d05-migrations-files.json": "e866e53ef2b5542501bfa463fbb9644496b3ad83273a70f90f8ddc25cb598609",
     "public/learning-assets/js2py/d05-migrations.zip": "9120e8e21075e36b44876db83caa988de61de493526a0b7dc1a064503bc0c5b4",
     "examples/js2py/d05-migrations/uv.lock": "a267e5db5755891a87a0477c551a519f7095c60388ed8afbb80b4dd7d84e5c2a"
@@ -1819,6 +1819,24 @@
       "submitted_or_prior_snapshot_sha256": "0ce50a008de059f73c895deb424bdfac6f4234c4c121702ebeb4b2cc26cc7d68",
       "current_sha256": "204f1311eb21f10de303267bc82195cc9de6960968e7b56f93ffb3dd48156b6d",
       "change": "Label the existing explicitly explained indented edit fragment with fragment=class-body. Its one source line and semantics do not change. The checker now compiles it inside a dummy class rather than falsely treating it as a top-level program;3 regression tests protect scope and invalid syntax."
+    },
+    {
+      "path": "content/docs/js2py/module-25-migrations.mdx",
+      "submitted_or_prior_snapshot_sha256": "204f1311eb21f10de303267bc82195cc9de6960968e7b56f93ffb3dd48156b6d",
+      "current_sha256": "9ab236a95cd925af04a603ff14203c0f27de6be7944ad3495d3b5f1178dd765c",
+      "change": "Add a frontend-experience anchor paragraph (no frontend equivalent to schema migrations; localStorage compatibility code vs Alembic version scripts) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
+    },
+    {
+      "path": "content/docs/js2py/module-25-migrations.zh-cn.mdx",
+      "submitted_or_prior_snapshot_sha256": "5080226274805374f28e1dabf7162ccf1b67beca3ea6614cee9033989f09bd48",
+      "current_sha256": "cc84d0478e692b951e20c5a6e7c7250a3e859ff2230f11ad0ae7b2d180b67c27",
+      "change": "Add a frontend-experience anchor paragraph (no frontend equivalent to schema migrations; localStorage compatibility code vs Alembic version scripts) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
+    },
+    {
+      "path": "content/docs/js2py/module-25-migrations.zh-tw.mdx",
+      "submitted_or_prior_snapshot_sha256": "ecfde170341177fa6b0c221d318d0c7dd012f31afcc5db4c51a20c237cd03952",
+      "current_sha256": "e31c5fd4b9cfb6b44a59f3a12cdd0f999273ecf3eee99de8ba708fb8829e75ae",
+      "change": "Add a frontend-experience anchor paragraph (no frontend equivalent to schema migrations; localStorage compatibility code vs Alembic version scripts) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
     }
   ],
   "submitted_source_sha256": {

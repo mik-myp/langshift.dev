@@ -5,6 +5,8 @@ description: Trace requests with a loopback-only standard-library tool and two t
 
 import { getServiceProcessExample } from '@/lib/js2py-examples'
 
+**Product checkpoint V1:** Bring this service boundary back to your own product repository. Keep the V0 business rules and record the first real HTTP request and failure in your integration log. See the [integrated project guide](/en/docs/js2py/project-integration).
+
 ## 1. Why is the service still running after a request finishes?
 
 As a frontend developer, you are usually given a URL. Now reverse the question: what keeps waiting at that address? Why can you refresh without restarting the backend? Does closing the browser shut down the backend? Confusing these lifetimes makes it easy to misdiagnose “the endpoint returned 404” as “Python did not start,” or to stop somebody else's program while resolving a port conflict.

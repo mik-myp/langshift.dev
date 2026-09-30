@@ -2270,7 +2270,7 @@
     "examples/js2py/o06-recovery/tests/test_recovery.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-37-recovery.mdx": "8f0621ed323deaaa1c7ce6a778f40ddef5b3d2910c98899e233ae0404f2a9463",
+    "content/docs/js2py/module-37-recovery.mdx": "9381b1b088b8bdd6276c5be84eb34231dfe86c3b509cb9bd52e4bffca6376302",
     "examples/js2py/o06-recovery/.gitignore": "8dfae3af9d0c607ef44b4b5fa1b4cfdb62135a9ae9075498004908fdedb10e08",
     "examples/js2py/o06-recovery/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/o06-recovery/README.md": "208b9252d4b2faf39b9dc69e18e537d2bdde6f1a8d3fd406a0bc4e86bc85571d",
@@ -2309,8 +2309,8 @@
     "examples/js2py/o06-recovery/sql/grants.sql": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
     "examples/js2py/o06-recovery/tests/test_environment.py": "e97319497f8560f965ffdb11c1ca2159ae1d081bc395c22afa6be868afc704f6",
     "examples/js2py/o06-recovery/tests/test_recovery.py": "e4d00e26dc95cda59844c75689e31a7eb35d208e334bd78ce95588ce8e841263",
-    "content/docs/js2py/module-37-recovery.zh-tw.mdx": "046a7bedeecba51b3c725d441c4e9fb11232926f74d8d3bd1df07858a3b0382b",
-    "content/docs/js2py/module-37-recovery.zh-cn.mdx": "aa3b2e9f4ce90dc93662eabcb5ea00f4b3c7d8aaa6197ba37ea983cbd587b328",
+    "content/docs/js2py/module-37-recovery.zh-tw.mdx": "80b24ea825ca287bdf1522015f9dab08efbbd47801ed719e7449308c3679d870",
+    "content/docs/js2py/module-37-recovery.zh-cn.mdx": "0f29e53511b16ba928ea489e93c9647fef4bc6ae15c6cd842f057d23f1e74513",
     "examples/js2py/o06-recovery-files.json": "81ddd19d29aa9cdbf865eeb5215a3e22e53766193e27b2f7e2e43d8f96ec951e",
     "public/learning-assets/js2py/o06-recovery.zip": "98f9f119364adefede0ede0974d7a7522a934078598b1df99ec15c5bf6edea9c",
     "examples/js2py/o06-recovery/uv.lock": "3aab1c03498825f8692f6be0c07a46270323acddcf22463a407f5328b749dd55"
@@ -2325,38 +2325,37 @@
   "interface_failures": [],
   "post_review_changes": [
     {
-      "path": "examples/js2py/o06-recovery/README.md",
-      "previous_effective_sha256": "acddffbb2933d0f6757d64a4ba4482b8a49bd0166206b6ff02ab00ab364bb37d",
-      "current_sha256": "208b9252d4b2faf39b9dc69e18e537d2bdde6f1a8d3fd406a0bc4e86bc85571d",
-      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
-      "submitted_sha256": "acddffbb2933d0f6757d64a4ba4482b8a49bd0166206b6ff02ab00ab364bb37d",
-      "complete_diff": "--- submitted/examples/js2py/o06-recovery/README.md\n+++ current/examples/js2py/o06-recovery/README.md\n@@ -84,8 +84,10 @@\n nullable projects.description. They are for this disposable laboratory, NOT\n permission to replace an existing application's migration history. Application\n startup reads schema compatibility but NEVER migrates. Administrative migration\n-and runtime roles are separate; grants.sql lists the operational slice privileges.\n+and runtime roles are separate; grants.sql lists the current lab privileges, not a proven minimal set.\n The migration controller is serial, not a distributed deployment lock.\n+\n+This lab verifies separation of administrative and runtime identities and rejection of the tested ALTER/DROP operations; it does **not** prove least-privilege DML. The shared `sql/grants.sql` still gives SELECT/INSERT/UPDATE/DELETE on projects, project_members and tasks, plus USAGE/SELECT on all public sequences. Several grants exceed the current read/create-project routes. Before a real deployment, map each route and job to its table operation, narrow the table/sequence grants, and verify required actions succeed while unused UPDATE/DELETE and other unneeded actions are denied. Passing the existing DDL-denial tests cannot replace that audit.\n \n ops/server.py owns actual Uvicorn subprocesses, waits for database-backed readiness,\n and closes only those processes in finally. All database roots, synthetic backups,\n",
-      "verification": "English/source delta included in closure request; Chinese README delta inspected/synchronized but no claim of model-reviewed translation."
+      "path": "content/docs/js2py/module-37-recovery.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
     },
     {
-      "path": "examples/js2py/o06-recovery/README.zh-cn.md",
-      "previous_effective_sha256": "14bcdfb2191d095d5c6ffde6871ac5e6a74378b6b847b98148883b5f1b167fbe",
-      "current_sha256": "72921fb6579af83dad9af049e72994bd14ece3d05a432edc814a05dad06b3aad",
-      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
-      "submitted_sha256": "14bcdfb2191d095d5c6ffde6871ac5e6a74378b6b847b98148883b5f1b167fbe",
-      "complete_diff": "--- submitted/examples/js2py/o06-recovery/README.zh-cn.md\n+++ current/examples/js2py/o06-recovery/README.zh-cn.md\n@@ -71,8 +71,10 @@\n \n SQL001..006 独立复现 D/S 合同快照，007 添加可空 projects.description。\n 它们只用于自有实验，不允许替换既有生产迁移历史。应用启动只做兼容检查，\n-绝不自动迁移。管理迁移与运行身份分离，grants.sql 列出切片所需权限。\n+绝不自动迁移。管理迁移与运行身份分离，grants.sql 列出当前实验权限，不代表已经最小授权。\n 迁移控制器按单操作员串行执行，不是分布式发布锁。\n+\n+本实验验证的是管理／运行身份分离，以及已测试的 ALTER/DROP 被拒绝；**没有证明 DML 已按最小权限收敛**。共用的 `sql/grants.sql` 仍对 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，并对 public 的全部序列授予 USAGE/SELECT；其中部分权限超过当前“读取／创建项目”路由的需要。真正部署前，须逐个列出路由和作业需要的表操作，收窄表／序列授权，再验证必要操作成功、未使用的 UPDATE/DELETE 等操作被拒绝。已有 DDL 拒绝测试不能代替这项审计。\n \n ops/server.py 管理实际 Uvicorn 子进程，等待 DB-backed readiness，在 finally\n 只停自己的服务。正常/异常退出清理自有库目录、合成归档、私有日志和 socket；\n",
-      "verification": "English/source delta included in closure request; Chinese README delta inspected/synchronized but no claim of model-reviewed translation."
+      "path": "content/docs/js2py/module-37-recovery.zh-cn.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
     },
     {
-      "path": "examples/js2py/o06-recovery/README.zh-tw.md",
-      "previous_effective_sha256": "45a4f5ed964e8d985f6e4dcb56fa0f45ec39b6d03c0c27154b02625053a556a2",
-      "current_sha256": "e0d9e69f858da4d070bb246bfff4a44ba7db0f9af497e6804d333af03a53c65a",
-      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
-      "submitted_sha256": "45a4f5ed964e8d985f6e4dcb56fa0f45ec39b6d03c0c27154b02625053a556a2",
-      "complete_diff": "--- submitted/examples/js2py/o06-recovery/README.zh-tw.md\n+++ current/examples/js2py/o06-recovery/README.zh-tw.md\n@@ -71,8 +71,10 @@\n \n SQL001..006 獨立復現 D/S 合同快照，007 添加可空 projects.description。\n 它們只用於自有實驗，不允許替換既有生產遷移歷史。應用啟動只做兼容檢查，\n-絕不自動遷移。管理遷移與運行身份分離，grants.sql 列出切片所需權限。\n+絕不自動遷移。管理遷移與運行身份分離，grants.sql 列出當前實驗權限，不代表已經最小授權。\n 遷移控制器按單操作員串行執行，不是分佈式發佈鎖。\n+\n+本實驗驗證的是管理／運行身份分離，以及已測試的 ALTER/DROP 被拒絕；**沒有證明 DML 已按最小權限收斂**。共用的 `sql/grants.sql` 仍對 projects、project_members、tasks 授予 SELECT/INSERT/UPDATE/DELETE，並對 public 的全部序列授予 USAGE/SELECT；其中部分權限超過當前「讀取／創建項目」路由的需要。真正部署前，須逐個列出路由和作業需要的表操作，收窄表／序列授權，再驗證必要操作成功、未使用的 UPDATE/DELETE 等操作被拒絕。已有 DDL 拒絕測試不能代替這項審計。\n \n ops/server.py 管理實際 Uvicorn 子進程，等待 DB-backed readiness，在 finally\n 只停自己的服務。正常/異常退出清理自有庫目錄、合成歸檔、私有日誌和 socket；\n",
-      "verification": "English/source delta included in closure request; Chinese README delta inspected/synchronized but no claim of model-reviewed translation."
+      "path": "content/docs/js2py/module-37-recovery.zh-tw.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
     },
     {
-      "path": "public/learning-assets/js2py/o06-recovery.zip",
-      "previous_effective_sha256": "04ca9e304b1c5852784fdcfcad23fd166f0605856d5a61c37b84ebdf5cfaa34e",
-      "current_sha256": "98f9f119364adefede0ede0974d7a7522a934078598b1df99ec15c5bf6edea9c",
-      "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
-      "verification": "Deterministic locale/hash or rebuilt archive update accompanying the exact reviewed source delta; not semantic review of ZIP bytes."
+      "path": "content/docs/js2py/module-37-recovery.mdx",
+      "submitted_or_prior_snapshot_sha256": "dc53a4c2b46cbe16e8d6590c19911487ea5e2cc15325e937dd376fe1e446f66b",
+      "current_sha256": "9381b1b088b8bdd6276c5be84eb34231dfe86c3b509cb9bd52e4bffca6376302",
+      "change": "Add a frontend-experience anchor paragraph (refresh-and-retry does not exist server-side; verified restore into an isolated target is the only recovery path) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
+    },
+    {
+      "path": "content/docs/js2py/module-37-recovery.zh-cn.mdx",
+      "submitted_or_prior_snapshot_sha256": "f6823eeff6875d01da919aac15270d3f1db69d2e797c6ebbcc6bf04a7b2f7917",
+      "current_sha256": "0f29e53511b16ba928ea489e93c9647fef4bc6ae15c6cd842f057d23f1e74513",
+      "change": "Add a frontend-experience anchor paragraph (refresh-and-retry does not exist server-side; verified restore into an isolated target is the only recovery path) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
+    },
+    {
+      "path": "content/docs/js2py/module-37-recovery.zh-tw.mdx",
+      "submitted_or_prior_snapshot_sha256": "9dfee51d669a92166fba77c1be432cc0d2c2be0f68f799b749290212063eb2d8",
+      "current_sha256": "80b24ea825ca287bdf1522015f9dab08efbbd47801ed719e7449308c3679d870",
+      "change": "Add a frontend-experience anchor paragraph (refresh-and-retry does not exist server-side; verified restore into an isolated target is the only recovery path) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
     }
   ],
   "submitted_source_sha256": {
@@ -2409,5 +2408,7 @@
   },
   "credential_persisted": false,
   "prior_review_rounds": [],
-  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+  "source_refresh_date": "2026-09-30",
+  "source_refresh_reason": "Added a learner-facing product handoff paragraph only; executable examples and download members are unchanged."
 }

@@ -1,0 +1,89 @@
+---
+title: 生產發布與維護運行手冊
+description: 將 js2py 產品接入真實 Linux、容器、HTTPS、CI、備份、恢復和長期維護目標環境的運行手冊模板。
+---
+
+import { Code } from '@/components/code'
+import { getProductDeliveryExample } from '@/lib/js2py-examples'
+
+## 範圍與安全邊界
+
+這是 V4 產品的運行手冊模板。執行前必須替換所有佔位值，並由負責人審查。它不提供公網主機、域名、證書、秘密、數據庫或部署批准。目標門檻通過前，應用保持只監聽回環地址。
+
+發布腳本會拒絕空記錄：它要求 V0—V3 通過、已通過的構建、遷移、備份恢復和回退證據、不可變鏡像摘要、人工批准、備份政策和回退責任人，然後才會觸碰目標。
+
+命令以 Docker、PostgreSQL、Caddy 和 GitHub Actions 為例。選擇其他維護中的工具時，先閱讀官方文檔並記錄版本。不要把密碼、私鑰、Bearer Token 或完整連接 URL 寫進本文。
+
+下載[可執行交付模板](/learning-assets/js2py/product-delivery.zip)，解壓 `product-delivery`，再把審查後的部分複製到自己的產品。歸檔不包含憑證，也不是已部署後端。
+
+## 1. 記錄發布輸入
+
+<Code language="text">{getProductDeliveryExample('release-record.template')}</Code>
+
+提交和鏡像摘要必須是不可變引用。不要用可變的 `latest` 作為生產發布標識。生產秘密由目標環境的秘密存儲注入；`.env` 只能描述變量名。
+
+## 2. 構建非 root 鏡像
+
+把 O02 的 Dockerfile 改成自己的應用模塊和健康檢查。使用多階段構建，只把運行環境複製到運行階段，固定非特權 UID，把可變數據放在命名卷或託管服務中。[Docker 構建建議](https://docs.docker.com/build/building/best-practices/)
+
+<Code language="dockerfile">{getProductDeliveryExample('Dockerfile')}</Code>
+
+發布前在乾淨上下文構建、檢查鏡像、運行健康檢查，並證明運行用戶不能寫入應用層。鏡像構建不能證明遷移、授權或恢復正確。
+
+如果目標使用 Linux/systemd 而不是容器，仍要保留相同邊界。把路徑、用戶、環境文件和模塊入口替換成自己的值，再在目標主機驗證：
+
+<Code language="ini">{getProductDeliveryExample('product.service.template')}</Code>
+
+運行 `systemd-analyze verify`，只啟動命名的 unit，檢查 `systemctl status` 與 `journalctl -u YOUR_APP_NAME`，再發送本地健康請求。`ProtectSystem` 和 `ReadWritePaths` 是主機策略，需要真實寫入測試；倉庫裏有 unit 文件不等於 systemd 驗收通過。參見 [systemd service](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html) 和 [systemd execution environment](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html)。
+
+## 3. 用受控作業執行遷移
+
+不要讓每個應用 worker 在啟動時競爭執行結構變更。使用遷移身份單獨運行一次，再啟動應用：
+
+<Code language="bash">{getProductDeliveryExample('commands/migrate-start.sh')}</Code>
+
+`migrate` 使用同一鏡像和數據庫網絡，但使用獨立數據庫角色。運行角色不能有遷移權限。就緒響應也不能證明每條業務查詢都擁有正確權限。
+
+## 4. 使用 Caddy 作為入口
+
+容器拓撲中，Caddy 的 `127.0.0.1` 是它自己的容器；必須使用 Compose 服務名訪問上游。同主機 systemd 拓撲只有在應用綁定同一主機時才使用 loopback。
+
+<Code language="text">{getProductDeliveryExample('Caddyfile.template')}</Code>
+
+只有在 DNS A/AAAA、80/443 端口、證書存儲和防火牆責任確認後，才替換保留域名。Caddy 自動 HTTPS 仍需要正確域名、可達挑戰路徑和持久可寫數據目錄。[Caddy HTTPS](https://caddyserver.com/docs/automatic-https)
+
+使用真實瀏覽器和 HTTP 客戶端驗證外部證書、應用看到的 scheme 和來源。通過本地 CA 不能證明公網 HTTPS。
+
+## 5. CI 和生產審批
+
+每次變更運行檢查，但生產秘密只能在環境審批後開放。顯式設置最小 Token 權限：
+
+<Code language="yaml">{getProductDeliveryExample('.github/workflows/verify-and-release.yml.template')}</Code>
+
+實際使用前按組織政策固定 action revision，並配置所需審核人、允許的分支/標籤和環境秘密。[工作流權限](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)、[部署環境](https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments)
+
+## 6. 備份、恢復並留下證據
+
+使用訪問受控、有保留策略的備份目標。custom PostgreSQL 歸檔可以交給 `pg_restore`；能列出歸檔不代表恢復成功：
+
+<Code language="bash">{getProductDeliveryExample('commands/backup.sh')}</Code>
+
+<Code language="bash">{getProductDeliveryExample('commands/restore.sh')}</Code>
+
+恢復後按兼容計劃運行遷移，核對業務記錄、約束、序列和會話/成員政策，再發送真實允許/拒絕請求。記錄恢復時間和實際丟失。[PostgreSQL pg_restore](https://www.postgresql.org/docs/18/app-pgrestore.html)
+
+## 7. 回退不能靠猜
+
+只有舊應用理解當前結構和數據時，應用回退才安全。數據庫降級是另一種變更，可能丟數據。發布前記錄兼容矩陣：
+
+<Code language="text">{getProductDeliveryExample('rollback-record.template')}</Code>
+
+在隔離目標、已有數據上演練回退。不要用刪庫、刪除失敗斷言或盲目 downgrade 解決遷移失敗。
+
+## 8. 長期維護記錄
+
+每次依賴更新、證書續期、備份失敗、告警、權限變化、事故、容量變化或用戶反饋，都記錄負責人、當前版本、目標環境、決定、實際結果、下一步和未解決風險。維護按事件推進，不需要固定每週學習量；生產變更沒有證據就不算完成。
+
+## 完成門檻
+
+只有真實目標環境提供了構建身份、數據庫遷移、HTTPS、秘密、日誌、告警、備份、隔離恢復、回退兼容、授權、容量限制和維護負責人的證據，產品才可以提供給受邀用戶。任何未執行門檻都記錄為 `blocked` 或 `not_run`。

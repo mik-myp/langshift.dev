@@ -5,6 +5,8 @@ description: Combine functions, modules, files, environments and tests from requ
 
 import { getProjectExample } from '@/lib/js2py-examples'
 
+**Product handoff V0:** This is the first point where you create your own product repository. Keep the business rules, tests, lockfile, recovery record, and a second-directory reconstruction as the starting contract for the later API.
+
 ## 1. This is not another framework scaffold to copy
 
 You now know values, containers, control flow, functions, exceptions, modules, files, environments and plain automated tests. Combine those capabilities: **start with requirements and acceptance, implement independently, then compare responsibilities with a reference.** You may consult earlier chapters and official documentation instead of memorizing every API.
@@ -23,6 +25,8 @@ The [L10 reference project and inputs](/learning-assets/js2py/u10-local-project.
 ## 2. Specify the data and behavior before coding
 
 The file contains one JSON array. Each item has exactly title, minutes and done. Title is non-whitespace str with spelling preserved; minutes is an ordinary nonnegative int, rejecting bool, float and numeric strings; done is bool only. Empty arrays, zero minutes and duplicate titles are valid. Preserve order and reject missing/extra fields.
+
+Compared with frontend form validation, this boundary is stricter by design. JavaScript coerces the string "30" into the number 30 in arithmetic and loose comparisons; Python keeps str and int distinct, and this contract rejects numeric strings outright. Likewise, reading a missing key from a JS object yields undefined and the program continues, while `data["missing"]` on a Python dict raises KeyError — the language basis for treating damaged input as a visible failure instead of a silent default.
 
 Only a **missing** destination initializes this data. An existing empty array is not absence:
 

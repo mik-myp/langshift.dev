@@ -5,6 +5,8 @@ description: Build asynccontextmanager and FastAPI lifespan from L14's yield/fin
 
 import { getExternalServiceExample } from '@/lib/js2py-examples'
 
+**Product handoff V3.5:** Add the external-service adapter only if the product has a concrete need. Core CRUD must remain correct when the adapter times out, returns invalid data, or is cancelled; carry the timeout, idempotency, and cleanup policy into your own tests.
+
 ## 1. A hint may fail; saving a task must not fail with it
 
 Suppose tasks can display an optional priority hint. Putting a remote request inside the task-creation transaction can keep requests, connections and transactions occupied when that service slows down. Worse, a timeout does not establish that a remote effect never happened. Blind retries can duplicate notifications or bills.

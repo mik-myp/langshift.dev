@@ -1697,7 +1697,7 @@
     "examples/js2py/h06-api-testing/tests/test_patch_readback_regression.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-20-api-testing.mdx": "0374210667a426324cf23aeb2b5fdb72797b674222dccca7827c4f5fcf527b87",
+    "content/docs/js2py/module-20-api-testing.mdx": "40de872a288358e95d73daf0b0d22af09bdadfb643e32bc223dae4f370f13516",
     "examples/js2py/h06-api-testing/.gitignore": "34b9af89b8f5d720380cd80173e192d8e2cc225efeda084f08a197d38c50bfba",
     "examples/js2py/h06-api-testing/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/h06-api-testing/README.md": "9c051c02167d65049506c4db71e282243bba649db37889ebb5e9e49005676ca5",
@@ -1727,8 +1727,8 @@
     "examples/js2py/h06-api-testing/tests/test_first_request.py": "5671a7facb998c43de8c32ee199800117cfa097f5f2465fa1a9672f5e9540c7c",
     "examples/js2py/h06-api-testing/tests/test_live_client_cleanup.py": "c7f7fde2bfc0ee4bfeaf955cf9cfa90719d40bbed97554b1ae62897d65235b7f",
     "examples/js2py/h06-api-testing/tests/test_patch_readback_regression.py": "f8508c4ad14d468469bbc1461a375a1425e60992a11d2666c13ab36dbfdbcd8e",
-    "content/docs/js2py/module-20-api-testing.zh-cn.mdx": "f91dc6c8bdda5f4034f7ed6f5a69bfa08e7497a8b595d6dcc0947780dc2823b2",
-    "content/docs/js2py/module-20-api-testing.zh-tw.mdx": "98f8d00e9af2c2716b43e0d81044ef68275bc299f52139031a632bb7a8f4db46",
+    "content/docs/js2py/module-20-api-testing.zh-cn.mdx": "d28db56791f2672395af1bcd1ac633538398ffa5e40f3dbfb868c92defb6822b",
+    "content/docs/js2py/module-20-api-testing.zh-tw.mdx": "b3b12bb2f36740610a1b994bc2211187dd170c273fe0c0c787af8cee85493d1d",
     "examples/js2py/h06-api-testing-files.json": "7cf819f066783d0ec5b241e30b441608c82e606d8699cffd36eab074a27c82d8",
     "public/learning-assets/js2py/h06-api-testing.zip": "0b6634c97cae59865654056907d4f19dfa9598efcba1b12cc0984828a6a3af3e",
     "examples/js2py/h06-api-testing/uv.lock": "ffb1f6cf79df2cb902513b374161db50a397a39855237d6a1929527530537f6f"
@@ -1744,9 +1744,18 @@
   "post_review_changes": [
     {
       "path": "content/docs/js2py/module-20-api-testing.mdx",
-      "prior_snapshot_sha256": "8b71ca0294b72d80ffd5d566c913ec5e9574e798e9fa54f39f29a0dad17bf781",
-      "current_sha256": "0374210667a426324cf23aeb2b5fdb72797b674222dccca7827c4f5fcf527b87",
-      "change": "Quote existing frontmatter title containing colon-space so the actual site YAML parser treats it as one string. Rendered title and lesson body unchanged; aggregate build exposed the missing quote."
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-20-api-testing.zh-cn.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-20-api-testing.zh-tw.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
     }
   ],
   "submitted_source_sha256": {
@@ -1812,5 +1821,7 @@
       "reason": "New concrete source/pedagogy repair after independent reproduction; this is review of changed evidence, not resampling an accepted judgment."
     }
   ],
-  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+  "source_refresh_date": "2026-09-30",
+  "source_refresh_reason": "Added a learner-facing product handoff paragraph only; executable examples and download members are unchanged."
 }

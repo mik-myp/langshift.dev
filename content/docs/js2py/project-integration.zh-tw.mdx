@@ -1,0 +1,106 @@
+---
+title: 貫穿項目：把章節實驗整合為可上線的協作任務服務
+description: 從 L10 開始維護自己的產品倉庫，逐階段接入 API、PostgreSQL、身份權限、測試、異步與真實部署維護，並用明確證據驗收每次交接。
+---
+
+## 這份工作從哪裡開始？
+
+你已經熟悉前端項目和接口聯調，但這裡不假定你做過後端、SQL、服務器或運維。L00—L09 先建立 Python 的語言與本地工程基礎；完成 [L10 獨立項目](/zh-tw/docs/js2py/module-10-common-pitfalls)後，建立**自己的協作任務服務倉庫**。以後每學完一個階段，就在這份倉庫裡實施一次功能或運行邊界的變更。章節 ZIP 是機制實驗與可核對的參考，不是需要整體複製的最終產品。
+
+學習按能力驗收，沒有每週時數或完成期限。停下時保存代碼版本、最後成功命令、遇到的失敗和下次第一步；回來先復現上次成果。允許查閱官方文檔。獨立完成指你能解釋選擇、修改需求並處理失敗，不要求憑記憶寫出每個 API。
+
+先使用[交付包](/learning-assets/js2py/product-delivery.zip)中的 `product-workbook.zh-tw.md`。它把每個整合階段拆成你必須自己編寫的文件和必須記錄的證據。
+
+## 先固定一份產品合同
+
+首版是供少量受邀者使用的多人任務管理 API：受控創建賬號、登錄與撤銷會話；項目、成員、任務；按成員關係進行對象級授權；PostgreSQL 持久化；測試、發佈、日誌、備份、隔離恢復和回退。公開註冊、付費、上傳和多地域高可用不屬於本次產品。完整字段與權限表見 [S02 對象授權](/zh-tw/docs/js2py/module-28-authorization)，獨立新增需求見 [G01](/zh-tw/docs/js2py/module-38-graduation)。
+
+先在產品倉庫寫一頁接口與數據合同：有哪些資源，客戶端可以提供哪些字段，哪些字段由服務端決定，成功與失敗分別改變什麼狀態。前端 `fetch` 調用或 TypeScript 類型無法證明這些服務端規則已經實現。
+
+## V0：從純 Python 業務開始
+
+保留 L10 的業務函數、輸入校驗、文件錯誤處理和普通測試。自己建立項目目錄，記錄 Python/uv 版本、`pyproject.toml` 與 `uv.lock`。從第二個空目錄恢復環境和程序，並用壞 JSON 驗證舊數據不會被靜默覆蓋。還不能把文件存儲稱為多用戶數據庫。
+
+**交付物：** 可從空目錄恢復的本地程序，以及“任務標題、狀態、分鐘數、缺失記錄”四類業務規則表。進入 V1 前，自己改變一條規則並補測試；解釋 `None`、空集合、淺複製和可變默認值與熟悉的 JS 行為哪裡不同。
+
+## V1：讓同一業務通過 HTTP 訪問
+
+先讀 [H01 服務進程](/zh-tw/docs/js2py/module-15-service-process)和 [H02 HTTP 契約](/zh-tw/docs/js2py/module-16-http-contract)，再完成 [H03—H06](/zh-tw/docs/js2py/module-20-api-testing)。把業務規則留在普通函數或服務模塊，路由負責 HTTP 輸入輸出。學習版可以先用內存存儲，但重啟丟數據必須在運行說明中寫明。
+
+按順序交付：創建、讀取、列表、局部更新、刪除；再證明 422 拒絕壞輸入、404 拒絕不存在的對象、空 PATCH 保留舊值、響應不洩露內部字段。用 TestClient 查應用內的路由與校驗；再啟動 Uvicorn，用真實 HTTP 客戶端和一個最小瀏覽器頁面驗證端口、CORS 與請求路徑。TestClient 不經過監聽 socket，瀏覽器策略也不會因為它通過就自動正確。[FastAPI 官方測試說明](https://fastapi.tiangolo.com/tutorial/testing/)解釋了這個測試入口。
+
+**交接問題：** 重啟後任務消失，是 HTTP 路由錯誤還是存儲生命週期？當前 API 允許兩個用戶互相讀取數據嗎？把答案和實際請求證據留下，再進入 V2。
+
+## V2：把數據和事務放進 PostgreSQL
+
+依次完成 [D01 關係模型](/zh-tw/docs/js2py/module-21-relational-data)、[D02 SQL](/zh-tw/docs/js2py/module-22-sql)、[D03 事務](/zh-tw/docs/js2py/module-23-transactions)、[D04 Session](/zh-tw/docs/js2py/module-24-sqlalchemy)、[D05 遷移](/zh-tw/docs/js2py/module-25-migrations)和 [D06 數據庫測試](/zh-tw/docs/js2py/module-26-database-testing)。在自己的倉庫中畫出 users、projects、project_members、tasks 的關係，寫第一條 Alembic 遷移，再用 SQLAlchemy 替換內存讀寫。
+
+H 階段的 `done/note` 是單用戶內存合同；D 階段引入 `status/description` 和項目關係，**這是明確的模型演進**。如果產品已有真實 H 階段數據，必須先寫數據映射和遷移驗證；新建練習庫則應明確記錄“沒有舊數據需要遷移”。不能把刪庫重建當作已有用戶數據的升級。Alembic 自動生成的是候選腳本，必須審查改名、約束與數據回填。[Alembic 官方說明](https://alembic.sqlalchemy.org/en/latest/autogenerate.html)
+
+**驗收：** 空庫升級；帶數據升級；真實 API 重啟後數據保留；兩步寫入中第二步失敗後，另一個連接看不到第一步殘留；每項數據庫測試使用隔離庫。記錄數據庫版本與應用版本的兼容關係。
+
+## V3：登錄之後，每次還要檢查對象權限
+
+完成 [S01 身份](/zh-tw/docs/js2py/module-27-identity)、[S02 授權](/zh-tw/docs/js2py/module-28-authorization)和 [S03 冪等](/zh-tw/docs/js2py/module-29-reliable-operations)。本教材的運行主線是 Argon2id 密碼哈希與不透明隨機 Bearer 會話，服務端保存會話摘要並在受保護請求中重新檢查啟用、過期、撤銷和認證版本；它沒有實現 JWT。密碼哈希參數需在目標機器測量，不能把本地通過數量當作生產容量。[OWASP 密碼存儲指南](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+
+在產品倉庫中創建 Alice 與 Bob 兩個合成用戶。讓 Alice 知道 Bob 的真實項目和任務 ID，直接嘗試列表、詳情、修改和刪除；再移除 Alice 的成員關係，驗證她的會話仍可表明身份，卻不能取得舊項目權限。角色和創建者不得由請求體自授。重複創建任務需要同一作用域、同一 key、同一內容得到同一結果；不同內容衝突，撤權後的重放也不能返回舊回執。對象 ID 總要經過授權判斷。[OWASP API1](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/)
+
+**驗收：** 正常和拒絕路徑都有 HTTP 與數據庫後狀態證據；會話撤銷、改密、停用、跨用戶訪問、併發提交都覆蓋。生產前還需登錄節流、請求大小、秘密和日誌政策，不能由本地 S03 用例自動授予上線資格。
+
+## V3.5：只給需要的邊界加異步
+
+[A01](/zh-tw/docs/js2py/module-30-async-model)先解釋 coroutine、Task、取消、超時和併發許可；[A02](/zh-tw/docs/js2py/module-31-external-services)再接一個可選的外部提示服務。把外部適配器加到自己的產品時，核心 CRUD 不應依賴它成功。超時後的遠端效果可能已經發生；重試前先定義冪等鍵、總預算和資源所有者。進程內 `BackgroundTasks` 或 `asyncio.Queue` 不提供崩潰後持久交付。
+
+**驗收：** 替身製造超時、壞響應和取消；真實本地 socket 驗證連接；失敗後任務仍可讀取，子任務與客戶端資源已收尾。Python 的 async 函數調用先得到 coroutine，不會自動像 JS Promise 一樣開始執行。[Python asyncio 官方說明](https://docs.python.org/3.13/library/asyncio-task.html)
+
+## V4：在真實目標環境發佈並持續維護
+
+依次使用 [O01 進程與權限](/zh-tw/docs/js2py/module-32-operating-system)、[O02 容器](/zh-tw/docs/js2py/module-33-containers)、[O03 HTTPS](/zh-tw/docs/js2py/module-34-https-production)、[O04 發佈與回退](/zh-tw/docs/js2py/module-35-release)、[O05 觀測](/zh-tw/docs/js2py/module-36-observability)和 [O06 恢復](/zh-tw/docs/js2py/module-37-recovery)。這些實驗的本地結果是練習證據；將它們用於自己的產品時，必須替換真實應用入口、遷移、數據庫角色、日誌路徑、備份清單和恢復後請求。
+
+使用[生產發布與維護運行手冊](/zh-tw/docs/js2py/deployment-runbook)把目標環境操作落成清單。裏面只有佔位值；必須替換成自己產品經過審查的值和真實證據。
+
+請在受控目標環境逐項完成下表。不要為了趕進度跳過任何門檻；缺環境時記錄 `blocked`、所需資源與負責者，仍可繼續完善獨立的文檔和代碼。
+
+| 門檻 | 真實目標中的動作 | 留下的證據 |
+| --- | --- | --- |
+| 構建與身份 | 從固定提交構建；應用用非特權賬戶；遷移身份與運行身份分離 | 提交、鏡像摘要或製品、運行 UID、最小表/序列權限的允許與拒絕結果 |
+| 數據 | 使用獨立於開發/測試的數據庫與持久存儲；先做可審查遷移 | 數據庫/遷移版本、已存在數據升級結果、重啟後讀回 |
+| 入口 | 域名解析到獲准主機；真實 HTTPS；後端不能繞過代理暴露 | 外部 DNS、可信證書鏈、續期與真實瀏覽器/HTTP 請求記錄 |
+| 發佈 | 託管 CI 對固定提交檢查；應用和數據庫版本兼容後切換 | CI 運行鏈接、發佈記錄、有數據的舊應用回退結果 |
+| 觀測 | 日誌脫敏、關聯 ID、錯誤/延遲指標和通知送達 | 一次故障從用戶請求定位到原因；通知實際收到並有處理人 |
+| 恢復 | 定期備份、受控存儲、恢復到另一隔離目標；檢查數據與權限 | 歸檔標識、恢復計時、業務記錄、約束、序列、舊會話失效 |
+| 維護 | 限定受邀用戶、容量與費用；定期演練升級和恢復 | 值班負責人、告警處理、受邀反饋與一次後續修復記錄 |
+
+Docker 官方建議多階段構建和非 root 運行；卷可保存容器外的持久狀態，但不能代替數據庫備份。[構建建議](https://docs.docker.com/build/building/best-practices/)、[卷](https://docs.docker.com/engine/storage/volumes/)。Caddy 的公網證書自動管理仍依賴正確的域名、可達挑戰端口與持久可寫的數據目錄。[Caddy HTTPS](https://caddyserver.com/docs/automatic-https)。託管 CI 的令牌權限和生產環境門禁需要按實際託管平臺配置並執行；例如 GitHub Actions 的[權限](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)與[環境門禁](https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments)。PostgreSQL 歸檔要執行真實 `pg_restore` 並核對恢復後的應用行為；只有可列出歸檔內容仍不足以證明可恢復。[PostgreSQL pg_restore](https://www.postgresql.org/docs/18/app-pgrestore.html)
+
+## V5：獨立需求與長期維護
+
+V4 已驗收後，在同一倉庫完成 [G01 任務評論](/zh-tw/docs/js2py/module-38-graduation)。它只給需求和驗收場景，不給實現步驟。提交設計、遷移、權限、併發與重複請求測試；按同一發佈流程上線，隨後做回退和隔離恢復。24 個學生場景當前都是 `not_run`，必須由讀者真實執行並由評閱者複核。
+
+上線後的維護是重複動作：關注告警與用戶反饋，記錄故障發生、影響、修復和複驗；按計劃更新受支持的依賴並重跑測試；檢查備份是否按計劃生成，定期恢復到隔離目標；核對證書續期、容量和費用；每次遷移前重審兼容與回退。一次綠色 CI 或一次成功訪問不能代替這些後續記錄。
+
+## 一份可恢復的產品記錄
+
+每完成一個階段，寫下產品提交、遷移版本、環境、最後成功命令、通過的場景、實際失敗與修復、尚未驗證的門檻和下一步。真實發布時增加主機/域名責任人、證書、秘密存儲、告警接收者、備份 ID、隔離恢復目標、RPO/RTO 目標與演練測量、受邀反饋。只記錄脫敏標識和證據位置，絕不把密碼、Bearer、數據庫連接秘密或私鑰貼進練習記錄。
+
+**當前教材狀態：** 本地參考實驗已執行；O01—O06 的 Linux/systemd、真實容器、Caddy/公網、託管 CI、通知送達和異地恢復門檻仍待目標環境驗證。讀者獨立產品、試用和畢業也未由教材作者替你完成。請按上面的真實目標表逐項補證，不把頁面存在視為通過。
+
+下載[交付模板](/learning-assets/js2py/product-delivery.zip)後，把 `templates/integration-record.json` 複製進自己的產品，並用 `python3 check_integration_record.py` 檢查記錄。它只驗證格式，不執行產品，也不批准發布。
+
+## 9. 長期維護：按事件推進，不按每週時數推進
+
+維護不需要固定每週學習量，但每類事件都必須有責任人、判斷標準和記錄位置。下面的清單可以在事件發生時執行，完成一項就留下證據：
+
+| 事件 | 必須檢查 | 證據 |
+| --- | --- | --- |
+| 依賴或 Python 新版本 | 閱讀官方變更/安全公告；更新鎖文件；重跑語言、API、數據庫、權限和恢復測試 | 新舊版本、變更理由、測試結果、回退方案 |
+| 證書接近到期 | 檢查域名、證書鏈、自動續期和持久證書目錄；用真實 HTTPS 請求驗證 | 證書到期時間、續期日誌、瀏覽器/curl 結果 |
+| 備份任務失敗或恢復演練到期 | 檢查歸檔完整性、訪問控制和隔離目標恢復；驗證業務行、約束、序列和會話策略 | 備份 ID、失敗原因、恢復計時、數據差異和批准人 |
+| 告警或真實故障 | 記錄影響範圍、關聯 ID、時間線、根因、緩解、永久修復和複驗 | 事件記錄、修復提交、回歸結果、未解決風險 |
+| 權限或人員變化 | 複核主機、CI、數據庫、備份和通知渠道的訪問；撤銷離職或不再需要的權限 | 權限變更單、允許/拒絕驗證、負責人 |
+| 用戶反饋或產品變更 | 更新契約、遷移、權限矩陣、測試、發佈和恢復手冊；用真實反饋驗證改動 | 反饋摘要、需求版本、遷移/發佈/回退證據 |
+| 容量、費用或錯誤率變化 | 觀察 CPU、內存、連接池、磁盤、隊列、延遲和成本趨勢；重新確認試用上限 | 觀察窗口、閾值、擴容/降級決定、責任人 |
+
+不要把“依賴已經安裝”“證書曾經有效”“備份文件存在”“一次 CI 通過”當成長期維護證據。每次維護都要說明當前版本、目標環境、實際觀察、下一步和仍未知的邊界。官方文檔只是機制依據；當前產品的鎖文件、目標環境和真實記錄決定實際結論。
+
+每次事件都使用交付包中的 `templates/maintenance-record.template` 記錄，並保存責任人、版本、測試、備份恢復證據、通知送達證據、回退兼容性、未解決風險和審查人。

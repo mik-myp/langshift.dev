@@ -350,7 +350,7 @@
     "examples/js2py/u10-local-project/uv.lock"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-10-common-pitfalls.mdx": "f97f64b88046a166a96cdcaf3e9a0d198b232de997b9224b61b3ef14ce1701d6",
+    "content/docs/js2py/module-10-common-pitfalls.mdx": "4812f3764989d0423b8272a43dc014f6ff5c535e6976837c671f7bee7be34a0c",
     "examples/js2py/u10-local-project/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/u10-local-project/pyproject.toml": "700fc62e2f185f20f9938a0eb74e8edf59458447e70ed788d338799cce5b5858",
     "examples/js2py/u10-local-project/demo_resource.py": "e3484270f88d73aba87d2afa02f766e386125c7411aed13535d0e008d1688f46",
@@ -389,8 +389,8 @@
     "content/docs/js2py/module-07-data-automation.zh-tw.mdx": "443bcb46090bbcec4ce7a08ae31616c7839e890d4df9efa983cfa387fa890967",
     "content/docs/js2py/module-07-data-automation.zh-cn.mdx": "cedf03a84e03d6f5fa1c37ededebabf0a0756a3d43ee851c71cc74c6376b1fe5",
     "content/docs/js2py/module-07-data-automation.mdx": "4d2cc0a06f16f3ce30b0b82a6ca693686bdd1f008abd847fe25451df0f80a42a",
-    "content/docs/js2py/module-10-common-pitfalls.zh-tw.mdx": "a049005ca3397fd21a12e6b254eae23d400e6cb505a5729532b45e6517a0b77e",
-    "content/docs/js2py/module-10-common-pitfalls.zh-cn.mdx": "07fef21e34c141b3de3d1d00a989f5a256dd66913edef3d458cc3665e5d799b8",
+    "content/docs/js2py/module-10-common-pitfalls.zh-tw.mdx": "0428dc2453849bacaceaef1e3d9c0641f23b7194e86455f0f9982de9df023188",
+    "content/docs/js2py/module-10-common-pitfalls.zh-cn.mdx": "bf8814cd76dbc6a45517b06da61698765058e7bd9b5a9c77d1a103bc8b274d88",
     "docs/archive/js2py-u10-pitfalls/sha256.json": "c6869400d0f741a1de2aa551a04a09efcae3253a0bd64585544afe3c15a2618a",
     "docs/archive/js2py-u10-pitfalls/README.md": "8caf9c9afc31a65f9ccf0b1ff69b7e4329277421043afb70dc3b3138f6f2d4ab",
     "docs/archive/js2py-u10-pitfalls/module-10-common-pitfalls.zh-tw.mdx": "8607124b73ac15115ab6ea6f9f902af46c7cf6a72410c5c180e699f60bb388fc",

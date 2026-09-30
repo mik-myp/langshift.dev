@@ -1549,7 +1549,7 @@
     "examples/js2py/o04-release/tests/test_release.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-35-release.mdx": "14ca52772844c61708274e4d2923c0ec670e5db5cc36196768661b780bfb5668",
+    "content/docs/js2py/module-35-release.mdx": "88785bb661d4aed04cb58314ff9ef812a380e27a2f9c0ad918acdebb81ee9744",
     "examples/js2py/o04-release/.github/workflows/check.yml": "122d5e1b2ee34b46177862eb91abe1cb6d5d1f5b1224ba2657e2a5d1dc3fbce0",
     "examples/js2py/o04-release/.gitignore": "8dfae3af9d0c607ef44b4b5fa1b4cfdb62135a9ae9075498004908fdedb10e08",
     "examples/js2py/o04-release/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
@@ -1589,8 +1589,8 @@
     "examples/js2py/o04-release/sql/grants.sql": "b66595df7be07a0b7d2a24fc052f97453b3d82a530394a42a6a220cd4362429e",
     "examples/js2py/o04-release/tests/test_environment.py": "e97319497f8560f965ffdb11c1ca2159ae1d081bc395c22afa6be868afc704f6",
     "examples/js2py/o04-release/tests/test_release.py": "7f7e25bd7f8a449ca4bd894cfdb8ce6550fe61e4bac12af1932699cfbd7c95b1",
-    "content/docs/js2py/module-35-release.zh-cn.mdx": "b975490095815e8b50c29a9bcd4f07b46daca3b6aa5ae3bb0dcdd3f75c2d9655",
-    "content/docs/js2py/module-35-release.zh-tw.mdx": "441c6a0f5eb4fb1f66810fa9f509a94c39c844d03ce3f669375c0428a78e2d1a",
+    "content/docs/js2py/module-35-release.zh-cn.mdx": "265eb7487ad0106a7e053e4ea5586f3f6c5b5be83dba09ee3fb7ce57a8c47c62",
+    "content/docs/js2py/module-35-release.zh-tw.mdx": "d221ab318e01e5b498e277115194d25c2053bd6570c46f22abe5efebcc2abe80",
     "examples/js2py/o04-release-files.json": "27bede5a58b6667ab9e42b9b748a5c8ca383f833904b59f7de76b8572268270d",
     "public/learning-assets/js2py/o04-release.zip": "eb56a3ca2f92ec559a990f99c3e138081b15d085ab268f2b02eabb3057767a57",
     "examples/js2py/o04-release/uv.lock": "c37455141179beca0252064735f9c0b6e7344466564f2bd5648e9c7209ef9838"
@@ -1637,6 +1637,24 @@
       "current_sha256": "eb56a3ca2f92ec559a990f99c3e138081b15d085ab268f2b02eabb3057767a57",
       "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
       "verification": "Deterministic locale/hash or rebuilt archive update accompanying the exact reviewed source delta; not semantic review of ZIP bytes."
+    },
+    {
+      "path": "content/docs/js2py/module-35-release.mdx",
+      "submitted_or_prior_snapshot_sha256": "14ca52772844c61708274e4d2923c0ec670e5db5cc36196768661b780bfb5668",
+      "current_sha256": "88785bb661d4aed04cb58314ff9ef812a380e27a2f9c0ad918acdebb81ee9744",
+      "change": "Add a frontend-experience anchor paragraph (npm publish/platform deploys vs migration identity separation, compatibility matrix, rollback evidence and release records) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
+    },
+    {
+      "path": "content/docs/js2py/module-35-release.zh-cn.mdx",
+      "submitted_or_prior_snapshot_sha256": "b975490095815e8b50c29a9bcd4f07b46daca3b6aa5ae3bb0dcdd3f75c2d9655",
+      "current_sha256": "265eb7487ad0106a7e053e4ea5586f3f6c5b5be83dba09ee3fb7ce57a8c47c62",
+      "change": "Add a frontend-experience anchor paragraph (npm publish/platform deploys vs migration identity separation, compatibility matrix, rollback evidence and release records) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
+    },
+    {
+      "path": "content/docs/js2py/module-35-release.zh-tw.mdx",
+      "submitted_or_prior_snapshot_sha256": "441c6a0f5eb4fb1f66810fa9f509a94c39c844d03ce3f669375c0428a78e2d1a",
+      "current_sha256": "d221ab318e01e5b498e277115194d25c2053bd6570c46f22abe5efebcc2abe80",
+      "change": "Add a frontend-experience anchor paragraph (npm publish/platform deploys vs migration identity separation, compatibility matrix, rollback evidence and release records) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
     }
   ],
   "submitted_source_sha256": {

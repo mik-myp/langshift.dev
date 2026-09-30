@@ -1106,7 +1106,7 @@
     "examples/js2py/h01-service-process/uv.lock"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-15-service-process.mdx": "cd8bfc9c86383795403183a188d9d2085f8fecb31d6ee053d80333376719bbfe",
+    "content/docs/js2py/module-15-service-process.mdx": "833a70f6d90bb1bea691d813ced0a8baf7493bc5fbe8566d3c791f450ef38c02",
     "examples/js2py/h01-service-process/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/h01-service-process/README.md": "7ffc2ab39af0c95fb5b9f48c3cac965c71e8404548419ef568a86aff931546a5",
     "examples/js2py/h01-service-process/README.zh-cn.md": "ee14fae3a58fb0bd1fbaef74039467a0efba28eedd3f2a23d5622372b54c97bc",
@@ -1126,8 +1126,8 @@
     "examples/js2py/h01-service-process/tools/__init__.py": "dce5eda879e1c0b317094ebdf78ad8c4297bdb847e212e0b13bac9785edf394c",
     "examples/js2py/h01-service-process/tools/owned_server.py": "adb70204fe9325cb33be71fa98fc0c12fa1ed6807f3d870db8443d085a90c3b3",
     "examples/js2py/h01-service-process/uv.lock": "4ea2cb0821d5e315f9453f432056561e86a27f8c197ba9b996de60c09a0469f3",
-    "content/docs/js2py/module-15-service-process.zh-tw.mdx": "06a22ee203991ac01f9974525a75a5f7e02ad334190ce92f4939edc95e4e3f25",
-    "content/docs/js2py/module-15-service-process.zh-cn.mdx": "a234f2db6b97304f8ba796ef0213d8941360ecaa8acd200dea3c0d16cdb8d0b5",
+    "content/docs/js2py/module-15-service-process.zh-tw.mdx": "41194623171a033479b00e91388ee90eb9a16ce99454a23b2d7e1d6cb9a688fc",
+    "content/docs/js2py/module-15-service-process.zh-cn.mdx": "f6b2d052de94deb893588f67f61b4633e103c39f0711b3ed9dd4f75f9b8eae07",
     "examples/js2py/h01-service-process-files.json": "6914028f4ac399f8c9ac10699ce3359e251cac87308a43312960ad6fbe97d575",
     "public/learning-assets/js2py/h01-service-process.zip": "7de92478c1793922434356487007cb38bfd802028f565b7ca06d03c1556b0378"
   },
@@ -1141,6 +1141,24 @@
     "snapshot": "Submitted source hashes and full requests remain unchanged. Effective source_sha256 includes each explicitly recorded post-review repair; closure delta review binds the final D03 assertion and O privilege wording changes. Locale/locks/manifests/ZIP are deterministic evidence, not semantic translation review."
   },
   "credential_persisted": false,
-  "post_review_changes": [],
-  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+  "post_review_changes": [
+    {
+      "path": "content/docs/js2py/module-15-service-process.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-15-service-process.zh-cn.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-15-service-process.zh-tw.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    }
+  ],
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+  "source_refresh_date": "2026-09-30",
+  "source_refresh_reason": "Added a learner-facing integration checkpoint paragraph only; executable examples and download members are unchanged."
 }

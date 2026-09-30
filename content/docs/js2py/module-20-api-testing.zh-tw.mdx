@@ -5,6 +5,8 @@ description: 先用 TestClient 自動走完整請求邊界，再逐步建立 fix
 
 import { getApiTestingExample } from '@/lib/js2py-examples'
 
+**產品交接 V1：** 把 V0 業務模塊帶回自己的 FastAPI 倉庫。保留 HTTP 契約、TestClient 套件、真實進程請求記錄，並明確內存數據不能作為上線存儲。只有 API 及其失敗路徑都能解釋後，才進入 D01。
+
 ## 1. 業務函數通過，接口仍可能壞在哪裡？
 
 L09 已能寫普通測試函數、斷言與 pytest.raises；L13 已知道參數化如何把多組數據變成獨立用例。H05 的 store 測試可以證明 PATCH 合併規則，卻沒有證明 /tasks 已被註冊、請求 JSON 被解析、錯誤狀態正確，或輸出模型真的過濾內部字段。手動 curl 能看到這些，但每次修改都靠記憶重放容易遺漏。

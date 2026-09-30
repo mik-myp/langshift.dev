@@ -93,9 +93,9 @@
     "courses": {
       "js2py": {
         "title": "JavaScript → Python",
-        "description": "从 JavaScript 开发者视角学习 Python，掌握语法转换和概念映射。包含 Web 开发、数据处理、自动化脚本等实战项目。",
-        "features": ["语法映射", "Web 开发", "数据处理", "自动化脚本", "类型注解"],
-        "duration": "8-12 周",
+        "description": "从 JavaScript 开发者视角学习 Python，再用 FastAPI、PostgreSQL、迁移、授权、测试、HTTPS 与恢复演练，独立交付并维护真实后端。",
+        "features": ["语法映射", "FastAPI 后端", "PostgreSQL 与迁移", "授权与测试", "部署与恢复"],
+        "duration": "按能力验收推进",
         "level": "中级"
       },
       "js2rust": {
@@ -179,7 +179,7 @@
       },
       "learningPath": {
         "title": "渐进式学习路径",
-        "description": "从基础到高级的完整学习体系，13 个模块循序渐进，确保学习效果。"
+        "description": "从基础到实战能力的完整学习体系，按各课程验收门槛循序渐进。"
       },
       "performance": {
         "title": "性能监控",
@@ -196,13 +196,13 @@
     },
     "learningPath": {
       "title": "完整的学习路径",
-      "subtitle": "从基础语法到高级特性，15个模块循序渐进",
+      "subtitle": "从基础语法到实战能力，按验收门槛循序渐进",
       "description": "每个语言转换模块都遵循相同的学习路径，内容针对特定语言优化，结构统一，便于对比和扩展。",
       "modules": [
         {
           "phase": "基础阶段",
           "description": "建立语言基础，理解核心概念和语法差异",
-          "duration": "5 周",
+          "duration": "按验收推进",
           "items": [
             {
               "title": "语言介绍与学习方法",
@@ -234,7 +234,7 @@
         {
           "phase": "实战阶段",
           "description": "实际项目应用所学知识",
-          "duration": "5 周",
+          "duration": "按验收推进",
           "items": [
             {
               "title": "代码质量与测试",
@@ -266,7 +266,7 @@
         {
           "phase": "高级阶段",
           "description": "深入高级特性，掌握语言特有的最佳实践",
-          "duration": "5 周",
+          "duration": "按验收推进",
           "items": [
             {
               "title": "高级语言特性",
@@ -298,12 +298,13 @@
       ],
       "languageSpecificFeatures": {
         "js2py": {
-          "title": "JavaScript → Python 特色",
+          "title": "JavaScript → Python：后端交付",
           "highlights": [
-            "动态类型到静态类型注解",
-            "事件循环到协程模型",
-            "npm 生态系统到 pip 生态",
-            "函数式编程到 Pythonic 风格"
+            "JavaScript 经验迁移到 Python 基础",
+            "FastAPI 路由、验证与 API 测试",
+            "PostgreSQL 事务、ORM 与迁移",
+            "不透明会话与对象级授权",
+            "HTTPS 发布、回退、备份与恢复"
           ]
         },
         "js2rust": {

@@ -5,6 +5,8 @@ description: Use dedicated PostgreSQL databases to test constraints, transaction
 
 import { getDatabaseTestingExample } from '@/lib/js2py-examples'
 
+**Product handoff V2:** Replace the product’s memory store with your reviewed PostgreSQL model and migrations. Preserve an HTTP regression path while changing storage, and record empty-database upgrade, existing-data upgrade, rollback boundary, and isolated database-test evidence before S01.
+
 ## 1. Passing an HTTP test does not establish a database guarantee
 
 H06 used dependency replacements to test routing behavior, and D05 examined schema history. A dictionary fake does not execute foreign keys. SQLite is not PostgreSQL's type system, transaction implementation or query planner. Both can help test some application rules; neither can substitute for the PostgreSQL acceptance in this chapter.
@@ -19,6 +21,8 @@ Instead of pursuing a coverage percentage, design an experiment that could dispr
 | Exclusions | SQLite as acceptance replacement, production capacity claims, fixed costs, complete performance engineering or backup rehearsal |
 
 Download the [complete D06 lab](/learning-assets/js2py/d06-database-testing.zip) and work in d06-database-testing. It contains frozen D05 revisions and the final model, without sibling-directory imports. Webpage code and ZIP share the same explicit source allowlist.
+
+Frontend tests often mock `fetch`; database testing inverts that habit. Mocking the SQL layer only proves the mock works — constraints, transaction semantics and planner behavior must be verified against real PostgreSQL. That is why this chapter rejects SQLite or in-memory doubles as acceptance evidence.
 
 ## 2. Establish an environment that refuses dangerous targets
 

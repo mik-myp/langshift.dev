@@ -5,6 +5,8 @@ description: Trace coroutine objects, Tasks, the event loop, blocking, cancellat
 
 import { getAsyncModelExample } from '@/lib/js2py-examples'
 
+**Product checkpoint V3.5:** Add async only around a product dependency that needs it. Keep core CRUD synchronous and prove that timeout, cancellation, and cleanup do not change its correctness. See the [integrated project guide](/en/docs/js2py/project-integration).
+
 ## 1. After S03, reconsider a familiar word: async
 
 You have implemented synchronous APIs, SQL transactions, authentication, authorization and reliable business operations. Now a task needs an optional external hint. While a request waits for the network, can the server serve another request? The answer is not “add async everywhere.” You must identify **who starts work, who waits, who owns resources, and who makes unfinished work stop**.

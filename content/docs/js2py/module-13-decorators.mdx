@@ -45,6 +45,8 @@ True
 
 Writing apply(double(4), 4) evaluates double(4) first, then supplies the non-callable integer 8 as function; the later call fails. These are ordinary callback and higher-order-function mechanics. Later code uses `Callable[[int], int]` from collections.abc to describe a callable taking one integer and returning an integer. It does not validate inputs at runtime.
 
+This is the same mechanism as passing callbacks or higher-order components in JavaScript: functions are values, and the decorator syntax `@register` only abbreviates `handle = register(handle)` at definition time. There is no extra runtime magic in the `@` sign itself — everything that follows in this chapter is ordinary function creation and reassignment.
+
 ## 3. A closure retains configuration without recreating it on every call
 
 An outer function can return an inner function that continues to access outer variables it references. We need only retained configuration, not rebinding outer names, nonlocal, or elaborate functional-programming terminology.

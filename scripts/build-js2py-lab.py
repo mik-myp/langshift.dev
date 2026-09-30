@@ -49,6 +49,11 @@ LABS = {
         ROOT / "examples/js2py/u10-local-project-files.json",
         ROOT / "public/learning-assets/js2py/u10-local-project.zip",
     ),
+    "product-delivery": (
+        ROOT / "examples/js2py/product-delivery",
+        ROOT / "examples/js2py/product-delivery-files.json",
+        ROOT / "public/learning-assets/js2py/product-delivery.zip",
+    ),
     "u07-files": (
         ROOT / "examples/js2py/u07-files",
         ROOT / "examples/js2py/u07-files-files.json",
@@ -120,7 +125,8 @@ def build_archive(lab=LAB, manifest=MANIFEST, prefix="u00-environment"):
                 raise ValueError(f"Missing or non-regular lab file: {name}")
             info = zipfile.ZipInfo(f"{prefix}/{name}", (1980, 1, 1, 0, 0, 0))
             info.create_system = 3
-            info.external_attr = 0o100644 << 16
+            file_mode = 0o100755 if source.stat().st_mode & 0o111 else 0o100644
+            info.external_attr = file_mode << 16
             info.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(info, source.read_bytes())
     return data.getvalue()

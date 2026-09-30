@@ -1,0 +1,108 @@
+---
+title: Integrated project — turn chapter labs into a maintainable task service
+description: From L10 onward, build one learner-owned product that gains an API, PostgreSQL, identity, authorization, tests, and real deployment and maintenance evidence.
+---
+
+## Where this work begins
+
+You know frontend projects and API integration. No backend, SQL, server administration, or operations experience is assumed. L00–L09 establish Python and local engineering fundamentals. After [L10's independent project](/en/docs/js2py/module-10-common-pitfalls), create **your own collaborative task service repository**. Each later stage changes that same product. The chapter ZIPs are isolated mechanism labs and inspectable references, not a final product to copy wholesale.
+
+Advance by demonstrated capability, without a weekly hour quota or deadline. When you stop, record the code revision, last successful command, failure, and first next action. When you return, reproduce your last working result. Official documentation is allowed. Independence means you can explain a choice, change a requirement, and recover from failure; it does not mean recalling every API from memory.
+
+Start with `product-workbook.md` in the [delivery archive](/learning-assets/js2py/product-delivery.zip); it converts each integration stage into files you must write yourself and evidence you must record.
+
+## Establish one product contract
+
+The first release is a collaborative task API for a small invited group: controlled account creation, login and session revocation; projects, members, and tasks; object-level authorization; PostgreSQL persistence; tests, release, logs, backup, isolated restoration, and rollback. Public signup, payments, uploads, and multi-region high availability are outside this product. See [S02 authorization](/en/docs/js2py/module-28-authorization) for fields and permissions, and [G01](/en/docs/js2py/module-38-graduation) for an independent feature.
+
+In your product repository, first write one page describing resources, fields clients may supply, fields the server owns, and the state left by each successful or failed operation. A frontend `fetch` call or TypeScript type does not establish the server's behavior.
+
+For V0, unpack the [delivery archive](/learning-assets/js2py/product-delivery.zip) and start from its intentionally empty `starter/` directory; generate your own `uv.lock` rather than copying a chapter lock.
+
+## V0: begin with ordinary Python business rules
+
+Keep L10's business functions, validation, file-failure policy, and ordinary tests. Record the Python and uv versions, `pyproject.toml`, and `uv.lock`. Reconstruct the project in a second empty directory. Corrupt a JSON input and verify that old bytes are not silently overwritten. File storage does not become a multi-user database.
+
+**Deliverable:** a recoverable local program and a rule table for titles, status, minutes, and missing records. Before V1, change one rule yourself, add a test, and explain where `None`, empty containers, shallow copies, and mutable defaults differ from familiar JS behavior.
+
+## V1: expose the same business behavior through HTTP
+
+Read [H01 service processes](/en/docs/js2py/module-15-service-process) and [H02 contracts](/en/docs/js2py/module-16-http-contract), then complete [H03–H06](/en/docs/js2py/module-20-api-testing). Keep business rules in ordinary functions or a service module. Routes handle HTTP input and output. In-memory storage is acceptable for this stage if the runbook says explicitly that restart loses data.
+
+Deliver create, read, list, partial update, and delete. Then prove that 422 rejects bad input, 404 rejects missing objects, an empty PATCH preserves existing fields, and output excludes internal fields. Use TestClient for in-process routing and validation; then run Uvicorn and use a real HTTP client and a minimal browser page to check the port, CORS, and request path. TestClient does not use a listening socket, so it cannot establish browser behavior. See [FastAPI's testing guide](https://fastapi.tiangolo.com/tutorial/testing/).
+
+**Handoff questions:** If tasks disappear after restart, which lifetime caused it? Can two users read each other's tasks in this version? Record the answers and actual requests before V2.
+
+## V2: put data and transactions in PostgreSQL
+
+Work through [D01 relationships](/en/docs/js2py/module-21-relational-data), [D02 SQL](/en/docs/js2py/module-22-sql), [D03 transactions](/en/docs/js2py/module-23-transactions), [D04 Session](/en/docs/js2py/module-24-sqlalchemy), [D05 migrations](/en/docs/js2py/module-25-migrations), and [D06 database tests](/en/docs/js2py/module-26-database-testing). Draw users, projects, project_members, and tasks in your product repository. Write an initial Alembic migration, then replace in-memory reads and writes with SQLAlchemy sessions.
+
+The H-stage `done/note` fields are a single-user memory contract. D introduces `status/description` and project relationships. **This is an explicit model evolution.** If your product has real H-stage data, write and verify a data mapping; if you start with a fresh practice database, record that no earlier rows needed migration. Do not drop and recreate a database that already contains user data. Alembic autogeneration produces candidates that require manual review, especially for renames, constraints, and backfills. [Alembic documentation](https://alembic.sqlalchemy.org/en/latest/autogenerate.html)
+
+**Acceptance:** upgrade an empty database and one containing rows; preserve committed data across a real API restart; make the second step of a two-step write fail and verify from another connection that the first step left no residue; isolate each database test. Record application/schema compatibility.
+
+## V3: authentication followed by object authorization
+
+Complete [S01 identity](/en/docs/js2py/module-27-identity), [S02 authorization](/en/docs/js2py/module-28-authorization), and [S03 idempotency](/en/docs/js2py/module-29-reliable-operations). The implemented teaching path uses Argon2id password hashes and opaque random Bearer sessions. The server stores token digests and rechecks active state, expiry, revocation, and authentication version on protected requests. This path does not implement JWT. Measure password-hash cost on the target machine; local test counts are not production capacity evidence. [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+
+Create synthetic users Alice and Bob in your product. Give Alice Bob's actual project and task IDs; try list, detail, update, and delete requests directly. Remove Alice's membership and verify that her session still establishes identity but gives no access to the former project. The request body cannot grant its own role or creator. A repeated task creation with the same scope, key, and payload returns the same result; changed payload conflicts, and replay after revocation cannot reveal an old receipt. Every object ID needs an authorization decision. [OWASP API1](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/)
+
+**Acceptance:** record both HTTP results and subsequent database state for allowed and denied paths. Cover session revocation, password change, account disablement, cross-user access, and concurrent submission. Production also requires login throttling, request-size limits, and secret/log policies; local S03 tests do not grant deployment approval.
+
+## V3.5: use async only at a defined boundary
+
+[A01](/en/docs/js2py/module-30-async-model) explains coroutines, tasks, cancellation, timeout, and concurrency permits. [A02](/en/docs/js2py/module-31-external-services) connects an optional external suggestion service. When you add an adapter to your product, core CRUD must continue to work when that service fails. A timeout can follow a completed remote effect; define an idempotency key, total time budget, and owner before retrying. In-process `BackgroundTasks` or `asyncio.Queue` do not provide durable delivery after a crash.
+
+**Acceptance:** cause timeouts, invalid responses, and cancellation with a controlled double; check a real local socket; confirm tasks remain readable after external failure and child tasks/client resources have ended. Calling a Python async function yields a coroutine and does not itself schedule work like a JS Promise. [Python asyncio documentation](https://docs.python.org/3.13/library/asyncio-task.html)
+
+## V4: deploy to an actual target and maintain it
+
+Use [O01 processes](/en/docs/js2py/module-32-operating-system), [O02 containers](/en/docs/js2py/module-33-containers), [O03 HTTPS](/en/docs/js2py/module-34-https-production), [O04 release and rollback](/en/docs/js2py/module-35-release), [O05 observability](/en/docs/js2py/module-36-observability), and [O06 recovery](/en/docs/js2py/module-37-recovery). Their local experiments teach and check patterns. For your product, replace their teaching app entry points, migrations, database roles, log destinations, backup inventory, and post-restore API checks with your own.
+
+Use the [production release and maintenance runbook](/en/docs/js2py/deployment-runbook) as a copyable checklist for the target environment. It contains placeholders only; fill them with your product's reviewed values and real evidence.
+
+Complete every gate below in a controlled target environment. There is no schedule pressure to bypass a gate. If the environment is missing, record `blocked`, the needed resource, and its owner while continuing independent documentation and implementation work.
+
+| Gate | Action on the real target | Evidence |
+| --- | --- | --- |
+| Build and identities | Build a fixed revision; run as an unprivileged user; separate migration and application roles | Revision, image digest or artifact, runtime UID, allowed and denied table/sequence operations |
+| Data | Use a database and durable storage separate from development/test; run reviewed migrations first | Database and schema revision, upgrade of existing rows, read after restart |
+| Ingress | Resolve the domain to an approved host; establish real HTTPS; prevent direct access around the proxy | External DNS, trusted certificate chain, renewal, real browser/HTTP requests |
+| Release | Run hosted CI on the fixed revision; switch only after app/schema compatibility is checked | CI run link, release record, old-app rollback against meaningful data |
+| Observation | Redact logs; connect request IDs, errors, latency, and delivered alerts | Diagnose one request to its cause; confirm a notification arrived and has an owner |
+| Recovery | Back up on a schedule; protect the archive; restore to a different isolated target; inspect data and permissions | Archive identity, elapsed restore, business rows, constraints, sequences, old sessions denied |
+| Maintenance | Bound invited users, capacity, and cost; rehearse upgrade and restore periodically | On-call owner, incident response, invited feedback, and a follow-up repair |
+
+Docker recommends multi-stage builds and non-root execution; volumes persist data outside a container's writable layer but do not constitute a database backup. [Build guidance](https://docs.docker.com/build/building/best-practices/), [volumes](https://docs.docker.com/engine/storage/volumes/). Caddy's public certificate automation still requires correct DNS, reachable challenge ports, and durable writable certificate storage. [Caddy HTTPS](https://caddyserver.com/docs/automatic-https). Hosted CI token permissions and deployment gates must be configured and run on the chosen platform; GitHub Actions documents [permissions](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax) and [environments](https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments). Restore a PostgreSQL archive with `pg_restore` and check application behavior afterward; listing archive contents is insufficient. [PostgreSQL pg_restore](https://www.postgresql.org/docs/18/app-pgrestore.html)
+
+## V5: an independent feature and ongoing maintenance
+
+After V4 passes, implement [G01 task comments](/en/docs/js2py/module-38-graduation) in the same repository. G01 supplies requirements and scenarios, without implementation steps. Submit a design, migration, authorization, concurrency and retry tests; use the same release path, then rehearse rollback and isolated restoration. All 24 learner scenarios currently remain `not_run`; the learner must execute them and a reviewer must inspect the evidence.
+
+Ongoing maintenance is repeated work: observe alerts and feedback; record incident impact, repair, and recheck; update supported dependencies deliberately; test restores into isolation; inspect certificate renewal, capacity, and cost; review compatibility and rollback before each migration. One green CI run or one successful request does not replace these records.
+
+## Keep a resumable product record
+
+At each stage, record the product revision, schema revision, environment, last successful command, passing scenarios, an actual failure and its repair, outstanding gates, and next action. For a real release, add host/domain owner, certificate, secret-store reference, alert recipient, backup ID, isolated restore target, RPO/RTO goals and measurements, and invited-user feedback. Record only redacted identifiers and evidence locations; never paste passwords, Bearer tokens, database secrets, or private keys into the learning log.
+
+**Current course status:** local reference labs have run. The O01–O06 Linux/systemd, real container, Caddy/public ingress, hosted CI, delivered notification, and offsite restoration gates still require validation in a target environment. The course author has not executed the learner's integrated product, pilot, or graduation. Use the real-target table above to collect evidence rather than counting an available page as a pass.
+
+Download the [delivery templates](/learning-assets/js2py/product-delivery.zip), copy `templates/integration-record.json` into your product, and run `python3 check_integration_record.py` against your record. This validates format only; it does not execute your product or approve release.
+
+## 9. Long-term maintenance: move by events, not weekly hours
+
+Maintenance does not require a fixed weekly study quota. Each event needs an owner, a decision rule, and a record. Use this checklist when the event occurs:
+
+| Event | Required checks | Evidence |
+| --- | --- | --- |
+| Dependency or Python release | Read official changes/security notices; update the lock; rerun language, API, database, authorization, and recovery tests | Old/new versions, reason, results, rollback plan |
+| Certificate nearing expiry | Check domain, chain, renewal, and persistent certificate storage; send a real HTTPS request | Expiry, renewal log, browser/curl result |
+| Failed backup or restore drill due | Check archive integrity, access control, and restoration into an isolated target; verify rows, constraints, sequences, and session policy | Backup ID, failure cause, restore timing, differences, approver |
+| Alert or incident | Record impact, request IDs, timeline, cause, mitigation, permanent repair, and recheck | Incident record, repair revision, regression result, open risk |
+| Access or personnel change | Review host, CI, database, backup, and notification access; revoke unnecessary access | Access change, allowed/denied checks, owner |
+| User feedback or product change | Update contract, migration, authorization matrix, tests, release and recovery runbooks; validate the change against feedback | Feedback summary, requirement revision, migration/release/rollback evidence |
+| Capacity, cost, or error trend | Observe CPU, memory, pool, disk, queue, latency, and cost; reconfirm invited-use limits | Observation window, threshold, scaling/degradation decision, owner |
+
+Use `templates/maintenance-record.template` from the delivery archive for each event, and retain the owner, revisions, tests, backup/restore evidence, notification evidence, rollback compatibility, unresolved risks, and reviewer.
+
+Do not treat an installed dependency, a certificate that worked once, an existing backup file, or one green CI run as long-term evidence. Each maintenance action records the current revision, target environment, observed result, next action, and unknown boundaries. Official documentation explains mechanisms; the product lock, target environment, and actual records establish the product decision.

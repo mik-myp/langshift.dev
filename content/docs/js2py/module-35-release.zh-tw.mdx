@@ -20,6 +20,8 @@ H06 能檢查 API，D05/D06 能檢查遷移和真實數據庫，O01—O03 建立
 
 下載 [O04 獨立實驗](/learning-assets/js2py/o04-release.zip)，進入 `o04-release`。源碼、SQL、完整 Alembic 歷史、測試、參考答案都在包內，不導入其他實驗。這裡只生成無真實用戶數據的短命 PostgreSQL 集群。
 
+如果你習慣 `npm publish` 或平台在每次推送後自動部署，注意服務器發布多了平台不會替你做的部分：遷移身份分離、兼容矩陣審查、回退驗證和帶證據的發布記錄。本章要求你自己產出這些材料。
+
 ## 2. 保留 D/S 契約，但不偽裝整套產品
 
 本包保留 users/projects/project_members/tasks、auth_sessions 和 task_operations 的 D/S 字段：任務是 status/description/priority，而不是 H 階段的 done/note。認證使用 opaque Bearer token，僅存 SHA-256 摘要；每次讀會話時檢查到期、撤銷、用戶啟用和 auth_version。隨機 token 的摘要不是密碼哈希；合成用戶密碼仍由 Argon2id 庫生成哈希。

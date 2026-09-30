@@ -671,7 +671,7 @@
     "examples/js2py/o01-operating-system/worker.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-32-operating-system.mdx": "4b0ac296079d056dfd580164973c0c6ca8d9064deb937e0ccea431321e88cdb4",
+    "content/docs/js2py/module-32-operating-system.mdx": "77b3387819f8be5495095f468285458e7eca762731489465c2c4709851840a82",
     "examples/js2py/o01-operating-system/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/o01-operating-system/ENVIRONMENT.json": "23506124ab8f3e3b733b21f69bdb78cbe90cfe17bf858d61b64d74fad86e9585",
     "examples/js2py/o01-operating-system/README.md": "67e588930c5d6c8cbe076be3c2994e9f41e345ba1eadcf6f7237c865ee9deda1",
@@ -689,8 +689,8 @@
     "examples/js2py/o01-operating-system/systemd/ops-worker.service": "c3f1654d0671c029d30d447ad54643fc381a585e56df034c88a5511551836dd6",
     "examples/js2py/o01-operating-system/tests/test_operations.py": "9e49c6834a8756a7b9d20239e93fd4d3721caf8bc9c2a2323e7e18abdbb2f46a",
     "examples/js2py/o01-operating-system/worker.py": "0a85e4b4f50b463b9d8353c45ce6b82924acdeb9e59ebd620fa37c0e72f0b9d3",
-    "content/docs/js2py/module-32-operating-system.zh-tw.mdx": "c28bfbfcda2a6bac06a50e263905854608aa8822c65158473107e1ff39063909",
-    "content/docs/js2py/module-32-operating-system.zh-cn.mdx": "c1dd830af614279911aff6293b9f2c13e4b536bae5006a2dc28563a05ca76cb4",
+    "content/docs/js2py/module-32-operating-system.zh-tw.mdx": "6f0be1ef33413e38e0b8bbfff5861e8aab21a91380414d2452045ce3da71ad4c",
+    "content/docs/js2py/module-32-operating-system.zh-cn.mdx": "2a378fc6eaca9de4f8a07ceda2e1a210ca0117719029b2dfd1c8f57133a849c4",
     "examples/js2py/o01-operating-system-files.json": "4db0bb764db4dc7d413534cff436308033b82258180afdf08c2f6c9cb04d0ad6",
     "public/learning-assets/js2py/o01-operating-system.zip": "d5bcba01f981d782e4977ce4eb4502b2d189750b6323b79f341dcf5b7a411eac",
     "examples/js2py/o01-operating-system/uv.lock": "1371648d6d08f6984da23bddf9ad29d8fcd773d5c0ce1e56bbf83742162ab11b"
@@ -703,7 +703,23 @@
     }
   },
   "interface_failures": [],
-  "post_review_changes": [],
+  "post_review_changes": [
+    {
+      "path": "content/docs/js2py/module-32-operating-system.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-32-operating-system.zh-cn.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-32-operating-system.zh-tw.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    }
+  ],
   "submitted_source_sha256": {
     "content/docs/js2py/module-32-operating-system.mdx": "4b0ac296079d056dfd580164973c0c6ca8d9064deb937e0ccea431321e88cdb4",
     "examples/js2py/o01-operating-system/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
@@ -733,5 +749,7 @@
   },
   "credential_persisted": false,
   "prior_review_rounds": [],
-  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+  "source_refresh_date": "2026-09-30",
+  "source_refresh_reason": "Added a learner-facing integration checkpoint paragraph only; executable examples and download members are unchanged."
 }

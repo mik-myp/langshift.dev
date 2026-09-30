@@ -1,0 +1,26 @@
+[Unit]
+Description=Collaborative task product
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=product
+Group=product
+WorkingDirectory=/srv/product/current
+# app.env holds non-secret settings only. Requires systemd credentials support.
+EnvironmentFile=/etc/product/app.env
+LoadCredential=database_url:/etc/product/credentials/app_database_url
+Environment=DATABASE_URL_FILE=%d/database_url
+ExecStart=/srv/product/current/.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1 --no-access-log --no-proxy-headers
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+StateDirectory=product
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

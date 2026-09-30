@@ -2013,7 +2013,7 @@
     "examples/js2py/a02-external-services/tests/test_socket.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-31-external-services.mdx": "68d76909014b310be2ecb09f4a313284123ffeabff2240250138d170e3d3707a",
+    "content/docs/js2py/module-31-external-services.mdx": "6ba033d7c74461a00739a8a771c10581783138676964e90cb42195e6653b4199",
     "examples/js2py/a02-external-services/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/a02-external-services/DOWNLOAD-ALLOWLIST.json": "e6a8620d8c66b5f3744d71724ee05e21988ae67f4474feccfc818eac296a96e0",
     "examples/js2py/a02-external-services/README.md": "4faedc7319edc2e9d6aa190951a1ff3a005e73577fb78bdf08bc6bdb90141fd0",
@@ -2036,8 +2036,8 @@
     "examples/js2py/a02-external-services/sources.json": "1a5407ffd6ecd0ff169049d3f25aaab1f804b12de35d7ee2b2506f3fd259965f",
     "examples/js2py/a02-external-services/tests/test_service.py": "ea9ee9617ef7e8c8ccb4e6a0ca60b15d658931a5eed9e2da4f91937753837f62",
     "examples/js2py/a02-external-services/tests/test_socket.py": "9f924625142c2c8665df1a65d5a5915e2c101ae66fca8e403d7246e01062375a",
-    "content/docs/js2py/module-31-external-services.zh-cn.mdx": "ab4e64fafff8bcd9e8967d3cb58f8b361b96b893a5f079b7ce426d408a7d82d6",
-    "content/docs/js2py/module-31-external-services.zh-tw.mdx": "68ff3c95355c9175c6d3c44062753e0499c12543480e8cb046ebb9065eacf28f",
+    "content/docs/js2py/module-31-external-services.zh-cn.mdx": "1718c48af480a098271dc1b91079a97f132a8382b8b629081bdf031826df7afc",
+    "content/docs/js2py/module-31-external-services.zh-tw.mdx": "f4f4bea245249689e667dd8adea6268fb8911c6b3c27cba5ea8c1e9da680a878",
     "examples/js2py/a02-external-services-files.json": "e6a8620d8c66b5f3744d71724ee05e21988ae67f4474feccfc818eac296a96e0",
     "public/learning-assets/js2py/a02-external-services.zip": "dff768b6b45e6e916654d30c38cf674c8ed7ab5b7e3482eaba1c79baa225c81c",
     "examples/js2py/a02-external-services/uv.lock": "0e608573b0b9e5efb3bf0599f10b64dd7fd1ae4233367305d7bb3bfacc7a9077"
@@ -2050,7 +2050,23 @@
     }
   },
   "interface_failures": [],
-  "post_review_changes": [],
+  "post_review_changes": [
+    {
+      "path": "content/docs/js2py/module-31-external-services.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-31-external-services.zh-cn.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-31-external-services.zh-tw.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
+    }
+  ],
   "submitted_source_sha256": {
     "content/docs/js2py/module-31-external-services.mdx": "68d76909014b310be2ecb09f4a313284123ffeabff2240250138d170e3d3707a",
     "examples/js2py/a02-external-services/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
@@ -2107,5 +2123,7 @@
       "reason": "New concrete source/pedagogy repair after independent reproduction; this is review of changed evidence, not resampling an accepted judgment."
     }
   ],
-  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+  "source_refresh_date": "2026-09-30",
+  "source_refresh_reason": "Added a learner-facing product handoff paragraph only; executable examples and download members are unchanged."
 }

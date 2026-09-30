@@ -2469,7 +2469,7 @@
     "examples/js2py/s01-identity/tests/test_solution.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-27-identity.mdx": "b59bb242c3c6fb85d05559901e779ad60c4717f476b1329bd205f36dade5a68f",
+    "content/docs/js2py/module-27-identity.mdx": "cf56849b0cfa520bb9ceea9ed29c57c99d39deab45b28f23990980162c6f4596",
     "examples/js2py/s01-identity/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/s01-identity/.gitignore": "5ac5e91d27d9ac8cfba38f66cf16684f0f451f05b44a3c2341cfdca64df90a16",
     "examples/js2py/s01-identity/pyproject.toml": "0db62b0413dd536ec1ef23ac26c30b5f25b429b9d73c1c9b5daa22b491c8e064",
@@ -2501,8 +2501,8 @@
     "examples/js2py/s01-identity/README.zh-tw.md": "0dfa51e864ed5552738a04296d5e9d0b50c0f5add5fd4e4eddc577440c41062f",
     "examples/js2py/s01-identity/SOURCES.md": "9e07751ca319e5122ee5ed1623ddbfee18e2bfd9fc30096c8769c89743357190",
     "examples/js2py/s01-identity/VERIFICATION.md": "49ad55a476a3643053caddfcd867d8ac9b2b18de96431def087a32675f2fe837",
-    "content/docs/js2py/module-27-identity.zh-tw.mdx": "2b29ae9f2fc33563904ccc6a4744335330ae915a9d2e16d63bc9e8a59c42f01f",
-    "content/docs/js2py/module-27-identity.zh-cn.mdx": "3f23bc1850c147384050989ff8ac9146bebc432e7825c442b7c1bc405a338cb2",
+    "content/docs/js2py/module-27-identity.zh-tw.mdx": "8c86925803eb21785774f512e8cac5e8ec75e30cbd92fa00501b021f732625f4",
+    "content/docs/js2py/module-27-identity.zh-cn.mdx": "585a954e1aa5f9b94e5c98152a8618c27d1d215eafc71ab459dfd5d9f9439d45",
     "examples/js2py/s01-identity-files.json": "14fe4478815de4bdbebf15e40c36e00e1530d862afff1774760189c5608ad0b7",
     "public/learning-assets/js2py/s01-identity.zip": "d25053606b19cbe5c146c5f535a1e72127bc45c4dcd9715ccef6fca79009a6c5",
     "examples/js2py/s01-identity/uv.lock": "d1e1dbd747a40a1f40ae8a490dd9a5a1e877d5c6fa9dabf203cf75af0de60708"
@@ -2515,7 +2515,23 @@
     }
   },
   "interface_failures": [],
-  "post_review_changes": [],
+  "post_review_changes": [
+    {
+      "path": "content/docs/js2py/module-27-identity.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-27-identity.zh-cn.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-27-identity.zh-tw.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    }
+  ],
   "submitted_source_sha256": {
     "content/docs/js2py/module-27-identity.mdx": "b59bb242c3c6fb85d05559901e779ad60c4717f476b1329bd205f36dade5a68f",
     "examples/js2py/s01-identity/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
@@ -2559,5 +2575,7 @@
   },
   "credential_persisted": false,
   "prior_review_rounds": [],
-  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+  "source_refresh_date": "2026-09-30",
+  "source_refresh_reason": "Added a learner-facing integration checkpoint paragraph only; executable examples and download members are unchanged."
 }

@@ -5,6 +5,8 @@ description: 用 Argon2id、不透明 Bearer 会话与 PostgreSQL 建立受控�
 
 import { getIdentityExample } from '@/lib/js2py-examples'
 
+**产品检查点 V3：** 只有在 V2 数据和迁移证据齐全后，才把身份与撤销接入自己的产品。本主线使用 Argon2id 和不透明 Bearer 会话；任何替代认证设计都要作为新契约记录。参见[贯穿项目指南](/zh-cn/docs/js2py/project-integration)。
+
 ## 1. 数据库有一个 user_id，不代表请求来自这个人
 
 D 系列为了演示关系和事务，曾让调用者填写 owner_id。那是明确的教学输入，不是认证。任意客户端都能改 JSON；TypeScript 类型、隐藏按钮和 CORS 都不能证明身份。本章把“谁在调用”从请求体移到服务验证过的凭证上。下一章才决定这个人有权操作哪些对象。

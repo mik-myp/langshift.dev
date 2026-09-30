@@ -1,0 +1,38 @@
+---
+title: Official source matrix and version policy
+description: A versioned map of the official references used by js2py, with a clear boundary between upstream behavior and course-specific contracts.
+---
+
+## How to use this matrix
+
+The links below are the primary references for the mechanisms taught in the course. The course chooses business contracts, field names, status codes, retention windows, and acceptance scenarios on top of those mechanisms. A course contract is not a framework default.
+
+When you upgrade a dependency, record the new version, read the corresponding official documentation, rerun the affected failure paths, migrations, authorization checks, rollback, and recovery, and update the product record. A link to a current documentation page does not prove that an older lockfile has the same behavior.
+
+## Versioned teaching baseline
+
+| Area | Verified baseline | Official reference | Main chapters |
+| --- | --- | --- | --- |
+| Python language/runtime | CPython 3.13.15 | [Python 3.13 tutorial](https://docs.python.org/3.13/tutorial/) and [language reference](https://docs.python.org/3.13/reference/) | L00–L14, O01 |
+| Project environments | uv 0.12.13, `uv.lock`, `--locked` | [uv locking and syncing](https://docs.astral.sh/uv/concepts/projects/sync/) and [running commands](https://docs.astral.sh/uv/concepts/projects/run/) | L08–L10, all locked labs |
+| Basic testing | pytest 8.4.2 | [pytest fixtures](https://docs.pytest.org/en/8.4.x/how-to/fixtures.html), [assertions](https://docs.pytest.org/en/8.4.x/how-to/assert.html) | L09–L10, H06, D06 |
+| Web framework | FastAPI 0.135.1, Uvicorn 0.42.0 | [FastAPI testing](https://fastapi.tiangolo.com/tutorial/testing/), [dependencies with yield](https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/), [CORS](https://fastapi.tiangolo.com/tutorial/cors/) | H03–H06, A02 |
+| Validation | Pydantic 2.12.5 | [strict mode](https://docs.pydantic.dev/2.12/concepts/strict_mode/), [fields](https://docs.pydantic.dev/2.12/concepts/fields/), [serialization](https://docs.pydantic.dev/2.12/concepts/serialization/) | H04–H06 |
+| Database access | SQLAlchemy 2.0.54, psycopg 3.3.6 | [SQLAlchemy Session](https://docs.sqlalchemy.org/en/20/orm/session_basics.html), [transactions](https://docs.sqlalchemy.org/en/20/orm/session_transaction.html) | D04, D06, S01–S03 |
+| Schema history | Alembic 1.20.0 | [tutorial](https://alembic.sqlalchemy.org/en/latest/tutorial.html), [autogenerate limits](https://alembic.sqlalchemy.org/en/latest/autogenerate.html) | D05–D06, O04 |
+| Database server | PostgreSQL 18.6 | [constraints](https://www.postgresql.org/docs/18/ddl-constraints.html), [transactions](https://www.postgresql.org/docs/18/tutorial-transactions.html), [backup and restore](https://www.postgresql.org/docs/18/backup.html) | D01–D06, O04–O06 |
+| Async execution | Python 3.13 `asyncio` | [coroutines and tasks](https://docs.python.org/3.13/library/asyncio-task.html), [development traps](https://docs.python.org/3.13/library/asyncio-dev.html) | A01–A02 |
+| Password/session security | Argon2id via `argon2-cffi`; opaque sessions | [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html), [session management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) | S01 |
+| Object authorization | Server-side object checks | [OWASP API Security Project](https://owasp.org/projects/api-security-project) | S02–S03, G01 |
+| Delivery edge | Docker, Caddy, GitHub Actions | [Docker build best practices](https://docs.docker.com/build/building/best-practices/), [Caddy automatic HTTPS](https://caddyserver.com/docs/automatic-https), [Actions permissions](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax) | O02–O04 |
+
+## Course contracts that must not be mistaken for defaults
+
+- `/tasks`, project/member/task fields, status codes, pagination limits, 404/403 choices, and PATCH rules are course contracts.
+- The opaque Bearer session design is the teaching implementation. JWT, cookies, or an external identity provider require a new security and revocation design.
+- Idempotency retention, invited-user limits, backup retention, RPO/RTO targets, and alert thresholds are product decisions. They are not universal FastAPI, PostgreSQL, or HTTP guarantees.
+- Local trust, loopback sockets, synthetic data, and short-lived archives are lab boundaries. They do not establish production authentication, public networking, or disaster recovery.
+
+## Evidence required after an upgrade
+
+Keep the old and new lockfiles, official version links, migration compatibility result, API and authorization regressions, rollback result, restore result, and unresolved risks. If a target environment is unavailable, record `blocked` or `not_run`; do not infer production readiness from a local result.

@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "spec_version": "js2py-product-integration-v1",
+  "product": {
+    "name": "YOUR_PRODUCT_NAME",
+    "repository": "YOUR_PRODUCT_REPOSITORY",
+    "reader": "experienced frontend engineer"
+  },
+  "redaction_reviewed": false,
+  "stages": [
+    {
+      "id": "V0",
+      "title": "Independent Python product foundation",
+      "status": "not_run",
+      "product_revision": null,
+      "schema_revision": null,
+      "environment": null,
+      "blocked_reason": null,
+      "next_action": "",
+      "evidence": [
+        {"kind": "environment_recovery", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "business_tests", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "failure_recovery", "status": "not_run", "reference": null, "observed_at": null, "summary": ""}
+      ]
+    },
+    {
+      "id": "V1",
+      "title": "FastAPI contract and real HTTP boundary",
+      "status": "not_run",
+      "product_revision": null,
+      "schema_revision": null,
+      "environment": null,
+      "blocked_reason": null,
+      "next_action": "",
+      "evidence": [
+        {"kind": "http_contract", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "api_tests", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "real_process_requests", "status": "not_run", "reference": null, "observed_at": null, "summary": ""}
+      ]
+    },
+    {
+      "id": "V2",
+      "title": "PostgreSQL model, migrations, and transactions",
+      "status": "not_run",
+      "product_revision": null,
+      "schema_revision": null,
+      "environment": null,
+      "blocked_reason": null,
+      "next_action": "",
+      "evidence": [
+        {"kind": "empty_database_migration", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "existing_data_migration", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "transaction_failure_recovery", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "isolated_database_tests", "status": "not_run", "reference": null, "observed_at": null, "summary": ""}
+      ]
+    },
+    {
+      "id": "V3",
+      "title": "Identity, object authorization, and idempotency",
+      "status": "not_run",
+      "product_revision": null,
+      "schema_revision": null,
+      "environment": null,
+      "blocked_reason": null,
+      "next_action": "",
+      "evidence": [
+        {"kind": "identity_lifecycle", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "object_authorization_negative", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "revocation", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "idempotency_and_retry", "status": "not_run", "reference": null, "observed_at": null, "summary": ""}
+      ]
+    },
+    {
+      "id": "V3.5",
+      "title": "Optional async external dependency",
+      "status": "not_run",
+      "product_revision": null,
+      "schema_revision": null,
+      "environment": null,
+      "blocked_reason": null,
+      "next_action": "",
+      "evidence": [
+        {"kind": "external_failure_isolation", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "cancellation_cleanup", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "core_crud_regression", "status": "not_run", "reference": null, "observed_at": null, "summary": ""}
+      ]
+    },
+    {
+      "id": "V4",
+      "title": "Real target release and maintenance",
+      "status": "not_run",
+      "product_revision": null,
+      "schema_revision": null,
+      "environment": null,
+      "blocked_reason": null,
+      "next_action": "",
+      "evidence": [
+        {"kind": "build_identity", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "controlled_migration", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "public_https", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "logs_and_delivered_alert", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "backup_and_isolated_restore", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "compatible_rollback", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "invited_use_approval", "status": "not_run", "reference": null, "observed_at": null, "summary": ""}
+      ]
+    },
+    {
+      "id": "V5",
+      "title": "Independent feature and human review",
+      "status": "not_run",
+      "product_revision": null,
+      "schema_revision": null,
+      "environment": null,
+      "blocked_reason": null,
+      "next_action": "",
+      "evidence": [
+        {"kind": "independent_feature", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "feature_release_and_rollback", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "feature_restore", "status": "not_run", "reference": null, "observed_at": null, "summary": ""},
+        {"kind": "human_review", "status": "not_run", "reference": null, "observed_at": null, "summary": ""}
+      ]
+    }
+  ]
+}

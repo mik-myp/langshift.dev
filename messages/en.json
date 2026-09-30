@@ -93,9 +93,9 @@
     "courses": {
       "js2py": {
         "title": "JavaScript → Python",
-        "description": "Learn Python from a JavaScript developer perspective. Master syntax conversion and concept mapping. Includes web development, data processing, and automation projects.",
-        "features": ["Syntax Mapping", "Web Development", "Data Processing", "Automation Scripts", "Type Annotations"],
-        "duration": "8-12 weeks",
+        "description": "Learn Python from a JavaScript developer perspective, then build, test, secure, deploy, and maintain a real backend with FastAPI, PostgreSQL, migrations, authorization, HTTPS, and recovery drills.",
+        "features": ["Syntax Mapping", "FastAPI Backend", "PostgreSQL & Migrations", "Authorization & Testing", "Deployment & Recovery"],
+        "duration": "Progress by acceptance gates",
         "level": "Intermediate"
       },
       "js2rust": {
@@ -179,7 +179,7 @@
       },
       "learningPath": {
         "title": "Progressive Learning Path",
-        "description": "Complete learning system from basics to advanced with 13 progressive modules ensuring effective learning outcomes."
+        "description": "Complete learning system that progresses from basics to practical capability through each course's acceptance gates."
       },
       "performance": {
         "title": "Performance Monitoring",
@@ -196,13 +196,13 @@
     },
     "learningPath": {
       "title": "Complete Learning Path",
-      "subtitle": "From basic syntax to advanced features, 15 modules progressive learning",
+      "subtitle": "From fundamentals to practical capability, paced by acceptance gates",
       "description": "Each language conversion module follows the same learning path, with content optimized for specific languages and a unified structure for easy comparison and extension.",
       "modules": [
         {
           "phase": "Foundation Phase",
           "description": "Build language foundations, understand core concepts and syntax differences",
-          "duration": "5 weeks",
+          "duration": "By acceptance gates",
           "items": [
             {
               "title": "Language Introduction & Learning Methods",
@@ -234,7 +234,7 @@
         {
           "phase": "Practical Phase",
           "description": "Apply learned knowledge through real projects, enhance development skills",
-          "duration": "5 weeks",
+          "duration": "By acceptance gates",
           "items": [
             {
               "title": "Code Quality & Testing",
@@ -266,7 +266,7 @@
         {
           "phase": "Advanced Phase",
           "description": "Dive into advanced features, master language-specific best practices",
-          "duration": "5 weeks",
+          "duration": "By acceptance gates",
           "items": [
             {
               "title": "Advanced Language Features",
@@ -298,12 +298,13 @@
       ],
       "languageSpecificFeatures": {
         "js2py": {
-          "title": "JavaScript → Python Features",
+          "title": "JavaScript → Python: backend delivery",
           "highlights": [
-            "Dynamic typing to static type annotations",
-            "Event loop to coroutine model",
-            "npm ecosystem to pip ecosystem",
-            "Functional programming to Pythonic style"
+            "JavaScript patterns to Python fundamentals",
+            "FastAPI routes, validation, and API tests",
+            "PostgreSQL transactions, ORM, and migrations",
+            "Opaque sessions and object-level authorization",
+            "HTTPS release, rollback, backup, and restore"
           ]
         },
         "js2rust": {

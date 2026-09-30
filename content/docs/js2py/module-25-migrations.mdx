@@ -20,6 +20,8 @@ A migration is a reviewed transition between explicit database states. Shipping 
 
 Download the [complete D05 lab](/learning-assets/js2py/d05-migrations.zip) and work in d05-migrations. It is self-contained and does not import D04. Displayed and downloadable code share canonical files. All database execution is local, not Pyodide.
 
+Frontend work has no direct equivalent to schema migrations: changing a localStorage shape usually means hand-written compatibility code at read time. Alembic version scripts are that compatibility layer, but they act on one PostgreSQL database shared by all users — a wrong script affects everyone at once, which is why this chapter requires reviewing scripts before running them.
+
 ## 2. Installation and service ownership
 
 Install uv and PostgreSQL 18's postgres/initdb/pg_ctl/psql binaries first. psycopg is a client, not a server distribution. The verified macOS arm64 installation uses /opt/homebrew/bin; adjust PG_BIN on another POSIX host. Do not run as root or start brew services. Docker is unnecessary; the harness is not verified on Windows.

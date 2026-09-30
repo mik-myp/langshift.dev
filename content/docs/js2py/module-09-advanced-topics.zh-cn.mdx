@@ -69,6 +69,8 @@ uv run --locked python -m pytest --version
 
 `[tool.pytest.ini_options]` 的 testpaths 指定默认从 tests 目录找测试，故意错误的 errors/exercises 不混入正常验收。`python -m pytest` 使用当前项目 Python 运行已安装模块；从项目根目录启动也让普通本地模块可导入。不要靠全局 pytest、修改 sys.path 或编辑器的偶然工作目录解决导入问题。版本命令应报告 pytest 8.4.2。
 
+如果你用过 Jest 或 Vitest，约定式发现是相似的：`test_*.py` 之于 pytest，就像 `*.test.js` 之于 Jest。更大的差异在断言：pytest 直接使用普通 `assert`，失败时由断言重写显示每个子表达式的实际值；Jest 和 Vitest 则要求 `expect(...).toBe(...)` 这样的匹配器调用。因此 Python 测试模块不需要 `test()` 或 `describe()` 包装——一组普通函数就是完整测试套件。
+
 ## 5. 一份完整的基础测试文件
 
 <Code language="python">{getTestingExample('tests/test_study.py')}</Code>

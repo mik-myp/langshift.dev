@@ -1,0 +1,17 @@
+# Start closed: do not even send credentials, data, or caches to the builder.
+**
+!Dockerfile
+!.dockerignore
+!pyproject.toml
+!uv.lock
+!.python-version
+!alembic.ini
+!app/
+!app/**
+!migrations/
+!migrations/**
+**/__pycache__/**
+**/.env*
+**/*.log
+**/*.dump
+**/*.key

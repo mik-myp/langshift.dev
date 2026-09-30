@@ -41,7 +41,7 @@ export default async function Page(props: {
   const courseNameMap: Record<string, { name: string; description: string; level: string }> = {
     'js2py': {
       name: 'JavaScript 到 Python 转换学习',
-      description: '从 JavaScript 开发者视角学习 Python，掌握语法转换和概念映射',
+      description: '从 JavaScript 开发者视角学习 Python，独立交付 FastAPI、PostgreSQL、授权、测试、部署与维护后端',
       level: 'Intermediate'
     },
     'js2rust': {

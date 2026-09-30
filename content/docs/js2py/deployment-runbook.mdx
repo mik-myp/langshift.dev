@@ -1,0 +1,91 @@
+---
+title: Production release and maintenance runbook
+description: A versioned runbook template for adapting the js2py product to a real Linux, container, HTTPS, CI, backup, recovery, and maintenance target.
+---
+
+import { Code } from '@/components/code'
+import { getProductDeliveryExample } from '@/lib/js2py-examples'
+
+## Scope and safety boundary
+
+This is a runbook template for your own V4 product. Replace every placeholder with a reviewed value before executing it. It does not provide a public host, domain, certificate, secret, database, or deployment approval. Keep the product loopback-only until the target gates below pass.
+
+The release script refuses an empty record: it requires V0–V3 passing, passing build, migration, backup/restore, and rollback evidence, immutable image digests, human approval, backup policy, and rollback ownership before it will touch the target.
+
+The commands use Docker, PostgreSQL, Caddy, and GitHub Actions as examples. Choose equivalent maintained tools only after reading their official documentation and recording the version. Do not paste passwords, private keys, Bearer tokens, or full connection URLs into this document.
+
+Download the [executable delivery templates](/learning-assets/js2py/product-delivery.zip), unpack `product-delivery`, then copy the reviewed pieces into your product. The archive contains no credentials and is not a deployed backend.
+
+## 1. Record the release inputs
+
+Create a release record before touching the target:
+
+<Code language="text">{getProductDeliveryExample('release-record.template')}</Code>
+
+The revision and image digest must be immutable references. A mutable `latest` tag is not a release identifier. Production secrets are injected by the target secret store; `.env` files are examples for names and must not contain real values.
+
+## 2. Build a non-root image
+
+Adapt the existing O02 Dockerfile to your application module and health command. The image should use a multi-stage build, copy only the application environment into the runtime stage, run as a fixed non-root UID, and keep mutable data in a named volume or managed external service. Docker documents multi-stage builds and `USER` as the baseline practices. [Docker build best practices](https://docs.docker.com/build/building/best-practices/)
+
+<Code language="dockerfile">{getProductDeliveryExample('Dockerfile')}</Code>
+
+Before publishing, build with a clean context, inspect the image, run the health check, and verify that the runtime user cannot write the application layer. The image build does not prove database migrations, authorization, or recovery.
+
+If the target uses Linux/systemd instead of containers, keep the same boundaries. Replace the paths, user, environment file, and module entry with your product values, then validate the unit on the target host:
+
+<Code language="ini">{getProductDeliveryExample('product.service.template')}</Code>
+
+Run `systemd-analyze verify`, start only the named unit, check `systemctl status` and `journalctl -u YOUR_APP_NAME`, then send a local health request. `ProtectSystem` and `ReadWritePaths` are host policy choices that need a real write-path test; a unit file in the repository is not systemd evidence. See the [systemd service](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html) and [systemd execution environment](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html) references.
+
+## 3. Run migrations as a controlled job
+
+Do not let every application worker run schema changes during startup. Run the migration command once with a migration identity, inspect its output, and start the application only after the expected revision is present:
+
+<Code language="bash">{getProductDeliveryExample('commands/migrate-start.sh')}</Code>
+
+The `migrate` service must use the same image and database network as the application, but a separate database role with only the DDL/data permissions needed by reviewed migrations. The runtime role must not have migration privileges. An application readiness response is not proof that every business query is authorized.
+
+## 4. Put Caddy in front of the application
+
+Use a private application network and publish only Caddy's external ports. In a container topology, Caddy's `127.0.0.1` is its own container; use the Compose service name for the upstream. In a same-host systemd topology, loopback is appropriate only when the application is bound on the same host.
+
+<Code language="text">{getProductDeliveryExample('Caddyfile.template')}</Code>
+
+Replace the reserved domain only after DNS A/AAAA records, ports 80/443, certificate storage, and firewall ownership are confirmed. Caddy's automatic HTTPS requires a qualifying hostname, correct DNS, reachable challenge paths, and persistent writable data. [Caddy automatic HTTPS](https://caddyserver.com/docs/automatic-https)
+
+Verify the external certificate and the application-visible scheme/origin with a real browser and a real HTTP client. A successful local CA request is not public HTTPS evidence.
+
+## 5. CI and production approval
+
+Run checks on every change, but expose production secrets only after an environment approval. Set the minimum token permissions explicitly:
+
+<Code language="yaml">{getProductDeliveryExample('.github/workflows/verify-and-release.yml.template')}</Code>
+
+Pin action revisions according to your organization policy before using this sample. Configure required reviewers, allowed branches/tags, and environment secrets in the hosting platform. GitHub documents token permissions and environment protection separately. [Workflow permissions](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax), [deployment environments](https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments)
+
+## 6. Back up and restore with evidence
+
+Use an isolated backup destination with access control and retention. A custom PostgreSQL archive can be restored with `pg_restore`; listing an archive is not a restore test. Keep application, database, and post-backup security changes in the recovery record:
+
+<Code language="bash">{getProductDeliveryExample('commands/backup.sh')}</Code>
+
+<Code language="bash">{getProductDeliveryExample('commands/restore.sh')}</Code>
+
+After restore, run migrations only according to the reviewed compatibility plan, compare business records and constraints, verify sequences, apply the post-backup session/membership policy, and send real authorized/denied requests. Record restore duration and observed loss. PostgreSQL explicitly describes `pg_restore` as reconstructing a database from a non-plain archive and requires actual restore validation for operational confidence. [pg_restore](https://www.postgresql.org/docs/18/app-pgrestore.html)
+
+## 7. Roll back without guessing
+
+An application rollback is valid only when the old application understands the current schema and data. A destructive database downgrade is a separate change and may lose data. Before release, write the compatible application/schema matrix:
+
+<Code language="text">{getProductDeliveryExample('rollback-record.template')}</Code>
+
+Rehearse the rollback with existing data in an isolated target. Do not solve a failed migration by deleting the database or removing a failed assertion.
+
+## 8. Long-term maintenance record
+
+At each dependency update, certificate renewal, backup failure, alert, permission change, incident, capacity change, or product feedback event, record the owner, current revision, target environment, decision, actual result, next action, and unresolved risk. Keep credentials out of the record. Maintenance is event-driven; no weekly study quota is required, but no production change is complete without evidence.
+
+## Completion gate
+
+The product is ready for invited use only when the target environment has real evidence for build identity, database migration, HTTPS, secrets, logs, alerts, backup, isolated restoration, rollback compatibility, authorization, capacity limits, and a responsible maintainer. If any gate is not executed, record `blocked` or `not_run`.

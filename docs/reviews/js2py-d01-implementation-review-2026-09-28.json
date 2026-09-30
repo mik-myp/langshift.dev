@@ -1580,7 +1580,7 @@
     "examples/js2py/d01-relational-data/tests/test_variant.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-21-relational-data.mdx": "8b5852b5ab8a86553d5dffb1c34779b014a5b937c731ea13dc04371dfbad1869",
+    "content/docs/js2py/module-21-relational-data.mdx": "c1a2a40f10901863c6471483f6c01a63dcb67558af4dfb63138af2dd9308cc03",
     "examples/js2py/d01-relational-data/.env.example": "8eb54486aa6dec73fb05000dc8cf9d5a46914582dee6b6a2d85b0d6059bf5205",
     "examples/js2py/d01-relational-data/.gitignore": "3f9c24dea3df4c5658c720107bec6ec85423e9a0e4b6a5e05aa32d51ca4c50c2",
     "examples/js2py/d01-relational-data/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
@@ -1601,8 +1601,8 @@
     "examples/js2py/d01-relational-data/tests/test_environment.py": "28315d3663c52609e793a8fb14c6248ea953cd96ecaefeee3427839fef03cf59",
     "examples/js2py/d01-relational-data/tests/test_relations.py": "d89378d6635a0108e27859f4fbb16c2eb7d64a978d055b459b1cc640ac522bbb",
     "examples/js2py/d01-relational-data/tests/test_variant.py": "0dddbe2b6b934951805bfb5054343f7ec9f68c3baf4331db69a10c581db6ee47",
-    "content/docs/js2py/module-21-relational-data.zh-tw.mdx": "4e20468855e7dabcad4dc837ab477c25a08341a1b8548d10555ffcf98154eb8f",
-    "content/docs/js2py/module-21-relational-data.zh-cn.mdx": "cab3df486389e4d5ca59f1b8075bdc5ba2ca43a91ff8fdc2bb3d412af694e733",
+    "content/docs/js2py/module-21-relational-data.zh-tw.mdx": "3b8cc8ca83869a7f37b98664c0b2cae38ddf06768bef73b1832ade25bfaa1226",
+    "content/docs/js2py/module-21-relational-data.zh-cn.mdx": "62e5bf04f6b223a9a33d8055da379f80a6e9f2ff70862e21174062f956051ae0",
     "examples/js2py/d01-relational-data-files.json": "f8087ca401cde210a0a1e70cd42a94bf73019c85f139d0d2855a4131d5192fd0",
     "public/learning-assets/js2py/d01-relational-data.zip": "ba00c85c66d1bdd5d01fc74bda46e38ba943ea012eeb42b5aa442c1be6bb70b0",
     "examples/js2py/d01-relational-data/uv.lock": "f9a5730ffce5b5a481e98a6a0fc51cadd73dc66f0057cde22e63b061e29d7bc5"
@@ -1615,7 +1615,23 @@
     }
   },
   "interface_failures": [],
-  "post_review_changes": [],
+  "post_review_changes": [
+    {
+      "path": "content/docs/js2py/module-21-relational-data.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-21-relational-data.zh-cn.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-21-relational-data.zh-tw.mdx",
+      "change": "integration checkpoint paragraph",
+      "executable_behavior_changed": false
+    }
+  ],
   "submitted_source_sha256": {
     "content/docs/js2py/module-21-relational-data.mdx": "8b5852b5ab8a86553d5dffb1c34779b014a5b937c731ea13dc04371dfbad1869",
     "examples/js2py/d01-relational-data/.env.example": "8eb54486aa6dec73fb05000dc8cf9d5a46914582dee6b6a2d85b0d6059bf5205",
@@ -1669,5 +1685,7 @@
       "reason": "New concrete source/pedagogy repair after independent reproduction; this is review of changed evidence, not resampling an accepted judgment."
     }
   ],
-  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+  "source_refresh_date": "2026-09-30",
+  "source_refresh_reason": "Added a learner-facing integration checkpoint paragraph only; executable examples and download members are unchanged."
 }

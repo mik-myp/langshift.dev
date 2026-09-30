@@ -1,0 +1,57 @@
+# External persistent PostgreSQL is deliberately NOT created or reset here.
+# Copy to the learner product's ops/ and provide reviewed image digests and files.
+x-product: &product
+  image: ${APP_IMAGE:?Set an immutable reviewed app image digest}
+  user: "10001:10001"
+  read_only: true
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=16777216
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  init: true
+  networks: [database]
+services:
+  app:
+    <<: *product
+    environment:
+      DATABASE_URL_FILE: /run/secrets/app_database_url
+    secrets: [app_database_url]
+    networks: [ingress, database]
+    restart: unless-stopped
+    stop_grace_period: 30s
+    # No host port publication. Caddy is the public entry point.
+  migrate:
+    <<: *product
+    profiles: [tools]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/migration_database_url
+    secrets: [migration_database_url]
+    healthcheck:
+      disable: true
+    command: [python, -m, alembic, upgrade, head]
+    restart: "no"
+  edge:
+    image: ${CADDY_IMAGE:?Set an immutable reviewed Caddy image digest}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ${PRODUCT_CADDYFILE:?Set the reviewed Caddyfile path}:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [ingress]
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+secrets:
+  app_database_url:
+    file: ${APP_DATABASE_SECRET_FILE:?Set the host credential file path}
+  migration_database_url:
+    file: ${MIGRATION_DATABASE_SECRET_FILE:?Set the separate migration credential file path}
+networks:
+  ingress: {}
+  database: {}
+volumes:
+  caddy_data: {}
+  caddy_config: {}

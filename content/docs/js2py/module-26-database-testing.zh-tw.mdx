@@ -5,6 +5,8 @@ description: 設計不會誤接真實用戶數據的 fixture，實測約束、�
 
 import { getDatabaseTestingExample } from '@/lib/js2py-examples'
 
+**產品交接 V2：** 用經過審查的 PostgreSQL 模型和遷移替換產品的內存存儲。替換存儲時保留 HTTP 回歸路徑，並在進入 S01 前記錄空庫升級、已有數據升級、回退邊界和隔離數據庫測試證據。
+
 ## 1. HTTP 測試通過，不等於數據庫承諾成立
 
 H06 可以用依賴替換驗證路由怎麼處理成功/錯誤，D05 驗證了版本變化。但字典替身不會執行外鍵，SQLite 也不是 PostgreSQL 的事務、類型、默認值與規劃器。用它們測某些純應用規則有價值，不能據此聲稱真實 PostgreSQL 的提交失敗、遷移或索引行為已經通過。
@@ -19,6 +21,8 @@ H06 可以用依賴替換驗證路由怎麼處理成功/錯誤，D05 驗證了�
 | 不要求 | SQLite 替代驗收、生產壓測結論、固定成本數字、完整性能工程或備份恢復演練 |
 
 下載 [D06 完整實驗](/learning-assets/js2py/d06-database-testing.zip)，進入 d06-database-testing。本包包含 D05 的凍結歷史與最終模型，不需要相鄰目錄；完整 canonical 源碼和 ZIP 使用同一 allowlist。
+
+前端測試常常 mock `fetch`；數據庫測試把這個習慣反過來：mock 掉 SQL 層只能證明替身本身可用，約束、事務語義和查詢計劃必須對真實 PostgreSQL 驗證。這就是本章拒絕用 SQLite 或內存替身充當驗收證據的原因。
 
 ## 2. 先建立拒絕危險目標的運行環境
 

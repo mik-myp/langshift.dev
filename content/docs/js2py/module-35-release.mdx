@@ -20,6 +20,8 @@ We separate the sequence: check the candidate → verify migrations and interfac
 
 Download the [independent O04 lab](/learning-assets/js2py/o04-release.zip) and enter `o04-release`. It includes source, SQL, the complete Alembic history, tests, and solutions without importing other labs. Every PostgreSQL cluster is short-lived and contains synthetic data only.
 
+If you are used to `npm publish` or a platform deploying on every push, note what a server release adds that no platform does here: migration identity separation, compatibility matrix review, rollback verification and a release record with evidence. This chapter requires you to produce those artifacts yourself.
+
 ## 2. Preserve the D/S contract without pretending this is the whole product
 
 The package retains the D/S users/projects/project_members/tasks, auth_sessions, and task_operations fields. Tasks use status/description/priority, not the H-stage done/note names. Authentication uses opaque Bearer tokens with only SHA-256 digests stored; each request checks expiry, revocation, account activation, and auth_version. A digest of a random token is not password hashing; synthetic passwords still use the Argon2id library.

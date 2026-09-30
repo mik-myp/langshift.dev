@@ -5,6 +5,8 @@ description: "Use owned, bounded experiments to understand processes, signals, e
 
 import { getOperatingSystemExample } from '@/lib/js2py-examples'
 
+**Product checkpoint V4:** From this chapter onward, every runbook and operation must target your own product repository. Local labs demonstrate mechanisms; real release, HTTPS, backup, restore, and invited-use evidence must come from your chosen target environment. See the [integrated project guide](/en/docs/js2py/project-integration).
+
 ## 1. From “it works in my terminal” to an explainable service
 
 A frontend development server hides many operating-system decisions: the tool selects a directory, starts a process, reads configuration, and remains attached to your terminal. The same Python file can fail immediately under a service manager because its working directory differs, your exported variable is absent, its account cannot write a file, or another process owns the port. Memorizing Docker commands would conceal the problem. First describe **who runs the program and with which environment**.

@@ -3993,7 +3993,7 @@
     "examples/js2py/s03-reliable-operations/tests/test_solution.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-29-reliable-operations.mdx": "1742b7e433a6d837362505ceb9305dca74836c94cdc3b1244e8c302c64331f09",
+    "content/docs/js2py/module-29-reliable-operations.mdx": "10031470a66243496bd3c534db9b327f6b17a81436126e177011a8c455ca5450",
     "examples/js2py/s03-reliable-operations/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/s03-reliable-operations/.gitignore": "5ac5e91d27d9ac8cfba38f66cf16684f0f451f05b44a3c2341cfdca64df90a16",
     "examples/js2py/s03-reliable-operations/pyproject.toml": "63cba4503a9323b053e96476ddbf341cb8832c7c09410795ed6d5fc2caf857a2",
@@ -4034,8 +4034,8 @@
     "examples/js2py/s03-reliable-operations/README.zh-tw.md": "f1adfc0e7876eb8581c09ec67f8bb1f6d9b8fc464d6032ac484e72253524b555",
     "examples/js2py/s03-reliable-operations/SOURCES.md": "9e07751ca319e5122ee5ed1623ddbfee18e2bfd9fc30096c8769c89743357190",
     "examples/js2py/s03-reliable-operations/VERIFICATION.md": "d2ef56bcb168e21138ea8962b9fb9dbaf9f57b704d58cf7694465fe31377d26e",
-    "content/docs/js2py/module-29-reliable-operations.zh-cn.mdx": "5e1b8818f1947877a9e62777d38b79f0cf99f5ea5edb185eb3b9a6fc333fa8d8",
-    "content/docs/js2py/module-29-reliable-operations.zh-tw.mdx": "9e034e9b0974f8321aa9608de820caefe93f61fd9efb7149c739fd2d5db2c1a1",
+    "content/docs/js2py/module-29-reliable-operations.zh-cn.mdx": "3d8ba6d7ff967e48d658d6b9fb154b2cf8d15d3f39e34b3ab7ac396db0e3ea82",
+    "content/docs/js2py/module-29-reliable-operations.zh-tw.mdx": "dbdb31ce14cd68c0de9ab0b0ed98477b919c4873621e8ef554791b1f6939765c",
     "examples/js2py/s03-reliable-operations-files.json": "fc2150e9d151e7c604facbd5ffa1c3ed23c37e6f1d695bd4ec8c525f207128b3",
     "public/learning-assets/js2py/s03-reliable-operations.zip": "251b710a65b1032629c4651f5944b2aa9e9d323e349a6bc3e6cfcc50a35c3df0",
     "examples/js2py/s03-reliable-operations/uv.lock": "b54d510e866440a6f092db1252cae82839bcab7cb61fb3b9b2a795106f7acbb1"
@@ -4048,7 +4048,23 @@
     }
   },
   "interface_failures": [],
-  "post_review_changes": [],
+  "post_review_changes": [
+    {
+      "path": "content/docs/js2py/module-29-reliable-operations.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-29-reliable-operations.zh-cn.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-29-reliable-operations.zh-tw.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
+    }
+  ],
   "submitted_source_sha256": {
     "content/docs/js2py/module-29-reliable-operations.mdx": "1742b7e433a6d837362505ceb9305dca74836c94cdc3b1244e8c302c64331f09",
     "examples/js2py/s03-reliable-operations/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
@@ -4101,5 +4117,7 @@
   },
   "credential_persisted": false,
   "prior_review_rounds": [],
-  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+  "source_refresh_date": "2026-09-30",
+  "source_refresh_reason": "Added a learner-facing product handoff paragraph only; executable examples and download members are unchanged."
 }

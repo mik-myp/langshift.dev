@@ -43,6 +43,7 @@ import environmentFiles from '../examples/js2py/u08-environments-files.json'
 import testingFiles from '../examples/js2py/u09-testing-files.json'
 
 import projectFiles from '../examples/js2py/u10-local-project-files.json'
+import productDeliveryFiles from '../examples/js2py/product-delivery-files.json'
 
 function readExample(lab: string, files: string[], file: string): string {
   if (!files.includes(file)) {
@@ -119,6 +120,10 @@ export function getDecoratorExample(file: string): string {
 
 export function getResourceExample(file: string): string {
   return readExample('u14-resources', resourceFiles, file)
+}
+
+export function getProductDeliveryExample(file: string): string {
+  return readExample('product-delivery', productDeliveryFiles, file)
 }
 
 export function getServiceProcessExample(file: string): string {

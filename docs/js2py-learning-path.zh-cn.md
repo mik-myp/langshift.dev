@@ -1,8 +1,8 @@
 # js2py 学习路线：逐章建立能力，不按时间赶进度
 
-更新：2026-09-28。39 章三语正文与配套材料已经写入并完成统一集成，原页面 URL 保持稳定。**33 章完成声明范围内的本地材料验收；O01—O06 六章保留 environment_pending，正文和本地子集完成不等于真实环境验收通过。** G01 仅为需求与材料检查包，24 项学生行为场景仍 not_run；未授予读者毕业或执行公网部署。各章机器可读状态以章节契约 JSON 为准，[最终交付记录](/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-remaining-execution.zh-cn.md)区分全部证据，历史阶段记录保留而不覆盖。
+更新：2026-09-29。39 章三语正文与配套材料已经写入并完成统一集成，原页面 URL 保持稳定。**33 章完成声明范围内的本地材料验收；O01—O06 六章保留 environment_pending，正文和本地子集完成不等于真实环境验收通过。** G01 仅为需求与材料检查包，24 项学生行为场景仍 not_run；未授予读者毕业或执行公网部署。各章机器可读状态以章节契约 JSON 为准，[最终交付记录](/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-remaining-execution.zh-cn.md)区分全部证据，历史阶段记录保留而不覆盖。
 
-关联：[章节契约数据](/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-chapter-contracts.json)、[递进复审](/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-sequencing-review.zh-cn.md)、[改造记录](/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-implementation-log.zh-cn.md)、[毕业项目规格](/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-capstone-spec.zh-cn.md)。
+关联：[章节契约数据](/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-chapter-contracts.json)、[贯穿整合线](/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-integration-spine.zh-cn.md)、[递进复审](/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-sequencing-review.zh-cn.md)、[改造记录](/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-implementation-log.zh-cn.md)、[毕业项目规格](/Users/mikmyp/Documents/code-projects/langshift.dev/docs/js2py-capstone-spec.zh-cn.md)。
 
 ## 1. 顺序与深度的共同约束
 
@@ -28,7 +28,7 @@
 | 模型与配置 | Pydantic 2.x + pydantic-settings | 学习必要的输入输出验证与配置；不从复杂自定义类型系统开始（S05/S15） |
 | 数据库 | PostgreSQL | SQL/ORM/迁移阶段起使用同一数据库类型；测试与部署对齐。SQLite 可用于短小演示，但不是生产验收替身 |
 | 数据访问 | SQLAlchemy 2.x 同步接口 + Alembic | 先理解 Session、事务和迁移；不同时强制学习 SQLModel 与异步 ORM（S07/S08） |
-| 身份认证 | pwdlib 的 Argon2 哈希 + PyJWT；短期访问令牌 | 结合官方教学入口学习，补真实数据库、失效与授权测试；不自创密码学（S09/S10） |
+| 身份认证 | Argon2id 密码哈希 + 不透明随机 Bearer 会话；短期访问令牌 | 结合官方密码存储资料，补真实数据库、失效与授权测试；不自创密码学，不把 JWT 当作本课程已经实现的方案（S01/S02） |
 | 质量 | Ruff 检查/格式化 + pytest + HTTPX/TestClient | 普通 Python 测试从基础阶段开始，API/数据库测试随功能增长（S13/S20） |
 | 类型检查 | mypy 基础使用 | 学会读真实诊断，不把复杂类型编程或“零 Any”作为入门 KPI |
 | 交付 | Docker/Compose、CI、HTTPS、日志与恢复手册 | 本地可复现后再选部署平台；不提前绑定某云厂商，也不执行付费开通（S14/S22） |
@@ -201,8 +201,24 @@
 
 具体契约与发布范围以配套毕业项目规格为准。
 
+## 5. 贯穿整合项目：把实验合并成一份服务
 
-## 5. 中断与恢复学习
+分章实验解决单个责任，完整产品需要把这些责任放回同一份代码、同一套迁移和同一份运行记录。读者在 L10 之后建立自己的仓库，后续每个阶段都在这份仓库留下可运行提交；独立实验仍用于隔离学习机制，不要求复制到产品中。
+
+推荐的整合顺序：
+
+1. **V0（L10）**：保留纯 Python 业务函数、文件格式、普通测试和恢复记录，写下将来 API 要保持的业务规则。
+2. **V1（H01—H06）**：把 V0 规则接入 FastAPI；先允许内存状态，但明确重启丢数据。每次改动同时更新接口契约、HTTP 测试和最小前端联调。
+3. **V2（D01—D06）**：在产品仓库中建立 PostgreSQL 模型和第一条迁移，再把 V1 的内存读写替换成 SQLAlchemy Session。保留一条有数据升级记录，不以复制 D04/D05 答案代替自己的迁移。
+4. **V3（S01—S03）**：以现有 V2 数据模型为基础加入用户、项目、成员、会话和对象权限。当前教学主线使用 Argon2id 与不透明随机 Bearer 会话；改用 JWT、Cookie 或第三方身份服务时，必须重新写认证、撤销、CSRF 和测试契约。
+5. **V3.5（A01—A02）**：只为有明确收益的外部提示或可选依赖接入异步资源；核心 CRUD 不得依赖它。把超时、取消、重试和幂等记录放入产品测试，而不是只运行 A02 的故障替身。
+6. **V4（O01—O06）**：用同一份产品仓库完成配置、容器/进程入口、HTTPS、发布回退、日志、备份和隔离恢复。O 阶段实验是检查工具，必须把真实路由、真实迁移、真实权限和真实数据范围接入验收。
+7. **V5（G01）**：在已有产品上实现一项没有逐步代码答案的新需求，提交模型/迁移、接口、权限、测试、发布、回退和恢复证据。先独立设计，再参考已有章节的机制，不复制另一个实验目录。
+
+每个整合检查点都要保留：代码版本、迁移版本、最后成功命令、通过的测试、失败与恢复记录、部署目标、下一步证据。`examples/js2py/s03-reliable-operations` 和 O04—O06 是参考材料，不是学习者产品的可直接上线替代品。
+
+
+## 6. 中断与恢复学习
 
 每次只完成一个能独立结束的小目标。早期记录最后成功的脚本与输出；学过自动化测试后再记录相关测试结果，不能在 L00 就要求 pytest。
 
@@ -216,7 +232,7 @@
 
 恢复时先运行已有成果并解释它，再进入一个变式。无需重新安装一切，也不因学习间断压缩后面的基础。
 
-## 6. 每章发布前的检查
+## 7. 每章发布前的检查
 
 1. 核对例子、作业和验收中的每个语法、库与运行前提：已经教过，或者本章完整教学。
 2. 正文解释问题、机制、JS类比边界、执行过程、成功与失败，不只列 API。
@@ -225,13 +241,13 @@
 5. 语法检查、静态类型检查、实际运行、教学审查各有范围，不用其中一项代替其他项。
 6. 同步三种语言的核心解释、运行命令与代码，保留原 URL；未完成章节明确标记。
 
-## 7. 选修与后续生态
+## 8. 选修与后续生态
 
 Pandas/数据分析、复杂元类、高级泛型、异步 ORM、Redis/Celery、分布式任务和微服务并非第一次独立交付的入门门槛。按项目需求另设有前置条件的选修，不在主线突然引入。
 
-## 8. 实施批次与旧素材
+## 9. 实施批次与旧素材
 
-当前已实施 L00—L14 的三语正文、独立示例、下载与相应验证。L01 只覆盖名称、值与基本运算；L02 单独讲容器、引用与修改；L03 在普通分支和循环之后才引入简单推导式，独立验收空集合与边界输入，不要求自定义函数、导入或异常捕获。L04 先定义/调用/返回，再讲参数绑定、默认对象、作用域与简单闭包，独立验收任务创建与规则选择，不要求异常捕获、装饰器或类。L05 先定位 traceback 与无异常的逻辑错误，再学习具体异常、恢复与传播、清理路径和断言边界，独立验收内存任务导入报告，不提前引入文件、类或测试框架。L06 已落实导入绑定、顶层执行、工作目录、普通包与多文件独立验收，区分内存模块缓存与字节码缓存，不提前依赖发布包或框架。L07 已落实路径、编码、文件模式、资源释放、JSON 与业务验证，独立验收首次保存、再次读取和损坏数据拒绝覆盖；明确关闭不等于回滚、教学文件写入不等于生产事务。L08 已落实解释器/声明/锁/同步与真实依赖诊断；L09 已落实普通函数测试、发现、失败与输入隔离；L10 已落实需求驱动的本地项目、文件失败保护、恢复和独立变式。L11 已验证静态/运行时边界；L12 已验证实例归属与数据类；L13 已验证装饰时机、注册/包装与参数化；L14 已验证惰性、显式关闭和资源协议。当前 39 个逻辑章节中 15 个已实现、24 个尚未全部验收；下一批按 H01—H06 进入服务与 HTTP/FastAPI。用户已授权顺序推进全部剩余内容及子智能体辅助，不逐章请求确认。
+L00—L14 的三语正文、独立示例、下载与相应验证已经完成；当前总状态不是早期批次的 15/39，而是 39 个教学包齐备、33 个完成声明范围内的本地验收、O01—O06 保留外部环境门槛。L01—L14 仍按原有语言递进与边界学习；H01 之后把学习者带入同一条协作任务产品整合线，不能把旧批次数字当作当前状态。
 
 旧综合第 01 章的当前工作区三语稿（含既有语义修正）已归档在 `/Users/mikmyp/Documents/code-projects/langshift.dev/docs/archive/js2py-u01-combined`，原 URL 用于新的 L01。
 

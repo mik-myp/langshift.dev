@@ -1872,7 +1872,7 @@
     "examples/js2py/d06-database-testing/tests/test_resource_safety.py"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-26-database-testing.mdx": "2316edd6c49f78f8bf7cd55c3739069294a1c6140d3303bee4a878b3ab53fae5",
+    "content/docs/js2py/module-26-database-testing.mdx": "36ee530ea76fc9c081a068253ec3084f7542372f2373058e53e59939e4e7e704",
     "examples/js2py/d06-database-testing/.gitignore": "85c36a89acabe55cd838be3f3aa989186b9c34aa58ff789f8404d2c498b439bc",
     "examples/js2py/d06-database-testing/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/d06-database-testing/README.md": "a45e6c7ec8ffd40b618828898084fe4993dc835efbea2435b398fce38aac7efc",
@@ -1904,8 +1904,8 @@
     "examples/js2py/d06-database-testing/tests/test_database.py": "85aef42b48a6bcde70b3e78b078bea858f6dc52f187da9ccb3dc9f16c7eec240",
     "examples/js2py/d06-database-testing/tests/test_migration_history.py": "fe0070e686f3a150e141dcf698596cfbee131c4b368f23522edfaac1e1058b6d",
     "examples/js2py/d06-database-testing/tests/test_resource_safety.py": "1a5e8f20c9b35d8f955d5270e215e16751988c1f549e0d33e7b4d92d279c9eb9",
-    "content/docs/js2py/module-26-database-testing.zh-tw.mdx": "0fedbe42cdc3d206db927621cc8b7ed0ebd06fd81b1a75d54489b9a0b838a5b9",
-    "content/docs/js2py/module-26-database-testing.zh-cn.mdx": "aa70b3b1117a92171f44bc08d80c2fd72fbadb63576fc1e9604c403d04f2e2b5",
+    "content/docs/js2py/module-26-database-testing.zh-tw.mdx": "b6e4a4a9a92eae23f3bb60e8837b92d1702bb0704cfb0c8b778ce8184e7d2ef1",
+    "content/docs/js2py/module-26-database-testing.zh-cn.mdx": "71812fb839368edf0e7c0e6149bdb0ecf7cced29ef1cc0d6495da53ec875c129",
     "examples/js2py/d06-database-testing-files.json": "e93df00244833fdb07634d299853801a5ce9df732c2051412d463a7eb97a7a69",
     "public/learning-assets/js2py/d06-database-testing.zip": "de73c041f7f44a3b414faacc6cc517b655cc022e16910a2db7de5fb7161f6a58",
     "examples/js2py/d06-database-testing/uv.lock": "a267e5db5755891a87a0477c551a519f7095c60388ed8afbb80b4dd7d84e5c2a"
@@ -1918,7 +1918,41 @@
     }
   },
   "interface_failures": [],
-  "post_review_changes": [],
+  "post_review_changes": [
+    {
+      "path": "content/docs/js2py/module-26-database-testing.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-26-database-testing.zh-tw.mdx",
+      "change": "product handoff paragraph",
+      "executable_behavior_changed": false
+    },
+    {
+      "path": "content/docs/js2py/module-26-database-testing.mdx",
+      "submitted_or_prior_snapshot_sha256": "6462c83239941ce8c448ffbfe3d853cf71a3cd395f5637558b0d96eeef03bc22",
+      "current_sha256": "36ee530ea76fc9c081a068253ec3084f7542372f2373058e53e59939e4e7e704",
+      "change": "Add a frontend-experience anchor paragraph (mocking fetch vs verifying constraints/transactions/planner against real PostgreSQL) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
+    },
+    {
+      "path": "content/docs/js2py/module-26-database-testing.zh-cn.mdx",
+      "submitted_or_prior_snapshot_sha256": "3c4a491acab07af24ef288033272dfd40e4c8414ff40b7df9239fb877c0fa46b",
+      "current_sha256": "71812fb839368edf0e7c0e6149bdb0ecf7cced29ef1cc0d6495da53ec875c129",
+      "change": "Add a frontend-experience anchor paragraph (mocking fetch vs verifying constraints/transactions/planner against real PostgreSQL) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
+    },
+    {
+      "path": "content/docs/js2py/module-26-database-testing.zh-tw.mdx",
+      "submitted_or_prior_snapshot_sha256": "ed441c43dd60fcf810366db2ea1c66cd4c401df04ec16b6570d332417e514bd6",
+      "current_sha256": "b6e4a4a9a92eae23f3bb60e8837b92d1702bb0704cfb0c8b778ce8184e7d2ef1",
+      "change": "Add a frontend-experience anchor paragraph (mocking fetch vs verifying constraints/transactions/planner against real PostgreSQL) after the download paragraph in all three locales. Prose only; shared source references and code fences unchanged."
+    }
+  ],
   "submitted_source_sha256": {
     "content/docs/js2py/module-26-database-testing.mdx": "2316edd6c49f78f8bf7cd55c3739069294a1c6140d3303bee4a878b3ab53fae5",
     "examples/js2py/d06-database-testing/.gitignore": "85c36a89acabe55cd838be3f3aa989186b9c34aa58ff789f8404d2c498b439bc",
@@ -1984,5 +2018,7 @@
       "reason": "New concrete source/pedagogy repair after independent reproduction; this is review of changed evidence, not resampling an accepted judgment."
     }
   ],
-  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json"
+  "closure_evidence": "docs/reviews/js2py-backend-closure-decision-2026-09-28.json",
+  "source_refresh_date": "2026-09-30",
+  "source_refresh_reason": "Added a learner-facing product handoff paragraph only; executable examples and download members are unchanged."
 }

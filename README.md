@@ -29,15 +29,14 @@ LangShift.dev 是一个专门为开发者设计的编程语言转换学习平台
 
 ## 🌐 支持的语言转换
 
-### 🔄 JavaScript ↔ Python ✅ (已完成)
-- 从 JavaScript 开发者视角学习 Python
-- 语法映射：变量、函数、类、异步编程
-- 生态系统对比：npm vs pip、Node.js vs Python
-- 实战项目：Web 开发、数据处理、自动化脚本
-- 高级特性：类型注解、装饰器、上下文管理器
-- **包含 13 个完整学习模块**
+### 🔄 JavaScript → Python ✅ (39 章已完成)
+- 从 JavaScript 经验学习 Python 语言机制、类型、模块、异常、资源和测试
+- 递进补齐 FastAPI、HTTP 契约、PostgreSQL、SQL、事务、ORM 和迁移
+- 实现身份、凭证失效、对象级授权、幂等与可靠业务操作
+- 整合容器/进程、HTTPS、CI、发布回退、日志、备份和恢复
+- **包含 39 章，外加贯穿整合、官方来源和生产运行手册**
 
-**📚 [查看详细学习指南 →](./content/docs/js2py/README.md)**
+**📚 [查看详细学习指南 →](./content/docs/js2py/index.mdx)**
 
 ### 🔄 JavaScript ↔ Rust ✅ (已完成)
 - 从 JavaScript 开发者视角学习 Rust
@@ -47,7 +46,7 @@ LangShift.dev 是一个专门为开发者设计的编程语言转换学习平台
 - 并发编程：事件循环 vs 零成本抽象
 - **包含 14 个完整学习模块**
 
-**📚 [查看详细学习指南 →](./content/docs/js2rust/README.md)**
+**📚 [查看详细学习指南 →](./content/docs/js2rust/index.mdx)**
 
 ### 🔄 JavaScript ↔ Go ✅ (已完成)
 - 从 JavaScript 开发者视角学习 Go
@@ -57,7 +56,7 @@ LangShift.dev 是一个专门为开发者设计的编程语言转换学习平台
 - 错误处理：异常 vs 显式错误返回
 - **包含 14 个完整学习模块**
 
-**📚 [查看详细学习指南 →](./content/docs/js2go/README.md)**
+**📚 [查看详细学习指南 →](./content/docs/js2go/index.mdx)**
 
 ### 🔄 JavaScript ↔ Kotlin ✅ (已完成)
 - 从 JavaScript 开发者视角学习 Kotlin
@@ -67,7 +66,7 @@ LangShift.dev 是一个专门为开发者设计的编程语言转换学习平台
 - 函数式编程：高阶函数和 Lambda 表达式
 - **包含 14 个完整学习模块**
 
-**📚 [查看详细学习指南 →](./content/docs/js2kotlin/README.md)**
+**📚 [查看详细学习指南 →](./content/docs/js2kotlin/index.mdx)**
 
 ### 🔄 JavaScript ↔ C++ ✅ (已完成)
 - 从 JavaScript 开发者视角学习 C++
@@ -77,7 +76,7 @@ LangShift.dev 是一个专门为开发者设计的编程语言转换学习平台
 - 模板编程：动态类型 vs 泛型
 - **包含 15 个学习模块**
 
-**📚 [查看详细学习指南 →](./content/docs/js2cpp/README.md)**
+**📚 [查看详细学习指南 →](./content/docs/js2cpp/index.mdx)**
 
 ### 🔄 JavaScript ↔ Swift 🚧 (开发中)
 - 从 JavaScript 开发者视角学习 Swift
@@ -87,7 +86,7 @@ LangShift.dev 是一个专门为开发者设计的编程语言转换学习平台
 - 移动开发：Web vs iOS/macOS
 - **包含 15 个学习模块** (部分模块已完成)
 
-**📚 [查看详细学习指南 →](./content/docs/js2swift/README.md)**
+**📚 [查看详细学习指南 →](./content/docs/js2swift/index.mdx)**
 
 ### 🔄 JavaScript ↔ C ✅ (已完成)
 - 从 JavaScript 开发者视角学习 C 语言
@@ -97,7 +96,7 @@ LangShift.dev 是一个专门为开发者设计的编程语言转换学习平台
 - 性能优化：解释执行 vs 编译优化
 - **包含 15 个学习模块**
 
-**📚 [查看详细学习指南 →](./content/docs/js2c/README.md)**
+**📚 [查看详细学习指南 →](./content/docs/js2c/index.mdx)**
 
 ### 🚀 更多语言支持计划中...
 - **JavaScript ↔ Java** (计划中)
@@ -107,20 +106,14 @@ LangShift.dev 是一个专门为开发者设计的编程语言转换学习平台
 
 ## 📚 学习模块概览
 
-### JavaScript → Python (已完成)
-- **模块 0**: Python 介绍与学习方法
-- **模块 1**: 基础语法对比
-- **模块 2**: 模块系统与包管理
-- **模块 3**: 面向对象与函数式编程
-- **模块 4**: 异步编程
-- **模块 5**: 代码质量、测试与类型注解
-- **模块 6**: Web 开发
-- **模块 7**: 数据处理与自动化
-- **模块 8**: 综合实战项目
-- **模块 9**: 高级主题
-- **模块 10**: 常见陷阱与解决方案
-- **模块 11**: Pythonic 代码风格
-- **模块 12**: 类型注解详解
+### JavaScript → Python (39 章已完成)
+- **L00—L14**: Python 基础、工程化、测试和资源生命周期
+- **H01—H06**: 服务进程、HTTP 契约、FastAPI、验证、依赖和 API 测试
+- **D01—D06**: PostgreSQL、SQL、事务、SQLAlchemy、迁移和数据库测试
+- **S01—S03**: 身份、对象级授权和可靠业务操作
+- **A01—A02**: 异步模型与外部服务边界
+- **O01—O06**: 操作系统、容器、HTTPS、发布、可观测性和恢复
+- **G01**: 不提供逐步实现的毕业需求
 
 ### JavaScript → Rust (已完成)
 - **模块 0**: Rust 初识与环境搭建
@@ -332,10 +325,9 @@ langshift.dev/
 │   └── ui/              # UI 组件库
 ├── content/              # 文档内容
 │   └── docs/            # 文档目录
-│       ├── js2py/       # JavaScript → Python (已完成)
-│       │   ├── README.md # 模块介绍
-│       │   ├── .cursorrules # 模块规范
-│       │   └── module-*.mdx # 13个学习模块
+│       ├── js2py/       # JavaScript → Python (39 章已完成)
+│       │   ├── index*.mdx # 三语课程入口
+│       │   └── module-*.mdx # 39 个学习模块
 │       ├── js2rust/     # JavaScript → Rust (已完成)
 │       │   ├── README.md # 模块介绍
 │       │   ├── .cursorrules # 模块规范

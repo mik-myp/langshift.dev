@@ -20,6 +20,8 @@ We will make lifecycles observable and expand familiar file handling. This is sy
 
 Download the [complete L14 lab](/learning-assets/js2py/u14-resources.zip) and enter u14-resources. The baseline is CPython 3.13.15, uv 0.12.13, and pytest 8.4.2. These local file operations do not have misleading browser Run buttons.
 
+JavaScript has no language construct equivalent to `with`. Your familiar cleanup tools are `try/finally` or manually calling `AbortController.abort()`; nothing guarantees they run if you forget. Python's `with` puts the enter/exit protocol into the object itself, so the interpreter calls the exit path on normal completion, `break`, and exceptions alike — this chapter makes that guarantee observable.
+
 ## 2. Calling a generator function does not execute its body immediately
 
 An ordinary call typically executes until returning or raising. With yield in its body, calling a generator function creates a generator object; execution starts when a consumer first requests an item. yield supplies a value and suspends, retaining locals and the execution position. The next request resumes after that suspension rather than restarting the body.

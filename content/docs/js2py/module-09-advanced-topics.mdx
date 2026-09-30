@@ -69,6 +69,8 @@ The new dependency-groups dev table contains development dependencies. Pytest is
 
 The testpaths setting makes tests the default discovery directory, excluding intentional errors/exercises. Python -m pytest uses the selected project's interpreter and installed module; starting at the project root also permits ordinary local imports. Do not compensate with a globally installed pytest, sys.path patches or accidental editor working directories. The version command should report pytest 8.4.2.
 
+If you come from Jest or Vitest, discovery works the same way: `test_*.py` is to pytest what `*.test.js` is to Jest. The bigger difference is assertions: pytest uses plain `assert`, and its assertion rewriting prints the actual values of each subexpression on failure; Jest and Vitest require matcher calls such as `expect(...).toBe(...)`. A Python test module therefore needs no `test()` or `describe()` wrappers — a group of ordinary functions is the entire suite.
+
 ## 5. A complete basic test file
 
 <Code language="python">{getTestingExample('tests/test_study.py')}</Code>

@@ -5,6 +5,8 @@ description: 从 L14 的 yield/finally 推导 asynccontextmanager 与 FastAPI li
 
 import { getExternalServiceExample } from '@/lib/js2py-examples'
 
+**产品交接 V3.5：** 只有产品有明确需求时才加入外部服务适配器。适配器超时、返回坏数据或被取消时，核心 CRUD 仍必须正确；把超时、幂等和清理政策带入自己的测试。
+
 ## 1. 外部提示可以失败，保存任务不能陪它失败
 
 场景是为任务提供可选的优先级提示。把远端请求直接塞进创建任务的事务，外部服务一变慢，就可能让连接、事务与请求一起长时间占住。更危险的是，客户端超时并不证明远端没发生效果；盲目重试可能重复发送通知或创建账单。

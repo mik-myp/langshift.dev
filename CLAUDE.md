@@ -105,7 +105,7 @@ LangShift.dev is a programming language conversion learning platform built with 
 **Core Philosophy:** Teach new languages by comparing them to a known language, showing syntax mappings, concept translations, and performance differences.
 
 ### Supported Language Conversions
-- JavaScript → Python (13 modules) ✅
+- JavaScript → Python (39 chapters plus integration, official-source, and deployment-runbook guides) ✅
 - JavaScript → Rust (14 modules) ✅
 - JavaScript → Go (14 modules) ✅
 - JavaScript → Kotlin (14 modules) ✅

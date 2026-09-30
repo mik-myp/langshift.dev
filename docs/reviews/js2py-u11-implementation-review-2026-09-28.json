@@ -391,7 +391,7 @@
     "examples/js2py/u11-typing/uv.lock"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-11-pythonic-code.mdx": "63d730db1d9b4afc90649958c91087ef8f236dc9dab9076511c3cc9bfc9a09af",
+    "content/docs/js2py/module-11-pythonic-code.mdx": "78436ffa324233e564d3db620d2e3e0f4eec36601188284f873b94827a4487cc",
     "examples/js2py/u11-typing/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/u11-typing/README.md": "9580a4152b8c11ca3ccf7896c5659a24822b191ecd11eead9e8e3f0871c87e65",
     "examples/js2py/u11-typing/README.zh-cn.md": "fa876e85094e654a1f1c4769c8efd1e8e606539eb6ffcc19a782a41b6c6cd68f",
@@ -428,8 +428,8 @@
     "content/docs/js2py/index.mdx": "a787392d01d46786e8c05da476e1f2cd8476abeed8610060c33e885411074601",
     "content/docs/js2py/index.zh-tw.mdx": "a5a09adbd35a02a6c25100b4cfccc452942621e47a5b40ec3b1e4ea647e23aeb",
     "content/docs/js2py/index.zh-cn.mdx": "e51c0aedbe476e69f6f49408ccfff5d7afba5ca3d145ecce5c98a7e8395d6eec",
-    "content/docs/js2py/module-11-pythonic-code.zh-cn.mdx": "18f743b13c2439d04dc6441b9faeb0eaa523a7876e55d7d033d438ef747199c9",
-    "content/docs/js2py/module-11-pythonic-code.zh-tw.mdx": "7fb669213cd16df4e67a2a757976c9bd95939269302850f91d973151d3efafcf",
+    "content/docs/js2py/module-11-pythonic-code.zh-cn.mdx": "92463856225aed5fd242b0b9f0f0e642cbc2dcf32ca0317daa25782baecca506",
+    "content/docs/js2py/module-11-pythonic-code.zh-tw.mdx": "d9e74a2087ce2274b08ed91a4749e15a493ac13de56639e097ea213e0d0f8aa0",
     "examples/js2py/u11-typing-files.json": "b91bfce274391ced89fd76e07ac430d4761a74c6f1dd8f59e71b66f00ccea109",
     "public/learning-assets/js2py/u11-typing.zip": "879c589893a81834d03d1ec91f3a7cf531ccaa284f408e1706dac4666681a841",
     "docs/archive/js2py-u11-pythonic/module-11-pythonic-code.mdx": "9ea74c9d6c055891dd27be889795e03a1194e8a0a00135b668a0ae01e5544f00",

@@ -29,15 +29,14 @@ Our core philosophy is: **Understanding unknown languages through known language
 
 ## 🌐 Supported Language Conversions
 
-### 🔄 JavaScript ↔ Python ✅ (Completed)
-- Learn Python from a JavaScript developer's perspective
-- Syntax mapping: variables, functions, classes, async programming
-- Ecosystem comparison: npm vs pip, Node.js vs Python
-- Practical projects: web development, data processing, automation scripts
-- Advanced features: type annotations, decorators, context managers
-- **Includes 13 complete learning modules**
+### 🔄 JavaScript → Python ✅ (39 chapters completed)
+- Learn Python language mechanics, typing, modules, exceptions, resources, and testing from JavaScript experience
+- Add FastAPI, HTTP contracts, PostgreSQL, SQL, transactions, ORM, and migrations progressively
+- Implement identity, credential revocation, object-level authorization, idempotency, and reliable operations
+- Integrate containers/processes, HTTPS, CI, release rollback, logs, backup, and restore
+- **Includes 39 chapters plus integration, official-source, and production runbook guides**
 
-**📚 [View detailed learning guide →](./content/docs/js2py/README.md)**
+**📚 [View detailed learning guide →](./content/docs/js2py/index.mdx)**
 
 ### 🔄 JavaScript ↔ Rust ✅ (Completed)
 - Learn Rust from a JavaScript developer's perspective
@@ -47,7 +46,7 @@ Our core philosophy is: **Understanding unknown languages through known language
 - Concurrency programming: event loop vs zero-cost abstractions
 - **Includes 14 complete learning modules**
 
-**📚 [View detailed learning guide →](./content/docs/js2rust/README.md)**
+**📚 [View detailed learning guide →](./content/docs/js2rust/index.mdx)**
 
 ### 🔄 JavaScript ↔ Go ✅ (Completed)
 - Learn Go from a JavaScript developer's perspective
@@ -57,7 +56,7 @@ Our core philosophy is: **Understanding unknown languages through known language
 - Error handling: exceptions vs explicit error returns
 - **Includes 14 complete learning modules**
 
-**📚 [View detailed learning guide →](./content/docs/js2go/README.md)**
+**📚 [View detailed learning guide →](./content/docs/js2go/index.mdx)**
 
 ### 🔄 JavaScript ↔ Kotlin ✅ (Completed)
 - Learn Kotlin from a JavaScript developer's perspective
@@ -67,7 +66,7 @@ Our core philosophy is: **Understanding unknown languages through known language
 - Functional programming: higher-order functions and Lambda expressions
 - **Includes 14 complete learning modules**
 
-**📚 [View detailed learning guide →](./content/docs/js2kotlin/README.md)**
+**📚 [View detailed learning guide →](./content/docs/js2kotlin/index.mdx)**
 
 ### 🔄 JavaScript ↔ C++ ✅ (Completed)
 - Learn C++ from a JavaScript developer's perspective
@@ -77,7 +76,7 @@ Our core philosophy is: **Understanding unknown languages through known language
 - Template programming: dynamic types vs generics
 - **Includes 15 complete learning modules**
 
-**📚 [View detailed learning guide →](./content/docs/js2cpp/README.md)**
+**📚 [View detailed learning guide →](./content/docs/js2cpp/index.mdx)**
 
 ### 🔄 JavaScript ↔ Swift 🚧 (In Development)
 - Learn Swift from a JavaScript developer's perspective
@@ -87,7 +86,7 @@ Our core philosophy is: **Understanding unknown languages through known language
 - Mobile development: Web vs iOS/macOS
 - **Includes 15 learning modules**
 
-**📚 [View detailed learning guide →](./content/docs/js2swift/README.md)**
+**📚 [View detailed learning guide →](./content/docs/js2swift/index.mdx)**
 
 ### 🔄 JavaScript ↔ C ✅ (Completed)
 - Learn C programming from a JavaScript developer's perspective
@@ -97,7 +96,7 @@ Our core philosophy is: **Understanding unknown languages through known language
 - Performance optimization: interpreted execution vs compiled optimization
 - **Includes 15 complete learning modules**
 
-**📚 [View detailed learning guide →](./content/docs/js2c/README.md)**
+**📚 [View detailed learning guide →](./content/docs/js2c/index.mdx)**
 
 ### 🚀 More language support planned...
 - **JavaScript ↔ Java** (planned)
@@ -107,20 +106,14 @@ Our core philosophy is: **Understanding unknown languages through known language
 
 ## 📚 Learning Module Overview
 
-### JavaScript → Python (Completed)
-- **Module 0**: Python Introduction and Learning Methods
-- **Module 1**: Basic Syntax Comparison
-- **Module 2**: Module System and Package Management
-- **Module 3**: Object-Oriented and Functional Programming
-- **Module 4**: Asynchronous Programming
-- **Module 5**: Code Quality, Testing, and Type Annotations
-- **Module 6**: Web Development
-- **Module 7**: Data Processing and Automation
-- **Module 8**: Comprehensive Practical Projects
-- **Module 9**: Advanced Topics
-- **Module 10**: Common Pitfalls and Solutions
-- **Module 11**: Pythonic Code Style
-- **Module 12**: Type Annotations Deep Dive
+### JavaScript → Python (39 chapters completed)
+- **L00–L14**: Python foundations, engineering, testing, and resource lifecycle
+- **H01–H06**: service processes, HTTP contracts, FastAPI, validation, dependencies, and API testing
+- **D01–D06**: PostgreSQL, SQL, transactions, SQLAlchemy, migrations, and database testing
+- **S01–S03**: identity, object-level authorization, and reliable operations
+- **A01–A02**: async model and external-service boundaries
+- **O01–O06**: operating system, containers, HTTPS, release, observability, and recovery
+- **G01**: graduation requirement without a step-by-step implementation
 
 ### JavaScript → Rust (Completed)
 - **Module 0**: Rust Introduction and Environment Setup
@@ -331,10 +324,9 @@ langshift.dev/
 │   └── ui/              # UI component library
 ├── content/              # Documentation content
 │   └── docs/            # Documentation directory
-│       ├── js2py/       # JavaScript → Python (completed)
-│       │   ├── README.md # Module introduction
-│       │   ├── .cursorrules # Module specifications
-│       │   └── module-*.mdx # 13 learning modules
+│       ├── js2py/       # JavaScript → Python (39 chapters completed)
+│       │   ├── index*.mdx # localized course entry points
+│       │   └── module-*.mdx # 39 learning modules
 │       ├── js2rust/     # JavaScript → Rust (completed)
 │       │   ├── README.md # Module introduction
 │       │   ├── .cursorrules # Module specifications

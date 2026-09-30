@@ -1,0 +1,106 @@
+---
+title: 贯穿项目：把章节实验整合为可上线的协作任务服务
+description: 从 L10 开始维护自己的产品仓库，逐阶段接入 API、PostgreSQL、身份权限、测试、异步与真实部署维护，并用明确证据验收每次交接。
+---
+
+## 这份工作从哪里开始？
+
+你已经熟悉前端项目和接口联调，但这里不假定你做过后端、SQL、服务器或运维。L00—L09 先建立 Python 的语言与本地工程基础；完成 [L10 独立项目](/zh-cn/docs/js2py/module-10-common-pitfalls)后，建立**自己的协作任务服务仓库**。以后每学完一个阶段，就在这份仓库里实施一次功能或运行边界的变更。章节 ZIP 是机制实验与可核对的参考，不是需要整体复制的最终产品。
+
+学习按能力验收，没有每周时数或完成期限。停下时保存代码版本、最后成功命令、遇到的失败和下次第一步；回来先复现上次成果。允许查阅官方文档。独立完成指你能解释选择、修改需求并处理失败，不要求凭记忆写出每个 API。
+
+先使用[交付包](/learning-assets/js2py/product-delivery.zip)中的 `product-workbook.zh-cn.md`。它把每个整合阶段拆成你必须自己编写的文件和必须记录的证据。
+
+## 先固定一份产品合同
+
+首版是供少量受邀者使用的多人任务管理 API：受控创建账号、登录与撤销会话；项目、成员、任务；按成员关系进行对象级授权；PostgreSQL 持久化；测试、发布、日志、备份、隔离恢复和回退。公开注册、付费、上传和多地域高可用不属于本次产品。完整字段与权限表见 [S02 对象授权](/zh-cn/docs/js2py/module-28-authorization)，独立新增需求见 [G01](/zh-cn/docs/js2py/module-38-graduation)。
+
+先在产品仓库写一页接口与数据合同：有哪些资源，客户端可以提供哪些字段，哪些字段由服务端决定，成功与失败分别改变什么状态。前端 `fetch` 调用或 TypeScript 类型无法证明这些服务端规则已经实现。
+
+## V0：从纯 Python 业务开始
+
+保留 L10 的业务函数、输入校验、文件错误处理和普通测试。自己建立项目目录，记录 Python/uv 版本、`pyproject.toml` 与 `uv.lock`。从第二个空目录恢复环境和程序，并用坏 JSON 验证旧数据不会被静默覆盖。还不能把文件存储称为多用户数据库。
+
+**交付物：** 可从空目录恢复的本地程序，以及“任务标题、状态、分钟数、缺失记录”四类业务规则表。进入 V1 前，自己改变一条规则并补测试；解释 `None`、空集合、浅复制和可变默认值与熟悉的 JS 行为哪里不同。
+
+## V1：让同一业务通过 HTTP 访问
+
+先读 [H01 服务进程](/zh-cn/docs/js2py/module-15-service-process)和 [H02 HTTP 契约](/zh-cn/docs/js2py/module-16-http-contract)，再完成 [H03—H06](/zh-cn/docs/js2py/module-20-api-testing)。把业务规则留在普通函数或服务模块，路由负责 HTTP 输入输出。学习版可以先用内存存储，但重启丢数据必须在运行说明中写明。
+
+按顺序交付：创建、读取、列表、局部更新、删除；再证明 422 拒绝坏输入、404 拒绝不存在的对象、空 PATCH 保留旧值、响应不泄露内部字段。用 TestClient 查应用内的路由与校验；再启动 Uvicorn，用真实 HTTP 客户端和一个最小浏览器页面验证端口、CORS 与请求路径。TestClient 不经过监听 socket，浏览器策略也不会因为它通过就自动正确。[FastAPI 官方测试说明](https://fastapi.tiangolo.com/tutorial/testing/)解释了这个测试入口。
+
+**交接问题：** 重启后任务消失，是 HTTP 路由错误还是存储生命周期？当前 API 允许两个用户互相读取数据吗？把答案和实际请求证据留下，再进入 V2。
+
+## V2：把数据和事务放进 PostgreSQL
+
+依次完成 [D01 关系模型](/zh-cn/docs/js2py/module-21-relational-data)、[D02 SQL](/zh-cn/docs/js2py/module-22-sql)、[D03 事务](/zh-cn/docs/js2py/module-23-transactions)、[D04 Session](/zh-cn/docs/js2py/module-24-sqlalchemy)、[D05 迁移](/zh-cn/docs/js2py/module-25-migrations)和 [D06 数据库测试](/zh-cn/docs/js2py/module-26-database-testing)。在自己的仓库中画出 users、projects、project_members、tasks 的关系，写第一条 Alembic 迁移，再用 SQLAlchemy 替换内存读写。
+
+H 阶段的 `done/note` 是单用户内存合同；D 阶段引入 `status/description` 和项目关系，**这是明确的模型演进**。如果产品已有真实 H 阶段数据，必须先写数据映射和迁移验证；新建练习库则应明确记录“没有旧数据需要迁移”。不能把删库重建当作已有用户数据的升级。Alembic 自动生成的是候选脚本，必须审查改名、约束与数据回填。[Alembic 官方说明](https://alembic.sqlalchemy.org/en/latest/autogenerate.html)
+
+**验收：** 空库升级；带数据升级；真实 API 重启后数据保留；两步写入中第二步失败后，另一个连接看不到第一步残留；每项数据库测试使用隔离库。记录数据库版本与应用版本的兼容关系。
+
+## V3：登录之后，每次还要检查对象权限
+
+完成 [S01 身份](/zh-cn/docs/js2py/module-27-identity)、[S02 授权](/zh-cn/docs/js2py/module-28-authorization)和 [S03 幂等](/zh-cn/docs/js2py/module-29-reliable-operations)。本教材的运行主线是 Argon2id 密码哈希与不透明随机 Bearer 会话，服务端保存会话摘要并在受保护请求中重新检查启用、过期、撤销和认证版本；它没有实现 JWT。密码哈希参数需在目标机器测量，不能把本地通过数量当作生产容量。[OWASP 密码存储指南](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+
+在产品仓库中创建 Alice 与 Bob 两个合成用户。让 Alice 知道 Bob 的真实项目和任务 ID，直接尝试列表、详情、修改和删除；再移除 Alice 的成员关系，验证她的会话仍可表明身份，却不能取得旧项目权限。角色和创建者不得由请求体自授。重复创建任务需要同一作用域、同一 key、同一内容得到同一结果；不同内容冲突，撤权后的重放也不能返回旧回执。对象 ID 总要经过授权判断。[OWASP API1](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/)
+
+**验收：** 正常和拒绝路径都有 HTTP 与数据库后状态证据；会话撤销、改密、停用、跨用户访问、并发提交都覆盖。生产前还需登录节流、请求大小、秘密和日志政策，不能由本地 S03 用例自动授予上线资格。
+
+## V3.5：只给需要的边界加异步
+
+[A01](/zh-cn/docs/js2py/module-30-async-model)先解释 coroutine、Task、取消、超时和并发许可；[A02](/zh-cn/docs/js2py/module-31-external-services)再接一个可选的外部提示服务。把外部适配器加到自己的产品时，核心 CRUD 不应依赖它成功。超时后的远端效果可能已经发生；重试前先定义幂等键、总预算和资源所有者。进程内 `BackgroundTasks` 或 `asyncio.Queue` 不提供崩溃后持久交付。
+
+**验收：** 替身制造超时、坏响应和取消；真实本地 socket 验证连接；失败后任务仍可读取，子任务与客户端资源已收尾。Python 的 async 函数调用先得到 coroutine，不会自动像 JS Promise 一样开始执行。[Python asyncio 官方说明](https://docs.python.org/3.13/library/asyncio-task.html)
+
+## V4：在真实目标环境发布并持续维护
+
+依次使用 [O01 进程与权限](/zh-cn/docs/js2py/module-32-operating-system)、[O02 容器](/zh-cn/docs/js2py/module-33-containers)、[O03 HTTPS](/zh-cn/docs/js2py/module-34-https-production)、[O04 发布与回退](/zh-cn/docs/js2py/module-35-release)、[O05 观测](/zh-cn/docs/js2py/module-36-observability)和 [O06 恢复](/zh-cn/docs/js2py/module-37-recovery)。这些实验的本地结果是练习证据；将它们用于自己的产品时，必须替换真实应用入口、迁移、数据库角色、日志路径、备份清单和恢复后请求。
+
+使用[生产发布与维护运行手册](/zh-cn/docs/js2py/deployment-runbook)把目标环境操作落成清单。里面只有占位值；必须替换成自己产品经过审查的值和真实证据。
+
+请在受控目标环境逐项完成下表。不要为了赶进度跳过任何门槛；缺环境时记录 `blocked`、所需资源与负责者，仍可继续完善独立的文档和代码。
+
+| 门槛 | 真实目标中的动作 | 留下的证据 |
+| --- | --- | --- |
+| 构建与身份 | 从固定提交构建；应用用非特权账户；迁移身份与运行身份分离 | 提交、镜像摘要或制品、运行 UID、最小表/序列权限的允许与拒绝结果 |
+| 数据 | 使用独立于开发/测试的数据库与持久存储；先做可审查迁移 | 数据库/迁移版本、已存在数据升级结果、重启后读回 |
+| 入口 | 域名解析到获准主机；真实 HTTPS；后端不能绕过代理暴露 | 外部 DNS、可信证书链、续期与真实浏览器/HTTP 请求记录 |
+| 发布 | 托管 CI 对固定提交检查；应用和数据库版本兼容后切换 | CI 运行链接、发布记录、有数据的旧应用回退结果 |
+| 观测 | 日志脱敏、关联 ID、错误/延迟指标和通知送达 | 一次故障从用户请求定位到原因；通知实际收到并有处理人 |
+| 恢复 | 定期备份、受控存储、恢复到另一隔离目标；检查数据与权限 | 归档标识、恢复计时、业务记录、约束、序列、旧会话失效 |
+| 维护 | 限定受邀用户、容量与费用；定期演练升级和恢复 | 值班负责人、告警处理、受邀反馈与一次后续修复记录 |
+
+Docker 官方建议多阶段构建和非 root 运行；卷可保存容器外的持久状态，但不能代替数据库备份。[构建建议](https://docs.docker.com/build/building/best-practices/)、[卷](https://docs.docker.com/engine/storage/volumes/)。Caddy 的公网证书自动管理仍依赖正确的域名、可达挑战端口与持久可写的数据目录。[Caddy HTTPS](https://caddyserver.com/docs/automatic-https)。托管 CI 的令牌权限和生产环境门禁需要按实际托管平台配置并执行；例如 GitHub Actions 的[权限](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)与[环境门禁](https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments)。PostgreSQL 归档要执行真实 `pg_restore` 并核对恢复后的应用行为；只有可列出归档内容仍不足以证明可恢复。[PostgreSQL pg_restore](https://www.postgresql.org/docs/18/app-pgrestore.html)
+
+## V5：独立需求与长期维护
+
+V4 已验收后，在同一仓库完成 [G01 任务评论](/zh-cn/docs/js2py/module-38-graduation)。它只给需求和验收场景，不给实现步骤。提交设计、迁移、权限、并发与重复请求测试；按同一发布流程上线，随后做回退和隔离恢复。24 个学生场景当前都是 `not_run`，必须由读者真实执行并由评阅者复核。
+
+上线后的维护是重复动作：关注告警与用户反馈，记录故障发生、影响、修复和复验；按计划更新受支持的依赖并重跑测试；检查备份是否按计划生成，定期恢复到隔离目标；核对证书续期、容量和费用；每次迁移前重审兼容与回退。一次绿色 CI 或一次成功访问不能代替这些后续记录。
+
+## 一份可恢复的产品记录
+
+每完成一个阶段，写下产品提交、迁移版本、环境、最后成功命令、通过的场景、实际失败与修复、尚未验证的门槛和下一步。真实发布时增加主机/域名责任人、证书、秘密存储、告警接收者、备份 ID、隔离恢复目标、RPO/RTO 目标与演练测量、受邀反馈。只记录脱敏标识和证据位置，绝不把密码、Bearer、数据库连接秘密或私钥贴进练习记录。
+
+**当前教材状态：** 本地参考实验已执行；O01—O06 的 Linux/systemd、真实容器、Caddy/公网、托管 CI、通知送达和异地恢复门槛仍待目标环境验证。读者独立产品、试用和毕业也未由教材作者替你完成。请按上面的真实目标表逐项补证，不把页面存在视为通过。
+
+下载[交付模板](/learning-assets/js2py/product-delivery.zip)后，把 `templates/integration-record.json` 复制进自己的产品，并用 `python3 check_integration_record.py` 检查记录。它只验证格式，不执行产品，也不批准发布。
+
+## 9. 长期维护：按事件推进，不按每周时数推进
+
+维护不需要固定每周学习量，但每类事件都必须有责任人、判断标准和记录位置。下面的清单可以在事件发生时执行，完成一项就留下证据：
+
+| 事件 | 必须检查 | 证据 |
+| --- | --- | --- |
+| 依赖或 Python 新版本 | 阅读官方变更/安全公告；更新锁文件；重跑语言、API、数据库、权限和恢复测试 | 新旧版本、变更理由、测试结果、回退方案 |
+| 证书接近到期 | 检查域名、证书链、自动续期和持久证书目录；用真实 HTTPS 请求验证 | 证书到期时间、续期日志、浏览器/curl 结果 |
+| 备份任务失败或恢复演练到期 | 检查归档完整性、访问控制和异隔离目标恢复；验证业务行、约束、序列和会话策略 | 备份 ID、失败原因、恢复计时、数据差异和批准人 |
+| 告警或真实故障 | 记录影响范围、关联 ID、时间线、根因、缓解、永久修复和复验 | 事件记录、修复提交、回归结果、未解决风险 |
+| 权限或人员变化 | 复核主机、CI、数据库、备份和通知渠道的访问；撤销离职或不再需要的权限 | 权限变更单、允许/拒绝验证、负责人 |
+| 用户反馈或产品变更 | 更新契约、迁移、权限矩阵、测试、发布和恢复手册；用真实反馈验证改动 | 反馈摘要、需求版本、迁移/发布/回退证据 |
+| 容量、费用或错误率变化 | 观察 CPU、内存、连接池、磁盘、队列、延迟和成本趋势；重新确认试用上限 | 观察窗口、阈值、扩容/降级决定、责任人 |
+
+不要把“依赖已经安装”“证书曾经有效”“备份文件存在”“一次 CI 通过”当成长期维护证据。每次维护都要说明当前版本、目标环境、实际观察、下一步和仍未知的边界。官方文档只是机制依据；当前产品的锁文件、目标环境和真实记录决定实际结论。
+
+每次事件都使用交付包中的 `templates/maintenance-record.template` 记录，并保存责任人、版本、测试、备份恢复证据、通知送达证据、回退兼容性、未解决风险和审查人。

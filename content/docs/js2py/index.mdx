@@ -15,7 +15,7 @@ The target is to design, implement, test, deploy, and maintain a small-to-medium
 
 Reading every page is not sufficient evidence. Each stage needs a concrete deliverable, success and failure cases, acceptance checks, and an explanation of its decisions. Public self-registration and similar features require additional security and operational checks; a demo is not automatically a complete product.
 
-> **Revision status — September 28, 2026:** All 39 chapters now have full English, Simplified Chinese, and Traditional Chinese manuscripts with their canonical materials. The verification matrix distinguishes locally executed experiments from environment-dependent Linux/container/HTTPS/hosted-delivery gates. Public deployment and learner graduation are not automatically claimed by content completion.
+> **Revision status — September 29, 2026:** All 39 chapters now have full English, Simplified Chinese, and Traditional Chinese manuscripts with their canonical materials. The verification matrix distinguishes locally executed experiments from environment-dependent Linux/container/HTTPS/hosted-delivery gates. Public deployment and learner graduation are not automatically claimed by content completion.
 
 ## How to work through a topic
 
@@ -25,6 +25,14 @@ Reading every page is not sufficient evidence. Each stage needs a concrete deliv
 4. Run a complete example; predict and explain its inputs, outputs, and failures.
 5. Make a guided change, then implement a variation independently.
 6. Validate the result before opening a separately provided reference answer.
+
+From L10 onward, create a learner-owned product repository. Bring the later API, PostgreSQL, identity, object-authorization, async, and operations work back into that repository, keeping your own migration, test, release, rollback, and recovery records. The isolated labs explain mechanisms; they do not replace product integration.
+
+Use the [integrated project guide](/en/docs/js2py/project-integration) for the handoffs, real-target release gates, and long-term maintenance evidence.
+
+Use the [official source matrix](/en/docs/js2py/official-sources) to distinguish upstream behavior, pinned versions, and course-specific contracts.
+
+Use the [production release and maintenance runbook](/en/docs/js2py/deployment-runbook) when turning O-stage evidence into a real target release.
 
 Not every example belongs in a browser. Small language experiments may; multi-file applications, dependencies, databases, and servers need an explicitly described local environment. A configuration file, intentional error, or server program does not become browser-runnable merely by appearing in an editor.
 

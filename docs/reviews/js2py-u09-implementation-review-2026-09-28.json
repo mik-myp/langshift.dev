@@ -350,7 +350,7 @@
     "examples/js2py/u09-testing/solutions/budget/uv.lock"
   ],
   "source_sha256": {
-    "content/docs/js2py/module-09-advanced-topics.mdx": "295db75d1034d2a7c1d3daa9d8f0b56804f47d8eb2232d2628c3504321549f8c",
+    "content/docs/js2py/module-09-advanced-topics.mdx": "6d1344a5c478fb85800915115484af7773a361507e094a1f3f22c6b74aa2e64a",
     "examples/js2py/u09-testing/pyproject.toml": "91457c8552caa21437041a450dfe06b261468291c7e97b0538ef216736cbe1fd",
     "examples/js2py/u09-testing/.python-version": "861b3dd8083d28f336ef70f6755bc399538ddad627b1d095820ca34cb953cf14",
     "examples/js2py/u09-testing/study.py": "08e7b55fb2786b5dca40193e400165c0e7e6ed6d0e3280415bc8e3d5da895df7",
@@ -389,8 +389,8 @@
     "content/docs/js2py/module-07-data-automation.zh-tw.mdx": "443bcb46090bbcec4ce7a08ae31616c7839e890d4df9efa983cfa387fa890967",
     "content/docs/js2py/module-07-data-automation.zh-cn.mdx": "cedf03a84e03d6f5fa1c37ededebabf0a0756a3d43ee851c71cc74c6376b1fe5",
     "content/docs/js2py/module-07-data-automation.mdx": "4d2cc0a06f16f3ce30b0b82a6ca693686bdd1f008abd847fe25451df0f80a42a",
-    "content/docs/js2py/module-09-advanced-topics.zh-cn.mdx": "ea63fa543726bd0244126a4353f4e5ec010b4eec1f122d4391639cfb75e93275",
-    "content/docs/js2py/module-09-advanced-topics.zh-tw.mdx": "25a7114de884e76a822f2ae76ccfce94cec005ce1b2258838cd7a5f58f821528",
+    "content/docs/js2py/module-09-advanced-topics.zh-cn.mdx": "44ceb6103ffee73bc1e9f862460d531cf7c8d85a3dafdbae6c23f322b0b30adf",
+    "content/docs/js2py/module-09-advanced-topics.zh-tw.mdx": "e99fc8488a549c74ba19e9319344ffc7b36bc8e0d9c211df11dc8a176b2a7643",
     "docs/archive/js2py-u09-advanced/sha256.json": "2b25a24c21c8e159ce42015b7a0eade01c934330c8513949d69bbe860aa23778",
     "docs/archive/js2py-u09-advanced/module-09-advanced-topics.mdx": "df5dd1e0ef8915789aae48e8e5ae524780bc6b6f149c81955d43864cda97a1f5",
     "docs/archive/js2py-u09-advanced/README.md": "48d5d74f5b343e8a356dea57acc15859327f24867a7f55370c2bddb19ab0936c",

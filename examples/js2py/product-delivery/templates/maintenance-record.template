@@ -1,0 +1,28 @@
+record_id:
+event_type: dependency | certificate | backup_restore | incident | access_change | feedback | capacity
+detected_at_utc:
+owner:
+product_revision:
+schema_revision:
+environment:
+trigger:
+official_sources_reviewed:
+risk:
+decision:
+actions:
+  - actor:
+    action:
+    started_at_utc:
+    finished_at_utc:
+    result:
+tests_run:
+backup_id:
+restore_target:
+restore_validation:
+notification_delivery_evidence:
+rollback_compatibility:
+cost_or_capacity_observation:
+invited_feedback_reference:
+unresolved_risks:
+next_review_trigger:
+reviewed_by:

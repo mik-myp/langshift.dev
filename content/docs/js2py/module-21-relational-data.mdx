@@ -5,6 +5,8 @@ description: Evolve the in-memory task model, start an exclusively owned Postgre
 
 import { getRelationalExample } from '@/lib/js2py-examples'
 
+**Product checkpoint V2:** Apply this model to your own product repository and write a reviewed migration before replacing memory state. Keep the V1 HTTP regression and record the old-data/new-schema decision in the integration log. See the [integrated project guide](/en/docs/js2py/project-integration).
+
 ## 1. A database is not an upgraded JSON file
 
 The H-series in-memory API can answer HTTP requests, but two requests can read the same old state and overwrite each other's changes. Process exit loses memory. Replacing memory with a JSON file changes the storage location, not the coordination problem: who manages simultaneous writers, recovers a partially completed write, or rejects invalid data written by a different script? Files work well for small tools with explicit single-writer ownership; increasing their size does not gradually turn them into collaborative storage.
